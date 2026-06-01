@@ -3,21 +3,14 @@
 #include <algorithm>
 #include <sstream>
 
-bool isSystemDatabase(const std::string& db) {
-    auto to_lower = [](std::string s) {
-        for (char &c : s) c = std::tolower(c);
-        return s;
-    };
-    std::string name = to_lower(db);
-    return name == "information_schema" || name == "performance_schema" ||
-           name == "mysql" || name == "sys";
+namespace {
+
+std::string to_lower(std::string s) {
+    for (char &c : s) c = std::tolower(c);
+    return s;
 }
 
 bool matchTableName(const std::string& col_prefix, const std::string& tbl_name) {
-    auto to_lower = [](std::string s) {
-        for (char &c : s) c = std::tolower(c);
-        return s;
-    };
     std::string prefix = to_lower(col_prefix);
     std::string tbl = to_lower(tbl_name);
     if (prefix == tbl) return true;
@@ -31,78 +24,75 @@ bool matchTableName(const std::string& col_prefix, const std::string& tbl_name) 
 }
 
 bool typeMatches(const std::string& t1, const std::string& t2) {
-    auto to_lower = [](std::string s) {
-        for (char &c : s) c = std::tolower(c);
-        return s;
-    };
     return to_lower(t1) == to_lower(t2);
 }
 
-std::string analyzeRelationships(const std::string& db_name, vsql::preview_sql_query::Session& session) {
+std::vector<std::string> getTableNames(const std::string& db_name, vsql::preview_sql_query::Session& session) {
+    std::vector<std::string> names;
     std::string tables_sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" + db_name + "' AND TABLE_TYPE = 'BASE TABLE'";
     auto tables_res = session.sql(tables_sql).execute();
-    if (!tables_res || tables_res.has_error()) {
-        return "";
-    }
-
-    std::vector<std::string> table_names;
-    while (tables_res.next()) {
-        std::string_view tbl = tables_res.column_str(0);
-        if (!tbl.empty()) {
-            table_names.push_back(std::string(tbl));
+    if (tables_res && !tables_res.has_error()) {
+        while (tables_res.next()) {
+            std::string_view tbl = tables_res.column_str(0);
+            if (!tbl.empty()) {
+                names.push_back(std::string(tbl));
+            }
         }
     }
+    return names;
+}
 
-    if (table_names.empty()) {
-        std::ostringstream oss;
-        oss << "Database: " << db_name << "\n\n";
-        oss << "Table Connections:\n";
-        oss << "------------------\n";
-        oss << "(No relationships found)\n";
-        return oss.str();
-    }
-
+std::unordered_map<std::string, TableInfo> getTablesInfo(const std::string& db_name, vsql::preview_sql_query::Session& session) {
+    std::unordered_map<std::string, TableInfo> info_map;
     std::string columns_sql = "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + db_name + "' ORDER BY TABLE_NAME, ORDINAL_POSITION";
     auto columns_res = session.sql(columns_sql).execute();
-    if (!columns_res || columns_res.has_error()) {
-        return "";
-    }
+    if (columns_res && !columns_res.has_error()) {
+        while (columns_res.next()) {
+            std::string tbl = std::string(columns_res.column_str(0));
+            std::string col = std::string(columns_res.column_str(1));
+            std::string type = std::string(columns_res.column_str(2));
+            std::string key = std::string(columns_res.column_str(3));
 
-    std::unordered_map<std::string, TableInfo> tables_info;
-    while (columns_res.next()) {
-        std::string tbl = std::string(columns_res.column_str(0));
-        std::string col = std::string(columns_res.column_str(1));
-        std::string type = std::string(columns_res.column_str(2));
-        std::string key = std::string(columns_res.column_str(3));
-
-        auto& info = tables_info[tbl];
-        info.name = tbl;
-        info.column_types[col] = type;
-        if (key == "PRI") {
-            info.pk_columns.push_back(col);
+            auto& info = info_map[tbl];
+            info.name = tbl;
+            info.column_types[col] = type;
+            if (key == "PRI") {
+                info.pk_columns.push_back(col);
+            }
         }
     }
+    return info_map;
+}
 
+std::set<Relationship> getExplicitRelationships(
+    const std::string& db_name, 
+    vsql::preview_sql_query::Session& session, 
+    std::set<std::pair<std::string, std::string>>& explicit_mapped_cols) {
+    
+    std::set<Relationship> relationships;
     std::string keys_sql = "SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = '" + db_name + "' AND REFERENCED_TABLE_NAME IS NOT NULL";
     auto keys_res = session.sql(keys_sql).execute();
-    if (!keys_res || keys_res.has_error()) {
-        return "";
+    if (keys_res && !keys_res.has_error()) {
+        while (keys_res.next()) {
+            Relationship rel;
+            rel.from_table = std::string(keys_res.column_str(0));
+            rel.from_column = std::string(keys_res.column_str(1));
+            rel.to_table = std::string(keys_res.column_str(2));
+            rel.to_column = std::string(keys_res.column_str(3));
+            rel.is_explicit = true;
+
+            relationships.insert(rel);
+            explicit_mapped_cols.insert({rel.from_table, rel.from_column});
+        }
     }
+    return relationships;
+}
 
-    std::set<Relationship> relationships;
-    std::set<std::pair<std::string, std::string>> explicit_mapped_cols;
-
-    while (keys_res.next()) {
-        Relationship rel;
-        rel.from_table = std::string(keys_res.column_str(0));
-        rel.from_column = std::string(keys_res.column_str(1));
-        rel.to_table = std::string(keys_res.column_str(2));
-        rel.to_column = std::string(keys_res.column_str(3));
-        rel.is_explicit = true;
-
-        relationships.insert(rel);
-        explicit_mapped_cols.insert({rel.from_table, rel.from_column});
-    }
+void findImpliedRelationships(
+    const std::vector<std::string>& table_names,
+    const std::unordered_map<std::string, TableInfo>& tables_info,
+    const std::set<std::pair<std::string, std::string>>& explicit_mapped_cols,
+    std::set<Relationship>& relationships) {
 
     for (const auto& tbl_a : table_names) {
         auto it_a = tables_info.find(tbl_a);
@@ -116,11 +106,6 @@ std::string analyzeRelationships(const std::string& db_name, vsql::preview_sql_q
             if (explicit_mapped_cols.find({tbl_a, col_a}) != explicit_mapped_cols.end()) {
                 continue;
             }
-
-            auto to_lower = [](std::string s) {
-                for (char &c : s) c = std::tolower(c);
-                return s;
-            };
 
             // Phase 1: Exact Name Match with a different table
             bool relationship_found = false;
@@ -249,6 +234,32 @@ std::string analyzeRelationships(const std::string& db_name, vsql::preview_sql_q
             } while (false);
         }
     }
+}
+
+} // namespace
+
+bool isSystemDatabase(const std::string& db) {
+    std::string name = to_lower(db);
+    return name == "information_schema" || name == "performance_schema" ||
+           name == "mysql" || name == "sys";
+}
+
+std::string analyzeRelationships(const std::string& db_name, vsql::preview_sql_query::Session& session) {
+    std::vector<std::string> table_names = getTableNames(db_name, session);
+    if (table_names.empty()) {
+        std::ostringstream oss;
+        oss << "Database: " << db_name << "\n\n";
+        oss << "Table Connections:\n";
+        oss << "------------------\n";
+        oss << "(No relationships found)\n";
+        return oss.str();
+    }
+
+    std::unordered_map<std::string, TableInfo> tables_info = getTablesInfo(db_name, session);
+    std::set<std::pair<std::string, std::string>> explicit_mapped_cols;
+    std::set<Relationship> relationships = getExplicitRelationships(db_name, session, explicit_mapped_cols);
+
+    findImpliedRelationships(table_names, tables_info, explicit_mapped_cols, relationships);
 
     std::ostringstream oss;
     oss << "Database: " << db_name << "\n\n";

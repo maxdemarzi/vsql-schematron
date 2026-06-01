@@ -29,8 +29,6 @@ struct TableInfo {
 };
 
 bool isSystemDatabase(const std::string& db);
-bool matchTableName(const std::string& col_prefix, const std::string& tbl_name);
-bool typeMatches(const std::string& t1, const std::string& t2);
 
 std::string analyzeRelationships(const std::string& db_name, vsql::preview_sql_query::Session& session);
 
