@@ -28,6 +28,8 @@ struct TableInfo {
     std::unordered_map<std::string, std::string> column_types;
 };
 
+bool typeMatches(const std::string& t1, const std::string& t2);
+
 bool isSystemDatabase(const std::string& db);
 
 std::string analyzeSchemaRelationships(const std::string& db_name, vsql::preview_sql_query::Session& session);
