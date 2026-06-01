@@ -1,4 +1,4 @@
-#include "relationship_analyzer.h"
+#include "schema_analyzer.h"
 #include <cctype>
 #include <algorithm>
 #include <sstream>
@@ -244,7 +244,7 @@ bool isSystemDatabase(const std::string& db) {
            name == "mysql" || name == "sys";
 }
 
-std::string analyzeRelationships(const std::string& db_name, vsql::preview_sql_query::Session& session) {
+std::string analyzeSchemaRelationships(const std::string& db_name, vsql::preview_sql_query::Session& session) {
     std::vector<std::string> table_names = getTableNames(db_name, session);
     if (table_names.empty()) {
         std::ostringstream oss;

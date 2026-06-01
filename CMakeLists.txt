@@ -32,7 +32,8 @@ message(STATUS "VillageSQL include dir: ${VillageSQL_INCLUDE_DIR}")
 # Create the shared library
 add_library(vsql_schematron_lib SHARED
     src/vsql_schematron.cc
-    src/relationship_analyzer.cc
+    src/schema_analyzer.cc
+    src/data_analyzer.cc
 )
 
 # Include directories

@@ -1,5 +1,5 @@
-#ifndef RELATIONSHIP_ANALYZER_H
-#define RELATIONSHIP_ANALYZER_H
+#ifndef SCHEMA_ANALYZER_H
+#define SCHEMA_ANALYZER_H
 
 #include <string>
 #include <vector>
@@ -30,6 +30,6 @@ struct TableInfo {
 
 bool isSystemDatabase(const std::string& db);
 
-std::string analyzeRelationships(const std::string& db_name, vsql::preview_sql_query::Session& session);
+std::string analyzeSchemaRelationships(const std::string& db_name, vsql::preview_sql_query::Session& session);
 
-#endif // RELATIONSHIP_ANALYZER_H
+#endif // SCHEMA_ANALYZER_H

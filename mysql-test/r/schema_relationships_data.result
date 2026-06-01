@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test vsql_data_relationships function
+#
+CREATE DATABASE data_rel_db;
+USE data_rel_db;
+CREATE TABLE parents (
+id INT PRIMARY KEY,
+name VARCHAR(50)
+);
+CREATE TABLE children (
+child_id INT PRIMARY KEY,
+first_name VARCHAR(50),
+p_link INT
+);
+INSERT INTO parents (id, name) VALUES
+(1, 'Alice'),
+(2, 'Bob'),
+(3, 'Charlie'),
+(4, 'David'),
+(5, 'Eva');
+INSERT INTO children (child_id, first_name, p_link) VALUES
+(101, 'Zach', 1),
+(102, 'Yvonne', 2),
+(103, 'Xavier', 1),
+(104, 'Wendy', 3),
+(105, 'Victor', 4);
+#
+# 1. Schema Relationships (naming/metadata analysis only)
+# Should NOT detect children.p_link -> parents.id because name prefix/suffix do not match.
+#
+SELECT vsql_schema_relationships('data_rel_db') AS schema_relationships;
+schema_relationships
+Database: data_rel_db
+
+Table Connections:
+------------------
+(No relationships found)
+
+#
+# 2. Data Relationships (data profiling and set containment analysis)
+# Should successfully detect children.p_link -> parents.id based on value overlap.
+#
+SELECT vsql_data_relationships('data_rel_db') AS data_relationships;
+data_relationships
+Database: data_rel_db
+
+Data Connections:
+------------------
+[Data-Implied] children.p_link -> parents.id (containment: 100%)
+
+#
+# Cleanup
+#
+UNINSTALL EXTENSION vsql_schematron;
+DROP DATABASE data_rel_db;

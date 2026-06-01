@@ -1,0 +1,78 @@
+# Install extension
+INSTALL EXTENSION vsql_schematron;
+
+--echo #
+--echo # Test vsql_data_relationships function
+--echo #
+
+# Setup test database and tables
+CREATE DATABASE data_rel_db;
+USE data_rel_db;
+
+CREATE TABLE parents (
+  id INT PRIMARY KEY,
+  name VARCHAR(50)
+);
+
+CREATE TABLE children (
+  child_id INT PRIMARY KEY,
+  first_name VARCHAR(50),
+  p_link INT
+);
+
+# Insert sample parents
+INSERT INTO parents (id, name) VALUES
+(1, 'Alice'),
+(2, 'Bob'),
+(3, 'Charlie'),
+(4, 'David'),
+(5, 'Eva');
+
+# Insert sample children (referencing parent IDs via p_link)
+INSERT INTO children (child_id, first_name, p_link) VALUES
+(101, 'Zach', 1),
+(102, 'Yvonne', 2),
+(103, 'Xavier', 1),
+(104, 'Wendy', 3),
+(105, 'Victor', 4);
+
+# Enable schema cache worker
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+
+# Wait for the schema cache to be populated
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('data_rel_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+
+--echo #
+--echo # 1. Schema Relationships (naming/metadata analysis only)
+--echo # Should NOT detect children.p_link -> parents.id because name prefix/suffix do not match.
+--echo #
+SELECT vsql_schema_relationships('data_rel_db') AS schema_relationships;
+
+--echo #
+--echo # 2. Data Relationships (data profiling and set containment analysis)
+--echo # Should successfully detect children.p_link -> parents.id based on value overlap.
+--echo #
+SELECT vsql_data_relationships('data_rel_db') AS data_relationships;
+
+--echo #
+--echo # Cleanup
+--echo #
+
+# Uninstall extension
+UNINSTALL EXTENSION vsql_schematron;
+DROP DATABASE data_rel_db;
