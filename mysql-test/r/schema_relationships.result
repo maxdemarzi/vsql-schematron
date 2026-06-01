@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test vsql_schema_relationships function
+#
+CREATE DATABASE rel_test_db;
+USE rel_test_db;
+CREATE TABLE customers (
+id INT PRIMARY KEY,
+name VARCHAR(100)
+);
+CREATE TABLE orders (
+id INT PRIMARY KEY,
+customer_id INT,
+order_date DATE
+);
+CREATE TABLE products (
+product_id INT PRIMARY KEY,
+name VARCHAR(100)
+);
+CREATE TABLE order_items (
+id INT PRIMARY KEY,
+order_id INT,
+product_id INT,
+quantity INT
+);
+CREATE TABLE categories (
+id INT PRIMARY KEY,
+name VARCHAR(50)
+);
+CREATE TABLE product_categories (
+category_id INT,
+product_id INT
+);
+CREATE TABLE shipping_addresses (
+address_id INT PRIMARY KEY,
+customer_id INT,
+address TEXT
+);
+CREATE TABLE suppliers (
+id INT PRIMARY KEY,
+name VARCHAR(100)
+);
+CREATE TABLE supplier_contacts (
+id INT PRIMARY KEY,
+supplier_id INT,
+contact_name VARCHAR(100),
+FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
+);
+SELECT vsql_schema_relationships('rel_test_db') AS relationships;
+relationships
+Database: rel_test_db
+
+Table Connections:
+------------------
+[Implied]  order_items.order_id -> orders.id
+[Implied]  order_items.product_id -> products.product_id
+[Implied]  orders.customer_id -> customers.id
+[Implied]  product_categories.category_id -> categories.id
+[Implied]  product_categories.product_id -> products.product_id
+[Implied]  shipping_addresses.customer_id -> customers.id
+[Explicit] supplier_contacts.supplier_id -> suppliers.id
+
+#
+# Cleanup
+#
+UNINSTALL EXTENSION vsql_schematron;
+DROP DATABASE rel_test_db;

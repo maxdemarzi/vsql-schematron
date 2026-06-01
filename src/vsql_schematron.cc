@@ -22,6 +22,8 @@
 #include <shared_mutex>
 #include <mutex>
 #include <cstring>
+#include <unordered_map>
+#include "relationship_analyzer.h"
 
 using namespace vsql;
 
@@ -31,6 +33,7 @@ namespace {
 
 std::shared_mutex g_schema_cache_mutex;
 std::unordered_set<std::string> g_schema_cache;
+std::unordered_map<std::string, std::string> g_relationship_cache;
 
 void updateSchemaCache(struct vef_thread_handle_t *handle) {
     auto session = g_sql_query_cap.open(handle);
@@ -54,8 +57,20 @@ void updateSchemaCache(struct vef_thread_handle_t *handle) {
         temp_cache.insert(std::string(db_name_sv));
     }
 
+    std::unordered_map<std::string, std::string> temp_relationships;
+    for (const auto& db : temp_cache) {
+        if (isSystemDatabase(db)) {
+            continue;
+        }
+        std::string rel_text = analyzeRelationships(db, session);
+        if (!rel_text.empty()) {
+            temp_relationships[db] = rel_text;
+        }
+    }
+
     std::unique_lock<std::shared_mutex> lock(g_schema_cache_mutex);
     g_schema_cache = std::move(temp_cache);
+    g_relationship_cache = std::move(temp_relationships);
 }
 
 vef_next_wakeup_t schema_cache_worker(vef_wakeup_reason_t reason,
@@ -96,6 +111,21 @@ void vsql_schema_cache_ready_impl(StringArg db_name, IntResult out) {
     out.set(g_schema_cache.find(db_str) != g_schema_cache.end() ? 1 : 0);
 }
 
+void vsql_schema_relationships_impl(StringArg db_name, StringResult out) {
+    if (db_name.is_null()) {
+        out.set_null();
+        return;
+    }
+    std::string db_str(db_name.value());
+    std::shared_lock<std::shared_mutex> lock(g_schema_cache_mutex);
+    auto it = g_relationship_cache.find(db_str);
+    if (it != g_relationship_cache.end()) {
+        out.set(it->second);
+    } else {
+        out.set("Database relationships not cached yet for: " + db_str);
+    }
+}
+
 VEF_GENERATE_ENTRY_POINTS(
   make_extension()
     .with(g_sql_query_cap)
@@ -108,5 +138,10 @@ VEF_GENERATE_ENTRY_POINTS(
     .func(make_func<&vsql_schema_cache_ready_impl>("vsql_schema_cache_ready")
       .returns(INT)
       .param(STRING)
+      .build())
+    .func(make_func<&vsql_schema_relationships_impl>("vsql_schema_relationships")
+      .returns(STRING)
+      .param(STRING)
+      .buffer_size(65536)
       .build())
 )

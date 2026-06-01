@@ -1,0 +1,93 @@
+# Install extension
+INSTALL EXTENSION vsql_schematron;
+
+--echo #
+--echo # Test vsql_schema_relationships function
+--echo #
+
+# Setup test database and tables
+CREATE DATABASE rel_test_db;
+USE rel_test_db;
+
+CREATE TABLE customers (
+  id INT PRIMARY KEY,
+  name VARCHAR(100)
+);
+
+CREATE TABLE orders (
+  id INT PRIMARY KEY,
+  customer_id INT,
+  order_date DATE
+);
+
+CREATE TABLE products (
+  product_id INT PRIMARY KEY,
+  name VARCHAR(100)
+);
+
+CREATE TABLE order_items (
+  id INT PRIMARY KEY,
+  order_id INT,
+  product_id INT,
+  quantity INT
+);
+
+CREATE TABLE categories (
+  id INT PRIMARY KEY,
+  name VARCHAR(50)
+);
+
+CREATE TABLE product_categories (
+  category_id INT,
+  product_id INT
+);
+
+CREATE TABLE shipping_addresses (
+  address_id INT PRIMARY KEY,
+  customer_id INT,
+  address TEXT
+);
+
+CREATE TABLE suppliers (
+  id INT PRIMARY KEY,
+  name VARCHAR(100)
+);
+
+CREATE TABLE supplier_contacts (
+  id INT PRIMARY KEY,
+  supplier_id INT,
+  contact_name VARCHAR(100),
+  FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
+);
+
+# Enable schema cache worker
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+
+# Wait for the schema cache to be populated
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('rel_test_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+
+# Retrieve schema relationships
+SELECT vsql_schema_relationships('rel_test_db') AS relationships;
+
+--echo #
+--echo # Cleanup
+--echo #
+
+# Uninstall extension
+UNINSTALL EXTENSION vsql_schematron;
+DROP DATABASE rel_test_db;

@@ -1,0 +1,175 @@
+# Install extension
+INSTALL EXTENSION vsql_schematron;
+
+--echo #
+--echo # Test vsql_schema_relationships function with 1000 Genomes schema
+--echo #
+
+# Setup test database and tables
+CREATE DATABASE genomes_db;
+USE genomes_db;
+
+CREATE TABLE populations (
+  Population VARCHAR(50) PRIMARY KEY,
+  Description TEXT
+);
+
+CREATE TABLE families (
+  Family_ID VARCHAR(50) PRIMARY KEY,
+  Description TEXT
+);
+
+CREATE TABLE SAMPLE_INFO (
+  Sample VARCHAR(50) PRIMARY KEY,
+  Family_ID VARCHAR(50),
+  Population VARCHAR(50),
+  Population_Description TEXT,
+  Gender VARCHAR(50),
+  Relationship VARCHAR(100),
+  Unexpected_Parent_Child VARCHAR(100),
+  Non_Paternity VARCHAR(100),
+  Siblings VARCHAR(100),
+  Grandparents VARCHAR(100),
+  Avuncular VARCHAR(100),
+  Half_Siblings VARCHAR(100),
+  Unknown_Second_Order VARCHAR(100),
+  Third_Order VARCHAR(100),
+  In_Low_Coverage_Pilot BOOLEAN,
+  LC_Pilot_Platforms VARCHAR(100),
+  LC_Pilot_Centers VARCHAR(100),
+  In_High_Coverage_Pilot BOOLEAN,
+  HC_Pilot_Platforms VARCHAR(100),
+  HC_Pilot_Centers VARCHAR(100),
+  In_Exon_Targetted_Pilot BOOLEAN,
+  ET_Pilot_Platforms VARCHAR(100),
+  ET_Pilot_Centers VARCHAR(100),
+  Has_Sequence_in_Phase1 BOOLEAN,
+  Phase1_LC_Platform VARCHAR(100),
+  Phase1_LC_Centers VARCHAR(100),
+  Phase1_E_Platform VARCHAR(100),
+  Phase1_E_Centers VARCHAR(100),
+  In_Phase1_Integrated_Variant_Set BOOLEAN,
+  Has_Phase1_chrY_SNPS BOOLEAN,
+  Has_phase1_chrY_Deletions BOOLEAN,
+  Has_phase1_chrMT_SNPs BOOLEAN,
+  Main_project_LC_Centers VARCHAR(100),
+  Main_project_LC_platform VARCHAR(100),
+  Total_LC_Sequence DOUBLE,
+  LC_Non_Duplicated_Aligned_Coverage DOUBLE,
+  Main_Project_E_Centers VARCHAR(100),
+  Main_Project_E_Platform VARCHAR(100),
+  Total_Exome_Sequence DOUBLE,
+  X_Targets_Covered_to_20x_or_greater DOUBLE,
+  VerifyBam_E_Omni_Free DOUBLE,
+  VerifyBam_E_Affy_Free DOUBLE,
+  VerifyBam_E_Omni_Chip DOUBLE,
+  VerifyBam_E_Affy_Chip DOUBLE,
+  VerifyBam_LC_Omni_Free DOUBLE,
+  VerifyBam_LC_Affy_Free DOUBLE,
+  VerifyBam_LC_Omni_Chip DOUBLE,
+  VerifyBam_LC_Affy_Chip DOUBLE,
+  LC_Indel_Ratio DOUBLE,
+  E_Indel_Ratio DOUBLE,
+  LC_Passed_QC BOOLEAN,
+  E_Passed_QC BOOLEAN,
+  In_Final_Phase_Variant_Calling BOOLEAN,
+  Has_Omni_Genotypes BOOLEAN,
+  Has_Axiom_Genotypes BOOLEAN,
+  Has_Affy_6_0_Genotypes BOOLEAN,
+  Has_Exome_LOF_Genotypes BOOLEAN,
+  EBV_Coverage DOUBLE,
+  DNA_Source_from_Coriell VARCHAR(100),
+  Has_Sequence_from_Blood_in_Index BOOLEAN,
+  Super_Population VARCHAR(50),
+  Super_Population_Description TEXT
+);
+
+CREATE TABLE PEDIGREE (
+  Family_ID VARCHAR(50),
+  Individual_ID VARCHAR(50) PRIMARY KEY,
+  Paternal_ID VARCHAR(50),
+  Maternal_ID VARCHAR(50),
+  Gender INT,
+  Phenotype INT,
+  Population VARCHAR(50),
+  Relationship VARCHAR(100),
+  Siblings VARCHAR(100),
+  Second_Order VARCHAR(100),
+  Third_Order VARCHAR(100),
+  Other_Comments TEXT
+);
+
+CREATE TABLE VARIANTS (
+  reference_name VARCHAR(100),
+  start INT,
+  `end` INT,
+  reference_bases VARCHAR(100),
+  alternate_bases TEXT,
+  quality DOUBLE,
+  filter TEXT,
+  names TEXT,
+  `call` TEXT,
+  AA VARCHAR(100),
+  AC TEXT,
+  AC1 INT,
+  AF DOUBLE,
+  AF1 DOUBLE,
+  AFR_AF DOUBLE,
+  AMR_AF DOUBLE,
+  AN INT,
+  ASN_AF DOUBLE,
+  AVGPOST DOUBLE,
+  CIEND TEXT,
+  CIPOS TEXT,
+  DP INT,
+  DP4 TEXT,
+  ERATE DOUBLE,
+  EUR_AF DOUBLE,
+  FQ DOUBLE,
+  G3 TEXT,
+  HOMLEN INT,
+  HOMSEQ VARCHAR(100),
+  HWE DOUBLE,
+  LDAF DOUBLE,
+  MQ INT,
+  PV4 TEXT,
+  RSQ DOUBLE,
+  SNPSOURCE TEXT,
+  SOURCE TEXT,
+  SVLEN INT,
+  SVTYPE VARCHAR(100),
+  THETA DOUBLE,
+  VT VARCHAR(100)
+);
+
+# Enable schema cache worker
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+
+# Wait for the schema cache to be populated
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('genomes_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+
+# Retrieve schema relationships
+SELECT vsql_schema_relationships('genomes_db') AS relationships;
+
+--echo #
+--echo # Cleanup
+--echo #
+
+# Uninstall extension
+UNINSTALL EXTENSION vsql_schematron;
+DROP DATABASE genomes_db;
