@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 324062_init
+--echo #
+CREATE DATABASE `db_324062_init`;
+USE `db_324062_init`;
+CREATE TABLE `emotions` (
+  `emotion_id` INT NOT NULL,
+  `emotion_name` VARCHAR(50),
+  PRIMARY KEY (`emotion_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `images` (
+  `image_id` INT NOT NULL,
+  `image_url` VARCHAR(50),
+  `gender` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `emotion_id` INT,
+  PRIMARY KEY (`image_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+  `comment_id` INT NOT NULL,
+  `comment_content` VARCHAR(50),
+  `image_id` INT,
+  PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_324062_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_324062_init') AS relationships;
+DROP DATABASE `db_324062_init`;
+UNINSTALL EXTENSION vsql_schematron;

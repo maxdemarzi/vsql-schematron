@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 213711_fill_data
+#
+CREATE DATABASE `db_213711_fill_data`;
+USE `db_213711_fill_data`;
+CREATE TABLE `users` (
+`id` INT,
+`last_name` TEXT,
+`first_name` TEXT,
+`middle_name` TEXT,
+`phone` TEXT,
+`email` TEXT,
+`city_id` INT,
+`deleted` INT
+) CHARACTER SET latin1;
+CREATE TABLE `regions` (
+`id` INT,
+`name` TEXT,
+`deleted` INT
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`text` TEXT,
+`user_id` INT,
+`deleted` INT,
+`timestamp` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `cities` (
+`id` INT,
+`name` TEXT,
+`region_id` INT,
+`deleted` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_213711_fill_data') AS relationships;
+relationships
+Database: db_213711_fill_data
+
+Table Connections:
+------------------
+[Implied]  cities.region_id -> regions.id
+[Implied]  comments.user_id -> users.id
+[Implied]  users.city_id -> cities.id
+
+DROP DATABASE `db_213711_fill_data`;
+UNINSTALL EXTENSION vsql_schematron;

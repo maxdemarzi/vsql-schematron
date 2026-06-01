@@ -1,0 +1,101 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 033999_dbdental
+--echo #
+CREATE DATABASE `db_033999_dbdental`;
+USE `db_033999_dbdental`;
+CREATE TABLE `tbldiscount` (
+  `intDiscount` INT,
+  `strDiscountName` VARCHAR(50),
+  `dblDiscountPercentage` DOUBLE,
+  `strDiscountDesc` TEXT,
+  `strStatus` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `tblemployee` (
+  `charEmpID` VARCHAR(50),
+  `strEmpFirst` VARCHAR(50),
+  `strEmpMid` VARCHAR(50),
+  `strEmpLast` VARCHAR(50),
+  `strImage` VARCHAR(50),
+  `dtmEmpBirthdate` DATE,
+  `charContact` CHAR(50),
+  `strEmpAddress` VARCHAR(50),
+  `strEmpGender` VARCHAR(50),
+  `intEmpRoleID` INT,
+  `strLicense` VARCHAR(50),
+  `strUsername` VARCHAR(50),
+  `strPassword` VARCHAR(50),
+  `strEmpStatus` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `tblmodule` (
+  `intModuleID` INT NOT NULL,
+  `strModuleName` VARCHAR(50),
+  `strModuleDesc` VARCHAR(50),
+  PRIMARY KEY (`intModuleID`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblpatient` (
+  `charPatientID` VARCHAR(50) NOT NULL,
+  `strPatientFirst` VARCHAR(50),
+  `strPatientMid` VARCHAR(50),
+  `strPatientLast` VARCHAR(50),
+  `strPatientAddress` VARCHAR(50),
+  `dtmpatientBirthdate` DATE,
+  `strPatientGender` VARCHAR(50),
+  `strPatientContact` VARCHAR(50),
+  `strPatientEmail` VARCHAR(50),
+  `strHistory` VARCHAR(50),
+  PRIMARY KEY (`charPatientID`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblreceiptheader` (
+  `strReceiptNo` CHAR(50),
+  `strfkTransactionID` CHAR(50),
+  `datDate` DATETIME,
+  `datDueDate` DATETIME,
+  `decAmountToPay` DECIMAL(10,2),
+  `intfkDiscount` INT,
+  `strBillStat` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `tblspecialization` (
+  `intSpecID` INT NOT NULL,
+  `strSpecName` VARCHAR(50),
+  `strSpecDesc` VARCHAR(50),
+  PRIMARY KEY (`intSpecID`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblteeth` (
+  `strToothCode` CHAR(50),
+  `strToothNumber` CHAR(50),
+  `strSurface1` VARCHAR(50),
+  `strSurface2` VARCHAR(50),
+  `strSurface3` VARCHAR(50),
+  `strSurface4` VARCHAR(50),
+  `strSurface5` VARCHAR(50),
+  `charPatientID` VARCHAR(50),
+  `strToothType` VARCHAR(50),
+  `strStatus` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `tbltransactionheader` (
+  `strTransactionID` CHAR(50),
+  `charfkPatientID` CHAR(50),
+  `charfkEmpID` CHAR(50),
+  `datDate` DATETIME
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_033999_dbdental') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_033999_dbdental') AS relationships;
+DROP DATABASE `db_033999_dbdental`;
+UNINSTALL EXTENSION vsql_schematron;

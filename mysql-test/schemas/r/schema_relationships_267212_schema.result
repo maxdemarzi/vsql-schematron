@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 267212_schema
+#
+CREATE DATABASE `db_267212_schema`;
+USE `db_267212_schema`;
+CREATE TABLE `pm_conversations` (
+`id` VARCHAR(50) NOT NULL,
+`headline` VARCHAR(50),
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pm_messages` (
+`id` VARCHAR(50),
+`conversation_id` VARCHAR(50),
+`message` VARCHAR(50),
+`from_id` VARCHAR(50),
+`date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `pm_receivers` (
+`id` VARCHAR(50),
+`conversation_id` VARCHAR(50),
+`to_user_id` VARCHAR(50),
+`unread` TINYINT,
+`deleted` TINYINT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_267212_schema') AS relationships;
+relationships
+Database: db_267212_schema
+
+Table Connections:
+------------------
+[Implied]  pm_messages.conversation_id -> pm_conversations.id
+[Implied]  pm_receivers.conversation_id -> pm_conversations.id
+
+DROP DATABASE `db_267212_schema`;
+UNINSTALL EXTENSION vsql_schematron;

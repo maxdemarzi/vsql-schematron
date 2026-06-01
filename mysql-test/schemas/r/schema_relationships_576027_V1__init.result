@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 576027_V1__init
+#
+CREATE DATABASE `db_576027_V1__init`;
+USE `db_576027_V1__init`;
+CREATE TABLE `empresa` (
+`id` BIGINT NOT NULL,
+`cnpj` CHAR(50),
+`data_atualizacao` TIMESTAMP NULL,
+`data_criacao` TIMESTAMP NULL,
+`razao_social` CHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `funcionario` (
+`id` BIGINT NOT NULL,
+`cpf` CHAR(50),
+`data_atualizacao` TIMESTAMP NULL,
+`data_criacao` TIMESTAMP NULL,
+`email` CHAR(50),
+`nome` CHAR(50),
+`perfil` CHAR(50),
+`qtd_horas_almoco` DOUBLE,
+`qtd_horas_trabalho_dia` DOUBLE,
+`senha` CHAR(50),
+`valor_hora` DECIMAL(10,2),
+`empresa_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lancamento` (
+`id` BIGINT NOT NULL,
+`data` TIMESTAMP NULL,
+`data_atualizacao` TIMESTAMP NULL,
+`data_criacao` TIMESTAMP NULL,
+`descricao` CHAR(50),
+`localizacao` CHAR(50),
+`tipo` CHAR(50),
+`funcionario_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_576027_V1__init') AS relationships;
+relationships
+Database: db_576027_V1__init
+
+Table Connections:
+------------------
+[Implied]  funcionario.empresa_id -> empresa.id
+[Implied]  lancamento.funcionario_id -> funcionario.id
+
+DROP DATABASE `db_576027_V1__init`;
+UNINSTALL EXTENSION vsql_schematron;

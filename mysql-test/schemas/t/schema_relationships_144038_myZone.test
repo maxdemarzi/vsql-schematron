@@ -1,0 +1,110 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 144038_myZone
+--echo #
+CREATE DATABASE `db_144038_myZone`;
+USE `db_144038_myZone`;
+CREATE TABLE `myZone.addresses` (
+  `id` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL,
+  `updatedAt` TIMESTAMP NULL,
+  `street` VARCHAR(50),
+  `number` VARCHAR(50),
+  `city` VARCHAR(50),
+  `zipCode` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `myZone.customers` (
+  `id` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL,
+  `updatedAt` TIMESTAMP NULL,
+  `firstName` VARCHAR(50),
+  `lastName` VARCHAR(50),
+  `email` VARCHAR(50),
+  `phone` VARCHAR(50),
+  `deliveryAddress` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `myZone.userLogins` (
+  `id` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL,
+  `updatedAt` TIMESTAMP NULL,
+  `validated` TINYINT,
+  `enabled` TINYINT,
+  `username` VARCHAR(50),
+  `passwordHash` VARCHAR(50),
+  `customer` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `myZone.orders` (
+  `id` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL,
+  `updatedAt` TIMESTAMP NULL,
+  `shipmentDate` TIMESTAMP NULL,
+  `customer` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `myZone.categories` (
+  `id` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL,
+  `updatedAt` TIMESTAMP NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `myZone.brands` (
+  `id` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL,
+  `updatedAt` TIMESTAMP NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `myZone.colors` (
+  `id` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL,
+  `updatedAt` TIMESTAMP NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `myZone.products` (
+  `id` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL,
+  `updatedAt` TIMESTAMP NULL,
+  `name` VARCHAR(50),
+  `price` DECIMAL(10,2),
+  `category` INT,
+  `brand` INT,
+  `color` INT,
+  `descriptionColor` VARCHAR(50),
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `myZone.orderItems` (
+  `id` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL,
+  `updatedAt` TIMESTAMP NULL,
+  `quantity` INT,
+  `actualPrice` DECIMAL(10,2),
+  `order` INT,
+  `product` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_144038_myZone') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_144038_myZone') AS relationships;
+DROP DATABASE `db_144038_myZone`;
+UNINSTALL EXTENSION vsql_schematron;

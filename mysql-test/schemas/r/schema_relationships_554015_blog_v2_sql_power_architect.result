@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 554015_blog_v2_sql_power_architect
+#
+CREATE DATABASE `db_554015_blog_v2_sql_power_architect`;
+USE `db_554015_blog_v2_sql_power_architect`;
+CREATE TABLE `user` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`activated` TINYINT,
+`date_creation` DATE,
+`date_update` DATE,
+`user_role` TINYINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`chapo` VARCHAR(50),
+`content` VARCHAR(50),
+`date_creation` DATE,
+`date_update` DATE,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`content` VARCHAR(50),
+`valid` TINYINT,
+`date_creation` DATE,
+`date_update` DATE,
+`user_id` INT,
+`post_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_554015_blog_v2_sql_power_architect') AS relationships;
+relationships
+Database: db_554015_blog_v2_sql_power_architect
+
+Table Connections:
+------------------
+[Implied]  comment.post_id -> post.id
+[Implied]  comment.user_id -> user.id
+[Implied]  post.user_id -> user.id
+
+DROP DATABASE `db_554015_blog_v2_sql_power_architect`;
+UNINSTALL EXTENSION vsql_schematron;

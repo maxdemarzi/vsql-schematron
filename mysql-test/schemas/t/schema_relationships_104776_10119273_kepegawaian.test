@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 104776_10119273_kepegawaian
+--echo #
+CREATE DATABASE `db_104776_10119273_kepegawaian`;
+USE `db_104776_10119273_kepegawaian`;
+CREATE TABLE `cabang` (
+  `kode_cabang` VARCHAR(50) NOT NULL,
+  `nama_cabang` VARCHAR(50),
+  PRIMARY KEY (`kode_cabang`)
+) CHARACTER SET latin1;
+CREATE TABLE `departemen` (
+  `kode_departemen` VARCHAR(50) NOT NULL,
+  `nama_departemen` VARCHAR(50),
+  PRIMARY KEY (`kode_departemen`)
+) CHARACTER SET latin1;
+CREATE TABLE `jabatan` (
+  `kode_jabatan` VARCHAR(50) NOT NULL,
+  `nama_jabatan` VARCHAR(50),
+  PRIMARY KEY (`kode_jabatan`)
+) CHARACTER SET latin1;
+CREATE TABLE `pegawai` (
+  `nomor_induk` VARCHAR(50) NOT NULL,
+  `nama_pegawai` VARCHAR(50),
+  `tempat_lahir` VARCHAR(50),
+  `tanggal_lahir` DATE,
+  `jenis_kelamin` VARCHAR(50),
+  `alamat` VARCHAR(50),
+  `agama` VARCHAR(50),
+  `nomor_telp` VARCHAR(50),
+  `kode_jabatan` VARCHAR(50),
+  `kode_cabang` VARCHAR(50),
+  `kode_departemen` VARCHAR(50),
+  `gaji_pokok` DOUBLE,
+  `tanggal_diangkat` DATE,
+  `tanggal_keluar` DATE,
+  PRIMARY KEY (`nomor_induk`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_104776_10119273_kepegawaian') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_104776_10119273_kepegawaian') AS relationships;
+DROP DATABASE `db_104776_10119273_kepegawaian`;
+UNINSTALL EXTENSION vsql_schematron;

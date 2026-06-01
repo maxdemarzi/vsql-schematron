@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 174273_0001
+--echo #
+CREATE DATABASE `db_174273_0001`;
+USE `db_174273_0001`;
+CREATE TABLE `session` (
+  `id` VARCHAR(50) NOT NULL,
+  `update_date` DATETIME,
+  `keep_time` INT,
+  `entry_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `session_data` (
+  `id` INT NOT NULL,
+  `session_id` VARCHAR(50),
+  `k` VARCHAR(50),
+  `v` VARCHAR(50),
+  `entry_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_174273_0001') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_174273_0001') AS relationships;
+DROP DATABASE `db_174273_0001`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 318118_MediaSearch.Schema
+--echo #
+CREATE DATABASE `db_318118_MediaSearch_Schema`;
+USE `db_318118_MediaSearch_Schema`;
+CREATE TABLE `users` (
+  `id` INT NOT NULL,
+  `user_name` VARCHAR(50),
+  `user_email` VARCHAR(50),
+  `user_password` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `media` (
+  `id` INT NOT NULL,
+  `media_name` VARCHAR(50),
+  `media_type` VARCHAR(50),
+  `media_artist` VARCHAR(50),
+  `media_location` VARCHAR(50),
+  `media_rating` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_318118_MediaSearch_Schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_318118_MediaSearch_Schema') AS relationships;
+DROP DATABASE `db_318118_MediaSearch_Schema`;
+UNINSTALL EXTENSION vsql_schematron;

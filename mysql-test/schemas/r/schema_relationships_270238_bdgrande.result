@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 270238_bdgrande
+#
+CREATE DATABASE `db_270238_bdgrande`;
+USE `db_270238_bdgrande`;
+CREATE TABLE `Cargos` (
+`id` INT NOT NULL,
+`nombre` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Especialidades` (
+`id` INT NOT NULL,
+`nombre` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profesionales` (
+`id` INT NOT NULL,
+`nombre` VARCHAR(50),
+`apellido1` VARCHAR(50),
+`apellido2` VARCHAR(50),
+`fecha_nacimiento` DATE,
+`cargo_id` INT,
+`especialidad_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pacientes` (
+`id` INT NOT NULL,
+`nombre` VARCHAR(50),
+`apellido1` VARCHAR(50),
+`apellido2` VARCHAR(50),
+`fecha_nacimiento` DATE,
+`sexo` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Historial_fisico` (
+`id` INT NOT NULL,
+`paciente_id` INT,
+`altura` INT,
+`Peso` DOUBLE,
+`fecha` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Zonas_cuerpo` (
+`id` INT NOT NULL,
+`nombre` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Enfermedades` (
+`id` INT NOT NULL,
+`nombre` VARCHAR(50),
+`indice_contagio` DOUBLE,
+`indice_letalidad` DOUBLE,
+`zona_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Historial_medico` (
+`id` INT NOT NULL,
+`paciente_id` INT,
+`enfermedad_id` INT,
+`fecha_contraccion` DATE,
+`superada` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Herramientas` (
+`id` INT NOT NULL,
+`nombre` VARCHAR(50),
+`fecha_compra` DATE,
+`precio_compra` DOUBLE,
+`marca` VARCHAR(50),
+`modelo` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Es_util_en` (
+`id` INT NOT NULL,
+`herramienta_id` INT,
+`enfermedad_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sabe_usar` (
+`id` INT NOT NULL,
+`profesional_id` INT,
+`herramienta_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_270238_bdgrande') AS relationships;
+relationships
+Database: db_270238_bdgrande
+
+Table Connections:
+------------------
+[Implied]  Enfermedades.zona_id -> Zonas_cuerpo.id
+[Implied]  Es_util_en.enfermedad_id -> Enfermedades.id
+[Implied]  Es_util_en.herramienta_id -> Herramientas.id
+[Implied]  Historial_fisico.paciente_id -> Pacientes.id
+[Implied]  Historial_medico.enfermedad_id -> Enfermedades.id
+[Implied]  Historial_medico.paciente_id -> Pacientes.id
+[Implied]  Profesionales.cargo_id -> Cargos.id
+[Implied]  Profesionales.especialidad_id -> Especialidades.id
+[Implied]  Sabe_usar.herramienta_id -> Herramientas.id
+[Implied]  Sabe_usar.profesional_id -> Profesionales.id
+
+DROP DATABASE `db_270238_bdgrande`;
+UNINSTALL EXTENSION vsql_schematron;

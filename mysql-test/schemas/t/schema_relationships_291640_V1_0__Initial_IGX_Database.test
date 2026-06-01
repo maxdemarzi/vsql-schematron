@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 291640_V1.0__Initial_IGX_Database
+--echo #
+CREATE DATABASE `db_291640_V1_0__Initial_IGX_Database`;
+USE `db_291640_V1_0__Initial_IGX_Database`;
+CREATE TABLE `Users` (
+  `UserID` INT NOT NULL,
+  `Username` VARCHAR(50),
+  `Password` VARCHAR(50),
+  PRIMARY KEY (`UserID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rank` (
+  `RankID` INT NOT NULL,
+  `UserID` INT,
+  `GamesPlayed` INT,
+  `GamesWon` INT,
+  `GamesPlayedHumans` INT,
+  `GamesWonHumans` INT,
+  `Rank` INT,
+  PRIMARY KEY (`RankID`)
+) CHARACTER SET latin1;
+CREATE TABLE `IGXConfig` (
+  `key` VARCHAR(50) NOT NULL,
+  `value` VARCHAR(50),
+  PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_291640_V1_0__Initial_IGX_Database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_291640_V1_0__Initial_IGX_Database') AS relationships;
+DROP DATABASE `db_291640_V1_0__Initial_IGX_Database`;
+UNINSTALL EXTENSION vsql_schematron;

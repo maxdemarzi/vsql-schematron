@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 189754_01-rm_base
+--echo #
+CREATE DATABASE `db_189754_01_rm_base`;
+USE `db_189754_01_rm_base`;
+CREATE TABLE `RM_AFFIX` (
+  `ID` BIGINT NOT NULL,
+  `BS_KEYWORD` VARCHAR(50),
+  `RECORD_ID` VARCHAR(50),
+  `ORDER_NUMBER` INT,
+  `TITLE` VARCHAR(50),
+  `OLD_NAME` VARCHAR(50),
+  `SAVE_NAME` VARCHAR(50),
+  `SAVE_SIZE` BIGINT,
+  `MIME_TYPE` VARCHAR(50),
+  `ENCODING` VARCHAR(50),
+  `DESCRIPTION` VARCHAR(50),
+  `AUTHOR` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `RM_CODE_DATA` (
+  `ID` BIGINT NOT NULL,
+  `CODE_TYPE_ID` BIGINT,
+  `DATA_KEY` VARCHAR(50),
+  `ENABLE_STATUS` CHAR(50),
+  `DATA_VALUE` VARCHAR(50),
+  `TOTAL_CODE` VARCHAR(50),
+  `REMARK` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `RM_CODE_TYPE` (
+  `ID` BIGINT NOT NULL,
+  `TYPE_KEYWORD` VARCHAR(50),
+  `NAME` VARCHAR(50),
+  `REMARK` VARCHAR(50),
+  `MULTI_VALUE_DESC` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `RM_NODE_HEARTBEAT` (
+  `ID` VARCHAR(50) NOT NULL,
+  `VERSION` BIGINT,
+  `SHARDING_PREFIX` BIGINT,
+  `LAST_HEARTBEAT` TIMESTAMP NULL,
+  `BASE_URL` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_189754_01_rm_base') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_189754_01_rm_base') AS relationships;
+DROP DATABASE `db_189754_01_rm_base`;
+UNINSTALL EXTENSION vsql_schematron;

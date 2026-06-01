@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 483423_employee_schema
+#
+CREATE DATABASE `db_483423_employee_schema`;
+USE `db_483423_employee_schema`;
+CREATE TABLE `departments` (
+`department_id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`department_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`role_id` INT NOT NULL,
+`title` VARCHAR(50),
+`salary` DECIMAL(10,2),
+`department_id` INT,
+PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`role_id` INT,
+`department_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_483423_employee_schema') AS relationships;
+relationships
+Database: db_483423_employee_schema
+
+Table Connections:
+------------------
+[Implied]  employees.department_id -> departments.department_id
+[Implied]  employees.role_id -> roles.role_id
+[Implied]  roles.department_id -> departments.department_id
+
+DROP DATABASE `db_483423_employee_schema`;
+UNINSTALL EXTENSION vsql_schematron;

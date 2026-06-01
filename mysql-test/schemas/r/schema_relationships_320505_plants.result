@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 320505_plants
+#
+CREATE DATABASE `db_320505_plants`;
+USE `db_320505_plants`;
+CREATE TABLE `alias` (
+`id` INT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `plant` (
+`id` INT NOT NULL,
+`rawname` TEXT,
+`symbol` TEXT,
+`symbolsynonym` TEXT,
+`family` TEXT,
+`genus` TEXT,
+`specific` TEXT,
+`type` TEXT,
+`sspvar` TEXT,
+`hybridpair` TEXT,
+`author` TEXT,
+`secondauthor` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `plantalias` (
+`plant_id` INT,
+`alias_id` INT,
+`type` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `plantregion` (
+`plant_id` INT,
+`region_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `region` (
+`id` INT NOT NULL,
+`name` TEXT,
+`code` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_320505_plants') AS relationships;
+relationships
+Database: db_320505_plants
+
+Table Connections:
+------------------
+[Implied]  plantalias.alias_id -> alias.id
+[Implied]  plantalias.plant_id -> plant.id
+[Implied]  plantregion.plant_id -> plant.id
+[Implied]  plantregion.region_id -> region.id
+
+DROP DATABASE `db_320505_plants`;
+UNINSTALL EXTENSION vsql_schematron;

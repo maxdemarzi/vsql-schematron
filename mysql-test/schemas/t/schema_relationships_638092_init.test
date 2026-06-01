@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 638092_init
+--echo #
+CREATE DATABASE `db_638092_init`;
+USE `db_638092_init`;
+CREATE TABLE `Tracert` (
+  `TraceID` INT NOT NULL,
+  `IpAddress` VARCHAR(50),
+  `AddressName` VARCHAR(50),
+  `Hop` INT NOT NULL,
+  PRIMARY KEY (`TraceID`, `Hop`)
+) CHARACTER SET latin1;
+CREATE TABLE `Measurement` (
+  `MeasurementID` INT NOT NULL,
+  `PersonName` VARCHAR(50),
+  `IpAddress` VARCHAR(50),
+  `TraceID` INT,
+  `IpTimestamp` DATETIME,
+  `Country` VARCHAR(50),
+  `Region` VARCHAR(50),
+  `City` VARCHAR(50),
+  PRIMARY KEY (`MeasurementID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_638092_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_638092_init') AS relationships;
+DROP DATABASE `db_638092_init`;
+UNINSTALL EXTENSION vsql_schematron;

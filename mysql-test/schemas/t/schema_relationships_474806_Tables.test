@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 474806_Tables
+--echo #
+CREATE DATABASE `db_474806_Tables`;
+USE `db_474806_Tables`;
+CREATE TABLE `PEOPLES` (
+  `ID` VARCHAR(50) NOT NULL,
+  `NAME` VARCHAR(50),
+  `PHONE_NUMBER` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BOOKS` (
+  `ID` VARCHAR(50) NOT NULL,
+  `NAME` VARCHAR(50),
+  `DESCRIPTION` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BOOKS_RENTALS` (
+  `ID` VARCHAR(50) NOT NULL,
+  `BOOK_ID` VARCHAR(50),
+  `PEOPLE_ID` VARCHAR(50),
+  `RENTED_DATE` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_474806_Tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_474806_Tables') AS relationships;
+DROP DATABASE `db_474806_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

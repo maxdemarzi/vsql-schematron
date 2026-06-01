@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 417784_team3db
+--echo #
+CREATE DATABASE `db_417784_team3db`;
+USE `db_417784_team3db`;
+CREATE TABLE `team3db.cuisine` (
+  `cuisineId` INT NOT NULL,
+  `cuisineType` VARCHAR(50),
+  PRIMARY KEY (`cuisineId`)
+) CHARACTER SET latin1;
+CREATE TABLE `team3db.account` (
+  `accountId` INT NOT NULL,
+  `userType` VARCHAR(50),
+  `email` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(50),
+  PRIMARY KEY (`accountId`, `email`)
+) CHARACTER SET latin1;
+CREATE TABLE `team3db.businessSchedule` (
+  `scheduleId` INT NOT NULL,
+  `day` VARCHAR(50),
+  `openingHour` DATETIME,
+  `closingHour` DATETIME,
+  PRIMARY KEY (`scheduleId`)
+) CHARACTER SET latin1;
+CREATE TABLE `team3db.address` (
+  `addressId` INT NOT NULL,
+  `line1` VARCHAR(50),
+  `line2` VARCHAR(50),
+  `city` VARCHAR(50),
+  `state` VARCHAR(50),
+  `zipcode` INT,
+  PRIMARY KEY (`addressId`)
+) CHARACTER SET latin1;
+CREATE TABLE `team3db.shoppingCart` (
+  `shoppingCartId` INT NOT NULL,
+  `accountId` INT,
+  `menuItemId` INT,
+  PRIMARY KEY (`shoppingCartId`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_417784_team3db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_417784_team3db') AS relationships;
+DROP DATABASE `db_417784_team3db`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 643928_database
+#
+CREATE DATABASE `db_643928_database`;
+USE `db_643928_database`;
+CREATE TABLE `Address` (
+`id` INT NOT NULL,
+`city` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Person` (
+`id` INT NOT NULL,
+`family_name` TEXT,
+`given_name` TEXT,
+`birth_date` TIMESTAMP NULL,
+`perm_address_id` INT,
+`temp_address_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Product` (
+`id` INT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Order` (
+`id` INT NOT NULL,
+`product_id` INT,
+`quantity` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_643928_database') AS relationships;
+relationships
+Database: db_643928_database
+
+Table Connections:
+------------------
+[Implied]  Order.product_id -> Product.id
+[Implied]  Person.perm_address_id -> Address.id
+[Implied]  Person.temp_address_id -> Address.id
+
+DROP DATABASE `db_643928_database`;
+UNINSTALL EXTENSION vsql_schematron;

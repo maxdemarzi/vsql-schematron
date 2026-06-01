@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 380513_Code%20Challenge%20Database%20execution%20query
+--echo #
+CREATE DATABASE `db_380513_Code_20Challenge_20Database_20execution_20query`;
+USE `db_380513_Code_20Challenge_20Database_20execution_20query`;
+CREATE TABLE `rexx_code_challenge.events` (
+  `event_id` INT NOT NULL,
+  `event_name` VARCHAR(50),
+  `event_date` DATETIME,
+  PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rexx_code_challenge.participation` (
+  `participation_id` INT NOT NULL,
+  `employee_id` INT,
+  `event_id` INT,
+  `participation_fee` DOUBLE,
+  `version` VARCHAR(50),
+  PRIMARY KEY (`participation_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_380513_Code_20Challenge_20Database_20execution_20query') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_380513_Code_20Challenge_20Database_20execution_20query') AS relationships;
+DROP DATABASE `db_380513_Code_20Challenge_20Database_20execution_20query`;
+UNINSTALL EXTENSION vsql_schematron;

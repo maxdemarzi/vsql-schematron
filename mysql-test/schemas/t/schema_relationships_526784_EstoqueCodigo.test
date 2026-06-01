@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 526784_EstoqueCodigo
+--echo #
+CREATE DATABASE `db_526784_EstoqueCodigo`;
+USE `db_526784_EstoqueCodigo`;
+CREATE TABLE `produtos` (
+  `id` INT NOT NULL,
+  `descricao` VARCHAR(50),
+  `estoque_minimo` INT,
+  `estoque_maximo` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `compras` (
+  `id` INT NOT NULL,
+  `produto_id` INT,
+  `quantidade` INT,
+  `preco` DECIMAL(10,2),
+  `data` DATE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `estoques` (
+  `id` INT NOT NULL,
+  `produto_id` INT,
+  `compra_id` INT,
+  `quantidade` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendas` (
+  `id` INT NOT NULL,
+  `produto_id` INT,
+  `estoque_id` INT,
+  `quantidade` INT,
+  `data` DATE,
+  `preco` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_526784_EstoqueCodigo') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_526784_EstoqueCodigo') AS relationships;
+DROP DATABASE `db_526784_EstoqueCodigo`;
+UNINSTALL EXTENSION vsql_schematron;

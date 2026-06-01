@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 517716_postgres_init
+--echo #
+CREATE DATABASE `db_517716_postgres_init`;
+USE `db_517716_postgres_init`;
+CREATE TABLE `dim_users` (
+  `id` INT NOT NULL,
+  `full_name` TEXT,
+  `age` INT,
+  `country` TEXT,
+  `gender` TEXT,
+  `preferred_language` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+  `id` INT NOT NULL,
+  `user_id` INT,
+  `timestamp` TIMESTAMP NULL,
+  `text` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_517716_postgres_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_517716_postgres_init') AS relationships;
+DROP DATABASE `db_517716_postgres_init`;
+UNINSTALL EXTENSION vsql_schematron;

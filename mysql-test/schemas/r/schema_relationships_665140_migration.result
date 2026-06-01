@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 665140_migration
+#
+CREATE DATABASE `db_665140_migration`;
+USE `db_665140_migration`;
+CREATE TABLE `Admin` (
+`id` INT NOT NULL,
+`firstName` TEXT,
+`lastName` TEXT,
+`userName` TEXT,
+`password` TEXT,
+`status` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Menu` (
+`id` INT NOT NULL,
+`price` DECIMAL(10,2),
+`startDate` DATETIME,
+`endDate` DATETIME,
+`foodId` INT,
+`adminId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `FoodItem` (
+`id` INT NOT NULL,
+`name` TEXT,
+`quantity` INT,
+`unitPrice` DECIMAL(10,2),
+`categoryId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Category` (
+`id` INT NOT NULL,
+`name` TEXT,
+`note` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_665140_migration') AS relationships;
+relationships
+Database: db_665140_migration
+
+Table Connections:
+------------------
+[Implied]  FoodItem.categoryId -> Category.id
+[Implied]  Menu.adminId -> Admin.id
+[Implied]  Menu.foodId -> FoodItem.id
+
+DROP DATABASE `db_665140_migration`;
+UNINSTALL EXTENSION vsql_schematron;

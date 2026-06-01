@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 266785_schema
+#
+CREATE DATABASE `db_266785_schema`;
+USE `db_266785_schema`;
+CREATE TABLE `user` (
+`id` INT NOT NULL,
+`username` TEXT,
+`password` TEXT,
+`admin` VARCHAR(50),
+`uri` TEXT,
+`deleted` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subgraph` (
+`id` INT NOT NULL,
+`name` TEXT,
+`finished` VARCHAR(50),
+`deleted` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `access` (
+`user_id` INT,
+`subgraph_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `knowledge` (
+`subgraph_id` INT,
+`subject` TEXT,
+`predicate` TEXT,
+`object` TEXT,
+`property_index` INT,
+`deleted` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `ontology` (
+`subject` TEXT,
+`predicate` TEXT,
+`object` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `namespace` (
+`prefix` TEXT,
+`uri` TEXT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_266785_schema') AS relationships;
+relationships
+Database: db_266785_schema
+
+Table Connections:
+------------------
+[Implied]  access.subgraph_id -> subgraph.id
+[Implied]  access.user_id -> user.id
+[Implied]  knowledge.subgraph_id -> subgraph.id
+
+DROP DATABASE `db_266785_schema`;
+UNINSTALL EXTENSION vsql_schematron;

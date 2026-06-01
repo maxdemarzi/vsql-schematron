@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 000861_phpAdmin
+--echo #
+CREATE DATABASE `db_000861_phpAdmin`;
+USE `db_000861_phpAdmin`;
+CREATE TABLE `usuario` (
+  `nomeLogin` VARCHAR(50) NOT NULL,
+  `senha` VARCHAR(50),
+  PRIMARY KEY (`nomeLogin`)
+) CHARACTER SET latin1;
+CREATE TABLE `animal` (
+  `codAnimal` INT NOT NULL,
+  `dtNascimento` DATE,
+  `codMae` INT,
+  `nomePai` VARCHAR(50),
+  `estadoVida` VARCHAR(50),
+  `motivoMorte` VARCHAR(50),
+  `dataMorte` DATE,
+  `nomeImagem` VARCHAR(50),
+  PRIMARY KEY (`codAnimal`)
+) CHARACTER SET latin1;
+CREATE TABLE `inseminacao` (
+  `codInseminacao` INT NOT NULL,
+  `codAnimal` INT,
+  `dtInseminacao` DATE,
+  `dtPrevSecagem` DATE,
+  `dtPrevParto` DATE,
+  `touroInseminador` VARCHAR(50),
+  `inseminadorResponsavel` VARCHAR(50),
+  `retorno` VARCHAR(50),
+  `obs` TEXT,
+  PRIMARY KEY (`codInseminacao`)
+) CHARACTER SET latin1;
+CREATE TABLE `producao` (
+  `codProducao` INT NOT NULL,
+  `codAnimal` INT,
+  `dtColeta` DATE,
+  `litros` DOUBLE,
+  `periodoDia` VARCHAR(50),
+  PRIMARY KEY (`codProducao`)
+) CHARACTER SET latin1;
+CREATE TABLE `tratamento` (
+  `codTratamento` INT NOT NULL,
+  `codAnimal` INT,
+  `dtTratamento` DATE,
+  `motivoTratamento` VARCHAR(50),
+  `nomeMedicamento` VARCHAR(50),
+  `quantidadeMedicamento` DOUBLE,
+  `responsavel` VARCHAR(50),
+  `obs` TEXT,
+  PRIMARY KEY (`codTratamento`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_000861_phpAdmin') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_000861_phpAdmin') AS relationships;
+DROP DATABASE `db_000861_phpAdmin`;
+UNINSTALL EXTENSION vsql_schematron;

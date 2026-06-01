@@ -1,0 +1,114 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 669054_db_sdn016anggana
+--echo #
+CREATE DATABASE `db_669054_db_sdn016anggana`;
+USE `db_669054_db_sdn016anggana`;
+CREATE TABLE `tb_galeri` (
+  `id_galeri` INT,
+  `thumbnail` VARCHAR(50),
+  `judul` VARCHAR(50),
+  `deskripsi` VARCHAR(50),
+  `tgl` DATE,
+  `id_user` INT,
+  `created` DATETIME,
+  `updated` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `tb_gtk` (
+  `id_gtk` INT NOT NULL,
+  `nama` VARCHAR(50),
+  `nip` VARCHAR(50),
+  `jabatan` VARCHAR(50),
+  `foto` VARCHAR(50),
+  `gtk` INT,
+  `status` INT,
+  `created` DATETIME,
+  `updated` DATETIME,
+  PRIMARY KEY (`id_gtk`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_kurikulum` (
+  `id_kurikulum` INT NOT NULL,
+  `kalemik` VARCHAR(50),
+  `ekskul` VARCHAR(50),
+  `thumbnail` VARCHAR(50),
+  `status` INT,
+  PRIMARY KEY (`id_kurikulum`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_pengunjung` (
+  `ip` VARCHAR(50),
+  `date` DATE,
+  `hits` INT,
+  `online` VARCHAR(50),
+  `time` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `tb_pesan` (
+  `id_pesan` INT NOT NULL,
+  `nama_lengkap` VARCHAR(50),
+  `email` VARCHAR(50),
+  `pesan` TEXT,
+  `status` INT,
+  `sent` DATETIME,
+  PRIMARY KEY (`id_pesan`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_profilesekolah` (
+  `id_profilesekolah` INT NOT NULL,
+  `title` VARCHAR(50),
+  `description` TEXT,
+  `status` INT,
+  PRIMARY KEY (`id_profilesekolah`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_setting` (
+  `id_setting` INT NOT NULL,
+  `nama_website` VARCHAR(50),
+  `meta_title` VARCHAR(50),
+  `icon_title` VARCHAR(50),
+  `meta_desc` TEXT,
+  `meta_keyword` TEXT,
+  `jumbotron` VARCHAR(50),
+  `jumbotron_title` TEXT,
+  `foto_kepsek` VARCHAR(50),
+  `sambutan` TEXT,
+  `alamat` TEXT,
+  `email` VARCHAR(50),
+  `telepon` VARCHAR(50),
+  `head_img` VARCHAR(50),
+  PRIMARY KEY (`id_setting`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_strukturvisimisi` (
+  `id_strukturvisimisi` INT NOT NULL,
+  `visi` TEXT,
+  `misi` TEXT,
+  `struktur_organisasi` VARCHAR(50),
+  PRIMARY KEY (`id_strukturvisimisi`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_users` (
+  `id_user` INT NOT NULL,
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  `full_name` VARCHAR(50),
+  `jabatan` VARCHAR(50),
+  `role` INT,
+  `created` DATETIME,
+  `updated` DATETIME,
+  PRIMARY KEY (`id_user`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_669054_db_sdn016anggana') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_669054_db_sdn016anggana') AS relationships;
+DROP DATABASE `db_669054_db_sdn016anggana`;
+UNINSTALL EXTENSION vsql_schematron;

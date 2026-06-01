@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 461944_create_db
+#
+CREATE DATABASE `db_461944_create_db`;
+USE `db_461944_create_db`;
+CREATE TABLE `customers` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`phone` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cars` (
+`id` INT NOT NULL,
+`make` VARCHAR(50),
+`model` VARCHAR(50),
+`price` DOUBLE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT NOT NULL,
+`customer_id` INT,
+`car_id` INT,
+`order_date` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_461944_create_db') AS relationships;
+relationships
+Database: db_461944_create_db
+
+Table Connections:
+------------------
+[Implied]  orders.car_id -> cars.id
+[Implied]  orders.customer_id -> customers.id
+
+DROP DATABASE `db_461944_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

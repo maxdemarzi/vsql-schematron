@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 571134_Untitled_mysql_create
+--echo #
+CREATE DATABASE `db_571134_Untitled_mysql_create`;
+USE `db_571134_Untitled_mysql_create`;
+CREATE TABLE `tb_pacientes` (
+  `id` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `telefone` VARCHAR(50),
+  `data_nascimento` DATE,
+  `convenio` VARCHAR(50),
+  `diagnostico` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_medicos` (
+  `id` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `telefone` VARCHAR(50),
+  `crm` VARCHAR(50),
+  `especialidade` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_agenda` (
+  `id` INT NOT NULL,
+  `data` DATE,
+  `hora` TIME,
+  `id_medico` INT,
+  `sala` VARCHAR(50),
+  `id_paciente` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_571134_Untitled_mysql_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_571134_Untitled_mysql_create') AS relationships;
+DROP DATABASE `db_571134_Untitled_mysql_create`;
+UNINSTALL EXTENSION vsql_schematron;

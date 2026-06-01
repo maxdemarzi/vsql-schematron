@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 526982_Employee
+--echo #
+CREATE DATABASE `db_526982_Employee`;
+USE `db_526982_Employee`;
+CREATE TABLE `Department` (
+  `id` INT NOT NULL,
+  `department_name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employee` (
+  `id` INT NOT NULL,
+  `email` VARCHAR(50),
+  `name` VARCHAR(50),
+  `department_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_526982_Employee') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_526982_Employee') AS relationships;
+DROP DATABASE `db_526982_Employee`;
+UNINSTALL EXTENSION vsql_schematron;

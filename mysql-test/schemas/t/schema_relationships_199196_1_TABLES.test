@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 199196_1_TABLES
+--echo #
+CREATE DATABASE `db_199196_1_TABLES`;
+USE `db_199196_1_TABLES`;
+CREATE TABLE `users` (
+  `id` BIGINT NOT NULL,
+  `first_name` TEXT,
+  `last_name` TEXT,
+  `phone_number` TEXT,
+  `birth_date` DATE,
+  `address` TEXT,
+  `email` TEXT,
+  `picture` TEXT,
+  `bio` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `socials` (
+  `id` BIGINT NOT NULL,
+  `social_name` TEXT,
+  `social_link` TEXT,
+  `social_logo` TEXT,
+  `user_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `language` (
+  `id` BIGINT NOT NULL,
+  `language_name` TEXT,
+  `language_level` TEXT,
+  `language_flag` TEXT,
+  `user_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hobby` (
+  `id` BIGINT NOT NULL,
+  `hobby_name` TEXT,
+  `hobby_logo` TEXT,
+  `hobby_description` TEXT,
+  `user_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `skill` (
+  `id` BIGINT NOT NULL,
+  `skill_name` TEXT,
+  `skill_logo_link` TEXT,
+  `skill_level` INT,
+  `user_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `frame_content` (
+  `id` BIGINT NOT NULL,
+  `frame_title` TEXT,
+  `frame_logo_url` TEXT,
+  `frame_order` INT,
+  `user_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `content_item` (
+  `id` BIGINT NOT NULL,
+  `item_title` TEXT,
+  `item_logo_url` TEXT,
+  `item_content` TEXT,
+  `item_order` INT,
+  `item_period` TEXT,
+  `item_location` TEXT,
+  `frame_content_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_199196_1_TABLES') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_199196_1_TABLES') AS relationships;
+DROP DATABASE `db_199196_1_TABLES`;
+UNINSTALL EXTENSION vsql_schematron;

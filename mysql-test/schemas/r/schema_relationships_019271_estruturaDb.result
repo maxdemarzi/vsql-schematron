@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 019271_estruturaDb
+#
+CREATE DATABASE `db_019271_estruturaDb`;
+USE `db_019271_estruturaDb`;
+CREATE TABLE `categoria` (
+`idCategoria` INT NOT NULL,
+`nomeCategoria` VARCHAR(50),
+PRIMARY KEY (`idCategoria`)
+) CHARACTER SET latin1;
+CREATE TABLE `projeto` (
+`idProjeto` INT NOT NULL,
+`nomeProjeto` VARCHAR(50),
+`idCategoria` INT,
+PRIMARY KEY (`idProjeto`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario` (
+`idUsuario` INT NOT NULL,
+`nomeUsuario` VARCHAR(50),
+`email` VARCHAR(50),
+`telefone` VARCHAR(50),
+`dataContrato` VARCHAR(50),
+`idProjeto` INT,
+PRIMARY KEY (`idUsuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `registro` (
+`idRegistro` INT NOT NULL,
+`descricao` VARCHAR(50),
+`timeStart` DATETIME,
+`timeEnd` DATETIME,
+PRIMARY KEY (`idRegistro`)
+) CHARACTER SET latin1;
+CREATE TABLE `projetoRegistros` (
+`idRegistro` INT,
+`idProjeto` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_019271_estruturaDb') AS relationships;
+relationships
+Database: db_019271_estruturaDb
+
+Table Connections:
+------------------
+[Implied]  projeto.idCategoria -> categoria.idCategoria
+[Implied]  projetoRegistros.idProjeto -> projeto.idProjeto
+[Implied]  projetoRegistros.idRegistro -> registro.idRegistro
+[Implied]  usuario.idProjeto -> projeto.idProjeto
+
+DROP DATABASE `db_019271_estruturaDb`;
+UNINSTALL EXTENSION vsql_schematron;

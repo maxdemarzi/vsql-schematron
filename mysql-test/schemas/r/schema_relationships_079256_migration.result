@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 079256_migration
+#
+CREATE DATABASE `db_079256_migration`;
+USE `db_079256_migration`;
+CREATE TABLE `User` (
+`id` VARCHAR(50) NOT NULL,
+`email` TEXT,
+`github` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Thought` (
+`id` VARCHAR(50) NOT NULL,
+`subject` TEXT,
+`text` TEXT,
+`authorId` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comment` (
+`id` VARCHAR(50) NOT NULL,
+`text` TEXT,
+`authorId` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Thumb` (
+`id` VARCHAR(50) NOT NULL,
+`userId` TEXT,
+`thoughtId` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_079256_migration') AS relationships;
+relationships
+Database: db_079256_migration
+
+Table Connections:
+------------------
+[Implied]  Comment.authorId -> User.id
+[Implied]  Thought.authorId -> User.id
+[Implied]  Thumb.thoughtId -> Thought.id
+[Implied]  Thumb.userId -> User.id
+
+DROP DATABASE `db_079256_migration`;
+UNINSTALL EXTENSION vsql_schematron;

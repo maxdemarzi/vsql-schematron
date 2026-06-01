@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 621062_VENDA-DDL
+--echo #
+CREATE DATABASE `db_621062_VENDA_DDL`;
+USE `db_621062_VENDA_DDL`;
+CREATE TABLE `cliente` (
+  `cli_codigo` DECIMAL(10,2) NOT NULL,
+  `cli_nome` VARCHAR(50),
+  `cli_endereco` VARCHAR(50),
+  `cli_cidade` VARCHAR(50),
+  `cli_cep` VARCHAR(50),
+  `cli_estado` VARCHAR(50),
+  `cli_cpf` DECIMAL(10,2),
+  PRIMARY KEY (`cli_codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendedor` (
+  `ven_codigo` DECIMAL(10,2) NOT NULL,
+  `ven_nome` VARCHAR(50),
+  `ven_salario_fixo` DECIMAL(10,2),
+  PRIMARY KEY (`ven_codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido` (
+  `ped_numero` DECIMAL(10,2) NOT NULL,
+  `ven_codigo` DECIMAL(10,2),
+  `cli_codigo` DECIMAL(10,2),
+  `ped_prazo_entrega` DECIMAL(10,2),
+  `ped_data` DATE,
+  `ped_valor_total` CHAR(50),
+  PRIMARY KEY (`ped_numero`)
+) CHARACTER SET latin1;
+CREATE TABLE `telefone` (
+  `tel_codigo` DECIMAL(10,2) NOT NULL,
+  `cli_codigo` DECIMAL(10,2),
+  `tel_numero` VARCHAR(50),
+  PRIMARY KEY (`tel_codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `produto` (
+  `pro_codigo` DECIMAL(10,2) NOT NULL,
+  `prod_descricao` VARCHAR(50),
+  `pro_quantidade` DECIMAL(10,2),
+  `pro_valor_unidade` DECIMAL(10,2),
+  PRIMARY KEY (`pro_codigo`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_621062_VENDA_DDL') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_621062_VENDA_DDL') AS relationships;
+DROP DATABASE `db_621062_VENDA_DDL`;
+UNINSTALL EXTENSION vsql_schematron;

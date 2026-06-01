@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 166972_tz
+--echo #
+CREATE DATABASE `db_166972_tz`;
+USE `db_166972_tz`;
+CREATE TABLE `brand` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `car` (
+  `id` INT,
+  `idModel` INT,
+  `price` DECIMAL(10,2),
+  `engine` VARCHAR(50),
+  `drive` VARCHAR(50),
+  `image` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `migration` (
+  `version` VARCHAR(50) NOT NULL,
+  `apply_time` INT,
+  PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+CREATE TABLE `model` (
+  `id` INT,
+  `name` TEXT,
+  `idBrand` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_166972_tz') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_166972_tz') AS relationships;
+DROP DATABASE `db_166972_tz`;
+UNINSTALL EXTENSION vsql_schematron;

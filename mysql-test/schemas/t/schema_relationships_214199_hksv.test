@@ -1,0 +1,102 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 214199_hksv
+--echo #
+CREATE DATABASE `db_214199_hksv`;
+USE `db_214199_hksv`;
+CREATE TABLE `articles` (
+  `ArticleID` INT,
+  `Title` TEXT,
+  `Header` TEXT,
+  `Content` TEXT,
+  `KonselorNIP` VARCHAR(50),
+  `Timestamp` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `chats` (
+  `ThreadID` INT,
+  `ThreadKey` VARCHAR(50),
+  `MahasiswaNIM` VARCHAR(50),
+  `KonselorNIP` VARCHAR(50),
+  `ThreadStatus` VARCHAR(50),
+  `Started_at` DATETIME,
+  `Closed_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `dosen` (
+  `NIP` VARCHAR(50) NOT NULL,
+  `Nama` VARCHAR(50),
+  `Prodi` VARCHAR(50),
+  `Pns` TINYINT,
+  PRIMARY KEY (`NIP`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+  `EventID` INT,
+  `Title` TEXT,
+  `Location` TEXT,
+  `KonselorNIP` VARCHAR(50),
+  `Timestamp` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `laporan` (
+  `LaporanID` INT NOT NULL,
+  `ThreadKey` VARCHAR(50),
+  `Masalah` VARCHAR(50),
+  PRIMARY KEY (`LaporanID`)
+) CHARACTER SET latin1;
+CREATE TABLE `logs` (
+  `LogID` INT NOT NULL,
+  `ActorUsername` TEXT,
+  `Action` TEXT,
+  `Timestamp` DATETIME,
+  PRIMARY KEY (`LogID`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+  `MessageID` INT NOT NULL,
+  `SenderID` VARCHAR(50),
+  `Message` TEXT,
+  `ThreadKey` VARCHAR(50),
+  `Timestamp` DATETIME,
+  PRIMARY KEY (`MessageID`)
+) CHARACTER SET latin1;
+CREATE TABLE `migrations` (
+  `id` VARCHAR(50) NOT NULL,
+  `version` VARCHAR(50),
+  `class` VARCHAR(50),
+  `group` VARCHAR(50),
+  `namespace` VARCHAR(50),
+  `time` INT,
+  `batch` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `request` (
+  `RequestID` INT NOT NULL,
+  `MahasiswaNIM` VARCHAR(50),
+  `MahasiswaNama` VARCHAR(50),
+  `RequestDetail` TEXT,
+  `ThreadKey` VARCHAR(50),
+  `Timestamp` DATETIME,
+  PRIMARY KEY (`RequestID`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+  `Id` INT,
+  `NIP` VARCHAR(50),
+  `Role` VARCHAR(50)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_214199_hksv') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_214199_hksv') AS relationships;
+DROP DATABASE `db_214199_hksv`;
+UNINSTALL EXTENSION vsql_schematron;

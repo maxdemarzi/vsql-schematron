@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 141616_structure
+#
+CREATE DATABASE `db_141616_structure`;
+USE `db_141616_structure`;
+CREATE TABLE `users` (
+`id` BIGINT NOT NULL,
+`login` VARCHAR(50),
+`password` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `session` (
+`id` BIGINT NOT NULL,
+`user` INT,
+`token` VARCHAR(50),
+`ip` VARCHAR(50),
+`data` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `country` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `city` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`country` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_141616_structure') AS relationships;
+relationships
+Database: db_141616_structure
+
+Table Connections:
+------------------
+[Implied]  city.country -> country.id
+[Implied]  session.user -> users.id
+
+DROP DATABASE `db_141616_structure`;
+UNINSTALL EXTENSION vsql_schematron;

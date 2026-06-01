@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 270238_bdgrande
+--echo #
+CREATE DATABASE `db_270238_bdgrande`;
+USE `db_270238_bdgrande`;
+CREATE TABLE `Cargos` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Especialidades` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profesionales` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  `apellido1` VARCHAR(50),
+  `apellido2` VARCHAR(50),
+  `fecha_nacimiento` DATE,
+  `cargo_id` INT,
+  `especialidad_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pacientes` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  `apellido1` VARCHAR(50),
+  `apellido2` VARCHAR(50),
+  `fecha_nacimiento` DATE,
+  `sexo` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Historial_fisico` (
+  `id` INT NOT NULL,
+  `paciente_id` INT,
+  `altura` INT,
+  `Peso` DOUBLE,
+  `fecha` DATE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Zonas_cuerpo` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Enfermedades` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  `indice_contagio` DOUBLE,
+  `indice_letalidad` DOUBLE,
+  `zona_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Historial_medico` (
+  `id` INT NOT NULL,
+  `paciente_id` INT,
+  `enfermedad_id` INT,
+  `fecha_contraccion` DATE,
+  `superada` BOOLEAN,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Herramientas` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  `fecha_compra` DATE,
+  `precio_compra` DOUBLE,
+  `marca` VARCHAR(50),
+  `modelo` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Es_util_en` (
+  `id` INT NOT NULL,
+  `herramienta_id` INT,
+  `enfermedad_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sabe_usar` (
+  `id` INT NOT NULL,
+  `profesional_id` INT,
+  `herramienta_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_270238_bdgrande') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_270238_bdgrande') AS relationships;
+DROP DATABASE `db_270238_bdgrande`;
+UNINSTALL EXTENSION vsql_schematron;

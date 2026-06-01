@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 356263_visitadb
+#
+CREATE DATABASE `db_356263_visitadb`;
+USE `db_356263_visitadb`;
+CREATE TABLE `booking` (
+`booking_id` INT,
+`FKuser_id` INT,
+`date_booked` DATETIME,
+`date_created` TIMESTAMP NULL,
+`add_info` VARCHAR(50),
+`pax` INT,
+`days` INT,
+`budget` DOUBLE,
+`with_car` VARCHAR(50),
+`with_photo` VARCHAR(50),
+`status` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`message_id` INT,
+`suserFK_id` INT,
+`ruserFK_id` INT,
+`subject` VARCHAR(50),
+`message` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `payment` (
+`payment_id` INT NOT NULL,
+`date_paid` TIMESTAMP NULL,
+`cc_number` DOUBLE,
+`subscription` INT,
+PRIMARY KEY (`payment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `picture` (
+`pic_id` INT NOT NULL,
+`name` VARCHAR(50),
+`descr` VARCHAR(50),
+`tags` VARCHAR(50),
+PRIMARY KEY (`pic_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`user_id` INT,
+`user_type` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`nbi_pic` VARCHAR(50),
+`cert_pic` VARCHAR(50),
+`paymentsFK` INT,
+`fname` VARCHAR(50),
+`lname` VARCHAR(50),
+`birthday` DATE,
+`contact` DOUBLE,
+`street` VARCHAR(50),
+`province` VARCHAR(50),
+`city` VARCHAR(50),
+`ratings` INT,
+`add_info` VARCHAR(50)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_356263_visitadb') AS relationships;
+relationships
+Database: db_356263_visitadb
+
+Table Connections:
+------------------
+[Implied]  booking.FKuser_id -> user.user_id
+[Implied]  user.paymentsFK -> payment.payment_id
+
+DROP DATABASE `db_356263_visitadb`;
+UNINSTALL EXTENSION vsql_schematron;

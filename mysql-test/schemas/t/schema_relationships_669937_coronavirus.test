@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 669937_coronavirus
+--echo #
+CREATE DATABASE `db_669937_coronavirus`;
+USE `db_669937_coronavirus`;
+CREATE TABLE `cvdb_country` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `number_of_patients` INT,
+  `number_of_death` INT,
+  `updated_time` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cvdb_detect` (
+  `id` INT NOT NULL,
+  `time` VARCHAR(50),
+  `user_agent` TEXT,
+  `ip` INT,
+  `content` TEXT,
+  `detect_rate` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cvdb_login` (
+  `id` INT,
+  `user_id` INT,
+  `time` INT,
+  `user_agent` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `cvdb_symptom` (
+  `id` INT NOT NULL,
+  `title` VARCHAR(50),
+  `type` INT,
+  `impact_percentage` INT,
+  `updated_time` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cvdb_user` (
+  `id` INT NOT NULL,
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cvdb_view` (
+  `id` BIGINT NOT NULL,
+  `time` INT,
+  `user_agent` TEXT,
+  `ip` VARCHAR(50),
+  `section` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_669937_coronavirus') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_669937_coronavirus') AS relationships;
+DROP DATABASE `db_669937_coronavirus`;
+UNINSTALL EXTENSION vsql_schematron;

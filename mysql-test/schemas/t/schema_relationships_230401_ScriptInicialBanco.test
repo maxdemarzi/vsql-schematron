@@ -1,0 +1,119 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 230401_ScriptInicialBanco
+--echo #
+CREATE DATABASE `db_230401_ScriptInicialBanco`;
+USE `db_230401_ScriptInicialBanco`;
+CREATE TABLE `Endereco` (
+  `id_endereco` INT NOT NULL,
+  `rua` VARCHAR(50),
+  `numero` INT,
+  `complemento` VARCHAR(50),
+  `bairro` VARCHAR(50),
+  `cep` VARCHAR(50),
+  PRIMARY KEY (`id_endereco`)
+) CHARACTER SET latin1;
+CREATE TABLE `Turma` (
+  `cod_turma` INT NOT NULL,
+  `serie` VARCHAR(50),
+  `qte` INT,
+  PRIMARY KEY (`cod_turma`)
+) CHARACTER SET latin1;
+CREATE TABLE `Aluno` (
+  `cod_aluno` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `cpf` VARCHAR(50),
+  `data_nascimento` DATE,
+  `sexo` VARCHAR(50),
+  `celular` VARCHAR(50),
+  `email` VARCHAR(50),
+  `pai` VARCHAR(50),
+  `telefone_pai` VARCHAR(50),
+  `mae` VARCHAR(50),
+  `telefone_mae` VARCHAR(50),
+  `fk_endereco` INT,
+  `fk_turma` INT,
+  PRIMARY KEY (`cod_aluno`)
+) CHARACTER SET latin1;
+CREATE TABLE `Adm` (
+  `cod_adm` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `sexo` VARCHAR(50),
+  `data_nascimento` DATE,
+  `rg` VARCHAR(50),
+  `cpf` VARCHAR(50),
+  `celular` VARCHAR(50),
+  `email` VARCHAR(50),
+  `senha` VARCHAR(50),
+  `senha_repetida` VARCHAR(50),
+  `perfil` VARCHAR(50),
+  `fk_endereco` INT,
+  PRIMARY KEY (`cod_adm`)
+) CHARACTER SET latin1;
+CREATE TABLE `Professor` (
+  `cod_professor` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `sexo` VARCHAR(50),
+  `data_nascimento` DATE,
+  `rg` VARCHAR(50),
+  `cpf` VARCHAR(50),
+  `celular` VARCHAR(50),
+  `email` VARCHAR(50),
+  `senha` VARCHAR(50),
+  `senha_repetida` VARCHAR(50),
+  `perfil` VARCHAR(50),
+  `fk_endereco` INT,
+  PRIMARY KEY (`cod_professor`)
+) CHARACTER SET latin1;
+CREATE TABLE `Disciplinas` (
+  `disciplinaID` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `cargahoraria` INT,
+  PRIMARY KEY (`disciplinaID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Ministrante` (
+  `fk_cod_professor` INT,
+  `fk_disciplinaID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Grade` (
+  `fk_cod_turma` INT,
+  `fk_disciplinaID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Desempenho` (
+  `desempenhoID` INT NOT NULL,
+  `nota1` DECIMAL(10,2),
+  `nota2` DECIMAL(10,2),
+  `nota3` DECIMAL(10,2),
+  `nota4` DECIMAL(10,2),
+  `fk_disciplinaID` INT,
+  `fk_cod_aluno` INT,
+  PRIMARY KEY (`desempenhoID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Frequencia` (
+  `ID_frequencia` INT NOT NULL,
+  `aula_assistida` INT,
+  `presente` INT,
+  `fk_disciplinaID` INT,
+  `fk_cod_aluno` INT,
+  PRIMARY KEY (`ID_frequencia`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_230401_ScriptInicialBanco') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_230401_ScriptInicialBanco') AS relationships;
+DROP DATABASE `db_230401_ScriptInicialBanco`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 324062_init
+#
+CREATE DATABASE `db_324062_init`;
+USE `db_324062_init`;
+CREATE TABLE `emotions` (
+`emotion_id` INT NOT NULL,
+`emotion_name` VARCHAR(50),
+PRIMARY KEY (`emotion_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `images` (
+`image_id` INT NOT NULL,
+`image_url` VARCHAR(50),
+`gender` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`emotion_id` INT,
+PRIMARY KEY (`image_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`comment_id` INT NOT NULL,
+`comment_content` VARCHAR(50),
+`image_id` INT,
+PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_324062_init') AS relationships;
+relationships
+Database: db_324062_init
+
+Table Connections:
+------------------
+[Implied]  comments.image_id -> images.image_id
+[Implied]  images.emotion_id -> emotions.emotion_id
+
+DROP DATABASE `db_324062_init`;
+UNINSTALL EXTENSION vsql_schematron;

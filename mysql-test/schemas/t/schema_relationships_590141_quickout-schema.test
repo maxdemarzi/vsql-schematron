@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 590141_quickout-schema
+--echo #
+CREATE DATABASE `db_590141_quickout_schema`;
+USE `db_590141_quickout_schema`;
+CREATE TABLE `cart` (
+  `id` VARCHAR(50) NOT NULL,
+  `create_date` DATETIME,
+  `last_udpated` DATETIME,
+  `account_code` VARCHAR(50),
+  `status` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cart_details` (
+  `id` BIGINT NOT NULL,
+  `create_date` DATETIME,
+  `last_udpated` DATETIME,
+  `img_src` VARCHAR(50),
+  `list_price` DOUBLE,
+  `quantity` INT,
+  `selling_price` DOUBLE,
+  `sku_id` VARCHAR(50),
+  `sku_name` VARCHAR(50),
+  `cart_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+  `id` BIGINT NOT NULL,
+  `create_date` DATETIME,
+  `last_udpated` DATETIME,
+  `address` VARCHAR(50),
+  `address2` VARCHAR(50),
+  `city` VARCHAR(50),
+  `state` VARCHAR(50),
+  `zip_code` VARCHAR(50),
+  `customer_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+  `id` BIGINT NOT NULL,
+  `create_date` DATETIME,
+  `last_udpated` DATETIME,
+  `email` VARCHAR(50),
+  `first_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `phone` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shipment_info` (
+  `id` BIGINT NOT NULL,
+  `create_date` DATETIME,
+  `last_udpated` DATETIME,
+  `customer_id` BIGINT,
+  `cart_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_590141_quickout_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_590141_quickout_schema') AS relationships;
+DROP DATABASE `db_590141_quickout_schema`;
+UNINSTALL EXTENSION vsql_schematron;

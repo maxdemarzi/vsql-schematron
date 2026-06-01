@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 609672_crate
+#
+CREATE DATABASE `db_609672_crate`;
+USE `db_609672_crate`;
+CREATE TABLE `companies` (
+`id` INT NOT NULL,
+`company` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `crates` (
+`id` INT,
+`id_company` INT,
+`content` VARCHAR(50),
+`active` TINYINT
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+`id_company` INT,
+`auth_key` VARCHAR(50),
+`owner` TINYINT
+) CHARACTER SET latin1;
+CREATE TABLE `values` (
+`id` INT,
+`id_crate` INT,
+`date` DATETIME,
+`temperature` DOUBLE,
+`humidity` INT,
+`hydrogen` INT,
+`oxigen` INT,
+`latitude` DOUBLE,
+`longitude` DOUBLE
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_609672_crate') AS relationships;
+relationships
+Database: db_609672_crate
+
+Table Connections:
+------------------
+[Implied]  crates.id_company -> companies.id
+[Implied]  users.id_company -> companies.id
+[Implied]  values.id_crate -> crates.id
+
+DROP DATABASE `db_609672_crate`;
+UNINSTALL EXTENSION vsql_schematron;

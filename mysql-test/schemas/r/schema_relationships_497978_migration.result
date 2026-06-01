@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 497978_migration
+#
+CREATE DATABASE `db_497978_migration`;
+USE `db_497978_migration`;
+CREATE TABLE `User` (
+`id` VARCHAR(50) NOT NULL,
+`created_at` DATETIME,
+`name` TEXT,
+`lastname` TEXT,
+`username` TEXT,
+`userhash` TEXT,
+`cpf` TEXT,
+`email` TEXT,
+`password` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Address` (
+`id` INT NOT NULL,
+`userId` TEXT,
+`postalCode` TEXT,
+`city` TEXT,
+`state` TEXT,
+`street` TEXT,
+`number` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rating` (
+`id` INT NOT NULL,
+`itemId` TEXT,
+`one_star` TEXT,
+`two_star` TEXT,
+`three_star` TEXT,
+`four_star` TEXT,
+`five_star` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Image` (
+`id` INT NOT NULL,
+`itemId` TEXT,
+`link` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Item` (
+`id` VARCHAR(50) NOT NULL,
+`created_at` DATETIME,
+`name` TEXT,
+`short_name` TEXT,
+`description` TEXT,
+`price` TEXT,
+`shipping_price` TEXT,
+`discount` TEXT,
+`category` TEXT,
+`orders` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_497978_migration') AS relationships;
+relationships
+Database: db_497978_migration
+
+Table Connections:
+------------------
+[Implied]  Address.userId -> User.id
+[Implied]  Image.itemId -> Item.id
+[Implied]  Rating.itemId -> Item.id
+
+DROP DATABASE `db_497978_migration`;
+UNINSTALL EXTENSION vsql_schematron;

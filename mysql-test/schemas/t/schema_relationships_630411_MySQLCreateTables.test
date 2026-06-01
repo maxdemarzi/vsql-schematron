@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 630411_MySQLCreateTables
+--echo #
+CREATE DATABASE `db_630411_MySQLCreateTables`;
+USE `db_630411_MySQLCreateTables`;
+CREATE TABLE `Movie` (
+  `movieId` BIGINT NOT NULL,
+  `title` VARCHAR(50),
+  `runtime` SMALLINT,
+  `description` VARCHAR(50),
+  `price` DOUBLE,
+  `creationDate` DATETIME,
+  PRIMARY KEY (`movieId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sale` (
+  `saleId` BIGINT NOT NULL,
+  `movieId` BIGINT,
+  `userId` VARCHAR(50),
+  `expirationDate` DATETIME,
+  `creditCardNumber` VARCHAR(50),
+  `price` DOUBLE,
+  `movieUrl` VARCHAR(50),
+  `saleDate` DATETIME,
+  PRIMARY KEY (`saleId`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_630411_MySQLCreateTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_630411_MySQLCreateTables') AS relationships;
+DROP DATABASE `db_630411_MySQLCreateTables`;
+UNINSTALL EXTENSION vsql_schematron;

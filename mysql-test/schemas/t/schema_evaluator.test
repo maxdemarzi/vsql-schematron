@@ -1,27 +1,36 @@
 INSTALL EXTENSION vsql_schematron;
 --disable_warnings
-DROP DATABASE IF EXISTS `db_263438_init`;
+DROP DATABASE IF EXISTS `db_215298_schema`;
 --enable_warnings
-CREATE DATABASE `db_263438_init`;
-USE `db_263438_init`;
-CREATE TABLE `image_index` (
-  `img_id` VARCHAR(50) NOT NULL,
-  `filename` VARCHAR(50),
-  `width` INT,
-  `height` INT,
-  PRIMARY KEY (`img_id`)
+CREATE DATABASE `db_215298_schema`;
+USE `db_215298_schema`;
+CREATE TABLE `Product` (
+  `id` INT NOT NULL,
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
 ) CHARACTER SET latin1;
-CREATE TABLE `image_data` (
-  `img_data_id` VARCHAR(50) NOT NULL,
-  `img_id` VARCHAR(50),
-  `order_x` INT,
-  `order_y` INT,
-  `actual_width` INT,
-  `actual_height` INT,
-  `width` INT,
-  `height` INT,
-  `img_data` BLOB,
-  PRIMARY KEY (`img_data_id`)
+CREATE TABLE `ProductTopic` (
+  `id` INT NOT NULL,
+  `productId` INT NOT NULL,
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`, `productId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Agent` (
+  `id` INT NOT NULL,
+  `firstName` VARCHAR(50),
+  `lastName` VARCHAR(50),
+  `email` VARCHAR(50),
+  `agentProfileAssignId` INT,
+  `locationId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `AgentSlot` (
+  `id` INT NOT NULL,
+  `agentId` INT NOT NULL,
+  `slotFrom` DATETIME,
+  `slotTo` DATETIME,
+  `status` VARCHAR(50),
+  PRIMARY KEY (`id`, `agentId`)
 ) CHARACTER SET latin1;
 --disable_query_log
 SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
@@ -29,7 +38,7 @@ SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
 --let $wait_counter= 100
 while ($wait_counter)
 {
-  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_263438_init') AS r, r, 1)
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_215298_schema') AS r, r, 1)
   if ($ready)
   {
     --let $wait_counter= 0
@@ -40,8 +49,8 @@ while ($wait_counter)
     --dec $wait_counter
   }
 }
---echo SCHEMA_START: 263438_init
-SELECT vsql_schema_relationships('db_263438_init') AS relationships;
+--echo SCHEMA_START: 215298_schema
+SELECT vsql_schema_relationships('db_215298_schema') AS relationships;
 --echo SCHEMA_END
-DROP DATABASE `db_263438_init`;
+DROP DATABASE `db_215298_schema`;
 UNINSTALL EXTENSION vsql_schematron;

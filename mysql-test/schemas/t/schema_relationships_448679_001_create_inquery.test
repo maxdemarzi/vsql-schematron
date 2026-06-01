@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 448679_001_create_inquery
+--echo #
+CREATE DATABASE `db_448679_001_create_inquery`;
+USE `db_448679_001_create_inquery`;
+CREATE TABLE `status` (
+  `status_id` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`status_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `inquery` (
+  `id` INT NOT NULL,
+  `title` VARCHAR(50),
+  `status` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_448679_001_create_inquery') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_448679_001_create_inquery') AS relationships;
+DROP DATABASE `db_448679_001_create_inquery`;
+UNINSTALL EXTENSION vsql_schematron;

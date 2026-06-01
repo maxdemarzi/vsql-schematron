@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 045417_setup_db_tables_all_classes
+--echo #
+CREATE DATABASE `db_045417_setup_db_tables_all_classes`;
+USE `db_045417_setup_db_tables_all_classes`;
+CREATE TABLE `states` (
+  `id` VARCHAR(50) NOT NULL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cities` (
+  `id` VARCHAR(50) NOT NULL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `name` VARCHAR(50),
+  `state_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+  `id` VARCHAR(50) NOT NULL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  `first_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `amenities` (
+  `id` VARCHAR(50) NOT NULL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `places` (
+  `id` VARCHAR(50) NOT NULL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `name` VARCHAR(50),
+  `city_id` VARCHAR(50),
+  `user_id` VARCHAR(50),
+  `description` VARCHAR(50),
+  `number_rooms` INT,
+  `number_bathrooms` INT,
+  `max_guest` INT,
+  `price_by_night` INT,
+  `latitude` DOUBLE,
+  `longitude` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `place_amenity` (
+  `id` INT NOT NULL,
+  `place_id` VARCHAR(50),
+  `amenity_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_045417_setup_db_tables_all_classes') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_045417_setup_db_tables_all_classes') AS relationships;
+DROP DATABASE `db_045417_setup_db_tables_all_classes`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 166972_tz
+#
+CREATE DATABASE `db_166972_tz`;
+USE `db_166972_tz`;
+CREATE TABLE `brand` (
+`id` INT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `car` (
+`id` INT,
+`idModel` INT,
+`price` DECIMAL(10,2),
+`engine` VARCHAR(50),
+`drive` VARCHAR(50),
+`image` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `migration` (
+`version` VARCHAR(50) NOT NULL,
+`apply_time` INT,
+PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+CREATE TABLE `model` (
+`id` INT,
+`name` TEXT,
+`idBrand` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_166972_tz') AS relationships;
+relationships
+Database: db_166972_tz
+
+Table Connections:
+------------------
+[Implied]  car.idModel -> model.id
+[Implied]  model.idBrand -> brand.id
+
+DROP DATABASE `db_166972_tz`;
+UNINSTALL EXTENSION vsql_schematron;

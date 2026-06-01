@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 372987_migration
+#
+CREATE DATABASE `db_372987_migration`;
+USE `db_372987_migration`;
+CREATE TABLE `Journal` (
+`id` VARCHAR(50) NOT NULL,
+`completed` BOOLEAN,
+`title` TEXT,
+`description` TEXT,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`userId` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ActivityLog` (
+`id` VARCHAR(50) NOT NULL,
+`startedAt` TIMESTAMP NULL,
+`finishedAt` TIMESTAMP NULL,
+`journalId` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `MoodEntry` (
+`id` VARCHAR(50) NOT NULL,
+`on` DATE,
+`mood` VARCHAR(50),
+`userId` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Schedule` (
+`id` VARCHAR(50) NOT NULL,
+`userId` TEXT,
+`label` TEXT,
+`remindAt` TIME,
+`repeatEach` VARCHAR(50),
+`selectedDays` VARCHAR(50),
+`remindEvery` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_372987_migration') AS relationships;
+relationships
+Database: db_372987_migration
+
+Table Connections:
+------------------
+[Implied]  ActivityLog.journalId -> Journal.id
+
+DROP DATABASE `db_372987_migration`;
+UNINSTALL EXTENSION vsql_schematron;

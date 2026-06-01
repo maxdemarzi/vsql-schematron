@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 334531_forPracticeDatabase
+--echo #
+CREATE DATABASE `db_334531_forPracticeDatabase`;
+USE `db_334531_forPracticeDatabase`;
+CREATE TABLE `Products` (
+  `product_id` BIGINT NOT NULL,
+  `product_name` VARCHAR(50),
+  `value` INT,
+  PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Prefecture` (
+  `prefecture_id` INT NOT NULL,
+  `prefecture_name` VARCHAR(50),
+  PRIMARY KEY (`prefecture_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customers` (
+  `customer_id` BIGINT NOT NULL,
+  `customer_name` VARCHAR(50),
+  `prefecture_id` INT,
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sales` (
+  `sales_id` BIGINT NOT NULL,
+  `product_id` BIGINT,
+  `customer_id` BIGINT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`sales_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_334531_forPracticeDatabase') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_334531_forPracticeDatabase') AS relationships;
+DROP DATABASE `db_334531_forPracticeDatabase`;
+UNINSTALL EXTENSION vsql_schematron;

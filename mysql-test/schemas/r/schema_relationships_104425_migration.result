@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 104425_migration
+#
+CREATE DATABASE `db_104425_migration`;
+USE `db_104425_migration`;
+CREATE TABLE `SeedsSource` (
+`id` VARCHAR(50) NOT NULL,
+`isWeb` BOOLEAN,
+`url` TEXT,
+`description` TEXT,
+`createdAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PlantVariety` (
+`id` VARCHAR(50) NOT NULL,
+`name` TEXT,
+`description` TEXT,
+`seedsSourceId` TEXT,
+`daysToMaturity` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Planting` (
+`id` VARCHAR(50) NOT NULL,
+`name` TEXT,
+`datePlanted` TIMESTAMP NULL,
+`notes` TEXT,
+`isSuccession` BOOLEAN,
+`successionPeriod` INT,
+`plantVarietyId` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_104425_migration') AS relationships;
+relationships
+Database: db_104425_migration
+
+Table Connections:
+------------------
+[Implied]  PlantVariety.seedsSourceId -> SeedsSource.id
+[Implied]  Planting.plantVarietyId -> PlantVariety.id
+
+DROP DATABASE `db_104425_migration`;
+UNINSTALL EXTENSION vsql_schematron;

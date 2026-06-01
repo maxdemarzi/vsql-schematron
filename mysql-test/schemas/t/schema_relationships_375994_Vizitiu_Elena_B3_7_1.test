@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 375994_Vizitiu_Elena_B3_7_1
+--echo #
+CREATE DATABASE `db_375994_Vizitiu_Elena_B3_7_1`;
+USE `db_375994_Vizitiu_Elena_B3_7_1`;
+CREATE TABLE `produse` (
+  `id` INT NOT NULL,
+  `nume` VARCHAR(50),
+  `pret` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cumparatori` (
+  `id_cumparator` INT NOT NULL,
+  `id_produs` INT,
+  `nume_cumparator` VARCHAR(50),
+  `prenume` VARCHAR(50),
+  `adresa` VARCHAR(50),
+  PRIMARY KEY (`id_cumparator`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_375994_Vizitiu_Elena_B3_7_1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_375994_Vizitiu_Elena_B3_7_1') AS relationships;
+DROP DATABASE `db_375994_Vizitiu_Elena_B3_7_1`;
+UNINSTALL EXTENSION vsql_schematron;

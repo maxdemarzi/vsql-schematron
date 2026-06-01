@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 542959_setup
+#
+CREATE DATABASE `db_542959_setup`;
+USE `db_542959_setup`;
+CREATE TABLE `accounts` (
+`acc_id` VARCHAR(50) NOT NULL,
+`acc_access` VARCHAR(50),
+`acc_refresh` VARCHAR(50),
+`acc_token_expiry` INT,
+`acc_token_registry` DATETIME,
+PRIMARY KEY (`acc_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pages` (
+`pge_id` VARCHAR(50) NOT NULL,
+`pge_wiki` VARCHAR(50),
+`pge_namespace` INT,
+`pge_page` BLOB,
+PRIMARY KEY (`pge_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`ses_id` VARCHAR(50) NOT NULL,
+`ses_account` VARCHAR(50),
+`ses_expiry` DATETIME,
+PRIMARY KEY (`ses_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `watchlists_user` (
+`wtl_id` VARCHAR(50) NOT NULL,
+`wtl_account` VARCHAR(50),
+`wtl_wiki` VARCHAR(50),
+`wtl_interval` INT,
+`wtl_update` DATETIME,
+`wtl_update_manual` DATETIME,
+`wtl_hash` BLOB,
+PRIMARY KEY (`wtl_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pages_userwatchlists` (
+`pwl_id` VARCHAR(50) NOT NULL,
+`pwl_page` CHAR(50),
+`pwl_watchlist` VARCHAR(50),
+PRIMARY KEY (`pwl_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `webhooks` (
+`whk_id` VARCHAR(50) NOT NULL,
+`whk_account` VARCHAR(50),
+`whk_url` VARCHAR(50),
+`whk_format` TEXT,
+PRIMARY KEY (`whk_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `routes` (
+`rte_id` VARCHAR(50) NOT NULL,
+`rte_wiki` VARCHAR(50),
+`rte_type` VARCHAR(50),
+`rte_webhook` VARCHAR(50),
+PRIMARY KEY (`rte_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_542959_setup') AS relationships;
+relationships
+Database: db_542959_setup
+
+Table Connections:
+------------------
+[Implied]  pages_userwatchlists.pwl_page -> pages.pge_id
+[Implied]  pages_userwatchlists.pwl_watchlist -> watchlists_user.wtl_id
+[Implied]  routes.rte_webhook -> webhooks.whk_id
+[Implied]  sessions.ses_account -> accounts.acc_id
+[Implied]  watchlists_user.wtl_account -> accounts.acc_id
+[Implied]  webhooks.whk_account -> accounts.acc_id
+
+DROP DATABASE `db_542959_setup`;
+UNINSTALL EXTENSION vsql_schematron;

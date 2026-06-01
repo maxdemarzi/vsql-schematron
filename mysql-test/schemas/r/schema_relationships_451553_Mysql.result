@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 451553_Mysql
+#
+CREATE DATABASE `db_451553_Mysql`;
+USE `db_451553_Mysql`;
+CREATE TABLE `servers` (
+`id` INT NOT NULL,
+`ip` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cpus` (
+`id` INT NOT NULL,
+`server_id` INT,
+`percent` DOUBLE,
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mems` (
+`id` INT NOT NULL,
+`server_id` INT,
+`free` INT,
+`used` INT,
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nets` (
+`id` INT NOT NULL,
+`server_id` INT,
+`rx` INT,
+`tx` INT,
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_451553_Mysql') AS relationships;
+relationships
+Database: db_451553_Mysql
+
+Table Connections:
+------------------
+[Implied]  cpus.server_id -> servers.id
+[Implied]  mems.server_id -> servers.id
+[Implied]  nets.server_id -> servers.id
+
+DROP DATABASE `db_451553_Mysql`;
+UNINSTALL EXTENSION vsql_schematron;

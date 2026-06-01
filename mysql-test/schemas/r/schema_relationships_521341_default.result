@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 521341_default
+#
+CREATE DATABASE `db_521341_default`;
+USE `db_521341_default`;
+CREATE TABLE `rupay_orders` (
+`id` INT,
+`order_number` VARCHAR(50),
+`transaction_id` VARCHAR(50),
+`hash` VARCHAR(50),
+`date` DATETIME,
+`valid_through` DATETIME,
+`buyer` VARCHAR(50),
+`email` VARCHAR(50),
+`phone` VARCHAR(50),
+`address` VARCHAR(50),
+`passport` VARCHAR(50),
+`inn` VARCHAR(50),
+`comment` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` DATETIME,
+`paid` DATETIME,
+`fiscalized` DATETIME,
+`refunded` DATETIME,
+`refund_fiscalized` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `rupay_orders_items` (
+`id` INT,
+`order_id` INT,
+`product` VARCHAR(50),
+`price` DECIMAL(10,2),
+`quantity` DECIMAL(10,2),
+`units` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `rupay_orders_payments` (
+`id` INT,
+`order_id` INT,
+`gateway` VARCHAR(50),
+`is_outdated` TINYINT,
+`payment_url` VARCHAR(50),
+`gateway_order_id` VARCHAR(50),
+`data` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_521341_default') AS relationships;
+relationships
+Database: db_521341_default
+
+Table Connections:
+------------------
+[Implied]  rupay_orders_items.order_id -> rupay_orders.id
+[Implied]  rupay_orders_payments.order_id -> rupay_orders.id
+
+DROP DATABASE `db_521341_default`;
+UNINSTALL EXTENSION vsql_schematron;

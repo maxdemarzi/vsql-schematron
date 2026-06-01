@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 085372_banque_php
+--echo #
+CREATE DATABASE `db_085372_banque_php`;
+USE `db_085372_banque_php`;
+CREATE TABLE `Customer` (
+  `id` VARCHAR(50) NOT NULL,
+  `lastname` VARCHAR(50),
+  `firstname` VARCHAR(50),
+  `phone` INT,
+  `email` VARCHAR(50),
+  `sex` CHAR(50),
+  `password` VARCHAR(50),
+  `birth_date` DATE,
+  `city` VARCHAR(50),
+  `city_code` CHAR(50),
+  `street_number` INT,
+  `street` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Account` (
+  `id` VARCHAR(50) NOT NULL,
+  `account_number` VARCHAR(50),
+  `account_type` VARCHAR(50),
+  `amount` DECIMAL(10,2),
+  `operation_date` DATE,
+  `customer_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Operation` (
+  `id` VARCHAR(50) NOT NULL,
+  `operation_type` VARCHAR(50),
+  `amount` DECIMAL(10,2),
+  `label` VARCHAR(50),
+  `executed` TIMESTAMP NULL,
+  `account_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_085372_banque_php') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_085372_banque_php') AS relationships;
+DROP DATABASE `db_085372_banque_php`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 438318_script
+--echo #
+CREATE DATABASE `db_438318_script`;
+USE `db_438318_script`;
+CREATE TABLE `user` (
+  `id` INT NOT NULL,
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  `email` VARCHAR(50),
+  `money` INT,
+  `life` INT,
+  `last_login` DATE,
+  `login_reward` INT,
+  `got_reward` TINYINT,
+  `active` INT,
+  `token` VARCHAR(50),
+  `winP` INT,
+  `loseP` INT,
+  `rankP` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reset` (
+  `id` INT NOT NULL,
+  `email` VARCHAR(50),
+  `token` VARCHAR(50),
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `history` (
+  `id` INT NOT NULL,
+  `winner` INT,
+  `loser` INT,
+  `moment` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_438318_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_438318_script') AS relationships;
+DROP DATABASE `db_438318_script`;
+UNINSTALL EXTENSION vsql_schematron;

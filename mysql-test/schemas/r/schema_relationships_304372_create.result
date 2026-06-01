@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 304372_create
+#
+CREATE DATABASE `db_304372_create`;
+USE `db_304372_create`;
+CREATE TABLE `libraries` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`description` TEXT,
+`active` TINYINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `buildings` (
+`id` INT NOT NULL,
+`library_id` INT,
+`kod` VARCHAR(50),
+`name` VARCHAR(50),
+`description` TEXT,
+`active` TINYINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books` (
+`id` INT NOT NULL,
+`buildings_id` INT,
+`booknumber` VARCHAR(50),
+`name` VARCHAR(50),
+`description` TEXT,
+`active` TINYINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `catalogs` (
+`id` INT NOT NULL,
+`books_id` INT,
+`catalognumber` VARCHAR(50),
+`name` VARCHAR(50),
+`description` TEXT,
+`active` TINYINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `files` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`file_name` VARCHAR(50),
+`created` DATETIME,
+`modified` DATETIME,
+`status` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_304372_create') AS relationships;
+relationships
+Database: db_304372_create
+
+Table Connections:
+------------------
+[Implied]  books.buildings_id -> buildings.id
+[Implied]  buildings.library_id -> libraries.id
+[Implied]  catalogs.books_id -> books.id
+
+DROP DATABASE `db_304372_create`;
+UNINSTALL EXTENSION vsql_schematron;

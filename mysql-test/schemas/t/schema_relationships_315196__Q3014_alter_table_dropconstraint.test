@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 315196__Q3014_alter_table_dropconstraint
+--echo #
+CREATE DATABASE `db_315196__Q3014_alter_table_dropconstraint`;
+USE `db_315196__Q3014_alter_table_dropconstraint`;
+CREATE TABLE `t1` (
+  `id` INT NOT NULL,
+  `a` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_group` (
+  `group_id` INT NOT NULL,
+  `group_name` VARCHAR(50),
+  PRIMARY KEY (`group_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_emp` (
+  `emp_id` INT NOT NULL,
+  `emp_name` VARCHAR(50),
+  `group_id` INT,
+  PRIMARY KEY (`emp_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_315196__Q3014_alter_table_dropconstraint') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_315196__Q3014_alter_table_dropconstraint') AS relationships;
+DROP DATABASE `db_315196__Q3014_alter_table_dropconstraint`;
+UNINSTALL EXTENSION vsql_schematron;

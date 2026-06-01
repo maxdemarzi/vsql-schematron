@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 650889_schema
+#
+CREATE DATABASE `db_650889_schema`;
+USE `db_650889_schema`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`email` VARCHAR(50),
+`hidden` BOOLEAN,
+`created_at` DATETIME,
+`password` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `checklist` (
+`id` INT NOT NULL,
+`body` VARCHAR(50),
+`completed` BOOLEAN,
+`hidden` BOOLEAN,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `likes` (
+`id` INT NOT NULL,
+`quote_id` INT,
+`reflection` VARCHAR(50),
+`liked` BOOLEAN,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `quotes` (
+`id` INT NOT NULL,
+`quote_body` VARCHAR(50),
+`quote_author` VARCHAR(50),
+`image_url` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_650889_schema') AS relationships;
+relationships
+Database: db_650889_schema
+
+Table Connections:
+------------------
+[Implied]  checklist.user_id -> users.id
+[Implied]  likes.quote_id -> quotes.id
+[Implied]  likes.user_id -> users.id
+
+DROP DATABASE `db_650889_schema`;
+UNINSTALL EXTENSION vsql_schematron;

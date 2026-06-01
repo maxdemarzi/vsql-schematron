@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 152355_campground
+#
+CREATE DATABASE `db_152355_campground`;
+USE `db_152355_campground`;
+CREATE TABLE `park` (
+`park_id` INT NOT NULL,
+`name` VARCHAR(50),
+`location` VARCHAR(50),
+`establish_date` DATE,
+`area` INT,
+`visitors` INT,
+`description` VARCHAR(50),
+PRIMARY KEY (`park_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `campground` (
+`campground_id` INT NOT NULL,
+`park_id` INT,
+`name` VARCHAR(50),
+`open_from_mm` VARCHAR(50),
+`open_to_mm` VARCHAR(50),
+`daily_fee` VARCHAR(50),
+PRIMARY KEY (`campground_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `site` (
+`site_id` INT NOT NULL,
+`campground_id` INT,
+`site_number` INT,
+`max_occupancy` INT,
+`accessible` BOOLEAN,
+`max_rv_length` INT,
+`utilities` BOOLEAN,
+PRIMARY KEY (`site_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reservation` (
+`reservation_id` INT NOT NULL,
+`site_id` INT,
+`name` VARCHAR(50),
+`from_date` DATE,
+`to_date` DATE,
+`create_date` DATE,
+PRIMARY KEY (`reservation_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_152355_campground') AS relationships;
+relationships
+Database: db_152355_campground
+
+Table Connections:
+------------------
+[Implied]  campground.park_id -> park.park_id
+[Implied]  reservation.site_id -> site.site_id
+[Implied]  site.campground_id -> campground.campground_id
+
+DROP DATABASE `db_152355_campground`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 643793_mcq
+--echo #
+CREATE DATABASE `db_643793_mcq`;
+USE `db_643793_mcq`;
+CREATE TABLE `admins` (
+  `id` VARCHAR(50) NOT NULL,
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question_attempts` (
+  `id` INT,
+  `user_id` INT,
+  `correct_answer` TEXT,
+  `given_answer` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+  `id` INT NOT NULL,
+  `email` VARCHAR(50),
+  `name` VARCHAR(50),
+  `submitted_on` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_643793_mcq') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_643793_mcq') AS relationships;
+DROP DATABASE `db_643793_mcq`;
+UNINSTALL EXTENSION vsql_schematron;

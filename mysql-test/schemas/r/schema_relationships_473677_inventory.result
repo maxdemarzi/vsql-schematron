@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 473677_inventory
+#
+CREATE DATABASE `db_473677_inventory`;
+USE `db_473677_inventory`;
+CREATE TABLE `routers` (
+`router_id` VARCHAR(50) NOT NULL,
+`router_type` VARCHAR(50),
+PRIMARY KEY (`router_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `switches` (
+`switch_id` VARCHAR(50) NOT NULL,
+`router_id` VARCHAR(50),
+`switch_type` VARCHAR(50),
+`switch_ip_protocol` VARCHAR(50),
+`switch_ip_address` VARCHAR(50),
+PRIMARY KEY (`switch_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `networks` (
+`network_id` INT NOT NULL,
+`switch_id` VARCHAR(50),
+`network_protocol` VARCHAR(50),
+`network_address` VARCHAR(50),
+`network_name` VARCHAR(50),
+`network_cidr` VARCHAR(50),
+PRIMARY KEY (`network_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_473677_inventory') AS relationships;
+relationships
+Database: db_473677_inventory
+
+Table Connections:
+------------------
+[Implied]  networks.switch_id -> switches.switch_id
+[Implied]  switches.router_id -> routers.router_id
+
+DROP DATABASE `db_473677_inventory`;
+UNINSTALL EXTENSION vsql_schematron;

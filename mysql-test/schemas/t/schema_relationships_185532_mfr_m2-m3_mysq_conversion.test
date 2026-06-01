@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 185532_mfr_m2-m3_mysq_conversion
+--echo #
+CREATE DATABASE `db_185532_mfr_m2_m3_mysq_conversion`;
+USE `db_185532_mfr_m2_m3_mysq_conversion`;
+CREATE TABLE `MFR_PERMISSION_LEVEL_T` (
+  `ID` BIGINT NOT NULL,
+  `VERSION` INT,
+  `UUID` VARCHAR(50),
+  `CREATED` DATETIME,
+  `CREATED_BY` VARCHAR(50),
+  `MODIFIED` DATETIME,
+  `MODIFIED_BY` VARCHAR(50),
+  `NAME` VARCHAR(50),
+  `TYPE_UUID` VARCHAR(50),
+  `CHANGE_SETTINGS` VARCHAR(50),
+  `DELETE_ANY` VARCHAR(50),
+  `DELETE_OWN` VARCHAR(50),
+  `MARK_AS_READ` VARCHAR(50),
+  `MOVE_POSTING` VARCHAR(50),
+  `NEW_FORUM` VARCHAR(50),
+  `NEW_RESPONSE` VARCHAR(50),
+  `NEW_RESPONSE_TO_RESPONSE` VARCHAR(50),
+  `NEW_TOPIC` VARCHAR(50),
+  `POST_TO_GRADEBOOK` VARCHAR(50),
+  `X_READ` VARCHAR(50),
+  `REVISE_ANY` VARCHAR(50),
+  `REVISE_OWN` VARCHAR(50),
+  `MODERATE_POSTINGS` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `MFR_MEMBERSHIP_ITEM_T` (
+  `ID` BIGINT NOT NULL,
+  `VERSION` INT,
+  `UUID` VARCHAR(50),
+  `CREATED` DATETIME,
+  `CREATED_BY` VARCHAR(50),
+  `MODIFIED` DATETIME,
+  `MODIFIED_BY` VARCHAR(50),
+  `NAME` VARCHAR(50),
+  `TYPE` INT,
+  `PERMISSION_LEVEL_NAME` VARCHAR(50),
+  `PERMISSION_LEVEL` BIGINT,
+  `a_surrogateKey` BIGINT,
+  `of_surrogateKey` BIGINT,
+  `t_surrogateKey` BIGINT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_185532_mfr_m2_m3_mysq_conversion') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_185532_mfr_m2_m3_mysq_conversion') AS relationships;
+DROP DATABASE `db_185532_mfr_m2_m3_mysq_conversion`;
+UNINSTALL EXTENSION vsql_schematron;

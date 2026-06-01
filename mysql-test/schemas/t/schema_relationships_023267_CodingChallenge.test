@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 023267_CodingChallenge
+--echo #
+CREATE DATABASE `db_023267_CodingChallenge`;
+USE `db_023267_CodingChallenge`;
+CREATE TABLE `Products` (
+  `ID` INT NOT NULL,
+  `ProductName` VARCHAR(50),
+  `Price` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Orders` (
+  `ID` INT NOT NULL,
+  `ProductId` INT,
+  `CustomerId` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_023267_CodingChallenge') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_023267_CodingChallenge') AS relationships;
+DROP DATABASE `db_023267_CodingChallenge`;
+UNINSTALL EXTENSION vsql_schematron;

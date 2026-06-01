@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 212337_sqlite%20_db_setup_frontend
+#
+CREATE DATABASE `db_212337_sqlite_20_db_setup_frontend`;
+USE `db_212337_sqlite_20_db_setup_frontend`;
+CREATE TABLE `publication` (
+`id` INT NOT NULL,
+`uuid` VARCHAR(50),
+`title` VARCHAR(50),
+`status` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `purchase` (
+`id` INT NOT NULL,
+`uuid` VARCHAR(50),
+`publication_id` INT,
+`user_id` INT,
+`license_uuid` VARCHAR(50),
+`type` VARCHAR(50),
+`transaction_date` DATETIME,
+`start_date` DATETIME,
+`end_date` DATETIME,
+`status` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT NOT NULL,
+`uuid` VARCHAR(50),
+`name` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`hint` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `license_view` (
+`id` INT NOT NULL,
+`uuid` VARCHAR(50),
+`device_count` INT,
+`status` VARCHAR(50),
+`message` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_212337_sqlite_20_db_setup_frontend') AS relationships;
+relationships
+Database: db_212337_sqlite_20_db_setup_frontend
+
+Table Connections:
+------------------
+[Implied]  purchase.publication_id -> publication.id
+[Implied]  purchase.user_id -> user.id
+
+DROP DATABASE `db_212337_sqlite_20_db_setup_frontend`;
+UNINSTALL EXTENSION vsql_schematron;

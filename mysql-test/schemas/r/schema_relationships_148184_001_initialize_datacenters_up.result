@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 148184_001_initialize_datacenters.up
+#
+CREATE DATABASE `db_148184_001_initialize_datacenters_up`;
+USE `db_148184_001_initialize_datacenters_up`;
+CREATE TABLE `datacenters` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `racks` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`datacenter_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `switches` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`ports` INT,
+`rack_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_148184_001_initialize_datacenters_up') AS relationships;
+relationships
+Database: db_148184_001_initialize_datacenters_up
+
+Table Connections:
+------------------
+[Implied]  racks.datacenter_id -> datacenters.id
+[Implied]  switches.rack_id -> racks.id
+
+DROP DATABASE `db_148184_001_initialize_datacenters_up`;
+UNINSTALL EXTENSION vsql_schematron;

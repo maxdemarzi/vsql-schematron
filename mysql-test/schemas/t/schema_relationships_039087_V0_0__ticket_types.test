@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 039087_V0.0__ticket_types
+--echo #
+CREATE DATABASE `db_039087_V0_0__ticket_types`;
+USE `db_039087_V0_0__ticket_types`;
+CREATE TABLE `TicketTypes` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `amountAvailable` INT,
+  `baseCost` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tickets` (
+  `id` INT NOT NULL,
+  `typeId` INT,
+  `ownerEmail` VARCHAR(50),
+  `ownerSteamId` VARCHAR(50),
+  `status` VARCHAR(50),
+  `dateCreated` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_039087_V0_0__ticket_types') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_039087_V0_0__ticket_types') AS relationships;
+DROP DATABASE `db_039087_V0_0__ticket_types`;
+UNINSTALL EXTENSION vsql_schematron;

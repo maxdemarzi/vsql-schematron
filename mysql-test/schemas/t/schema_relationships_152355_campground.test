@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 152355_campground
+--echo #
+CREATE DATABASE `db_152355_campground`;
+USE `db_152355_campground`;
+CREATE TABLE `park` (
+  `park_id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `location` VARCHAR(50),
+  `establish_date` DATE,
+  `area` INT,
+  `visitors` INT,
+  `description` VARCHAR(50),
+  PRIMARY KEY (`park_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `campground` (
+  `campground_id` INT NOT NULL,
+  `park_id` INT,
+  `name` VARCHAR(50),
+  `open_from_mm` VARCHAR(50),
+  `open_to_mm` VARCHAR(50),
+  `daily_fee` VARCHAR(50),
+  PRIMARY KEY (`campground_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `site` (
+  `site_id` INT NOT NULL,
+  `campground_id` INT,
+  `site_number` INT,
+  `max_occupancy` INT,
+  `accessible` BOOLEAN,
+  `max_rv_length` INT,
+  `utilities` BOOLEAN,
+  PRIMARY KEY (`site_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reservation` (
+  `reservation_id` INT NOT NULL,
+  `site_id` INT,
+  `name` VARCHAR(50),
+  `from_date` DATE,
+  `to_date` DATE,
+  `create_date` DATE,
+  PRIMARY KEY (`reservation_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_152355_campground') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_152355_campground') AS relationships;
+DROP DATABASE `db_152355_campground`;
+UNINSTALL EXTENSION vsql_schematron;

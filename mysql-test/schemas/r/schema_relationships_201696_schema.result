@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 201696_schema
+#
+CREATE DATABASE `db_201696_schema`;
+USE `db_201696_schema`;
+CREATE TABLE `USRROLE` (
+`id` BIGINT NOT NULL,
+`description` VARCHAR(50),
+`role_name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`last_login` TIMESTAMP NULL,
+`token` VARCHAR(50),
+`is_active` BOOLEAN,
+`created` TIMESTAMP NULL,
+`modified` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PHONE` (
+`id` VARCHAR(50) NOT NULL,
+`user_id` VARCHAR(50),
+`number` VARCHAR(50),
+`city_code` VARCHAR(50),
+`country_code` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER_ROLE` (
+`id` BIGINT NOT NULL,
+`user_id` VARCHAR(50),
+`usrrole_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_201696_schema') AS relationships;
+relationships
+Database: db_201696_schema
+
+Table Connections:
+------------------
+[Implied]  PHONE.user_id -> USER.id
+[Implied]  USER_ROLE.user_id -> USER.id
+[Implied]  USER_ROLE.usrrole_id -> USRROLE.id
+
+DROP DATABASE `db_201696_schema`;
+UNINSTALL EXTENSION vsql_schematron;

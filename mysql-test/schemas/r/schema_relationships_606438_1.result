@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 606438_1
+#
+CREATE DATABASE `db_606438_1`;
+USE `db_606438_1`;
+CREATE TABLE `nnmodel` (
+`model_id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`status` INT,
+`creation_date` DATETIME,
+`model_type` INT,
+`raw_model` VARCHAR(50),
+PRIMARY KEY (`model_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nntraining_strategy` (
+`strategy_id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`version` INT,
+`creation_date` DATETIME,
+`raw_strategy` VARCHAR(50),
+`status` INT,
+`model_model_id` BIGINT,
+PRIMARY KEY (`strategy_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `training_strategy_result` (
+`training_strategy_result_id` BIGINT NOT NULL,
+`version` INT,
+`execution_date` DATETIME,
+`raw_strategy` VARCHAR(50),
+`best_epoch` INT,
+`best_score` DOUBLE,
+`savedfile` VARCHAR(50),
+`strategy_strategy_id` BIGINT,
+PRIMARY KEY (`training_strategy_result_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_606438_1') AS relationships;
+relationships
+Database: db_606438_1
+
+Table Connections:
+------------------
+[Implied]  nntraining_strategy.model_model_id -> nnmodel.model_id
+[Implied]  training_strategy_result.strategy_strategy_id -> nntraining_strategy.strategy_id
+
+DROP DATABASE `db_606438_1`;
+UNINSTALL EXTENSION vsql_schematron;
