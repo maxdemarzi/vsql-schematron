@@ -29,10 +29,25 @@ bool areTypesCompatible(const std::string& t1, const std::string& t2) {
     return false;
 }
 
+bool isSystemColumn(const std::string& col_name) {
+    std::string s = to_lower(col_name);
+    return s == "rowguid" || s == "row_guid" ||
+           s == "_partneruuid" || s == "partneruuid" || s == "partner_uuid" ||
+           s == "_revision" || s == "revision" || s == "revision_number" ||
+           s == "modifieddate" || s == "modified_date" || s == "modifeddate" ||
+           s == "_last_updated_on" || s == "last_updated_on" ||
+           s == "_created_on" || s == "created_on" ||
+           s == "createddate" || s == "created_date" ||
+           s == "updateddate" || s == "updated_date";
+}
+
 // Returns true if the column data type is suitable for data relationship profiling.
 // We exclude complex structures (JSON, geometry), binary blobs, and temporal types
 // (date, time, datetime, timestamp) as they rarely serve as valid relational keys.
-bool isProfileableType(const std::string& type) {
+bool isProfileableType(const std::string& type, const std::string& col_name) {
+    if (isSystemColumn(col_name)) {
+        return false;
+    }
     std::string s = to_lower(type);
     
     // Skip temporal types (rarely represent valid relational connections)
@@ -94,7 +109,7 @@ void profileTablesData(const std::string& db_name, vsql::preview_sql_query::Sess
         
         std::vector<std::string> col_names;
         for (const auto& col_pair : tbl_info.columns) {
-            if (isProfileableType(col_pair.second.data_type)) {
+            if (isProfileableType(col_pair.second.data_type, col_pair.first)) {
                 col_names.push_back(col_pair.first);
             }
         }
