@@ -31,10 +31,16 @@ INSTALL EXTENSION vsql_schematron;
 - **Arguments:** None
 - **Description:** Example hello-world function.
 
+### `vsql_schema_cache_ready(db_name)`
+- **Returns:** `INT`
+- **Arguments:** `db_name` (STRING)
+- **Description:** Returns `1` if the database schema cache is loaded and ready, `0` otherwise.
+
 ## Known Limitations
 
 - Aggregate functions: Not supported.
 - Extension upgrade path: Upgrade requires manual reinstall via `UNINSTALL` and `INSTALL`.
+- Preview APIs: Uses `sql_query` and `thread_worker` preview capabilities, which may change between server builds.
 
 ## Testing
 

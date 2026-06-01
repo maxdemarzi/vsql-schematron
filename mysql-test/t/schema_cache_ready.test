@@ -1,0 +1,54 @@
+# Install extension
+INSTALL EXTENSION vsql_schematron;
+
+--echo #
+--echo # Test vsql_schema_cache_ready function
+--echo #
+
+# Setup test database and tables
+CREATE DATABASE test_db;
+USE test_db;
+
+CREATE TABLE customers (
+  id INT PRIMARY KEY,
+  first_name VARCHAR(50),
+  last_name VARCHAR(50)
+);
+
+CREATE TABLE orders (
+  id INT PRIMARY KEY,
+  customer_id INT,
+  order_date DATE,
+  amount DECIMAL(10,2)
+);
+
+# Enable schema cache worker
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+
+# Wait for the schema cache to be populated
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('test_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+
+SELECT vsql_schema_cache_ready('test_db') AS cache_ready;
+
+--echo #
+--echo # Cleanup
+--echo #
+
+# Uninstall extension
+UNINSTALL EXTENSION vsql_schematron;
+DROP DATABASE test_db;
