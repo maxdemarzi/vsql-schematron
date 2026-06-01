@@ -26,16 +26,14 @@ bool areTypesCompatible(const std::string& t1, const std::string& t2) {
     };
     if (is_string(s1) && is_string(s2)) return true;
 
-    auto is_temporal = [](const std::string& s) {
-        return s == "date" || s == "datetime" || s == "timestamp" || s == "time";
-    };
-    if (is_temporal(s1) && is_temporal(s2)) return true;
-
     return false;
 }
 
 bool isProfileableType(const std::string& type) {
     std::string s = to_lower(type);
+    if (s == "date" || s == "datetime" || s == "timestamp" || s == "time") {
+        return false;
+    }
     return s != "json" && s != "blob" && s != "tinyblob" && s != "mediumblob" && s != "longblob" &&
            s != "geometry";
 }

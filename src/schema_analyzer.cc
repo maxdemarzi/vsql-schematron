@@ -27,6 +27,12 @@ bool typeMatches(const std::string& t1, const std::string& t2) {
     return to_lower(t1) == to_lower(t2);
 }
 
+bool isTemporalType(const std::string& type) {
+    std::string s = to_lower(type);
+    return s == "date" || s == "datetime" || s == "timestamp" || s == "time";
+}
+
+
 std::vector<std::string> getTableNames(const std::string& db_name, vsql::preview_sql_query::Session& session) {
     std::vector<std::string> names;
     std::string tables_sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" + db_name + "' AND TABLE_TYPE = 'BASE TABLE'";
@@ -102,6 +108,10 @@ void findImpliedRelationships(
         for (const auto& col_pair : info_a.column_types) {
             const std::string& col_a = col_pair.first;
             const std::string& type_a = col_pair.second;
+
+            if (isTemporalType(type_a)) {
+                continue;
+            }
 
             if (explicit_mapped_cols.find({tbl_a, col_a}) != explicit_mapped_cols.end()) {
                 continue;
