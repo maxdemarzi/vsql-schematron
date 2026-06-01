@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 264145_001-initial
+--echo #
+CREATE DATABASE `db_264145_001_initial`;
+USE `db_264145_001_initial`;
+CREATE TABLE `feed` (
+  `key` VARCHAR(50) NOT NULL,
+  `title` TEXT,
+  `description` TEXT,
+  `link` TEXT,
+  `last_build_date` TEXT,
+  `copyright` TEXT,
+  PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+CREATE TABLE `episode` (
+  `id` INT NOT NULL,
+  `feed_key` TEXT,
+  `title` TEXT,
+  `description` TEXT,
+  `link` TEXT,
+  `pubdate` TEXT,
+  `copyright` TEXT,
+  `enclosure` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_264145_001_initial') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_264145_001_initial') AS relationships;
+DROP DATABASE `db_264145_001_initial`;
+UNINSTALL EXTENSION vsql_schematron;

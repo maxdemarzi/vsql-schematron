@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 160522_db
+#
+CREATE DATABASE `db_160522_db`;
+USE `db_160522_db`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+`firstName` VARCHAR(50),
+`lastName` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT NOT NULL,
+`text` VARCHAR(50),
+`creationDate` DATETIME,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT NOT NULL,
+`text` VARCHAR(50),
+`creationDate` DATETIME,
+`postId` INT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_160522_db') AS relationships;
+relationships
+Database: db_160522_db
+
+Table Connections:
+------------------
+[Implied]  comments.postId -> posts.id
+[Implied]  comments.userId -> users.id
+[Implied]  posts.userId -> users.id
+
+DROP DATABASE `db_160522_db`;
+UNINSTALL EXTENSION vsql_schematron;

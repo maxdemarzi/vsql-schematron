@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 621328_syntax
+#
+CREATE DATABASE `db_621328_syntax`;
+USE `db_621328_syntax`;
+CREATE TABLE `stock` (
+`Id_Stock` VARCHAR(50) NOT NULL,
+`Jenis_Kurma` VARCHAR(50),
+`Qualitas_Kurma` VARCHAR(50),
+`Asal_Negara` VARCHAR(50),
+`Ketersediaan_Kg` INT,
+PRIMARY KEY (`Id_Stock`)
+) CHARACTER SET latin1;
+CREATE TABLE `supplier` (
+`Id_Supplier` VARCHAR(50) NOT NULL,
+`Nama_Supplier` VARCHAR(50),
+`Tgl_Masuk` DATE,
+PRIMARY KEY (`Id_Supplier`)
+) CHARACTER SET latin1;
+CREATE TABLE `provide` (
+`Id_Stock` VARCHAR(50),
+`Id_Supplier` VARCHAR(50),
+`Tgl_Ambil` DATE
+) CHARACTER SET latin1;
+CREATE TABLE `store` (
+`Id_Store` VARCHAR(50) NOT NULL,
+`Jenis_Kurma` VARCHAR(50),
+`Qualitas_Kurma` VARCHAR(50),
+`Harga_Rp_perKg` INT,
+`Jumlah_Kg` INT,
+`Nama_Pegawai` VARCHAR(50),
+PRIMARY KEY (`Id_Store`)
+) CHARACTER SET latin1;
+CREATE TABLE `ship` (
+`Id_Supplier` VARCHAR(50),
+`Id_Store` VARCHAR(50),
+`Tgl_Kirim` DATE,
+`Tgl_Sampai` DATE,
+`Jasa_Kirim` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `transaksi` (
+`Id_Transaksi` VARCHAR(50) NOT NULL,
+`Id_Store` VARCHAR(50),
+`Nama_Buyer` VARCHAR(50),
+`Tgl_Transaksi` DATE,
+PRIMARY KEY (`Id_Transaksi`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_621328_syntax') AS relationships;
+relationships
+Database: db_621328_syntax
+
+Table Connections:
+------------------
+[Implied]  provide.Id_Stock -> stock.Id_Stock
+[Implied]  provide.Id_Supplier -> supplier.Id_Supplier
+[Implied]  ship.Id_Store -> store.Id_Store
+[Implied]  ship.Id_Supplier -> supplier.Id_Supplier
+[Implied]  transaksi.Id_Store -> store.Id_Store
+
+DROP DATABASE `db_621328_syntax`;
+UNINSTALL EXTENSION vsql_schematron;

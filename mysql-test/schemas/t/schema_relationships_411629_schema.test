@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 411629_schema
+--echo #
+CREATE DATABASE `db_411629_schema`;
+USE `db_411629_schema`;
+CREATE TABLE `category` (
+  `category_id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `vendor_id` BIGINT,
+  PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+  `product_id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `vendor_id` BIGINT,
+  PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `settings` (
+  `settings_id` BIGINT NOT NULL,
+  `url` VARCHAR(50),
+  `websiteName` VARCHAR(50),
+  PRIMARY KEY (`settings_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+  `username` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(50),
+  `enabled` TINYINT,
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendor` (
+  `vendor_id` BIGINT NOT NULL,
+  `address` VARCHAR(50),
+  `boothNo` VARCHAR(50),
+  `description` VARCHAR(50),
+  `email` VARCHAR(50),
+  `fax` VARCHAR(50),
+  `phone` VARCHAR(50),
+  `showEndDate` DATETIME,
+  `showName` VARCHAR(50),
+  `showStartDate` DATETIME,
+  `vendorName` VARCHAR(50),
+  `website` VARCHAR(50),
+  PRIMARY KEY (`vendor_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_411629_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_411629_schema') AS relationships;
+DROP DATABASE `db_411629_schema`;
+UNINSTALL EXTENSION vsql_schematron;

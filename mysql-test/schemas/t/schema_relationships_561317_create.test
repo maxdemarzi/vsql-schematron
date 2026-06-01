@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 561317_create
+--echo #
+CREATE DATABASE `db_561317_create`;
+USE `db_561317_create`;
+CREATE TABLE `block` (
+  `index` INT NOT NULL,
+  `version` INT,
+  `user` VARCHAR(50),
+  `time` TIMESTAMP NULL,
+  `nonce` INT,
+  `hash` CHAR(50),
+  `prev_hash` CHAR(50),
+  `difficulty` INT,
+  `data` TEXT,
+  PRIMARY KEY (`index`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+  `user` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(50),
+  `authenticated` BOOLEAN,
+  PRIMARY KEY (`user`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_561317_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_561317_create') AS relationships;
+DROP DATABASE `db_561317_create`;
+UNINSTALL EXTENSION vsql_schematron;

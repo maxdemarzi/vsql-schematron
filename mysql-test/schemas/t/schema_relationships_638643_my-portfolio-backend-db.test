@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 638643_my-portfolio-backend-db
+--echo #
+CREATE DATABASE `db_638643_my_portfolio_backend_db`;
+USE `db_638643_my_portfolio_backend_db`;
+CREATE TABLE `django_session` (
+  `session_key` VARCHAR(50) NOT NULL,
+  `session_data` VARCHAR(50),
+  `expire_date` DATETIME,
+  PRIMARY KEY (`session_key`)
+) CHARACTER SET latin1;
+CREATE TABLE `sections_about` (
+  `id` INT NOT NULL,
+  `version_title` VARCHAR(50),
+  `about_text` VARCHAR(50),
+  `display_picture` VARCHAR(50),
+  `person_name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sections_contact` (
+  `id` INT NOT NULL,
+  `version_title` VARCHAR(50),
+  `logo` VARCHAR(50),
+  `mobile_number` VARCHAR(50),
+  `email` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sections_jschallenge` (
+  `id` INT NOT NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sections_project` (
+  `id` INT NOT NULL,
+  `version_title` VARCHAR(50),
+  `title` VARCHAR(50),
+  `created_at` DATETIME,
+  `description` VARCHAR(50),
+  `preview_image` VARCHAR(50),
+  `website_link` VARCHAR(50),
+  `github_link` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sections_techstackimages` (
+  `id` INT NOT NULL,
+  `image` VARCHAR(50),
+  `project_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_638643_my_portfolio_backend_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_638643_my_portfolio_backend_db') AS relationships;
+DROP DATABASE `db_638643_my_portfolio_backend_db`;
+UNINSTALL EXTENSION vsql_schematron;

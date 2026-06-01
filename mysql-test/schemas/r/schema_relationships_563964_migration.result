@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 563964_migration
+#
+CREATE DATABASE `db_563964_migration`;
+USE `db_563964_migration`;
+CREATE TABLE `Account` (
+`id` VARCHAR(50) NOT NULL,
+`name` TEXT,
+`balance` DOUBLE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Credit` (
+`id` VARCHAR(50) NOT NULL,
+`amount` DOUBLE,
+`notes` TEXT,
+`date` TIMESTAMP NULL,
+`accountId` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Debit` (
+`id` VARCHAR(50) NOT NULL,
+`amount` DOUBLE,
+`notes` TEXT,
+`date` TIMESTAMP NULL,
+`accountId` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_563964_migration') AS relationships;
+relationships
+Database: db_563964_migration
+
+Table Connections:
+------------------
+[Implied]  Credit.accountId -> Account.id
+[Implied]  Debit.accountId -> Account.id
+
+DROP DATABASE `db_563964_migration`;
+UNINSTALL EXTENSION vsql_schematron;

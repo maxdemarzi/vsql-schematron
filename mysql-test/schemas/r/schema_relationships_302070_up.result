@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 302070_up
+#
+CREATE DATABASE `db_302070_up`;
+USE `db_302070_up`;
+CREATE TABLE `catalogs` (
+`id` INT NOT NULL,
+`name` TEXT,
+`description` TEXT,
+`kind` INT,
+`status` INT,
+`uuid` BLOB,
+`created` DATETIME,
+`updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT NOT NULL,
+`catalog` INT,
+`name` TEXT,
+`description` TEXT,
+`price_int` INT,
+`price_frac` INT,
+`currency` TEXT,
+`status` INT,
+`uuid` BLOB,
+`created` DATETIME,
+`updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transactions` (
+`id` INT NOT NULL,
+`product` INT,
+`txn_code` TEXT,
+`name` TEXT,
+`address` TEXT,
+`city` TEXT,
+`region` TEXT,
+`country` TEXT,
+`postal` TEXT,
+`email` TEXT,
+`phone` TEXT,
+`last4` TEXT,
+`payment_method` TEXT,
+`amount_int` INT,
+`amount_frac` INT,
+`currency` TEXT,
+`uuid` BLOB,
+`created` DATETIME,
+`updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_302070_up') AS relationships;
+relationships
+Database: db_302070_up
+
+Table Connections:
+------------------
+[Implied]  products.catalog -> catalogs.id
+[Implied]  transactions.product -> products.id
+
+DROP DATABASE `db_302070_up`;
+UNINSTALL EXTENSION vsql_schematron;

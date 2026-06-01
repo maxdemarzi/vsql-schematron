@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 553018_tarix
+--echo #
+CREATE DATABASE `db_553018_tarix`;
+USE `db_553018_tarix`;
+CREATE TABLE `comment` (
+  `id` INT,
+  `comment` TEXT,
+  `name` VARCHAR(50),
+  `email` VARCHAR(50),
+  `malumot_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `malumot` (
+  `id` INT,
+  `title_uz` VARCHAR(50),
+  `title_ru` VARCHAR(50),
+  `title_en` VARCHAR(50),
+  `short_uz` VARCHAR(50),
+  `short_ru` VARCHAR(50),
+  `short_en` VARCHAR(50),
+  `body_uz` TEXT,
+  `body_ru` TEXT,
+  `body_en` TEXT,
+  `image` VARCHAR(50),
+  `date` DATE,
+  `type_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `type` (
+  `id` INT NOT NULL,
+  `title_uz` VARCHAR(50),
+  `title_ru` VARCHAR(50),
+  `title_en` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+  `id` INT NOT NULL,
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  `authKey` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_553018_tarix') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_553018_tarix') AS relationships;
+DROP DATABASE `db_553018_tarix`;
+UNINSTALL EXTENSION vsql_schematron;

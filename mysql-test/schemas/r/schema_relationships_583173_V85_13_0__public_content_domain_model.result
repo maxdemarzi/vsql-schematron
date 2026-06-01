@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 583173_V85_13_0__public_content_domain_model
+#
+CREATE DATABASE `db_583173_V85_13_0__public_content_domain_model`;
+USE `db_583173_V85_13_0__public_content_domain_model`;
+CREATE TABLE `public_content` (
+`id` BIGINT NOT NULL,
+`competition_id` BIGINT,
+`publish_date` DATETIME,
+`short_description` VARCHAR(50),
+`project_funding_range` VARCHAR(50),
+`eligibility_summary` VARCHAR(50),
+`summary` VARCHAR(50),
+`funding_type` VARCHAR(50),
+`project_size` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `keyword` (
+`id` BIGINT NOT NULL,
+`public_content_id` BIGINT,
+`keyword` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `content_event` (
+`id` BIGINT NOT NULL,
+`public_content_id` BIGINT,
+`date` DATETIME,
+`content` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `content_section` (
+`id` BIGINT NOT NULL,
+`public_content_id` BIGINT,
+`status` VARCHAR(50),
+`type` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `content_group` (
+`id` BIGINT NOT NULL,
+`content_section_id` BIGINT,
+`heading` VARCHAR(50),
+`content` VARCHAR(50),
+`file_entry_id` BIGINT,
+`priority` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_583173_V85_13_0__public_content_domain_model') AS relationships;
+relationships
+Database: db_583173_V85_13_0__public_content_domain_model
+
+Table Connections:
+------------------
+[Implied]  content_event.public_content_id -> public_content.id
+[Implied]  content_group.content_section_id -> content_section.id
+[Implied]  content_section.public_content_id -> public_content.id
+[Implied]  keyword.public_content_id -> public_content.id
+
+DROP DATABASE `db_583173_V85_13_0__public_content_domain_model`;
+UNINSTALL EXTENSION vsql_schematron;

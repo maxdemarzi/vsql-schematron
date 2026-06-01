@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 624120_crebas
+--echo #
+CREATE DATABASE `db_624120_crebas`;
+USE `db_624120_crebas`;
+CREATE TABLE `userr` (
+  `userID` INT NOT NULL,
+  `userName` VARCHAR(50),
+  `userPass` VARCHAR(50),
+  PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+  `custID` VARCHAR(50) NOT NULL,
+  `userID` INT,
+  `custName` VARCHAR(50),
+  `address` VARCHAR(50),
+  `zip` INT,
+  `email` VARCHAR(50),
+  `modTime` DATETIME,
+  PRIMARY KEY (`custID`)
+) CHARACTER SET latin1;
+CREATE TABLE `emp` (
+  `empID` VARCHAR(50) NOT NULL,
+  `userID` INT,
+  `empName` VARCHAR(50),
+  `modTime` DATETIME,
+  PRIMARY KEY (`empID`)
+) CHARACTER SET latin1;
+CREATE TABLE `dist` (
+  `distID` VARCHAR(50) NOT NULL,
+  `orderID` CHAR(50),
+  `empID` CHAR(50),
+  `userID` INT,
+  `distTime` DATE,
+  `unit` INT,
+  `modTime` DATETIME,
+  PRIMARY KEY (`distID`)
+) CHARACTER SET latin1;
+CREATE TABLE `recv` (
+  `recvID` VARCHAR(50) NOT NULL,
+  `orderID` CHAR(50),
+  `userID` INT,
+  `empID` CHAR(50),
+  `recvTime` DATE,
+  `modTime` DATETIME,
+  PRIMARY KEY (`recvID`)
+) CHARACTER SET latin1;
+CREATE TABLE `questionnaires` (
+  `questionnarieID` VARCHAR(50) NOT NULL,
+  `orderID` CHAR(50),
+  `recvID` CHAR(50),
+  `analyID` CHAR(50),
+  `userID` INT,
+  `distID` CHAR(50),
+  `fillTime` DATE,
+  `title` VARCHAR(50),
+  `filler` VARCHAR(50),
+  `analyResult` TEXT,
+  `modTime` DATETIME,
+  `questionTitle` TEXT,
+  `answer` TEXT,
+  PRIMARY KEY (`questionnarieID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_624120_crebas') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_624120_crebas') AS relationships;
+DROP DATABASE `db_624120_crebas`;
+UNINSTALL EXTENSION vsql_schematron;

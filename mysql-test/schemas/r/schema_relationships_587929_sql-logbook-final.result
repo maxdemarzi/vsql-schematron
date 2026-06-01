@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 587929_sql-logbook-final
+#
+CREATE DATABASE `db_587929_sql_logbook_final`;
+USE `db_587929_sql_logbook_final`;
+CREATE TABLE `log` (
+`id` INT NOT NULL,
+`project_id` INT,
+`research_group_id` INT,
+`keyword_id` INT,
+`role` VARCHAR(50),
+`ref_rg_id` INT,
+`date_entered` TIMESTAMP NULL,
+`log_text` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`id` INT NOT NULL,
+`log_id` INT,
+`date_entered` TIMESTAMP NULL,
+`comment` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `keyword` (
+`id` INT NOT NULL,
+`keyword` VARCHAR(50),
+`description` VARCHAR(50),
+`project_id` INT,
+`section` CHAR(50),
+`section_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_587929_sql_logbook_final') AS relationships;
+relationships
+Database: db_587929_sql_logbook_final
+
+Table Connections:
+------------------
+[Implied]  comment.log_id -> log.id
+[Implied]  log.keyword_id -> keyword.id
+
+DROP DATABASE `db_587929_sql_logbook_final`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 431608_V1__Create_tables
+#
+CREATE DATABASE `db_431608_V1__Create_tables`;
+USE `db_431608_V1__Create_tables`;
+CREATE TABLE `USER` (
+`ID` DECIMAL(10,2) NOT NULL,
+`NAME` VARCHAR(50),
+`LOGIN` VARCHAR(50),
+`PASSWORD` VARCHAR(50),
+`SALT` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PERMISSION` (
+`ID` DECIMAL(10,2) NOT NULL,
+`USER_ID` INT,
+`ROLE` VARCHAR(50),
+`RESOURCE` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ACCOUNTING` (
+`ID` DECIMAL(10,2) NOT NULL,
+`PERMISSION_ID` INT,
+`DATE_START` DATE,
+`DATE_END` DATE,
+`VOLUME` DECIMAL(10,2),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_431608_V1__Create_tables') AS relationships;
+relationships
+Database: db_431608_V1__Create_tables
+
+Table Connections:
+------------------
+[Implied]  ACCOUNTING.PERMISSION_ID -> PERMISSION.ID
+[Implied]  PERMISSION.USER_ID -> USER.ID
+
+DROP DATABASE `db_431608_V1__Create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

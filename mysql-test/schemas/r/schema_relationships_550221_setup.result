@@ -1,0 +1,33 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 550221_setup
+#
+CREATE DATABASE `db_550221_setup`;
+USE `db_550221_setup`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`foreignId` TEXT,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `happyHours` (
+`id` INT NOT NULL,
+`venueId` TEXT,
+`date` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `confirmations` (
+`happyHourId` INT,
+`userId` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_550221_setup') AS relationships;
+relationships
+Database: db_550221_setup
+
+Table Connections:
+------------------
+[Implied]  confirmations.happyHourId -> happyHours.id
+[Implied]  confirmations.userId -> users.id
+
+DROP DATABASE `db_550221_setup`;
+UNINSTALL EXTENSION vsql_schematron;

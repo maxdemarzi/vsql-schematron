@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 473754_tags
+--echo #
+CREATE DATABASE `db_473754_tags`;
+USE `db_473754_tags`;
+CREATE TABLE `TimerTags` (
+  `Id` VARCHAR(50) NOT NULL,
+  `PublicId` TEXT,
+  `CreateDate` TIMESTAMP NULL,
+  `UpdateDate` TIMESTAMP NULL,
+  `ProfileId` VARCHAR(50),
+  `Name` TEXT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TagToTimerTasks` (
+  `Id` VARCHAR(50) NOT NULL,
+  `TagId` VARCHAR(50),
+  `TaskId` VARCHAR(50),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_473754_tags') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_473754_tags') AS relationships;
+DROP DATABASE `db_473754_tags`;
+UNINSTALL EXTENSION vsql_schematron;

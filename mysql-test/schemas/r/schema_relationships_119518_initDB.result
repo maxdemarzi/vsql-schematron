@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 119518_initDB
+#
+CREATE DATABASE `db_119518_initDB`;
+USE `db_119518_initDB`;
+CREATE TABLE `vets` (
+`id` VARCHAR(50) NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `specialties` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`days` VARCHAR(50),
+`email` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vet_specialties` (
+`vet_id` VARCHAR(50),
+`specialty_id` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `types` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `owners` (
+`id` VARCHAR(50) NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`address` VARCHAR(50),
+`city` VARCHAR(50),
+`telephone` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pets` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`birth_date` DATE,
+`type_id` VARCHAR(50),
+`owner_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_119518_initDB') AS relationships;
+relationships
+Database: db_119518_initDB
+
+Table Connections:
+------------------
+[Implied]  pets.owner_id -> owners.id
+[Implied]  pets.type_id -> types.id
+[Implied]  vet_specialties.specialty_id -> specialties.id
+[Implied]  vet_specialties.vet_id -> vets.id
+
+DROP DATABASE `db_119518_initDB`;
+UNINSTALL EXTENSION vsql_schematron;
