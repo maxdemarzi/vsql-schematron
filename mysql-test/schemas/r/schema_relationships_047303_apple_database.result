@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 047303_apple_database
+#
+CREATE DATABASE `db_047303_apple_database`;
+USE `db_047303_apple_database`;
+CREATE TABLE `cities` (
+`city_id` INT NOT NULL,
+`city_name` VARCHAR(50),
+`rate` INT,
+`postal_code` INT,
+PRIMARY KEY (`city_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_type` (
+`type_id` INT NOT NULL,
+`city_id` INT,
+`type_name` VARCHAR(50),
+`base_shipping` INT,
+PRIMARY KEY (`type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `specifications` (
+`spec_id` INT NOT NULL,
+`spec_name` VARCHAR(50),
+`price` INT,
+`type_id` INT,
+PRIMARY KEY (`spec_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`user_id` INT NOT NULL,
+`username` VARCHAR(50),
+`city` VARCHAR(50),
+`password` INT,
+`full_name` VARCHAR(50),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_047303_apple_database') AS relationships;
+relationships
+Database: db_047303_apple_database
+
+Table Connections:
+------------------
+[Implied]  product_type.city_id -> cities.city_id
+[Implied]  specifications.type_id -> product_type.type_id
+
+DROP DATABASE `db_047303_apple_database`;
+UNINSTALL EXTENSION vsql_schematron;

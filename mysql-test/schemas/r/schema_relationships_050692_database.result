@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 050692_database
+#
+CREATE DATABASE `db_050692_database`;
+USE `db_050692_database`;
+CREATE TABLE `SpecialClient` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`cpf` VARCHAR(50),
+`rg` VARCHAR(50),
+`phone` VARCHAR(50),
+`email` VARCHAR(50),
+`datebirth` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cashier` (
+`number` INT NOT NULL,
+`current_status` VARCHAR(50),
+PRIMARY KEY (`number`)
+) CHARACTER SET latin1;
+CREATE TABLE `CashierLog` (
+`id` INT NOT NULL,
+`cashier_number` INT,
+`date_recorded` DATE,
+`time_recorded` TIME,
+`status` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Drug` (
+`id` INT NOT NULL,
+`com_name` VARCHAR(50),
+`type_drug` VARCHAR(50),
+`lab` VARCHAR(50),
+`is_generic` VARCHAR(50),
+`need_pre` VARCHAR(50),
+`unit_price` DECIMAL(10,2),
+`desc_drug` VARCHAR(50),
+`dateshelf` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderInfo` (
+`id` INT NOT NULL,
+`date_ordered` DATE,
+`time_ordered` TIME,
+`special_client_id` INT,
+`subtotal` DECIMAL(10,2),
+`discount` DECIMAL(10,2),
+`freight` DECIMAL(10,2),
+`total` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderItems` (
+`order_id` INT,
+`drug_id` INT,
+`quantity` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_050692_database') AS relationships;
+relationships
+Database: db_050692_database
+
+Table Connections:
+------------------
+[Implied]  CashierLog.cashier_number -> Cashier.number
+[Implied]  OrderInfo.special_client_id -> SpecialClient.id
+[Implied]  OrderItems.drug_id -> Drug.id
+[Implied]  OrderItems.order_id -> OrderInfo.id
+
+DROP DATABASE `db_050692_database`;
+UNINSTALL EXTENSION vsql_schematron;

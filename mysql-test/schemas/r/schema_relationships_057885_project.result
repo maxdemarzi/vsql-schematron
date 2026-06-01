@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 057885_project
+#
+CREATE DATABASE `db_057885_project`;
+USE `db_057885_project`;
+CREATE TABLE `WomanSafety.surveys` (
+`id_survey` INT NOT NULL,
+`survey` VARCHAR(50),
+`description` TEXT,
+PRIMARY KEY (`id_survey`)
+) CHARACTER SET latin1;
+CREATE TABLE `WomanSafety.questions` (
+`id_question` INT NOT NULL,
+`question` VARCHAR(50),
+`id_survey` INT,
+`points_often` INT,
+`points_seldom` INT,
+`points_never` INT,
+PRIMARY KEY (`id_question`)
+) CHARACTER SET latin1;
+CREATE TABLE `WomanSafety.user_score` (
+`id_score` INT NOT NULL,
+`user_phone` VARCHAR(50),
+`score` INT,
+`id_survey` INT,
+PRIMARY KEY (`id_score`)
+) CHARACTER SET latin1;
+CREATE TABLE `WomanSafety.instructions` (
+`id_instruction` INT NOT NULL,
+`title` VARCHAR(50),
+`instruction` TEXT,
+`range_start` INT,
+`range_end` INT,
+`id_survey` INT,
+PRIMARY KEY (`id_instruction`)
+) CHARACTER SET latin1;
+CREATE TABLE `WomanSafety.locations` (
+`id_place` INT NOT NULL,
+`name_of_place` VARCHAR(50),
+`place_description` TEXT,
+`phone` VARCHAR(50),
+`lat` DOUBLE,
+`lng` DOUBLE,
+PRIMARY KEY (`id_place`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_057885_project') AS relationships;
+relationships
+Database: db_057885_project
+
+Table Connections:
+------------------
+[Implied]  WomanSafety.instructions.id_survey -> WomanSafety.surveys.id_survey
+[Implied]  WomanSafety.questions.id_survey -> WomanSafety.surveys.id_survey
+[Implied]  WomanSafety.user_score.id_survey -> WomanSafety.surveys.id_survey
+
+DROP DATABASE `db_057885_project`;
+UNINSTALL EXTENSION vsql_schematron;

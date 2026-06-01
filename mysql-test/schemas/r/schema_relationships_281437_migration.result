@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 281437_migration
+#
+CREATE DATABASE `db_281437_migration`;
+USE `db_281437_migration`;
+CREATE TABLE `User` (
+`id` INT NOT NULL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`name` TEXT,
+`email` TEXT,
+`hashedPassword` TEXT,
+`role` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`id` INT NOT NULL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`expiresAt` DATETIME,
+`handle` TEXT,
+`hashedSessionToken` TEXT,
+`antiCSRFToken` TEXT,
+`publicData` TEXT,
+`privateData` TEXT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Token` (
+`id` INT NOT NULL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`hashedToken` TEXT,
+`type` TEXT,
+`expiresAt` DATETIME,
+`sentTo` TEXT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Project` (
+`id` INT NOT NULL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`name` TEXT,
+`basePath` TEXT,
+`createdBy` TEXT,
+`updatedBy` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Stub` (
+`id` INT NOT NULL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`createdBy` TEXT,
+`updatedBy` TEXT,
+`path` TEXT,
+`method` TEXT,
+`contentType` TEXT,
+`statusCode` TEXT,
+`response` TEXT,
+`sleep` INT,
+`logs` TEXT,
+`projectId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_281437_migration') AS relationships;
+relationships
+Database: db_281437_migration
+
+Table Connections:
+------------------
+[Implied]  Session.userId -> User.id
+[Implied]  Stub.projectId -> Project.id
+[Implied]  Token.userId -> User.id
+
+DROP DATABASE `db_281437_migration`;
+UNINSTALL EXTENSION vsql_schematron;

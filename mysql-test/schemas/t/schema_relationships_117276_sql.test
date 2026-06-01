@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 117276_sql
+--echo #
+CREATE DATABASE `db_117276_sql`;
+USE `db_117276_sql`;
+CREATE TABLE `Produit` (
+  `idProduit` INT NOT NULL,
+  `nomProduit` VARCHAR(50),
+  `imagePath` VARCHAR(50),
+  `prix` DOUBLE,
+  PRIMARY KEY (`idProduit`)
+) CHARACTER SET latin1;
+CREATE TABLE `Caisse` (
+  `idCaisse` INT NOT NULL,
+  `numCaisse` VARCHAR(50),
+  PRIMARY KEY (`idCaisse`)
+) CHARACTER SET latin1;
+CREATE TABLE `Category` (
+  `idCateg` INT NOT NULL,
+  `nomCateg` VARCHAR(50),
+  PRIMARY KEY (`idCateg`)
+) CHARACTER SET latin1;
+CREATE TABLE `CategoryProduit` (
+  `idCateg` INT,
+  `idProduit` INT
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+  `idUser` INT NOT NULL,
+  `nom` VARCHAR(50),
+  `prenom` VARCHAR(50),
+  `email` VARCHAR(50),
+  `passwd` VARCHAR(50),
+  PRIMARY KEY (`idUser`)
+) CHARACTER SET latin1;
+CREATE TABLE `admin` (
+  `idAdmin` INT NOT NULL,
+  `nom` VARCHAR(50),
+  `passwd` VARCHAR(50),
+  PRIMARY KEY (`idAdmin`)
+) CHARACTER SET latin1;
+CREATE TABLE `Achat` (
+  `idAchat` INT NOT NULL,
+  `idProduit` INT,
+  `idCaisse` INT,
+  `quantity` INT,
+  `valide` VARCHAR(50),
+  `dateAchat` DATE,
+  PRIMARY KEY (`idAchat`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_117276_sql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_117276_sql') AS relationships;
+DROP DATABASE `db_117276_sql`;
+UNINSTALL EXTENSION vsql_schematron;

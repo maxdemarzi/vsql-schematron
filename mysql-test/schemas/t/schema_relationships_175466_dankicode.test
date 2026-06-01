@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 175466_dankicode
+--echo #
+CREATE DATABASE `db_175466_dankicode`;
+USE `db_175466_dankicode`;
+CREATE TABLE `categoria` (
+  `id` VARCHAR(50) NOT NULL,
+  `nome` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clientes` (
+  `id` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `nascimento` DATE,
+  `sexo` VARCHAR(50),
+  `peso` DECIMAL(10,2),
+  `altura` DECIMAL(10,2),
+  `nacionalidade` VARCHAR(50),
+  `hora` TIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+  `id` INT,
+  `idCategoria` VARCHAR(50),
+  `titulo` VARCHAR(50),
+  `texto` TEXT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_175466_dankicode') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_175466_dankicode') AS relationships;
+DROP DATABASE `db_175466_dankicode`;
+UNINSTALL EXTENSION vsql_schematron;

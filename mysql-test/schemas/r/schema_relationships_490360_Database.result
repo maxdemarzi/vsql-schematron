@@ -1,0 +1,100 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 490360_Database
+#
+CREATE DATABASE `db_490360_Database`;
+USE `db_490360_Database`;
+CREATE TABLE `zulieferer` (
+`ID` INT NOT NULL,
+`title` VARCHAR(50),
+`description` VARCHAR(50),
+`uuid` VARCHAR(50),
+`updated_at` TIME,
+`success_at` TIME,
+`timetable_id` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `protocol` (
+`ID` INT NOT NULL,
+`SFTP` VARCHAR(50),
+`RESTAPI` VARCHAR(50),
+`SCP` VARCHAR(50),
+`HTTP` VARCHAR(50),
+`HTTPS` VARCHAR(50),
+`FTP` VARCHAR(50),
+`website` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `anrede` (
+`ID` INT NOT NULL,
+`anrede` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `fileFormat` (
+`ID` INT NOT NULL,
+`file_type` VARCHAR(50),
+`FK_Zuliefer_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `actions` (
+`ID` INT NOT NULL,
+`title` VARCHAR(50),
+`description` VARCHAR(50),
+`commandline` VARCHAR(50),
+`uuid` VARCHAR(50),
+`updated_at` TEXT,
+`success_at` TEXT,
+`FK_Zuliefer_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `contacts` (
+`ID` INT NOT NULL,
+`title` VARCHAR(50),
+`description` VARCHAR(50),
+`company` INT,
+`FK_Anrede_ID` INT,
+`vorname` VARCHAR(50),
+`name` VARCHAR(50),
+`telefone` VARCHAR(50),
+`mobile` VARCHAR(50),
+`email` VARCHAR(50),
+`anmerkung` VARCHAR(50),
+`updated_at` TIME,
+`success_at` TIME,
+`FK_Zuliefer_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `connections` (
+`ID` INT NOT NULL,
+`FK_protocol_ID` INT,
+`title` VARCHAR(50),
+`url` VARCHAR(50),
+`description` VARCHAR(50),
+`FK_Zuliefer_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `auths` (
+`ID` INT NOT NULL,
+`no_auth` INT,
+`login_auth` INT,
+`token_auth` INT,
+`key_auth` INT,
+`FK_Connection_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_490360_Database') AS relationships;
+relationships
+Database: db_490360_Database
+
+Table Connections:
+------------------
+[Implied]  actions.FK_Zuliefer_ID -> zulieferer.ID
+[Implied]  auths.FK_Connection_ID -> connections.ID
+[Implied]  connections.FK_Zuliefer_ID -> zulieferer.ID
+[Implied]  connections.FK_protocol_ID -> protocol.ID
+[Implied]  contacts.FK_Anrede_ID -> anrede.ID
+[Implied]  contacts.FK_Zuliefer_ID -> zulieferer.ID
+[Implied]  fileFormat.FK_Zuliefer_ID -> zulieferer.ID
+
+DROP DATABASE `db_490360_Database`;
+UNINSTALL EXTENSION vsql_schematron;

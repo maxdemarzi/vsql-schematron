@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 469265_setupTables
+#
+CREATE DATABASE `db_469265_setupTables`;
+USE `db_469265_setupTables`;
+CREATE TABLE `Users` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`email` VARCHAR(50),
+`emailVerified` BOOLEAN,
+`verifyEmailCode` VARCHAR(50),
+`password` VARCHAR(50),
+`tempMfaSecret` VARCHAR(50),
+`mfaSecret` VARCHAR(50),
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Roles` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UsersRolesXRef` (
+`userId` INT,
+`roleId` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_469265_setupTables') AS relationships;
+relationships
+Database: db_469265_setupTables
+
+Table Connections:
+------------------
+[Implied]  UsersRolesXRef.roleId -> Roles.id
+[Implied]  UsersRolesXRef.userId -> Users.id
+
+DROP DATABASE `db_469265_setupTables`;
+UNINSTALL EXTENSION vsql_schematron;

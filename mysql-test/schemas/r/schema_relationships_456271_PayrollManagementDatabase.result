@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 456271_PayrollManagementDatabase
+#
+CREATE DATABASE `db_456271_PayrollManagementDatabase`;
+USE `db_456271_PayrollManagementDatabase`;
+CREATE TABLE `department` (
+`department_id` INT NOT NULL,
+`department_name` VARCHAR(50),
+PRIMARY KEY (`department_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `job` (
+`job_id` INT NOT NULL,
+`department_id` INT,
+`job_title` VARCHAR(50),
+PRIMARY KEY (`job_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`employee_id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`phone` VARCHAR(50),
+`job_id` INT,
+PRIMARY KEY (`employee_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `salary` (
+`payroll_id` INT NOT NULL,
+`employee_id` INT,
+`gross_salary` DECIMAL(10,2),
+PRIMARY KEY (`payroll_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_456271_PayrollManagementDatabase') AS relationships;
+relationships
+Database: db_456271_PayrollManagementDatabase
+
+Table Connections:
+------------------
+[Implied]  employee.job_id -> job.job_id
+[Implied]  job.department_id -> department.department_id
+[Implied]  salary.employee_id -> employee.employee_id
+
+DROP DATABASE `db_456271_PayrollManagementDatabase`;
+UNINSTALL EXTENSION vsql_schematron;

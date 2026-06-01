@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 524550_create-and-init-mysql
+#
+CREATE DATABASE `db_524550_create_and_init_mysql`;
+USE `db_524550_create_and_init_mysql`;
+CREATE TABLE `USERS` (
+`ID` INT NOT NULL,
+`NAME` VARCHAR(50),
+`PASSWORD` VARCHAR(50),
+`TELEPHONE` VARCHAR(50),
+`USERNAME` VARCHAR(50),
+`ISADMIN` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `DISTRICT` (
+`ID` INT NOT NULL,
+`NAME` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `STREET` (
+`ID` INT NOT NULL,
+`NAME` VARCHAR(50),
+`DISTRICT_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `TYPES` (
+`ID` INT NOT NULL,
+`NAME` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `HOUSE` (
+`ID` INT NOT NULL,
+`USER_ID` INT,
+`TYPES_ID` INT,
+`TITLE` VARCHAR(50),
+`DESCRIPTION` VARCHAR(50),
+`PRICE` INT,
+`PUBDATE` DATE,
+`FLOORAGE` INT,
+`CONTACT` VARCHAR(50),
+`STREET_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_524550_create_and_init_mysql') AS relationships;
+relationships
+Database: db_524550_create_and_init_mysql
+
+Table Connections:
+------------------
+[Implied]  HOUSE.STREET_ID -> STREET.ID
+[Implied]  HOUSE.TYPES_ID -> TYPES.ID
+[Implied]  HOUSE.USER_ID -> USERS.ID
+[Implied]  STREET.DISTRICT_ID -> DISTRICT.ID
+
+DROP DATABASE `db_524550_create_and_init_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 658749_BankModel
+--echo #
+CREATE DATABASE `db_658749_BankModel`;
+USE `db_658749_BankModel`;
+CREATE TABLE `Branch` (
+  `branch_id` INT NOT NULL,
+  `branch_name` VARCHAR(50),
+  `branch_address` VARCHAR(50),
+  PRIMARY KEY (`branch_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Account` (
+  `account_number` INT NOT NULL,
+  `account_type` VARCHAR(50),
+  `account_status` VARCHAR(50),
+  `account_balance` INT,
+  PRIMARY KEY (`account_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer` (
+  `customer_id` INT NOT NULL,
+  `customer_name` VARCHAR(50),
+  `customer_address` VARCHAR(50),
+  `customer_dob` DATE,
+  `branch_id` INT,
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Transaction` (
+  `transaction_id` INT NOT NULL,
+  `transaction_type` VARCHAR(50),
+  `transaction_date_time` DATE,
+  `transaction_amount` INT,
+  `from_account_number` INT,
+  `to_account_number` INT,
+  PRIMARY KEY (`transaction_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CustomerAccount` (
+  `customer_id` INT,
+  `account_number` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_658749_BankModel') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_658749_BankModel') AS relationships;
+DROP DATABASE `db_658749_BankModel`;
+UNINSTALL EXTENSION vsql_schematron;

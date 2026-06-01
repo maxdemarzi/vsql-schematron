@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 649916_lovebook
+--echo #
+CREATE DATABASE `db_649916_lovebook`;
+USE `db_649916_lovebook`;
+CREATE TABLE `lovebook_tb_usuario` (
+  `id` INT NOT NULL,
+  `nome` CHAR(50),
+  `sobrenome` VARCHAR(50),
+  `usuario` VARCHAR(50),
+  `email` VARCHAR(50),
+  `cpf` CHAR(50),
+  `cep` VARCHAR(50),
+  `numero` VARCHAR(50),
+  `senha` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lovebook_tb_administradores` (
+  `id` INT NOT NULL,
+  `nome` CHAR(50),
+  `sobrenome` VARCHAR(50),
+  `usuario` VARCHAR(50),
+  `email` VARCHAR(50),
+  `senha` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lovebook_tb_autores` (
+  `id` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `img` VARCHAR(50),
+  `desc_autor` VARCHAR(50),
+  `data_nascimento` DATE,
+  `estado_civil` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lovebook_tb_books` (
+  `id` INT NOT NULL,
+  `titulo` VARCHAR(50),
+  `img` VARCHAR(50),
+  `desc_book` TEXT,
+  `paginas` INT,
+  `id_autor` INT,
+  `data_lancamento` DATE,
+  `preco` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lovebook_tb_favoritos` (
+  `id` INT NOT NULL,
+  `id_usuario` INT,
+  `id_book` INT,
+  `id_autor` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lovebook_tb_pay` (
+  `id` INT NOT NULL,
+  `id_usuario` INT,
+  `id_book` INT,
+  `id_autor` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_649916_lovebook') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_649916_lovebook') AS relationships;
+DROP DATABASE `db_649916_lovebook`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 169090_V4__add_orders_and_payments
+#
+CREATE DATABASE `db_169090_V4__add_orders_and_payments`;
+USE `db_169090_V4__add_orders_and_payments`;
+CREATE TABLE `orders` (
+`id` BIGINT NOT NULL,
+`number` VARCHAR(50),
+`placed_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `line_items` (
+`id` BIGINT NOT NULL,
+`item_number` VARCHAR(50),
+`item_unit_price` DECIMAL(10,2),
+`quantity` SMALLINT,
+`order_id` BIGINT,
+`order_line` SMALLINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payments` (
+`id` BIGINT NOT NULL,
+`order_id` BIGINT,
+`date` DATE,
+`amount` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_169090_V4__add_orders_and_payments') AS relationships;
+relationships
+Database: db_169090_V4__add_orders_and_payments
+
+Table Connections:
+------------------
+[Implied]  line_items.order_id -> orders.id
+[Implied]  payments.order_id -> orders.id
+
+DROP DATABASE `db_169090_V4__add_orders_and_payments`;
+UNINSTALL EXTENSION vsql_schematron;

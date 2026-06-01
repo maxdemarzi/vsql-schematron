@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 218220_album
+#
+CREATE DATABASE `db_218220_album`;
+USE `db_218220_album`;
+CREATE TABLE `album` (
+`id` INT NOT NULL,
+`parent_id` INT,
+`name` TEXT,
+`alias` TEXT,
+`path` TEXT,
+`base_path` TEXT,
+`tags` TEXT,
+`custom_sql` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `photo` (
+`id` INT NOT NULL,
+`album_id` INT,
+`file` TEXT,
+`width` INT,
+`height` INT,
+`thumb_width` INT,
+`thumb_height` INT,
+`caption` TEXT,
+`tags` TEXT,
+`rating` INT,
+`favorite` INT,
+`date_time` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` VARCHAR(50) NOT NULL,
+`tags` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_218220_album') AS relationships;
+relationships
+Database: db_218220_album
+
+Table Connections:
+------------------
+[Implied]  album.parent_id -> album.id
+[Implied]  photo.album_id -> album.id
+
+DROP DATABASE `db_218220_album`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 296206_initDB
+--echo #
+CREATE DATABASE `db_296206_initDB`;
+USE `db_296206_initDB`;
+CREATE TABLE `Schedules` (
+  `scheduleID` INT NOT NULL,
+  `schedule_name` VARCHAR(50),
+  `schedule_description` VARCHAR(50),
+  PRIMARY KEY (`scheduleID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Transitions` (
+  `transitionID` INT NOT NULL,
+  `scheduleID` INT,
+  `transition_offset` INT,
+  `transition_state` VARCHAR(50),
+  PRIMARY KEY (`transitionID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sensors` (
+  `sensorID` INT NOT NULL,
+  `sensor_name` VARCHAR(50),
+  `sensor_description` VARCHAR(50),
+  `sensor_value` INT,
+  `sensor_readtime` TIMESTAMP NULL,
+  PRIMARY KEY (`sensorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Channels` (
+  `channelID` INT NOT NULL,
+  `channel_name` VARCHAR(50),
+  `channel_description` VARCHAR(50),
+  `scheduleID` INT,
+  `sensorID` INT,
+  `channel_enabled` VARCHAR(50),
+  `channel_state` VARCHAR(50),
+  PRIMARY KEY (`channelID`)
+) CHARACTER SET latin1;
+CREATE TABLE `TokenQ` (
+  `tokenID` INT NOT NULL,
+  `token` VARCHAR(50),
+  `type` VARCHAR(50),
+  `value` INT,
+  PRIMARY KEY (`tokenID`)
+) CHARACTER SET latin1;
+CREATE TABLE `commandQ` (
+  `commandID` INT NOT NULL,
+  `command` VARCHAR(50),
+  PRIMARY KEY (`commandID`)
+) CHARACTER SET latin1;
+CREATE TABLE `KeyWords` (
+  `keywordID` INT NOT NULL,
+  `keyword` VARCHAR(50),
+  `description` VARCHAR(50),
+  `keycode` INT,
+  PRIMARY KEY (`keywordID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_296206_initDB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_296206_initDB') AS relationships;
+DROP DATABASE `db_296206_initDB`;
+UNINSTALL EXTENSION vsql_schematron;

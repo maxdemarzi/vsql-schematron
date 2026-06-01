@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 502338_brew-monitor_db
+#
+CREATE DATABASE `db_502338_brew_monitor_db`;
+USE `db_502338_brew_monitor_db`;
+CREATE TABLE `Brews` (
+`brew_id` INT NOT NULL,
+`brew_name` VARCHAR(50),
+`brew_type` VARCHAR(50),
+`brew_status` VARCHAR(50),
+`brew_fermentation_time` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`brew_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Temperature` (
+`temp_id` INT NOT NULL,
+`temp_value` DECIMAL(10,2),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`brew_id` INT,
+PRIMARY KEY (`temp_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Airlocks` (
+`airlock_id` INT NOT NULL,
+`airlock_activity` INT,
+`airlock_activity_longterm` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`brew_id` INT,
+PRIMARY KEY (`airlock_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Ingredients` (
+`ingredients_id` INT NOT NULL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`brew_id` INT,
+PRIMARY KEY (`ingredients_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Hops` (
+`hop_id` INT NOT NULL,
+`hop_type` VARCHAR(50),
+`hop_amount` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`ingredients_id` INT,
+PRIMARY KEY (`hop_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Yeast` (
+`yeast_id` INT NOT NULL,
+`yeast_type` VARCHAR(50),
+`yeast_amount` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`ingredients_id` INT,
+PRIMARY KEY (`yeast_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Barley` (
+`barley_id` INT NOT NULL,
+`barley_type` VARCHAR(50),
+`barley_amount` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`ingredients_id` INT,
+PRIMARY KEY (`barley_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Gravity` (
+`gravity_id` INT NOT NULL,
+`gravity_current_value` DECIMAL(10,2),
+`gravity_original` DECIMAL(10,2),
+`gravity_specific` DECIMAL(10,2),
+`gravity_final` DECIMAL(10,2),
+`gravity_target_FG` DECIMAL(10,2),
+`gravity_target_OG` DECIMAL(10,2),
+`gravity_target_SG` DECIMAL(10,2),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`brew_id` INT,
+PRIMARY KEY (`gravity_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_502338_brew_monitor_db') AS relationships;
+relationships
+Database: db_502338_brew_monitor_db
+
+Table Connections:
+------------------
+[Implied]  Airlocks.brew_id -> Brews.brew_id
+[Implied]  Barley.ingredients_id -> Ingredients.ingredients_id
+[Implied]  Gravity.brew_id -> Brews.brew_id
+[Implied]  Hops.ingredients_id -> Ingredients.ingredients_id
+[Implied]  Ingredients.brew_id -> Brews.brew_id
+[Implied]  Temperature.brew_id -> Brews.brew_id
+[Implied]  Yeast.ingredients_id -> Ingredients.ingredients_id
+
+DROP DATABASE `db_502338_brew_monitor_db`;
+UNINSTALL EXTENSION vsql_schematron;

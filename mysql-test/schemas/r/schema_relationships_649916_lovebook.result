@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 649916_lovebook
+#
+CREATE DATABASE `db_649916_lovebook`;
+USE `db_649916_lovebook`;
+CREATE TABLE `lovebook_tb_usuario` (
+`id` INT NOT NULL,
+`nome` CHAR(50),
+`sobrenome` VARCHAR(50),
+`usuario` VARCHAR(50),
+`email` VARCHAR(50),
+`cpf` CHAR(50),
+`cep` VARCHAR(50),
+`numero` VARCHAR(50),
+`senha` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lovebook_tb_administradores` (
+`id` INT NOT NULL,
+`nome` CHAR(50),
+`sobrenome` VARCHAR(50),
+`usuario` VARCHAR(50),
+`email` VARCHAR(50),
+`senha` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lovebook_tb_autores` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+`img` VARCHAR(50),
+`desc_autor` VARCHAR(50),
+`data_nascimento` DATE,
+`estado_civil` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lovebook_tb_books` (
+`id` INT NOT NULL,
+`titulo` VARCHAR(50),
+`img` VARCHAR(50),
+`desc_book` TEXT,
+`paginas` INT,
+`id_autor` INT,
+`data_lancamento` DATE,
+`preco` DOUBLE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lovebook_tb_favoritos` (
+`id` INT NOT NULL,
+`id_usuario` INT,
+`id_book` INT,
+`id_autor` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lovebook_tb_pay` (
+`id` INT NOT NULL,
+`id_usuario` INT,
+`id_book` INT,
+`id_autor` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_649916_lovebook') AS relationships;
+relationships
+Database: db_649916_lovebook
+
+Table Connections:
+------------------
+[Implied]  lovebook_tb_books.id_autor -> lovebook_tb_autores.id
+[Implied]  lovebook_tb_favoritos.id_autor -> lovebook_tb_autores.id
+[Implied]  lovebook_tb_favoritos.id_book -> lovebook_tb_books.id
+[Implied]  lovebook_tb_favoritos.id_usuario -> lovebook_tb_usuario.id
+[Implied]  lovebook_tb_pay.id_autor -> lovebook_tb_autores.id
+[Implied]  lovebook_tb_pay.id_book -> lovebook_tb_books.id
+[Implied]  lovebook_tb_pay.id_usuario -> lovebook_tb_usuario.id
+
+DROP DATABASE `db_649916_lovebook`;
+UNINSTALL EXTENSION vsql_schematron;

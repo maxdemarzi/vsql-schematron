@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 196580_baseparquing
+--echo #
+CREATE DATABASE `db_196580_baseparquing`;
+USE `db_196580_baseparquing`;
+CREATE TABLE `baseparqueadero.persona` (
+  `idpersona` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  `apellidop` VARCHAR(50),
+  `apellidom` VARCHAR(50),
+  `tipo_id` VARCHAR(50),
+  `num_id` VARCHAR(50),
+  `direccion` VARCHAR(50),
+  `telefono` INT,
+  `celular` INT,
+  `email` VARCHAR(50),
+  PRIMARY KEY (`idpersona`)
+) CHARACTER SET latin1;
+CREATE TABLE `baseparqueadero.reserva` (
+  `idreserva` INT NOT NULL,
+  `idvehiculo` INT,
+  `idtrabajador` INT,
+  `fecha_ingreso` DATE,
+  `fecha_salida` DATE,
+  `dia_i` INT,
+  `mes_i` INT,
+  `ano_i` INT,
+  `hora_i` INT,
+  `minuto_i` INT,
+  `dia_s` INT,
+  `mes_s` INT,
+  `ano_s` INT,
+  `hora_s` INT,
+  `minuto_s` INT,
+  `tiempo_total` INT,
+  `valor_min` DECIMAL(10,2),
+  `valor_total` DECIMAL(10,2),
+  `estado_V` VARCHAR(50),
+  PRIMARY KEY (`idreserva`)
+) CHARACTER SET latin1;
+CREATE TABLE `baseparqueadero.pago` (
+  `idpago` INT NOT NULL,
+  `idreserva` INT,
+  `tipo_comprobante` VARCHAR(50),
+  `num_comprobante` VARCHAR(50),
+  `fecha_pago` DATE,
+  `subtotal` DECIMAL(10,2),
+  `iva` DECIMAL(10,2),
+  `total_pago` DECIMAL(10,2),
+  PRIMARY KEY (`idpago`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_196580_baseparquing') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_196580_baseparquing') AS relationships;
+DROP DATABASE `db_196580_baseparquing`;
+UNINSTALL EXTENSION vsql_schematron;

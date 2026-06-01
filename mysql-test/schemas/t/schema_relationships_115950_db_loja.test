@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 115950_db_loja
+--echo #
+CREATE DATABASE `db_115950_db_loja`;
+USE `db_115950_db_loja`;
+CREATE TABLE `tb_foto` (
+  `id` INT NOT NULL,
+  `nome` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_produto` (
+  `id` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `tipo` VARCHAR(50),
+  `qtd` VARCHAR(50),
+  `id_foto` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_115950_db_loja') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_115950_db_loja') AS relationships;
+DROP DATABASE `db_115950_db_loja`;
+UNINSTALL EXTENSION vsql_schematron;

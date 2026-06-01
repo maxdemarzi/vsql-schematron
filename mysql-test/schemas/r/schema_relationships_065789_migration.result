@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 065789_migration
+#
+CREATE DATABASE `db_065789_migration`;
+USE `db_065789_migration`;
+CREATE TABLE `Account` (
+`id` INT NOT NULL,
+`userId` INT,
+`providerType` TEXT,
+`providerId` TEXT,
+`providerAccountId` TEXT,
+`refreshToken` TEXT,
+`accessToken` TEXT,
+`accessTokenExpires` DATETIME,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`id` INT NOT NULL,
+`userId` INT,
+`expires` DATETIME,
+`sessionToken` TEXT,
+`accessToken` TEXT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` INT NOT NULL,
+`name` TEXT,
+`email` TEXT,
+`emailVerified` DATETIME,
+`image` TEXT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `VerificationRequest` (
+`id` INT NOT NULL,
+`identifier` TEXT,
+`token` TEXT,
+`expires` DATETIME,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_065789_migration') AS relationships;
+relationships
+Database: db_065789_migration
+
+Table Connections:
+------------------
+[Implied]  Account.userId -> User.id
+[Implied]  Session.userId -> User.id
+
+DROP DATABASE `db_065789_migration`;
+UNINSTALL EXTENSION vsql_schematron;

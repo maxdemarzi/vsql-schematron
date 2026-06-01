@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 088149_migration
+#
+CREATE DATABASE `db_088149_migration`;
+USE `db_088149_migration`;
+CREATE TABLE `Session` (
+`id` VARCHAR(50) NOT NULL,
+`data` VARCHAR(50),
+`expiresAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RateLimit` (
+`id` VARCHAR(50) NOT NULL,
+`timestamps` VARCHAR(50),
+`expiresAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` VARCHAR(50) NOT NULL,
+`githubId` INT,
+`username` TEXT,
+`disabled` BOOLEAN,
+`roles` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Challenge` (
+`id` VARCHAR(50) NOT NULL,
+`title` TEXT,
+`updated` TIMESTAMP NULL,
+`published` TIMESTAMP NULL,
+`authorId` TEXT,
+`description` TEXT,
+`tags` VARCHAR(50),
+`setupCode` TEXT,
+`testCode` TEXT,
+`draftSolution` TEXT,
+`status` VARCHAR(50),
+`rejectionReason` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Solution` (
+`challengeId` TEXT,
+`authorId` TEXT,
+`timestamp` TIMESTAMP NULL,
+`code` TEXT,
+`size` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Vote` (
+`challengeId` TEXT,
+`userId` TEXT,
+`value` VARCHAR(50),
+`reason` TEXT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_088149_migration') AS relationships;
+relationships
+Database: db_088149_migration
+
+Table Connections:
+------------------
+[Implied]  Challenge.authorId -> User.id
+[Implied]  Solution.authorId -> User.id
+[Implied]  Solution.challengeId -> Challenge.id
+[Implied]  Vote.challengeId -> Challenge.id
+[Implied]  Vote.userId -> User.id
+
+DROP DATABASE `db_088149_migration`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 459519_migration
+#
+CREATE DATABASE `db_459519_migration`;
+USE `db_459519_migration`;
+CREATE TABLE `Account` (
+`id` VARCHAR(50) NOT NULL,
+`email` VARCHAR(50),
+`password` TEXT,
+`verified` BOOLEAN,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profile` (
+`id` VARCHAR(50) NOT NULL,
+`avatar` TEXT,
+`username` VARCHAR(50),
+`role` VARCHAR(50),
+`accountId` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `VerificationRequest` (
+`id` VARCHAR(50) NOT NULL,
+`identifier` TEXT,
+`token` TEXT,
+`expires` TIMESTAMP NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_459519_migration') AS relationships;
+relationships
+Database: db_459519_migration
+
+Table Connections:
+------------------
+[Implied]  Profile.accountId -> Account.id
+
+DROP DATABASE `db_459519_migration`;
+UNINSTALL EXTENSION vsql_schematron;

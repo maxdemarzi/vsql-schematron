@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 043634_main
+#
+CREATE DATABASE `db_043634_main`;
+USE `db_043634_main`;
+CREATE TABLE `person` (
+`cpf` VARCHAR(50) NOT NULL,
+`name` TEXT,
+`phone` TEXT,
+`birth` TEXT,
+PRIMARY KEY (`cpf`)
+) CHARACTER SET latin1;
+CREATE TABLE `piece` (
+`id` VARCHAR(50) NOT NULL,
+`value` DOUBLE,
+`date` TEXT,
+`person_cpf` TEXT,
+`title` TEXT,
+`desc` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `exposition` (
+`id` VARCHAR(50) NOT NULL,
+`title` TEXT,
+`date` TEXT,
+`time` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `creates` (
+`person_cpf` TEXT,
+`piece_id` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `visits` (
+`person_cpf` TEXT,
+`exposition_id` TEXT,
+`enter` TEXT,
+`leave` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `displays` (
+`piece_id` TEXT,
+`exposition_id` TEXT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_043634_main') AS relationships;
+relationships
+Database: db_043634_main
+
+Table Connections:
+------------------
+[Implied]  creates.person_cpf -> person.cpf
+[Implied]  creates.piece_id -> piece.id
+[Implied]  displays.exposition_id -> exposition.id
+[Implied]  displays.piece_id -> piece.id
+[Implied]  piece.person_cpf -> person.cpf
+[Implied]  visits.exposition_id -> exposition.id
+[Implied]  visits.person_cpf -> person.cpf
+
+DROP DATABASE `db_043634_main`;
+UNINSTALL EXTENSION vsql_schematron;

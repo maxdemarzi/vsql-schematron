@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 088149_migration
+--echo #
+CREATE DATABASE `db_088149_migration`;
+USE `db_088149_migration`;
+CREATE TABLE `Session` (
+  `id` VARCHAR(50) NOT NULL,
+  `data` VARCHAR(50),
+  `expiresAt` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RateLimit` (
+  `id` VARCHAR(50) NOT NULL,
+  `timestamps` VARCHAR(50),
+  `expiresAt` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+  `id` VARCHAR(50) NOT NULL,
+  `githubId` INT,
+  `username` TEXT,
+  `disabled` BOOLEAN,
+  `roles` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Challenge` (
+  `id` VARCHAR(50) NOT NULL,
+  `title` TEXT,
+  `updated` TIMESTAMP NULL,
+  `published` TIMESTAMP NULL,
+  `authorId` TEXT,
+  `description` TEXT,
+  `tags` VARCHAR(50),
+  `setupCode` TEXT,
+  `testCode` TEXT,
+  `draftSolution` TEXT,
+  `status` VARCHAR(50),
+  `rejectionReason` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Solution` (
+  `challengeId` TEXT,
+  `authorId` TEXT,
+  `timestamp` TIMESTAMP NULL,
+  `code` TEXT,
+  `size` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Vote` (
+  `challengeId` TEXT,
+  `userId` TEXT,
+  `value` VARCHAR(50),
+  `reason` TEXT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_088149_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_088149_migration') AS relationships;
+DROP DATABASE `db_088149_migration`;
+UNINSTALL EXTENSION vsql_schematron;

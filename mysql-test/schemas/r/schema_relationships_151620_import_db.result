@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 151620_import_db
+#
+CREATE DATABASE `db_151620_import_db`;
+USE `db_151620_import_db`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`fname` TEXT,
+`lname` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questions` (
+`id` INT NOT NULL,
+`title` TEXT,
+`body` TEXT,
+`author_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question_follows` (
+`user_id` INT,
+`question_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `replies` (
+`id` INT NOT NULL,
+`question_id` INT,
+`parent_id` INT,
+`author_id` INT,
+`body` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question_likes` (
+`user_id` INT,
+`question_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_151620_import_db') AS relationships;
+relationships
+Database: db_151620_import_db
+
+Table Connections:
+------------------
+[Implied]  question_follows.question_id -> questions.id
+[Implied]  question_follows.user_id -> users.id
+[Implied]  question_likes.question_id -> questions.id
+[Implied]  question_likes.user_id -> users.id
+[Implied]  questions.author_id -> users.id
+[Implied]  replies.author_id -> users.id
+[Implied]  replies.parent_id -> replies.id
+[Implied]  replies.question_id -> questions.id
+
+DROP DATABASE `db_151620_import_db`;
+UNINSTALL EXTENSION vsql_schematron;
