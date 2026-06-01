@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 229020_schema
+#
+CREATE DATABASE `db_229020_schema`;
+USE `db_229020_schema`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`role` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `kids` (
+`id` INT NOT NULL,
+`child_name` VARCHAR(50),
+`current_points` INT,
+`banked_points` INT,
+`users_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks` (
+`id` INT NOT NULL,
+`task_name` VARCHAR(50),
+`task_points` INT,
+`kids_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_229020_schema') AS relationships;
+relationships
+Database: db_229020_schema
+
+Table Connections:
+------------------
+[Implied]  kids.users_id -> users.id
+[Implied]  tasks.kids_id -> kids.id
+
+DROP DATABASE `db_229020_schema`;
+UNINSTALL EXTENSION vsql_schematron;

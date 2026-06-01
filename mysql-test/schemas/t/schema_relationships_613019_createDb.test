@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 613019_createDb
+--echo #
+CREATE DATABASE `db_613019_createDb`;
+USE `db_613019_createDb`;
+CREATE TABLE `Eventt` (
+  `Id` INT NOT NULL,
+  `Title` VARCHAR(50),
+  `TypeOf` VARCHAR(50),
+  `Location` TEXT,
+  `TimeOf` TIMESTAMP NULL,
+  `Description` TEXT,
+  `AllDay` BOOLEAN,
+  `Duration` INT,
+  `Reminder` INT,
+  `ToRepeat` VARCHAR(50),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CalendarEvents` (
+  `Id` INT NOT NULL,
+  `EventId` INT,
+  `Date` DATE,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_613019_createDb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_613019_createDb') AS relationships;
+DROP DATABASE `db_613019_createDb`;
+UNINSTALL EXTENSION vsql_schematron;

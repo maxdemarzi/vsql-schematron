@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 188150_schema-postgreql
+--echo #
+CREATE DATABASE `db_188150_schema_postgreql`;
+USE `db_188150_schema_postgreql`;
+CREATE TABLE `T_CATEGORY` (
+  `id` BIGINT NOT NULL,
+  `name` VARCHAR(50),
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_PRODUCT` (
+  `id` BIGINT NOT NULL,
+  `name` VARCHAR(50),
+  `description` VARCHAR(50),
+  `category_fk` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_ITEM` (
+  `id` BIGINT NOT NULL,
+  `name` VARCHAR(50),
+  `unitCost` DECIMAL(10,2),
+  `product_fk` BIGINT,
+  `imagePath` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_ADDRESS` (
+  `id` BIGINT NOT NULL,
+  `street1` VARCHAR(50),
+  `street2` VARCHAR(50),
+  `city` VARCHAR(50),
+  `state` VARCHAR(50),
+  `zipcode` VARCHAR(50),
+  `country` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_CUSTOMER` (
+  `id` BIGINT NOT NULL,
+  `firstname` VARCHAR(50),
+  `lastname` VARCHAR(50),
+  `telephone` VARCHAR(50),
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  `creditcardnumber` VARCHAR(50),
+  `creditcardtype` VARCHAR(50),
+  `creditcardexpirydate` VARCHAR(50),
+  `address_fk` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_VERSION` (
+  `id` BIGINT NOT NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_188150_schema_postgreql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_188150_schema_postgreql') AS relationships;
+DROP DATABASE `db_188150_schema_postgreql`;
+UNINSTALL EXTENSION vsql_schematron;

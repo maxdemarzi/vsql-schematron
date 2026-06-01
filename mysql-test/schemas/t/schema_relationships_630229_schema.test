@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 630229_schema
+--echo #
+CREATE DATABASE `db_630229_schema`;
+USE `db_630229_schema`;
+CREATE TABLE `smtp` (
+  `id` INT NOT NULL,
+  `host` TEXT,
+  `username` TEXT,
+  `password` TEXT,
+  `paused` BOOLEAN,
+  `active` BOOLEAN,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `inbox` (
+  `smtp_id` INT,
+  `seq` INT,
+  `message_id` TEXT,
+  `from_address` TEXT,
+  `subject` TEXT,
+  `attachments` TEXT,
+  `share` TEXT,
+  `date` DATETIME,
+  `timestamp` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `folders` (
+  `folder` VARCHAR(50) NOT NULL,
+  `share_url` TEXT,
+  PRIMARY KEY (`folder`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_630229_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_630229_schema') AS relationships;
+DROP DATABASE `db_630229_schema`;
+UNINSTALL EXTENSION vsql_schematron;

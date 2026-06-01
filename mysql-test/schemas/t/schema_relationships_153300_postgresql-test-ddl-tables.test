@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 153300_postgresql-test-ddl-tables
+--echo #
+CREATE DATABASE `db_153300_postgresql_test_ddl_tables`;
+USE `db_153300_postgresql_test_ddl_tables`;
+CREATE TABLE `test.customer` (
+  `id` INT NOT NULL,
+  `firstname` VARCHAR(50),
+  `lastname` VARCHAR(50),
+  `address` VARCHAR(50),
+  `phone` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `test.invoice` (
+  `InvoiceID` INT NOT NULL,
+  `CustomerID` INT,
+  `orderdate` DATE,
+  `subtotal` DOUBLE,
+  PRIMARY KEY (`InvoiceID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_153300_postgresql_test_ddl_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_153300_postgresql_test_ddl_tables') AS relationships;
+DROP DATABASE `db_153300_postgresql_test_ddl_tables`;
+UNINSTALL EXTENSION vsql_schematron;

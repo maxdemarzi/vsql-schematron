@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 231421_migration
+#
+CREATE DATABASE `db_231421_migration`;
+USE `db_231421_migration`;
+CREATE TABLE `Post` (
+`id` VARCHAR(50) NOT NULL,
+`title` VARCHAR(50),
+`content` TEXT,
+`type` VARCHAR(50),
+`published` BOOLEAN,
+`author_id` TEXT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profile` (
+`id` VARCHAR(50) NOT NULL,
+`bio` TEXT,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`user_id` TEXT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` VARCHAR(50) NOT NULL,
+`email` TEXT,
+`password` TEXT,
+`role` VARCHAR(50),
+`username` TEXT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_231421_migration') AS relationships;
+relationships
+Database: db_231421_migration
+
+Table Connections:
+------------------
+[Implied]  Post.author_id -> User.id
+[Implied]  Profile.user_id -> User.id
+
+DROP DATABASE `db_231421_migration`;
+UNINSTALL EXTENSION vsql_schematron;

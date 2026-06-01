@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 253226_schema.ddl
+#
+CREATE DATABASE `db_253226_schema_ddl`;
+USE `db_253226_schema_ddl`;
+CREATE TABLE `player_login` (
+`id` CHAR(50),
+`name` VARCHAR(50),
+`ip_address` VARCHAR(50),
+`time` TIMESTAMP NULL
+) CHARACTER SET latin1;
+CREATE TABLE `player_ip_ban` (
+`id` INT NOT NULL,
+`ip_address` VARCHAR(50),
+`sender_id` CHAR(50),
+`reason` VARCHAR(50),
+`creation_date` TIMESTAMP NULL,
+`expiry_date` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `player_ip_unban` (
+`ban_id` INT,
+`ip_address` VARCHAR(50),
+`sender_id` CHAR(50),
+`creation_date` TIMESTAMP NULL
+) CHARACTER SET latin1;
+CREATE TABLE `player_punish` (
+`id` INT NOT NULL,
+`banned_id` CHAR(50),
+`sender_id` CHAR(50),
+`reason` VARCHAR(50),
+`creation_date` TIMESTAMP NULL,
+`expiry_date` TIMESTAMP NULL,
+`type` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `player_punish_reverse` (
+`punish_id` INT,
+`banned_id` CHAR(50),
+`sender_id` CHAR(50),
+`reason` VARCHAR(50),
+`creation_date` TIMESTAMP NULL
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_253226_schema_ddl') AS relationships;
+relationships
+Database: db_253226_schema_ddl
+
+Table Connections:
+------------------
+[Implied]  player_ip_unban.ban_id -> player_ip_ban.id
+[Implied]  player_punish_reverse.punish_id -> player_punish.id
+
+DROP DATABASE `db_253226_schema_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

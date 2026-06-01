@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 663087_setup
+#
+CREATE DATABASE `db_663087_setup`;
+USE `db_663087_setup`;
+CREATE TABLE `User` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`nickId` VARCHAR(50),
+`email` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Post` (
+`id` VARCHAR(50) NOT NULL,
+`title` VARCHAR(50),
+`content` TEXT,
+`created_at` DATE,
+`updated_at` DATE,
+`user_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `File` (
+`id` VARCHAR(50) NOT NULL,
+`filename` VARCHAR(50),
+`mimetype` VARCHAR(50),
+`url` VARCHAR(50),
+`owner_id` VARCHAR(50),
+`post_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comment` (
+`id` VARCHAR(50) NOT NULL,
+`content` TEXT,
+`created_at` DATE,
+`user_id` VARCHAR(50),
+`post_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_663087_setup') AS relationships;
+relationships
+Database: db_663087_setup
+
+Table Connections:
+------------------
+[Implied]  Comment.post_id -> Post.id
+[Implied]  Comment.user_id -> User.id
+[Implied]  File.owner_id -> User.id
+[Implied]  File.post_id -> Post.id
+[Implied]  Post.user_id -> User.id
+
+DROP DATABASE `db_663087_setup`;
+UNINSTALL EXTENSION vsql_schematron;

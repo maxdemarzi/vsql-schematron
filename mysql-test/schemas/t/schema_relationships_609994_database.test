@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 609994_database
+--echo #
+CREATE DATABASE `db_609994_database`;
+USE `db_609994_database`;
+CREATE TABLE `Order` (
+  `Oid` INT NOT NULL,
+  `Uid` INT,
+  `Pid` INT,
+  `Canceled` BOOLEAN,
+  PRIMARY KEY (`Oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Notification` (
+  `Oid` INT,
+  `Received` BOOLEAN,
+  `NotiDate` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `Seats` (
+  `Oid` INT,
+  `SeatNo` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_609994_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_609994_database') AS relationships;
+DROP DATABASE `db_609994_database`;
+UNINSTALL EXTENSION vsql_schematron;

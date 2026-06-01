@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 068893_mysql
+#
+CREATE DATABASE `db_068893_mysql`;
+USE `db_068893_mysql`;
+CREATE TABLE `patents` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `divisions` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stormtroopers` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`nickname` VARCHAR(50),
+`id_patent` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stormtrooper_division` (
+`id_stormtrooper` INT,
+`id_division` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_068893_mysql') AS relationships;
+relationships
+Database: db_068893_mysql
+
+Table Connections:
+------------------
+[Implied]  stormtrooper_division.id_division -> divisions.id
+[Implied]  stormtrooper_division.id_stormtrooper -> stormtroopers.id
+[Implied]  stormtroopers.id_patent -> patents.id
+
+DROP DATABASE `db_068893_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

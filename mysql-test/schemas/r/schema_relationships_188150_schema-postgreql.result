@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 188150_schema-postgreql
+#
+CREATE DATABASE `db_188150_schema_postgreql`;
+USE `db_188150_schema_postgreql`;
+CREATE TABLE `T_CATEGORY` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_PRODUCT` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`category_fk` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_ITEM` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`unitCost` DECIMAL(10,2),
+`product_fk` BIGINT,
+`imagePath` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_ADDRESS` (
+`id` BIGINT NOT NULL,
+`street1` VARCHAR(50),
+`street2` VARCHAR(50),
+`city` VARCHAR(50),
+`state` VARCHAR(50),
+`zipcode` VARCHAR(50),
+`country` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_CUSTOMER` (
+`id` BIGINT NOT NULL,
+`firstname` VARCHAR(50),
+`lastname` VARCHAR(50),
+`telephone` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`creditcardnumber` VARCHAR(50),
+`creditcardtype` VARCHAR(50),
+`creditcardexpirydate` VARCHAR(50),
+`address_fk` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_VERSION` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_188150_schema_postgreql') AS relationships;
+relationships
+Database: db_188150_schema_postgreql
+
+Table Connections:
+------------------
+[Implied]  T_CUSTOMER.address_fk -> T_ADDRESS.id
+[Implied]  T_ITEM.product_fk -> T_PRODUCT.id
+[Implied]  T_PRODUCT.category_fk -> T_CATEGORY.id
+
+DROP DATABASE `db_188150_schema_postgreql`;
+UNINSTALL EXTENSION vsql_schematron;

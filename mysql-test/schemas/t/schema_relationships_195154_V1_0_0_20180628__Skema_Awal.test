@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 195154_V1.0.0.20180628__Skema_Awal
+--echo #
+CREATE DATABASE `db_195154_V1_0_0_20180628__Skema_Awal`;
+USE `db_195154_V1_0_0_20180628__Skema_Awal`;
+CREATE TABLE `virtual_account` (
+  `id` VARCHAR(50) NOT NULL,
+  `account_number` VARCHAR(50),
+  `invoice_number` VARCHAR(50),
+  `name` VARCHAR(50),
+  `account_type` VARCHAR(50),
+  `invoice_type` VARCHAR(50),
+  `amount` DECIMAL(10,2),
+  `cumulative_payment` DECIMAL(10,2),
+  `description` VARCHAR(50),
+  `email` VARCHAR(50),
+  `phone` VARCHAR(50),
+  `create_time` TIMESTAMP NULL,
+  `expire_date` DATE,
+  `account_status` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment` (
+  `id` VARCHAR(50) NOT NULL,
+  `id_virtual_account` VARCHAR(50),
+  `amount` DECIMAL(10,2),
+  `transaction_time` TIMESTAMP NULL,
+  `client_reference` VARCHAR(50),
+  `payment_status` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_195154_V1_0_0_20180628__Skema_Awal') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_195154_V1_0_0_20180628__Skema_Awal') AS relationships;
+DROP DATABASE `db_195154_V1_0_0_20180628__Skema_Awal`;
+UNINSTALL EXTENSION vsql_schematron;

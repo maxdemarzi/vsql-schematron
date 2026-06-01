@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 168068_default
+#
+CREATE DATABASE `db_168068_default`;
+USE `db_168068_default`;
+CREATE TABLE `gender` (
+`GenderID` INT NOT NULL,
+`Name` VARCHAR(50),
+PRIMARY KEY (`GenderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`ItemID` INT NOT NULL,
+`ProductID` INT,
+`UserID` INT,
+`vendingmachineID` INT,
+`OfferID` INT,
+`PurchasePrice` DECIMAL(10,2),
+`SalePrice` DECIMAL(10,2),
+`AddedDate` DATETIME,
+PRIMARY KEY (`ItemID`)
+) CHARACTER SET latin1;
+CREATE TABLE `location` (
+`LocationID` INT NOT NULL,
+`AddressLine` VARCHAR(50),
+`TownCity` VARCHAR(50),
+`Country` VARCHAR(50),
+`delted` TINYINT,
+`Postcode` VARCHAR(50),
+PRIMARY KEY (`LocationID`)
+) CHARACTER SET latin1;
+CREATE TABLE `offer` (
+`OfferID` INT NOT NULL,
+`Name` VARCHAR(50),
+`Description` VARCHAR(50),
+`ProductID` INT,
+`UserID` INT,
+`CompanyID` INT,
+`StartDate` DATETIME,
+`EndDate` DATETIME,
+`Quanitity` INT,
+`Discount` DECIMAL(10,2),
+`delted` TINYINT,
+PRIMARY KEY (`OfferID`)
+) CHARACTER SET latin1;
+CREATE TABLE `permission` (
+`PermissionID` INT NOT NULL,
+`Name` VARCHAR(50),
+`Admin` TINYINT,
+`delted` TINYINT,
+PRIMARY KEY (`PermissionID`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`ProductID` INT NOT NULL,
+`Name` VARCHAR(50),
+`Description` VARCHAR(50),
+`CompanyID` INT,
+`Image` VARCHAR(50),
+`delted` TINYINT,
+PRIMARY KEY (`ProductID`)
+) CHARACTER SET latin1;
+CREATE TABLE `stock` (
+`StockID` INT NOT NULL,
+`ProductID` INT,
+`RetailPrice` DECIMAL(10,2),
+`Quanitity` INT,
+`vendingmachineID` INT,
+PRIMARY KEY (`StockID`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`UserID` INT NOT NULL,
+`FirstName` VARCHAR(50),
+`LastName` VARCHAR(50),
+`Email` VARCHAR(50),
+`PermissionID` INT,
+`delted` TINYINT,
+`GenderID` INT,
+PRIMARY KEY (`UserID`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendingmachine` (
+`vendingmachineID` INT NOT NULL,
+`LocationID` INT,
+`CompanyID` INT,
+`Name` VARCHAR(50),
+`delted` TINYINT,
+PRIMARY KEY (`vendingmachineID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_168068_default') AS relationships;
+relationships
+Database: db_168068_default
+
+Table Connections:
+------------------
+[Implied]  item.OfferID -> offer.OfferID
+[Implied]  item.ProductID -> product.ProductID
+[Implied]  item.UserID -> user.UserID
+[Implied]  item.vendingmachineID -> vendingmachine.vendingmachineID
+[Implied]  offer.ProductID -> product.ProductID
+[Implied]  offer.UserID -> user.UserID
+[Implied]  stock.ProductID -> product.ProductID
+[Implied]  stock.vendingmachineID -> vendingmachine.vendingmachineID
+[Implied]  user.GenderID -> gender.GenderID
+[Implied]  user.PermissionID -> permission.PermissionID
+[Implied]  vendingmachine.LocationID -> location.LocationID
+
+DROP DATABASE `db_168068_default`;
+UNINSTALL EXTENSION vsql_schematron;

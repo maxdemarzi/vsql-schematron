@@ -1,0 +1,29 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 327463_schema-mysql
+#
+CREATE DATABASE `db_327463_schema_mysql`;
+USE `db_327463_schema_mysql`;
+CREATE TABLE `ACCOUNT_SUMMARY` (
+`id` INT NOT NULL,
+`account_number` VARCHAR(50),
+`current_balance` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TRANSACTION` (
+`id` INT NOT NULL,
+`timestamp` TIMESTAMP NULL,
+`amount` DECIMAL(10,2),
+`account_summary_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_327463_schema_mysql') AS relationships;
+relationships
+Database: db_327463_schema_mysql
+
+Table Connections:
+------------------
+[Implied]  TRANSACTION.account_summary_id -> ACCOUNT_SUMMARY.id
+
+DROP DATABASE `db_327463_schema_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

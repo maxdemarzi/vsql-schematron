@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 476540_V001__create_tables_for_territory_and_initial_load
+#
+CREATE DATABASE `db_476540_V001__create_tables_for_territory_and_initial_load`;
+USE `db_476540_V001__create_tables_for_territory_and_initial_load`;
+CREATE TABLE `province` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `district` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`status` INT,
+`province_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `administrative_post` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`status` INT,
+`district_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `locality` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`status` INT,
+`administrative_post_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_476540_V001__create_tables_for_territory_and_initial_load') AS relationships;
+relationships
+Database: db_476540_V001__create_tables_for_territory_and_initial_load
+
+Table Connections:
+------------------
+[Implied]  administrative_post.district_id -> district.id
+[Implied]  district.province_id -> province.id
+[Implied]  locality.administrative_post_id -> administrative_post.id
+
+DROP DATABASE `db_476540_V001__create_tables_for_territory_and_initial_load`;
+UNINSTALL EXTENSION vsql_schematron;

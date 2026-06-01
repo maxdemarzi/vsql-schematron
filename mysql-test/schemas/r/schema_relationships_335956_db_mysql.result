@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 335956_db.mysql
+#
+CREATE DATABASE `db_335956_db_mysql`;
+USE `db_335956_db_mysql`;
+CREATE TABLE `ambassador` (
+`amb_id` VARCHAR(50) NOT NULL,
+`amb_name` VARCHAR(50),
+`amb_phone` VARCHAR(50),
+`amb_alt_phone` VARCHAR(50),
+PRIMARY KEY (`amb_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`cust_id` VARCHAR(50) NOT NULL,
+`cust_name` VARCHAR(50),
+`cust_phone` VARCHAR(50),
+`cust_alt_phone` VARCHAR(50),
+PRIMARY KEY (`cust_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `network_partner` (
+`np_id` VARCHAR(50) NOT NULL,
+`np_name` VARCHAR(50),
+`np_address` TEXT,
+PRIMARY KEY (`np_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `queue` (
+`queue_id` INT NOT NULL,
+`amb_id` VARCHAR(50),
+`cust_id` VARCHAR(50),
+`np_id` VARCHAR(50),
+`status` TEXT,
+`slot` VARCHAR(50),
+`source_address` TEXT,
+`dest_address` TEXT,
+PRIMARY KEY (`queue_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `network_partner_people` (
+`npp_id` VARCHAR(50) NOT NULL,
+`npp_name` VARCHAR(50),
+`np_id` VARCHAR(50),
+`npp_phone` VARCHAR(50),
+`npp_alt_phone` VARCHAR(50),
+PRIMARY KEY (`npp_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ticket` (
+`ticket_id` VARCHAR(50) NOT NULL,
+`message` TEXT,
+`ticket_gen_time` VARCHAR(50),
+`ticket_status` VARCHAR(50),
+`ticket_gen_loc` VARCHAR(50),
+`queue_id` INT,
+PRIMARY KEY (`ticket_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ETA` (
+`eta_id` INT NOT NULL,
+`queue_id` INT,
+`eta` TEXT,
+PRIMARY KEY (`eta_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_335956_db_mysql') AS relationships;
+relationships
+Database: db_335956_db_mysql
+
+Table Connections:
+------------------
+[Implied]  ETA.queue_id -> queue.queue_id
+[Implied]  network_partner_people.np_id -> network_partner.np_id
+[Implied]  queue.amb_id -> ambassador.amb_id
+[Implied]  queue.cust_id -> customer.cust_id
+[Implied]  queue.np_id -> network_partner.np_id
+[Implied]  ticket.queue_id -> queue.queue_id
+
+DROP DATABASE `db_335956_db_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

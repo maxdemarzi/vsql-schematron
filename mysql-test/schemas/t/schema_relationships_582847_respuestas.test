@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 582847_respuestas
+--echo #
+CREATE DATABASE `db_582847_respuestas`;
+USE `db_582847_respuestas`;
+CREATE TABLE `alumno` (
+  `idalumno` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  `apellidos` VARCHAR(50),
+  `fechaNac` DATE,
+  `email` VARCHAR(50),
+  `trabaja` TINYINT,
+  PRIMARY KEY (`idalumno`)
+) CHARACTER SET latin1;
+CREATE TABLE `asignatura` (
+  `idasignatura` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  PRIMARY KEY (`idasignatura`)
+) CHARACTER SET latin1;
+CREATE TABLE `curso` (
+  `idclase` INT NOT NULL,
+  `idalumno` INT,
+  `idasignatura` INT,
+  `nombre` VARCHAR(50),
+  PRIMARY KEY (`idclase`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_582847_respuestas') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_582847_respuestas') AS relationships;
+DROP DATABASE `db_582847_respuestas`;
+UNINSTALL EXTENSION vsql_schematron;

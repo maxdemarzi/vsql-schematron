@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 034913_supermercado
+#
+CREATE DATABASE `db_034913_supermercado`;
+USE `db_034913_supermercado`;
+CREATE TABLE `cargos` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `setores` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fornecedores` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+`cnpj` VARCHAR(50),
+`telefone` VARCHAR(50),
+`email` VARCHAR(50),
+`ativo` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `volumes` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `produtos` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+`volume_id` INT,
+`fornecedor_id` INT,
+`setor_id` INT,
+`preco` DOUBLE,
+`ativo` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clientes` (
+`id` INT NOT NULL,
+`cpf` VARCHAR(50),
+`nome` VARCHAR(50),
+`telefone` VARCHAR(50),
+`email` VARCHAR(50),
+`ativo` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `funcionarios` (
+`id` INT NOT NULL,
+`cpf` VARCHAR(50),
+`nome` VARCHAR(50),
+`matricula` VARCHAR(50),
+`setor_id` INT,
+`cargo_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendas` (
+`id` INT NOT NULL,
+`nf` VARCHAR(50),
+`total` DOUBLE,
+`cliente_id` INT,
+`produto_id` INT,
+`quantidade` INT,
+`datahora` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `compras` (
+`id` INT NOT NULL,
+`nf` VARCHAR(50),
+`total` DOUBLE,
+`produto_id` INT,
+`quantidade` INT,
+`datahora` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_034913_supermercado') AS relationships;
+relationships
+Database: db_034913_supermercado
+
+Table Connections:
+------------------
+[Implied]  compras.produto_id -> produtos.id
+[Implied]  funcionarios.cargo_id -> cargos.id
+[Implied]  funcionarios.setor_id -> setores.id
+[Implied]  produtos.fornecedor_id -> fornecedores.id
+[Implied]  produtos.setor_id -> setores.id
+[Implied]  produtos.volume_id -> volumes.id
+[Implied]  vendas.cliente_id -> clientes.id
+[Implied]  vendas.produto_id -> produtos.id
+
+DROP DATABASE `db_034913_supermercado`;
+UNINSTALL EXTENSION vsql_schematron;

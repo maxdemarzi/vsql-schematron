@@ -1,0 +1,27 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 492609_migration
+#
+CREATE DATABASE `db_492609_migration`;
+USE `db_492609_migration`;
+CREATE TABLE `shortened_urls` (
+`short_base64` VARCHAR(50) NOT NULL,
+`url` TEXT,
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`short_base64`)
+) CHARACTER SET latin1;
+CREATE TABLE `visits` (
+`timestamp` TIMESTAMP NOT NULL,
+`shortened_url_base64` TEXT,
+PRIMARY KEY (`timestamp`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_492609_migration') AS relationships;
+relationships
+Database: db_492609_migration
+
+Table Connections:
+------------------
+[Implied]  visits.shortened_url_base64 -> shortened_urls.short_base64
+
+DROP DATABASE `db_492609_migration`;
+UNINSTALL EXTENSION vsql_schematron;

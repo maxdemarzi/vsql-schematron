@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 194481_simple_company_schema
+#
+CREATE DATABASE `db_194481_simple_company_schema`;
+USE `db_194481_simple_company_schema`;
+CREATE TABLE `simple_company.PRODUCT` (
+`id` INT NOT NULL,
+`prod_name` VARCHAR(50),
+`prod_desc` VARCHAR(50),
+`prod_category` INT,
+`prod_upc` CHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `simple_company.PURCHASE` (
+`id` INT NOT NULL,
+`purchase_date` TIMESTAMP NULL,
+`purchase_amt` DECIMAL(10,2),
+`PRODUCT_id` INT,
+`CUSTOMER_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `simple_company.ADDRESS` (
+`address1` VARCHAR(50),
+`address2` VARCHAR(50),
+`city` VARCHAR(50),
+`state` VARCHAR(50),
+`zipcode` VARCHAR(50),
+`CUSTOMER_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `simple_company.CREDIT_CARD` (
+`name` VARCHAR(50),
+`cc_number` VARCHAR(50),
+`exp_date` VARCHAR(50),
+`security_code` VARCHAR(50),
+`CUSTOMER_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_194481_simple_company_schema') AS relationships;
+relationships
+Database: db_194481_simple_company_schema
+
+Table Connections:
+------------------
+[Implied]  simple_company.PURCHASE.PRODUCT_id -> simple_company.PRODUCT.id
+
+DROP DATABASE `db_194481_simple_company_schema`;
+UNINSTALL EXTENSION vsql_schematron;

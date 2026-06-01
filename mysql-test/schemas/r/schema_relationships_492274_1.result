@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 492274_1
+#
+CREATE DATABASE `db_492274_1`;
+USE `db_492274_1`;
+CREATE TABLE `POLLS` (
+`id` BIGINT NOT NULL,
+`owner_id` BIGINT,
+`description` VARCHAR(50),
+`hash_tag` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CHOICES` (
+`id` BIGINT NOT NULL,
+`poll_id` BIGINT,
+`description` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RESPONSES` (
+`id` BIGINT NOT NULL,
+`twitter_user_id` BIGINT,
+`poll_id` BIGINT,
+`choice_id` BIGINT,
+`explanation` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TARGETS` (
+`id` BIGINT NOT NULL,
+`twitter_user_id` BIGINT,
+`poll_id` BIGINT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_492274_1') AS relationships;
+relationships
+Database: db_492274_1
+
+Table Connections:
+------------------
+[Implied]  CHOICES.poll_id -> POLLS.id
+[Implied]  RESPONSES.choice_id -> CHOICES.id
+[Implied]  RESPONSES.poll_id -> POLLS.id
+[Implied]  TARGETS.poll_id -> POLLS.id
+
+DROP DATABASE `db_492274_1`;
+UNINSTALL EXTENSION vsql_schematron;
