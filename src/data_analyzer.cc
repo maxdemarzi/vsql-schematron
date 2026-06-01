@@ -29,12 +29,20 @@ bool areTypesCompatible(const std::string& t1, const std::string& t2) {
     return false;
 }
 
+// Returns true if the column data type is suitable for data relationship profiling.
+// We exclude complex structures (JSON, geometry), binary blobs, and temporal types
+// (date, time, datetime, timestamp) as they rarely serve as valid relational keys.
 bool isProfileableType(const std::string& type) {
     std::string s = to_lower(type);
+    
+    // Skip temporal types (rarely represent valid relational connections)
     if (s == "date" || s == "datetime" || s == "timestamp" || s == "time") {
         return false;
     }
-    return s != "json" && s != "blob" && s != "tinyblob" && s != "mediumblob" && s != "longblob" &&
+    
+    // Skip complex and binary types
+    return s != "json" && 
+           s != "blob" && s != "tinyblob" && s != "mediumblob" && s != "longblob" &&
            s != "geometry";
 }
 
