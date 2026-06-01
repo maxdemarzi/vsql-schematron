@@ -1,0 +1,183 @@
+# Install extension
+INSTALL EXTENSION vsql_schematron;
+
+--echo #
+--echo # Test relationships auto-detection for database: austin_crime
+--echo #
+
+CREATE DATABASE austin_crime;
+USE austin_crime;
+
+# Setup tables
+CREATE TABLE `CRIME` (
+  `unique_key` BIGINT PRIMARY KEY,
+  `address` TEXT,
+  `census_tract` DOUBLE,
+  `clearance_date` BIGINT,
+  `clearance_status` VARCHAR(255),
+  `council_district_code` BIGINT,
+  `description` TEXT,
+  `district` TEXT,
+  `latitude` DOUBLE,
+  `longitude` DOUBLE,
+  `location` TEXT,
+  `location_description` TEXT,
+  `primary_type` VARCHAR(255),
+  `timestamp` BIGINT,
+  `x_coordinate` BIGINT,
+  `y_coordinate` BIGINT,
+  `year` BIGINT,
+  `zipcode` VARCHAR(255)
+);
+
+# Insert sample data
+# Insert sample crime
+INSERT INTO `CRIME` (`unique_key`, `address`, `census_tract`, `clearance_date`, `clearance_status`, `council_district_code`, `description`, `district`, `latitude`, `longitude`, `location`, `location_description`, `primary_type`, `timestamp`, `x_coordinate`, `y_coordinate`, `year`, `zipcode`) VALUES (20155005182, NULL, NULL, 1424131200000000.0, 'Not cleared', NULL, 'BURGLARY OF VEHICLE           ', 'UK', NULL, NULL, '(0         
+1         
+2         
+3         
+4         
+        ..
+38567     
+38568     
+38569     
+38570     
+38571     
+Name: latitude, Length: 38572, dtype: object,0         
+1         
+2         
+3         
+4         
+        ..
+38567     
+38568     
+38569     
+38570     
+38571     
+Name: longitude, Length: 38572, dtype: object)', 'LOYOLA LN', 'Theft', 1423094400000000, NULL, NULL, 2015, NULL);
+INSERT INTO `CRIME` (`unique_key`, `address`, `census_tract`, `clearance_date`, `clearance_status`, `council_district_code`, `description`, `district`, `latitude`, `longitude`, `location`, `location_description`, `primary_type`, `timestamp`, `x_coordinate`, `y_coordinate`, `year`, `zipcode`) VALUES (20158000455, NULL, NULL, NULL, NULL, NULL, 'THEFT FROM PERSON             ', 'UK', NULL, NULL, '(0         
+1         
+2         
+3         
+4         
+        ..
+38567     
+38568     
+38569     
+38570     
+38571     
+Name: latitude, Length: 38572, dtype: object,0         
+1         
+2         
+3         
+4         
+        ..
+38567     
+38568     
+38569     
+38570     
+38571     
+Name: longitude, Length: 38572, dtype: object)', '910 E VILLAGE LN', 'Theft', 1423440000000000, NULL, NULL, 2015, NULL);
+INSERT INTO `CRIME` (`unique_key`, `address`, `census_tract`, `clearance_date`, `clearance_status`, `council_district_code`, `description`, `district`, `latitude`, `longitude`, `location`, `location_description`, `primary_type`, `timestamp`, `x_coordinate`, `y_coordinate`, `year`, `zipcode`) VALUES (20158000456, NULL, NULL, NULL, NULL, NULL, 'THEFT OF BICYCLE              ', 'UK', NULL, NULL, '(0         
+1         
+2         
+3         
+4         
+        ..
+38567     
+38568     
+38569     
+38570     
+38571     
+Name: latitude, Length: 38572, dtype: object,0         
+1         
+2         
+3         
+4         
+        ..
+38567     
+38568     
+38569     
+38570     
+38571     
+Name: longitude, Length: 38572, dtype: object)', '120 W. 4TH ST', 'Theft', 1423440000000000, NULL, NULL, 2015, NULL);
+INSERT INTO `CRIME` (`unique_key`, `address`, `census_tract`, `clearance_date`, `clearance_status`, `council_district_code`, `description`, `district`, `latitude`, `longitude`, `location`, `location_description`, `primary_type`, `timestamp`, `x_coordinate`, `y_coordinate`, `year`, `zipcode`) VALUES (20151342090, NULL, NULL, 1431907200000000.0, 'Cleared by Arrest', NULL, 'BURGLARY OF VEHICLE           ', 'UK', NULL, NULL, '(0         
+1         
+2         
+3         
+4         
+        ..
+38567     
+38568     
+38569     
+38570     
+38571     
+Name: latitude, Length: 38572, dtype: object,0         
+1         
+2         
+3         
+4         
+        ..
+38567     
+38568     
+38569     
+38570     
+38571     
+Name: longitude, Length: 38572, dtype: object)', '9700 WILLER WAY', 'Theft', 1431648000000000, NULL, NULL, 2015, NULL);
+INSERT INTO `CRIME` (`unique_key`, `address`, `census_tract`, `clearance_date`, `clearance_status`, `council_district_code`, `description`, `district`, `latitude`, `longitude`, `location`, `location_description`, `primary_type`, `timestamp`, `x_coordinate`, `y_coordinate`, `year`, `zipcode`) VALUES (20155006394, NULL, NULL, 1423785600000000.0, 'Cleared by Arrest', NULL, 'THEFT                         ', 'F', NULL, NULL, '(0         
+1         
+2         
+3         
+4         
+        ..
+38567     
+38568     
+38569     
+38570     
+38571     
+Name: latitude, Length: 38572, dtype: object,0         
+1         
+2         
+3         
+4         
+        ..
+38567     
+38568     
+38569     
+38570     
+38571     
+Name: longitude, Length: 38572, dtype: object)', '9300 SOUTH IH35 SVRD (WALMART)', 'Theft', 1423785600000000, NULL, NULL, 2015, NULL);
+
+# Enable schema cache worker
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+
+# Wait for the schema cache to be populated
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('austin_crime') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+
+# Retrieve schema relationships
+SELECT vsql_schema_relationships('austin_crime') AS schema_relationships;
+
+# Retrieve data relationships
+SELECT vsql_data_relationships('austin_crime') AS data_relationships;
+
+--echo #
+--echo # Cleanup
+--echo #
+
+UNINSTALL EXTENSION vsql_schematron;
+DROP DATABASE austin_crime;

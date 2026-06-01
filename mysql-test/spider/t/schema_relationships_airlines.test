@@ -1,0 +1,153 @@
+# Install extension
+INSTALL EXTENSION vsql_schematron;
+
+--echo #
+--echo # Test relationships auto-detection for database: airlines
+--echo #
+
+CREATE DATABASE airlines;
+USE airlines;
+
+# Setup tables
+CREATE TABLE `FLIGHTS` (
+  `flight_id` BIGINT PRIMARY KEY,
+  `flight_no` VARCHAR(255),
+  `scheduled_departure` TEXT,
+  `scheduled_arrival` TEXT,
+  `departure_airport` TEXT,
+  `arrival_airport` TEXT,
+  `status` VARCHAR(255),
+  `aircraft_code` VARCHAR(255),
+  `actual_departure` TEXT,
+  `actual_arrival` TEXT
+);
+CREATE TABLE `SEATS` (
+  `aircraft_code` VARCHAR(255),
+  `seat_no` VARCHAR(255) PRIMARY KEY,
+  `fare_conditions` TEXT
+);
+CREATE TABLE `TICKETS` (
+  `ticket_no` VARCHAR(255),
+  `book_ref` VARCHAR(255),
+  `passenger_id` VARCHAR(255) PRIMARY KEY
+);
+CREATE TABLE `BOOKINGS` (
+  `book_ref` VARCHAR(255) PRIMARY KEY,
+  `book_date` VARCHAR(255),
+  `total_amount` BIGINT
+);
+CREATE TABLE `AIRCRAFTS_DATA` (
+  `aircraft_code` VARCHAR(255) PRIMARY KEY,
+  `model` TEXT,
+  `range` BIGINT
+);
+CREATE TABLE `AIRPORTS_DATA` (
+  `airport_code` VARCHAR(255) PRIMARY KEY,
+  `airport_name` VARCHAR(255),
+  `city` TEXT,
+  `coordinates` TEXT,
+  `timezone` VARCHAR(255)
+);
+CREATE TABLE `BOARDING_PASSES` (
+  `ticket_no` VARCHAR(255) PRIMARY KEY,
+  `flight_id` BIGINT,
+  `boarding_no` BIGINT,
+  `seat_no` VARCHAR(255)
+);
+CREATE TABLE `TICKET_FLIGHTS` (
+  `ticket_no` VARCHAR(255) PRIMARY KEY,
+  `flight_id` BIGINT,
+  `fare_conditions` TEXT,
+  `amount` BIGINT
+);
+
+# Insert sample data
+# Insert sample flights
+INSERT INTO `FLIGHTS` (`flight_id`, `flight_no`, `scheduled_departure`, `scheduled_arrival`, `departure_airport`, `arrival_airport`, `status`, `aircraft_code`, `actual_departure`, `actual_arrival`) VALUES (5502, 'PG0529', '2017-09-12 09:50:00+03', '2017-09-12 11:20:00+03', 'SVO', 'UFA', 'Scheduled', '763', '\N', '\N');
+INSERT INTO `FLIGHTS` (`flight_id`, `flight_no`, `scheduled_departure`, `scheduled_arrival`, `departure_airport`, `arrival_airport`, `status`, `aircraft_code`, `actual_departure`, `actual_arrival`) VALUES (7784, 'PG0667', '2017-09-10 15:00:00+03', '2017-09-10 17:30:00+03', 'SVO', 'KRO', 'Scheduled', 'CR2', '\N', '\N');
+INSERT INTO `FLIGHTS` (`flight_id`, `flight_no`, `scheduled_departure`, `scheduled_arrival`, `departure_airport`, `arrival_airport`, `status`, `aircraft_code`, `actual_departure`, `actual_arrival`) VALUES (9478, 'PG0360', '2017-08-28 09:00:00+03', '2017-08-28 11:35:00+03', 'LED', 'REN', 'Scheduled', 'CR2', '\N', '\N');
+INSERT INTO `FLIGHTS` (`flight_id`, `flight_no`, `scheduled_departure`, `scheduled_arrival`, `departure_airport`, `arrival_airport`, `status`, `aircraft_code`, `actual_departure`, `actual_arrival`) VALUES (11085, 'PG0569', '2017-08-24 15:05:00+03', '2017-08-24 16:10:00+03', 'SVX', 'SCW', 'Scheduled', '733', '\N', '\N');
+INSERT INTO `FLIGHTS` (`flight_id`, `flight_no`, `scheduled_departure`, `scheduled_arrival`, `departure_airport`, `arrival_airport`, `status`, `aircraft_code`, `actual_departure`, `actual_arrival`) VALUES (11847, 'PG0498', '2017-09-12 10:15:00+03', '2017-09-12 14:55:00+03', 'KZN', 'IKT', 'Scheduled', '319', '\N', '\N');
+
+# Insert sample seats
+INSERT INTO `SEATS` (`aircraft_code`, `seat_no`, `fare_conditions`) VALUES ('319', '2A', 'Business');
+INSERT INTO `SEATS` (`aircraft_code`, `seat_no`, `fare_conditions`) VALUES ('319', '2F', 'Business');
+INSERT INTO `SEATS` (`aircraft_code`, `seat_no`, `fare_conditions`) VALUES ('319', '3A', 'Business');
+INSERT INTO `SEATS` (`aircraft_code`, `seat_no`, `fare_conditions`) VALUES ('319', '3C', 'Business');
+INSERT INTO `SEATS` (`aircraft_code`, `seat_no`, `fare_conditions`) VALUES ('319', '3F', 'Business');
+
+# Insert sample tickets
+INSERT INTO `TICKETS` (`ticket_no`, `book_ref`, `passenger_id`) VALUES ('0005432000988', '06B046', '8499 420203');
+INSERT INTO `TICKETS` (`ticket_no`, `book_ref`, `passenger_id`) VALUES ('0005432000989', 'E170C3', '1011 752484');
+INSERT INTO `TICKETS` (`ticket_no`, `book_ref`, `passenger_id`) VALUES ('0005432000991', 'F313DD', '6615 976589');
+INSERT INTO `TICKETS` (`ticket_no`, `book_ref`, `passenger_id`) VALUES ('0005432000994', 'CCC5CB', '2883 989356');
+INSERT INTO `TICKETS` (`ticket_no`, `book_ref`, `passenger_id`) VALUES ('0005432000995', 'CCC5CB', '3097 995546');
+
+# Insert sample bookings
+INSERT INTO `BOOKINGS` (`book_ref`, `book_date`, `total_amount`) VALUES ('000012', '2017-07-14 09:02:00+03', 37900);
+INSERT INTO `BOOKINGS` (`book_ref`, `book_date`, `total_amount`) VALUES ('000068', '2017-08-15 14:27:00+03', 18100);
+INSERT INTO `BOOKINGS` (`book_ref`, `book_date`, `total_amount`) VALUES ('000181', '2017-08-10 13:28:00+03', 131800);
+INSERT INTO `BOOKINGS` (`book_ref`, `book_date`, `total_amount`) VALUES ('0002D8', '2017-08-07 21:40:00+03', 23600);
+INSERT INTO `BOOKINGS` (`book_ref`, `book_date`, `total_amount`) VALUES ('0002F3', '2017-07-10 05:31:00+03', 69600);
+
+# Insert sample aircrafts_data
+INSERT INTO `AIRCRAFTS_DATA` (`aircraft_code`, `model`, `range`) VALUES ('773', '{"en": "Boeing 777-300", "ru": "Боинг 777-300"}', 11100);
+INSERT INTO `AIRCRAFTS_DATA` (`aircraft_code`, `model`, `range`) VALUES ('SU9', '{"en": "Sukhoi Superjet-100", "ru": "Сухой Суперджет-100"}', 3000);
+INSERT INTO `AIRCRAFTS_DATA` (`aircraft_code`, `model`, `range`) VALUES ('320', '{"en": "Airbus A320-200", "ru": "Аэробус A320-200"}', 5700);
+INSERT INTO `AIRCRAFTS_DATA` (`aircraft_code`, `model`, `range`) VALUES ('321', '{"en": "Airbus A321-200", "ru": "Аэробус A321-200"}', 5600);
+INSERT INTO `AIRCRAFTS_DATA` (`aircraft_code`, `model`, `range`) VALUES ('319', '{"en": "Airbus A319-100", "ru": "Аэробус A319-100"}', 6700);
+
+# Insert sample airports_data
+INSERT INTO `AIRPORTS_DATA` (`airport_code`, `airport_name`, `city`, `coordinates`, `timezone`) VALUES ('YKS', '{"en": "Yakutsk Airport", "ru": "Якутск"}', '{"en": "Yakutsk", "ru": "Якутск"}', '(129.77099609375,62.0932998657226562)', 'Asia/Yakutsk');
+INSERT INTO `AIRPORTS_DATA` (`airport_code`, `airport_name`, `city`, `coordinates`, `timezone`) VALUES ('VVO', '{"en": "Vladivostok International Airport", "ru": "Владивосток"}', '{"en": "Vladivostok", "ru": "Владивосток"}', '(132.147994995117188,43.3989982604980469)', 'Asia/Vladivostok');
+INSERT INTO `AIRPORTS_DATA` (`airport_code`, `airport_name`, `city`, `coordinates`, `timezone`) VALUES ('SGC', '{"en": "Surgut Airport", "ru": "Сургут"}', '{"en": "Surgut", "ru": "Сургут"}', '(73.4018020629882812,61.3437004089355469)', 'Asia/Yekaterinburg');
+INSERT INTO `AIRPORTS_DATA` (`airport_code`, `airport_name`, `city`, `coordinates`, `timezone`) VALUES ('MRV', '{"en": "Mineralnyye Vody Airport", "ru": "Минеральные Воды"}', '{"en": "Mineralnye Vody", "ru": "Минеральные Воды"}', '(43.0819015502929688,44.2251014709472656)', 'Europe/Moscow');
+INSERT INTO `AIRPORTS_DATA` (`airport_code`, `airport_name`, `city`, `coordinates`, `timezone`) VALUES ('STW', '{"en": "Stavropol Shpakovskoye Airport", "ru": "Ставрополь"}', '{"en": "Stavropol", "ru": "Ставрополь"}', '(42.1128005981445312,45.1091995239257812)', 'Europe/Moscow');
+
+# Insert sample boarding_passes
+INSERT INTO `BOARDING_PASSES` (`ticket_no`, `flight_id`, `boarding_no`, `seat_no`) VALUES ('0005435212386', 30625, 2, '3G');
+INSERT INTO `BOARDING_PASSES` (`ticket_no`, `flight_id`, `boarding_no`, `seat_no`) VALUES ('0005435212357', 30625, 5, '11A');
+INSERT INTO `BOARDING_PASSES` (`ticket_no`, `flight_id`, `boarding_no`, `seat_no`) VALUES ('0005435212393', 30625, 7, '11H');
+INSERT INTO `BOARDING_PASSES` (`ticket_no`, `flight_id`, `boarding_no`, `seat_no`) VALUES ('0005435212374', 30625, 8, '12E');
+INSERT INTO `BOARDING_PASSES` (`ticket_no`, `flight_id`, `boarding_no`, `seat_no`) VALUES ('0005435212365', 30625, 9, '13D');
+
+# Insert sample ticket_flights
+INSERT INTO `TICKET_FLIGHTS` (`ticket_no`, `flight_id`, `fare_conditions`, `amount`) VALUES ('0005435212351', 30625, 'Business', 42100);
+INSERT INTO `TICKET_FLIGHTS` (`ticket_no`, `flight_id`, `fare_conditions`, `amount`) VALUES ('0005435212381', 30625, 'Business', 42100);
+INSERT INTO `TICKET_FLIGHTS` (`ticket_no`, `flight_id`, `fare_conditions`, `amount`) VALUES ('0005435212357', 30625, 'Comfort', 23900);
+INSERT INTO `TICKET_FLIGHTS` (`ticket_no`, `flight_id`, `fare_conditions`, `amount`) VALUES ('0005435212360', 30625, 'Comfort', 23900);
+INSERT INTO `TICKET_FLIGHTS` (`ticket_no`, `flight_id`, `fare_conditions`, `amount`) VALUES ('0005435212393', 30625, 'Comfort', 23900);
+
+# Enable schema cache worker
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+
+# Wait for the schema cache to be populated
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('airlines') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+
+# Retrieve schema relationships
+SELECT vsql_schema_relationships('airlines') AS schema_relationships;
+
+# Retrieve data relationships
+SELECT vsql_data_relationships('airlines') AS data_relationships;
+
+--echo #
+--echo # Cleanup
+--echo #
+
+UNINSTALL EXTENSION vsql_schematron;
+DROP DATABASE airlines;

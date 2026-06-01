@@ -1,0 +1,90 @@
+# Install extension
+INSTALL EXTENSION vsql_schematron;
+
+--echo #
+--echo # Test relationships auto-detection for database: austin_bikeshare
+--echo #
+
+CREATE DATABASE austin_bikeshare;
+USE austin_bikeshare;
+
+# Setup tables
+CREATE TABLE `BIKESHARE_TRIPS` (
+  `trip_id` VARCHAR(255) PRIMARY KEY,
+  `subscriber_type` VARCHAR(255),
+  `bike_id` VARCHAR(255),
+  `bike_type` VARCHAR(255),
+  `start_time` BIGINT,
+  `start_station_id` BIGINT,
+  `start_station_name` VARCHAR(255),
+  `end_station_id` VARCHAR(255),
+  `end_station_name` VARCHAR(255),
+  `duration_minutes` BIGINT
+);
+CREATE TABLE `BIKESHARE_STATIONS` (
+  `station_id` BIGINT PRIMARY KEY,
+  `name` VARCHAR(255),
+  `status` VARCHAR(255),
+  `location` TEXT,
+  `address` TEXT,
+  `alternate_name` VARCHAR(255),
+  `city_asset_number` BIGINT,
+  `property_type` VARCHAR(255),
+  `number_of_docks` BIGINT,
+  `power_type` VARCHAR(255),
+  `footprint_length` BIGINT,
+  `footprint_width` DOUBLE,
+  `notes` VARCHAR(255),
+  `council_district` BIGINT,
+  `image` TEXT,
+  `modified_date` BIGINT
+);
+
+# Insert sample data
+# Insert sample bikeshare_trips
+INSERT INTO `BIKESHARE_TRIPS` (`trip_id`, `subscriber_type`, `bike_id`, `bike_type`, `start_time`, `start_station_id`, `start_station_name`, `end_station_id`, `end_station_name`, `duration_minutes`) VALUES ('18939964', 'Single Trip', '263G', 'classic', 1541345975000000, 2574, 'Zilker Park', '4051', '10th & Red River', 44);
+INSERT INTO `BIKESHARE_TRIPS` (`trip_id`, `subscriber_type`, `bike_id`, `bike_type`, `start_time`, `start_station_id`, `start_station_name`, `end_station_id`, `end_station_name`, `duration_minutes`) VALUES ('29611056', 'Pay-as-you-ride', '19453', 'electric', 1683920482000000, 4051, '10th/Red River', '4051', '10th/Red River', 64);
+INSERT INTO `BIKESHARE_TRIPS` (`trip_id`, `subscriber_type`, `bike_id`, `bike_type`, `start_time`, `start_station_id`, `start_station_name`, `end_station_id`, `end_station_name`, `duration_minutes`) VALUES ('29599451', 'Local31', '22196', 'electric', 1683826896000000, 4051, '10th/Red River', '4051', '10th/Red River', 12);
+INSERT INTO `BIKESHARE_TRIPS` (`trip_id`, `subscriber_type`, `bike_id`, `bike_type`, `start_time`, `start_station_id`, `start_station_name`, `end_station_id`, `end_station_name`, `duration_minutes`) VALUES ('29541694', 'Pay-as-you-ride', '1434', 'classic', 1683361074000000, 4051, '10th/Red River', '4051', '10th/Red River', 58);
+INSERT INTO `BIKESHARE_TRIPS` (`trip_id`, `subscriber_type`, `bike_id`, `bike_type`, `start_time`, `start_station_id`, `start_station_name`, `end_station_id`, `end_station_name`, `duration_minutes`) VALUES ('29599284', 'Local31', '22196', 'electric', 1683825929000000, 4051, '10th/Red River', '4051', '10th/Red River', 16);
+
+# Insert sample bikeshare_stations
+INSERT INTO `BIKESHARE_STATIONS` (`station_id`, `name`, `status`, `location`, `address`, `alternate_name`, `city_asset_number`, `property_type`, `number_of_docks`, `power_type`, `footprint_length`, `footprint_width`, `notes`, `council_district`, `image`, `modified_date`) VALUES (1002, '6th & Navasota St.', 'closed', '(30.26383, -97.72864)', '1308 W. 6th St.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 3, NULL, 1609718400000000);
+INSERT INTO `BIKESHARE_STATIONS` (`station_id`, `name`, `status`, `location`, `address`, `alternate_name`, `city_asset_number`, `property_type`, `number_of_docks`, `power_type`, `footprint_length`, `footprint_width`, `notes`, `council_district`, `image`, `modified_date`) VALUES (2576, 'Rainey @ River St', 'closed', '(30.25802, -97.7391)', '64 Rainey St', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 9, NULL, 1609718400000000);
+INSERT INTO `BIKESHARE_STATIONS` (`station_id`, `name`, `status`, `location`, `address`, `alternate_name`, `city_asset_number`, `property_type`, `number_of_docks`, `power_type`, `footprint_length`, `footprint_width`, `notes`, `council_district`, `image`, `modified_date`) VALUES (1005, 'State Parking Garage @ Brazos & 18th', 'closed', '(30.27907, -97.73715)', '1789 Brazos St.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, 1609718400000000);
+INSERT INTO `BIKESHARE_STATIONS` (`station_id`, `name`, `status`, `location`, `address`, `alternate_name`, `city_asset_number`, `property_type`, `number_of_docks`, `power_type`, `footprint_length`, `footprint_width`, `notes`, `council_district`, `image`, `modified_date`) VALUES (1006, 'Zilker Park West', 'closed', '(30.26587, -97.76826)', 'Barton Springs Rd', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8, NULL, 1609718400000000);
+INSERT INTO `BIKESHARE_STATIONS` (`station_id`, `name`, `status`, `location`, `address`, `alternate_name`, `city_asset_number`, `property_type`, `number_of_docks`, `power_type`, `footprint_length`, `footprint_width`, `notes`, `council_district`, `image`, `modified_date`) VALUES (2500, 'Republic Square', 'closed', '(30.26751, -97.74802)', '425 W 4th Street', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 9, NULL, 1609718400000000);
+
+# Enable schema cache worker
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+
+# Wait for the schema cache to be populated
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('austin_bikeshare') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+
+# Retrieve schema relationships
+SELECT vsql_schema_relationships('austin_bikeshare') AS schema_relationships;
+
+# Retrieve data relationships
+SELECT vsql_data_relationships('austin_bikeshare') AS data_relationships;
+
+--echo #
+--echo # Cleanup
+--echo #
+
+UNINSTALL EXTENSION vsql_schematron;
+DROP DATABASE austin_bikeshare;

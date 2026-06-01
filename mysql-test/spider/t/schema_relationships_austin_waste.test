@@ -1,0 +1,63 @@
+# Install extension
+INSTALL EXTENSION vsql_schematron;
+
+--echo #
+--echo # Test relationships auto-detection for database: austin_waste
+--echo #
+
+CREATE DATABASE austin_waste;
+USE austin_waste;
+
+# Setup tables
+CREATE TABLE `WASTE_AND_DIVERSION` (
+  `load_id` BIGINT PRIMARY KEY,
+  `report_date` DATE,
+  `load_type` VARCHAR(255),
+  `load_time` BIGINT,
+  `load_weight` DOUBLE,
+  `dropoff_site` TEXT,
+  `route_type` VARCHAR(255),
+  `route_number` TEXT
+);
+
+# Insert sample data
+# Insert sample waste_and_diversion
+INSERT INTO `WASTE_AND_DIVERSION` (`load_id`, `report_date`, `load_type`, `load_time`, `load_weight`, `dropoff_site`, `route_type`, `route_number`) VALUES (828282, '2019-05-29', 'RECYCLED METAL', 1559123400000000, 480.0, 'AUSTIN IRON AND METAL', 'ON CALL BULK', 'OCPBU09');
+INSERT INTO `WASTE_AND_DIVERSION` (`load_id`, `report_date`, `load_type`, `load_time`, `load_weight`, `dropoff_site`, `route_type`, `route_number`) VALUES (859153, '2020-01-29', 'RECYCLED METAL', 1580314260000000, 490.0, 'AUSTIN IRON AND METAL', 'ON CALL BULK', 'OCPBU09');
+INSERT INTO `WASTE_AND_DIVERSION` (`load_id`, `report_date`, `load_type`, `load_time`, `load_weight`, `dropoff_site`, `route_type`, `route_number`) VALUES (827324, '2019-05-21', 'RECYCLED METAL', 1558446000000000, 230.0, 'AUSTIN IRON AND METAL', 'ON CALL BULK', 'OCPBU09');
+INSERT INTO `WASTE_AND_DIVERSION` (`load_id`, `report_date`, `load_type`, `load_time`, `load_weight`, `dropoff_site`, `route_type`, `route_number`) VALUES (866815, '2020-03-25', 'RECYCLED METAL', 1585135800000000, 880.0, 'AUSTIN IRON AND METAL', 'ON CALL BULK', 'OCPBU09');
+INSERT INTO `WASTE_AND_DIVERSION` (`load_id`, `report_date`, `load_type`, `load_time`, `load_weight`, `dropoff_site`, `route_type`, `route_number`) VALUES (895316, '2020-11-10', 'RECYCLED METAL', 1605020100000000, 710.0, 'AUSTIN IRON AND METAL', 'ON CALL BULK', 'OCPBU09');
+
+# Enable schema cache worker
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+
+# Wait for the schema cache to be populated
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('austin_waste') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+
+# Retrieve schema relationships
+SELECT vsql_schema_relationships('austin_waste') AS schema_relationships;
+
+# Retrieve data relationships
+SELECT vsql_data_relationships('austin_waste') AS data_relationships;
+
+--echo #
+--echo # Cleanup
+--echo #
+
+UNINSTALL EXTENSION vsql_schematron;
+DROP DATABASE austin_waste;
