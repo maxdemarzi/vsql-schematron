@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 278502_schema
+--echo #
+CREATE DATABASE `db_278502_schema`;
+USE `db_278502_schema`;
+CREATE TABLE `users` (
+  `id` INT NOT NULL,
+  `email` VARCHAR(50),
+  `username` VARCHAR(50),
+  `password` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `short` (
+  `id` VARCHAR(50) NOT NULL,
+  `creator_id` INT,
+  `url` TEXT,
+  `views` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_278502_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_278502_schema') AS relationships;
+DROP DATABASE `db_278502_schema`;
+UNINSTALL EXTENSION vsql_schematron;

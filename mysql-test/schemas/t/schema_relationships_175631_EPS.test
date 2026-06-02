@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 175631_EPS
+--echo #
+CREATE DATABASE `db_175631_EPS`;
+USE `db_175631_EPS`;
+CREATE TABLE `Affiliate` (
+  `affiliate_id` INT NOT NULL,
+  `first_name` TEXT,
+  `last_name` TEXT,
+  `address` TEXT,
+  `phone` TEXT,
+  `email` TEXT,
+  `city` TEXT,
+  `birth_date` DECIMAL(10,2),
+  `affiliation_date` DECIMAL(10,2),
+  `vaccinated` BOOLEAN,
+  `disaffiliation_date` DECIMAL(10,2),
+  PRIMARY KEY (`affiliate_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `VaccineLot` (
+  `vaccine_lot_id` INT NOT NULL,
+  `manufacturer` TEXT,
+  `vaccine_type` TEXT,
+  `amount` DECIMAL(10,2),
+  `used_amount` DECIMAL(10,2),
+  `dose` DECIMAL(10,2),
+  `temperature` DECIMAL(10,2),
+  `effectiveness` DECIMAL(10,2),
+  `protection_time` DECIMAL(10,2),
+  `expiration_date` DECIMAL(10,2),
+  `image_url` TEXT,
+  PRIMARY KEY (`vaccine_lot_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `VaccinationPlan` (
+  `vaccination_plan_id` INT NOT NULL,
+  `minimum_age` DECIMAL(10,2),
+  `maximum_age` DECIMAL(10,2),
+  `start_date` DECIMAL(10,2),
+  `end_date` DECIMAL(10,2),
+  PRIMARY KEY (`vaccination_plan_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `VaccinationSchedule` (
+  `vaccination_schedule_id` INT NOT NULL,
+  `date_time` DECIMAL(10,2),
+  `affiliate_id` DECIMAL(10,2),
+  `vaccine_lot_id` DECIMAL(10,2),
+  `vaccination_plan_id` DECIMAL(10,2),
+  PRIMARY KEY (`vaccination_schedule_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_175631_EPS') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_175631_EPS') AS relationships;
+DROP DATABASE `db_175631_EPS`;
+UNINSTALL EXTENSION vsql_schematron;

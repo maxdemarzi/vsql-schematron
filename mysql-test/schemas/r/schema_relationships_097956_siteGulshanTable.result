@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 097956_siteGulshanTable
+#
+CREATE DATABASE `db_097956_siteGulshanTable`;
+USE `db_097956_siteGulshanTable`;
+CREATE TABLE `menu2` (
+`m_id` INT NOT NULL,
+`m_name` VARCHAR(50),
+`price` DECIMAL(10,2),
+`m_type` VARCHAR(50),
+PRIMARY KEY (`m_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `branch2` (
+`b_id` INT NOT NULL,
+`b_name` VARCHAR(50),
+`b_address` VARCHAR(50),
+PRIMARY KEY (`b_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer2` (
+`c_id` INT NOT NULL,
+`c_name` VARCHAR(50),
+`c_address` VARCHAR(50),
+`c_phone` DECIMAL(10,2),
+`c_type` VARCHAR(50),
+`b_id` INT,
+PRIMARY KEY (`c_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders2` (
+`o_id` INT NOT NULL,
+`o_date` DATE,
+`o_quantity` INT,
+`o_type` VARCHAR(50),
+`c_id` INT,
+`m_id` INT,
+`b_id` INT,
+PRIMARY KEY (`o_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `booking2` (
+`RID` INT NOT NULL,
+`duration` VARCHAR(50),
+`RDate` DATE,
+`RTime` VARCHAR(50),
+`RType` VARCHAR(50),
+`c_id` INT,
+PRIMARY KEY (`RID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_097956_siteGulshanTable') AS relationships;
+relationships
+Database: db_097956_siteGulshanTable
+
+Table Connections:
+------------------
+[Implied]  booking2.c_id -> customer2.c_id
+[Implied]  customer2.b_id -> branch2.b_id
+[Implied]  orders2.b_id -> branch2.b_id
+[Implied]  orders2.c_id -> customer2.c_id
+[Implied]  orders2.m_id -> menu2.m_id
+
+DROP DATABASE `db_097956_siteGulshanTable`;
+UNINSTALL EXTENSION vsql_schematron;

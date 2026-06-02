@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 524406_db_schema
+#
+CREATE DATABASE `db_524406_db_schema`;
+USE `db_524406_db_schema`;
+CREATE TABLE `user` (
+`id` INT NOT NULL,
+`username` TEXT,
+`password` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `data_files` (
+`id` INT NOT NULL,
+`owner_id` INT,
+`filename` TEXT,
+`longitude` TEXT,
+`latitude` TEXT,
+`info` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `revisions` (
+`id` INT NOT NULL,
+`data_file_id` INT,
+`created` TIMESTAMP NULL,
+`filepath` TEXT,
+`revision` INT,
+`file_type` TEXT,
+`info` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `steps` (
+`id` INT NOT NULL,
+`data_file_id` INT,
+`step` TEXT,
+`parameters` TEXT,
+`up_to_date` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_524406_db_schema') AS relationships;
+relationships
+Database: db_524406_db_schema
+
+Table Connections:
+------------------
+[Implied]  data_files.owner_id -> user.id
+[Implied]  revisions.data_file_id -> data_files.id
+[Implied]  steps.data_file_id -> data_files.id
+
+DROP DATABASE `db_524406_db_schema`;
+UNINSTALL EXTENSION vsql_schematron;

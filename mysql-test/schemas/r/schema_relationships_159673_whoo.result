@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 159673_whoo
+#
+CREATE DATABASE `db_159673_whoo`;
+USE `db_159673_whoo`;
+CREATE TABLE `whoo_user` (
+`id` INT NOT NULL,
+`email` VARCHAR(50),
+`username` VARCHAR(50),
+`password_hash` VARCHAR(50),
+`email_verified` TINYINT,
+`sign_up_date_time` TIMESTAMP NULL,
+`sign_out_count` INT,
+`provider` VARCHAR(50),
+`provider_id` VARCHAR(50),
+`two_factor_authentication` TINYINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `whoo_authentication_code` (
+`id` INT NOT NULL,
+`type` INT,
+`code` VARCHAR(50),
+`trial_count` INT,
+`date_time` TIMESTAMP NULL,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_159673_whoo') AS relationships;
+relationships
+Database: db_159673_whoo
+
+Table Connections:
+------------------
+[Implied]  whoo_authentication_code.user_id -> whoo_user.id
+
+DROP DATABASE `db_159673_whoo`;
+UNINSTALL EXTENSION vsql_schematron;

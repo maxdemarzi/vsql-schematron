@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 679495_ScriptBD
+--echo #
+CREATE DATABASE `db_679495_ScriptBD`;
+USE `db_679495_ScriptBD`;
+CREATE TABLE `alumno` (
+  `id_alumno` INT NOT NULL,
+  `nombre1` VARCHAR(50),
+  `nombre2` VARCHAR(50),
+  `direccion` VARCHAR(50),
+  `id_curso` INT,
+  `activo` TINYINT,
+  PRIMARY KEY (`id_alumno`)
+) CHARACTER SET latin1;
+CREATE TABLE `ci_sessions` (
+  `id` VARCHAR(50),
+  `ip_address` VARCHAR(50),
+  `timestamp` VARCHAR(50),
+  `data` BLOB
+) CHARACTER SET latin1;
+CREATE TABLE `curso` (
+  `id_curso` INT NOT NULL,
+  `nombre_curso` VARCHAR(50),
+  `descripcion` VARCHAR(50),
+  PRIMARY KEY (`id_curso`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_679495_ScriptBD') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_679495_ScriptBD') AS relationships;
+DROP DATABASE `db_679495_ScriptBD`;
+UNINSTALL EXTENSION vsql_schematron;

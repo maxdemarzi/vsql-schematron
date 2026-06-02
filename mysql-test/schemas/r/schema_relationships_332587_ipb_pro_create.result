@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 332587_ipb_pro_create
+#
+CREATE DATABASE `db_332587_ipb_pro_create`;
+USE `db_332587_ipb_pro_create`;
+CREATE TABLE `Dokumentacja` (
+`id` INT NOT NULL,
+`dataUtworzenia` DATE,
+`nakład` INT,
+`formaNadruku` VARCHAR(50),
+`rodzajMateriału` VARCHAR(50),
+`tematPrzewodni` VARCHAR(50),
+`stanProjektu` VARCHAR(50),
+`DziałProjektowy_id` INT,
+`Projektant_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `DziałProjektowy` (
+`id` INT NOT NULL,
+`email` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `KolekcjaGrafik` (
+`id` INT NOT NULL,
+`dataUtworzenia` DATE,
+`odnośnik` VARCHAR(50),
+`Projektant_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Projektant` (
+`id` INT NOT NULL,
+`imię` VARCHAR(50),
+`nazwisko` VARCHAR(50),
+`email` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Zlecenie` (
+`id` INT NOT NULL,
+`treść` VARCHAR(50),
+`DziałProjektowy_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_332587_ipb_pro_create') AS relationships;
+relationships
+Database: db_332587_ipb_pro_create
+
+Table Connections:
+------------------
+[Implied]  Dokumentacja.DziałProjektowy_id -> DziałProjektowy.id
+[Implied]  Dokumentacja.Projektant_id -> Projektant.id
+[Implied]  KolekcjaGrafik.Projektant_id -> Projektant.id
+[Implied]  Zlecenie.DziałProjektowy_id -> DziałProjektowy.id
+
+DROP DATABASE `db_332587_ipb_pro_create`;
+UNINSTALL EXTENSION vsql_schematron;

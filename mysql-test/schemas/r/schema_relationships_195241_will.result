@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 195241_will
+#
+CREATE DATABASE `db_195241_will`;
+USE `db_195241_will`;
+CREATE TABLE `Species` (
+`speciesId` VARCHAR(50) NOT NULL,
+`species_name` VARCHAR(50),
+`species_price` DECIMAL(10,2),
+PRIMARY KEY (`speciesId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Animal` (
+`animalId` VARCHAR(50) NOT NULL,
+`animal_name` VARCHAR(50),
+`species_Id` VARCHAR(50),
+PRIMARY KEY (`animalId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer` (
+`custId` VARCHAR(50) NOT NULL,
+`cust_name` VARCHAR(50),
+`cust_email` VARCHAR(50),
+PRIMARY KEY (`custId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Animal_Sale` (
+`sale_date` DATE,
+`animal_Id` VARCHAR(50),
+`cust_Id` VARCHAR(50)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_195241_will') AS relationships;
+relationships
+Database: db_195241_will
+
+Table Connections:
+------------------
+[Implied]  Animal.species_Id -> Species.speciesId
+[Implied]  Animal_Sale.animal_Id -> Animal.animalId
+[Implied]  Animal_Sale.cust_Id -> Customer.custId
+
+DROP DATABASE `db_195241_will`;
+UNINSTALL EXTENSION vsql_schematron;

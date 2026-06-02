@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 011954_Script2
+#
+CREATE DATABASE `db_011954_Script2`;
+USE `db_011954_Script2`;
+CREATE TABLE `permissions` (
+`id` INT NOT NULL,
+`value` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT NOT NULL,
+`role_name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_sets` (
+`role_id` INT,
+`permission_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `states` (
+`id` INT NOT NULL,
+`state_name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT NOT NULL,
+`category_name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`user_name` VARCHAR(50),
+`role_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tickets` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`author_id` INT,
+`assignee_id` INT,
+`state_id` INT,
+`category_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT NOT NULL,
+`ticket_id` INT,
+`comment_text` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `files` (
+`id` INT NOT NULL,
+`ticket_id` INT,
+`file_data` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_011954_Script2') AS relationships;
+relationships
+Database: db_011954_Script2
+
+Table Connections:
+------------------
+[Implied]  comments.ticket_id -> tickets.id
+[Implied]  files.ticket_id -> tickets.id
+[Implied]  role_sets.permission_id -> permissions.id
+[Implied]  role_sets.role_id -> roles.id
+[Implied]  tickets.assignee_id -> users.id
+[Implied]  tickets.author_id -> users.id
+[Implied]  tickets.category_id -> categories.id
+[Implied]  tickets.state_id -> states.id
+[Implied]  users.role_id -> roles.id
+
+DROP DATABASE `db_011954_Script2`;
+UNINSTALL EXTENSION vsql_schematron;

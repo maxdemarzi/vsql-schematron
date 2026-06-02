@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 321337_V1.001__createTables
+--echo #
+CREATE DATABASE `db_321337_V1_001__createTables`;
+USE `db_321337_V1_001__createTables`;
+CREATE TABLE `T_CASES` (
+  `ID` VARCHAR(50) NOT NULL,
+  `REFERENCE_ID` VARCHAR(50),
+  `TYPE` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_TASKS` (
+  `ID` VARCHAR(50) NOT NULL,
+  `CASE_ID` VARCHAR(50),
+  `USER_ID` VARCHAR(50),
+  `TITLE` VARCHAR(50),
+  `DESCRIPTION` VARCHAR(50),
+  `STATE` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_321337_V1_001__createTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_321337_V1_001__createTables') AS relationships;
+DROP DATABASE `db_321337_V1_001__createTables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 497579_migration
+--echo #
+CREATE DATABASE `db_497579_migration`;
+USE `db_497579_migration`;
+CREATE TABLE `users` (
+  `id` VARCHAR(50) NOT NULL,
+  `email` TEXT,
+  `passwordHash` TEXT,
+  `firstName` TEXT,
+  `middleName` TEXT,
+  `lastName` TEXT,
+  `profilePicture` TEXT,
+  `profile` TEXT,
+  `skills` VARCHAR(50),
+  `role` VARCHAR(50),
+  `createdAt` TIMESTAMP NULL,
+  `updatedAt` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `articles` (
+  `id` VARCHAR(50) NOT NULL,
+  `title` TEXT,
+  `authorId` VARCHAR(50),
+  `content` TEXT,
+  `createdAt` TIMESTAMP NULL,
+  `updatedAt` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `experiences` (
+  `id` VARCHAR(50) NOT NULL,
+  `employer` TEXT,
+  `title` TEXT,
+  `location` TEXT,
+  `startYear` INT,
+  `endYear` INT,
+  `description` TEXT,
+  `createdAt` TIMESTAMP NULL,
+  `updatedAt` TIMESTAMP NULL,
+  `userId` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `eductation` (
+  `id` VARCHAR(50) NOT NULL,
+  `name` TEXT,
+  `location` TEXT,
+  `degree` TEXT,
+  `graduationYear` INT,
+  `activities` VARCHAR(50),
+  `userId` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `certifications` (
+  `id` VARCHAR(50) NOT NULL,
+  `name` TEXT,
+  `certifier` TEXT,
+  `userId` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `projects` (
+  `id` VARCHAR(50) NOT NULL,
+  `name` TEXT,
+  `url` TEXT,
+  `description` TEXT,
+  `userId` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_497579_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_497579_migration') AS relationships;
+DROP DATABASE `db_497579_migration`;
+UNINSTALL EXTENSION vsql_schematron;

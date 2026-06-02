@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 231018_migration
+--echo #
+CREATE DATABASE `db_231018_migration`;
+USE `db_231018_migration`;
+CREATE TABLE `users` (
+  `id` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(50),
+  `is_activated` BOOLEAN,
+  `is_blocked` BOOLEAN,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `deleted_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `profiles` (
+  `id` VARCHAR(50) NOT NULL,
+  `forename` VARCHAR(50),
+  `surname` VARCHAR(50),
+  `name` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `deleted_at` TIMESTAMP NULL,
+  `user_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `emails` (
+  `id` VARCHAR(50) NOT NULL,
+  `address` VARCHAR(50),
+  `is_primary` BOOLEAN,
+  `is_verified` BOOLEAN,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `deleted_at` TIMESTAMP NULL,
+  `user_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `oauth_tickets` (
+  `id` VARCHAR(50) NOT NULL,
+  `adapter_name` VARCHAR(50),
+  `encrypted_ticket_data` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `deleted_at` TIMESTAMP NULL,
+  `user_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `refresh_tokens` (
+  `id` VARCHAR(50) NOT NULL,
+  `user_agent` VARCHAR(50),
+  `client_ip` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `deleted_at` TIMESTAMP NULL,
+  `user_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `casbin_rbac_policies` (
+  `id` VARCHAR(50) NOT NULL,
+  `ptype` VARCHAR(50),
+  `v0` VARCHAR(50),
+  `v1` VARCHAR(50),
+  `v2` VARCHAR(50),
+  `v3` VARCHAR(50),
+  `v4` VARCHAR(50),
+  `v5` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `deleted_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_231018_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_231018_migration') AS relationships;
+DROP DATABASE `db_231018_migration`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 502853_migration
+#
+CREATE DATABASE `db_502853_migration`;
+USE `db_502853_migration`;
+CREATE TABLE `Symbol` (
+`id` VARCHAR(50) NOT NULL,
+`symbol` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Price` (
+`id` VARCHAR(50) NOT NULL,
+`symbolId` TEXT,
+`date` TIMESTAMP NULL,
+`realDate` TIMESTAMP NULL,
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Candle` (
+`id` VARCHAR(50) NOT NULL,
+`symbolId` TEXT,
+`interval` VARCHAR(50),
+`openTime` TIMESTAMP NULL,
+`open` DECIMAL(10,2),
+`high` DECIMAL(10,2),
+`low` DECIMAL(10,2),
+`close` DECIMAL(10,2),
+`volume` DECIMAL(10,2),
+`closeTime` TIMESTAMP NULL,
+`quoteVolume` DECIMAL(10,2),
+`trades` INT,
+`baseAssetVolume` DECIMAL(10,2),
+`quoteAssetVolume` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_502853_migration') AS relationships;
+relationships
+Database: db_502853_migration
+
+Table Connections:
+------------------
+[Implied]  Candle.symbolId -> Symbol.id
+[Implied]  Price.symbolId -> Symbol.id
+
+DROP DATABASE `db_502853_migration`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 658925_basededatos
+#
+CREATE DATABASE `db_658925_basededatos`;
+USE `db_658925_basededatos`;
+CREATE TABLE `cargos` (
+`ID` INT,
+`NOMBRE` VARCHAR(50),
+`SUELDO` DOUBLE,
+`DEPARTAMENTO` INT
+) CHARACTER SET latin1;
+CREATE TABLE `departamentos` (
+`ID` INT NOT NULL,
+`NOMBRE` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `empleados` (
+`ID` INT,
+`NOMBRE` VARCHAR(50),
+`APELLIDO` VARCHAR(50),
+`CEDULA` TEXT,
+`TELEFONO` VARCHAR(50),
+`CELULAR` VARCHAR(50),
+`EMAIL` TEXT,
+`SEXO` VARCHAR(50),
+`CARGO` INT,
+`SEGURO_MEDICO` INT
+) CHARACTER SET latin1;
+CREATE TABLE `nomina` (
+`ID` INT,
+`EMPLEADO` INT,
+`SALARIO_HR` INT,
+`HORAS_POR_QUINCENA` INT
+) CHARACTER SET latin1;
+CREATE TABLE `view_nomina_general` (
+`ID` INT,
+`NOMBRE` VARCHAR(50),
+`APELLIDO` VARCHAR(50),
+`CEDULA` TEXT,
+`TELEFONO` VARCHAR(50),
+`CELULAR` VARCHAR(50),
+`EMAIL` TEXT,
+`SEXO` VARCHAR(50),
+`CARGO` VARCHAR(50),
+`SEGURO_MEDICO` VARCHAR(50),
+`SALARIO_HR` INT,
+`HORAS_POR_QUINCENA` INT,
+`SALARIO_M` DECIMAL(10,2),
+`DEDUCCION_DE_SEGURO` BLOB,
+`ISR` BLOB,
+`SALARIO_NETO` DECIMAL(10,2)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_658925_basededatos') AS relationships;
+relationships
+Database: db_658925_basededatos
+
+Table Connections:
+------------------
+[Implied]  cargos.DEPARTAMENTO -> departamentos.ID
+[Implied]  empleados.CARGO -> cargos.ID
+[Implied]  nomina.EMPLEADO -> empleados.ID
+
+DROP DATABASE `db_658925_basededatos`;
+UNINSTALL EXTENSION vsql_schematron;

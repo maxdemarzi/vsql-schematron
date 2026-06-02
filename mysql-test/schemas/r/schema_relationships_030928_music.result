@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 030928_music
+#
+CREATE DATABASE `db_030928_music`;
+USE `db_030928_music`;
+CREATE TABLE `Artist` (
+`Id` INT NOT NULL,
+`Name` VARCHAR(50),
+`BirthYear` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Song` (
+`Id` INT NOT NULL,
+`Name` VARCHAR(50),
+`Album` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `WorkedOn` (
+`Artist` INT,
+`Song` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Album` (
+`Id` INT NOT NULL,
+`Name` VARCHAR(50),
+`Year` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Publisher` (
+`Id` INT NOT NULL,
+`Uuid` INT,
+`Year` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_030928_music') AS relationships;
+relationships
+Database: db_030928_music
+
+Table Connections:
+------------------
+[Implied]  Song.Album -> Album.Id
+[Implied]  WorkedOn.Artist -> Artist.Id
+[Implied]  WorkedOn.Song -> Song.Id
+
+DROP DATABASE `db_030928_music`;
+UNINSTALL EXTENSION vsql_schematron;

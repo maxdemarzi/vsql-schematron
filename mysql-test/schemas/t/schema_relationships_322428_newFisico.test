@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 322428_newFisico
+--echo #
+CREATE DATABASE `db_322428_newFisico`;
+USE `db_322428_newFisico`;
+CREATE TABLE `Usuarios` (
+  `id_usuario` INT NOT NULL,
+  `nome_usuario` TEXT,
+  `senha_usuario` CHAR(50),
+  `email_usuario` TEXT,
+  `foto_usuario` TEXT,
+  PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `Registros` (
+  `id_registro` INT NOT NULL,
+  `nome_registro` TEXT,
+  `tipo_registro` TEXT,
+  `data_registro` DATE,
+  `dataOcorrencia_registro` TEXT,
+  `documento_registro` TEXT,
+  `latitude` TEXT,
+  `longitude` TEXT,
+  `Usuarios_id_usuario` INT,
+  PRIMARY KEY (`id_registro`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_322428_newFisico') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_322428_newFisico') AS relationships;
+DROP DATABASE `db_322428_newFisico`;
+UNINSTALL EXTENSION vsql_schematron;

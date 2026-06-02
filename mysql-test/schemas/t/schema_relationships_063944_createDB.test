@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 063944_createDB
+--echo #
+CREATE DATABASE `db_063944_createDB`;
+USE `db_063944_createDB`;
+CREATE TABLE `auth_token` (
+  `ID` BIGINT NOT NULL,
+  `TOKEN` VARCHAR(50),
+  `VALIDATOR` VARCHAR(50),
+  `USER_ID` BIGINT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `bill` (
+  `ID` BIGINT NOT NULL,
+  `NAME` VARCHAR(50),
+  `ADDRESS` VARCHAR(50),
+  `CONTACT_NO` VARCHAR(50),
+  `INVOICE_NO` BIGINT,
+  `GSTIN` BIGINT,
+  `BILL_DATE` TIMESTAMP NULL,
+  `TOTAL_AMOUNT` DECIMAL(10,2),
+  `DISCOUNT_AMOUNT` DECIMAL(10,2),
+  `PAYMENT_TYPE` INT,
+  `EXTRA_DETAILS` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `billed_product` (
+  `ID` BIGINT NOT NULL,
+  `BILL_ID` BIGINT,
+  `PRODUCT_ID` BIGINT,
+  `DISCOUNT` DOUBLE,
+  `UNITS` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_063944_createDB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_063944_createDB') AS relationships;
+DROP DATABASE `db_063944_createDB`;
+UNINSTALL EXTENSION vsql_schematron;

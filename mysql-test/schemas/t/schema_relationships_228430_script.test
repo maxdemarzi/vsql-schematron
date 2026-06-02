@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 228430_script
+--echo #
+CREATE DATABASE `db_228430_script`;
+USE `db_228430_script`;
+CREATE TABLE `actions` (
+  `id` INT NOT NULL,
+  `types` VARCHAR(50),
+  `chrono` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `but` (
+  `id` INT NOT NULL,
+  `equipe` INT,
+  `joueur` VARCHAR(50),
+  `idActions` INT,
+  `valeur` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `faute` (
+  `id` INT NOT NULL,
+  `equipe` INT,
+  `typeCarton` INT,
+  `idActions` INT,
+  `valeur` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `possession` (
+  `id` INT NOT NULL,
+  `equipe` INT,
+  `valeur` DOUBLE,
+  `idActions` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tir` (
+  `id` INT NOT NULL,
+  `equipe` INT,
+  `typeTir` INT,
+  `idActions` INT,
+  `valeur` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `touche` (
+  `id` INT NOT NULL,
+  `equipe` INT,
+  `idActions` INT,
+  `valeurs` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_228430_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_228430_script') AS relationships;
+DROP DATABASE `db_228430_script`;
+UNINSTALL EXTENSION vsql_schematron;

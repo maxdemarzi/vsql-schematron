@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 599581_ejercicio-3
+#
+CREATE DATABASE `db_599581_ejercicio_3`;
+USE `db_599581_ejercicio_3`;
+CREATE TABLE `profesor` (
+`DNI` VARCHAR(50) NOT NULL,
+`nombre` VARCHAR(50),
+`direccion` VARCHAR(50),
+`tlf` INT,
+PRIMARY KEY (`DNI`)
+) CHARACTER SET latin1;
+CREATE TABLE `modulo` (
+`ID` INT NOT NULL,
+`nombre` VARCHAR(50),
+`dni_profesor` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `alumno` (
+`num_expediente` VARCHAR(50) NOT NULL,
+`nombre` VARCHAR(50),
+`apellidos` VARCHAR(50),
+`fecha_nacimiento` DATE,
+PRIMARY KEY (`num_expediente`)
+) CHARACTER SET latin1;
+CREATE TABLE `matriculas_modulo` (
+`id_modulo` INT,
+`num_expediente_alumno` VARCHAR(50)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_599581_ejercicio_3') AS relationships;
+relationships
+Database: db_599581_ejercicio_3
+
+Table Connections:
+------------------
+[Implied]  matriculas_modulo.id_modulo -> modulo.ID
+[Implied]  matriculas_modulo.num_expediente_alumno -> alumno.num_expediente
+[Implied]  modulo.dni_profesor -> profesor.DNI
+
+DROP DATABASE `db_599581_ejercicio_3`;
+UNINSTALL EXTENSION vsql_schematron;

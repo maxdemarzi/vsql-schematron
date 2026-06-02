@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 118844_employeetrack_db
+#
+CREATE DATABASE `db_118844_employeetrack_db`;
+USE `db_118844_employeetrack_db`;
+CREATE TABLE `department` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`salary` DECIMAL(10,2),
+`department_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`role_id` INT,
+`manager_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_118844_employeetrack_db') AS relationships;
+relationships
+Database: db_118844_employeetrack_db
+
+Table Connections:
+------------------
+[Implied]  employee.manager_id -> employee.id
+[Implied]  employee.role_id -> role.id
+[Implied]  role.department_id -> department.id
+
+DROP DATABASE `db_118844_employeetrack_db`;
+UNINSTALL EXTENSION vsql_schematron;

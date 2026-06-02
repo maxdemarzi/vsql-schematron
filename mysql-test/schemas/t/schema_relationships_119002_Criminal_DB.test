@@ -1,0 +1,100 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 119002_Criminal_DB
+--echo #
+CREATE DATABASE `db_119002_Criminal_DB`;
+USE `db_119002_Criminal_DB`;
+CREATE TABLE `Cases` (
+  `Case_ID` INT NOT NULL,
+  `Name` VARCHAR(50),
+  `Officer` VARCHAR(50),
+  `Opening_Date` DATETIME,
+  `Closing_Date` DATETIME,
+  PRIMARY KEY (`Case_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `crime` (
+  `Crime_ID` INT NOT NULL,
+  `Crime_type` VARCHAR(50),
+  `Date_Crime` DATETIME,
+  `Case_ID` INT,
+  PRIMARY KEY (`Crime_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Evidence` (
+  `Evidence_ID` INT NOT NULL,
+  `type` VARCHAR(50),
+  `Collected_Date` DATETIME,
+  `Description` VARCHAR(50),
+  `Case_ID` INT,
+  PRIMARY KEY (`Evidence_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Judgement` (
+  `Judgement_ID` INT NOT NULL,
+  `Court_Type` VARCHAR(50),
+  `Judge` VARCHAR(50),
+  `Decision` VARCHAR(50),
+  `Date_Judgement` DATETIME,
+  `Crime_ID` INT,
+  PRIMARY KEY (`Judgement_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Penalty` (
+  `Penalty_ID` INT NOT NULL,
+  `Penalty_Type` VARCHAR(50),
+  `Description` VARCHAR(50),
+  `End_Penalty` DATETIME,
+  `Prison_ID` INT,
+  `Judgement_ID` INT,
+  PRIMARY KEY (`Penalty_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Person` (
+  `Person_ID` INT NOT NULL,
+  `First_Name` VARCHAR(50),
+  `Last_Name` VARCHAR(50),
+  `Nationality` VARCHAR(50),
+  `Gender` VARCHAR(50),
+  `Adress` VARCHAR(50),
+  `Birth` DATETIME,
+  PRIMARY KEY (`Person_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Prison` (
+  `Prison_ID` INT NOT NULL,
+  `name` VARCHAR(50),
+  `State` VARCHAR(50),
+  `Max_Capacity` INT,
+  PRIMARY KEY (`Prison_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Victim_Criminal` (
+  `Implicated_ID` INT NOT NULL,
+  `Implication_Type` VARCHAR(50),
+  `Questionning` TEXT,
+  `Status` VARCHAR(50),
+  `Crime_ID` INT,
+  `Person_ID` INT,
+  PRIMARY KEY (`Implicated_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Witness` (
+  `Witness_ID` INT NOT NULL,
+  `Questionning` TEXT,
+  `Person_ID` INT,
+  `Case_ID` INT,
+  PRIMARY KEY (`Witness_ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_119002_Criminal_DB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_119002_Criminal_DB') AS relationships;
+DROP DATABASE `db_119002_Criminal_DB`;
+UNINSTALL EXTENSION vsql_schematron;

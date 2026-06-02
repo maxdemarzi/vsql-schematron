@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 025932_migration
+--echo #
+CREATE DATABASE `db_025932_migration`;
+USE `db_025932_migration`;
+CREATE TABLE `saved_shopping_carts` (
+  `id` VARCHAR(50) NOT NULL,
+  `userId` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `new_books` (
+  `id` VARCHAR(50) NOT NULL,
+  `title` TEXT,
+  `isbn` INT,
+  `description` TEXT,
+  `price` DECIMAL(10,2),
+  `coverUrl` TEXT,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  `transactionId` TEXT,
+  `savedShoppingCartId` TEXT,
+  `publisherId` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `new_credit_cards` (
+  `id` VARCHAR(50) NOT NULL,
+  `userId` TEXT,
+  `encryptedCreditCardNumber` TEXT,
+  `encryptedCCV` TEXT,
+  `lastFourDigits` TEXT,
+  `expirationDate` DATETIME,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_025932_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_025932_migration') AS relationships;
+DROP DATABASE `db_025932_migration`;
+UNINSTALL EXTENSION vsql_schematron;

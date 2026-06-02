@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 054162_database
+--echo #
+CREATE DATABASE `db_054162_database`;
+USE `db_054162_database`;
+CREATE TABLE `EMPLOYEE` (
+  `EMP_NO` VARCHAR(50) NOT NULL,
+  `EMP_FIRSTNAME` VARCHAR(50),
+  `EMP_LASTNAME` VARCHAR(50),
+  `EMP_MIDDLE` VARCHAR(50),
+  `EMP_POSITION` VARCHAR(50),
+  `EMP_SALARY` DECIMAL(10,2),
+  `EMP_VACLEAVE_BAL` INT,
+  `EMP_SICKLEAVE_BAL` INT,
+  `EMP_UNDERTIME` TIME,
+  `EMP_NOPAY` DECIMAL(10,2),
+  PRIMARY KEY (`EMP_NO`)
+) CHARACTER SET latin1;
+CREATE TABLE `LEAVES` (
+  `LEAVE_ID` INT NOT NULL,
+  `LEAVE_TYPE` CHAR(50),
+  `LEAVE_EMPLOYEE` CHAR(50),
+  `LEAVE_FROMDATE` DATE,
+  `LEAVE_TODATE` DATE,
+  `LEAVE_DAYS` INT,
+  PRIMARY KEY (`LEAVE_ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_054162_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_054162_database') AS relationships;
+DROP DATABASE `db_054162_database`;
+UNINSTALL EXTENSION vsql_schematron;

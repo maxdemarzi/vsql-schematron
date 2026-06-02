@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 038659_db-init
+#
+CREATE DATABASE `db_038659_db_init`;
+USE `db_038659_db_init`;
+CREATE TABLE `account` (
+`id` INT NOT NULL,
+`document_number` VARCHAR(50),
+`credit_limit` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `operation_type` (
+`id` INT NOT NULL,
+`description` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction` (
+`id` INT NOT NULL,
+`account_id` INT,
+`operation_type_id` INT,
+`amount` DECIMAL(10,2),
+`event_date` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_038659_db_init') AS relationships;
+relationships
+Database: db_038659_db_init
+
+Table Connections:
+------------------
+[Implied]  transaction.account_id -> account.id
+[Implied]  transaction.operation_type_id -> operation_type.id
+
+DROP DATABASE `db_038659_db_init`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 212326_ProjetoPflics
+#
+CREATE DATABASE `db_212326_ProjetoPflics`;
+USE `db_212326_ProjetoPflics`;
+CREATE TABLE `USUARIO` (
+`cpfUsuario` BIGINT NOT NULL,
+`FK_idPlano` INT,
+`nomeUsuario` CHAR(50),
+`sexoUsuario` CHAR(50),
+`telUsuario` CHAR(50),
+`emailUsuario` CHAR(50),
+`dataNascimento` CHAR(50),
+PRIMARY KEY (`cpfUsuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `PLANO` (
+`idPlano` INT NOT NULL,
+`nomePlano` CHAR(50),
+`beneficiosPlano` CHAR(50),
+`precoPlano` DOUBLE,
+PRIMARY KEY (`idPlano`)
+) CHARACTER SET latin1;
+CREATE TABLE `LOGIN` (
+`FK_idUsuario` BIGINT,
+`login` VARCHAR(50),
+`senha` VARCHAR(50),
+`perfil` VARCHAR(50),
+`dataCriacao` TIMESTAMP NULL
+) CHARACTER SET latin1;
+CREATE TABLE `ENDERECO` (
+`FK_cpfUsuario` BIGINT,
+`rua` CHAR(50),
+`num` INT,
+`cep` INT,
+`bairro` CHAR(50),
+`cidade` CHAR(50),
+`pais` CHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `CARTAO` (
+`FK_cpfUsuario` BIGINT,
+`ID_cartao` INT NOT NULL,
+`titularCartao` CHAR(50),
+`cpfTitular` BIGINT,
+`numero` BIGINT,
+`mesValidade` INT,
+`anoValidade` INT,
+`cvv` INT,
+PRIMARY KEY (`ID_cartao`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_212326_ProjetoPflics') AS relationships;
+relationships
+Database: db_212326_ProjetoPflics
+
+Table Connections:
+------------------
+[Implied]  CARTAO.FK_cpfUsuario -> USUARIO.cpfUsuario
+[Implied]  ENDERECO.FK_cpfUsuario -> USUARIO.cpfUsuario
+[Implied]  LOGIN.FK_idUsuario -> USUARIO.cpfUsuario
+[Implied]  USUARIO.FK_idPlano -> PLANO.idPlano
+
+DROP DATABASE `db_212326_ProjetoPflics`;
+UNINSTALL EXTENSION vsql_schematron;

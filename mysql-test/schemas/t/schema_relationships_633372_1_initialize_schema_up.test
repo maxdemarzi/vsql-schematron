@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 633372_1_initialize_schema.up
+--echo #
+CREATE DATABASE `db_633372_1_initialize_schema_up`;
+USE `db_633372_1_initialize_schema_up`;
+CREATE TABLE `users` (
+  `id` VARCHAR(50) NOT NULL,
+  `email` TEXT,
+  `email_verified` BOOLEAN,
+  `username` TEXT,
+  `password_hash` TEXT,
+  `given_name` TEXT,
+  `family_name` TEXT,
+  `name` TEXT,
+  `nickname` TEXT,
+  `picture` TEXT,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `deleted_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `refresh_tokens` (
+  `id` VARCHAR(50) NOT NULL,
+  `token_hash` TEXT,
+  `user_id` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `expires_at` TIMESTAMP NULL,
+  `deleted_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `todos` (
+  `id` VARCHAR(50) NOT NULL,
+  `text` TEXT,
+  `user_id` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `deleted_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_633372_1_initialize_schema_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_633372_1_initialize_schema_up') AS relationships;
+DROP DATABASE `db_633372_1_initialize_schema_up`;
+UNINSTALL EXTENSION vsql_schematron;

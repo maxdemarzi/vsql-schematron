@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 109210_V02__criar_e_registrar_role
+--echo #
+CREATE DATABASE `db_109210_V02__criar_e_registrar_role`;
+USE `db_109210_V02__criar_e_registrar_role`;
+CREATE TABLE `role` (
+  `id` INT NOT NULL,
+  `descricao` VARCHAR(50),
+  `nome` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario_role` (
+  `id_usuario` INT,
+  `id_role` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_109210_V02__criar_e_registrar_role') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_109210_V02__criar_e_registrar_role') AS relationships;
+DROP DATABASE `db_109210_V02__criar_e_registrar_role`;
+UNINSTALL EXTENSION vsql_schematron;

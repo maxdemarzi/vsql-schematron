@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 305175_1
+#
+CREATE DATABASE `db_305175_1`;
+USE `db_305175_1`;
+CREATE TABLE `business_rating` (
+`business_id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`avg_rating` DOUBLE,
+`num_reviews` INT,
+`latitude` DOUBLE,
+`longitude` DOUBLE,
+`timestamp` DATETIME,
+PRIMARY KEY (`business_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tweets` (
+`tweets_id` INT NOT NULL,
+`business_id` VARCHAR(50),
+`num_tweets` INT,
+`follower_count` INT,
+`timestamp` DATETIME,
+PRIMARY KEY (`tweets_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `yelp_review` (
+`review_id` INT NOT NULL,
+`business_id` VARCHAR(50),
+`rating` DOUBLE,
+`excerpt` VARCHAR(50),
+`user_name` VARCHAR(50),
+`user_id` VARCHAR(50),
+`time_created` DATETIME,
+PRIMARY KEY (`review_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_305175_1') AS relationships;
+relationships
+Database: db_305175_1
+
+Table Connections:
+------------------
+[Implied]  tweets.business_id -> business_rating.business_id
+[Implied]  yelp_review.business_id -> business_rating.business_id
+
+DROP DATABASE `db_305175_1`;
+UNINSTALL EXTENSION vsql_schematron;

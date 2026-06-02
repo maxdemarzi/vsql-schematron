@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 068481_setup
+#
+CREATE DATABASE `db_068481_setup`;
+USE `db_068481_setup`;
+CREATE TABLE `terms` (
+`term` VARCHAR(50) NOT NULL,
+`start_date` DATE,
+`end_date` DATE,
+`deadline` VARCHAR(50),
+PRIMARY KEY (`term`)
+) CHARACTER SET latin1;
+CREATE TABLE `sections` (
+`course_id` VARCHAR(50) NOT NULL,
+`section` DECIMAL(10,2) NOT NULL,
+`title` VARCHAR(50),
+`term` VARCHAR(50),
+`instructor` VARCHAR(50),
+`inst_type` VARCHAR(50),
+`registered` DECIMAL(10,2),
+`cap` DECIMAL(10,2),
+`credits` DECIMAL(10,2),
+PRIMARY KEY (`course_id`, `section`)
+) CHARACTER SET latin1;
+CREATE TABLE `intents` (
+`intent` VARCHAR(50) NOT NULL,
+`fulfillmentText` VARCHAR(50),
+`fulfillmentError` VARCHAR(50),
+`fulfillmentFunction` DECIMAL(10,2),
+PRIMARY KEY (`intent`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_068481_setup') AS relationships;
+relationships
+Database: db_068481_setup
+
+Table Connections:
+------------------
+[Implied]  sections.term -> terms.term
+
+DROP DATABASE `db_068481_setup`;
+UNINSTALL EXTENSION vsql_schematron;

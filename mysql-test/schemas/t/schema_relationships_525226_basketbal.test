@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 525226_basketbal
+--echo #
+CREATE DATABASE `db_525226_basketbal`;
+USE `db_525226_basketbal`;
+CREATE TABLE `ACCOUNT` (
+  `USER_ID` VARCHAR(50) NOT NULL,
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  `first_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `hash` VARCHAR(50),
+  `type` TINYINT,
+  PRIMARY KEY (`USER_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `TEAM` (
+  `TeamID` VARCHAR(50) NOT NULL,
+  `TeamName` VARCHAR(50),
+  PRIMARY KEY (`TeamID`)
+) CHARACTER SET latin1;
+CREATE TABLE `GAME` (
+  `GameID` VARCHAR(50) NOT NULL,
+  `StartDate` DATE,
+  `TimeSchedule` TIME,
+  `ATeamID` VARCHAR(50),
+  `BTeamID` VARCHAR(50),
+  PRIMARY KEY (`GameID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Statistics` (
+  `ID` VARCHAR(50) NOT NULL,
+  `PlayerId` VARCHAR(50),
+  `PlayingTimeMin` VARCHAR(50),
+  `PlayingTimeSec` VARCHAR(50),
+  `Points` VARCHAR(50),
+  `Assists` VARCHAR(50),
+  `Rebounds` VARCHAR(50),
+  `GameId` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_525226_basketbal') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_525226_basketbal') AS relationships;
+DROP DATABASE `db_525226_basketbal`;
+UNINSTALL EXTENSION vsql_schematron;

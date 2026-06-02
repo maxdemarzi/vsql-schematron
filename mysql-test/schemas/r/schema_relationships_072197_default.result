@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 072197_default
+#
+CREATE DATABASE `db_072197_default`;
+USE `db_072197_default`;
+CREATE TABLE `topic` (
+`id` INT NOT NULL,
+`label` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `priority` (
+`id` INT NOT NULL,
+`label` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`firstname` VARCHAR(50),
+`lastname` VARCHAR(50),
+`fullname` VARCHAR(50),
+`email` VARCHAR(50),
+`enabled` TINYINT,
+`salt` VARCHAR(50),
+`password` VARCHAR(50),
+`last_login` DATETIME,
+`locked` TINYINT,
+`expired` TINYINT,
+`expires_at` DATETIME,
+`roles` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`id` INT NOT NULL,
+`topic_id` INT,
+`priority_id` INT,
+`assigned_user_id` INT,
+`username` VARCHAR(50),
+`subject` VARCHAR(50),
+`email` VARCHAR(50),
+`phone` VARCHAR(50),
+`header_mail` TEXT,
+`body` TEXT,
+`ip_address` VARCHAR(50),
+`status` VARCHAR(50),
+`source` VARCHAR(50),
+`overdue_date` DATETIME,
+`last_response_date` DATETIME,
+`creation_date` DATETIME,
+`modification_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `response` (
+`id` INT NOT NULL,
+`message_id` INT,
+`user_id` INT,
+`body` TEXT,
+`ip_address` VARCHAR(50),
+`creation_date` DATETIME,
+`modification_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_072197_default') AS relationships;
+relationships
+Database: db_072197_default
+
+Table Connections:
+------------------
+[Implied]  message.assigned_user_id -> user.id
+[Implied]  message.priority_id -> priority.id
+[Implied]  message.topic_id -> topic.id
+[Implied]  response.message_id -> message.id
+[Implied]  response.user_id -> user.id
+
+DROP DATABASE `db_072197_default`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 351309_bibliotheque2
+#
+CREATE DATABASE `db_351309_bibliotheque2`;
+USE `db_351309_bibliotheque2`;
+CREATE TABLE `Lecteur` (
+`id` VARCHAR(50) NOT NULL,
+`nom` VARCHAR(50),
+`prenom` VARCHAR(50),
+`carte_numero` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Livre` (
+`id` VARCHAR(50) NOT NULL,
+`titre` VARCHAR(50),
+`auteur` VARCHAR(50),
+`categorie` VARCHAR(50),
+`synopsis` TEXT,
+`statut` BOOLEAN,
+`lecteur_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Emprunt` (
+`id` VARCHAR(50) NOT NULL,
+`date_emprunt` DATE,
+`date_rendu` DATE,
+`livre_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_351309_bibliotheque2') AS relationships;
+relationships
+Database: db_351309_bibliotheque2
+
+Table Connections:
+------------------
+[Implied]  Emprunt.livre_id -> Livre.id
+[Implied]  Livre.lecteur_id -> Lecteur.id
+
+DROP DATABASE `db_351309_bibliotheque2`;
+UNINSTALL EXTENSION vsql_schematron;

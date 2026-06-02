@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 359862_degustdbcode2
+--echo #
+CREATE DATABASE `db_359862_degustdbcode2`;
+USE `db_359862_degustdbcode2`;
+CREATE TABLE `degustdb.usuario_pesquisador` (
+  `matricula` BIGINT NOT NULL,
+  `email` VARCHAR(50),
+  `nome` VARCHAR(50),
+  PRIMARY KEY (`matricula`)
+) CHARACTER SET latin1;
+CREATE TABLE `degustdb.usuario_colaborador` (
+  `idusuario_colaborador` BIGINT NOT NULL,
+  `nome` VARCHAR(50),
+  `email` VARCHAR(50),
+  `senha` VARCHAR(50),
+  PRIMARY KEY (`idusuario_colaborador`)
+) CHARACTER SET latin1;
+CREATE TABLE `degustdb.formulario` (
+  `idformulario` BIGINT NOT NULL,
+  `nome` VARCHAR(50),
+  `titulo` VARCHAR(50),
+  `descricao` VARCHAR(50),
+  `acao` VARCHAR(50),
+  `metodo` VARCHAR(50),
+  `usuario_pesquisador_matricula` BIGINT,
+  `qrcode` VARCHAR(50),
+  PRIMARY KEY (`idformulario`)
+) CHARACTER SET latin1;
+CREATE TABLE `degustdb.pergunta` (
+  `idpergunta` BIGINT NOT NULL,
+  `nome` VARCHAR(50),
+  `tipo` VARCHAR(50),
+  `formulario_idformulario` BIGINT,
+  PRIMARY KEY (`idpergunta`)
+) CHARACTER SET latin1;
+CREATE TABLE `degustdb.alternativa` (
+  `idalternativa` BIGINT NOT NULL,
+  `texto` VARCHAR(50),
+  `valor` VARCHAR(50),
+  `tipo` VARCHAR(50),
+  `pergunta_idpergunta` BIGINT,
+  PRIMARY KEY (`idalternativa`)
+) CHARACTER SET latin1;
+CREATE TABLE `degustdb.resposta` (
+  `idresposta` BIGINT NOT NULL,
+  `resposta` VARCHAR(50),
+  `pergunta_idpergunta` BIGINT,
+  `usuario_colaborador_idusuario_colaborador` BIGINT,
+  PRIMARY KEY (`idresposta`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_359862_degustdbcode2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_359862_degustdbcode2') AS relationships;
+DROP DATABASE `db_359862_degustdbcode2`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 574056_query
+#
+CREATE DATABASE `db_574056_query`;
+USE `db_574056_query`;
+CREATE TABLE `customers` (
+`customer_id` INT NOT NULL,
+`name` VARCHAR(50),
+`phone_number` VARCHAR(50),
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`item_id` INT NOT NULL,
+`name` VARCHAR(50),
+`price` INT,
+PRIMARY KEY (`item_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`order_id` INT NOT NULL,
+`customer_id` INT,
+`order_date` DATE,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `itemorders` (
+`order_id` INT,
+`item_id` INT,
+`quantity` INT,
+`price_each` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_574056_query') AS relationships;
+relationships
+Database: db_574056_query
+
+Table Connections:
+------------------
+[Implied]  itemorders.item_id -> items.item_id
+[Implied]  itemorders.order_id -> orders.order_id
+[Implied]  orders.customer_id -> customers.customer_id
+
+DROP DATABASE `db_574056_query`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 648762_create_table
+#
+CREATE DATABASE `db_648762_create_table`;
+USE `db_648762_create_table`;
+CREATE TABLE `country` (
+`id` INT NOT NULL,
+`language` VARCHAR(50),
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `region` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`country_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `city` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`region_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_648762_create_table') AS relationships;
+relationships
+Database: db_648762_create_table
+
+Table Connections:
+------------------
+[Implied]  city.region_id -> region.id
+[Implied]  region.country_id -> country.id
+
+DROP DATABASE `db_648762_create_table`;
+UNINSTALL EXTENSION vsql_schematron;

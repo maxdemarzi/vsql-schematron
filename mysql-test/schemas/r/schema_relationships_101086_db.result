@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 101086_db
+#
+CREATE DATABASE `db_101086_db`;
+USE `db_101086_db`;
+CREATE TABLE `vendedores` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+`email` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clientes` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+`email` VARCHAR(50),
+`idade` INT,
+`vendedor_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `produtos` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+`quantidade` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedidos` (
+`id` INT NOT NULL,
+`data` DATE,
+`quantidade` INT,
+`produto_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_101086_db') AS relationships;
+relationships
+Database: db_101086_db
+
+Table Connections:
+------------------
+[Implied]  clientes.vendedor_id -> vendedores.id
+[Implied]  pedidos.produto_id -> produtos.id
+
+DROP DATABASE `db_101086_db`;
+UNINSTALL EXTENSION vsql_schematron;

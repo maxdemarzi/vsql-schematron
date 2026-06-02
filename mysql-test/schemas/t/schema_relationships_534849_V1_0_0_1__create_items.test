@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 534849_V1_0_0_1__create_items
+--echo #
+CREATE DATABASE `db_534849_V1_0_0_1__create_items`;
+USE `db_534849_V1_0_0_1__create_items`;
+CREATE TABLE `list` (
+  `id` INT NOT NULL,
+  `list` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+  `id` INT NOT NULL,
+  `item` VARCHAR(50),
+  `list` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_534849_V1_0_0_1__create_items') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_534849_V1_0_0_1__create_items') AS relationships;
+DROP DATABASE `db_534849_V1_0_0_1__create_items`;
+UNINSTALL EXTENSION vsql_schematron;

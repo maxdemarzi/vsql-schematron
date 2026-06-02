@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 397216_ddl
+#
+CREATE DATABASE `db_397216_ddl`;
+USE `db_397216_ddl`;
+CREATE TABLE `seasons` (
+`SEASON_ID` INT NOT NULL,
+`year` INT,
+PRIMARY KEY (`SEASON_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `teams` (
+`TEAM_ID` INT NOT NULL,
+`team_name` VARCHAR(50),
+`team_city` VARCHAR(50),
+`home_stadium` VARCHAR(50),
+`team_nickname` VARCHAR(50),
+`team_owner` VARCHAR(50),
+PRIMARY KEY (`TEAM_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `games` (
+`GAME_ID` INT NOT NULL,
+`season` INT,
+`pats` VARCHAR(50),
+`pat_score` INT,
+`against_team` INT,
+`against_score` INT,
+`game_date` VARCHAR(50),
+`game_stadium` VARCHAR(50),
+PRIMARY KEY (`GAME_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_397216_ddl') AS relationships;
+relationships
+Database: db_397216_ddl
+
+Table Connections:
+------------------
+[Implied]  games.against_team -> teams.TEAM_ID
+[Implied]  games.season -> seasons.SEASON_ID
+
+DROP DATABASE `db_397216_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 679983_Script
+#
+CREATE DATABASE `db_679983_Script`;
+USE `db_679983_Script`;
+CREATE TABLE `customer` (
+`customer_id` INT NOT NULL,
+`customer_name` VARCHAR(50),
+`contact_number` INT,
+`email` VARCHAR(50),
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movie` (
+`movie_id` INT NOT NULL,
+`movie_name` VARCHAR(50),
+`description` VARCHAR(50),
+`duration` INT,
+`genre` VARCHAR(50),
+`release_date` DATE,
+`movie_poster_link` VARCHAR(50),
+`start_time` DATETIME,
+PRIMARY KEY (`movie_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `seat` (
+`seat_id` INT NOT NULL,
+`seat_type` VARCHAR(50),
+`seat_number` INT,
+`price` DOUBLE,
+`seat_name` VARCHAR(50),
+`movie_id` INT,
+PRIMARY KEY (`seat_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reservation` (
+`reservation_id` INT NOT NULL,
+`reservation_confirmed_date` DATETIME,
+`reservation_start_timestamp` DATETIME,
+`reservation_end_timestamp` DATETIME,
+`reservation_status` VARCHAR(50),
+`customer_id` INT,
+`seat_id` INT,
+PRIMARY KEY (`reservation_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_679983_Script') AS relationships;
+relationships
+Database: db_679983_Script
+
+Table Connections:
+------------------
+[Implied]  reservation.customer_id -> customer.customer_id
+[Implied]  reservation.seat_id -> seat.seat_id
+[Implied]  seat.movie_id -> movie.movie_id
+
+DROP DATABASE `db_679983_Script`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 023699_make_AARdb
+#
+CREATE DATABASE `db_023699_make_AARdb`;
+USE `db_023699_make_AARdb`;
+CREATE TABLE `customer` (
+`cid` MEDIUMINT NOT NULL,
+`fname` VARCHAR(50),
+`lname` VARCHAR(50),
+`address` VARCHAR(50),
+`city` VARCHAR(50),
+`state` CHAR(50),
+`zip` MEDIUMINT,
+`phone` CHAR(50),
+PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`uname` VARCHAR(50) NOT NULL,
+`cid` MEDIUMINT,
+`role` VARCHAR(50),
+`pw` VARCHAR(50),
+PRIMARY KEY (`uname`)
+) CHARACTER SET latin1;
+CREATE TABLE `jobs` (
+`j_ip` VARCHAR(50),
+`j_id` MEDIUMINT NOT NULL,
+`cid` MEDIUMINT,
+`make` VARCHAR(50),
+`appliance` CHAR(50),
+`appointment` DATE,
+`job_status` VARCHAR(50),
+`description` VARCHAR(50),
+PRIMARY KEY (`j_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_023699_make_AARdb') AS relationships;
+relationships
+Database: db_023699_make_AARdb
+
+Table Connections:
+------------------
+[Implied]  jobs.cid -> customer.cid
+[Implied]  users.cid -> customer.cid
+
+DROP DATABASE `db_023699_make_AARdb`;
+UNINSTALL EXTENSION vsql_schematron;

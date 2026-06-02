@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 109678_database
+--echo #
+CREATE DATABASE `db_109678_database`;
+USE `db_109678_database`;
+CREATE TABLE `calls` (
+  `id` VARCHAR(50) NOT NULL,
+  `request_id` VARCHAR(50),
+  `ct` VARCHAR(50),
+  `wt` VARCHAR(50),
+  `cpu` VARCHAR(50),
+  `mu` VARCHAR(50),
+  `pmu` VARCHAR(50),
+  `caller_id` VARCHAR(50),
+  `callee_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `requests` (
+  `id` VARCHAR(50) NOT NULL,
+  `request_host_id` VARCHAR(50),
+  `request_uri_id` VARCHAR(50),
+  `request_method_id` VARCHAR(50),
+  `request_caller_id` VARCHAR(50),
+  `https` VARCHAR(50),
+  `request_timestamp` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_109678_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_109678_database') AS relationships;
+DROP DATABASE `db_109678_database`;
+UNINSTALL EXTENSION vsql_schematron;

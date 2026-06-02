@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 164597_cursos
+--echo #
+CREATE DATABASE `db_164597_cursos`;
+USE `db_164597_cursos`;
+CREATE TABLE `tb_cate` (
+  `id_cat` INT NOT NULL,
+  `tipoCur` VARCHAR(50),
+  `presen` VARCHAR(50),
+  `duracao` VARCHAR(50),
+  PRIMARY KEY (`id_cat`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_prod` (
+  `id_prod` INT NOT NULL,
+  `nomeCur` VARCHAR(50),
+  `profes` VARCHAR(50),
+  `valoruni` DECIMAL(10,2),
+  `valorconjut` DECIMAL(10,2),
+  `id_cat` INT,
+  PRIMARY KEY (`id_prod`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_164597_cursos') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_164597_cursos') AS relationships;
+DROP DATABASE `db_164597_cursos`;
+UNINSTALL EXTENSION vsql_schematron;

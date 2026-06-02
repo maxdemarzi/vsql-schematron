@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 244559_djangoblog
+--echo #
+CREATE DATABASE `db_244559_djangoblog`;
+USE `db_244559_djangoblog`;
+CREATE TABLE `comments_comment` (
+  `id` INT NOT NULL,
+  `body` VARCHAR(50),
+  `created_time` DATETIME,
+  `last_mod_time` DATETIME,
+  `is_enable` TINYINT,
+  `article_id` INT,
+  `author_id` INT,
+  `parent_comment_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `django_session` (
+  `session_key` VARCHAR(50) NOT NULL,
+  `session_data` VARCHAR(50),
+  `expire_date` DATETIME,
+  PRIMARY KEY (`session_key`)
+) CHARACTER SET latin1;
+CREATE TABLE `oauth_oauthconfig` (
+  `id` INT NOT NULL,
+  `type` VARCHAR(50),
+  `appkey` VARCHAR(50),
+  `appsecret` VARCHAR(50),
+  `callback_url` VARCHAR(50),
+  `is_enable` TINYINT,
+  `created_time` DATETIME,
+  `last_mod_time` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `oauth_oauthuser` (
+  `id` INT NOT NULL,
+  `openid` VARCHAR(50),
+  `nikename` VARCHAR(50),
+  `token` VARCHAR(50),
+  `picture` VARCHAR(50),
+  `type` VARCHAR(50),
+  `email` VARCHAR(50),
+  `matedata` VARCHAR(50),
+  `created_time` DATETIME,
+  `last_mod_time` DATETIME,
+  `author_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `owntracks_owntracklog` (
+  `id` INT NOT NULL,
+  `tid` VARCHAR(50),
+  `lat` DOUBLE,
+  `lon` DOUBLE,
+  `created_time` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `servermanager_commands` (
+  `id` INT NOT NULL,
+  `title` VARCHAR(50),
+  `command` VARCHAR(50),
+  `describe` VARCHAR(50),
+  `created_time` DATETIME,
+  `last_mod_time` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `servermanager_emailsendlog` (
+  `id` INT NOT NULL,
+  `emailto` VARCHAR(50),
+  `title` VARCHAR(50),
+  `content` VARCHAR(50),
+  `send_result` TINYINT,
+  `created_time` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_244559_djangoblog') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_244559_djangoblog') AS relationships;
+DROP DATABASE `db_244559_djangoblog`;
+UNINSTALL EXTENSION vsql_schematron;

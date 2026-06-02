@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 021775_banque_php
+#
+CREATE DATABASE `db_021775_banque_php`;
+USE `db_021775_banque_php`;
+CREATE TABLE `Client` (
+`id` VARCHAR(50) NOT NULL,
+`nom` VARCHAR(50),
+`prenom` VARCHAR(50),
+`numero` VARCHAR(50),
+`voie` VARCHAR(50),
+`adresse` VARCHAR(50),
+`ville` VARCHAR(50),
+`code_postal` VARCHAR(50),
+`tel` VARCHAR(50),
+`email` VARCHAR(50),
+`sexe` CHAR(50),
+`date_adhesion` DATE,
+`date_naissance` DATE,
+`mdp` VARCHAR(50),
+`commentaire` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Compte` (
+`id` VARCHAR(50) NOT NULL,
+`id_client` VARCHAR(50),
+`type_compte` VARCHAR(50),
+`nom` VARCHAR(50),
+`date_ouverture` DATE,
+`date_fermeture` DATE,
+`solde` DECIMAL(10,2),
+`commentaire` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Operation` (
+`id` VARCHAR(50) NOT NULL,
+`id_compte` VARCHAR(50),
+`id_client` VARCHAR(50),
+`type_operation` VARCHAR(50),
+`nom` VARCHAR(50),
+`montant` DECIMAL(10,2),
+`date_operation` TIMESTAMP NULL,
+`commentaire` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_021775_banque_php') AS relationships;
+relationships
+Database: db_021775_banque_php
+
+Table Connections:
+------------------
+[Implied]  Compte.id_client -> Client.id
+[Implied]  Operation.id_client -> Client.id
+[Implied]  Operation.id_compte -> Compte.id
+
+DROP DATABASE `db_021775_banque_php`;
+UNINSTALL EXTENSION vsql_schematron;

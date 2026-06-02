@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 360930_script
+#
+CREATE DATABASE `db_360930_script`;
+USE `db_360930_script`;
+CREATE TABLE `client` (
+`id_client` INT NOT NULL,
+`nom` VARCHAR(50),
+`prenom` VARCHAR(50),
+`adresse` VARCHAR(50),
+`tel` CHAR(50),
+PRIMARY KEY (`id_client`)
+) CHARACTER SET latin1;
+CREATE TABLE `facture` (
+`id_facture` INT NOT NULL,
+`numfact` VARCHAR(50),
+`datefact` DATE,
+`id_clientFacture` INT,
+PRIMARY KEY (`id_facture`)
+) CHARACTER SET latin1;
+CREATE TABLE `payement` (
+`id_payement` INT NOT NULL,
+`datepayement` DATE,
+`montantpaye` DECIMAL(10,2),
+`id_facturePayment` INT,
+PRIMARY KEY (`id_payement`)
+) CHARACTER SET latin1;
+CREATE TABLE `produit` (
+`id_produit` INT NOT NULL,
+`reference` VARCHAR(50),
+`designation` VARCHAR(50),
+`prixunit` DECIMAL(10,2),
+PRIMARY KEY (`id_produit`)
+) CHARACTER SET latin1;
+CREATE TABLE `commander` (
+`id_commande` INT NOT NULL,
+`qtecde` INT,
+`id_factureCmd` INT,
+`id_produitCmd` INT,
+PRIMARY KEY (`id_commande`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_360930_script') AS relationships;
+relationships
+Database: db_360930_script
+
+Table Connections:
+------------------
+[Implied]  commander.id_factureCmd -> facture.id_facture
+[Implied]  commander.id_produitCmd -> produit.id_produit
+[Implied]  facture.id_clientFacture -> client.id_client
+[Implied]  payement.id_facturePayment -> facture.id_facture
+
+DROP DATABASE `db_360930_script`;
+UNINSTALL EXTENSION vsql_schematron;

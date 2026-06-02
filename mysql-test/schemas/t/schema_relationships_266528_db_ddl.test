@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 266528_db.ddl
+--echo #
+CREATE DATABASE `db_266528_db_ddl`;
+USE `db_266528_db_ddl`;
+CREATE TABLE `t_team` (
+  `team_id` VARCHAR(50) NOT NULL,
+  `team_name` VARCHAR(50),
+  `max_capacity` INT,
+  `update_date` TIMESTAMP NULL,
+  PRIMARY KEY (`team_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_user` (
+  `user_id` VARCHAR(50) NOT NULL,
+  `team_id` CHAR(50),
+  `user_name` VARCHAR(50),
+  `first_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_266528_db_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_266528_db_ddl') AS relationships;
+DROP DATABASE `db_266528_db_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

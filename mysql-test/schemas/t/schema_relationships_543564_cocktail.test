@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 543564_cocktail
+--echo #
+CREATE DATABASE `db_543564_cocktail`;
+USE `db_543564_cocktail`;
+CREATE TABLE `cocktail` (
+  `cocktail_id` INT NOT NULL,
+  `name` TEXT,
+  `instructions` TEXT,
+  `author` TEXT,
+  PRIMARY KEY (`cocktail_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ingridients` (
+  `ingredient_id` INT NOT NULL,
+  `name` TEXT,
+  `size` TEXT,
+  `cocktail` INT,
+  PRIMARY KEY (`ingredient_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `suggested_spirits` (
+  `spirits_id` INT NOT NULL,
+  `name` TEXT,
+  `cocktail` INT,
+  PRIMARY KEY (`spirits_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_543564_cocktail') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_543564_cocktail') AS relationships;
+DROP DATABASE `db_543564_cocktail`;
+UNINSTALL EXTENSION vsql_schematron;

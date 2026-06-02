@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 157748_digitalstore
+--echo #
+CREATE DATABASE `db_157748_digitalstore`;
+USE `db_157748_digitalstore`;
+CREATE TABLE `detail_transaksi` (
+  `kode_detail_transaksi` INT,
+  `kode_transaksi` INT,
+  `kode_kamera` INT,
+  `jumlah` INT
+) CHARACTER SET latin1;
+CREATE TABLE `kamera` (
+  `kode_kamera` INT,
+  `nama_kamera` VARCHAR(50),
+  `deskripsi` VARCHAR(50),
+  `kode_kategori` INT,
+  `harga` INT,
+  `foto` VARCHAR(50),
+  `stok` INT
+) CHARACTER SET latin1;
+CREATE TABLE `kategori` (
+  `kode_kategori` INT NOT NULL,
+  `nama_kategori` VARCHAR(50),
+  PRIMARY KEY (`kode_kategori`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaksi` (
+  `kode_transaksi` INT,
+  `kode_user` INT,
+  `nama_pembeli` VARCHAR(50),
+  `total` INT,
+  `tanggal_beli` DATE
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+  `kode_user` INT NOT NULL,
+  `nama_user` VARCHAR(50),
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  `level` VARCHAR(50),
+  PRIMARY KEY (`kode_user`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_157748_digitalstore') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_157748_digitalstore') AS relationships;
+DROP DATABASE `db_157748_digitalstore`;
+UNINSTALL EXTENSION vsql_schematron;

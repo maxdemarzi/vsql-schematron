@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 202875_kki
+#
+CREATE DATABASE `db_202875_kki`;
+USE `db_202875_kki`;
+CREATE TABLE `dosen` (
+`id_dosen` INT,
+`nidn` BIGINT,
+`nama` VARCHAR(50),
+`password` VARCHAR(50),
+`email` VARCHAR(50),
+`telp` VARCHAR(50),
+`level` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `kelas` (
+`id_kelas` INT,
+`nama` VARCHAR(50),
+`id_prodi` INT,
+`angkatan` INT
+) CHARACTER SET latin1;
+CREATE TABLE `mahasiswa` (
+`id_mhs` INT,
+`nim` BIGINT,
+`nama` VARCHAR(50),
+`password` VARCHAR(50),
+`id_kelas` INT,
+`email` VARCHAR(50),
+`telp` VARCHAR(50),
+`jenis_kelamin` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `prodi` (
+`id_prodi` INT NOT NULL,
+`nama` VARCHAR(50),
+PRIMARY KEY (`id_prodi`)
+) CHARACTER SET latin1;
+CREATE TABLE `soal` (
+`id_soal` INT,
+`id_prodi` INT,
+`judul` VARCHAR(50),
+`pg` INT,
+`isian` INT,
+`esai` INT,
+`matkul` VARCHAR(50),
+`ket` TEXT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_202875_kki') AS relationships;
+relationships
+Database: db_202875_kki
+
+Table Connections:
+------------------
+[Implied]  kelas.id_prodi -> prodi.id_prodi
+[Implied]  mahasiswa.id_kelas -> kelas.id_kelas
+[Implied]  soal.id_prodi -> prodi.id_prodi
+
+DROP DATABASE `db_202875_kki`;
+UNINSTALL EXTENSION vsql_schematron;

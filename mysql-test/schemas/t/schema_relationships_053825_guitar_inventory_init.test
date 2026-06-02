@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 053825_guitar_inventory_init
+--echo #
+CREATE DATABASE `db_053825_guitar_inventory_init`;
+USE `db_053825_guitar_inventory_init`;
+CREATE TABLE `manufacturer` (
+  `m_id` INT NOT NULL,
+  `m_name` VARCHAR(50),
+  PRIMARY KEY (`m_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `guitar_model` (
+  `g_id` INT NOT NULL,
+  `m_id` INT,
+  `model_name` VARCHAR(50),
+  `model_year` INT,
+  `color` VARCHAR(50),
+  `price` DECIMAL(10,2),
+  PRIMARY KEY (`g_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_053825_guitar_inventory_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_053825_guitar_inventory_init') AS relationships;
+DROP DATABASE `db_053825_guitar_inventory_init`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 018251_V001__Create_Sonatype_Metrics
+#
+CREATE DATABASE `db_018251_V001__Create_Sonatype_Metrics`;
+USE `db_018251_V001__Create_Sonatype_Metrics`;
+CREATE TABLE `sonatype_clients` (
+`client_id` VARCHAR(50) NOT NULL,
+`api_url` VARCHAR(50),
+`username` VARCHAR(50),
+`authentication` VARCHAR(50),
+PRIMARY KEY (`client_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sonatype_thresholds` (
+`thresholds_id` VARCHAR(50) NOT NULL,
+`green_yellow` BIGINT,
+`yellow_red` BIGINT,
+PRIMARY KEY (`thresholds_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sonatype_apps` (
+`app_id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`synapse_project` BIGINT,
+PRIMARY KEY (`app_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sonatype_metrics` (
+`metrics_id` VARCHAR(50) NOT NULL,
+`recorded_date` DATE,
+`app` VARCHAR(50),
+`high_vios` BIGINT,
+`med_vios` BIGINT,
+`low_vios` BIGINT,
+`info_vios` BIGINT,
+PRIMARY KEY (`metrics_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_018251_V001__Create_Sonatype_Metrics') AS relationships;
+relationships
+Database: db_018251_V001__Create_Sonatype_Metrics
+
+Table Connections:
+------------------
+[Implied]  sonatype_metrics.app -> sonatype_apps.app_id
+
+DROP DATABASE `db_018251_V001__Create_Sonatype_Metrics`;
+UNINSTALL EXTENSION vsql_schematron;

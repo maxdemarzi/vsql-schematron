@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 494116_V2.0__Skd_Avspiller
+--echo #
+CREATE DATABASE `db_494116_V2_0__Skd_Avspiller`;
+USE `db_494116_V2_0__Skd_Avspiller`;
+CREATE TABLE `T_SKD_MELDINGER_AVSPILLERDATA` (
+  `ID` DECIMAL(10,2) NOT NULL,
+  `SKD_MELDING` VARCHAR(50),
+  `TESTPERSON_ID` DECIMAL(10,2),
+  `GRUPPE_ID` DECIMAL(10,2),
+  `SEKVENSNUMMER` DECIMAL(10,2),
+  `AARSAKSKODE` DECIMAL(10,2),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_AVSPILLERGRUPPE` (
+  `GRUPPE_ID` DECIMAL(10,2) NOT NULL,
+  `NAVN` VARCHAR(50),
+  `BESKRIVELSE` VARCHAR(50),
+  `OPPRETTET_DATO` TIMESTAMP NULL,
+  `OPPRETTET_AV` VARCHAR(50),
+  `ENDRET_DATO` TIMESTAMP NULL,
+  `ENDRET_AV` VARCHAR(50),
+  PRIMARY KEY (`GRUPPE_ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_494116_V2_0__Skd_Avspiller') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_494116_V2_0__Skd_Avspiller') AS relationships;
+DROP DATABASE `db_494116_V2_0__Skd_Avspiller`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 025429_manage_DB
+#
+CREATE DATABASE `db_025429_manage_DB`;
+USE `db_025429_manage_DB`;
+CREATE TABLE `department` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`salary` INT,
+`deptID` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`id` INT NOT NULL,
+`firstName` VARCHAR(50),
+`lastName` VARCHAR(50),
+`roleID` INT,
+`managerID` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_025429_manage_DB') AS relationships;
+relationships
+Database: db_025429_manage_DB
+
+Table Connections:
+------------------
+[Implied]  employee.managerID -> employee.id
+[Implied]  employee.roleID -> roles.id
+[Implied]  roles.deptID -> department.id
+
+DROP DATABASE `db_025429_manage_DB`;
+UNINSTALL EXTENSION vsql_schematron;

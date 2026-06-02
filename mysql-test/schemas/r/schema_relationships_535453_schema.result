@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 535453_schema
+#
+CREATE DATABASE `db_535453_schema`;
+USE `db_535453_schema`;
+CREATE TABLE `users` (
+`user_id` VARCHAR(50) NOT NULL,
+`name` TEXT,
+`email` TEXT,
+`roles` VARCHAR(50),
+`password_hash` TEXT,
+`date_created` TIMESTAMP NULL,
+`date_updated` TIMESTAMP NULL,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`product_id` VARCHAR(50) NOT NULL,
+`name` TEXT,
+`cost` INT,
+`quantity` INT,
+`user_id` VARCHAR(50),
+`date_created` TIMESTAMP NULL,
+`date_updated` TIMESTAMP NULL,
+PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales` (
+`sale_id` VARCHAR(50) NOT NULL,
+`user_id` VARCHAR(50),
+`product_id` VARCHAR(50),
+`quantity` INT,
+`paid` INT,
+`date_created` TIMESTAMP NULL,
+PRIMARY KEY (`sale_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_535453_schema') AS relationships;
+relationships
+Database: db_535453_schema
+
+Table Connections:
+------------------
+[Implied]  products.user_id -> users.user_id
+[Implied]  sales.product_id -> products.product_id
+[Implied]  sales.user_id -> users.user_id
+
+DROP DATABASE `db_535453_schema`;
+UNINSTALL EXTENSION vsql_schematron;

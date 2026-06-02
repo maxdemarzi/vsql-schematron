@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 228541_postgres
+--echo #
+CREATE DATABASE `db_228541_postgres`;
+USE `db_228541_postgres`;
+CREATE TABLE `audit_session` (
+  `id` BIGINT,
+  `creation_date` TIMESTAMP NULL,
+  `remote_ip` CHAR(50),
+  `user_agent` CHAR(50),
+  `user_date` TIMESTAMP NULL,
+  `id_principal` BIGINT
+) CHARACTER SET latin1;
+CREATE TABLE `consumer_api` (
+  `id` BIGINT NOT NULL,
+  `access_level` CHAR(50),
+  `consumer_id` CHAR(50),
+  `contact_name` CHAR(50),
+  `document_number` CHAR(50),
+  `name` CHAR(50),
+  `secret` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `keychain` (
+  `id` INT NOT NULL,
+  `value` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `principal_session` (
+  `id` BIGINT NOT NULL,
+  `app_description` CHAR(50),
+  `app_id` CHAR(50),
+  `user_description` CHAR(50),
+  `user_id` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `security_profile` (
+  `id` BIGINT NOT NULL,
+  `access_token_timeout_seconds` INT,
+  `key` CHAR(50),
+  `max_access_token_requests` INT,
+  `max_number_of_connections` INT,
+  `max_number_devices_user` INT,
+  `name` CHAR(50),
+  `refresh_token_timeout_seconds` INT,
+  `revocable` BOOLEAN,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tokens` (
+  `id` VARCHAR(50) NOT NULL,
+  `expiration` TIMESTAMP NULL,
+  `issued_at` TIMESTAMP NULL,
+  `remote_ip` CHAR(50),
+  `token_type` CHAR(50),
+  `user_agent` CHAR(50),
+  `user_id` CHAR(50),
+  `security_profile_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_228541_postgres') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_228541_postgres') AS relationships;
+DROP DATABASE `db_228541_postgres`;
+UNINSTALL EXTENSION vsql_schematron;

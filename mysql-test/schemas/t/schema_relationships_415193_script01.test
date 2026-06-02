@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 415193_script01
+--echo #
+CREATE DATABASE `db_415193_script01`;
+USE `db_415193_script01`;
+CREATE TABLE `CLIENT` (
+  `id_client` INT NOT NULL,
+  `nom` VARCHAR(50),
+  `prenom` VARCHAR(50),
+  `adresse` VARCHAR(50),
+  `telephone` CHAR(50),
+  PRIMARY KEY (`id_client`)
+) CHARACTER SET latin1;
+CREATE TABLE `FACTURE` (
+  `id_facture` INT NOT NULL,
+  `facture_number` INT,
+  `facture_date` DATE,
+  `id_client` INT,
+  PRIMARY KEY (`id_facture`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRODUIT` (
+  `id_product` INT NOT NULL,
+  `reference_number` INT,
+  `designation` VARCHAR(50),
+  `prix_unitaire` DECIMAL(10,2),
+  PRIMARY KEY (`id_product`)
+) CHARACTER SET latin1;
+CREATE TABLE `PAYMENT` (
+  `id_payment` INT NOT NULL,
+  `payment_date` DATE,
+  `montant` DECIMAL(10,2),
+  `id_facture` INT,
+  PRIMARY KEY (`id_payment`)
+) CHARACTER SET latin1;
+CREATE TABLE `COMMANDER` (
+  `id_commande` INT NOT NULL,
+  `qte_commande` INT,
+  `id_product` INT,
+  `id_facture` INT,
+  PRIMARY KEY (`id_commande`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_415193_script01') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_415193_script01') AS relationships;
+DROP DATABASE `db_415193_script01`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 299661_20200727193915-invoices-up
+#
+CREATE DATABASE `db_299661_20200727193915_invoices_up`;
+USE `db_299661_20200727193915_invoices_up`;
+CREATE TABLE `invoices` (
+`id` INT NOT NULL,
+`invoiceNumber` VARCHAR(50),
+`invoiceDate` DATE,
+`clientNote` VARCHAR(50),
+`totalCharged` DECIMAL(10,2),
+`status` VARCHAR(50),
+`dateAdded` DATETIME,
+`addedBy` INT,
+`dateModified` DATETIME,
+`modifiedBy` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `donations` (
+`id` INT NOT NULL,
+`donationAmount` DECIMAL(10,2),
+`donationDate` DATE,
+`dateAdded` DATETIME,
+`addedBy` INT,
+`dateModified` DATETIME,
+`modifiedBy` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payments` (
+`id` INT NOT NULL,
+`isDeleted` BOOLEAN,
+`paymentDate` DATETIME,
+`paymentAmount` DECIMAL(10,2),
+`paymentType` VARCHAR(50),
+`donationId` INT,
+`dateAdded` DATETIME,
+`addedBy` INT,
+`dateModified` DATETIME,
+`modifiedBy` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `invoiceLineItems` (
+`id` INT NOT NULL,
+`invoiceId` INT,
+`serviceId` INT,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`quantity` INT,
+`rate` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_299661_20200727193915_invoices_up') AS relationships;
+relationships
+Database: db_299661_20200727193915_invoices_up
+
+Table Connections:
+------------------
+[Implied]  invoiceLineItems.invoiceId -> invoices.id
+[Implied]  payments.donationId -> donations.id
+
+DROP DATABASE `db_299661_20200727193915_invoices_up`;
+UNINSTALL EXTENSION vsql_schematron;

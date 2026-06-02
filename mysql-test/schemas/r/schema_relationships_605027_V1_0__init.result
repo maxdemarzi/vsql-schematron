@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 605027_V1.0__init
+#
+CREATE DATABASE `db_605027_V1_0__init`;
+USE `db_605027_V1_0__init`;
+CREATE TABLE `users` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`email` VARCHAR(50),
+`dob` DATE,
+`create_date` DATETIME,
+`update_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `trails` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`start_time` TIME,
+`end_time` TIME,
+`lower_age` INT,
+`upper_age` INT,
+`price` DOUBLE,
+`create_date` DATETIME,
+`update_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookings` (
+`id` BIGINT NOT NULL,
+`trail_id` BIGINT,
+`user_id` BIGINT,
+`start_time` TIME,
+`end_time` TIME,
+`booking_date` DATE,
+`booking_status` VARCHAR(50),
+`create_date` DATETIME,
+`update_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookings_users_mapping` (
+`booking_id` BIGINT,
+`user_id` BIGINT,
+`create_date` DATETIME,
+`update_date` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_605027_V1_0__init') AS relationships;
+relationships
+Database: db_605027_V1_0__init
+
+Table Connections:
+------------------
+[Implied]  bookings.trail_id -> trails.id
+[Implied]  bookings.user_id -> users.id
+[Implied]  bookings_users_mapping.booking_id -> bookings.id
+[Implied]  bookings_users_mapping.user_id -> users.id
+
+DROP DATABASE `db_605027_V1_0__init`;
+UNINSTALL EXTENSION vsql_schematron;

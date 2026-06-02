@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 302160_Problem14-21
+#
+CREATE DATABASE `db_302160_Problem14_21`;
+USE `db_302160_Problem14_21`;
+CREATE TABLE `towns` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `addresses` (
+`id` INT NOT NULL,
+`address_text` TEXT,
+`town_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `departments` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`middle_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`job_title` VARCHAR(50),
+`department_id` INT,
+`hire_date` DATE,
+`salary` INT,
+`address_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_302160_Problem14_21') AS relationships;
+relationships
+Database: db_302160_Problem14_21
+
+Table Connections:
+------------------
+[Implied]  addresses.town_id -> towns.id
+[Implied]  employees.address_id -> addresses.id
+[Implied]  employees.department_id -> departments.id
+
+DROP DATABASE `db_302160_Problem14_21`;
+UNINSTALL EXTENSION vsql_schematron;

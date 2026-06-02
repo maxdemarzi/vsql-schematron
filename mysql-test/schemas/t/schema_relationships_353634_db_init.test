@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 353634_db_init
+--echo #
+CREATE DATABASE `db_353634_db_init`;
+USE `db_353634_db_init`;
+CREATE TABLE `locations` (
+  `id` INT NOT NULL,
+  `location` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chemicals` (
+  `id` INT NOT NULL,
+  `chemical_name` TEXT,
+  `brutto_formula` TEXT,
+  `molar_mass` TEXT,
+  `quantity_amount` DOUBLE,
+  `quantity_unit` TEXT,
+  `storage_location` INT,
+  `manufacturer` TEXT,
+  `supplier` TEXT,
+  `date_of_entry` TEXT,
+  `additional_info` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_353634_db_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_353634_db_init') AS relationships;
+DROP DATABASE `db_353634_db_init`;
+UNINSTALL EXTENSION vsql_schematron;

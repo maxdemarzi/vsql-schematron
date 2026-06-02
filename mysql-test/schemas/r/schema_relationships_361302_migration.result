@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 361302_migration
+#
+CREATE DATABASE `db_361302_migration`;
+USE `db_361302_migration`;
+CREATE TABLE `Location` (
+`id` INT NOT NULL,
+`name` TEXT,
+`capacity` INT,
+`address` TEXT,
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Movie` (
+`id` INT NOT NULL,
+`title` TEXT,
+`director` TEXT,
+`poster_url` TEXT,
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Screening` (
+`id` INT NOT NULL,
+`locationId` INT,
+`movieId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_361302_migration') AS relationships;
+relationships
+Database: db_361302_migration
+
+Table Connections:
+------------------
+[Implied]  Screening.locationId -> Location.id
+[Implied]  Screening.movieId -> Movie.id
+
+DROP DATABASE `db_361302_migration`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 177409_estrutura
+#
+CREATE DATABASE `db_177409_estrutura`;
+USE `db_177409_estrutura`;
+CREATE TABLE `cliente` (
+`id_cliente` INT NOT NULL,
+`cpf` CHAR(50),
+`nome` VARCHAR(50),
+`email` VARCHAR(50),
+`senha` VARCHAR(50),
+`estado` VARCHAR(50),
+`cidade` VARCHAR(50),
+`cep` CHAR(50),
+`bairro` VARCHAR(50),
+`logradouro` VARCHAR(50),
+`numero` INT,
+PRIMARY KEY (`id_cliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `categoria` (
+`id_cat` INT NOT NULL,
+`categoria` VARCHAR(50),
+PRIMARY KEY (`id_cat`)
+) CHARACTER SET latin1;
+CREATE TABLE `produto` (
+`id_produto` INT NOT NULL,
+`preco` DOUBLE,
+`nome` VARCHAR(50),
+`caminho` VARCHAR(50),
+`id_cat` INT,
+PRIMARY KEY (`id_produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `venda` (
+`id_venda` INT NOT NULL,
+`frete` DOUBLE,
+`quantTotal` INT,
+`subtotal` DOUBLE,
+`id_cliente` INT,
+PRIMARY KEY (`id_venda`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`id_item` INT NOT NULL,
+`quant` INT,
+`id_produto` INT,
+`id_venda` INT,
+PRIMARY KEY (`id_item`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_177409_estrutura') AS relationships;
+relationships
+Database: db_177409_estrutura
+
+Table Connections:
+------------------
+[Implied]  item.id_produto -> produto.id_produto
+[Implied]  item.id_venda -> venda.id_venda
+[Implied]  produto.id_cat -> categoria.id_cat
+[Implied]  venda.id_cliente -> cliente.id_cliente
+
+DROP DATABASE `db_177409_estrutura`;
+UNINSTALL EXTENSION vsql_schematron;

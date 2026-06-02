@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 208781_create
+#
+CREATE DATABASE `db_208781_create`;
+USE `db_208781_create`;
+CREATE TABLE `directors` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`description` TEXT,
+`birthyear` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `genres` (
+`id` INT NOT NULL,
+`director_id` INT,
+`name` VARCHAR(50),
+`description` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movies` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`description` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ratings` (
+`id` INT NOT NULL,
+`movie_id` INT,
+`number` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `publishyear` (
+`id` INT NOT NULL,
+`movie_id` INT,
+`releasedate` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_208781_create') AS relationships;
+relationships
+Database: db_208781_create
+
+Table Connections:
+------------------
+[Implied]  genres.director_id -> directors.id
+[Implied]  publishyear.movie_id -> movies.id
+[Implied]  ratings.movie_id -> movies.id
+
+DROP DATABASE `db_208781_create`;
+UNINSTALL EXTENSION vsql_schematron;

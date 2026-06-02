@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 336075_createTables
+--echo #
+CREATE DATABASE `db_336075_createTables`;
+USE `db_336075_createTables`;
+CREATE TABLE `User` (
+  `Id` INT NOT NULL,
+  `LastName` VARCHAR(50),
+  `FirstName` VARCHAR(50),
+  `UserName` VARCHAR(50),
+  `Password` VARCHAR(50),
+  `City` VARCHAR(50),
+  `Email` VARCHAR(50),
+  `Icon` VARCHAR(50),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Item` (
+  `Id` INT NOT NULL,
+  `Name` VARCHAR(50),
+  `Category` VARCHAR(50),
+  `CurPrice` INT,
+  `Icon` VARCHAR(50),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TempItem` (
+  `Name` VARCHAR(50),
+  `Category` VARCHAR(50),
+  `CurPrice` INT,
+  `Icon` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `Packages` (
+  `Id` INT NOT NULL,
+  `Title` VARCHAR(50),
+  `CharityName` VARCHAR(50),
+  `Description` VARCHAR(50),
+  `City` VARCHAR(50),
+  `NumberDonations` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `History` (
+  `Date` VARCHAR(50),
+  `AmountPaid` INT,
+  `User_id` INT,
+  `Item_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `PackageItem` (
+  `paidSoFar` INT,
+  `Package_id` INT,
+  `Item_id` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_336075_createTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_336075_createTables') AS relationships;
+DROP DATABASE `db_336075_createTables`;
+UNINSTALL EXTENSION vsql_schematron;

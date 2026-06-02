@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 484498_curioSchema
+--echo #
+CREATE DATABASE `db_484498_curioSchema`;
+USE `db_484498_curioSchema`;
+CREATE TABLE `Users` (
+  `id` VARCHAR(50) NOT NULL,
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  `registration_date` DATE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Favorites` (
+  `user_id` VARCHAR(50),
+  `image_id` INT,
+  `primary_image` VARCHAR(50),
+  `image_title` VARCHAR(50),
+  `artist_display_name` VARCHAR(50),
+  `artist_nationality` VARCHAR(50),
+  `artist_begin_date` VARCHAR(50),
+  `artist_end_date` VARCHAR(50),
+  `object_name` VARCHAR(50),
+  `object_begin_date` INT,
+  `object_end_date` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_484498_curioSchema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_484498_curioSchema') AS relationships;
+DROP DATABASE `db_484498_curioSchema`;
+UNINSTALL EXTENSION vsql_schematron;

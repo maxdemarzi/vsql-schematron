@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 568883_modelagem
+#
+CREATE DATABASE `db_568883_modelagem`;
+USE `db_568883_modelagem`;
+CREATE TABLE `pessoa` (
+`id` INT NOT NULL,
+`nome` TEXT,
+`cpf` CHAR(50),
+`email` VARCHAR(50),
+`telefone` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `uf` (
+`id` INT NOT NULL,
+`uf` CHAR(50),
+`descricao` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `endereco` (
+`id` INT NOT NULL,
+`pessoa_id` INT,
+`uf_id` INT,
+`logradouro` TEXT,
+`complemento` TEXT,
+`bairro` TEXT,
+`cidade` TEXT,
+`cep` CHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_568883_modelagem') AS relationships;
+relationships
+Database: db_568883_modelagem
+
+Table Connections:
+------------------
+[Implied]  endereco.pessoa_id -> pessoa.id
+[Implied]  endereco.uf_id -> uf.id
+
+DROP DATABASE `db_568883_modelagem`;
+UNINSTALL EXTENSION vsql_schematron;

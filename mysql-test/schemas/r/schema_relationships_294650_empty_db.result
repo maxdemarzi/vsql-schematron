@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 294650_empty_db
+#
+CREATE DATABASE `db_294650_empty_db`;
+USE `db_294650_empty_db`;
+CREATE TABLE `customers` (
+`internalId` INT NOT NULL,
+`externalId` VARCHAR(50),
+`masterExternalId` VARCHAR(50),
+`name` VARCHAR(50),
+`customerType` INT,
+`companyNumber` VARCHAR(50),
+`addressId` INT,
+PRIMARY KEY (`internalId`)
+) CHARACTER SET latin1;
+CREATE TABLE `addresses` (
+`addressId` INT NOT NULL,
+`street` VARCHAR(50),
+`city` VARCHAR(50),
+`postalCode` VARCHAR(50),
+PRIMARY KEY (`addressId`)
+) CHARACTER SET latin1;
+CREATE TABLE `shoppinglists` (
+`shoppinglistId` INT NOT NULL,
+`products` VARCHAR(50),
+PRIMARY KEY (`shoppinglistId`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer_shoppinglists` (
+`customerId` INT,
+`shoppinglistId` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_294650_empty_db') AS relationships;
+relationships
+Database: db_294650_empty_db
+
+Table Connections:
+------------------
+[Implied]  customer_shoppinglists.customerId -> customers.internalId
+[Implied]  customer_shoppinglists.shoppinglistId -> shoppinglists.shoppinglistId
+[Implied]  customers.addressId -> addresses.addressId
+
+DROP DATABASE `db_294650_empty_db`;
+UNINSTALL EXTENSION vsql_schematron;

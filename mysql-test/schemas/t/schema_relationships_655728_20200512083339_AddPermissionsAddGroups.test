@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 655728_20200512083339_AddPermissionsAddGroups
+--echo #
+CREATE DATABASE `db_655728_20200512083339_AddPermissionsAddGroups`;
+USE `db_655728_20200512083339_AddPermissionsAddGroups`;
+CREATE TABLE `Emails` (
+  `Id` BIGINT NOT NULL,
+  `Subject` TEXT,
+  `Body` TEXT,
+  `Type` INT,
+  `_CreatedDate` TIMESTAMP NULL,
+  `_ModifiedDate` TIMESTAMP NULL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Groups` (
+  `Id` VARCHAR(50) NOT NULL,
+  `Name` TEXT,
+  `_CreatedDate` TIMESTAMP NULL,
+  `_ModifiedDate` TIMESTAMP NULL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Permissions` (
+  `Id` VARCHAR(50) NOT NULL,
+  `Name` TEXT,
+  `Description` TEXT,
+  `_CreatedDate` TIMESTAMP NULL,
+  `_ModifiedDate` TIMESTAMP NULL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RoleAssignments` (
+  `Id` BIGINT NOT NULL,
+  `RoleId` TEXT,
+  `CanAssigneRoleId` TEXT,
+  `_CreatedDate` TIMESTAMP NULL,
+  `_ModifiedDate` TIMESTAMP NULL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `GroupAttributes` (
+  `Id` BIGINT NOT NULL,
+  `Key` TEXT,
+  `Value` TEXT,
+  `GroupId` TEXT,
+  `_CreatedDate` TIMESTAMP NULL,
+  `_ModifiedDate` TIMESTAMP NULL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `GroupUsers` (
+  `Id` BIGINT NOT NULL,
+  `UserId` TEXT,
+  `GroupId` TEXT,
+  `RoleId` TEXT,
+  `_CreatedDate` TIMESTAMP NULL,
+  `_ModifiedDate` TIMESTAMP NULL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Invite` (
+  `Id` VARCHAR(50) NOT NULL,
+  `Email` TEXT,
+  `Token` TEXT,
+  `Status` INT,
+  `RoleId` TEXT,
+  `GroupId` TEXT,
+  `GroupRoleId` TEXT,
+  `ExpiresAt` TIMESTAMP NULL,
+  `_CreatedDate` TIMESTAMP NULL,
+  `_ModifiedDate` TIMESTAMP NULL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PermissionRole` (
+  `Id` BIGINT NOT NULL,
+  `PermissionId` TEXT,
+  `RoleId` TEXT,
+  `_CreatedDate` TIMESTAMP NULL,
+  `_ModifiedDate` TIMESTAMP NULL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_655728_20200512083339_AddPermissionsAddGroups') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_655728_20200512083339_AddPermissionsAddGroups') AS relationships;
+DROP DATABASE `db_655728_20200512083339_AddPermissionsAddGroups`;
+UNINSTALL EXTENSION vsql_schematron;

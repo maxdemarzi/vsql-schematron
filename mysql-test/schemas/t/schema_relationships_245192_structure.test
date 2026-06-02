@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 245192_structure
+--echo #
+CREATE DATABASE `db_245192_structure`;
+USE `db_245192_structure`;
+CREATE TABLE `ar_internal_metadata` (
+  `key` VARCHAR(50) NOT NULL,
+  `value` CHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+CREATE TABLE `plays` (
+  `id` INT NOT NULL,
+  `track_id` INT,
+  `played_at` TIMESTAMP NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schema_migrations` (
+  `version` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+CREATE TABLE `tracks` (
+  `id` INT NOT NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `identity` CHAR(50),
+  `provider` CHAR(50),
+  `response` VARCHAR(50),
+  `sha1` CHAR(50),
+  `name` CHAR(50),
+  `artist` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_245192_structure') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_245192_structure') AS relationships;
+DROP DATABASE `db_245192_structure`;
+UNINSTALL EXTENSION vsql_schematron;

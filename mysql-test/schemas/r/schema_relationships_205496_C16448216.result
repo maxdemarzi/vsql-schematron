@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 205496_C16448216
+#
+CREATE DATABASE `db_205496_C16448216`;
+USE `db_205496_C16448216`;
+CREATE TABLE `Client` (
+`clientID` DECIMAL(10,2) NOT NULL,
+`fullName` VARCHAR(50),
+`emailAdr` VARCHAR(50),
+PRIMARY KEY (`clientID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Designer` (
+`designerID` DECIMAL(10,2) NOT NULL,
+`dName` VARCHAR(50),
+`emailAdr` VARCHAR(50),
+`dRateofPay` DECIMAL(10,2),
+PRIMARY KEY (`designerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Specification` (
+`specID` DECIMAL(10,2) NOT NULL,
+`clientID` DECIMAL(10,2),
+`designerID` DECIMAL(10,2),
+`specDate` DATE,
+`specDesc` VARCHAR(50),
+`specCommision` DECIMAL(10,2),
+`designHrsWorked` DECIMAL(10,2),
+PRIMARY KEY (`specID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProdType` (
+`prodCat` VARCHAR(50) NOT NULL,
+`catDesc` VARCHAR(50),
+PRIMARY KEY (`prodCat`)
+) CHARACTER SET latin1;
+CREATE TABLE `Product` (
+`prodCat` CHAR(50),
+`prodID` VARCHAR(50) NOT NULL,
+`prodDesc` VARCHAR(50),
+`prodPrice` DECIMAL(10,2),
+`prodQtyInStock` DECIMAL(10,2),
+PRIMARY KEY (`prodID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SpecProd` (
+`specID` DECIMAL(10,2),
+`prodID` VARCHAR(50),
+`prodCat` CHAR(50),
+`qtyUsed` DECIMAL(10,2)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_205496_C16448216') AS relationships;
+relationships
+Database: db_205496_C16448216
+
+Table Connections:
+------------------
+[Implied]  Product.prodCat -> ProdType.prodCat
+[Implied]  SpecProd.prodCat -> ProdType.prodCat
+[Implied]  SpecProd.prodID -> Product.prodID
+[Implied]  SpecProd.specID -> Specification.specID
+[Implied]  Specification.clientID -> Client.clientID
+[Implied]  Specification.designerID -> Designer.designerID
+
+DROP DATABASE `db_205496_C16448216`;
+UNINSTALL EXTENSION vsql_schematron;

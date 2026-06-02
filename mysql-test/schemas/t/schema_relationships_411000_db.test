@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 411000_db
+--echo #
+CREATE DATABASE `db_411000_db`;
+USE `db_411000_db`;
+CREATE TABLE `Maestro` (
+  `id` INT NOT NULL,
+  `nombreMaestro` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Alumno` (
+  `id` INT NOT NULL,
+  `matricula` CHAR(50),
+  `nombreAlumno` CHAR(50),
+  `semestre` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Materia` (
+  `id` INT NOT NULL,
+  `nombreMateria` VARCHAR(50),
+  `idMaestro` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Grupo` (
+  `id` INT NOT NULL,
+  `nombreGrupo` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Horario` (
+  `id` INT NOT NULL,
+  `idAlumno` INT,
+  `idGrupo` INT,
+  `idMateria` INT,
+  `hora` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_411000_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_411000_db') AS relationships;
+DROP DATABASE `db_411000_db`;
+UNINSTALL EXTENSION vsql_schematron;

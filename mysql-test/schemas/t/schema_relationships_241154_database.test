@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 241154_database
+--echo #
+CREATE DATABASE `db_241154_database`;
+USE `db_241154_database`;
+CREATE TABLE `category` (
+  `categoryID` INT NOT NULL,
+  `category` VARCHAR(50),
+  PRIMARY KEY (`categoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `question` (
+  `questionID` INT,
+  `question` VARCHAR(50),
+  `rightAnswer` VARCHAR(50),
+  `wrongAnswer` VARCHAR(50),
+  `categoryID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `score` (
+  `scoreID` INT NOT NULL,
+  `rank` INT,
+  `username` VARCHAR(50),
+  `playedOn` DATETIME,
+  `moneyAmount` DECIMAL(10,2),
+  `roundsAmount` INT,
+  PRIMARY KEY (`scoreID`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+  `userID` INT NOT NULL,
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  `salt` VARCHAR(50),
+  `isAdmin` TINYINT,
+  PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `word` (
+  `wordID` INT,
+  `word` VARCHAR(50),
+  `categoryID` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_241154_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_241154_database') AS relationships;
+DROP DATABASE `db_241154_database`;
+UNINSTALL EXTENSION vsql_schematron;

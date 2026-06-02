@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 643291_001-setup
+#
+CREATE DATABASE `db_643291_001_setup`;
+USE `db_643291_001_setup`;
+CREATE TABLE `users` (
+`id` CHAR(50),
+`time` VARCHAR(50),
+`name` VARCHAR(50),
+`secret` CHAR(50),
+`blob` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `threads` (
+`id` CHAR(50),
+`container_id` CHAR(50),
+`blob` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` CHAR(50),
+`time` VARCHAR(50),
+`text` TEXT,
+`user_id` CHAR(50),
+`thread_id` CHAR(50),
+`blob` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `questions` (
+`id` CHAR(50),
+`time` VARCHAR(50),
+`text` TEXT,
+`user_id` CHAR(50),
+`thread_id` VARCHAR(50),
+`blob` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `reactions` (
+`id` CHAR(50),
+`time` VARCHAR(50),
+`emoji` VARCHAR(50),
+`user_id` CHAR(50),
+`comment_id` CHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `migrations` (
+`id` INT NOT NULL,
+`file` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_643291_001_setup') AS relationships;
+relationships
+Database: db_643291_001_setup
+
+Table Connections:
+------------------
+[Implied]  comments.thread_id -> threads.id
+[Implied]  comments.user_id -> users.id
+[Implied]  questions.thread_id -> threads.id
+[Implied]  questions.user_id -> users.id
+[Implied]  reactions.comment_id -> comments.id
+[Implied]  reactions.user_id -> users.id
+
+DROP DATABASE `db_643291_001_setup`;
+UNINSTALL EXTENSION vsql_schematron;

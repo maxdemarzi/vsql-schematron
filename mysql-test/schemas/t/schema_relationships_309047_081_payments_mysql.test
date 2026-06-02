@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 309047_081_payments.mysql
+--echo #
+CREATE DATABASE `db_309047_081_payments_mysql`;
+USE `db_309047_081_payments_mysql`;
+CREATE TABLE `sales_payment_types` (
+  `payment_type_code` VARCHAR(50) NOT NULL,
+  `description` VARCHAR(50),
+  `active` CHAR(50),
+  PRIMARY KEY (`payment_type_code`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales_payments` (
+  `payment_id` INT NOT NULL,
+  `sales_order_number` INT,
+  `payment_type_code` CHAR(50),
+  `transaction_source` VARCHAR(50),
+  `transaction_reference` VARCHAR(50),
+  `status` CHAR(50),
+  `currency_code` CHAR(50),
+  `amount` DECIMAL(10,2),
+  `balance` DECIMAL(10,2),
+  `rev_enabled` CHAR(50),
+  `rev_number` INT,
+  `created_by` VARCHAR(50),
+  `creation_date` DATETIME,
+  `last_update_by` VARCHAR(50),
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`payment_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_309047_081_payments_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_309047_081_payments_mysql') AS relationships;
+DROP DATABASE `db_309047_081_payments_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

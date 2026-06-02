@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 310242_spoj0
+--echo #
+CREATE DATABASE `db_310242_spoj0`;
+USE `db_310242_spoj0`;
+CREATE TABLE `problems` (
+  `problem_id` INT NOT NULL,
+  `contest_id` INT,
+  `letter` CHAR(50),
+  `name` CHAR(50),
+  `time_limit` INT,
+  `about` TEXT,
+  PRIMARY KEY (`problem_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `runs` (
+  `run_id` INT NOT NULL,
+  `problem_id` INT,
+  `user_id` INT,
+  `submit_time` DATETIME,
+  `language` CHAR(50),
+  `source_code` VARCHAR(50),
+  `source_name` CHAR(50),
+  `about` TEXT,
+  `status` CHAR(50),
+  `log` TEXT,
+  PRIMARY KEY (`run_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `news` (
+  `new_id` INT NOT NULL,
+  `new_time` DATETIME,
+  `file` CHAR(50),
+  `topic` CHAR(50),
+  `content` TEXT,
+  PRIMARY KEY (`new_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questions` (
+  `question_id` INT NOT NULL,
+  `problem_id` INT,
+  `user_id` INT,
+  `question_time` DATETIME,
+  `content` TEXT,
+  `status` CHAR(50),
+  `answer_time` DATETIME,
+  `answer_content` TEXT,
+  PRIMARY KEY (`question_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_310242_spoj0') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_310242_spoj0') AS relationships;
+DROP DATABASE `db_310242_spoj0`;
+UNINSTALL EXTENSION vsql_schematron;

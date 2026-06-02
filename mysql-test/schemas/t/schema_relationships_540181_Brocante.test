@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 540181_Brocante
+--echo #
+CREATE DATABASE `db_540181_Brocante`;
+USE `db_540181_Brocante`;
+CREATE TABLE `Role` (
+  `RoleId` INT NOT NULL,
+  `Titre` VARCHAR(50),
+  PRIMARY KEY (`RoleId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Personne` (
+  `PersonneId` INT NOT NULL,
+  `Nom` VARCHAR(50),
+  `Prenom` VARCHAR(50),
+  `Telephone` VARCHAR(50),
+  `Email` VARCHAR(50),
+  `RoleId` INT,
+  PRIMARY KEY (`PersonneId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Brocanteur` (
+  `BrocanteurId` INT NOT NULL,
+  `CarteIdentite` VARCHAR(50),
+  `Rue` VARCHAR(50),
+  `CP` VARCHAR(50),
+  `Ville` VARCHAR(50),
+  `ReservationEmplacement` VARCHAR(50),
+  `MetreLineaire` INT,
+  `RCN_` VARCHAR(50),
+  `PersonneId` INT,
+  PRIMARY KEY (`BrocanteurId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reservation` (
+  `ReservationId` INT NOT NULL,
+  `Date` DATE,
+  `nombrePlace` INT,
+  `BrocanteurId` INT,
+  PRIMARY KEY (`ReservationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Payement` (
+  `PayementId` INT NOT NULL,
+  `Montant` DOUBLE,
+  `Date` DATE,
+  `ModePayement` VARCHAR(50),
+  `ReservationId` INT,
+  PRIMARY KEY (`PayementId`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_540181_Brocante') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_540181_Brocante') AS relationships;
+DROP DATABASE `db_540181_Brocante`;
+UNINSTALL EXTENSION vsql_schematron;

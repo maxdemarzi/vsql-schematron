@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 362575_problems
+#
+CREATE DATABASE `db_362575_problems`;
+USE `db_362575_problems`;
+CREATE TABLE `apartaments` (
+`id` INT NOT NULL,
+`unit` VARCHAR(50),
+`building_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `buildings` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`address` VARCHAR(50),
+`complex_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `complexes` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tenants` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `requests` (
+`id` INT NOT NULL,
+`status` VARCHAR(50),
+`apartament_id` INT,
+`description` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_362575_problems') AS relationships;
+relationships
+Database: db_362575_problems
+
+Table Connections:
+------------------
+[Implied]  apartaments.building_id -> buildings.id
+[Implied]  buildings.complex_id -> complexes.id
+[Implied]  requests.apartament_id -> apartaments.id
+
+DROP DATABASE `db_362575_problems`;
+UNINSTALL EXTENSION vsql_schematron;

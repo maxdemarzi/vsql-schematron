@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 071338_6_implement
+--echo #
+CREATE DATABASE `db_071338_6_implement`;
+USE `db_071338_6_implement`;
+CREATE TABLE `customers` (
+  `customers_id` INT NOT NULL,
+  `customers_first_name` VARCHAR(50),
+  `customers_last_name` VARCHAR(50),
+  `customers_address` VARCHAR(50),
+  `customers_deposit` TINYINT,
+  PRIMARY KEY (`customers_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books` (
+  `books_id` INT NOT NULL,
+  `books_title` VARCHAR(50),
+  `books_editor` VARCHAR(50),
+  `books_date_purchase` DATE,
+  `books_borrow_date` DATE,
+  `books_condition` VARCHAR(50),
+  `customers_id` INT,
+  PRIMARY KEY (`books_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `writers` (
+  `writers_id` INT NOT NULL,
+  `writers_first_name` VARCHAR(50),
+  `writers_last_name` VARCHAR(50),
+  PRIMARY KEY (`writers_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `draft` (
+  `books_id` INT,
+  `writers_id` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_071338_6_implement') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_071338_6_implement') AS relationships;
+DROP DATABASE `db_071338_6_implement`;
+UNINSTALL EXTENSION vsql_schematron;

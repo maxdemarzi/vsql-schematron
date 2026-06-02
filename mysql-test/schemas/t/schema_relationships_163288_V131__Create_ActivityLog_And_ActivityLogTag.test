@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 163288_V131__Create_ActivityLog_And_ActivityLogTag
+--echo #
+CREATE DATABASE `db_163288_V131__Create_ActivityLog_And_ActivityLogTag`;
+USE `db_163288_V131__Create_ActivityLog_And_ActivityLogTag`;
+CREATE TABLE `ActivityLog` (
+  `Id` INT NOT NULL,
+  `UserId` INT,
+  `Message` VARCHAR(50),
+  `Timestamp` TIMESTAMP NULL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ActivityLogTag` (
+  `Id` INT NOT NULL,
+  `ActivityLogId` INT,
+  `Tag` VARCHAR(50),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_163288_V131__Create_ActivityLog_And_ActivityLogTag') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_163288_V131__Create_ActivityLog_And_ActivityLogTag') AS relationships;
+DROP DATABASE `db_163288_V131__Create_ActivityLog_And_ActivityLogTag`;
+UNINSTALL EXTENSION vsql_schematron;

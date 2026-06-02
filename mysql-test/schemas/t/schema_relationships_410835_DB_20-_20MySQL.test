@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 410835_DB%20-%20MySQL
+--echo #
+CREATE DATABASE `db_410835_DB_20__20MySQL`;
+USE `db_410835_DB_20__20MySQL`;
+CREATE TABLE `Report` (
+  `ID` VARCHAR(50) NOT NULL,
+  `RVersion` VARCHAR(50),
+  `RHost` VARCHAR(50),
+  `RHostComment` VARCHAR(50),
+  `RUser` VARCHAR(50),
+  `RLocation` VARCHAR(50),
+  `RDateTime` VARCHAR(50),
+  `RComplete` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Item` (
+  `INum` INT,
+  `IPage` VARCHAR(50),
+  `IDevice` VARCHAR(50),
+  `IGroup` VARCHAR(50),
+  `IField` VARCHAR(50),
+  `IValue` VARCHAR(50),
+  `IIcon` INT,
+  `IID` INT,
+  `ReportID` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `NextID` (
+  `TableName` VARCHAR(50) NOT NULL,
+  `NextID` INT,
+  PRIMARY KEY (`TableName`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_410835_DB_20__20MySQL') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_410835_DB_20__20MySQL') AS relationships;
+DROP DATABASE `db_410835_DB_20__20MySQL`;
+UNINSTALL EXTENSION vsql_schematron;

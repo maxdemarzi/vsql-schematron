@@ -1,0 +1,34 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 045932_groups
+--echo #
+CREATE DATABASE `db_045932_groups`;
+USE `db_045932_groups`;
+CREATE TABLE `groups` (
+  `id` INT NOT NULL,
+  `group_type_fk` INT,
+  `nr_in_group` INT,
+  `parent_fk` INT,
+  `honor_name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_045932_groups') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_045932_groups') AS relationships;
+DROP DATABASE `db_045932_groups`;
+UNINSTALL EXTENSION vsql_schematron;

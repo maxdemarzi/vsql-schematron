@@ -1,0 +1,33 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 325806_db
+#
+CREATE DATABASE `db_325806_db`;
+USE `db_325806_db`;
+CREATE TABLE `user` (
+`ID` INT NOT NULL,
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+`createdAt` TIMESTAMP NULL,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`ID` INT NOT NULL,
+`parentID` INT,
+`ownerID` INT,
+`title` VARCHAR(50),
+`content` VARCHAR(50),
+`createdAt` TIMESTAMP NULL,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_325806_db') AS relationships;
+relationships
+Database: db_325806_db
+
+Table Connections:
+------------------
+[Implied]  post.ownerID -> user.ID
+[Implied]  post.parentID -> post.ID
+
+DROP DATABASE `db_325806_db`;
+UNINSTALL EXTENSION vsql_schematron;

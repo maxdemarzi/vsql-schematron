@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 525226_basketbal
+#
+CREATE DATABASE `db_525226_basketbal`;
+USE `db_525226_basketbal`;
+CREATE TABLE `ACCOUNT` (
+`USER_ID` VARCHAR(50) NOT NULL,
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`hash` VARCHAR(50),
+`type` TINYINT,
+PRIMARY KEY (`USER_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `TEAM` (
+`TeamID` VARCHAR(50) NOT NULL,
+`TeamName` VARCHAR(50),
+PRIMARY KEY (`TeamID`)
+) CHARACTER SET latin1;
+CREATE TABLE `GAME` (
+`GameID` VARCHAR(50) NOT NULL,
+`StartDate` DATE,
+`TimeSchedule` TIME,
+`ATeamID` VARCHAR(50),
+`BTeamID` VARCHAR(50),
+PRIMARY KEY (`GameID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Statistics` (
+`ID` VARCHAR(50) NOT NULL,
+`PlayerId` VARCHAR(50),
+`PlayingTimeMin` VARCHAR(50),
+`PlayingTimeSec` VARCHAR(50),
+`Points` VARCHAR(50),
+`Assists` VARCHAR(50),
+`Rebounds` VARCHAR(50),
+`GameId` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_525226_basketbal') AS relationships;
+relationships
+Database: db_525226_basketbal
+
+Table Connections:
+------------------
+[Implied]  GAME.ATeamID -> TEAM.TeamID
+[Implied]  GAME.BTeamID -> TEAM.TeamID
+[Implied]  Statistics.GameId -> GAME.GameID
+
+DROP DATABASE `db_525226_basketbal`;
+UNINSTALL EXTENSION vsql_schematron;

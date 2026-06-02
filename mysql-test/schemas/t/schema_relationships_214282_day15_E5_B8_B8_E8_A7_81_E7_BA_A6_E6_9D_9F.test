@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 214282_day15%E5%B8%B8%E8%A7%81%E7%BA%A6%E6%9D%9F
+--echo #
+CREATE DATABASE `db_214282_day15_E5_B8_B8_E8_A7_81_E7_BA_A6_E6_9D_9F`;
+USE `db_214282_day15_E5_B8_B8_E8_A7_81_E7_BA_A6_E6_9D_9F`;
+CREATE TABLE `stuinfo` (
+  `id` INT NOT NULL,
+  `stuname` VARCHAR(50),
+  `sex` CHAR(50),
+  `age` INT,
+  `seat` INT,
+  `majorid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `major` (
+  `id` INT NOT NULL,
+  `majorName` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_214282_day15_E5_B8_B8_E8_A7_81_E7_BA_A6_E6_9D_9F') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_214282_day15_E5_B8_B8_E8_A7_81_E7_BA_A6_E6_9D_9F') AS relationships;
+DROP DATABASE `db_214282_day15_E5_B8_B8_E8_A7_81_E7_BA_A6_E6_9D_9F`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 472428_migrate.sqlite
+#
+CREATE DATABASE `db_472428_migrate_sqlite`;
+USE `db_472428_migrate_sqlite`;
+CREATE TABLE `language` (
+`iso_code` VARCHAR(50),
+`name` VARCHAR(50),
+`id` INT NOT NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lexeme` (
+`lemma` VARCHAR(50),
+`gloss` VARCHAR(50),
+`subscript` INT,
+`language_id` INT,
+`id` INT NOT NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `word` (
+`form` VARCHAR(50),
+`parsing` VARCHAR(50),
+`gloss` VARCHAR(50),
+`lexeme_id` INT,
+`id` INT NOT NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document` (
+`title` VARCHAR(50),
+`author` VARCHAR(50),
+`language_id` INT,
+`file_url` VARCHAR(50),
+`id` INT NOT NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `token` (
+`identifier` VARCHAR(50),
+`gloss` VARCHAR(50),
+`document_id` INT,
+`id` INT NOT NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `token_words` (
+`token_id` INT,
+`word_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_472428_migrate_sqlite') AS relationships;
+relationships
+Database: db_472428_migrate_sqlite
+
+Table Connections:
+------------------
+[Implied]  document.language_id -> language.id
+[Implied]  lexeme.language_id -> language.id
+[Implied]  token.document_id -> document.id
+[Implied]  token_words.token_id -> token.id
+[Implied]  token_words.word_id -> word.id
+[Implied]  word.lexeme_id -> lexeme.id
+
+DROP DATABASE `db_472428_migrate_sqlite`;
+UNINSTALL EXTENSION vsql_schematron;

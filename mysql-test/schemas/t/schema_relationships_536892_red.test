@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 536892_red
+--echo #
+CREATE DATABASE `db_536892_red`;
+USE `db_536892_red`;
+CREATE TABLE `category` (
+  `id` INT NOT NULL,
+  `category_name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `migration` (
+  `version` VARCHAR(50) NOT NULL,
+  `apply_time` INT,
+  PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+CREATE TABLE `news` (
+  `id` INT,
+  `image` VARCHAR(50),
+  `title` VARCHAR(50),
+  `content` TEXT,
+  `status` TINYINT,
+  `chosen` TINYINT,
+  `category_id` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_536892_red') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_536892_red') AS relationships;
+DROP DATABASE `db_536892_red`;
+UNINSTALL EXTENSION vsql_schematron;

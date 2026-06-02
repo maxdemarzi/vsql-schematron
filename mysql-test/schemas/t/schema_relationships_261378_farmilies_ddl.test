@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 261378_farmilies.ddl
+--echo #
+CREATE DATABASE `db_261378_farmilies_ddl`;
+USE `db_261378_farmilies_ddl`;
+CREATE TABLE `LOCATIONS` (
+  `id` DECIMAL(10,2) NOT NULL,
+  `address_name` VARCHAR(50),
+  `address_type` VARCHAR(50),
+  `x` DOUBLE,
+  `y` DOUBLE,
+  `region_address` VARCHAR(50),
+  `road_address` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER_GROUPS` (
+  `id` DECIMAL(10,2) NOT NULL,
+  `name` VARCHAR(50),
+  `update_at` DATE,
+  `create_at` DATE,
+  `location_id` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PICTURES` (
+  `id` DECIMAL(10,2) NOT NULL,
+  `picname` VARCHAR(50),
+  `picture` BLOB,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `USERS` (
+  `id` VARCHAR(50) NOT NULL,
+  `update_at` DATE,
+  `create_at` DATE,
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  `first_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `group_id` DECIMAL(10,2),
+  `picture_id` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PAGES` (
+  `id` DECIMAL(10,2) NOT NULL,
+  `user_id` VARCHAR(50),
+  `title` VARCHAR(50),
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `REVIEWS` (
+  `id` DECIMAL(10,2) NOT NULL,
+  `rating` DECIMAL(10,2),
+  `comments` VARCHAR(50),
+  `user_id` VARCHAR(50),
+  `page_id` DECIMAL(10,2),
+  `host_user_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_261378_farmilies_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_261378_farmilies_ddl') AS relationships;
+DROP DATABASE `db_261378_farmilies_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

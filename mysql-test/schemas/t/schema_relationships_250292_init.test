@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 250292_init
+--echo #
+CREATE DATABASE `db_250292_init`;
+USE `db_250292_init`;
+CREATE TABLE `apis` (
+  `api_id` VARCHAR(50) NOT NULL,
+  `name` VARCHAR(50),
+  `ticker1` VARCHAR(50),
+  `ticker2` VARCHAR(50),
+  `online` BOOLEAN,
+  PRIMARY KEY (`api_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `requests` (
+  `request_id` VARCHAR(50) NOT NULL,
+  `api_id` CHAR(50),
+  `client_timestamp` TIMESTAMP NULL,
+  `server_timestamp` TIMESTAMP NULL,
+  `ping` INT,
+  `status_code` INT,
+  `order_book` VARCHAR(50),
+  PRIMARY KEY (`request_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `arbs` (
+  `arb_id` VARCHAR(50) NOT NULL,
+  `client_timestamp` TIMESTAMP NULL,
+  `request_id1` CHAR(50),
+  `request_id2` CHAR(50),
+  `request_id3` CHAR(50),
+  `market` VARCHAR(50),
+  `coin` VARCHAR(50),
+  `arbitrage` VARCHAR(50),
+  PRIMARY KEY (`arb_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `app_orders` (
+  `coin` VARCHAR(50),
+  `market` CHAR(50),
+  `price` DOUBLE,
+  `volume` DOUBLE,
+  `total` DOUBLE,
+  `margin` DOUBLE
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_250292_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_250292_init') AS relationships;
+DROP DATABASE `db_250292_init`;
+UNINSTALL EXTENSION vsql_schematron;

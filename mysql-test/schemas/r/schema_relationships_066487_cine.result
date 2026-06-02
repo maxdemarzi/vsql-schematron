@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 066487_cine
+#
+CREATE DATABASE `db_066487_cine`;
+USE `db_066487_cine`;
+CREATE TABLE `SALAS` (
+`codsala` INT NOT NULL,
+`tipo_sonido` VARCHAR(50),
+`numfilas` INT,
+`numasiporfilas` INT,
+PRIMARY KEY (`codsala`)
+) CHARACTER SET latin1;
+CREATE TABLE `PELICULAS` (
+`codpelicula` INT NOT NULL,
+`titulo` VARCHAR(50),
+`fecha_prod` DATE,
+`genero` VARCHAR(50),
+PRIMARY KEY (`codpelicula`)
+) CHARACTER SET latin1;
+CREATE TABLE `PASES` (
+`codpase` INT NOT NULL,
+`codsala` INT,
+`codpelicula` INT,
+`fecha_pase` DATE,
+`tipo_pase` VARCHAR(50),
+PRIMARY KEY (`codpase`)
+) CHARACTER SET latin1;
+CREATE TABLE `ENTRADAS` (
+`codentrada` INT NOT NULL,
+`numfila` INT,
+`numenfila` INT,
+`codpase` INT,
+`vendido` CHAR(50),
+`comprador` VARCHAR(50),
+`pvp` INT,
+PRIMARY KEY (`codentrada`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_066487_cine') AS relationships;
+relationships
+Database: db_066487_cine
+
+Table Connections:
+------------------
+[Implied]  ENTRADAS.codpase -> PASES.codpase
+[Implied]  PASES.codpelicula -> PELICULAS.codpelicula
+[Implied]  PASES.codsala -> SALAS.codsala
+
+DROP DATABASE `db_066487_cine`;
+UNINSTALL EXTENSION vsql_schematron;

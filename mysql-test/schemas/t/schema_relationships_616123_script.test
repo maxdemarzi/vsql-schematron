@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 616123_script
+--echo #
+CREATE DATABASE `db_616123_script`;
+USE `db_616123_script`;
+CREATE TABLE `hotels` (
+  `hotelId` INT NOT NULL,
+  `name` VARCHAR(50),
+  `location` VARCHAR(50),
+  `description` VARCHAR(50),
+  `owner_id` INT,
+  `employees` INT,
+  `facilities` VARCHAR(50),
+  PRIMARY KEY (`hotelId`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+  `roleId` INT NOT NULL,
+  `description` VARCHAR(50),
+  PRIMARY KEY (`roleId`)
+) CHARACTER SET latin1;
+CREATE TABLE `rooms` (
+  `roomId` INT NOT NULL,
+  `capacity` INT,
+  `price` INT,
+  `smoking` TINYINT,
+  `pet` TINYINT,
+  `hotel_id` INT,
+  PRIMARY KEY (`roomId`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+  `userId` INT NOT NULL,
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  `email` VARCHAR(50),
+  `firstName` VARCHAR(50),
+  `lastName` VARCHAR(50),
+  `gender` VARCHAR(50),
+  `dateOfBirth` VARCHAR(50),
+  `address` VARCHAR(50),
+  `bio` VARCHAR(50),
+  `profilePicture` VARCHAR(50),
+  `role_id` INT,
+  `isActivated` TINYINT,
+  `activationToken` VARCHAR(50),
+  `expirationDate` DATETIME,
+  `hotel_id` INT,
+  `deletedAt` DATETIME,
+  PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `reservations` (
+  `user_id` INT,
+  `hotel_id` INT,
+  `room_id` INT,
+  `reservationId` INT NOT NULL,
+  `startDate` DATETIME,
+  `endDate` DATETIME,
+  `days` VARCHAR(50),
+  `deletedAt` DATETIME,
+  PRIMARY KEY (`reservationId`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_616123_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_616123_script') AS relationships;
+DROP DATABASE `db_616123_script`;
+UNINSTALL EXTENSION vsql_schematron;

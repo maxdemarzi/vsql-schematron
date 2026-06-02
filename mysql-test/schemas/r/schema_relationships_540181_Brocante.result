@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 540181_Brocante
+#
+CREATE DATABASE `db_540181_Brocante`;
+USE `db_540181_Brocante`;
+CREATE TABLE `Role` (
+`RoleId` INT NOT NULL,
+`Titre` VARCHAR(50),
+PRIMARY KEY (`RoleId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Personne` (
+`PersonneId` INT NOT NULL,
+`Nom` VARCHAR(50),
+`Prenom` VARCHAR(50),
+`Telephone` VARCHAR(50),
+`Email` VARCHAR(50),
+`RoleId` INT,
+PRIMARY KEY (`PersonneId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Brocanteur` (
+`BrocanteurId` INT NOT NULL,
+`CarteIdentite` VARCHAR(50),
+`Rue` VARCHAR(50),
+`CP` VARCHAR(50),
+`Ville` VARCHAR(50),
+`ReservationEmplacement` VARCHAR(50),
+`MetreLineaire` INT,
+`RCN_` VARCHAR(50),
+`PersonneId` INT,
+PRIMARY KEY (`BrocanteurId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reservation` (
+`ReservationId` INT NOT NULL,
+`Date` DATE,
+`nombrePlace` INT,
+`BrocanteurId` INT,
+PRIMARY KEY (`ReservationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Payement` (
+`PayementId` INT NOT NULL,
+`Montant` DOUBLE,
+`Date` DATE,
+`ModePayement` VARCHAR(50),
+`ReservationId` INT,
+PRIMARY KEY (`PayementId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_540181_Brocante') AS relationships;
+relationships
+Database: db_540181_Brocante
+
+Table Connections:
+------------------
+[Implied]  Brocanteur.PersonneId -> Personne.PersonneId
+[Implied]  Payement.ReservationId -> Reservation.ReservationId
+[Implied]  Personne.RoleId -> Role.RoleId
+[Implied]  Reservation.BrocanteurId -> Brocanteur.BrocanteurId
+
+DROP DATABASE `db_540181_Brocante`;
+UNINSTALL EXTENSION vsql_schematron;

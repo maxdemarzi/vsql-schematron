@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 015832_migration
+#
+CREATE DATABASE `db_015832_migration`;
+USE `db_015832_migration`;
+CREATE TABLE `User` (
+`id` INT NOT NULL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`name` TEXT,
+`email` TEXT,
+`hashedPassword` TEXT,
+`role` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`id` INT NOT NULL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`expiresAt` DATETIME,
+`handle` TEXT,
+`hashedSessionToken` TEXT,
+`antiCSRFToken` TEXT,
+`publicData` TEXT,
+`privateData` TEXT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Token` (
+`id` INT NOT NULL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`hashedToken` TEXT,
+`type` TEXT,
+`expiresAt` DATETIME,
+`sentTo` TEXT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_015832_migration') AS relationships;
+relationships
+Database: db_015832_migration
+
+Table Connections:
+------------------
+[Implied]  Session.userId -> User.id
+[Implied]  Token.userId -> User.id
+
+DROP DATABASE `db_015832_migration`;
+UNINSTALL EXTENSION vsql_schematron;

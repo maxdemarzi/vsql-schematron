@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 683761_C16394453
+--echo #
+CREATE DATABASE `db_683761_C16394453`;
+USE `db_683761_C16394453`;
+CREATE TABLE `Client` (
+  `clientID` DECIMAL(10,2) NOT NULL,
+  `fullName` VARCHAR(50),
+  `emailAdr` VARCHAR(50),
+  PRIMARY KEY (`clientID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Designer` (
+  `designerID` DECIMAL(10,2) NOT NULL,
+  `fullName` VARCHAR(50),
+  `emailAdr` VARCHAR(50),
+  `dRateofPay` DECIMAL(10,2),
+  PRIMARY KEY (`designerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Specification` (
+  `specID` DECIMAL(10,2) NOT NULL,
+  `specDesc` VARCHAR(50),
+  `specCommission` DECIMAL(10,2),
+  `clientID` DECIMAL(10,2),
+  `designerID` DECIMAL(10,2),
+  `designHrsWorked` DECIMAL(10,2),
+  `specDate` DATE,
+  PRIMARY KEY (`specID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProdType` (
+  `prodCat` CHAR(50),
+  `catDesc` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `Product` (
+  `prodID` DECIMAL(10,2),
+  `prodDescription` VARCHAR(50),
+  `prodUnitPrice` DECIMAL(10,2),
+  `prodQtyInStock` DECIMAL(10,2),
+  `prodCat` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `SpecProd` (
+  `specID` DECIMAL(10,2),
+  `prodID` VARCHAR(50),
+  `qtyUsed` DECIMAL(10,2)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_683761_C16394453') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_683761_C16394453') AS relationships;
+DROP DATABASE `db_683761_C16394453`;
+UNINSTALL EXTENSION vsql_schematron;

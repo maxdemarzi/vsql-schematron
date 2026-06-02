@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 145280_00_creacionTablas
+--echo #
+CREATE DATABASE `db_145280_00_creacionTablas`;
+USE `db_145280_00_creacionTablas`;
+CREATE TABLE `Cliente` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  `apellidos` VARCHAR(50),
+  `fechaNacimiento` DATE,
+  `usuario` VARCHAR(50),
+  `pass` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cupon` (
+  `id` INT NOT NULL,
+  `idCliente` INT,
+  `idSucursal` INT,
+  `fechaEntrega` DATE,
+  `fechaVencimiento` DATE,
+  `utilizado` VARCHAR(50),
+  `valor` DOUBLE,
+  `descripcion` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Telefono` (
+  `id` INT NOT NULL,
+  `idCliente` INT,
+  `telefono` VARCHAR(50),
+  `descripcion` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Correo` (
+  `id` INT NOT NULL,
+  `idCliente` INT,
+  `correo` VARCHAR(50),
+  `descripcion` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_145280_00_creacionTablas') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_145280_00_creacionTablas') AS relationships;
+DROP DATABASE `db_145280_00_creacionTablas`;
+UNINSTALL EXTENSION vsql_schematron;

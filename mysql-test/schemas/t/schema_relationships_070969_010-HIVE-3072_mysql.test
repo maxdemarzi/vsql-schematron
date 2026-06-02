@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 070969_010-HIVE-3072.mysql
+--echo #
+CREATE DATABASE `db_070969_010_HIVE_3072_mysql`;
+USE `db_070969_010_HIVE_3072_mysql`;
+CREATE TABLE `SKEWED_STRING_LIST` (
+  `STRING_LIST_ID` BIGINT NOT NULL,
+  PRIMARY KEY (`STRING_LIST_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SKEWED_VALUES` (
+  `SD_ID_OID` BIGINT NOT NULL,
+  `STRING_LIST_ID_EID` BIGINT,
+  `INTEGER_IDX` INT NOT NULL,
+  PRIMARY KEY (`SD_ID_OID`, `INTEGER_IDX`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_070969_010_HIVE_3072_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_070969_010_HIVE_3072_mysql') AS relationships;
+DROP DATABASE `db_070969_010_HIVE_3072_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

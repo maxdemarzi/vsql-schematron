@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 415193_script01
+#
+CREATE DATABASE `db_415193_script01`;
+USE `db_415193_script01`;
+CREATE TABLE `CLIENT` (
+`id_client` INT NOT NULL,
+`nom` VARCHAR(50),
+`prenom` VARCHAR(50),
+`adresse` VARCHAR(50),
+`telephone` CHAR(50),
+PRIMARY KEY (`id_client`)
+) CHARACTER SET latin1;
+CREATE TABLE `FACTURE` (
+`id_facture` INT NOT NULL,
+`facture_number` INT,
+`facture_date` DATE,
+`id_client` INT,
+PRIMARY KEY (`id_facture`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRODUIT` (
+`id_product` INT NOT NULL,
+`reference_number` INT,
+`designation` VARCHAR(50),
+`prix_unitaire` DECIMAL(10,2),
+PRIMARY KEY (`id_product`)
+) CHARACTER SET latin1;
+CREATE TABLE `PAYMENT` (
+`id_payment` INT NOT NULL,
+`payment_date` DATE,
+`montant` DECIMAL(10,2),
+`id_facture` INT,
+PRIMARY KEY (`id_payment`)
+) CHARACTER SET latin1;
+CREATE TABLE `COMMANDER` (
+`id_commande` INT NOT NULL,
+`qte_commande` INT,
+`id_product` INT,
+`id_facture` INT,
+PRIMARY KEY (`id_commande`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_415193_script01') AS relationships;
+relationships
+Database: db_415193_script01
+
+Table Connections:
+------------------
+[Implied]  COMMANDER.id_facture -> FACTURE.id_facture
+[Implied]  COMMANDER.id_product -> PRODUIT.id_product
+[Implied]  FACTURE.id_client -> CLIENT.id_client
+[Implied]  PAYMENT.id_facture -> FACTURE.id_facture
+
+DROP DATABASE `db_415193_script01`;
+UNINSTALL EXTENSION vsql_schematron;

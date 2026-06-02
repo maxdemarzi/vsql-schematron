@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 679983_Script
+--echo #
+CREATE DATABASE `db_679983_Script`;
+USE `db_679983_Script`;
+CREATE TABLE `customer` (
+  `customer_id` INT NOT NULL,
+  `customer_name` VARCHAR(50),
+  `contact_number` INT,
+  `email` VARCHAR(50),
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movie` (
+  `movie_id` INT NOT NULL,
+  `movie_name` VARCHAR(50),
+  `description` VARCHAR(50),
+  `duration` INT,
+  `genre` VARCHAR(50),
+  `release_date` DATE,
+  `movie_poster_link` VARCHAR(50),
+  `start_time` DATETIME,
+  PRIMARY KEY (`movie_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `seat` (
+  `seat_id` INT NOT NULL,
+  `seat_type` VARCHAR(50),
+  `seat_number` INT,
+  `price` DOUBLE,
+  `seat_name` VARCHAR(50),
+  `movie_id` INT,
+  PRIMARY KEY (`seat_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reservation` (
+  `reservation_id` INT NOT NULL,
+  `reservation_confirmed_date` DATETIME,
+  `reservation_start_timestamp` DATETIME,
+  `reservation_end_timestamp` DATETIME,
+  `reservation_status` VARCHAR(50),
+  `customer_id` INT,
+  `seat_id` INT,
+  PRIMARY KEY (`reservation_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_679983_Script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_679983_Script') AS relationships;
+DROP DATABASE `db_679983_Script`;
+UNINSTALL EXTENSION vsql_schematron;

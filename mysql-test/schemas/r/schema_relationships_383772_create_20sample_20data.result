@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 383772_create%20sample%20data
+#
+CREATE DATABASE `db_383772_create_20sample_20data`;
+USE `db_383772_create_20sample_20data`;
+CREATE TABLE `dept` (
+`deptno` DECIMAL(10,2) NOT NULL,
+`dname` VARCHAR(50),
+`loc` VARCHAR(50),
+PRIMARY KEY (`deptno`)
+) CHARACTER SET latin1;
+CREATE TABLE `emp` (
+`empno` DECIMAL(10,2) NOT NULL,
+`ename` VARCHAR(50),
+`job` VARCHAR(50),
+`mgr` DECIMAL(10,2),
+`hiredate` DATE,
+`sal` DECIMAL(10,2),
+`comm` DECIMAL(10,2),
+`deptno` DECIMAL(10,2),
+PRIMARY KEY (`empno`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`prodid` DECIMAL(10,2) NOT NULL,
+`prodname` VARCHAR(50),
+`qty` DECIMAL(10,2),
+`description` VARCHAR(50),
+PRIMARY KEY (`prodid`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`prodid` DECIMAL(10,2),
+`orderid` DECIMAL(10,2) NOT NULL,
+`qty_sold` DECIMAL(10,2),
+`price` DECIMAL(10,2),
+`order_dt` DATE,
+PRIMARY KEY (`orderid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_383772_create_20sample_20data') AS relationships;
+relationships
+Database: db_383772_create_20sample_20data
+
+Table Connections:
+------------------
+[Implied]  emp.deptno -> dept.deptno
+[Implied]  emp.mgr -> emp.empno
+[Implied]  orders.prodid -> products.prodid
+
+DROP DATABASE `db_383772_create_20sample_20data`;
+UNINSTALL EXTENSION vsql_schematron;

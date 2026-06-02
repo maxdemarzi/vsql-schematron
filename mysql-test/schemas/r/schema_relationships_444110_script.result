@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 444110_script
+#
+CREATE DATABASE `db_444110_script`;
+USE `db_444110_script`;
+CREATE TABLE `user` (
+`id_user` INT NOT NULL,
+`nickname` VARCHAR(50),
+`email` VARCHAR(50),
+`name` VARCHAR(50),
+`password` VARCHAR(50),
+`idiom` VARCHAR(50),
+`theme_is_night` BOOLEAN,
+PRIMARY KEY (`id_user`)
+) CHARACTER SET latin1;
+CREATE TABLE `makeup` (
+`id_makeup` INT NOT NULL,
+`name` VARCHAR(50),
+`id_brand` INT,
+`id_type` INT,
+PRIMARY KEY (`id_makeup`)
+) CHARACTER SET latin1;
+CREATE TABLE `brand` (
+`id_brand` INT NOT NULL,
+`name_brand` VARCHAR(50),
+PRIMARY KEY (`id_brand`)
+) CHARACTER SET latin1;
+CREATE TABLE `type` (
+`id_type` INT NOT NULL,
+`name_type` VARCHAR(50),
+PRIMARY KEY (`id_type`)
+) CHARACTER SET latin1;
+CREATE TABLE `favorites` (
+`id_favorite` INT NOT NULL,
+`id_user` INT,
+`id_makeup` INT,
+PRIMARY KEY (`id_favorite`)
+) CHARACTER SET latin1;
+CREATE TABLE `location` (
+`id_location` INT NOT NULL,
+`id_user` INT,
+`id_country` INT,
+`location_city_state` INT,
+`address` VARCHAR(50),
+`district` VARCHAR(50),
+`number` INT,
+`postal_code` VARCHAR(50),
+`correct_position` BOOLEAN,
+PRIMARY KEY (`id_location`)
+) CHARACTER SET latin1;
+CREATE TABLE `state_city` (
+`id_state_city` INT NOT NULL,
+`name_state` VARCHAR(50),
+`name_city` VARCHAR(50),
+PRIMARY KEY (`id_state_city`)
+) CHARACTER SET latin1;
+CREATE TABLE `country` (
+`id_country` INT NOT NULL,
+`country` VARCHAR(50),
+PRIMARY KEY (`id_country`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_444110_script') AS relationships;
+relationships
+Database: db_444110_script
+
+Table Connections:
+------------------
+[Implied]  favorites.id_makeup -> makeup.id_makeup
+[Implied]  favorites.id_user -> user.id_user
+[Implied]  location.id_country -> country.id_country
+[Implied]  location.id_user -> user.id_user
+[Implied]  location.location_city_state -> state_city.id_state_city
+[Implied]  makeup.id_brand -> brand.id_brand
+[Implied]  makeup.id_type -> type.id_type
+
+DROP DATABASE `db_444110_script`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 284423_initGlobalDb
+#
+CREATE DATABASE `db_284423_initGlobalDb`;
+USE `db_284423_initGlobalDb`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`username` TEXT,
+`pw` TEXT,
+`register_date` DECIMAL(10,2),
+`plan` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `emails` (
+`id` INT NOT NULL,
+`user_id` INT,
+`email` TEXT,
+`token` TEXT,
+`verified` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pushregs` (
+`endpoint_uri` VARCHAR(50) NOT NULL,
+`p256dh` VARCHAR(50) NOT NULL,
+`auth` VARCHAR(50) NOT NULL,
+`seed` INT,
+`alg` INT,
+`avg_interval` INT,
+PRIMARY KEY (`endpoint_uri`, `p256dh`, `auth`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_284423_initGlobalDb') AS relationships;
+relationships
+Database: db_284423_initGlobalDb
+
+Table Connections:
+------------------
+[Implied]  emails.user_id -> users.id
+
+DROP DATABASE `db_284423_initGlobalDb`;
+UNINSTALL EXTENSION vsql_schematron;

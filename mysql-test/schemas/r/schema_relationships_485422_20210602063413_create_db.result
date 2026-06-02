@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 485422_20210602063413_create_db
+#
+CREATE DATABASE `db_485422_20210602063413_create_db`;
+USE `db_485422_20210602063413_create_db`;
+CREATE TABLE `users` (
+`id` VARCHAR(50) NOT NULL,
+`created_at` TIMESTAMP NULL,
+`twitter_user_id` TEXT,
+`twitter_name` TEXT,
+`twitter_handle` TEXT,
+`profile_url` TEXT,
+`profile_image` TEXT,
+`followers_count` BIGINT,
+`following_count` BIGINT,
+`listed_count` BIGINT,
+`tweet_count` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tweets` (
+`id` VARCHAR(50) NOT NULL,
+`created_at` TIMESTAMP NULL,
+`tweet_id` TEXT,
+`tweet_created_at` TIMESTAMP NULL,
+`tweet_text` TEXT,
+`tweet_url` TEXT,
+`replied_to_tweet_id` TEXT,
+`quoted_tweet_id` TEXT,
+`tweet_class` TEXT,
+`like_count` BIGINT,
+`quote_count` BIGINT,
+`reply_count` BIGINT,
+`retweet_count` BIGINT,
+`total_retweet_count` BIGINT,
+`popularity_count` BIGINT,
+`user_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `media` (
+`id` VARCHAR(50) NOT NULL,
+`created_at` TIMESTAMP NULL,
+`media_key` TEXT,
+`media_type` TEXT,
+`display_url` TEXT,
+`tweet_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_485422_20210602063413_create_db') AS relationships;
+relationships
+Database: db_485422_20210602063413_create_db
+
+Table Connections:
+------------------
+[Implied]  media.tweet_id -> tweets.id
+[Implied]  tweets.user_id -> users.id
+
+DROP DATABASE `db_485422_20210602063413_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,127 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 465209_schema
+--echo #
+CREATE DATABASE `db_465209_schema`;
+USE `db_465209_schema`;
+CREATE TABLE `t_address` (
+  `id` VARCHAR(50) NOT NULL,
+  `created_date` DATETIME,
+  `updated_date` DATETIME,
+  `block` VARCHAR(50),
+  `colony` VARCHAR(50),
+  `country` VARCHAR(50),
+  `deleted` VARCHAR(50),
+  `ext_number` VARCHAR(50),
+  `int_number` VARCHAR(50),
+  `municipality` VARCHAR(50),
+  `number` VARCHAR(50),
+  `state` VARCHAR(50),
+  `street` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_chef` (
+  `id` VARCHAR(50) NOT NULL,
+  `created_date` DATETIME,
+  `updated_date` DATETIME,
+  `active` VARCHAR(50),
+  `country` VARCHAR(50),
+  `curp` VARCHAR(50),
+  `deleted` VARCHAR(50),
+  `rating` DOUBLE,
+  `rfc` VARCHAR(50),
+  `status` VARCHAR(50),
+  `fk_id_account` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_telephone` (
+  `id` VARCHAR(50) NOT NULL,
+  `lada` VARCHAR(50),
+  `name` VARCHAR(50),
+  `number` VARCHAR(50),
+  `type` VARCHAR(50),
+  `fk_id_chef` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_client` (
+  `id` VARCHAR(50) NOT NULL,
+  `created_date` DATETIME,
+  `updated_date` DATETIME,
+  `country` VARCHAR(50),
+  `deleted` VARCHAR(50),
+  `email` VARCHAR(50),
+  `fist_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `rating` DOUBLE,
+  `secret` VARCHAR(50),
+  `status` VARCHAR(50),
+  `fk_id_telephone` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_dish` (
+  `id` VARCHAR(50) NOT NULL,
+  `created_date` DATETIME,
+  `updated_date` DATETIME,
+  `active` VARCHAR(50),
+  `allergens` VARCHAR(50),
+  `deleted` VARCHAR(50),
+  `description` VARCHAR(50),
+  `name` VARCHAR(50),
+  `path_image` VARCHAR(50),
+  `price` DOUBLE,
+  `type` VARCHAR(50),
+  `uuid_image` VARCHAR(50),
+  `fk_id_chef` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_order` (
+  `id` VARCHAR(50) NOT NULL,
+  `created_date` DATETIME,
+  `updated_date` DATETIME,
+  `comment` VARCHAR(50),
+  `deleted` VARCHAR(50),
+  `finished_date` DATETIME,
+  `latitude` DOUBLE,
+  `longitude` DOUBLE,
+  `registered_date` DATETIME,
+  `rejected_date` DATETIME,
+  `scheduled_date` VARCHAR(50),
+  `status` VARCHAR(50),
+  `time_zone` VARCHAR(50),
+  `total` DOUBLE,
+  `fk_id_address` VARCHAR(50),
+  `fk_id_chef` VARCHAR(50),
+  `fk_id_client` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_package` (
+  `id` VARCHAR(50) NOT NULL,
+  `created_date` DATETIME,
+  `updated_date` DATETIME,
+  `deleted` VARCHAR(50),
+  `price` DOUBLE,
+  `quantity` INT,
+  `fk_id_dish` VARCHAR(50),
+  `fk_id_order` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_465209_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_465209_schema') AS relationships;
+DROP DATABASE `db_465209_schema`;
+UNINSTALL EXTENSION vsql_schematron;

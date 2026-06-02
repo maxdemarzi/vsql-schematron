@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 623274_postgres
+#
+CREATE DATABASE `db_623274_postgres`;
+USE `db_623274_postgres`;
+CREATE TABLE `adventurers` (
+`id` BIGINT NOT NULL,
+`username` CHAR(50),
+`password_hash` CHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dungeons` (
+`id` BIGINT NOT NULL,
+`name` CHAR(50),
+`level_data` TEXT,
+`adventurer_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `result` (
+`id` BIGINT NOT NULL,
+`dungeon_id` BIGINT,
+`is_win` BOOLEAN,
+`turns` INT,
+`rating` INT,
+`adventurer_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tokens` (
+`id` BIGINT NOT NULL,
+`adventurer_id` BIGINT,
+`pointintime` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_623274_postgres') AS relationships;
+relationships
+Database: db_623274_postgres
+
+Table Connections:
+------------------
+[Implied]  dungeons.adventurer_id -> adventurers.id
+[Implied]  result.adventurer_id -> adventurers.id
+[Implied]  result.dungeon_id -> dungeons.id
+[Implied]  tokens.adventurer_id -> adventurers.id
+
+DROP DATABASE `db_623274_postgres`;
+UNINSTALL EXTENSION vsql_schematron;

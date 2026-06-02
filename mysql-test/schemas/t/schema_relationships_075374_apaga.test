@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 075374_apaga
+--echo #
+CREATE DATABASE `db_075374_apaga`;
+USE `db_075374_apaga`;
+CREATE TABLE `dim_cliente` (
+  `sk_cliente` DECIMAL(10,2) NOT NULL,
+  `cd_cliente` DECIMAL(10,2),
+  `nm_cliente` VARCHAR(50),
+  `nm_cidade` VARCHAR(50),
+  `sg_uf` VARCHAR(50),
+  PRIMARY KEY (`sk_cliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `dim_operacao` (
+  `sk_operador` DECIMAL(10,2) NOT NULL,
+  `cd_operacao` DECIMAL(10,2),
+  `nm_operacao` VARCHAR(50),
+  PRIMARY KEY (`sk_operador`)
+) CHARACTER SET latin1;
+CREATE TABLE `dim_produto` (
+  `sk_produto` DECIMAL(10,2) NOT NULL,
+  `cd_produto` DECIMAL(10,2),
+  `nm_produto` VARCHAR(50),
+  `nm_familia` VARCHAR(50),
+  `nm_grupo` VARCHAR(50),
+  `nm_subgrupo` VARCHAR(50),
+  `nm_marca` VARCHAR(50),
+  `nm_linha` VARCHAR(50),
+  PRIMARY KEY (`sk_produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `dim_tempo` (
+  `sk_tempo` DECIMAL(10,2) NOT NULL,
+  `dt_venda` DATE,
+  `nr_dia` DECIMAL(10,2),
+  `nm_dia_semana` VARCHAR(50),
+  `nr_mes` DECIMAL(10,2),
+  `nr_ano` DECIMAL(10,2),
+  PRIMARY KEY (`sk_tempo`)
+) CHARACTER SET latin1;
+CREATE TABLE `dim_vendedor` (
+  `sk_vendedor` DECIMAL(10,2) NOT NULL,
+  `cd_vendedor` DECIMAL(10,2),
+  `nm_vendedor` VARCHAR(50),
+  PRIMARY KEY (`sk_vendedor`)
+) CHARACTER SET latin1;
+CREATE TABLE `fto_venda` (
+  `sk_venda` DECIMAL(10,2) NOT NULL,
+  `qt_venda` DECIMAL(10,2),
+  `vl_preco_bruto` DECIMAL(10,2),
+  `vl_preco_ipi` DECIMAL(10,2),
+  `vl_preco_icms` DECIMAL(10,2),
+  `vl_perc_ipi` DECIMAL(10,2),
+  `vl_perc_icms` DECIMAL(10,2),
+  `sk_produto` DECIMAL(10,2),
+  `sk_cliente` DECIMAL(10,2),
+  `sk_vendedor` DECIMAL(10,2),
+  `sk_operador` DECIMAL(10,2),
+  `sk_tempo` DECIMAL(10,2),
+  PRIMARY KEY (`sk_venda`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_075374_apaga') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_075374_apaga') AS relationships;
+DROP DATABASE `db_075374_apaga`;
+UNINSTALL EXTENSION vsql_schematron;

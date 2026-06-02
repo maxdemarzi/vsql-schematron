@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 406239_Megaclima
+#
+CREATE DATABASE `db_406239_Megaclima`;
+USE `db_406239_Megaclima`;
+CREATE TABLE `cliente` (
+`ID_CLIENTE` INT NOT NULL,
+`NOMBRE` VARCHAR(50),
+`RUT` INT,
+`DIRECCIÓN` VARCHAR(50),
+`TELEFONO` INT,
+`EMAIL` VARCHAR(50),
+`ciudad` VARCHAR(50),
+PRIMARY KEY (`ID_CLIENTE`)
+) CHARACTER SET latin1;
+CREATE TABLE `detalle` (
+`ID_DETALLE` INT NOT NULL,
+`ID_SERVICIO` INT,
+`ID_PEDIDO` INT,
+`FECHA` DATE,
+PRIMARY KEY (`ID_DETALLE`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido` (
+`ID_PEDIDO` INT NOT NULL,
+`FECHA` DATE,
+`ESTADO` VARCHAR(50),
+`ID_CLIENTE` INT,
+`CANTIDAD` INT,
+PRIMARY KEY (`ID_PEDIDO`)
+) CHARACTER SET latin1;
+CREATE TABLE `servicio` (
+`ID_SERVICIO` INT NOT NULL,
+`SERVICIO` VARCHAR(50),
+`VALOR` INT,
+PRIMARY KEY (`ID_SERVICIO`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_406239_Megaclima') AS relationships;
+relationships
+Database: db_406239_Megaclima
+
+Table Connections:
+------------------
+[Implied]  detalle.ID_PEDIDO -> pedido.ID_PEDIDO
+[Implied]  detalle.ID_SERVICIO -> servicio.ID_SERVICIO
+[Implied]  pedido.ID_CLIENTE -> cliente.ID_CLIENTE
+
+DROP DATABASE `db_406239_Megaclima`;
+UNINSTALL EXTENSION vsql_schematron;

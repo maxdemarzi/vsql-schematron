@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 245780_LittleAgenda.db3
+--echo #
+CREATE DATABASE `db_245780_LittleAgenda_db3`;
+USE `db_245780_LittleAgenda_db3`;
+CREATE TABLE `Telephone` (
+  `TelephoneId` VARCHAR(50) NOT NULL,
+  `ContactId` TEXT,
+  `TelephoneContent` TEXT,
+  `ContactType` INT,
+  PRIMARY KEY (`TelephoneId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Email` (
+  `EmailId` VARCHAR(50) NOT NULL,
+  `ContactId` TEXT,
+  `EmailContent` TEXT,
+  `ContactType` INT,
+  PRIMARY KEY (`EmailId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Contact` (
+  `ContactId` VARCHAR(50) NOT NULL,
+  `Name` TEXT,
+  `Observation` TEXT,
+  `FavoriteTag` INT,
+  PRIMARY KEY (`ContactId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Address` (
+  `AddressId` VARCHAR(50) NOT NULL,
+  `ContactId` TEXT,
+  `AddressContent` TEXT,
+  `ContactType` INT,
+  PRIMARY KEY (`AddressId`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_245780_LittleAgenda_db3') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_245780_LittleAgenda_db3') AS relationships;
+DROP DATABASE `db_245780_LittleAgenda_db3`;
+UNINSTALL EXTENSION vsql_schematron;

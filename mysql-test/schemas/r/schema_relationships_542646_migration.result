@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 542646_migration
+#
+CREATE DATABASE `db_542646_migration`;
+USE `db_542646_migration`;
+CREATE TABLE `Product` (
+`id` INT NOT NULL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`name` TEXT,
+`description` TEXT,
+`price` DOUBLE,
+`availability` TEXT,
+`shippingCodeId` INT,
+`brandId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Brand` (
+`id` INT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ShippingCode` (
+`id` INT NOT NULL,
+`name` TEXT,
+`description` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_542646_migration') AS relationships;
+relationships
+Database: db_542646_migration
+
+Table Connections:
+------------------
+[Implied]  Product.brandId -> Brand.id
+[Implied]  Product.shippingCodeId -> ShippingCode.id
+
+DROP DATABASE `db_542646_migration`;
+UNINSTALL EXTENSION vsql_schematron;

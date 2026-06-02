@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 347314_ZenQuery
+--echo #
+CREATE DATABASE `db_347314_ZenQuery`;
+USE `db_347314_ZenQuery`;
+CREATE TABLE `database_connections` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `url` VARCHAR(50),
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `database_connections1_id_seq` (
+  `sequence_name` VARCHAR(50),
+  `last_value` BIGINT,
+  `start_value` BIGINT,
+  `increment_by` BIGINT,
+  `max_value` BIGINT,
+  `min_value` BIGINT,
+  `cache_value` BIGINT,
+  `log_cnt` BIGINT,
+  `is_cycled` BOOLEAN,
+  `is_called` BOOLEAN
+) CHARACTER SET latin1;
+CREATE TABLE `queries` (
+  `id` INT NOT NULL,
+  `key` VARCHAR(50),
+  `database_connection_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `queries_id_seq` (
+  `sequence_name` VARCHAR(50),
+  `last_value` BIGINT,
+  `start_value` BIGINT,
+  `increment_by` BIGINT,
+  `max_value` BIGINT,
+  `min_value` BIGINT,
+  `cache_value` BIGINT,
+  `log_cnt` BIGINT,
+  `is_cycled` BOOLEAN,
+  `is_called` BOOLEAN
+) CHARACTER SET latin1;
+CREATE TABLE `query_versions` (
+  `id` INT NOT NULL,
+  `content` VARCHAR(50),
+  `version` INT,
+  `is_current_version` BOOLEAN,
+  `query_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `query_versions_id_seq` (
+  `sequence_name` VARCHAR(50),
+  `last_value` BIGINT,
+  `start_value` BIGINT,
+  `increment_by` BIGINT,
+  `max_value` BIGINT,
+  `min_value` BIGINT,
+  `cache_value` BIGINT,
+  `log_cnt` BIGINT,
+  `is_cycled` BOOLEAN,
+  `is_called` BOOLEAN
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_347314_ZenQuery') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_347314_ZenQuery') AS relationships;
+DROP DATABASE `db_347314_ZenQuery`;
+UNINSTALL EXTENSION vsql_schematron;

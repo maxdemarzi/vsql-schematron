@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 556361_college
+#
+CREATE DATABASE `db_556361_college`;
+USE `db_556361_college`;
+CREATE TABLE `professors` (
+`id` INT NOT NULL,
+`f_name` CHAR(50),
+`l_name` CHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `students` (
+`id` BIGINT NOT NULL,
+`f_name` CHAR(50),
+`l_name` CHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `courses` (
+`id` BIGINT NOT NULL,
+`name` CHAR(50),
+`professor_id` INT,
+`start_date` TIMESTAMP NULL,
+`is_full` BOOLEAN,
+`description` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `enrollment` (
+`id` BIGINT NOT NULL,
+`course_id` INT,
+`student_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_556361_college') AS relationships;
+relationships
+Database: db_556361_college
+
+Table Connections:
+------------------
+[Implied]  courses.professor_id -> professors.id
+[Implied]  enrollment.course_id -> courses.id
+[Implied]  enrollment.student_id -> students.id
+
+DROP DATABASE `db_556361_college`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 116564_isl
+--echo #
+CREATE DATABASE `db_116564_isl`;
+USE `db_116564_isl`;
+CREATE TABLE `matches` (
+  `mid` INT,
+  `stadium` VARCHAR(50),
+  `tid1` INT,
+  `tid2` INT,
+  `date` DATE
+) CHARACTER SET latin1;
+CREATE TABLE `players` (
+  `pid` INT,
+  `pname` VARCHAR(50),
+  `num` INT,
+  `pos` VARCHAR(50),
+  `tid` INT
+) CHARACTER SET latin1;
+CREATE TABLE `teams` (
+  `tid` INT NOT NULL,
+  `tname` VARCHAR(50),
+  PRIMARY KEY (`tid`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_116564_isl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_116564_isl') AS relationships;
+DROP DATABASE `db_116564_isl`;
+UNINSTALL EXTENSION vsql_schematron;

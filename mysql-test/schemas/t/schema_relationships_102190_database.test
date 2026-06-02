@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 102190_database
+--echo #
+CREATE DATABASE `db_102190_database`;
+USE `db_102190_database`;
+CREATE TABLE `usuario` (
+  `nombre` VARCHAR(50),
+  `apellido` VARCHAR(50),
+  `usuario` VARCHAR(50) NOT NULL,
+  `placa` VARCHAR(50),
+  `capacidadCarro` INT,
+  `bio` VARCHAR(50),
+  `imagenRuta` VARCHAR(50),
+  PRIMARY KEY (`usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `seguidores_siguiendo` (
+  `idSeguidorSiguiente` INT NOT NULL,
+  `idUsuario1Siguiendo` VARCHAR(50),
+  `idUsuario2Seguidor` VARCHAR(50),
+  PRIMARY KEY (`idSeguidorSiguiente`)
+) CHARACTER SET latin1;
+CREATE TABLE `mensaje` (
+  `idMensaje` INT NOT NULL,
+  `idUsuarioRemitente` INT,
+  `idUsuarioRemisor` INT,
+  `contenido` VARCHAR(50),
+  `fecha` DATE,
+  `hora` INT,
+  `ubicacionActual` VARCHAR(50),
+  `tipo` INT,
+  `leido` INT,
+  PRIMARY KEY (`idMensaje`)
+) CHARACTER SET latin1;
+CREATE TABLE `viaje` (
+  `idViaje` INT NOT NULL,
+  `idUsuario` VARCHAR(50),
+  `idRuta` INT,
+  `fecha` VARCHAR(50),
+  PRIMARY KEY (`idViaje`)
+) CHARACTER SET latin1;
+CREATE TABLE `pasajero` (
+  `idPasajero` INT NOT NULL,
+  `idUsuario` VARCHAR(50),
+  `idViaje` INT,
+  PRIMARY KEY (`idPasajero`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_102190_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_102190_database') AS relationships;
+DROP DATABASE `db_102190_database`;
+UNINSTALL EXTENSION vsql_schematron;

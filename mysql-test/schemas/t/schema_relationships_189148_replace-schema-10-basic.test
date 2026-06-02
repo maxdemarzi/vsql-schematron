@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 189148_replace-schema-10-basic
+--echo #
+CREATE DATABASE `db_189148_replace_schema_10_basic`;
+USE `db_189148_replace_schema_10_basic`;
+CREATE TABLE `INFO` (
+  `INFO_ID` BIGINT NOT NULL,
+  `MEMBER_ID` BIGINT,
+  `INFO_NAME` VARCHAR(50),
+  PRIMARY KEY (`INFO_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `MEMBER` (
+  `MEMBER_ID` BIGINT NOT NULL,
+  `NAME` VARCHAR(50),
+  `PASSWORD` VARCHAR(50),
+  PRIMARY KEY (`MEMBER_ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_189148_replace_schema_10_basic') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_189148_replace_schema_10_basic') AS relationships;
+DROP DATABASE `db_189148_replace_schema_10_basic`;
+UNINSTALL EXTENSION vsql_schematron;

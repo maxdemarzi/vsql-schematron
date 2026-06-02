@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 614860_file
+#
+CREATE DATABASE `db_614860_file`;
+USE `db_614860_file`;
+CREATE TABLE `Product` (
+`pid` INT NOT NULL,
+`bid` VARCHAR(50),
+`pname` VARCHAR(50),
+`unit_price` DOUBLE,
+`sid` INT,
+`cid` INT,
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Store` (
+`sid` INT NOT NULL,
+`store_name` VARCHAR(50),
+PRIMARY KEY (`sid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Category` (
+`cid` INT NOT NULL,
+`cname` VARCHAR(50),
+`subc_name` VARCHAR(50),
+PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Supplier` (
+`supplier_id` INT NOT NULL,
+`supplier_name` VARCHAR(50),
+`sid` INT,
+`pid` INT,
+PRIMARY KEY (`supplier_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sale` (
+`sales_id` INT NOT NULL,
+`date` DATE,
+`quantity` INT,
+`sid` INT,
+`pid` INT,
+PRIMARY KEY (`sales_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_614860_file') AS relationships;
+relationships
+Database: db_614860_file
+
+Table Connections:
+------------------
+[Implied]  Product.cid -> Category.cid
+[Implied]  Product.sid -> Store.sid
+[Implied]  Sale.pid -> Product.pid
+[Implied]  Sale.sid -> Store.sid
+[Implied]  Supplier.pid -> Product.pid
+[Implied]  Supplier.sid -> Store.sid
+
+DROP DATABASE `db_614860_file`;
+UNINSTALL EXTENSION vsql_schematron;

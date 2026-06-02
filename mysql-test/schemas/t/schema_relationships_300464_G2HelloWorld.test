@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 300464_G2HelloWorld
+--echo #
+CREATE DATABASE `db_300464_G2HelloWorld`;
+USE `db_300464_G2HelloWorld`;
+CREATE TABLE `HELLO_WORLD` (
+  `HW_PGUID` VARCHAR(50) NOT NULL,
+  `SI_SGUID` CHAR(50),
+  `NAME` VARCHAR(50),
+  PRIMARY KEY (`HW_PGUID`)
+) CHARACTER SET latin1;
+CREATE TABLE `HELLO_MOON` (
+  `HM_PGUID` VARCHAR(50) NOT NULL,
+  `HW_PGUID` CHAR(50),
+  `NAME` VARCHAR(50),
+  PRIMARY KEY (`HM_PGUID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_300464_G2HelloWorld') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_300464_G2HelloWorld') AS relationships;
+DROP DATABASE `db_300464_G2HelloWorld`;
+UNINSTALL EXTENSION vsql_schematron;

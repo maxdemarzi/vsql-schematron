@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 594738_initdb
+--echo #
+CREATE DATABASE `db_594738_initdb`;
+USE `db_594738_initdb`;
+CREATE TABLE `inventories` (
+  `id` INT NOT NULL,
+  `filename` TEXT,
+  `batch_name` TEXT,
+  `batch_number` INT,
+  `batch_date` TEXT,
+  `bytes` INT,
+  `md5` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `assets` (
+  `id` INT NOT NULL,
+  `filename` TEXT,
+  `sourceline` INT,
+  `inventory_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_594738_initdb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_594738_initdb') AS relationships;
+DROP DATABASE `db_594738_initdb`;
+UNINSTALL EXTENSION vsql_schematron;

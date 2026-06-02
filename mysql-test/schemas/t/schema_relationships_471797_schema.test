@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 471797_schema
+--echo #
+CREATE DATABASE `db_471797_schema`;
+USE `db_471797_schema`;
+CREATE TABLE `ticket` (
+  `id` INT NOT NULL,
+  `department` TEXT,
+  `author_name` TEXT,
+  `author_email` TEXT,
+  `author_group` TEXT,
+  `claim_number` TEXT,
+  `created` TIMESTAMP NULL,
+  `resolved` TIMESTAMP NULL,
+  `title` TEXT,
+  `body` TEXT,
+  `response` TEXT,
+  `responder` TEXT,
+  `responder_email` TEXT,
+  `response_time` TIMESTAMP NULL,
+  `response_meeting` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+  `id` INT NOT NULL,
+  `ticket_id` INT,
+  `author_name` TEXT,
+  `author_email` TEXT,
+  `comment` TEXT,
+  `created` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `conversation` (
+  `id` INT NOT NULL,
+  `student_name` TEXT,
+  `student_email` TEXT,
+  `staff_name` TEXT,
+  `staff_email` TEXT,
+  `seen_by_staff` INT,
+  `seen_by_student` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+  `id` INT NOT NULL,
+  `conversation_id` INT,
+  `message` TEXT,
+  `created` TIMESTAMP NULL,
+  `author` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_471797_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_471797_schema') AS relationships;
+DROP DATABASE `db_471797_schema`;
+UNINSTALL EXTENSION vsql_schematron;

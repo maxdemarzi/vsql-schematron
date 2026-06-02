@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 061529_sqlQuery
+#
+CREATE DATABASE `db_061529_sqlQuery`;
+USE `db_061529_sqlQuery`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `folders` (
+`id` INT NOT NULL,
+`user_id` INT,
+`name` VARCHAR(50),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks` (
+`id` INT NOT NULL,
+`user_id` INT,
+`folder_id` INT,
+`title` VARCHAR(50),
+`is_done` BOOLEAN,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_061529_sqlQuery') AS relationships;
+relationships
+Database: db_061529_sqlQuery
+
+Table Connections:
+------------------
+[Implied]  folders.user_id -> users.id
+[Implied]  tasks.folder_id -> folders.id
+[Implied]  tasks.user_id -> users.id
+
+DROP DATABASE `db_061529_sqlQuery`;
+UNINSTALL EXTENSION vsql_schematron;

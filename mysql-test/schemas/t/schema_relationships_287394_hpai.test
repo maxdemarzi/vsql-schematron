@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 287394_hpai
+--echo #
+CREATE DATABASE `db_287394_hpai`;
+USE `db_287394_hpai`;
+CREATE TABLE `t_barang` (
+  `kode_barang` INT NOT NULL,
+  `nama_barang` VARCHAR(50),
+  `harga_barang` VARCHAR(50),
+  `jenis_barang` VARCHAR(50),
+  `jumlah_barang` INT,
+  PRIMARY KEY (`kode_barang`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_transaksi` (
+  `id_transaksi` INT,
+  `t_namaBarang` VARCHAR(50),
+  `t_transaksi` DATE,
+  `jumlah` INT,
+  `kode_barang` INT
+) CHARACTER SET latin1;
+CREATE TABLE `t_user` (
+  `id_user` INT NOT NULL,
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  PRIMARY KEY (`id_user`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_287394_hpai') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_287394_hpai') AS relationships;
+DROP DATABASE `db_287394_hpai`;
+UNINSTALL EXTENSION vsql_schematron;

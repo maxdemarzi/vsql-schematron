@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 043694_V1_1__Initial
+--echo #
+CREATE DATABASE `db_043694_V1_1__Initial`;
+USE `db_043694_V1_1__Initial`;
+CREATE TABLE `arkivpost` (
+  `arkivpostId` DECIMAL(10,2) NOT NULL,
+  `arkivertDato` TIMESTAMP NULL,
+  `mottattDato` TIMESTAMP NULL,
+  `utgaarDato` TIMESTAMP NULL,
+  `tema` VARCHAR(50),
+  `arkivpostType` VARCHAR(50),
+  `dokumentType` VARCHAR(50),
+  `kryssreferanseId` VARCHAR(50),
+  `kanal` VARCHAR(50),
+  `aktoerId` VARCHAR(50),
+  `fodselsnummer` VARCHAR(50),
+  `navIdent` VARCHAR(50),
+  `innhold` VARCHAR(50),
+  `journalfoerendeEnhet` VARCHAR(50),
+  `status` VARCHAR(50),
+  `kategorikode` VARCHAR(50),
+  `signert` DECIMAL(10,2),
+  `erOrganInternt` DECIMAL(10,2),
+  `begrensetPartInnsyn` DECIMAL(10,2),
+  `sensitiv` DECIMAL(10,2),
+  PRIMARY KEY (`arkivpostId`)
+) CHARACTER SET latin1;
+CREATE TABLE `vedlegg` (
+  `arkivpostId` DECIMAL(10,2),
+  `filnavn` VARCHAR(50),
+  `filtype` VARCHAR(50),
+  `variantformat` VARCHAR(50),
+  `tittel` VARCHAR(50),
+  `brevkode` VARCHAR(50),
+  `strukturert` DECIMAL(10,2),
+  `dokument` BLOB
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_043694_V1_1__Initial') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_043694_V1_1__Initial') AS relationships;
+DROP DATABASE `db_043694_V1_1__Initial`;
+UNINSTALL EXTENSION vsql_schematron;

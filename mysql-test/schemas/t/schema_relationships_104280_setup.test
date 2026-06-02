@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 104280_setup
+--echo #
+CREATE DATABASE `db_104280_setup`;
+USE `db_104280_setup`;
+CREATE TABLE `categories` (
+  `category_id` INT NOT NULL,
+  `category_name` VARCHAR(50),
+  PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movies` (
+  `movie_id` INT NOT NULL,
+  `movie_name` VARCHAR(50),
+  `release_date` DATE,
+  `studio` VARCHAR(50),
+  `category_id` INT,
+  PRIMARY KEY (`movie_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cinemas` (
+  `cinema_id` INT NOT NULL,
+  `cinema_name` VARCHAR(50),
+  `location` VARCHAR(50),
+  `operator` VARCHAR(50),
+  PRIMARY KEY (`cinema_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `showings` (
+  `showing_id` INT NOT NULL,
+  `movie_id` INT,
+  `cinema_id` INT,
+  `showing_date` DATE,
+  `showing_time` TIME,
+  PRIMARY KEY (`showing_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+  `user_id` INT NOT NULL,
+  `first_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  `phone_number` VARCHAR(50),
+  `is_admin` BOOLEAN,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tickets` (
+  `ticket_id` INT NOT NULL,
+  `showing_id` INT,
+  `user_id` INT,
+  `seat_id` CHAR(50),
+  PRIMARY KEY (`ticket_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_104280_setup') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_104280_setup') AS relationships;
+DROP DATABASE `db_104280_setup`;
+UNINSTALL EXTENSION vsql_schematron;

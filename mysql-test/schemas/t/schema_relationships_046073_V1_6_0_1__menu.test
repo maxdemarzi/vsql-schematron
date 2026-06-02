@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 046073_V1_6_0_1__menu
+--echo #
+CREATE DATABASE `db_046073_V1_6_0_1__menu`;
+USE `db_046073_V1_6_0_1__menu`;
+CREATE TABLE `AUTH_MENU` (
+  `ID` BIGINT NOT NULL,
+  `TYPE` VARCHAR(50),
+  `CODE` VARCHAR(50),
+  `TITLE` VARCHAR(50),
+  `URL` VARCHAR(50),
+  `PRIORITY` INT,
+  `DESCN` VARCHAR(50),
+  `PARENT_ID` BIGINT,
+  `PERM_ID` BIGINT,
+  `TENANT_ID` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_046073_V1_6_0_1__menu') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_046073_V1_6_0_1__menu') AS relationships;
+DROP DATABASE `db_046073_V1_6_0_1__menu`;
+UNINSTALL EXTENSION vsql_schematron;

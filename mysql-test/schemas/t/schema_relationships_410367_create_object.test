@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 410367_create_object
+--echo #
+CREATE DATABASE `db_410367_create_object`;
+USE `db_410367_create_object`;
+CREATE TABLE `cuoco` (
+  `user_cuoco` VARCHAR(50) NOT NULL,
+  `nome_cuoco` VARCHAR(50),
+  `password` VARCHAR(50),
+  PRIMARY KEY (`user_cuoco`)
+) CHARACTER SET latin1;
+CREATE TABLE `aula` (
+  `nome_aula` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`nome_aula`)
+) CHARACTER SET latin1;
+CREATE TABLE `corso` (
+  `nome_corso` VARCHAR(50) NOT NULL,
+  `docente` VARCHAR(50),
+  `nome_aula` VARCHAR(50),
+  `data_inizio` DATE,
+  `dat_fine` DATE,
+  `prezzo` DECIMAL(10,2),
+  PRIMARY KEY (`nome_corso`)
+) CHARACTER SET latin1;
+CREATE TABLE `questionario` (
+  `id_questionario` INT NOT NULL,
+  `nome_corso` VARCHAR(50),
+  `stelle` DECIMAL(10,2),
+  `user_cuoco` VARCHAR(50),
+  PRIMARY KEY (`id_questionario`)
+) CHARACTER SET latin1;
+CREATE TABLE `registrazione` (
+  `id_registrazione` INT NOT NULL,
+  `nome_corso` VARCHAR(50),
+  `user_cuoco` VARCHAR(50),
+  PRIMARY KEY (`id_registrazione`)
+) CHARACTER SET latin1;
+CREATE TABLE `administrator` (
+  `username` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(50),
+  `nome_admin` VARCHAR(50),
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_410367_create_object') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_410367_create_object') AS relationships;
+DROP DATABASE `db_410367_create_object`;
+UNINSTALL EXTENSION vsql_schematron;

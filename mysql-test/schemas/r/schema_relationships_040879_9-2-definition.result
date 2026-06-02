@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 040879_9-2-definition
+#
+CREATE DATABASE `db_040879_9_2_definition`;
+USE `db_040879_9_2_definition`;
+CREATE TABLE `hosts` (
+`macid` CHAR(50),
+`macvendor` VARCHAR(50),
+`ip` VARCHAR(50),
+`hostname` VARCHAR(50),
+`updated` DATETIME,
+`id` INT NOT NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ports` (
+`id` INT NOT NULL,
+`host_id` INT,
+`state` VARCHAR(50),
+`port` INT,
+`protocol` VARCHAR(50),
+`service` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `os` (
+`id` INT NOT NULL,
+`cpe` VARCHAR(50),
+`osname` VARCHAR(50),
+`accuracy` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `oid` (
+`id` INT NOT NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_040879_9_2_definition') AS relationships;
+relationships
+Database: db_040879_9_2_definition
+
+Table Connections:
+------------------
+[Implied]  ports.host_id -> hosts.id
+
+DROP DATABASE `db_040879_9_2_definition`;
+UNINSTALL EXTENSION vsql_schematron;

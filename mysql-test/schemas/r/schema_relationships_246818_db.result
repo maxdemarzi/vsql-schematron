@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 246818_db
+#
+CREATE DATABASE `db_246818_db`;
+USE `db_246818_db`;
+CREATE TABLE `tblUsers` (
+`userId` INT NOT NULL,
+`firstname` VARCHAR(50),
+`lastname` VARCHAR(50),
+`email` VARCHAR(50),
+`passwordHash` TEXT,
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblItems` (
+`itemId` VARCHAR(50) NOT NULL,
+`description` TEXT,
+`costPrice` DECIMAL(10,2),
+`quantity` DECIMAL(10,2),
+`sellPrice` DECIMAL(10,2),
+PRIMARY KEY (`itemId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblCustomers` (
+`customerId` INT NOT NULL,
+`userId` INT,
+`billingAddress` TEXT,
+PRIMARY KEY (`customerId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblOrders` (
+`orderId` INT NOT NULL,
+`customerId` INT,
+`orderDate` DATETIME,
+`shippingAddress` TEXT,
+PRIMARY KEY (`orderId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblOrderItems` (
+`orderItemId` INT NOT NULL,
+`orderId` INT,
+`itemId` VARCHAR(50),
+`quantity` DECIMAL(10,2),
+PRIMARY KEY (`orderItemId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_246818_db') AS relationships;
+relationships
+Database: db_246818_db
+
+Table Connections:
+------------------
+[Implied]  tblCustomers.userId -> tblUsers.userId
+[Implied]  tblOrderItems.itemId -> tblItems.itemId
+[Implied]  tblOrderItems.orderId -> tblOrders.orderId
+[Implied]  tblOrders.customerId -> tblCustomers.customerId
+
+DROP DATABASE `db_246818_db`;
+UNINSTALL EXTENSION vsql_schematron;

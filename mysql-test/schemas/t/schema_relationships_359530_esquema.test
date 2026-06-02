@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 359530_esquema
+--echo #
+CREATE DATABASE `db_359530_esquema`;
+USE `db_359530_esquema`;
+CREATE TABLE `Equipamento` (
+  `id_equipamento` INT NOT NULL,
+  `tipo` VARCHAR(50),
+  `nome_equipamento` VARCHAR(50),
+  `patrimonio` INT,
+  `fk_fabricante_id` INT,
+  `fk_usuario_id` INT,
+  PRIMARY KEY (`id_equipamento`)
+) CHARACTER SET latin1;
+CREATE TABLE `Fabricante` (
+  `id_fabricante` INT NOT NULL,
+  `nome_fabricante` VARCHAR(50),
+  PRIMARY KEY (`id_fabricante`)
+) CHARACTER SET latin1;
+CREATE TABLE `Local` (
+  `id_local` INT NOT NULL,
+  `nome_local` VARCHAR(50),
+  PRIMARY KEY (`id_local`)
+) CHARACTER SET latin1;
+CREATE TABLE `Emprestimo` (
+  `id_emprestimo` INT NOT NULL,
+  `data_inicio` DATE,
+  `data_fim` DATE,
+  `situacao` VARCHAR(50),
+  `quantidade` INT,
+  `fk_setor_id` INT,
+  `fk_usuario_id` INT,
+  `fk_equipamento_id` INT,
+  PRIMARY KEY (`id_emprestimo`)
+) CHARACTER SET latin1;
+CREATE TABLE `Setor` (
+  `id_setor` INT NOT NULL,
+  `nome_setor` VARCHAR(50),
+  `responsavel` VARCHAR(50),
+  PRIMARY KEY (`id_setor`)
+) CHARACTER SET latin1;
+CREATE TABLE `Usuario` (
+  `id_usuario` INT NOT NULL,
+  `usuario` VARCHAR(50),
+  `nome_usuario` VARCHAR(50),
+  `senha` VARCHAR(50),
+  PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `Estoque_gerencia` (
+  `id_estoque` INT NOT NULL,
+  `quantidade` INT,
+  `fk_equipamento_id` INT,
+  `fk_local_id` INT,
+  PRIMARY KEY (`id_estoque`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_359530_esquema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_359530_esquema') AS relationships;
+DROP DATABASE `db_359530_esquema`;
+UNINSTALL EXTENSION vsql_schematron;

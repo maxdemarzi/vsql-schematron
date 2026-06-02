@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 032235_create_tables
+#
+CREATE DATABASE `db_032235_create_tables`;
+USE `db_032235_create_tables`;
+CREATE TABLE `Conversations` (
+`ID` INT NOT NULL,
+`Title` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+`Name` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Participants` (
+`ID` INT NOT NULL,
+`Conversation_ID` INT,
+`User_Name` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Messages` (
+`ID` INT NOT NULL,
+`Conversation_ID` INT,
+`User_Name` VARCHAR(50),
+`Timestamp` INT,
+`Content` TEXT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_032235_create_tables') AS relationships;
+relationships
+Database: db_032235_create_tables
+
+Table Connections:
+------------------
+[Implied]  Messages.Conversation_ID -> Conversations.ID
+[Implied]  Messages.User_Name -> Users.Name
+[Implied]  Participants.Conversation_ID -> Conversations.ID
+[Implied]  Participants.User_Name -> Users.Name
+
+DROP DATABASE `db_032235_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

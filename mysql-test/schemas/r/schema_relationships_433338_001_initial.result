@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 433338_001_initial
+#
+CREATE DATABASE `db_433338_001_initial`;
+USE `db_433338_001_initial`;
+CREATE TABLE `Repo` (
+`id` INT NOT NULL,
+`name` TEXT,
+`url` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Build` (
+`id` INT NOT NULL,
+`repo_id` INT,
+`ref_type` TEXT,
+`ref` TEXT,
+`sha` TEXT,
+`enqueued` INT,
+`updated` INT,
+`start` INT,
+`end` INT,
+`status` TEXT,
+`extra` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Step` (
+`id` INT NOT NULL,
+`build_id` INT,
+`description` TEXT,
+`start` INT,
+`end` INT,
+`status` TEXT,
+`output` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_433338_001_initial') AS relationships;
+relationships
+Database: db_433338_001_initial
+
+Table Connections:
+------------------
+[Implied]  Build.repo_id -> Repo.id
+[Implied]  Step.build_id -> Build.id
+
+DROP DATABASE `db_433338_001_initial`;
+UNINSTALL EXTENSION vsql_schematron;

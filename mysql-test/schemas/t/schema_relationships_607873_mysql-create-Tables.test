@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 607873_mysql-create-Tables
+--echo #
+CREATE DATABASE `db_607873_mysql_create_Tables`;
+USE `db_607873_mysql_create_Tables`;
+CREATE TABLE `RECIPE` (
+  `ID` BIGINT NOT NULL,
+  `LASTUPDATE` DATETIME,
+  `NOOFPERSON` INT,
+  `PREAMBLE` VARCHAR(50),
+  `PREPARATION` VARCHAR(50),
+  `TITLE` VARCHAR(50),
+  `IMAGE_DESCRIPTION` VARCHAR(50),
+  `IMAGE_URL` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `INGREDIENT` (
+  `ID` BIGINT NOT NULL,
+  `ANNOTATION` VARCHAR(50),
+  `DESCRIPTION` VARCHAR(50),
+  `QUANTITY` VARCHAR(50),
+  `RECIPE_ID` BIGINT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `TAGS` (
+  `RECIPE_ID` BIGINT,
+  `TAGS` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `SEQUENCE` (
+  `SEQ_NAME` VARCHAR(50) NOT NULL,
+  `SEQ_COUNT` DECIMAL(10,2),
+  PRIMARY KEY (`SEQ_NAME`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_607873_mysql_create_Tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_607873_mysql_create_Tables') AS relationships;
+DROP DATABASE `db_607873_mysql_create_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 042629_create_acl_tables
+--echo #
+CREATE DATABASE `db_042629_create_acl_tables`;
+USE `db_042629_create_acl_tables`;
+CREATE TABLE `ACL_SID` (
+  `ID` BIGINT NOT NULL,
+  `PRINCIPAL` BOOLEAN,
+  `SID` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ACL_CLASS` (
+  `ID` BIGINT NOT NULL,
+  `CLASS` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ACL_OBJECT_IDENTITY` (
+  `ID` BIGINT NOT NULL,
+  `OBJECT_ID_CLASS` BIGINT,
+  `OBJECT_ID_IDENTITY` BIGINT,
+  `PARENT_OBJECT` BIGINT,
+  `OWNER_SID` BIGINT,
+  `ENTRIES_INHERITING` BOOLEAN,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ACL_ENTRY` (
+  `ID` BIGINT NOT NULL,
+  `ACL_OBJECT_IDENTITY` BIGINT,
+  `ACE_ORDER` INT,
+  `SID` BIGINT,
+  `MASK` INT,
+  `GRANTING` BOOLEAN,
+  `AUDIT_SUCCESS` BOOLEAN,
+  `AUDIT_FAILURE` BOOLEAN,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_042629_create_acl_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_042629_create_acl_tables') AS relationships;
+DROP DATABASE `db_042629_create_acl_tables`;
+UNINSTALL EXTENSION vsql_schematron;

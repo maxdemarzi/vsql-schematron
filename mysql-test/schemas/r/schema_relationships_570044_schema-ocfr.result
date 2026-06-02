@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 570044_schema-ocfr
+#
+CREATE DATABASE `db_570044_schema_ocfr`;
+USE `db_570044_schema_ocfr`;
+CREATE TABLE `CurrentMembers` (
+`member_id` INT NOT NULL,
+`firstname` VARCHAR(50),
+`lastname` VARCHAR(50),
+`station_number` INT,
+`radio_number` INT,
+`address_street` VARCHAR(50),
+`address_city` VARCHAR(50),
+`address_state` VARCHAR(50),
+`address_zip` INT,
+`email` VARCHAR(50),
+`date_of_birth` DATE,
+`gender` VARCHAR(50),
+`mobile_phone` INT,
+`work_phone` INT,
+`position` VARCHAR(50),
+`isActive` BOOLEAN,
+PRIMARY KEY (`member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Certifications` (
+`certification_id` INT NOT NULL,
+`certifying_agency` VARCHAR(50),
+`certification_name` VARCHAR(50),
+`expiration_period` INT,
+PRIMARY KEY (`certification_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Certified` (
+`certified_id` INT NOT NULL,
+`certification_id` INT,
+`member_id` INT,
+`issued_date` DATE,
+PRIMARY KEY (`certified_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_570044_schema_ocfr') AS relationships;
+relationships
+Database: db_570044_schema_ocfr
+
+Table Connections:
+------------------
+[Implied]  Certified.certification_id -> Certifications.certification_id
+[Implied]  Certified.member_id -> CurrentMembers.member_id
+
+DROP DATABASE `db_570044_schema_ocfr`;
+UNINSTALL EXTENSION vsql_schematron;

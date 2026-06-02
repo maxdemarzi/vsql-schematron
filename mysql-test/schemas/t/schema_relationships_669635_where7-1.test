@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 669635_where7-1
+--echo #
+CREATE DATABASE `db_669635_where7_1`;
+USE `db_669635_where7_1`;
+CREATE TABLE `t301` (
+  `c8` INT NOT NULL,
+  `c6` INT,
+  `c4` INT,
+  `c7` INT,
+  PRIMARY KEY (`c8`)
+) CHARACTER SET latin1;
+CREATE TABLE `t302` (
+  `c1` INT NOT NULL,
+  `c8` INT,
+  `c5` INT,
+  `c3` INT,
+  `c2` INT,
+  `c4` INT,
+  PRIMARY KEY (`c1`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_669635_where7_1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_669635_where7_1') AS relationships;
+DROP DATABASE `db_669635_where7_1`;
+UNINSTALL EXTENSION vsql_schematron;

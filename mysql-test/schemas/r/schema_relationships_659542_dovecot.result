@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 659542_dovecot
+#
+CREATE DATABASE `db_659542_dovecot`;
+USE `db_659542_dovecot`;
+CREATE TABLE `alias` (
+`id` INT NOT NULL,
+`domain_id` INT,
+`alias` VARCHAR(50),
+`target` VARCHAR(50),
+`enabled` TINYINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `domain` (
+`id` INT NOT NULL,
+`domain` VARCHAR(50),
+`enabled` TINYINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT NOT NULL,
+`domain_id` INT,
+`password` VARCHAR(50),
+`user` VARCHAR(50),
+`enabled` TINYINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_659542_dovecot') AS relationships;
+relationships
+Database: db_659542_dovecot
+
+Table Connections:
+------------------
+[Implied]  alias.domain_id -> domain.id
+[Implied]  user.domain_id -> domain.id
+
+DROP DATABASE `db_659542_dovecot`;
+UNINSTALL EXTENSION vsql_schematron;

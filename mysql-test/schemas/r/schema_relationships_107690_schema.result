@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 107690_schema
+#
+CREATE DATABASE `db_107690_schema`;
+USE `db_107690_schema`;
+CREATE TABLE `users` (
+`user_id` VARCHAR(50) NOT NULL,
+`name` TEXT,
+`email` TEXT,
+`roles` VARCHAR(50),
+`password_hash` TEXT,
+`date_created` TIMESTAMP NULL,
+`date_updated` TIMESTAMP NULL,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`product_id` VARCHAR(50) NOT NULL,
+`name` TEXT,
+`cost` INT,
+`quantity` INT,
+`date_created` TIMESTAMP NULL,
+`date_updated` TIMESTAMP NULL,
+PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales` (
+`sale_id` VARCHAR(50) NOT NULL,
+`product_id` VARCHAR(50),
+`quantity` INT,
+`paid` INT,
+`date_created` TIMESTAMP NULL,
+PRIMARY KEY (`sale_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_107690_schema') AS relationships;
+relationships
+Database: db_107690_schema
+
+Table Connections:
+------------------
+[Implied]  sales.product_id -> products.product_id
+
+DROP DATABASE `db_107690_schema`;
+UNINSTALL EXTENSION vsql_schematron;

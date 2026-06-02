@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 258749_SWMDB_Collection_Structure
+#
+CREATE DATABASE `db_258749_SWMDB_Collection_Structure`;
+USE `db_258749_SWMDB_Collection_Structure`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`full_name` VARCHAR(50),
+`gender` VARCHAR(50),
+`dateofbirth` DATE,
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`country_code` INT,
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movies` (
+`movie_id` INT NOT NULL,
+`movie_name` VARCHAR(50),
+`description` VARCHAR(50),
+`genre` VARCHAR(50),
+`released_year` INT,
+`country_code` INT,
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`movie_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `countries` (
+`code` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+CREATE TABLE `reviews` (
+`review_id` INT NOT NULL,
+`movie_id` INT,
+`user_id` INT,
+`reviews` VARCHAR(50),
+`rating` DECIMAL(10,2),
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`review_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_258749_SWMDB_Collection_Structure') AS relationships;
+relationships
+Database: db_258749_SWMDB_Collection_Structure
+
+Table Connections:
+------------------
+[Implied]  movies.country_code -> countries.code
+[Implied]  reviews.movie_id -> movies.movie_id
+[Implied]  reviews.user_id -> users.id
+[Implied]  users.country_code -> countries.code
+
+DROP DATABASE `db_258749_SWMDB_Collection_Structure`;
+UNINSTALL EXTENSION vsql_schematron;

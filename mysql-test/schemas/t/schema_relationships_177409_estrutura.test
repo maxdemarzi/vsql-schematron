@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 177409_estrutura
+--echo #
+CREATE DATABASE `db_177409_estrutura`;
+USE `db_177409_estrutura`;
+CREATE TABLE `cliente` (
+  `id_cliente` INT NOT NULL,
+  `cpf` CHAR(50),
+  `nome` VARCHAR(50),
+  `email` VARCHAR(50),
+  `senha` VARCHAR(50),
+  `estado` VARCHAR(50),
+  `cidade` VARCHAR(50),
+  `cep` CHAR(50),
+  `bairro` VARCHAR(50),
+  `logradouro` VARCHAR(50),
+  `numero` INT,
+  PRIMARY KEY (`id_cliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `categoria` (
+  `id_cat` INT NOT NULL,
+  `categoria` VARCHAR(50),
+  PRIMARY KEY (`id_cat`)
+) CHARACTER SET latin1;
+CREATE TABLE `produto` (
+  `id_produto` INT NOT NULL,
+  `preco` DOUBLE,
+  `nome` VARCHAR(50),
+  `caminho` VARCHAR(50),
+  `id_cat` INT,
+  PRIMARY KEY (`id_produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `venda` (
+  `id_venda` INT NOT NULL,
+  `frete` DOUBLE,
+  `quantTotal` INT,
+  `subtotal` DOUBLE,
+  `id_cliente` INT,
+  PRIMARY KEY (`id_venda`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+  `id_item` INT NOT NULL,
+  `quant` INT,
+  `id_produto` INT,
+  `id_venda` INT,
+  PRIMARY KEY (`id_item`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_177409_estrutura') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_177409_estrutura') AS relationships;
+DROP DATABASE `db_177409_estrutura`;
+UNINSTALL EXTENSION vsql_schematron;

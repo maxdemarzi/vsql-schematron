@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 080089_script
+--echo #
+CREATE DATABASE `db_080089_script`;
+USE `db_080089_script`;
+CREATE TABLE `hibah.role_user` (
+  `id_role_user` INT NOT NULL,
+  `id_user` INT,
+  `id_role` INT,
+  `update_date` DATETIME,
+  `update_by` VARCHAR(50),
+  `create_date` DATE,
+  `create_by` VARCHAR(50),
+  PRIMARY KEY (`id_role_user`)
+) CHARACTER SET latin1;
+CREATE TABLE `hibah.barang` (
+  `id_barang` INT NOT NULL,
+  `kode_barang` VARCHAR(50),
+  `nama_barang` VARCHAR(50),
+  `update_date` DATETIME,
+  `update_by` VARCHAR(50),
+  `create_date` DATE,
+  `create_by` VARCHAR(50),
+  PRIMARY KEY (`id_barang`)
+) CHARACTER SET latin1;
+CREATE TABLE `hibah.transaksi` (
+  `id_transaksi` INT NOT NULL,
+  `id_satker` INT,
+  `id_barang` INT,
+  `nup` INT,
+  `penerima` VARCHAR(50),
+  `lokasi` VARCHAR(50),
+  `tahun_anggaran` VARCHAR(50),
+  `nilai_perolehan` BIGINT,
+  `persetujuan_pmk` VARCHAR(50),
+  `persetujuan_kemenkeu` VARCHAR(50),
+  `sk_penetapan_hibah` VARCHAR(50),
+  `bast` VARCHAR(50),
+  `sk_penghapusan` VARCHAR(50),
+  `update_date` DATETIME,
+  `update_by` VARCHAR(50),
+  `create_date` DATE,
+  `create_by` VARCHAR(50),
+  PRIMARY KEY (`id_transaksi`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_080089_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_080089_script') AS relationships;
+DROP DATABASE `db_080089_script`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 109502_Proyecto_Lawyers
+#
+CREATE DATABASE `db_109502_Proyecto_Lawyers`;
+USE `db_109502_Proyecto_Lawyers`;
+CREATE TABLE `users` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`surname` VARCHAR(50),
+`city_user` VARCHAR(50),
+`phone_number_user` VARCHAR(50),
+`login_user` VARCHAR(50),
+`email_user` VARCHAR(50),
+`password` VARCHAR(50),
+`picture_user` VARCHAR(50),
+`role` VARCHAR(50),
+`low_reason` VARCHAR(50),
+`active` BOOLEAN,
+`registration_code` VARCHAR(50),
+`creation_date` DATETIME,
+`update_date` DATETIME,
+`last_auth_update` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lawyers` (
+`id` VARCHAR(50) NOT NULL,
+`law_firm` VARCHAR(50),
+`street` VARCHAR(50),
+`zip` VARCHAR(50),
+`city_lawyer` VARCHAR(50),
+`phone_number_lawyer` VARCHAR(50),
+`login_lawyer` VARCHAR(50),
+`email_lawyer` VARCHAR(50),
+`password` VARCHAR(50),
+`picture_lawyer` VARCHAR(50),
+`low_reason` VARCHAR(50),
+`active` BOOLEAN,
+`registration_code` VARCHAR(50),
+`description` VARCHAR(50),
+`urgency` VARCHAR(50),
+`creation_date` DATETIME,
+`update_date` DATETIME,
+`last_auth_update` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `processes` (
+`id` VARCHAR(50) NOT NULL,
+`message_process` TEXT,
+`observations` VARCHAR(50),
+`status_process` VARCHAR(50),
+`active` BOOLEAN,
+`id_user` VARCHAR(50),
+`id_lawyer` VARCHAR(50),
+`creation_date` DATETIME,
+`update_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `budgets` (
+`id` VARCHAR(50) NOT NULL,
+`status_budget` VARCHAR(50),
+`message_budget` TEXT,
+`price` INT,
+`rating` INT,
+`opinion` VARCHAR(50),
+`id_lawyer` VARCHAR(50),
+`id_process` VARCHAR(50),
+`creation_date` DATETIME,
+`update_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `specialities` (
+`id` VARCHAR(50) NOT NULL,
+`id_lawyer` VARCHAR(50),
+`speciality` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_109502_Proyecto_Lawyers') AS relationships;
+relationships
+Database: db_109502_Proyecto_Lawyers
+
+Table Connections:
+------------------
+[Implied]  budgets.id_lawyer -> lawyers.id
+[Implied]  budgets.id_process -> processes.id
+[Implied]  processes.id_lawyer -> lawyers.id
+[Implied]  processes.id_user -> users.id
+[Implied]  specialities.id_lawyer -> lawyers.id
+
+DROP DATABASE `db_109502_Proyecto_Lawyers`;
+UNINSTALL EXTENSION vsql_schematron;

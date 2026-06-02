@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 668815_cursos-carrera
+--echo #
+CREATE DATABASE `db_668815_cursos_carrera`;
+USE `db_668815_cursos_carrera`;
+CREATE TABLE `carrera` (
+  `cod_car` VARCHAR(50) NOT NULL,
+  `nom_car` VARCHAR(50),
+  PRIMARY KEY (`cod_car`)
+) CHARACTER SET latin1;
+CREATE TABLE `ciclo` (
+  `cod_ciclo` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`cod_ciclo`)
+) CHARACTER SET latin1;
+CREATE TABLE `curso` (
+  `cod_car` CHAR(50),
+  `cod_cur` VARCHAR(50) NOT NULL,
+  `cod_ciclo` CHAR(50),
+  `nom_cur` VARCHAR(50),
+  `horas_cur` INT,
+  PRIMARY KEY (`cod_cur`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_668815_cursos_carrera') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_668815_cursos_carrera') AS relationships;
+DROP DATABASE `db_668815_cursos_carrera`;
+UNINSTALL EXTENSION vsql_schematron;

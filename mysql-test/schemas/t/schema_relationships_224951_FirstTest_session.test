@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 224951_FirstTest.session
+--echo #
+CREATE DATABASE `db_224951_FirstTest_session`;
+USE `db_224951_FirstTest_session`;
+CREATE TABLE `Users` (
+  `id` INT NOT NULL,
+  `age` INT,
+  `email` VARCHAR(50),
+  `bio` TEXT,
+  `country` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rooms` (
+  `id` INT NOT NULL,
+  `age` INT,
+  `street` VARCHAR(50),
+  `owner_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bookings` (
+  `id` INT NOT NULL,
+  `guest_id` INT,
+  `room_id` INT,
+  `check_in` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_224951_FirstTest_session') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_224951_FirstTest_session') AS relationships;
+DROP DATABASE `db_224951_FirstTest_session`;
+UNINSTALL EXTENSION vsql_schematron;

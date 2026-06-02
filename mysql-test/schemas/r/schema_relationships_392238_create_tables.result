@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 392238_create_tables
+#
+CREATE DATABASE `db_392238_create_tables`;
+USE `db_392238_create_tables`;
+CREATE TABLE `accounts` (
+`id` INT NOT NULL,
+`name` TEXT,
+`website` TEXT,
+`lat` DECIMAL(10,2),
+`long` DECIMAL(10,2),
+`primary_poc` TEXT,
+`sales_rep_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT NOT NULL,
+`account_id` INT,
+`occurred_at` TIMESTAMP NULL,
+`standard_qty` INT,
+`gloss_qty` INT,
+`poster_qty` INT,
+`total` INT,
+`standard_amt_usd` DECIMAL(10,2),
+`gloss_amt_usd` DECIMAL(10,2),
+`poster_amt_usd` DECIMAL(10,2),
+`total_amt_usd` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `region` (
+`id` INT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales_reps` (
+`id` INT NOT NULL,
+`name` TEXT,
+`region_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `web_events` (
+`id` INT NOT NULL,
+`account_id` INT,
+`occurred_at` TIMESTAMP NULL,
+`channel` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_392238_create_tables') AS relationships;
+relationships
+Database: db_392238_create_tables
+
+Table Connections:
+------------------
+[Implied]  accounts.sales_rep_id -> sales_reps.id
+[Implied]  orders.account_id -> accounts.id
+[Implied]  sales_reps.region_id -> region.id
+[Implied]  web_events.account_id -> accounts.id
+
+DROP DATABASE `db_392238_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

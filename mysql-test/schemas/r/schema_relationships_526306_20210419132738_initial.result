@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 526306_20210419132738_initial
+#
+CREATE DATABASE `db_526306_20210419132738_initial`;
+USE `db_526306_20210419132738_initial`;
+CREATE TABLE `banners` (
+`id` VARCHAR(50) NOT NULL,
+`description` TEXT,
+`deleted` BOOLEAN,
+`deleted_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `slots` (
+`id` VARCHAR(50) NOT NULL,
+`description` TEXT,
+`deleted` BOOLEAN,
+`deleted_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+`id` VARCHAR(50) NOT NULL,
+`description` TEXT,
+`deleted` BOOLEAN,
+`deleted_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rotations` (
+`id` VARCHAR(50) NOT NULL,
+`banner_id` VARCHAR(50),
+`slot_id` VARCHAR(50),
+`group_id` VARCHAR(50),
+`shows` INT,
+`clicks` INT,
+`deleted` BOOLEAN,
+`deleted_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`id` VARCHAR(50) NOT NULL,
+`rotation_id` VARCHAR(50),
+`stamp` TIMESTAMP NULL,
+`event_type` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_526306_20210419132738_initial') AS relationships;
+relationships
+Database: db_526306_20210419132738_initial
+
+Table Connections:
+------------------
+[Implied]  events.rotation_id -> rotations.id
+[Implied]  rotations.banner_id -> banners.id
+[Implied]  rotations.group_id -> groups.id
+[Implied]  rotations.slot_id -> slots.id
+
+DROP DATABASE `db_526306_20210419132738_initial`;
+UNINSTALL EXTENSION vsql_schematron;

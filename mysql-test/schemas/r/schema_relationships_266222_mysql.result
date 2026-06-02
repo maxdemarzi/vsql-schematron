@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 266222_mysql
+#
+CREATE DATABASE `db_266222_mysql`;
+USE `db_266222_mysql`;
+CREATE TABLE `USERS` (
+`USERNAME` VARCHAR(50) NOT NULL,
+`PASSWORD` VARCHAR(50),
+`ENABLED` SMALLINT,
+PRIMARY KEY (`USERNAME`)
+) CHARACTER SET latin1;
+CREATE TABLE `acl_sid` (
+`ID` BIGINT NOT NULL,
+`SID` VARCHAR(50),
+`PRINCIPAL` SMALLINT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `acl_class` (
+`ID` BIGINT NOT NULL,
+`CLASS` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `acl_object_identity` (
+`ID` BIGINT NOT NULL,
+`OBJECT_ID_CLASS` BIGINT,
+`OBJECT_ID_IDENTITY` BIGINT,
+`PARENT_OBJECT` BIGINT,
+`OWNER_SID` BIGINT,
+`ENTRIES_INHERITING` SMALLINT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `acl_entry` (
+`ID` BIGINT NOT NULL,
+`ACL_OBJECT_IDENTITY` BIGINT,
+`ACE_ORDER` INT,
+`SID` BIGINT,
+`MASK` INT,
+`GRANTING` SMALLINT,
+`AUDIT_SUCCESS` SMALLINT,
+`AUDIT_FAILURE` SMALLINT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_266222_mysql') AS relationships;
+relationships
+Database: db_266222_mysql
+
+Table Connections:
+------------------
+[Implied]  acl_entry.ACL_OBJECT_IDENTITY -> acl_object_identity.ID
+[Implied]  acl_entry.SID -> acl_sid.ID
+[Implied]  acl_object_identity.OBJECT_ID_CLASS -> acl_class.ID
+[Implied]  acl_object_identity.OWNER_SID -> acl_sid.ID
+[Implied]  acl_object_identity.PARENT_OBJECT -> acl_object_identity.ID
+
+DROP DATABASE `db_266222_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

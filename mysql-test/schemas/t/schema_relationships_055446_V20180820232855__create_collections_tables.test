@@ -1,0 +1,99 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 055446_V20180820232855__create_collections_tables
+--echo #
+CREATE DATABASE `db_055446_V20180820232855__create_collections_tables`;
+USE `db_055446_V20180820232855__create_collections_tables`;
+CREATE TABLE `egcl_receiptheader` (
+  `id` VARCHAR(50) NOT NULL,
+  `payeename` VARCHAR(50),
+  `payeeaddress` VARCHAR(50),
+  `payeeemail` VARCHAR(50),
+  `paidby` VARCHAR(50),
+  `referencenumber` VARCHAR(50),
+  `receipttype` VARCHAR(50),
+  `receiptnumber` VARCHAR(50),
+  `referencedesc` VARCHAR(50),
+  `manualreceiptnumber` VARCHAR(50),
+  `businessdetails` VARCHAR(50),
+  `collectiontype` VARCHAR(50),
+  `displaymsg` VARCHAR(50),
+  `reference_ch_id` BIGINT,
+  `stateid` BIGINT,
+  `location` BIGINT,
+  `isreconciled` BOOLEAN,
+  `status` VARCHAR(50),
+  `reasonforcancellation` VARCHAR(50),
+  `minimumamount` DECIMAL(10,2),
+  `totalamount` DECIMAL(10,2),
+  `collmodesnotallwd` VARCHAR(50),
+  `consumercode` VARCHAR(50),
+  `channel` VARCHAR(50),
+  `consumertype` VARCHAR(50),
+  `fund` VARCHAR(50),
+  `fundsource` VARCHAR(50),
+  `function` VARCHAR(50),
+  `boundary` VARCHAR(50),
+  `department` VARCHAR(50),
+  `voucherheader` VARCHAR(50),
+  `depositedbranch` VARCHAR(50),
+  `version` BIGINT,
+  `createdby` BIGINT,
+  `lastmodifiedby` BIGINT,
+  `tenantid` VARCHAR(50),
+  `cancellationremarks` VARCHAR(50),
+  `receiptdate` BIGINT,
+  `createddate` BIGINT,
+  `lastmodifieddate` BIGINT,
+  `referencedate` BIGINT,
+  `transactionid` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `egcl_instrumentheader` (
+  `id` VARCHAR(50) NOT NULL,
+  `transactionNumber` VARCHAR(50),
+  `transactionDate` BIGINT,
+  `amount` DECIMAL(10,2),
+  `instrumentType` VARCHAR(50),
+  `instrumentStatus` VARCHAR(50),
+  `bankId` VARCHAR(50),
+  `branchName` VARCHAR(50),
+  `bankAccountId` VARCHAR(50),
+  `ifscCode` VARCHAR(50),
+  `financialStatus` VARCHAR(50),
+  `transactionType` VARCHAR(50),
+  `payee` VARCHAR(50),
+  `drawer` VARCHAR(50),
+  `surrenderReason` VARCHAR(50),
+  `serialNo` VARCHAR(50),
+  `createdby` VARCHAR(50),
+  `createddate` BIGINT,
+  `lastmodifiedby` VARCHAR(50),
+  `lastmodifieddate` BIGINT,
+  `tenantId` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `EGCL_RECEIPTINSTRUMENT` (
+  `RECEIPTHEADER` VARCHAR(50),
+  `INSTRUMENTHEADER` VARCHAR(50)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_055446_V20180820232855__create_collections_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_055446_V20180820232855__create_collections_tables') AS relationships;
+DROP DATABASE `db_055446_V20180820232855__create_collections_tables`;
+UNINSTALL EXTENSION vsql_schematron;

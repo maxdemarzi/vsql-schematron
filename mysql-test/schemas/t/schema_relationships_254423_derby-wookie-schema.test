@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 254423_derby-wookie-schema
+--echo #
+CREATE DATABASE `db_254423_derby_wookie_schema`;
+USE `db_254423_derby_wookie_schema`;
+CREATE TABLE `OPENJPA_SEQUENCE_TABLE` (
+  `ID` SMALLINT NOT NULL,
+  `SEQUENCE_VALUE` BIGINT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PreferenceDefault` (
+  `id` INT NOT NULL,
+  `jpa_version` INT,
+  `widget_id` INT,
+  `preference` VARCHAR(50),
+  `value` VARCHAR(50),
+  `readOnly` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Participant` (
+  `id` INT NOT NULL,
+  `jpa_version` INT,
+  `participant_id` VARCHAR(50),
+  `participant_display_name` VARCHAR(50),
+  `participant_thumbnail_url` VARCHAR(50),
+  `sharedDataKey` VARCHAR(50),
+  `role` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Feature` (
+  `id` INT NOT NULL,
+  `jpa_version` INT,
+  `featureName` VARCHAR(50),
+  `required` CHAR(50),
+  `widget_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Param` (
+  `id` INT NOT NULL,
+  `jpa_version` INT,
+  `feature_id` INT,
+  `parameterName` VARCHAR(50),
+  `parameterValue` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OAuthToken` (
+  `id` INT NOT NULL,
+  `jpa_version` INT,
+  `authzUrl` VARCHAR(50),
+  `accessToken` VARCHAR(50),
+  `clientId` VARCHAR(50),
+  `expires` BIGINT,
+  `widget_instance_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_254423_derby_wookie_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_254423_derby_wookie_schema') AS relationships;
+DROP DATABASE `db_254423_derby_wookie_schema`;
+UNINSTALL EXTENSION vsql_schematron;

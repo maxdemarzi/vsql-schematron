@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 450180_2-Orders
+#
+CREATE DATABASE `db_450180_2_Orders`;
+USE `db_450180_2_Orders`;
+CREATE TABLE `salesman` (
+`salesman_id` DECIMAL(10,2) NOT NULL,
+`name` VARCHAR(50),
+`city` VARCHAR(50),
+`commission` DECIMAL(10,2),
+PRIMARY KEY (`salesman_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`customer_id` DECIMAL(10,2) NOT NULL,
+`customer_name` VARCHAR(50),
+`city` VARCHAR(50),
+`grade` DECIMAL(10,2),
+`salesman_id` DECIMAL(10,2),
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`ord_no` DECIMAL(10,2) NOT NULL,
+`purchase_amt` DECIMAL(10,2),
+`ord_date` DATE,
+`customer_id` DECIMAL(10,2),
+`salesman_id` DECIMAL(10,2),
+PRIMARY KEY (`ord_no`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_450180_2_Orders') AS relationships;
+relationships
+Database: db_450180_2_Orders
+
+Table Connections:
+------------------
+[Implied]  customer.salesman_id -> salesman.salesman_id
+[Implied]  orders.customer_id -> customer.customer_id
+[Implied]  orders.salesman_id -> salesman.salesman_id
+
+DROP DATABASE `db_450180_2_Orders`;
+UNINSTALL EXTENSION vsql_schematron;

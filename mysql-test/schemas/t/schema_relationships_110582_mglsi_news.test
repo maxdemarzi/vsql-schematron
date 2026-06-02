@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 110582_mglsi_news
+--echo #
+CREATE DATABASE `db_110582_mglsi_news`;
+USE `db_110582_mglsi_news`;
+CREATE TABLE `Article` (
+  `id` INT NOT NULL,
+  `titre` VARCHAR(50),
+  `contenu` TEXT,
+  `dateCreation` DATETIME,
+  `dateModification` DATETIME,
+  `categorie` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Categorie` (
+  `id` INT NOT NULL,
+  `libelle` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_110582_mglsi_news') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_110582_mglsi_news') AS relationships;
+DROP DATABASE `db_110582_mglsi_news`;
+UNINSTALL EXTENSION vsql_schematron;

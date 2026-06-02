@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 004099_schema.mysql
+#
+CREATE DATABASE `db_004099_schema_mysql`;
+USE `db_004099_schema_mysql`;
+CREATE TABLE `account` (
+`user_id` VARCHAR(50) NOT NULL,
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+`is_admin` BOOLEAN,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `website` (
+`website_id` VARCHAR(50) NOT NULL,
+`website_uuid` VARCHAR(50),
+`user_id` VARCHAR(50),
+`name` VARCHAR(50),
+`domain` VARCHAR(50),
+`share_id` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`website_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `session` (
+`session_id` VARCHAR(50) NOT NULL,
+`session_uuid` VARCHAR(50),
+`website_id` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`hostname` VARCHAR(50),
+`browser` VARCHAR(50),
+`os` VARCHAR(50),
+`device` VARCHAR(50),
+`screen` VARCHAR(50),
+`language` VARCHAR(50),
+`country` CHAR(50),
+PRIMARY KEY (`session_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pageview` (
+`view_id` VARCHAR(50) NOT NULL,
+`website_id` VARCHAR(50),
+`session_id` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`url` VARCHAR(50),
+`referrer` VARCHAR(50),
+PRIMARY KEY (`view_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`event_id` VARCHAR(50) NOT NULL,
+`website_id` VARCHAR(50),
+`session_id` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`url` VARCHAR(50),
+`event_type` VARCHAR(50),
+`event_value` VARCHAR(50),
+PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_004099_schema_mysql') AS relationships;
+relationships
+Database: db_004099_schema_mysql
+
+Table Connections:
+------------------
+[Implied]  event.session_id -> session.session_id
+[Implied]  event.website_id -> website.website_id
+[Implied]  pageview.session_id -> session.session_id
+[Implied]  pageview.website_id -> website.website_id
+[Implied]  session.website_id -> website.website_id
+[Implied]  website.user_id -> account.user_id
+
+DROP DATABASE `db_004099_schema_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 187424_V01__ADRESS
+#
+CREATE DATABASE `db_187424_V01__ADRESS`;
+USE `db_187424_V01__ADRESS`;
+CREATE TABLE `country` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `state` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`shortname` VARCHAR(50),
+`id_country` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `city` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`idibge` VARCHAR(50),
+`id_state` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `neighborhood` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`id_city` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `street` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`cep` VARCHAR(50),
+`complement` VARCHAR(50),
+`type_adress` VARCHAR(50),
+`id_neighborhood` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_187424_V01__ADRESS') AS relationships;
+relationships
+Database: db_187424_V01__ADRESS
+
+Table Connections:
+------------------
+[Implied]  city.id_state -> state.id
+[Implied]  neighborhood.id_city -> city.id
+[Implied]  state.id_country -> country.id
+[Implied]  street.id_neighborhood -> neighborhood.id
+
+DROP DATABASE `db_187424_V01__ADRESS`;
+UNINSTALL EXTENSION vsql_schematron;

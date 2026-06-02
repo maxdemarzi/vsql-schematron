@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 076964_12f06ab11fd5723bb9f2e3cee2050bec7fe52b9eschema
+#
+CREATE DATABASE `db_076964_12f06ab11fd5723bb9f2e3cee2050bec7fe52b9eschema`;
+USE `db_076964_12f06ab11fd5723bb9f2e3cee2050bec7fe52b9eschema`;
+CREATE TABLE `ShowInfo` (
+`show_id` INT NOT NULL,
+`title` TEXT,
+`director` TEXT,
+`musical_director` TEXT,
+`show_info` TEXT,
+`page_live_date` DATETIME,
+`reserve_live_date` DATETIME,
+PRIMARY KEY (`show_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Performances` (
+`show_id` INT,
+`p_id` INT NOT NULL,
+`date_time` DATETIME,
+`tickets` INT,
+`reserves` INT,
+PRIMARY KEY (`p_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Attendees` (
+`p_id` INT,
+`name` TEXT,
+`email` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `Reserves` (
+`show_id` INT,
+`name` TEXT,
+`tickets_alloted` INT,
+`email` TEXT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_076964_12f06ab11fd5723bb9f2e3cee2050bec7fe52b9eschema') AS relationships;
+relationships
+Database: db_076964_12f06ab11fd5723bb9f2e3cee2050bec7fe52b9eschema
+
+Table Connections:
+------------------
+[Implied]  Attendees.p_id -> Performances.p_id
+[Implied]  Performances.show_id -> ShowInfo.show_id
+[Implied]  Reserves.show_id -> ShowInfo.show_id
+
+DROP DATABASE `db_076964_12f06ab11fd5723bb9f2e3cee2050bec7fe52b9eschema`;
+UNINSTALL EXTENSION vsql_schematron;

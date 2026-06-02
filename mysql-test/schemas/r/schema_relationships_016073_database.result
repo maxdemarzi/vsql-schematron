@@ -1,0 +1,32 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 016073_database
+#
+CREATE DATABASE `db_016073_database`;
+USE `db_016073_database`;
+CREATE TABLE `Line` (
+`Line_ID` INT NOT NULL,
+`Line_Name` VARCHAR(50),
+PRIMARY KEY (`Line_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Station` (
+`Station_ID` INT NOT NULL,
+`Name` VARCHAR(50),
+`Line_ID` INT,
+`Prev_Station` INT,
+`Next_Station` INT,
+`Hybrid_ID` INT,
+PRIMARY KEY (`Station_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_016073_database') AS relationships;
+relationships
+Database: db_016073_database
+
+Table Connections:
+------------------
+[Implied]  Station.Line_ID -> Line.Line_ID
+[Implied]  Station.Next_Station -> Station.Station_ID
+[Implied]  Station.Prev_Station -> Station.Station_ID
+
+DROP DATABASE `db_016073_database`;
+UNINSTALL EXTENSION vsql_schematron;

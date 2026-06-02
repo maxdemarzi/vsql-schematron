@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 569252_dbTrashedy
+#
+CREATE DATABASE `db_569252_dbTrashedy`;
+USE `db_569252_dbTrashedy`;
+CREATE TABLE `departement` (
+`num_departement` VARCHAR(50),
+`nom_departement` VARCHAR(50) NOT NULL,
+`nom_region` VARCHAR(50),
+PRIMARY KEY (`nom_departement`)
+) CHARACTER SET latin1;
+CREATE TABLE `fleuve` (
+`nom_fleuve` VARCHAR(50) NOT NULL,
+`longueur` INT,
+PRIMARY KEY (`nom_fleuve`)
+) CHARACTER SET latin1;
+CREATE TABLE `region` (
+`nom_region` VARCHAR(50) NOT NULL,
+`nb_habitants` INT,
+PRIMARY KEY (`nom_region`)
+) CHARACTER SET latin1;
+CREATE TABLE `usine` (
+`ID_usine` INT NOT NULL,
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`nom_usine` VARCHAR(50),
+`secteur` VARCHAR(50),
+`nom_region` VARCHAR(50),
+`nom_utilisateur` VARCHAR(50),
+PRIMARY KEY (`ID_usine`)
+) CHARACTER SET latin1;
+CREATE TABLE `utilisateur` (
+`nom_utilisateur` VARCHAR(50) NOT NULL,
+`passwd` VARCHAR(50),
+PRIMARY KEY (`nom_utilisateur`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_569252_dbTrashedy') AS relationships;
+relationships
+Database: db_569252_dbTrashedy
+
+Table Connections:
+------------------
+[Implied]  departement.nom_region -> region.nom_region
+[Implied]  usine.nom_region -> region.nom_region
+[Implied]  usine.nom_utilisateur -> utilisateur.nom_utilisateur
+
+DROP DATABASE `db_569252_dbTrashedy`;
+UNINSTALL EXTENSION vsql_schematron;

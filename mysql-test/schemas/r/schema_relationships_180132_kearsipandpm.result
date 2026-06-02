@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 180132_kearsipandpm
+#
+CREATE DATABASE `db_180132_kearsipandpm`;
+USE `db_180132_kearsipandpm`;
+CREATE TABLE `admin` (
+`id` INT NOT NULL,
+`nama` VARCHAR(50),
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+`foto` VARCHAR(50),
+`level` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `berkas_proposal` (
+`id` INT,
+`id_penomoran` INT,
+`nama_kegiatan` VARCHAR(50),
+`link` TEXT,
+`tanggal_kegiatan` DATE
+) CHARACTER SET latin1;
+CREATE TABLE `konstitusi` (
+`id` INT,
+`id_penomoran` INT,
+`nama_konstitusi` VARCHAR(50),
+`berkas` VARCHAR(50),
+`tanggal` DATE
+) CHARACTER SET latin1;
+CREATE TABLE `penomoran` (
+`id` INT NOT NULL,
+`nomor` VARCHAR(50),
+`nama_kegiatan` VARCHAR(50),
+`penomoran` TEXT,
+`jumlah` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rapat_besar` (
+`id` INT,
+`id_admin` INT,
+`nama` VARCHAR(50),
+`notulen` TEXT,
+`tanggal` DATE
+) CHARACTER SET latin1;
+CREATE TABLE `rapat_koordinasi` (
+`id` INT,
+`id_admin` INT,
+`nama` VARCHAR(50),
+`notulen` TEXT,
+`tanggal` DATE
+) CHARACTER SET latin1;
+CREATE TABLE `rapat_pleno` (
+`id` INT,
+`id_admin` INT,
+`nama` VARCHAR(50),
+`notulen` TEXT,
+`tanggal` DATE
+) CHARACTER SET latin1;
+CREATE TABLE `rekap_anggota` (
+`id` INT,
+`id_admin` INT,
+`nama` VARCHAR(50),
+`tunggakan` VARCHAR(50),
+`total` VARCHAR(50),
+`status` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `rekap_organisasi` (
+`id` INT,
+`id_admin` INT,
+`bulan` VARCHAR(50),
+`berkas` VARCHAR(50),
+`keterangan` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `surat_keluar` (
+`id` INT,
+`id_penomoran` INT,
+`nama_dikirim` VARCHAR(50),
+`jenis_kegiatan` VARCHAR(50),
+`link` TEXT,
+`tanggal` DATE
+) CHARACTER SET latin1;
+CREATE TABLE `surat_masuk` (
+`id` INT NOT NULL,
+`nama_pengirim` VARCHAR(50),
+`jenis_kegiatan` VARCHAR(50),
+`link` TEXT,
+`tanggal` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `template_surat` (
+`id` INT NOT NULL,
+`jenis_kegiatan` VARCHAR(50),
+`berkas` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_180132_kearsipandpm') AS relationships;
+relationships
+Database: db_180132_kearsipandpm
+
+Table Connections:
+------------------
+[Implied]  berkas_proposal.id_penomoran -> penomoran.id
+[Implied]  konstitusi.id_penomoran -> penomoran.id
+[Implied]  rapat_besar.id_admin -> admin.id
+[Implied]  rapat_koordinasi.id_admin -> admin.id
+[Implied]  rapat_pleno.id_admin -> admin.id
+[Implied]  rekap_anggota.id_admin -> admin.id
+[Implied]  rekap_organisasi.id_admin -> admin.id
+[Implied]  surat_keluar.id_penomoran -> penomoran.id
+
+DROP DATABASE `db_180132_kearsipandpm`;
+UNINSTALL EXTENSION vsql_schematron;

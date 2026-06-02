@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 215038_scripts
+--echo #
+CREATE DATABASE `db_215038_scripts`;
+USE `db_215038_scripts`;
+CREATE TABLE `usuarios` (
+  `idusuario` INT NOT NULL,
+  `nombre_usuario` VARCHAR(50),
+  `curp` VARCHAR(50),
+  `contrasenia` VARCHAR(50),
+  `fecha_registro` DATETIME,
+  `fecha_actualizacion` DATETIME,
+  `cve_estatus` VARCHAR(50),
+  PRIMARY KEY (`idusuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `cat_roles` (
+  `idrol` INT NOT NULL,
+  `desc_rol` VARCHAR(50),
+  PRIMARY KEY (`idrol`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles_usuarios` (
+  `idusuario` INT,
+  `idrol` INT
+) CHARACTER SET latin1;
+CREATE TABLE `modulos_rol` (
+  `idmodulo` INT NOT NULL,
+  `desc_modulo` VARCHAR(50),
+  PRIMARY KEY (`idmodulo`)
+) CHARACTER SET latin1;
+CREATE TABLE `permisos_rol` (
+  `idpermiso` INT NOT NULL,
+  `idmodulo` INT,
+  `idrol` INT,
+  `ALTA` VARCHAR(50),
+  `BAJA` VARCHAR(50),
+  `MODIFICACION` VARCHAR(50),
+  `CONSULTA` VARCHAR(50),
+  `EJECUCION` VARCHAR(50),
+  PRIMARY KEY (`idpermiso`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_215038_scripts') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_215038_scripts') AS relationships;
+DROP DATABASE `db_215038_scripts`;
+UNINSTALL EXTENSION vsql_schematron;

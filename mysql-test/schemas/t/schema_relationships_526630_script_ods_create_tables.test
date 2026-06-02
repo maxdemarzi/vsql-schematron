@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 526630_script_ods_create_tables
+--echo #
+CREATE DATABASE `db_526630_script_ods_create_tables`;
+USE `db_526630_script_ods_create_tables`;
+CREATE TABLE `dim_business` (
+  `business_id` VARCHAR(50) NOT NULL,
+  `name` TEXT,
+  `address` TEXT,
+  `city` TEXT,
+  `state` TEXT,
+  `postal_code` INT,
+  `latitude` DOUBLE,
+  `longitude` DOUBLE,
+  `stars` DECIMAL(10,2),
+  `review_count` INT,
+  `is_open` BOOLEAN,
+  PRIMARY KEY (`business_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dim_user` (
+  `user_id` VARCHAR(50) NOT NULL,
+  `name` TEXT,
+  `review_count` INT,
+  `yelping_since` DATETIME,
+  `useful` INT,
+  `funny` INT,
+  `cool` INT,
+  `elite` TEXT,
+  `friends` TEXT,
+  `fans` INT,
+  `average_stars` DECIMAL(10,2),
+  `compliment_hot` INT,
+  `compliment_more` INT,
+  `compliment_profile` INT,
+  `compliment_cute` INT,
+  `compliment_list` INT,
+  `compliment_note` INT,
+  `compliment_plain` INT,
+  `compliment_cool` INT,
+  `compliment_funny` INT,
+  `compliment_writer` INT,
+  `compliment_photos` INT,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fact_review` (
+  `review_id` VARCHAR(50) NOT NULL,
+  `user_id` TEXT,
+  `business_id` TEXT,
+  `stars` DECIMAL(10,2),
+  `useful` BOOLEAN,
+  `funny` BOOLEAN,
+  `cool` BOOLEAN,
+  `text` BOOLEAN,
+  `date` DATETIME,
+  PRIMARY KEY (`review_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dim_checkin` (
+  `checkin_id` INT NOT NULL,
+  `business_id` TEXT,
+  `date` TEXT,
+  PRIMARY KEY (`checkin_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dim_covid` (
+  `covid_id` INT NOT NULL,
+  `business_id` TEXT,
+  `highlights` TEXT,
+  `delivery_or_takeout` TEXT,
+  `grubhub_enabled` TEXT,
+  `call_to_action_enabled` TEXT,
+  `request_a_quote_enabled` TEXT,
+  `covid_banner` TEXT,
+  `temporary_closed_until` TEXT,
+  `virtual_services_offered` TEXT,
+  PRIMARY KEY (`covid_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_526630_script_ods_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_526630_script_ods_create_tables') AS relationships;
+DROP DATABASE `db_526630_script_ods_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

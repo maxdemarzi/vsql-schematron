@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 655728_20200512083339_AddPermissionsAddGroups
+#
+CREATE DATABASE `db_655728_20200512083339_AddPermissionsAddGroups`;
+USE `db_655728_20200512083339_AddPermissionsAddGroups`;
+CREATE TABLE `Emails` (
+`Id` BIGINT NOT NULL,
+`Subject` TEXT,
+`Body` TEXT,
+`Type` INT,
+`_CreatedDate` TIMESTAMP NULL,
+`_ModifiedDate` TIMESTAMP NULL,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Groups` (
+`Id` VARCHAR(50) NOT NULL,
+`Name` TEXT,
+`_CreatedDate` TIMESTAMP NULL,
+`_ModifiedDate` TIMESTAMP NULL,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Permissions` (
+`Id` VARCHAR(50) NOT NULL,
+`Name` TEXT,
+`Description` TEXT,
+`_CreatedDate` TIMESTAMP NULL,
+`_ModifiedDate` TIMESTAMP NULL,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RoleAssignments` (
+`Id` BIGINT NOT NULL,
+`RoleId` TEXT,
+`CanAssigneRoleId` TEXT,
+`_CreatedDate` TIMESTAMP NULL,
+`_ModifiedDate` TIMESTAMP NULL,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `GroupAttributes` (
+`Id` BIGINT NOT NULL,
+`Key` TEXT,
+`Value` TEXT,
+`GroupId` TEXT,
+`_CreatedDate` TIMESTAMP NULL,
+`_ModifiedDate` TIMESTAMP NULL,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `GroupUsers` (
+`Id` BIGINT NOT NULL,
+`UserId` TEXT,
+`GroupId` TEXT,
+`RoleId` TEXT,
+`_CreatedDate` TIMESTAMP NULL,
+`_ModifiedDate` TIMESTAMP NULL,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Invite` (
+`Id` VARCHAR(50) NOT NULL,
+`Email` TEXT,
+`Token` TEXT,
+`Status` INT,
+`RoleId` TEXT,
+`GroupId` TEXT,
+`GroupRoleId` TEXT,
+`ExpiresAt` TIMESTAMP NULL,
+`_CreatedDate` TIMESTAMP NULL,
+`_ModifiedDate` TIMESTAMP NULL,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PermissionRole` (
+`Id` BIGINT NOT NULL,
+`PermissionId` TEXT,
+`RoleId` TEXT,
+`_CreatedDate` TIMESTAMP NULL,
+`_ModifiedDate` TIMESTAMP NULL,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_655728_20200512083339_AddPermissionsAddGroups') AS relationships;
+relationships
+Database: db_655728_20200512083339_AddPermissionsAddGroups
+
+Table Connections:
+------------------
+[Implied]  GroupAttributes.GroupId -> Groups.Id
+[Implied]  GroupUsers.GroupId -> Groups.Id
+[Implied]  Invite.GroupId -> Groups.Id
+[Implied]  PermissionRole.PermissionId -> Permissions.Id
+
+DROP DATABASE `db_655728_20200512083339_AddPermissionsAddGroups`;
+UNINSTALL EXTENSION vsql_schematron;

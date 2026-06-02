@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 355444_0079
+--echo #
+CREATE DATABASE `db_355444_0079`;
+USE `db_355444_0079`;
+CREATE TABLE `ag.vioscreen_sessions` (
+  `sessionId` VARCHAR(50) NOT NULL,
+  `username` VARCHAR(50),
+  `protocolId` INT,
+  `status` VARCHAR(50),
+  `startDate` TIMESTAMP NULL,
+  `endDate` TIMESTAMP NULL,
+  `cultureCode` VARCHAR(50),
+  `created` TIMESTAMP NULL,
+  `modified` TIMESTAMP NULL,
+  PRIMARY KEY (`sessionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `ag.vioscreen_percentenergy` (
+  `id` VARCHAR(50) NOT NULL,
+  `sessionId` VARCHAR(50),
+  `code` VARCHAR(50),
+  `amount` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ag.vioscreen_dietaryscore` (
+  `id` VARCHAR(50) NOT NULL,
+  `sessionId` VARCHAR(50),
+  `scoresType` VARCHAR(50),
+  `code` VARCHAR(50),
+  `score` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ag.vioscreen_supplements` (
+  `id` VARCHAR(50) NOT NULL,
+  `sessionId` VARCHAR(50),
+  `supplement` VARCHAR(50),
+  `frequency` VARCHAR(50),
+  `amount` VARCHAR(50),
+  `average` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_355444_0079') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_355444_0079') AS relationships;
+DROP DATABASE `db_355444_0079`;
+UNINSTALL EXTENSION vsql_schematron;

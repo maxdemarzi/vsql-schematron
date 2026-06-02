@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 366183_init
+#
+CREATE DATABASE `db_366183_init`;
+USE `db_366183_init`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`email` VARCHAR(50),
+`login_pass` VARCHAR(50),
+`login_salt` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `passwords` (
+`id` INT NOT NULL,
+`pass` VARCHAR(50),
+`name` VARCHAR(50),
+`nonce` VARCHAR(50),
+`tag` VARCHAR(50),
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `devices` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_366183_init') AS relationships;
+relationships
+Database: db_366183_init
+
+Table Connections:
+------------------
+[Implied]  devices.user_id -> users.id
+[Implied]  passwords.user_id -> users.id
+
+DROP DATABASE `db_366183_init`;
+UNINSTALL EXTENSION vsql_schematron;

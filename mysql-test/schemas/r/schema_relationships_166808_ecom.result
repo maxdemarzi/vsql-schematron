@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 166808_ecom
+#
+CREATE DATABASE `db_166808_ecom`;
+USE `db_166808_ecom`;
+CREATE TABLE `cart` (
+`Email` VARCHAR(50),
+`Prod_id` INT,
+`UUID` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`Categories_name` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`Categories_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`Prod_id` INT NOT NULL,
+`Categories_name` VARCHAR(50),
+`Prod_name` VARCHAR(50),
+`Prod_price` INT,
+`Prod_rating` INT,
+`Prod_specs` VARCHAR(50),
+`Prod_img_url` VARCHAR(50),
+PRIMARY KEY (`Prod_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`Name` VARCHAR(50),
+`DOB` DATE,
+`Phone` DECIMAL(10,2),
+`Email` VARCHAR(50) NOT NULL,
+`Password` VARCHAR(50),
+PRIMARY KEY (`Email`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_166808_ecom') AS relationships;
+relationships
+Database: db_166808_ecom
+
+Table Connections:
+------------------
+[Implied]  cart.Email -> users.Email
+[Implied]  cart.Prod_id -> products.Prod_id
+[Implied]  products.Categories_name -> categories.Categories_name
+
+DROP DATABASE `db_166808_ecom`;
+UNINSTALL EXTENSION vsql_schematron;

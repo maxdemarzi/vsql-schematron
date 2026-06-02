@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 348989_database2
+--echo #
+CREATE DATABASE `db_348989_database2`;
+USE `db_348989_database2`;
+CREATE TABLE `largeproject.loginFT` (
+  `FTID` INT NOT NULL,
+  `username` VARCHAR(50),
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  PRIMARY KEY (`FTID`)
+) CHARACTER SET latin1;
+CREATE TABLE `largeproject.loginET` (
+  `ETID` INT NOT NULL,
+  `username` VARCHAR(50),
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  PRIMARY KEY (`ETID`)
+) CHARACTER SET latin1;
+CREATE TABLE `largeproject.FTinfo` (
+  `FTinfoID` INT NOT NULL,
+  `First` VARCHAR(50),
+  `Last` VARCHAR(50),
+  `TruckName` VARCHAR(50),
+  `address` VARCHAR(50),
+  `City` VARCHAR(50),
+  `State` VARCHAR(50),
+  `Zip` VARCHAR(50),
+  `email` VARCHAR(50),
+  `phone` VARCHAR(50),
+  `Description` TEXT,
+  `FTID` INT,
+  `imgURL` VARCHAR(50),
+  `menuURL` VARCHAR(50),
+  PRIMARY KEY (`FTinfoID`)
+) CHARACTER SET latin1;
+CREATE TABLE `largeproject.ETinfo` (
+  `ETinfoID` INT NOT NULL,
+  `First` VARCHAR(50),
+  `Last` VARCHAR(50),
+  `EntertainerName` VARCHAR(50),
+  `address` VARCHAR(50),
+  `City` VARCHAR(50),
+  `State` VARCHAR(50),
+  `Zip` VARCHAR(50),
+  `email` VARCHAR(50),
+  `phone` VARCHAR(50),
+  `Description` TEXT,
+  `ETID` INT,
+  `imgURL` VARCHAR(50),
+  PRIMARY KEY (`ETinfoID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_348989_database2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_348989_database2') AS relationships;
+DROP DATABASE `db_348989_database2`;
+UNINSTALL EXTENSION vsql_schematron;

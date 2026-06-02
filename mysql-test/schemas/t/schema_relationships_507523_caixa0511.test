@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 507523_caixa0511
+--echo #
+CREATE DATABASE `db_507523_caixa0511`;
+USE `db_507523_caixa0511`;
+CREATE TABLE `tb_funcionario` (
+  `idt_funcionario` INT NOT NULL,
+  `nme_funcionario` VARCHAR(50),
+  `qtd_venda` DECIMAL(10,2),
+  PRIMARY KEY (`idt_funcionario`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_pedido` (
+  `idt_pedido` INT NOT NULL,
+  `cod_produto` INT,
+  `cod_funcionario` INT,
+  `cod_cliente` INT,
+  `DataHora` DATETIME,
+  `vlr_total` DECIMAL(10,2),
+  `vlr_total_token` DECIMAL(10,2),
+  PRIMARY KEY (`idt_pedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_produto` (
+  `idt_produto` INT NOT NULL,
+  `nme_produto` VARCHAR(50),
+  `vlr_produto` DECIMAL(10,2),
+  `vlr_produto_token` INT,
+  PRIMARY KEY (`idt_produto`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_507523_caixa0511') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_507523_caixa0511') AS relationships;
+DROP DATABASE `db_507523_caixa0511`;
+UNINSTALL EXTENSION vsql_schematron;

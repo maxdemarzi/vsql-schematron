@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 139847_food_system_schema
+#
+CREATE DATABASE `db_139847_food_system_schema`;
+USE `db_139847_food_system_schema`;
+CREATE TABLE `client` (
+`id` VARCHAR(50) NOT NULL,
+`pw` VARCHAR(50),
+`name` VARCHAR(50),
+`department` VARCHAR(50),
+`type` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `menu` (
+`id` INT NOT NULL,
+`price` INT,
+`title` VARCHAR(50),
+`building` VARCHAR(50),
+`provide_date` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reservation` (
+`id` INT NOT NULL,
+`client_id` VARCHAR(50),
+`menu_id` INT,
+`reserve_date` DATE,
+`type` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `date_test` (
+`date` DATE,
+`datetime` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_139847_food_system_schema') AS relationships;
+relationships
+Database: db_139847_food_system_schema
+
+Table Connections:
+------------------
+[Implied]  reservation.client_id -> client.id
+[Implied]  reservation.menu_id -> menu.id
+
+DROP DATABASE `db_139847_food_system_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 432504_database
+#
+CREATE DATABASE `db_432504_database`;
+USE `db_432504_database`;
+CREATE TABLE `episode` (
+`id` INT NOT NULL,
+`anime_id` INT,
+`episode_number` CHAR(50),
+`special_type` CHAR(50),
+`credits` CHAR(50),
+`can_user_download` TINYINT,
+`created_time` DATETIME,
+`created_by` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `log` (
+`id` INT NOT NULL,
+`user` CHAR(50),
+`process_type` CHAR(50),
+`process` CHAR(50),
+`text` CHAR(50),
+`created_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `motd` (
+`id` INT NOT NULL,
+`is_active` TINYINT,
+`can_user_dismiss` TINYINT,
+`title` TEXT,
+`subtitle` TEXT,
+`content_type` CHAR(50),
+`content_id` INT,
+`created_time` DATETIME,
+`created_by` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `watch_link` (
+`id` INT NOT NULL,
+`anime_id` INT,
+`episode_id` INT,
+`type` CHAR(50),
+`link` CHAR(50),
+`created_time` DATETIME,
+`created_by` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_432504_database') AS relationships;
+relationships
+Database: db_432504_database
+
+Table Connections:
+------------------
+[Implied]  watch_link.episode_id -> episode.id
+
+DROP DATABASE `db_432504_database`;
+UNINSTALL EXTENSION vsql_schematron;

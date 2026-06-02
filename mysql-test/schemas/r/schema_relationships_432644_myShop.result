@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 432644_myShop
+#
+CREATE DATABASE `db_432644_myShop`;
+USE `db_432644_myShop`;
+CREATE TABLE `tblcustomers` (
+`customerId` INT NOT NULL,
+`userId` INT,
+`billingAddress` TEXT,
+PRIMARY KEY (`customerId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblitems` (
+`itemId` VARCHAR(50) NOT NULL,
+`description` VARCHAR(50),
+`costPrice` DECIMAL(10,2),
+`quantity` DECIMAL(10,2),
+`sellPrice` DECIMAL(10,2),
+PRIMARY KEY (`itemId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblorderitems` (
+`orderItemId` INT NOT NULL,
+`orderId` INT,
+`itemId` VARCHAR(50),
+`quantity` DECIMAL(10,2),
+PRIMARY KEY (`orderItemId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblorders` (
+`orderId` INT NOT NULL,
+`customerId` INT,
+`orderDate` DATETIME,
+`shippingAddress` TEXT,
+PRIMARY KEY (`orderId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_432644_myShop') AS relationships;
+relationships
+Database: db_432644_myShop
+
+Table Connections:
+------------------
+[Implied]  tblorderitems.itemId -> tblitems.itemId
+[Implied]  tblorderitems.orderId -> tblorders.orderId
+[Implied]  tblorders.customerId -> tblcustomers.customerId
+
+DROP DATABASE `db_432644_myShop`;
+UNINSTALL EXTENSION vsql_schematron;

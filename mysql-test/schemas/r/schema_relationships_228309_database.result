@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 228309_database
+#
+CREATE DATABASE `db_228309_database`;
+USE `db_228309_database`;
+CREATE TABLE `user` (
+`user_id` VARCHAR(50) NOT NULL,
+`email` VARCHAR(50),
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+`confirmed` TINYINT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `task` (
+`task_id` VARCHAR(50) NOT NULL,
+`description` VARCHAR(50),
+`completed` TINYINT,
+`user_id` VARCHAR(50),
+PRIMARY KEY (`task_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `habit` (
+`habit_id` VARCHAR(50) NOT NULL,
+`description` VARCHAR(50),
+`schedule` VARCHAR(50),
+`completions` VARCHAR(50),
+`daily` DATETIME,
+`user_id` VARCHAR(50),
+PRIMARY KEY (`habit_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`event_id` VARCHAR(50) NOT NULL,
+`description` VARCHAR(50),
+`date` DATETIME,
+`user_id` VARCHAR(50),
+PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_228309_database') AS relationships;
+relationships
+Database: db_228309_database
+
+Table Connections:
+------------------
+[Implied]  event.user_id -> user.user_id
+[Implied]  habit.user_id -> user.user_id
+[Implied]  task.user_id -> user.user_id
+
+DROP DATABASE `db_228309_database`;
+UNINSTALL EXTENSION vsql_schematron;

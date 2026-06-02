@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 091751_data-jdbc
+--echo #
+CREATE DATABASE `db_091751_data_jdbc`;
+USE `db_091751_data_jdbc`;
+CREATE TABLE `lib_publisher` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `place` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lib_book` (
+  `id` INT NOT NULL,
+  `call_number` VARCHAR(50),
+  `collation` VARCHAR(50),
+  `create_date` TIMESTAMP NULL,
+  `ebook` VARCHAR(50),
+  `isbn` VARCHAR(50),
+  `last_update` TIMESTAMP NULL,
+  `name` VARCHAR(50),
+  `notes` VARCHAR(50),
+  `publish_year` VARCHAR(50),
+  `serial_name` VARCHAR(50),
+  `publisher_id` INT,
+  `author` VARCHAR(50),
+  `subject` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `id_increment_generator` (
+  `sequence_name` VARCHAR(50),
+  `next_val` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_091751_data_jdbc') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_091751_data_jdbc') AS relationships;
+DROP DATABASE `db_091751_data_jdbc`;
+UNINSTALL EXTENSION vsql_schematron;

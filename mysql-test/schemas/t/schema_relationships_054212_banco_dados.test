@@ -1,0 +1,85 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 054212_banco_dados
+--echo #
+CREATE DATABASE `db_054212_banco_dados`;
+USE `db_054212_banco_dados`;
+CREATE TABLE `professor` (
+  `id` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `usuario` VARCHAR(50),
+  `senha` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `aluno` (
+  `id` INT NOT NULL,
+  `id_professor` INT,
+  `nome` VARCHAR(50),
+  `usuario` VARCHAR(50),
+  `senha` VARCHAR(50),
+  `total_pontos` INT,
+  `fase` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bioma` (
+  `id` INT NOT NULL,
+  `nome` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `animal` (
+  `id` INT NOT NULL,
+  `id_bioma` INT,
+  `nome` VARCHAR(50),
+  `imagem` VARCHAR(50),
+  `som` VARCHAR(50),
+  `descricao` VARCHAR(50),
+  `alimentacao` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `zoologico` (
+  `id` INT NOT NULL,
+  `id_aluno` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `zoo_anim` (
+  `id` INT NOT NULL,
+  `id_zoologico` INT,
+  `id_animal` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dificuldade` (
+  `id` INT NOT NULL,
+  `numero_cartas` INT,
+  `tempo_limite` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `partida` (
+  `id` INT NOT NULL,
+  `id_aluno` INT,
+  `id_bioma` INT,
+  `id_dificuldade` INT,
+  `tempo` INT,
+  `status` VARCHAR(50),
+  `pontos` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_054212_banco_dados') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_054212_banco_dados') AS relationships;
+DROP DATABASE `db_054212_banco_dados`;
+UNINSTALL EXTENSION vsql_schematron;

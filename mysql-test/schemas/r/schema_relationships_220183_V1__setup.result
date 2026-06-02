@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 220183_V1__setup
+#
+CREATE DATABASE `db_220183_V1__setup`;
+USE `db_220183_V1__setup`;
+CREATE TABLE `groups` (
+`id` VARCHAR(50) NOT NULL,
+`code` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`group_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `droplets` (
+`id` VARCHAR(50) NOT NULL,
+`created` TIMESTAMP NULL,
+`url` VARCHAR(50),
+`title` VARCHAR(50),
+`description` VARCHAR(50),
+`image_url` VARCHAR(50),
+`is_read` BOOLEAN,
+`user_id` VARCHAR(50),
+`group_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_220183_V1__setup') AS relationships;
+relationships
+Database: db_220183_V1__setup
+
+Table Connections:
+------------------
+[Implied]  droplets.group_id -> groups.id
+[Implied]  droplets.user_id -> users.id
+[Implied]  users.group_id -> groups.id
+
+DROP DATABASE `db_220183_V1__setup`;
+UNINSTALL EXTENSION vsql_schematron;

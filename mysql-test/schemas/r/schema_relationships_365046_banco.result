@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 365046_banco
+#
+CREATE DATABASE `db_365046_banco`;
+USE `db_365046_banco`;
+CREATE TABLE `banco.cliente` (
+`id` INT NOT NULL,
+`nombre` VARCHAR(50),
+`apellido` VARCHAR(50),
+`telefono` VARCHAR(50),
+`correo` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `banco.cuenta` (
+`id` INT NOT NULL,
+`moneda` VARCHAR(50),
+`fondo` DECIMAL(10,2),
+`cliente_id` INT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `banco.transaccion` (
+`id` INT NOT NULL,
+`cuenta_id` INT,
+`tipo_transaccion_id` INT,
+`monto` DECIMAL(10,2),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_365046_banco') AS relationships;
+relationships
+Database: db_365046_banco
+
+Table Connections:
+------------------
+[Implied]  banco.cuenta.cliente_id -> banco.cliente.id
+[Implied]  banco.transaccion.cuenta_id -> banco.cuenta.id
+
+DROP DATABASE `db_365046_banco`;
+UNINSTALL EXTENSION vsql_schematron;

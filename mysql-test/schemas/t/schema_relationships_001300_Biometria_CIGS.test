@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 001300_Biometria_CIGS
+--echo #
+CREATE DATABASE `db_001300_Biometria_CIGS`;
+USE `db_001300_Biometria_CIGS`;
+CREATE TABLE `Evento` (
+  `id_tipo` INT,
+  `data` DATE,
+  `id_usuario` INT,
+  `id` INT NOT NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Usuario` (
+  `id` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `Cod_PG` INT,
+  `OM` VARCHAR(50),
+  `Biometria` BLOB,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `admins` (
+  `usuario` VARCHAR(50) NOT NULL,
+  `senha` VARCHAR(50),
+  `nivel` INT,
+  PRIMARY KEY (`usuario`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_001300_Biometria_CIGS') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_001300_Biometria_CIGS') AS relationships;
+DROP DATABASE `db_001300_Biometria_CIGS`;
+UNINSTALL EXTENSION vsql_schematron;

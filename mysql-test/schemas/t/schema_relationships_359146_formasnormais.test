@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 359146_formasnormais
+--echo #
+CREATE DATABASE `db_359146_formasnormais`;
+USE `db_359146_formasnormais`;
+CREATE TABLE `PACIENTE` (
+  `IDPACIENTE` INT NOT NULL,
+  `NOME` VARCHAR(50),
+  `SEXO` CHAR(50),
+  `EMAIL` VARCHAR(50),
+  `NASCIMENTO` DATE,
+  PRIMARY KEY (`IDPACIENTE`)
+) CHARACTER SET latin1;
+CREATE TABLE `MEDICO` (
+  `IDMEDICO` INT NOT NULL,
+  `NOME` VARCHAR(50),
+  `SEXO` CHAR(50),
+  `ESPECIALIDADE` VARCHAR(50),
+  `FUNCIONARIO` VARCHAR(50),
+  PRIMARY KEY (`IDMEDICO`)
+) CHARACTER SET latin1;
+CREATE TABLE `HOSPITAL` (
+  `IDHOSPITAL` INT NOT NULL,
+  `NOME` VARCHAR(50),
+  `BAIRRO` VARCHAR(50),
+  `CIDADE` VARCHAR(50),
+  `ESTADO` CHAR(50),
+  PRIMARY KEY (`IDHOSPITAL`)
+) CHARACTER SET latin1;
+CREATE TABLE `CONSULTA` (
+  `IDCONSULTA` INT NOT NULL,
+  `ID_PACIENTE` INT,
+  `ID_MEDICO` INT,
+  `ID_HOSPITAL` INT,
+  `DATA` DATETIME,
+  `DIAGNOSTIVO` VARCHAR(50),
+  PRIMARY KEY (`IDCONSULTA`)
+) CHARACTER SET latin1;
+CREATE TABLE `INTERNACAO` (
+  `IDINTERNACAO` INT NOT NULL,
+  `ENTRADA` DATETIME,
+  `QUARTO` INT,
+  `SAIDA` DATETIME,
+  `OBSERVACOES` VARCHAR(50),
+  `ID_CONSULTA` INT,
+  PRIMARY KEY (`IDINTERNACAO`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_359146_formasnormais') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_359146_formasnormais') AS relationships;
+DROP DATABASE `db_359146_formasnormais`;
+UNINSTALL EXTENSION vsql_schematron;

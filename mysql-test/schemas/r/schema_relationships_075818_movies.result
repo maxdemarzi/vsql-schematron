@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 075818_movies
+#
+CREATE DATABASE `db_075818_movies`;
+USE `db_075818_movies`;
+CREATE TABLE `movies` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`release_year` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ratings` (
+`id` INT NOT NULL,
+`movie_id` INT,
+`customer_id` INT,
+`rating` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customers` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`address` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_075818_movies') AS relationships;
+relationships
+Database: db_075818_movies
+
+Table Connections:
+------------------
+[Implied]  ratings.customer_id -> customers.id
+[Implied]  ratings.movie_id -> movies.id
+
+DROP DATABASE `db_075818_movies`;
+UNINSTALL EXTENSION vsql_schematron;

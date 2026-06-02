@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 025227_DatabaseCreation_mysql
+#
+CREATE DATABASE `db_025227_DatabaseCreation_mysql`;
+USE `db_025227_DatabaseCreation_mysql`;
+CREATE TABLE `Author` (
+`AuthorId` INT NOT NULL,
+`Name` VARCHAR(50),
+`Lastname` VARCHAR(50),
+`Description` VARCHAR(50),
+PRIMARY KEY (`AuthorId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Website` (
+`WebsiteId` INT NOT NULL,
+`Name` VARCHAR(50),
+`Url` VARCHAR(50),
+PRIMARY KEY (`WebsiteId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profile` (
+`ProfileId` INT NOT NULL,
+`AuthorId` INT,
+`WebsiteId` INT,
+`Name` VARCHAR(50),
+`TemplateKey` VARCHAR(50),
+`ProfileUrl` VARCHAR(50),
+PRIMARY KEY (`ProfileId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Post` (
+`PostId` INT NOT NULL,
+`ProfileId` INT,
+`PostingDateTime` DATETIME,
+`Content` VARCHAR(50),
+`ThreadTitle` VARCHAR(50),
+`PostLink` VARCHAR(50),
+`Forum` VARCHAR(50),
+`ForumLink` VARCHAR(50),
+PRIMARY KEY (`PostId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_025227_DatabaseCreation_mysql') AS relationships;
+relationships
+Database: db_025227_DatabaseCreation_mysql
+
+Table Connections:
+------------------
+[Implied]  Post.ProfileId -> Profile.ProfileId
+[Implied]  Profile.AuthorId -> Author.AuthorId
+[Implied]  Profile.WebsiteId -> Website.WebsiteId
+
+DROP DATABASE `db_025227_DatabaseCreation_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

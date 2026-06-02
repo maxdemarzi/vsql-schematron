@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 277490_relational_schema
+#
+CREATE DATABASE `db_277490_relational_schema`;
+USE `db_277490_relational_schema`;
+CREATE TABLE `TBL_CUSTOMER` (
+`SSN` INT NOT NULL,
+`FIRST_NAME` CHAR(50),
+`MIDDLE_INITIAL` CHAR(50),
+`LAST_NAME` CHAR(50),
+`POLICY_ID` INT,
+PRIMARY KEY (`SSN`)
+) CHARACTER SET latin1;
+CREATE TABLE `TBL_POLICY` (
+`POLICY_ID` INT NOT NULL,
+`DEDUCTIBLE` DECIMAL(10,2),
+`STARTING_DATE` DATE,
+`EXPIRATION_DATE` DATE,
+PRIMARY KEY (`POLICY_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `TBL_CAR` (
+`VIN` VARCHAR(50) NOT NULL,
+`MAKE` CHAR(50),
+`MODEL` CHAR(50),
+`YEAR` INT,
+`COLOR` CHAR(50),
+`POLICY_ID` INT,
+PRIMARY KEY (`VIN`)
+) CHARACTER SET latin1;
+CREATE TABLE `TBL_CLAIM` (
+`CLAIM_ID` INT NOT NULL,
+`CLAIM_DATE` DATE,
+`DAMAGE_AMOUNT` DECIMAL(10,2),
+`CUSTOMER_ID` INT,
+PRIMARY KEY (`CLAIM_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_277490_relational_schema') AS relationships;
+relationships
+Database: db_277490_relational_schema
+
+Table Connections:
+------------------
+[Implied]  TBL_CAR.POLICY_ID -> TBL_POLICY.POLICY_ID
+[Implied]  TBL_CLAIM.CUSTOMER_ID -> TBL_CUSTOMER.SSN
+[Implied]  TBL_CUSTOMER.POLICY_ID -> TBL_POLICY.POLICY_ID
+
+DROP DATABASE `db_277490_relational_schema`;
+UNINSTALL EXTENSION vsql_schematron;

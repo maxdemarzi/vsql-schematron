@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 067732_Table
+--echo #
+CREATE DATABASE `db_067732_Table`;
+USE `db_067732_Table`;
+CREATE TABLE `users` (
+  `id` VARCHAR(50) NOT NULL,
+  `nom` VARCHAR(50),
+  `mdp` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `axe` (
+  `id` VARCHAR(50) NOT NULL,
+  `nom` VARCHAR(50),
+  `longueur` DECIMAL(10,2),
+  `espace` DECIMAL(10,2),
+  `dureeMax` INT,
+  `coordX` DECIMAL(10,2),
+  `coordY` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `token` (
+  `value` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`value`)
+) CHARACTER SET latin1;
+CREATE TABLE `occupation` (
+  `id` VARCHAR(50) NOT NULL,
+  `idAxe` VARCHAR(50),
+  `valueToken` VARCHAR(50),
+  `longueur` DECIMAL(10,2),
+  `numVoiture` VARCHAR(50),
+  `date` TIMESTAMP NULL,
+  `etat` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nalanaAuto` (
+  `id` VARCHAR(50) NOT NULL,
+  `idOccupation` VARCHAR(50),
+  `date` TIMESTAMP NULL,
+  `etat` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_067732_Table') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_067732_Table') AS relationships;
+DROP DATABASE `db_067732_Table`;
+UNINSTALL EXTENSION vsql_schematron;

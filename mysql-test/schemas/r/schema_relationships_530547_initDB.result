@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 530547_initDB
+#
+CREATE DATABASE `db_530547_initDB`;
+USE `db_530547_initDB`;
+CREATE TABLE `Schedules` (
+`scheduleID` MEDIUMINT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+PRIMARY KEY (`scheduleID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Transitions` (
+`transitionID` MEDIUMINT NOT NULL,
+`scheduleID` MEDIUMINT,
+`offset` INT,
+`state` VARCHAR(50),
+PRIMARY KEY (`transitionID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sensors` (
+`sensorID` MEDIUMINT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`value` INT,
+`readtime` TIMESTAMP NULL,
+PRIMARY KEY (`sensorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Channels` (
+`channelID` MEDIUMINT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`scheduleID` MEDIUMINT,
+`sensorID` MEDIUMINT,
+`enabled` VARCHAR(50),
+`state` VARCHAR(50),
+PRIMARY KEY (`channelID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_530547_initDB') AS relationships;
+relationships
+Database: db_530547_initDB
+
+Table Connections:
+------------------
+[Implied]  Channels.scheduleID -> Schedules.scheduleID
+[Implied]  Channels.sensorID -> Sensors.sensorID
+[Implied]  Transitions.scheduleID -> Schedules.scheduleID
+
+DROP DATABASE `db_530547_initDB`;
+UNINSTALL EXTENSION vsql_schematron;

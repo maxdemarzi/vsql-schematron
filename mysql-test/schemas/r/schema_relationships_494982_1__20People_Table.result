@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 494982_1.%20People_Table
+#
+CREATE DATABASE `db_494982_1__20People_Table`;
+USE `db_494982_1__20People_Table`;
+CREATE TABLE `people` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`DOB` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT NOT NULL,
+`amount` DECIMAL(10,2),
+`person_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `profiles` (
+`id` INT NOT NULL,
+`person_id` INT,
+`address` TEXT,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_494982_1__20People_Table') AS relationships;
+relationships
+Database: db_494982_1__20People_Table
+
+Table Connections:
+------------------
+[Implied]  orders.person_id -> people.id
+[Implied]  profiles.person_id -> people.id
+
+DROP DATABASE `db_494982_1__20People_Table`;
+UNINSTALL EXTENSION vsql_schematron;

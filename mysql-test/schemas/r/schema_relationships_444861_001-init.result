@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 444861_001-init
+#
+CREATE DATABASE `db_444861_001_init`;
+USE `db_444861_001_init`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`pw_salt` VARCHAR(50),
+`password_hash` VARCHAR(50),
+`admin` BOOLEAN,
+`keycode` INT,
+`session_cookie` VARCHAR(50),
+`session_created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `doors` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`token` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `permissions` (
+`id` INT NOT NULL,
+`user_id` INT,
+`door_id` INT,
+`expiration` DATETIME,
+`creation` DATETIME,
+`constraints` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `entry_logs` (
+`id` INT NOT NULL,
+`user_id` INT,
+`door_id` INT,
+`method` VARCHAR(50),
+`time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_444861_001_init') AS relationships;
+relationships
+Database: db_444861_001_init
+
+Table Connections:
+------------------
+[Implied]  entry_logs.door_id -> doors.id
+[Implied]  entry_logs.user_id -> users.id
+[Implied]  permissions.door_id -> doors.id
+[Implied]  permissions.user_id -> users.id
+
+DROP DATABASE `db_444861_001_init`;
+UNINSTALL EXTENSION vsql_schematron;

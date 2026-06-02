@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 623754_V1__Init_DB
+#
+CREATE DATABASE `db_623754_V1__Init_DB`;
+USE `db_623754_V1__Init_DB`;
+CREATE TABLE `usr` (
+`id` BIGINT NOT NULL,
+`active_code` VARCHAR(50),
+`active` BOOLEAN,
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`username` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`id` BIGINT NOT NULL,
+`post_date` DATETIME,
+`tag` VARCHAR(50),
+`text` VARCHAR(50),
+`user_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`id` BIGINT NOT NULL,
+`text` VARCHAR(50),
+`user_id` BIGINT,
+`message_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`user_id` BIGINT,
+`roles` VARCHAR(50)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_623754_V1__Init_DB') AS relationships;
+relationships
+Database: db_623754_V1__Init_DB
+
+Table Connections:
+------------------
+[Implied]  comment.message_id -> message.id
+[Implied]  comment.user_id -> usr.id
+[Implied]  message.user_id -> usr.id
+[Implied]  user_role.user_id -> usr.id
+
+DROP DATABASE `db_623754_V1__Init_DB`;
+UNINSTALL EXTENSION vsql_schematron;

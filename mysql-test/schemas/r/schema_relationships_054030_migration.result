@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 054030_migration
+#
+CREATE DATABASE `db_054030_migration`;
+USE `db_054030_migration`;
+CREATE TABLE `Domains` (
+`id` VARCHAR(50) NOT NULL,
+`domain` TEXT,
+`hits` INT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `GuildConfigs` (
+`id` TEXT,
+`delete` BOOLEAN,
+`action` VARCHAR(50),
+`log_channel` TEXT,
+`mute_role` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `Exemptions` (
+`id` TEXT,
+`kind` VARCHAR(50),
+`guild_id` TEXT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_054030_migration') AS relationships;
+relationships
+Database: db_054030_migration
+
+Table Connections:
+------------------
+[Implied]  Exemptions.guild_id -> GuildConfigs.id
+
+DROP DATABASE `db_054030_migration`;
+UNINSTALL EXTENSION vsql_schematron;

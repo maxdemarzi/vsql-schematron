@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 614684_MYSQLQuery
+--echo #
+CREATE DATABASE `db_614684_MYSQLQuery`;
+USE `db_614684_MYSQLQuery`;
+CREATE TABLE `Projects` (
+  `Id` INT NOT NULL,
+  `GroupId` INT,
+  `Title` VARCHAR(50),
+  `Description` VARCHAR(50),
+  `DateCreated` DATETIME,
+  `DateModified` DATETIME,
+  `FileLocation` VARCHAR(50),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+  `Id` INT NOT NULL,
+  `Username` VARCHAR(50),
+  `GroupId` INT,
+  `Email` VARCHAR(50),
+  `Password` VARCHAR(50),
+  `IsTeacher` VARCHAR(50),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comments` (
+  `Id` INT NOT NULL,
+  `ProjectId` INT,
+  `UserId` INT,
+  `Text` VARCHAR(50),
+  `Timestamp` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_614684_MYSQLQuery') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_614684_MYSQLQuery') AS relationships;
+DROP DATABASE `db_614684_MYSQLQuery`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 478119_mysql
+--echo #
+CREATE DATABASE `db_478119_mysql`;
+USE `db_478119_mysql`;
+CREATE TABLE `questions` (
+  `id` INT NOT NULL,
+  `text` VARCHAR(50),
+  `enabled` TINYINT,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `deleted_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answers` (
+  `id` INT NOT NULL,
+  `question_id` INT,
+  `text` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `deleted_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `votes` (
+  `id` INT NOT NULL,
+  `answer_id` INT,
+  `ip_address` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` INT,
+  `deleted_at` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_478119_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_478119_mysql') AS relationships;
+DROP DATABASE `db_478119_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

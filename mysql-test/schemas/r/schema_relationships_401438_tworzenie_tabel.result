@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 401438_tworzenie_tabel
+#
+CREATE DATABASE `db_401438_tworzenie_tabel`;
+USE `db_401438_tworzenie_tabel`;
+CREATE TABLE `Autor` (
+`id_autora` INT NOT NULL,
+`imie` VARCHAR(50),
+`nazwisko` VARCHAR(50),
+PRIMARY KEY (`id_autora`)
+) CHARACTER SET latin1;
+CREATE TABLE `Gatunek` (
+`id_gatunku` INT NOT NULL,
+`nazwa_gatunku` VARCHAR(50),
+PRIMARY KEY (`id_gatunku`)
+) CHARACTER SET latin1;
+CREATE TABLE `Wydawnictwo` (
+`id_wydawnictwa` INT NOT NULL,
+`nazwa` VARCHAR(50),
+PRIMARY KEY (`id_wydawnictwa`)
+) CHARACTER SET latin1;
+CREATE TABLE `uczen` (
+`id_ucznia` INT NOT NULL,
+`imie` VARCHAR(50),
+`nazwisko` VARCHAR(50),
+`rok_ur` INT,
+`klasa` VARCHAR(50),
+PRIMARY KEY (`id_ucznia`)
+) CHARACTER SET latin1;
+CREATE TABLE `Ksiazka` (
+`id_ksiazki` INT NOT NULL,
+`tytul` VARCHAR(50),
+`id_autora` INT,
+`id_gatunku` INT,
+`id_wydawnictwa` INT,
+`rok_wydania` INT,
+PRIMARY KEY (`id_ksiazki`)
+) CHARACTER SET latin1;
+CREATE TABLE `Wypozyczenie` (
+`id_wypozyczenia` INT NOT NULL,
+`id_ksiazki` INT,
+`id_autora` INT,
+`id_gatunku` INT,
+`id_wydawnictwa` INT,
+`id_ucznia` INT,
+`data_wypozyczenia` DATE,
+`data_zwrotu` DATE,
+PRIMARY KEY (`id_wypozyczenia`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_401438_tworzenie_tabel') AS relationships;
+relationships
+Database: db_401438_tworzenie_tabel
+
+Table Connections:
+------------------
+[Implied]  Ksiazka.id_autora -> Autor.id_autora
+[Implied]  Ksiazka.id_gatunku -> Gatunek.id_gatunku
+[Implied]  Ksiazka.id_wydawnictwa -> Wydawnictwo.id_wydawnictwa
+[Implied]  Wypozyczenie.id_autora -> Autor.id_autora
+[Implied]  Wypozyczenie.id_gatunku -> Gatunek.id_gatunku
+[Implied]  Wypozyczenie.id_ksiazki -> Ksiazka.id_ksiazki
+[Implied]  Wypozyczenie.id_ucznia -> uczen.id_ucznia
+[Implied]  Wypozyczenie.id_wydawnictwa -> Wydawnictwo.id_wydawnictwa
+
+DROP DATABASE `db_401438_tworzenie_tabel`;
+UNINSTALL EXTENSION vsql_schematron;

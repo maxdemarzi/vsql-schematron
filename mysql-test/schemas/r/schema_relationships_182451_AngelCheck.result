@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 182451_AngelCheck
+#
+CREATE DATABASE `db_182451_AngelCheck`;
+USE `db_182451_AngelCheck`;
+CREATE TABLE `Address` (
+`Address_ID` INT NOT NULL,
+`Address_1` VARCHAR(50),
+`Address_2` VARCHAR(50),
+`City` VARCHAR(50),
+`St` CHAR(50),
+`Zip` INT,
+PRIMARY KEY (`Address_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`Customer_ID` INT NOT NULL,
+`Email` VARCHAR(50),
+`Phone` INT,
+`First_Name` VARCHAR(50),
+`Last_Name` VARCHAR(50),
+`Address_ID` INT,
+PRIMARY KEY (`Customer_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Suppliers` (
+`Sup_ID` INT NOT NULL,
+`Sup_Name` VARCHAR(50),
+`Website` VARCHAR(50),
+`Email` VARCHAR(50),
+`Address_ID` INT,
+PRIMARY KEY (`Sup_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Guitar_Body` (
+`Body_ID` INT NOT NULL,
+`Body_Shape` VARCHAR(50),
+`Body_Wood` VARCHAR(50),
+`Sup_ID` INT,
+PRIMARY KEY (`Body_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Neck` (
+`Neck_ID` INT NOT NULL,
+`Neck_Wood` VARCHAR(50),
+`Headstock_Format` VARCHAR(50),
+`Sup_ID` INT,
+PRIMARY KEY (`Neck_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_182451_AngelCheck') AS relationships;
+relationships
+Database: db_182451_AngelCheck
+
+Table Connections:
+------------------
+[Implied]  Guitar_Body.Sup_ID -> Suppliers.Sup_ID
+[Implied]  Neck.Sup_ID -> Suppliers.Sup_ID
+[Implied]  Suppliers.Address_ID -> Address.Address_ID
+[Implied]  customer.Address_ID -> Address.Address_ID
+
+DROP DATABASE `db_182451_AngelCheck`;
+UNINSTALL EXTENSION vsql_schematron;

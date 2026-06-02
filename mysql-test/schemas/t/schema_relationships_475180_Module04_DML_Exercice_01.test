@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 475180_Module04_DML_Exercice_01
+--echo #
+CREATE DATABASE `db_475180_Module04_DML_Exercice_01`;
+USE `db_475180_Module04_DML_Exercice_01`;
+CREATE TABLE `SERVICES` (
+  `NO_SERVICE` INT NOT NULL,
+  `NOM` VARCHAR(50),
+  `LIEU` VARCHAR(50),
+  PRIMARY KEY (`NO_SERVICE`)
+) CHARACTER SET latin1;
+CREATE TABLE `EMPLOYES` (
+  `NO_EMPLOYE` INT NOT NULL,
+  `NOM` VARCHAR(50),
+  `JOB` VARCHAR(50),
+  `MGR` INT,
+  `DATE_EMBAUCHE` DATE,
+  `SALAIRE` DOUBLE,
+  `COMMISSION` DOUBLE,
+  `NO_SERVICE` INT,
+  PRIMARY KEY (`NO_EMPLOYE`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_475180_Module04_DML_Exercice_01') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_475180_Module04_DML_Exercice_01') AS relationships;
+DROP DATABASE `db_475180_Module04_DML_Exercice_01`;
+UNINSTALL EXTENSION vsql_schematron;

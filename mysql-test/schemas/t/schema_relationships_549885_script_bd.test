@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 549885_script_bd
+--echo #
+CREATE DATABASE `db_549885_script_bd`;
+USE `db_549885_script_bd`;
+CREATE TABLE `empresax.tb_cliente` (
+  `id_cliente` INT NOT NULL,
+  `titulo` CHAR(50),
+  `nome` VARCHAR(50),
+  `sobrenome` VARCHAR(50),
+  `endereco` VARCHAR(50),
+  `numero` VARCHAR(50),
+  `complemento` VARCHAR(50),
+  `cep` VARCHAR(50),
+  `cidade` VARCHAR(50),
+  `estado` CHAR(50),
+  `fone_fixo` VARCHAR(50),
+  `fone_movel` VARCHAR(50),
+  `fg_ativo` INT,
+  PRIMARY KEY (`id_cliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `empresax.tb_pedido` (
+  `id_pedido` INT NOT NULL,
+  `id_cliente` INT,
+  `dt_compra` TIMESTAMP NULL,
+  `dt_entrega` TIMESTAMP NULL,
+  `valor` DECIMAL(10,2),
+  `fg_ativo` INT,
+  PRIMARY KEY (`id_pedido`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_549885_script_bd') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_549885_script_bd') AS relationships;
+DROP DATABASE `db_549885_script_bd`;
+UNINSTALL EXTENSION vsql_schematron;

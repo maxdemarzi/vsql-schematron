@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 178361_migration
+#
+CREATE DATABASE `db_178361_migration`;
+USE `db_178361_migration`;
+CREATE TABLE `Poll` (
+`id` VARCHAR(50) NOT NULL,
+`title` TEXT,
+`userId` TEXT,
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Option` (
+`id` VARCHAR(50) NOT NULL,
+`name` TEXT,
+`createdAt` DATETIME,
+`pollId` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Vote` (
+`id` VARCHAR(50) NOT NULL,
+`optionId` TEXT,
+`pollId` TEXT,
+`userId` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_178361_migration') AS relationships;
+relationships
+Database: db_178361_migration
+
+Table Connections:
+------------------
+[Implied]  Option.pollId -> Poll.id
+[Implied]  Vote.optionId -> Option.id
+[Implied]  Vote.pollId -> Poll.id
+
+DROP DATABASE `db_178361_migration`;
+UNINSTALL EXTENSION vsql_schematron;

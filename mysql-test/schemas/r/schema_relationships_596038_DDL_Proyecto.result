@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 596038_DDL_Proyecto
+#
+CREATE DATABASE `db_596038_DDL_Proyecto`;
+USE `db_596038_DDL_Proyecto`;
+CREATE TABLE `Perfil` (
+`Id_perfil` DECIMAL(10,2) NOT NULL,
+`Nombre` VARCHAR(50),
+PRIMARY KEY (`Id_perfil`)
+) CHARACTER SET latin1;
+CREATE TABLE `Persona` (
+`Id_persona` DECIMAL(10,2) NOT NULL,
+`Nombre` VARCHAR(50),
+`Apellido1` VARCHAR(50),
+`Apellido2` VARCHAR(50),
+`Fecha_alta` DATE,
+`Usuario` VARCHAR(50),
+`Contrasenna` VARCHAR(50),
+`Email` VARCHAR(50),
+`Id_perfil` INT,
+PRIMARY KEY (`Id_persona`)
+) CHARACTER SET latin1;
+CREATE TABLE `Equipo` (
+`Id_equipo` DECIMAL(10,2) NOT NULL,
+`Nombre` VARCHAR(50),
+`Fecha_creacion` DATE,
+`Comentario` VARCHAR(50),
+`Lugar` VARCHAR(50),
+`Id_persona` INT,
+PRIMARY KEY (`Id_equipo`)
+) CHARACTER SET latin1;
+CREATE TABLE `Jugador` (
+`Id_jugador` DECIMAL(10,2) NOT NULL,
+`Dni` VARCHAR(50),
+`Nombre` VARCHAR(50),
+`Apellido1` VARCHAR(50),
+`Apellido2` VARCHAR(50),
+`Nickname` VARCHAR(50),
+`Sueldo` DECIMAL(10,2),
+`Fecha_alta` DATE,
+`Comentario` VARCHAR(50),
+`Id_equipo` INT,
+PRIMARY KEY (`Id_jugador`)
+) CHARACTER SET latin1;
+CREATE TABLE `Jornada` (
+`Id_jornada` DECIMAL(10,2) NOT NULL,
+`Fecha_inicio` DATE,
+`Fecha_fin` DATE,
+PRIMARY KEY (`Id_jornada`)
+) CHARACTER SET latin1;
+CREATE TABLE `Partido` (
+`Id_partido` DECIMAL(10,2) NOT NULL,
+`Fecha` TIMESTAMP NULL,
+`Id_jornada` INT,
+PRIMARY KEY (`Id_partido`)
+) CHARACTER SET latin1;
+CREATE TABLE `Marcador` (
+`Id_marcador` DECIMAL(10,2) NOT NULL,
+`Puntuacion` INT,
+`Visitante` DECIMAL(10,2),
+`Id_partido` INT,
+`Id_equipo` INT,
+PRIMARY KEY (`Id_marcador`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_596038_DDL_Proyecto') AS relationships;
+relationships
+Database: db_596038_DDL_Proyecto
+
+Table Connections:
+------------------
+[Implied]  Equipo.Id_persona -> Persona.Id_persona
+[Implied]  Jugador.Id_equipo -> Equipo.Id_equipo
+[Implied]  Marcador.Id_equipo -> Equipo.Id_equipo
+[Implied]  Marcador.Id_partido -> Partido.Id_partido
+[Implied]  Partido.Id_jornada -> Jornada.Id_jornada
+[Implied]  Persona.Id_perfil -> Perfil.Id_perfil
+
+DROP DATABASE `db_596038_DDL_Proyecto`;
+UNINSTALL EXTENSION vsql_schematron;

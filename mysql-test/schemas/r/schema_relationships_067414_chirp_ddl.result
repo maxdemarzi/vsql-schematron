@@ -1,0 +1,34 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 067414_chirp.ddl
+#
+CREATE DATABASE `db_067414_chirp_ddl`;
+USE `db_067414_chirp_ddl`;
+CREATE TABLE `AUTHOR` (
+`ID` INT NOT NULL,
+`NAME` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `MICROBLOG` (
+`ID` INT NOT NULL,
+`AUTHOR_ID` INT,
+`NAME` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CHIRP` (
+`ID` INT NOT NULL,
+`MICROBLOG_ID` INT,
+`CONTENT` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_067414_chirp_ddl') AS relationships;
+relationships
+Database: db_067414_chirp_ddl
+
+Table Connections:
+------------------
+[Implied]  CHIRP.MICROBLOG_ID -> MICROBLOG.ID
+[Implied]  MICROBLOG.AUTHOR_ID -> AUTHOR.ID
+
+DROP DATABASE `db_067414_chirp_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

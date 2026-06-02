@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 099909_mysql_ddl
+#
+CREATE DATABASE `db_099909_mysql_ddl`;
+USE `db_099909_mysql_ddl`;
+CREATE TABLE `sensor_metadata` (
+`id` VARCHAR(50) NOT NULL,
+`daq` VARCHAR(50),
+`bias_level` VARCHAR(50),
+`floor_number` VARCHAR(50),
+`orientation` VARCHAR(50),
+`sensitivity` VARCHAR(50),
+`serial` VARCHAR(50),
+`x` DOUBLE,
+`y` DOUBLE,
+`z` DOUBLE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sensor_data` (
+`id` VARCHAR(50) NOT NULL,
+`daq_id` VARCHAR(50),
+`timestamp` DATETIME,
+`value` DOUBLE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `psd` (
+`id` VARCHAR(50) NOT NULL,
+`daq_id` VARCHAR(50),
+`timestamp` DATETIME,
+`average_power` DOUBLE,
+`freqs` TEXT,
+`power_spectrum` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_099909_mysql_ddl') AS relationships;
+relationships
+Database: db_099909_mysql_ddl
+
+Table Connections:
+------------------
+[Implied]  psd.daq_id -> sensor_metadata.id
+[Implied]  sensor_data.daq_id -> sensor_metadata.id
+
+DROP DATABASE `db_099909_mysql_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

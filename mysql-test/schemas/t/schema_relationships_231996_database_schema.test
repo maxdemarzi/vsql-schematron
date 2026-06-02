@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 231996_database_schema
+--echo #
+CREATE DATABASE `db_231996_database_schema`;
+USE `db_231996_database_schema`;
+CREATE TABLE `User` (
+  `email` VARCHAR(50) NOT NULL,
+  `telegramId` VARCHAR(50),
+  `name` VARCHAR(50),
+  `surname` VARCHAR(50),
+  `password` VARCHAR(50),
+  `phone_number` VARCHAR(50),
+  `statements` BOOLEAN,
+  PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+CREATE TABLE `Fire` (
+  `id` INT NOT NULL,
+  `actual_location` VARCHAR(50),
+  `fire_location` VARCHAR(50),
+  `photo` VARCHAR(50),
+  `industrial_area` BOOLEAN,
+  `waste_dump` BOOLEAN,
+  `city_center` BOOLEAN,
+  `trusses` BOOLEAN,
+  `gas_pipeline` BOOLEAN,
+  `bell_tower` BOOLEAN,
+  `more_info` VARCHAR(50),
+  `dateAndTime` VARCHAR(50),
+  `user_email` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_231996_database_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_231996_database_schema') AS relationships;
+DROP DATABASE `db_231996_database_schema`;
+UNINSTALL EXTENSION vsql_schematron;

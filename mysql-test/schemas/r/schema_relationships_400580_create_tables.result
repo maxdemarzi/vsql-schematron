@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 400580_create_tables
+#
+CREATE DATABASE `db_400580_create_tables`;
+USE `db_400580_create_tables`;
+CREATE TABLE `movies` (
+`id` INT NOT NULL,
+`title` TEXT,
+`year` INT,
+`director` TEXT,
+`banner_url` TEXT,
+`trailer_url` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stars` (
+`id` INT NOT NULL,
+`first_name` TEXT,
+`last_name` TEXT,
+`dob` DATE,
+`photo_url` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stars_in_movies` (
+`star_id` INT,
+`movie_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_400580_create_tables') AS relationships;
+relationships
+Database: db_400580_create_tables
+
+Table Connections:
+------------------
+[Implied]  stars_in_movies.movie_id -> movies.id
+[Implied]  stars_in_movies.star_id -> stars.id
+
+DROP DATABASE `db_400580_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

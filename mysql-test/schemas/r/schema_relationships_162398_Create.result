@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 162398_Create
+#
+CREATE DATABASE `db_162398_Create`;
+USE `db_162398_Create`;
+CREATE TABLE `Avatar` (
+`avatar_id` INT NOT NULL,
+`avatar_blob` BLOB,
+PRIMARY KEY (`avatar_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Player` (
+`player_id` INT NOT NULL,
+`username` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`credits` INT,
+`level` INT,
+`register_date` DATE,
+`active_avatar_id` INT,
+`freezetime` INT,
+`doublepoint` INT,
+`skipround` INT,
+PRIMARY KEY (`player_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Game` (
+`game_id` INT NOT NULL,
+`player_id` INT,
+`score` INT,
+`start_time` DATETIME,
+`end_time` DATETIME,
+`questions_answered` INT,
+PRIMARY KEY (`game_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Owned_Avatars` (
+`player_id` INT,
+`avatar_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_162398_Create') AS relationships;
+relationships
+Database: db_162398_Create
+
+Table Connections:
+------------------
+[Implied]  Game.player_id -> Player.player_id
+[Implied]  Owned_Avatars.avatar_id -> Avatar.avatar_id
+[Implied]  Owned_Avatars.player_id -> Player.player_id
+[Implied]  Player.active_avatar_id -> Avatar.avatar_id
+
+DROP DATABASE `db_162398_Create`;
+UNINSTALL EXTENSION vsql_schematron;

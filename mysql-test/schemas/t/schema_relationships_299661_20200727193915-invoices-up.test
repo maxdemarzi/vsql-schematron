@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 299661_20200727193915-invoices-up
+--echo #
+CREATE DATABASE `db_299661_20200727193915_invoices_up`;
+USE `db_299661_20200727193915_invoices_up`;
+CREATE TABLE `invoices` (
+  `id` INT NOT NULL,
+  `invoiceNumber` VARCHAR(50),
+  `invoiceDate` DATE,
+  `clientNote` VARCHAR(50),
+  `totalCharged` DECIMAL(10,2),
+  `status` VARCHAR(50),
+  `dateAdded` DATETIME,
+  `addedBy` INT,
+  `dateModified` DATETIME,
+  `modifiedBy` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `donations` (
+  `id` INT NOT NULL,
+  `donationAmount` DECIMAL(10,2),
+  `donationDate` DATE,
+  `dateAdded` DATETIME,
+  `addedBy` INT,
+  `dateModified` DATETIME,
+  `modifiedBy` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payments` (
+  `id` INT NOT NULL,
+  `isDeleted` BOOLEAN,
+  `paymentDate` DATETIME,
+  `paymentAmount` DECIMAL(10,2),
+  `paymentType` VARCHAR(50),
+  `donationId` INT,
+  `dateAdded` DATETIME,
+  `addedBy` INT,
+  `dateModified` DATETIME,
+  `modifiedBy` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `invoiceLineItems` (
+  `id` INT NOT NULL,
+  `invoiceId` INT,
+  `serviceId` INT,
+  `name` VARCHAR(50),
+  `description` VARCHAR(50),
+  `quantity` INT,
+  `rate` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_299661_20200727193915_invoices_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_299661_20200727193915_invoices_up') AS relationships;
+DROP DATABASE `db_299661_20200727193915_invoices_up`;
+UNINSTALL EXTENSION vsql_schematron;

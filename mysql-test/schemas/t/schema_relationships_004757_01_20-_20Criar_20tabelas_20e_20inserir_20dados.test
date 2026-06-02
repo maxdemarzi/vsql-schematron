@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 004757_01%20-%20Criar%20tabelas%20e%20inserir%20dados
+--echo #
+CREATE DATABASE `db_004757_01_20__20Criar_20tabelas_20e_20inserir_20dados`;
+USE `db_004757_01_20__20Criar_20tabelas_20e_20inserir_20dados`;
+CREATE TABLE `Depto` (
+  `NrDepto` SMALLINT NOT NULL,
+  `NmDepto` CHAR(50),
+  `DsLocal` VARCHAR(50),
+  `VlOrcamento` DECIMAL(10,2),
+  PRIMARY KEY (`NrDepto`)
+) CHARACTER SET latin1;
+CREATE TABLE `Empregado` (
+  `NrEmpregado` INT NOT NULL,
+  `NmEmpregado` CHAR(50),
+  `NrGerente` INT,
+  `DsCargo` VARCHAR(50),
+  `NrDepto` SMALLINT,
+  `DtAdmissao` DATE,
+  `VlSalario` DECIMAL(10,2),
+  `VlComissao` DECIMAL(10,2),
+  PRIMARY KEY (`NrEmpregado`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_004757_01_20__20Criar_20tabelas_20e_20inserir_20dados') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_004757_01_20__20Criar_20tabelas_20e_20inserir_20dados') AS relationships;
+DROP DATABASE `db_004757_01_20__20Criar_20tabelas_20e_20inserir_20dados`;
+UNINSTALL EXTENSION vsql_schematron;

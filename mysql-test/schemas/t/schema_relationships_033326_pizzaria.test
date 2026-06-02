@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 033326_pizzaria
+--echo #
+CREATE DATABASE `db_033326_pizzaria`;
+USE `db_033326_pizzaria`;
+CREATE TABLE `tb_categoria` (
+  `id` INT NOT NULL,
+  `Sabores` VARCHAR(50),
+  `Promoção` VARCHAR(50),
+  `Tamanho` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_pizza` (
+  `id` INT NOT NULL,
+  `Nome` VARCHAR(50),
+  `Refri` VARCHAR(50),
+  `Preço` DECIMAL(10,2),
+  `Pagamento` VARCHAR(50),
+  `categoria_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_033326_pizzaria') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_033326_pizzaria') AS relationships;
+DROP DATABASE `db_033326_pizzaria`;
+UNINSTALL EXTENSION vsql_schematron;

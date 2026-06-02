@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 433338_001_initial
+--echo #
+CREATE DATABASE `db_433338_001_initial`;
+USE `db_433338_001_initial`;
+CREATE TABLE `Repo` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  `url` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Build` (
+  `id` INT NOT NULL,
+  `repo_id` INT,
+  `ref_type` TEXT,
+  `ref` TEXT,
+  `sha` TEXT,
+  `enqueued` INT,
+  `updated` INT,
+  `start` INT,
+  `end` INT,
+  `status` TEXT,
+  `extra` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Step` (
+  `id` INT NOT NULL,
+  `build_id` INT,
+  `description` TEXT,
+  `start` INT,
+  `end` INT,
+  `status` TEXT,
+  `output` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_433338_001_initial') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_433338_001_initial') AS relationships;
+DROP DATABASE `db_433338_001_initial`;
+UNINSTALL EXTENSION vsql_schematron;

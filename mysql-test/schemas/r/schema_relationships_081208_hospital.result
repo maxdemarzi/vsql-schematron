@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 081208_hospital
+#
+CREATE DATABASE `db_081208_hospital`;
+USE `db_081208_hospital`;
+CREATE TABLE `Up` (
+`Uname` VARCHAR(50) NOT NULL,
+`Password` CHAR(50),
+PRIMARY KEY (`Uname`)
+) CHARACTER SET latin1;
+CREATE TABLE `Ato` (
+`Aname` VARCHAR(50) NOT NULL,
+`Atele` CHAR(50),
+PRIMARY KEY (`Aname`)
+) CHARACTER SET latin1;
+CREATE TABLE `Doctor` (
+`Dno` VARCHAR(50) NOT NULL,
+`Dname` CHAR(50),
+`Dsex` CHAR(50),
+`Dzc` CHAR(50),
+`lz_Aname` CHAR(50),
+`Dstate` INT,
+PRIMARY KEY (`Dno`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bed` (
+`Cno` VARCHAR(50) NOT NULL,
+`Cuse` INT,
+`bc_Aname` CHAR(50),
+PRIMARY KEY (`Cno`)
+) CHARACTER SET latin1;
+CREATE TABLE `Patient` (
+`Pno` VARCHAR(50) NOT NULL,
+`Pname` CHAR(50),
+`Psex` CHAR(50),
+`Pbirth` DATE,
+`Padd` CHAR(50),
+`Ptele` CHAR(50),
+`Dno` CHAR(50),
+`Cno` CHAR(50),
+`Idate` DATE,
+`Pmark` CHAR(50),
+`Odate` DATETIME,
+PRIMARY KEY (`Pno`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_081208_hospital') AS relationships;
+relationships
+Database: db_081208_hospital
+
+Table Connections:
+------------------
+[Implied]  Bed.bc_Aname -> Ato.Aname
+[Implied]  Doctor.lz_Aname -> Ato.Aname
+[Implied]  Patient.Cno -> Bed.Cno
+[Implied]  Patient.Dno -> Doctor.Dno
+
+DROP DATABASE `db_081208_hospital`;
+UNINSTALL EXTENSION vsql_schematron;

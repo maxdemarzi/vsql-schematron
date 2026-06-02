@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 039197_database
+--echo #
+CREATE DATABASE `db_039197_database`;
+USE `db_039197_database`;
+CREATE TABLE `Server` (
+  `ServerID` VARCHAR(50) NOT NULL,
+  `ServerName` TEXT,
+  `MemberCount` INT,
+  `ServerPrefix` TEXT,
+  `ServerLastUpdated` TEXT,
+  `ServerWelcomeChannel` VARCHAR(50),
+  PRIMARY KEY (`ServerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Roles` (
+  `RoleID` VARCHAR(50) NOT NULL,
+  `RoleName` TEXT,
+  PRIMARY KEY (`RoleID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ServerRoles` (
+  `RoleID` VARCHAR(50),
+  `ServerID` VARCHAR(50),
+  `Availabe` BOOLEAN
+) CHARACTER SET latin1;
+CREATE TABLE `DiscordUser` (
+  `UserID` VARCHAR(50) NOT NULL,
+  `UserName` TEXT,
+  `UserDiscriminator` TEXT,
+  PRIMARY KEY (`UserID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ServerDiscordUser` (
+  `ServerDiscordUserID` INT NOT NULL,
+  `DCUserID` VARCHAR(50),
+  `DCServerID` VARCHAR(50),
+  PRIMARY KEY (`ServerDiscordUserID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_039197_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_039197_database') AS relationships;
+DROP DATABASE `db_039197_database`;
+UNINSTALL EXTENSION vsql_schematron;

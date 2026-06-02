@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 295756_konecta
+--echo #
+CREATE DATABASE `db_295756_konecta`;
+USE `db_295756_konecta`;
+CREATE TABLE `empleado` (
+  `ID` INT NOT NULL,
+  `FECHA_INGRESO` DATE,
+  `NOMBRE` VARCHAR(50),
+  `SALARIO` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `solicitud` (
+  `ID` INT,
+  `CODIGO` VARCHAR(50),
+  `DESCRIPCION` VARCHAR(50),
+  `RESUMEN` VARCHAR(50),
+  `ID_EMPLEADO` INT
+) CHARACTER SET latin1;
+CREATE TABLE `usuarios` (
+  `id_usuario` INT,
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  `Cedula` VARCHAR(50),
+  `Nombres` VARCHAR(50),
+  `Apellidos` VARCHAR(50),
+  `Email` VARCHAR(50),
+  `Telefono` VARCHAR(50),
+  `Perfil` VARCHAR(50),
+  `Estado` VARCHAR(50),
+  `idClientes` INT,
+  `intentosFallidos` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_295756_konecta') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_295756_konecta') AS relationships;
+DROP DATABASE `db_295756_konecta`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 006735_schema-postgreql
+#
+CREATE DATABASE `db_006735_schema_postgreql`;
+USE `db_006735_schema_postgreql`;
+CREATE TABLE `T_CATEGORY` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_PRODUCT` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`category_fk` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_ITEM` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`unitCost` DECIMAL(10,2),
+`product_fk` BIGINT,
+`imagePath` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_006735_schema_postgreql') AS relationships;
+relationships
+Database: db_006735_schema_postgreql
+
+Table Connections:
+------------------
+[Implied]  T_ITEM.product_fk -> T_PRODUCT.id
+[Implied]  T_PRODUCT.category_fk -> T_CATEGORY.id
+
+DROP DATABASE `db_006735_schema_postgreql`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 346277_MyImages
+--echo #
+CREATE DATABASE `db_346277_MyImages`;
+USE `db_346277_MyImages`;
+CREATE TABLE `usuario` (
+  `id_usuario` INT NOT NULL,
+  `apelido` VARCHAR(50),
+  `nome` VARCHAR(50),
+  `email` VARCHAR(50),
+  `senha` VARCHAR(50),
+  PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `imagem` (
+  `id_imagem` INT NOT NULL,
+  `id_usuario` INT,
+  `imagem` VARCHAR(50),
+  `titulo` VARCHAR(50),
+  `descricao` VARCHAR(50),
+  `autor` VARCHAR(50),
+  `datahorapost` VARCHAR(50),
+  PRIMARY KEY (`id_imagem`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_346277_MyImages') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_346277_MyImages') AS relationships;
+DROP DATABASE `db_346277_MyImages`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 534804_unique_tables
+#
+CREATE DATABASE `db_534804_unique_tables`;
+USE `db_534804_unique_tables`;
+CREATE TABLE `expired` (
+`id` TEXT,
+`task` INT,
+`ts` INT,
+`stimulus` INT
+) CHARACTER SET latin1;
+CREATE TABLE `source` (
+`id` INT NOT NULL,
+`ts` INT,
+`data` TEXT,
+`stimulus` INT,
+`sent` INT,
+`expired` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sink` (
+`id` INT NOT NULL,
+`ts` INT,
+`data` TEXT,
+`stimulus` INT,
+`sent` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `edge` (
+`source` BIGINT,
+`sink` BIGINT,
+`stimulus` BIGINT,
+`sent` BOOLEAN
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_534804_unique_tables') AS relationships;
+relationships
+Database: db_534804_unique_tables
+
+Table Connections:
+------------------
+[Implied]  edge.sink -> sink.id
+[Implied]  edge.source -> source.id
+
+DROP DATABASE `db_534804_unique_tables`;
+UNINSTALL EXTENSION vsql_schematron;

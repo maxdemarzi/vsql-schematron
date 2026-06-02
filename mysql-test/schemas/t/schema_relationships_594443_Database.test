@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 594443_Database
+--echo #
+CREATE DATABASE `db_594443_Database`;
+USE `db_594443_Database`;
+CREATE TABLE `comments` (
+  `id` VARCHAR(50) NOT NULL,
+  `newsId` VARCHAR(50),
+  `userId` VARCHAR(50),
+  `parentId` VARCHAR(50),
+  `content` VARCHAR(50),
+  `status` VARCHAR(50),
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_594443_Database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_594443_Database') AS relationships;
+DROP DATABASE `db_594443_Database`;
+UNINSTALL EXTENSION vsql_schematron;

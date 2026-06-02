@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 083106_Employees_DB
+--echo #
+CREATE DATABASE `db_083106_Employees_DB`;
+USE `db_083106_Employees_DB`;
+CREATE TABLE `department` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+  `id` INT NOT NULL,
+  `title` VARCHAR(50),
+  `salary` DECIMAL(10,2),
+  `department_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+  `id` INT NOT NULL,
+  `name_first` VARCHAR(50),
+  `name_last` VARCHAR(50),
+  `role_id` INT,
+  `manager_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_083106_Employees_DB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_083106_Employees_DB') AS relationships;
+DROP DATABASE `db_083106_Employees_DB`;
+UNINSTALL EXTENSION vsql_schematron;

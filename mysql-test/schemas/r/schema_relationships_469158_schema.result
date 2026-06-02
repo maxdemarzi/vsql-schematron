@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 469158_schema
+#
+CREATE DATABASE `db_469158_schema`;
+USE `db_469158_schema`;
+CREATE TABLE `Users` (
+`Id` INT NOT NULL,
+`Uuid` VARCHAR(50),
+`BalanceRs` DOUBLE,
+`BalanceOsrs` DOUBLE,
+`IsCashier` BOOLEAN,
+`MaxCashIn` DOUBLE,
+`MinBalance` DOUBLE,
+`DateJoined` DATETIME,
+`LastUpdated` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pairs` (
+`Id` INT NOT NULL,
+`UserId` INT,
+`ServerSeed` VARCHAR(50),
+`ServerHash` VARCHAR(50),
+`UserSeed` VARCHAR(50),
+`Result` VARCHAR(50),
+`Used` BOOLEAN,
+`DateAdded` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Games` (
+`Id` INT NOT NULL,
+`PairId` INT,
+`Amount` DOUBLE,
+`Win` BOOLEAN,
+`GameType` INT,
+`Server` VARCHAR(50),
+`DateAdded` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Transactions` (
+`Id` INT NOT NULL,
+`CashierUuid` VARCHAR(50),
+`UserId` INT,
+`Amount` DOUBLE,
+`Server` VARCHAR(50),
+`CashIn` BOOLEAN,
+`DateAdded` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_469158_schema') AS relationships;
+relationships
+Database: db_469158_schema
+
+Table Connections:
+------------------
+[Implied]  Games.PairId -> Pairs.Id
+[Implied]  Pairs.UserId -> Users.Id
+[Implied]  Transactions.UserId -> Users.Id
+
+DROP DATABASE `db_469158_schema`;
+UNINSTALL EXTENSION vsql_schematron;

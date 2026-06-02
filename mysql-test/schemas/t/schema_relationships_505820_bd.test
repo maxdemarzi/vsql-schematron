@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 505820_bd
+--echo #
+CREATE DATABASE `db_505820_bd`;
+USE `db_505820_bd`;
+CREATE TABLE `conta` (
+  `conta_id` INT NOT NULL,
+  `conta_titular_nome` VARCHAR(50),
+  `conta_titular_cpf` VARCHAR(50),
+  `conta_cadastrado_em` TIMESTAMP NULL,
+  PRIMARY KEY (`conta_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `saque` (
+  `saque_id` INT NOT NULL,
+  `saque_id_conta` INT,
+  `saque_valor` DECIMAL(10,2),
+  `saque_moeda` VARCHAR(50),
+  `saque_realizado_em` TIMESTAMP NULL,
+  PRIMARY KEY (`saque_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `deposito` (
+  `deposito_id` INT NOT NULL,
+  `deposito_id_conta` INT,
+  `deposito_valor` DECIMAL(10,2),
+  `deposito_moeda` VARCHAR(50),
+  `deposito_realizado_em` TIMESTAMP NULL,
+  PRIMARY KEY (`deposito_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `saldo` (
+  `saldo_id` INT NOT NULL,
+  `saldo_id_conta` INT,
+  `saldo_valor` DECIMAL(10,2),
+  `saldo_moeda` VARCHAR(50),
+  `saldo_atualizado_em` TIMESTAMP NULL,
+  PRIMARY KEY (`saldo_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_505820_bd') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_505820_bd') AS relationships;
+DROP DATABASE `db_505820_bd`;
+UNINSTALL EXTENSION vsql_schematron;

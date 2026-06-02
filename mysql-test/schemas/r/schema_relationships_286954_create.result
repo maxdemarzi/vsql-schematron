@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 286954_create
+#
+CREATE DATABASE `db_286954_create`;
+USE `db_286954_create`;
+CREATE TABLE `Disciplinas` (
+`id` INT NOT NULL,
+`codigo` VARCHAR(50),
+`disciplina` VARCHAR(50),
+`creditos` INT,
+`carga` INT,
+`ementa` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bairros` (
+`id` INT NOT NULL,
+`bairro` VARCHAR(50),
+`zona` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Professores` (
+`id` INT NOT NULL,
+`professor` VARCHAR(50),
+`datanascimento` VARCHAR(50),
+`id_bairro` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Turmas` (
+`id` INT NOT NULL,
+`id_prof` INT,
+`id_disc` INT,
+`turno` VARCHAR(50),
+`vagas` INT,
+`salario` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_286954_create') AS relationships;
+relationships
+Database: db_286954_create
+
+Table Connections:
+------------------
+[Implied]  Professores.id_bairro -> Bairros.id
+[Implied]  Turmas.id_disc -> Disciplinas.id
+[Implied]  Turmas.id_prof -> Professores.id
+
+DROP DATABASE `db_286954_create`;
+UNINSTALL EXTENSION vsql_schematron;

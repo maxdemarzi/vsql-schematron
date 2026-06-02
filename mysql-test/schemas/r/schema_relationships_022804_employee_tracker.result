@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 022804_employee_tracker
+#
+CREATE DATABASE `db_022804_employee_tracker`;
+USE `db_022804_employee_tracker`;
+CREATE TABLE `department` (
+`id` INT NOT NULL,
+`d_name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`salary` DECIMAL(10,2),
+`department_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`role_id` INT,
+`department_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_022804_employee_tracker') AS relationships;
+relationships
+Database: db_022804_employee_tracker
+
+Table Connections:
+------------------
+[Implied]  employee.department_id -> department.id
+[Implied]  employee.role_id -> roles.id
+[Implied]  roles.department_id -> department.id
+
+DROP DATABASE `db_022804_employee_tracker`;
+UNINSTALL EXTENSION vsql_schematron;

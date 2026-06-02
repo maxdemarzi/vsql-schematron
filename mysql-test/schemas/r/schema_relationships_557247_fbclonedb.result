@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 557247_fbclonedb
+#
+CREATE DATABASE `db_557247_fbclonedb`;
+USE `db_557247_fbclonedb`;
+CREATE TABLE `fbclonedb.users` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fbclonedb.posts` (
+`id` INT NOT NULL,
+`content` VARCHAR(50),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fbclonedb.comments` (
+`id` INT NOT NULL,
+`content` VARCHAR(50),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`post_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fbclonedb.likes` (
+`id` INT NOT NULL,
+`like` TINYINT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`user_id` INT,
+`post_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_557247_fbclonedb') AS relationships;
+relationships
+Database: db_557247_fbclonedb
+
+Table Connections:
+------------------
+[Implied]  fbclonedb.comments.post_id -> fbclonedb.posts.id
+[Implied]  fbclonedb.comments.user_id -> fbclonedb.users.id
+[Implied]  fbclonedb.likes.post_id -> fbclonedb.posts.id
+[Implied]  fbclonedb.likes.user_id -> fbclonedb.users.id
+[Implied]  fbclonedb.posts.user_id -> fbclonedb.users.id
+
+DROP DATABASE `db_557247_fbclonedb`;
+UNINSTALL EXTENSION vsql_schematron;

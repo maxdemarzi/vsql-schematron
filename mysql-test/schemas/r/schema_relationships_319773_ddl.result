@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 319773_ddl
+#
+CREATE DATABASE `db_319773_ddl`;
+USE `db_319773_ddl`;
+CREATE TABLE `roles` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `moderators` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`password` VARCHAR(50),
+`email` VARCHAR(50),
+`role_id` INT,
+`created_at` BIGINT,
+`updated_at` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subjects` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`created_by` VARCHAR(50),
+`updated_by` VARCHAR(50),
+`created_at` BIGINT,
+`updated_at` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`content` VARCHAR(50),
+`subject_id` INT,
+`activated` BOOLEAN,
+`endpoint` VARCHAR(50),
+`created_by` VARCHAR(50),
+`updated_by` VARCHAR(50),
+`created_at` BIGINT,
+`updated_at` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `images` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`extension` VARCHAR(50),
+`width` INT,
+`height` INT,
+`size` VARCHAR(50),
+`created_by` VARCHAR(50),
+`updated_by` VARCHAR(50),
+`created_at` BIGINT,
+`updated_at` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`surname` VARCHAR(50),
+`email` VARCHAR(50),
+`content` VARCHAR(50),
+`post_id` INT,
+`created_at` BIGINT,
+`updated_at` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_319773_ddl') AS relationships;
+relationships
+Database: db_319773_ddl
+
+Table Connections:
+------------------
+[Implied]  comments.post_id -> posts.id
+[Implied]  moderators.role_id -> roles.id
+[Implied]  posts.subject_id -> subjects.id
+
+DROP DATABASE `db_319773_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 630450_Tlek-DDL-queries
+#
+CREATE DATABASE `db_630450_Tlek_DDL_queries`;
+USE `db_630450_Tlek_DDL_queries`;
+CREATE TABLE `interactions` (
+`user_id` INT,
+`item_id` INT,
+`progress` INT,
+`rating` DOUBLE,
+`isFavorite` BOOLEAN,
+`start_date` DATE
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`genres` VARCHAR(50),
+`authors` VARCHAR(50),
+`year` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`user_id` INT NOT NULL,
+`age` VARCHAR(50),
+`sex` DOUBLE,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `wishlist` (
+`user_id` INT,
+`item_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `rating` (
+`user_id` INT,
+`item_id` INT,
+`user_rating` INT
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`user_id` INT,
+`item_id` INT,
+`context` VARCHAR(50),
+`created_date` DATE
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_630450_Tlek_DDL_queries') AS relationships;
+relationships
+Database: db_630450_Tlek_DDL_queries
+
+Table Connections:
+------------------
+[Implied]  comments.item_id -> items.id
+[Implied]  comments.user_id -> users.user_id
+[Implied]  interactions.item_id -> items.id
+[Implied]  interactions.user_id -> users.user_id
+[Implied]  rating.item_id -> items.id
+[Implied]  rating.user_id -> users.user_id
+[Implied]  wishlist.item_id -> items.id
+[Implied]  wishlist.user_id -> users.user_id
+
+DROP DATABASE `db_630450_Tlek_DDL_queries`;
+UNINSTALL EXTENSION vsql_schematron;

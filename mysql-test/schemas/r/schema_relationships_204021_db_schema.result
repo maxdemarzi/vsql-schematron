@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 204021_db_schema
+#
+CREATE DATABASE `db_204021_db_schema`;
+USE `db_204021_db_schema`;
+CREATE TABLE `rooms` (
+`id` VARCHAR(50) NOT NULL,
+`number` VARCHAR(50),
+`seat_number` INT,
+`type` VARCHAR(50),
+`status` VARCHAR(50),
+`price` DOUBLE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `requests` (
+`id` VARCHAR(50) NOT NULL,
+`seat_number` INT,
+`type` VARCHAR(50),
+`date_from` TIMESTAMP NULL,
+`date_to` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` VARCHAR(50) NOT NULL,
+`creation_date` TIMESTAMP NULL,
+`price` DOUBLE,
+`room_number` VARCHAR(50),
+`type` VARCHAR(50),
+`date_from` TIMESTAMP NULL,
+`date_to` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` VARCHAR(50) NOT NULL,
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+`full_name` VARCHAR(50),
+`email` VARCHAR(50),
+`role` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`id` VARCHAR(50),
+`user_id` VARCHAR(50),
+`role` VARCHAR(50),
+`valid_until` TIMESTAMP NULL
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_204021_db_schema') AS relationships;
+relationships
+Database: db_204021_db_schema
+
+Table Connections:
+------------------
+[Implied]  sessions.user_id -> users.id
+
+DROP DATABASE `db_204021_db_schema`;
+UNINSTALL EXTENSION vsql_schematron;

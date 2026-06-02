@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 257551_electrodes
+--echo #
+CREATE DATABASE `db_257551_electrodes`;
+USE `db_257551_electrodes`;
+CREATE TABLE `electrode_groups` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  `CoordinateSystem` TEXT,
+  `CoordinateUnits` TEXT,
+  `IntendedFor` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `electrodes` (
+  `electrode_group_id` INT,
+  `name` TEXT,
+  `x` DOUBLE,
+  `y` DOUBLE,
+  `z` DOUBLE,
+  `size` DOUBLE,
+  `material` TEXT,
+  `manufacturer` TEXT,
+  `groups` TEXT,
+  `hemisphere` TEXT,
+  `type` TEXT,
+  `impedance` DOUBLE,
+  `dimension` TEXT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_257551_electrodes') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_257551_electrodes') AS relationships;
+DROP DATABASE `db_257551_electrodes`;
+UNINSTALL EXTENSION vsql_schematron;

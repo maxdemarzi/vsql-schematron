@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 514022_gwn_setup
+--echo #
+CREATE DATABASE `db_514022_gwn_setup`;
+USE `db_514022_gwn_setup`;
+CREATE TABLE `synset` (
+  `id` VARCHAR(50) NOT NULL,
+  `offset` TEXT,
+  `pos` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `term` (
+  `sid` TEXT,
+  `term` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `sensekey` (
+  `sid` TEXT,
+  `sensekey` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `gloss_raw` (
+  `sid` TEXT,
+  `cat` TEXT,
+  `gloss` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `gloss` (
+  `id` INT NOT NULL,
+  `origid` TEXT,
+  `sid` TEXT,
+  `cat` TEXT,
+  `surface` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `glossitem` (
+  `id` INT NOT NULL,
+  `ord` INT,
+  `gid` INT,
+  `tag` TEXT,
+  `lemma` TEXT,
+  `pos` TEXT,
+  `cat` TEXT,
+  `coll` TEXT,
+  `rdf` TEXT,
+  `sep` TEXT,
+  `text` TEXT,
+  `origid` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sensetag` (
+  `id` INT NOT NULL,
+  `cat` TEXT,
+  `tag` TEXT,
+  `glob` TEXT,
+  `glob_lemma` TEXT,
+  `glob_id` TEXT,
+  `coll` TEXT,
+  `sid` TEXT,
+  `gid` INT,
+  `sk` TEXT,
+  `origid` TEXT,
+  `lemma` TEXT,
+  `itemid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_514022_gwn_setup') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_514022_gwn_setup') AS relationships;
+DROP DATABASE `db_514022_gwn_setup`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 617242_sample-db
+--echo #
+CREATE DATABASE `db_617242_sample_db`;
+USE `db_617242_sample_db`;
+CREATE TABLE `Persons` (
+  `P_Id` INT NOT NULL,
+  `LastName` VARCHAR(50),
+  `FirstName` VARCHAR(50),
+  `Address` VARCHAR(50),
+  `City` VARCHAR(50),
+  PRIMARY KEY (`P_Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Orders` (
+  `O_Id` INT NOT NULL,
+  `OrderNo` INT,
+  `P_Id` INT,
+  PRIMARY KEY (`O_Id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_617242_sample_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_617242_sample_db') AS relationships;
+DROP DATABASE `db_617242_sample_db`;
+UNINSTALL EXTENSION vsql_schematron;

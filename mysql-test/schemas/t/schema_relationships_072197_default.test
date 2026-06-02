@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 072197_default
+--echo #
+CREATE DATABASE `db_072197_default`;
+USE `db_072197_default`;
+CREATE TABLE `topic` (
+  `id` INT NOT NULL,
+  `label` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `priority` (
+  `id` INT NOT NULL,
+  `label` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+  `id` INT NOT NULL,
+  `username` VARCHAR(50),
+  `firstname` VARCHAR(50),
+  `lastname` VARCHAR(50),
+  `fullname` VARCHAR(50),
+  `email` VARCHAR(50),
+  `enabled` TINYINT,
+  `salt` VARCHAR(50),
+  `password` VARCHAR(50),
+  `last_login` DATETIME,
+  `locked` TINYINT,
+  `expired` TINYINT,
+  `expires_at` DATETIME,
+  `roles` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+  `id` INT NOT NULL,
+  `topic_id` INT,
+  `priority_id` INT,
+  `assigned_user_id` INT,
+  `username` VARCHAR(50),
+  `subject` VARCHAR(50),
+  `email` VARCHAR(50),
+  `phone` VARCHAR(50),
+  `header_mail` TEXT,
+  `body` TEXT,
+  `ip_address` VARCHAR(50),
+  `status` VARCHAR(50),
+  `source` VARCHAR(50),
+  `overdue_date` DATETIME,
+  `last_response_date` DATETIME,
+  `creation_date` DATETIME,
+  `modification_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `response` (
+  `id` INT NOT NULL,
+  `message_id` INT,
+  `user_id` INT,
+  `body` TEXT,
+  `ip_address` VARCHAR(50),
+  `creation_date` DATETIME,
+  `modification_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_072197_default') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_072197_default') AS relationships;
+DROP DATABASE `db_072197_default`;
+UNINSTALL EXTENSION vsql_schematron;

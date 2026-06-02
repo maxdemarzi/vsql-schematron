@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 540926_V001__cria-banco
+--echo #
+CREATE DATABASE `db_540926_V001__cria_banco`;
+USE `db_540926_V001__cria_banco`;
+CREATE TABLE `cliente` (
+  `id` BIGINT NOT NULL,
+  `nome` VARCHAR(50),
+  `endereco` VARCHAR(50),
+  `bairro` VARCHAR(50),
+  `cidade` VARCHAR(50),
+  `cpf` VARCHAR(50),
+  `telefone` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pet` (
+  `id` BIGINT NOT NULL,
+  `nome_pet` VARCHAR(50),
+  `idade` INT,
+  `id_cliente` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_540926_V001__cria_banco') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_540926_V001__cria_banco') AS relationships;
+DROP DATABASE `db_540926_V001__cria_banco`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 142526_mercado
+--echo #
+CREATE DATABASE `db_142526_mercado`;
+USE `db_142526_mercado`;
+CREATE TABLE `produtos` (
+  `referencia` VARCHAR(50) NOT NULL,
+  `descricao` VARCHAR(50),
+  `estoque` INT,
+  PRIMARY KEY (`referencia`)
+) CHARACTER SET latin1;
+CREATE TABLE `itensVenda` (
+  `venda` INT NOT NULL,
+  `produto` VARCHAR(50),
+  `quantidade` INT,
+  PRIMARY KEY (`venda`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_142526_mercado') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_142526_mercado') AS relationships;
+DROP DATABASE `db_142526_mercado`;
+UNINSTALL EXTENSION vsql_schematron;

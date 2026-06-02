@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 093152_warship_dump
+#
+CREATE DATABASE `db_093152_warship_dump`;
+USE `db_093152_warship_dump`;
+CREATE TABLE `BATTLE` (
+`ID` INT NOT NULL,
+`ACCOUNT_ID` INT,
+`SHIP_ID` INT,
+`EXP` INT,
+`CREATION_DATE` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BATTLEHISTORY` (
+`ID` INT NOT NULL,
+`ACCOUNT_ID` INT,
+`BATTLE_ID` INT,
+`LOG` TEXT,
+`CREATION_DATE` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `RESEARCH` (
+`ID` INT NOT NULL,
+`ACCOUNT_ID` INT,
+`SHIP_ID` INT,
+`EXP` INT,
+`CREATION_DATE` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SHIP` (
+`ID` INT NOT NULL,
+`SHIP_ID` INT,
+`NAME` VARCHAR(50),
+`NEXT_SHIP` TEXT,
+`CREATION_DATE` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_093152_warship_dump') AS relationships;
+relationships
+Database: db_093152_warship_dump
+
+Table Connections:
+------------------
+[Implied]  BATTLE.SHIP_ID -> SHIP.ID
+[Implied]  BATTLEHISTORY.BATTLE_ID -> BATTLE.ID
+[Implied]  RESEARCH.SHIP_ID -> SHIP.ID
+
+DROP DATABASE `db_093152_warship_dump`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 690296_evotingbem
+--echo #
+CREATE DATABASE `db_690296_evotingbem`;
+USE `db_690296_evotingbem`;
+CREATE TABLE `admin` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `kandidat` (
+  `id` INT NOT NULL,
+  `no_urut` VARCHAR(50),
+  `ketua` VARCHAR(50),
+  `wakil` VARCHAR(50),
+  `semester` VARCHAR(50),
+  `visi` TEXT,
+  `misi` TEXT,
+  `proker` TEXT,
+  `periode` VARCHAR(50),
+  `prestasi` TEXT,
+  `suara` INT,
+  `gambar` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pemilih` (
+  `id` INT NOT NULL,
+  `gid` VARCHAR(50),
+  `nama` VARCHAR(50),
+  `status` VARCHAR(50),
+  `periode` VARCHAR(50),
+  `prodi` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pemilihan` (
+  `id` INT,
+  `pemilih_id` INT,
+  `pilihan` VARCHAR(50),
+  `tanggal` DATE
+) CHARACTER SET latin1;
+CREATE TABLE `peraturan` (
+  `id` INT NOT NULL,
+  `judul` VARCHAR(50),
+  `isi` TEXT,
+  `tahun` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_690296_evotingbem') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_690296_evotingbem') AS relationships;
+DROP DATABASE `db_690296_evotingbem`;
+UNINSTALL EXTENSION vsql_schematron;

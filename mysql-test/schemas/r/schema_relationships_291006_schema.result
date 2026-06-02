@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 291006_schema
+#
+CREATE DATABASE `db_291006_schema`;
+USE `db_291006_schema`;
+CREATE TABLE `account` (
+`id` INT NOT NULL,
+`username` TEXT,
+`email` TEXT,
+`passhash` TEXT,
+`about` TEXT,
+`role` TEXT,
+`is_public` INT,
+`key` TEXT,
+`created` TEXT,
+`modified` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `novel` (
+`id` INT NOT NULL,
+`title` TEXT,
+`author` TEXT,
+`is_public` INT,
+`userid` INT,
+`created` TEXT,
+`modified` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chapter` (
+`id` INT NOT NULL,
+`numeral` INT,
+`title` TEXT,
+`time` TEXT,
+`setting` TEXT,
+`precis` TEXT,
+`synopsis` TEXT,
+`notes` TEXT,
+`color` TEXT,
+`created` TEXT,
+`modified` TEXT,
+`novelid` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `annotation` (
+`id` INT NOT NULL,
+`content` TEXT,
+`target` TEXT,
+`start_index` INT,
+`end_index` INT,
+`created` TEXT,
+`modified` TEXT,
+`chapterid` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nonce` (
+`id` INT NOT NULL,
+`key` TEXT,
+`value` TEXT,
+`created` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_291006_schema') AS relationships;
+relationships
+Database: db_291006_schema
+
+Table Connections:
+------------------
+[Implied]  annotation.chapterid -> chapter.id
+[Implied]  chapter.novelid -> novel.id
+
+DROP DATABASE `db_291006_schema`;
+UNINSTALL EXTENSION vsql_schematron;

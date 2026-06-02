@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 080090_zoo
+--echo #
+CREATE DATABASE `db_080090_zoo`;
+USE `db_080090_zoo`;
+CREATE TABLE `zookeeper` (
+  `id` INT NOT NULL,
+  `fname` VARCHAR(50),
+  `lname` VARCHAR(50),
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `species` (
+  `id` INT NOT NULL,
+  `subphylum` VARCHAR(50),
+  `class` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `diet` (
+  `id` INT NOT NULL,
+  `type` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `habitat` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `animaldetails` (
+  `id` INT NOT NULL,
+  `info` VARCHAR(50),
+  `age` VARCHAR(50),
+  `weight` VARCHAR(50),
+  `food` VARCHAR(50),
+  `diet_id` INT,
+  `habitat_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `animal` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `photo` VARCHAR(50),
+  `zookeeper_id` INT,
+  `species_id` INT,
+  `details_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_080090_zoo') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_080090_zoo') AS relationships;
+DROP DATABASE `db_080090_zoo`;
+UNINSTALL EXTENSION vsql_schematron;

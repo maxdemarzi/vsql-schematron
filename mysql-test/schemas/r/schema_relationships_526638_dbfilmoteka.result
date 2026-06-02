@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 526638_dbfilmoteka
+#
+CREATE DATABASE `db_526638_dbfilmoteka`;
+USE `db_526638_dbfilmoteka`;
+CREATE TABLE `film` (
+`id` INT NOT NULL,
+`nazev` VARCHAR(50),
+`filename` VARCHAR(50),
+`popis` TEXT,
+`idrok` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `zanr` (
+`id` INT NOT NULL,
+`nazev` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rok` (
+`id` INT NOT NULL,
+`rok` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `film_zanr` (
+`idfilm` INT,
+`idzanr` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_526638_dbfilmoteka') AS relationships;
+relationships
+Database: db_526638_dbfilmoteka
+
+Table Connections:
+------------------
+[Implied]  film.idrok -> rok.id
+[Implied]  film_zanr.idfilm -> film.id
+[Implied]  film_zanr.idzanr -> zanr.id
+
+DROP DATABASE `db_526638_dbfilmoteka`;
+UNINSTALL EXTENSION vsql_schematron;

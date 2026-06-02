@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 237746_create_tables
+#
+CREATE DATABASE `db_237746_create_tables`;
+USE `db_237746_create_tables`;
+CREATE TABLE `departments` (
+`department_id` INT NOT NULL,
+`department_name` VARCHAR(50),
+PRIMARY KEY (`department_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `buildings` (
+`building_id` INT NOT NULL,
+`building_name` VARCHAR(50),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`extra_info` VARCHAR(50),
+`narrative` VARCHAR(50),
+PRIMARY KEY (`building_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `routes` (
+`route_id` INT NOT NULL,
+`order_id` INT,
+`department_id` INT,
+`building_id` INT,
+PRIMARY KEY (`route_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clues` (
+`clue_id` INT NOT NULL,
+`building_id` INT,
+`clue` VARCHAR(50),
+PRIMARY KEY (`clue_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answers` (
+`answer_id` INT NOT NULL,
+`clue_id` INT,
+`answer` VARCHAR(50),
+`correct` VARCHAR(50),
+PRIMARY KEY (`answer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `faq` (
+`faq_id` INT NOT NULL,
+`question` VARCHAR(50),
+`answer` VARCHAR(50),
+PRIMARY KEY (`faq_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `game_keepers` (
+`game_keeper_id` INT NOT NULL,
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+PRIMARY KEY (`game_keeper_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`user_id` INT NOT NULL,
+`team_name` VARCHAR(50),
+`department_id` INT,
+`current_building_id` INT,
+`score` INT,
+`completed` VARCHAR(50),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_237746_create_tables') AS relationships;
+relationships
+Database: db_237746_create_tables
+
+Table Connections:
+------------------
+[Implied]  answers.clue_id -> clues.clue_id
+[Implied]  clues.building_id -> buildings.building_id
+[Implied]  routes.building_id -> buildings.building_id
+[Implied]  routes.department_id -> departments.department_id
+[Implied]  users.current_building_id -> buildings.building_id
+[Implied]  users.department_id -> departments.department_id
+
+DROP DATABASE `db_237746_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

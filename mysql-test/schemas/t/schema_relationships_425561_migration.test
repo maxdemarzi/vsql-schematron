@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 425561_migration
+--echo #
+CREATE DATABASE `db_425561_migration`;
+USE `db_425561_migration`;
+CREATE TABLE `Fooditem` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  `quantity` INT,
+  `unitPrice` DECIMAL(10,2),
+  `categoryId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `new_Menu` (
+  `id` INT NOT NULL,
+  `price` DECIMAL(10,2),
+  `startDate` DATETIME,
+  `endDate` DATETIME,
+  `foodId` INT,
+  `adminId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_425561_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_425561_migration') AS relationships;
+DROP DATABASE `db_425561_migration`;
+UNINSTALL EXTENSION vsql_schematron;

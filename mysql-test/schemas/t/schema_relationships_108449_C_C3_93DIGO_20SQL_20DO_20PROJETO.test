@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 108449_C%C3%93DIGO%20SQL%20DO%20PROJETO
+--echo #
+CREATE DATABASE `db_108449_C_C3_93DIGO_20SQL_20DO_20PROJETO`;
+USE `db_108449_C_C3_93DIGO_20SQL_20DO_20PROJETO`;
+CREATE TABLE `status` (
+  `idstatus` VARCHAR(50) NOT NULL,
+  `status` VARCHAR(50),
+  PRIMARY KEY (`idstatus`)
+) CHARACTER SET latin1;
+CREATE TABLE `controle` (
+  `idcontrole` VARCHAR(50) NOT NULL,
+  `status_idstatus` VARCHAR(50),
+  `nome` VARCHAR(50),
+  `descricao` VARCHAR(50),
+  `data_inicio` DATE,
+  `data_fim` DATE,
+  `situacao` VARCHAR(50),
+  PRIMARY KEY (`idcontrole`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_108449_C_C3_93DIGO_20SQL_20DO_20PROJETO') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_108449_C_C3_93DIGO_20SQL_20DO_20PROJETO') AS relationships;
+DROP DATABASE `db_108449_C_C3_93DIGO_20SQL_20DO_20PROJETO`;
+UNINSTALL EXTENSION vsql_schematron;

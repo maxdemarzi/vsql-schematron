@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 155673_schema
+#
+CREATE DATABASE `db_155673_schema`;
+USE `db_155673_schema`;
+CREATE TABLE `account` (
+`id` VARCHAR(50) NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`email` VARCHAR(50),
+`secret` BLOB,
+`create_date` DATE,
+`change_date` DATE,
+`deleted` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chef` (
+`id` VARCHAR(50) NOT NULL,
+`status` VARCHAR(50),
+`rfc` VARCHAR(50),
+`curp` VARCHAR(50),
+`rating` DOUBLE,
+`create_date` DATE,
+`change_date` DATE,
+`deleted` VARCHAR(50),
+`fk_id_account` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `telephone` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`number` VARCHAR(50),
+`lada` VARCHAR(50),
+`type` VARCHAR(50),
+`fk_id_chef` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `client` (
+`id` VARCHAR(50) NOT NULL,
+`status` VARCHAR(50),
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`email` VARCHAR(50),
+`rating` DOUBLE,
+`create_date` DATE,
+`change_date` DATE,
+`deleted` VARCHAR(50),
+`fk_id_telephone` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_155673_schema') AS relationships;
+relationships
+Database: db_155673_schema
+
+Table Connections:
+------------------
+[Implied]  chef.fk_id_account -> account.id
+[Implied]  client.fk_id_telephone -> telephone.id
+[Implied]  telephone.fk_id_chef -> chef.id
+
+DROP DATABASE `db_155673_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 512736_query
+#
+CREATE DATABASE `db_512736_query`;
+USE `db_512736_query`;
+CREATE TABLE `users` (
+`user_id` INT NOT NULL,
+`user_name` VARCHAR(50),
+`user_password` VARCHAR(50),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `projects` (
+`project_id` INT NOT NULL,
+`project_name` VARCHAR(50),
+`project_desc` VARCHAR(50),
+`user_id` INT,
+PRIMARY KEY (`project_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks` (
+`task_id` INT NOT NULL,
+`task_name` VARCHAR(50),
+`task_desc` VARCHAR(50),
+`task_created` DATETIME,
+`task_state` INT,
+`project_id` INT,
+PRIMARY KEY (`task_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_512736_query') AS relationships;
+relationships
+Database: db_512736_query
+
+Table Connections:
+------------------
+[Implied]  projects.user_id -> users.user_id
+[Implied]  tasks.project_id -> projects.project_id
+
+DROP DATABASE `db_512736_query`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 309491_crawler
+#
+CREATE DATABASE `db_309491_crawler`;
+USE `db_309491_crawler`;
+CREATE TABLE `usuario` (
+`id` INT NOT NULL,
+`email` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `filtro` (
+`id` INT NOT NULL,
+`idUsuario` INT,
+`regional` TEXT,
+`municipio` TEXT,
+`cargo` TEXT,
+`categoria` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `envio` (
+`idUsuario` INT,
+`idDesignacao` TEXT,
+`enviado` INT
+) CHARACTER SET latin1;
+CREATE TABLE `designacao` (
+`id` VARCHAR(50) NOT NULL,
+`url` TEXT,
+`conteudo` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `configEmail` (
+`nome` TEXT,
+`tipoServico` TEXT,
+`email` TEXT,
+`login` TEXT,
+`senha` TEXT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_309491_crawler') AS relationships;
+relationships
+Database: db_309491_crawler
+
+Table Connections:
+------------------
+[Implied]  envio.idDesignacao -> designacao.id
+[Implied]  envio.idUsuario -> usuario.id
+[Implied]  filtro.idUsuario -> usuario.id
+
+DROP DATABASE `db_309491_crawler`;
+UNINSTALL EXTENSION vsql_schematron;

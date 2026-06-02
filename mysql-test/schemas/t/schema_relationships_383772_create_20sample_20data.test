@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 383772_create%20sample%20data
+--echo #
+CREATE DATABASE `db_383772_create_20sample_20data`;
+USE `db_383772_create_20sample_20data`;
+CREATE TABLE `dept` (
+  `deptno` DECIMAL(10,2) NOT NULL,
+  `dname` VARCHAR(50),
+  `loc` VARCHAR(50),
+  PRIMARY KEY (`deptno`)
+) CHARACTER SET latin1;
+CREATE TABLE `emp` (
+  `empno` DECIMAL(10,2) NOT NULL,
+  `ename` VARCHAR(50),
+  `job` VARCHAR(50),
+  `mgr` DECIMAL(10,2),
+  `hiredate` DATE,
+  `sal` DECIMAL(10,2),
+  `comm` DECIMAL(10,2),
+  `deptno` DECIMAL(10,2),
+  PRIMARY KEY (`empno`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+  `prodid` DECIMAL(10,2) NOT NULL,
+  `prodname` VARCHAR(50),
+  `qty` DECIMAL(10,2),
+  `description` VARCHAR(50),
+  PRIMARY KEY (`prodid`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+  `prodid` DECIMAL(10,2),
+  `orderid` DECIMAL(10,2) NOT NULL,
+  `qty_sold` DECIMAL(10,2),
+  `price` DECIMAL(10,2),
+  `order_dt` DATE,
+  PRIMARY KEY (`orderid`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_383772_create_20sample_20data') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_383772_create_20sample_20data') AS relationships;
+DROP DATABASE `db_383772_create_20sample_20data`;
+UNINSTALL EXTENSION vsql_schematron;

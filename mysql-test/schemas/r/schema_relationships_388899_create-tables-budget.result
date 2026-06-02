@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 388899_create-tables-budget
+#
+CREATE DATABASE `db_388899_create_tables_budget`;
+USE `db_388899_create_tables_budget`;
+CREATE TABLE `entries` (
+`id` INT NOT NULL,
+`summary` VARCHAR(50),
+`timeAdded` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rules` (
+`id` INT NOT NULL,
+`ruleType` VARCHAR(50),
+`amountModifier` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `conditions` (
+`id` INT NOT NULL,
+`sourceRule` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `funds` (
+`id` INT NOT NULL,
+`fundName` VARCHAR(50),
+`ruleSet` INT,
+`startEntry` INT,
+`endEntry` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_388899_create_tables_budget') AS relationships;
+relationships
+Database: db_388899_create_tables_budget
+
+Table Connections:
+------------------
+[Implied]  conditions.sourceRule -> rules.id
+[Implied]  funds.endEntry -> entries.id
+[Implied]  funds.ruleSet -> rules.id
+[Implied]  funds.startEntry -> entries.id
+
+DROP DATABASE `db_388899_create_tables_budget`;
+UNINSTALL EXTENSION vsql_schematron;

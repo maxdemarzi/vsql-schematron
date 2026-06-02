@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 194065_Order
+--echo #
+CREATE DATABASE `db_194065_Order`;
+USE `db_194065_Order`;
+CREATE TABLE `SALESMAN` (
+  `SALESMAN_ID` VARCHAR(50) NOT NULL,
+  `NAME` VARCHAR(50),
+  `CITY` VARCHAR(50),
+  `COMMISSION` VARCHAR(50),
+  PRIMARY KEY (`SALESMAN_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CUSTOMER` (
+  `CUSTOMER_ID` VARCHAR(50) NOT NULL,
+  `CUST_NAME` VARCHAR(50),
+  `CITY` VARCHAR(50),
+  `GRADE` DECIMAL(10,2),
+  `SALESMAN_ID` VARCHAR(50),
+  PRIMARY KEY (`CUSTOMER_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ORDERS` (
+  `ORD_NO` VARCHAR(50) NOT NULL,
+  `PURCHASE_AMT` DECIMAL(10,2),
+  `ORD_DATE` DATE,
+  `CUSTOMER_ID` VARCHAR(50),
+  `SALESMAN_ID` VARCHAR(50),
+  PRIMARY KEY (`ORD_NO`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_194065_Order') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_194065_Order') AS relationships;
+DROP DATABASE `db_194065_Order`;
+UNINSTALL EXTENSION vsql_schematron;

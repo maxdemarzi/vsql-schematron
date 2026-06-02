@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 223645_schema
+#
+CREATE DATABASE `db_223645_schema`;
+USE `db_223645_schema`;
+CREATE TABLE `system` (
+`id` INT NOT NULL,
+`name` TEXT,
+`code` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `media` (
+`id` INT NOT NULL,
+`name` TEXT,
+`system_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `file` (
+`id` INT NOT NULL,
+`name` TEXT,
+`data` BLOB,
+`size` INT,
+`compression` TEXT,
+`media_id` INT,
+`parent_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `checksum` (
+`file_id` INT,
+`name` TEXT,
+`data` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`id` INT NOT NULL,
+`name` TEXT,
+`value` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mediatag` (
+`tag_id` INT,
+`media_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `filetag` (
+`tag_id` INT,
+`file_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_223645_schema') AS relationships;
+relationships
+Database: db_223645_schema
+
+Table Connections:
+------------------
+[Implied]  checksum.file_id -> file.id
+[Implied]  file.media_id -> media.id
+[Implied]  file.parent_id -> file.id
+[Implied]  filetag.file_id -> file.id
+[Implied]  filetag.tag_id -> tag.id
+[Implied]  media.system_id -> system.id
+[Implied]  mediatag.media_id -> media.id
+[Implied]  mediatag.tag_id -> tag.id
+
+DROP DATABASE `db_223645_schema`;
+UNINSTALL EXTENSION vsql_schematron;
