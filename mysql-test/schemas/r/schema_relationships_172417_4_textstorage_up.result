@@ -1,0 +1,31 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 172417_4_textstorage.up
+#
+CREATE DATABASE `db_172417_4_textstorage_up`;
+USE `db_172417_4_textstorage_up`;
+CREATE TABLE `textstorage_text` (
+`id` INT NOT NULL,
+`text` TEXT,
+`last_updated` TIMESTAMP NULL,
+`revision` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `textstorage_revision` (
+`text_id` INT NOT NULL,
+`revision` INT NOT NULL,
+`text` TEXT,
+`timestamp` TIMESTAMP NULL,
+`user_id` VARCHAR(50),
+PRIMARY KEY (`text_id`, `revision`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_172417_4_textstorage_up') AS relationships;
+relationships
+Database: db_172417_4_textstorage_up
+
+Table Connections:
+------------------
+[Implied]  textstorage_revision.text_id -> textstorage_text.id
+
+DROP DATABASE `db_172417_4_textstorage_up`;
+UNINSTALL EXTENSION vsql_schematron;

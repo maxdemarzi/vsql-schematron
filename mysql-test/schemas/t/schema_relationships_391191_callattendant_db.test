@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 391191_callattendant.db
+--echo #
+CREATE DATABASE `db_391191_callattendant_db`;
+USE `db_391191_callattendant_db`;
+CREATE TABLE `Whitelist` (
+  `PhoneNo` VARCHAR(50) NOT NULL,
+  `Name` TEXT,
+  `Reason` TEXT,
+  `SystemDateTime` TEXT,
+  PRIMARY KEY (`PhoneNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `Message` (
+  `MessageID` INT NOT NULL,
+  `CallLogID` INT,
+  `Played` BOOLEAN,
+  `Filename` TEXT,
+  `DateTime` TEXT,
+  PRIMARY KEY (`MessageID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CallLog` (
+  `CallLogID` INT NOT NULL,
+  `Name` TEXT,
+  `Number` TEXT,
+  `Date` TEXT,
+  `Time` TEXT,
+  `SystemDateTime` TEXT,
+  `Action` TEXT,
+  `Reason` TEXT,
+  PRIMARY KEY (`CallLogID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Blacklist` (
+  `PhoneNo` VARCHAR(50) NOT NULL,
+  `Name` TEXT,
+  `Reason` TEXT,
+  `SystemDateTime` TEXT,
+  PRIMARY KEY (`PhoneNo`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_391191_callattendant_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_391191_callattendant_db') AS relationships;
+DROP DATABASE `db_391191_callattendant_db`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 045754_ch2
+--echo #
+CREATE DATABASE `db_045754_ch2`;
+USE `db_045754_ch2`;
+CREATE TABLE `person` (
+  `person_id` SMALLINT NOT NULL,
+  `fname` VARCHAR(50),
+  `lname` VARCHAR(50),
+  `gender` VARCHAR(50),
+  `birth_date` DATE,
+  `street` VARCHAR(50),
+  `city` VARCHAR(50),
+  `state` VARCHAR(50),
+  `country` VARCHAR(50),
+  `postal_code` VARCHAR(50),
+  PRIMARY KEY (`person_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `favorite_food` (
+  `person_id` SMALLINT NOT NULL,
+  `food` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`person_id`, `food`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_045754_ch2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_045754_ch2') AS relationships;
+DROP DATABASE `db_045754_ch2`;
+UNINSTALL EXTENSION vsql_schematron;

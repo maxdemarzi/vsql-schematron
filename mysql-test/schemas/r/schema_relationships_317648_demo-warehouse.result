@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 317648_demo-warehouse
+#
+CREATE DATABASE `db_317648_demo_warehouse`;
+USE `db_317648_demo_warehouse`;
+CREATE TABLE `Article` (
+`id` INT NOT NULL,
+`identification` INT,
+`name` TEXT,
+`availableStock` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Product` (
+`id` INT NOT NULL,
+`name` TEXT,
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ArticlesOnProducts` (
+`productId` INT NOT NULL,
+`articleId` INT NOT NULL,
+`quantity` INT,
+PRIMARY KEY (`productId`, `articleId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_317648_demo_warehouse') AS relationships;
+relationships
+Database: db_317648_demo_warehouse
+
+Table Connections:
+------------------
+[Implied]  ArticlesOnProducts.articleId -> Article.id
+[Implied]  ArticlesOnProducts.productId -> Product.id
+
+DROP DATABASE `db_317648_demo_warehouse`;
+UNINSTALL EXTENSION vsql_schematron;

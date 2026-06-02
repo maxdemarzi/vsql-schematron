@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 360936_V1_1__purchase-orders
+--echo #
+CREATE DATABASE `db_360936_V1_1__purchase_orders`;
+USE `db_360936_V1_1__purchase_orders`;
+CREATE TABLE `PURCHASE_ORDERS` (
+  `ORDER_ID` VARCHAR(50) NOT NULL,
+  `CUSTOMER_NAME` VARCHAR(50),
+  `SHIPPING_ADDRESS` VARCHAR(50),
+  PRIMARY KEY (`ORDER_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PURCHASE_ORDER_DETAILS` (
+  `ORDER_ID` VARCHAR(50) NOT NULL,
+  `BOOK_ID` VARCHAR(50) NOT NULL,
+  `QUANTITY` INT,
+  PRIMARY KEY (`ORDER_ID`, `BOOK_ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_360936_V1_1__purchase_orders') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_360936_V1_1__purchase_orders') AS relationships;
+DROP DATABASE `db_360936_V1_1__purchase_orders`;
+UNINSTALL EXTENSION vsql_schematron;

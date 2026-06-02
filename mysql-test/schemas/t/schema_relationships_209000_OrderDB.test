@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 209000_OrderDB
+--echo #
+CREATE DATABASE `db_209000_OrderDB`;
+USE `db_209000_OrderDB`;
+CREATE TABLE `Customers` (
+  `customer_id` INT NOT NULL,
+  `customer_name` VARCHAR(50),
+  `customer_address` VARCHAR(50),
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Items` (
+  `item_id` INT NOT NULL,
+  `item_name` VARCHAR(50),
+  `unit_price` DECIMAL(10,2),
+  `amount` INT,
+  `item_status` TINYINT,
+  `item_description` VARCHAR(50),
+  PRIMARY KEY (`item_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Orders` (
+  `order_id` INT NOT NULL,
+  `order_date` DATETIME,
+  `customer_id` INT,
+  `order_status` INT,
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderDetails` (
+  `order_id` INT NOT NULL,
+  `item_id` INT NOT NULL,
+  `unit_price` DECIMAL(10,2),
+  `quantity` INT,
+  PRIMARY KEY (`order_id`, `item_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_209000_OrderDB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_209000_OrderDB') AS relationships;
+DROP DATABASE `db_209000_OrderDB`;
+UNINSTALL EXTENSION vsql_schematron;

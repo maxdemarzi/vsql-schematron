@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 168710_tables
+#
+CREATE DATABASE `db_168710_tables`;
+USE `db_168710_tables`;
+CREATE TABLE `cards` (
+`id` INT NOT NULL,
+`name` TEXT,
+`card_type` VARCHAR(50),
+`type1` TEXT,
+`type2` TEXT,
+`pr1` DECIMAL(10,2),
+`pr2` DECIMAL(10,2),
+`pr3` DECIMAL(10,2),
+`pr4` DECIMAL(10,2),
+`pr5` DECIMAL(10,2),
+`pr6` DECIMAL(10,2),
+`battle_length_min` INT,
+`battle_length_max` INT,
+`flavor_text` TEXT,
+`rarity` VARCHAR(50),
+`deleted` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `effects` (
+`id` INT NOT NULL,
+`name` TEXT,
+`text` TEXT,
+`italic_text` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cards_effects` (
+`card_id` INT NOT NULL,
+`effect_id` INT NOT NULL,
+`position` INT,
+PRIMARY KEY (`card_id`, `effect_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_168710_tables') AS relationships;
+relationships
+Database: db_168710_tables
+
+Table Connections:
+------------------
+[Implied]  cards_effects.card_id -> cards.id
+[Implied]  cards_effects.effect_id -> effects.id
+
+DROP DATABASE `db_168710_tables`;
+UNINSTALL EXTENSION vsql_schematron;

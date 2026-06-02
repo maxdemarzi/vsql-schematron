@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 568827_tables
+#
+CREATE DATABASE `db_568827_tables`;
+USE `db_568827_tables`;
+CREATE TABLE `Entreprise` (
+`id_entreprise` VARCHAR(50) NOT NULL,
+`nom_entreprise` VARCHAR(50),
+`url_entreprise` TEXT,
+PRIMARY KEY (`id_entreprise`)
+) CHARACTER SET latin1;
+CREATE TABLE `Utilisateur` (
+`id_utilisateur` VARCHAR(50) NOT NULL,
+`nom_utilisateur` VARCHAR(50),
+PRIMARY KEY (`id_utilisateur`)
+) CHARACTER SET latin1;
+CREATE TABLE `Produit` (
+`id_produit` VARCHAR(50) NOT NULL,
+`titre_produit` VARCHAR(50),
+`description_produit` VARCHAR(50),
+PRIMARY KEY (`id_produit`)
+) CHARACTER SET latin1;
+CREATE TABLE `Vente` (
+`id_utilisateur` VARCHAR(50) NOT NULL,
+`id_produit` VARCHAR(50) NOT NULL,
+`id_entreprise` VARCHAR(50) NOT NULL,
+`dateCreation` DATE NOT NULL,
+`reference` VARCHAR(50),
+`prix` INT,
+`quantite` INT,
+PRIMARY KEY (`id_utilisateur`, `id_produit`, `id_entreprise`, `dateCreation`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_568827_tables') AS relationships;
+relationships
+Database: db_568827_tables
+
+Table Connections:
+------------------
+[Implied]  Vente.id_entreprise -> Entreprise.id_entreprise
+[Implied]  Vente.id_produit -> Produit.id_produit
+[Implied]  Vente.id_utilisateur -> Utilisateur.id_utilisateur
+
+DROP DATABASE `db_568827_tables`;
+UNINSTALL EXTENSION vsql_schematron;

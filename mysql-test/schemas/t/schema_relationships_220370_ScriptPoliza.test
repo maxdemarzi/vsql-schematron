@@ -1,0 +1,155 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 220370_ScriptPoliza
+--echo #
+CREATE DATABASE `db_220370_ScriptPoliza`;
+USE `db_220370_ScriptPoliza`;
+CREATE TABLE `PolizaBeneficiario` (
+  `IdPoliza` VARCHAR(50),
+  `IdBeneficiario` VARCHAR(50),
+  `Indemnizacion` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `EmpresaCorredora` (
+  `IdEmpresaCorredora` VARCHAR(50) NOT NULL,
+  `Nombre` VARCHAR(50),
+  `Descripcion` VARCHAR(50),
+  PRIMARY KEY (`IdEmpresaCorredora`)
+) CHARACTER SET latin1;
+CREATE TABLE `Intermediario` (
+  `IdIntermediario` VARCHAR(50) NOT NULL,
+  `Nombre` VARCHAR(50),
+  `Apellido` VARCHAR(50),
+  `Ci` VARCHAR(50),
+  `Telefono` VARCHAR(50),
+  `IdEmpresaCorredora` VARCHAR(50),
+  PRIMARY KEY (`IdIntermediario`)
+) CHARACTER SET latin1;
+CREATE TABLE `Clausula` (
+  `IdClausula` VARCHAR(50) NOT NULL,
+  `Descripcion` VARCHAR(50),
+  `IdPoliza` VARCHAR(50),
+  PRIMARY KEY (`IdClausula`)
+) CHARACTER SET latin1;
+CREATE TABLE `DetalleSeguro` (
+  `IdDetalleSeguro` VARCHAR(50) NOT NULL,
+  `Descripcion` VARCHAR(50),
+  `IdSeguro` VARCHAR(50),
+  PRIMARY KEY (`IdDetalleSeguro`)
+) CHARACTER SET latin1;
+CREATE TABLE `Privilegio` (
+  `IdPrivilegio` VARCHAR(50) NOT NULL,
+  `Descripcion` VARCHAR(50),
+  PRIMARY KEY (`IdPrivilegio`)
+) CHARACTER SET latin1;
+CREATE TABLE `GrupoPrivilegio` (
+  `IdGrupo` VARCHAR(50),
+  `IdPrivilegio` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `Grupo` (
+  `IdGrupo` VARCHAR(50) NOT NULL,
+  `Descripcion` VARCHAR(50),
+  PRIMARY KEY (`IdGrupo`)
+) CHARACTER SET latin1;
+CREATE TABLE `Usuario` (
+  `IdUsuario` VARCHAR(50) NOT NULL,
+  `Nick` VARCHAR(50),
+  `Clave` VARCHAR(50),
+  `IdGrupo` VARCHAR(50),
+  PRIMARY KEY (`IdUsuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cargo` (
+  `IdCargo` VARCHAR(50) NOT NULL,
+  `Nombre` VARCHAR(50),
+  `Descripcion` VARCHAR(50),
+  PRIMARY KEY (`IdCargo`)
+) CHARACTER SET latin1;
+CREATE TABLE `Personal` (
+  `IdPersonal` VARCHAR(50) NOT NULL,
+  `Nombre` VARCHAR(50),
+  `Apellido` VARCHAR(50),
+  `CI` VARCHAR(50),
+  `Direccion` VARCHAR(50),
+  `Sexo` CHAR(50),
+  `Telefono` VARCHAR(50),
+  `Celular` INT,
+  `Estado` VARCHAR(50),
+  `IdEmpresaAseguradora` VARCHAR(50),
+  `IdUsuario` VARCHAR(50),
+  `IdCargo` VARCHAR(50),
+  PRIMARY KEY (`IdPersonal`)
+) CHARACTER SET latin1;
+CREATE TABLE `EmpresaAseguradora` (
+  `IdEmpresaAseguradora` VARCHAR(50) NOT NULL,
+  `Nombre` VARCHAR(50),
+  `Direccion` VARCHAR(50),
+  `Telefono` VARCHAR(50),
+  `Email` VARCHAR(50),
+  PRIMARY KEY (`IdEmpresaAseguradora`)
+) CHARACTER SET latin1;
+CREATE TABLE `Beneficiario` (
+  `IdBeneficiario` VARCHAR(50) NOT NULL,
+  `Nombre` VARCHAR(50),
+  `Apellido` VARCHAR(50),
+  `CI` VARCHAR(50),
+  `Telefono` VARCHAR(50),
+  `Celular` VARCHAR(50),
+  `Direccion` VARCHAR(50),
+  PRIMARY KEY (`IdBeneficiario`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cliente` (
+  `IdCliente` VARCHAR(50) NOT NULL,
+  `Nombre` VARCHAR(50),
+  `Apellido` VARCHAR(50),
+  `Ci` VARCHAR(50),
+  `Direccion` VARCHAR(50),
+  `Ciudad` VARCHAR(50),
+  `Telefono` VARCHAR(50),
+  `Celular` VARCHAR(50),
+  `Genero` CHAR(50),
+  `Nit` VARCHAR(50),
+  `FechaNac` DATE,
+  `TipoCliente` VARCHAR(50),
+  `Estado` VARCHAR(50),
+  PRIMARY KEY (`IdCliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `Seguro` (
+  `IdSeguro` VARCHAR(50) NOT NULL,
+  `Nombre` VARCHAR(50),
+  `Descripcion` VARCHAR(50),
+  PRIMARY KEY (`IdSeguro`)
+) CHARACTER SET latin1;
+CREATE TABLE `PlanPago` (
+  `IdPlanPago` VARCHAR(50) NOT NULL,
+  `Saldo` DOUBLE,
+  `FechaInicio` DATE,
+  `Plazo` VARCHAR(50),
+  `Estado` VARCHAR(50),
+  PRIMARY KEY (`IdPlanPago`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cuota` (
+  `IdCuota` VARCHAR(50) NOT NULL,
+  `Monto` DOUBLE,
+  `FechaPago` DATE,
+  `IdPlanPago` VARCHAR(50),
+  PRIMARY KEY (`IdCuota`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_220370_ScriptPoliza') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_220370_ScriptPoliza') AS relationships;
+DROP DATABASE `db_220370_ScriptPoliza`;
+UNINSTALL EXTENSION vsql_schematron;

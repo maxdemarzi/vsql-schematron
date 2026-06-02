@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 324553_mail_storage
+--echo #
+CREATE DATABASE `db_324553_mail_storage`;
+USE `db_324553_mail_storage`;
+CREATE TABLE `mail_storage` (
+  `id` INT NOT NULL,
+  `sender` VARCHAR(50),
+  `subject` VARCHAR(50),
+  `receiver` VARCHAR(50),
+  `cc` VARCHAR(50),
+  `bcc` VARCHAR(50),
+  `rawText` TEXT,
+  `html` TEXT,
+  `deliveryTime` TIMESTAMP NULL,
+  `tag` VARCHAR(50),
+  `creationTime` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mail_storage_attachment` (
+  `id` INT NOT NULL,
+  `mail_Id` BIGINT,
+  `name` VARCHAR(50),
+  `mime_type` VARCHAR(50),
+  `data` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_324553_mail_storage') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_324553_mail_storage') AS relationships;
+DROP DATABASE `db_324553_mail_storage`;
+UNINSTALL EXTENSION vsql_schematron;

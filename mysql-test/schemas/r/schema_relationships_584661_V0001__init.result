@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 584661_V0001__init
+#
+CREATE DATABASE `db_584661_V0001__init`;
+USE `db_584661_V0001__init`;
+CREATE TABLE `country` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `film` (
+`id` INT NOT NULL,
+`country_id` BIGINT,
+`title` VARCHAR(50),
+`genre` VARCHAR(50),
+`tags` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `actor` (
+`id` INT NOT NULL,
+`country_id` BIGINT,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`birthday` DATE,
+`gender` VARCHAR(50),
+`tags` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `film_actor` (
+`film_id` BIGINT NOT NULL,
+`actor_id` BIGINT NOT NULL,
+PRIMARY KEY (`film_id`, `actor_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_584661_V0001__init') AS relationships;
+relationships
+Database: db_584661_V0001__init
+
+Table Connections:
+------------------
+[Implied]  actor.country_id -> country.id
+[Implied]  film.country_id -> country.id
+[Implied]  film_actor.actor_id -> actor.id
+[Implied]  film_actor.film_id -> film.id
+
+DROP DATABASE `db_584661_V0001__init`;
+UNINSTALL EXTENSION vsql_schematron;

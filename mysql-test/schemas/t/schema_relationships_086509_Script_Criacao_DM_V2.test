@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 086509_Script_Criacao_DM_V2
+--echo #
+CREATE DATABASE `db_086509_Script_Criacao_DM_V2`;
+USE `db_086509_Script_Criacao_DM_V2`;
+CREATE TABLE `Dim_Organizacional` (
+  `ID_Vendedor` INT NOT NULL,
+  `Cod_Vendedor` VARCHAR(50),
+  `Desc_Vendedor` VARCHAR(50),
+  `Cod_Gerente` VARCHAR(50),
+  `Desc_Gerente` VARCHAR(50),
+  `Cod_Diretor` VARCHAR(50),
+  `Desc_Diretor` VARCHAR(50),
+  `Versao` INT,
+  `DataInicial` DATE,
+  `DataFinal` DATE,
+  PRIMARY KEY (`ID_Vendedor`)
+) CHARACTER SET latin1;
+CREATE TABLE `Dim_Produto` (
+  `ID_Produto` INT NOT NULL,
+  `Cod_Produto` VARCHAR(50),
+  `Desc_Produto` VARCHAR(50),
+  `Cod_Marca` VARCHAR(50),
+  `Atr_Tamanho` VARCHAR(50),
+  `Atr_Sabor` VARCHAR(50),
+  `Cod_Categoria` VARCHAR(50),
+  `Desc_Marca` VARCHAR(50),
+  `Desc_Categoria` VARCHAR(50),
+  PRIMARY KEY (`ID_Produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `Dim_Cliente` (
+  `ID_Cliente` INT NOT NULL,
+  `Cod_Cliente` VARCHAR(50),
+  `Desc_Cliente` VARCHAR(50),
+  `Cod_Cidade` VARCHAR(50),
+  `Desc_Cidade` VARCHAR(50),
+  `Cod_Estado` VARCHAR(50),
+  `Desc_Estado` VARCHAR(50),
+  `Cod_Regiao` VARCHAR(50),
+  `Desc_Regiao` VARCHAR(50),
+  `Cod_Segmento` VARCHAR(50),
+  `Desc_Segmento` VARCHAR(50),
+  `Versao` INT,
+  `DataInicial` DATE,
+  `DataFinal` DATE,
+  PRIMARY KEY (`ID_Cliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `Dim_Tempo` (
+  `ID_Tempo` INT NOT NULL,
+  `Cod_Tempo` VARCHAR(50),
+  `Data` DATE,
+  `Numero_Dia_Semana` VARCHAR(50),
+  `Numero_Mes` VARCHAR(50),
+  `Numero_Ano` VARCHAR(50),
+  `Nome_Mes` VARCHAR(50),
+  `Numero_Trimestre` VARCHAR(50),
+  `Nome_Trimestre` VARCHAR(50),
+  `Numero_Semestre` VARCHAR(50),
+  `Nome_Semestre` VARCHAR(50),
+  PRIMARY KEY (`ID_Tempo`)
+) CHARACTER SET latin1;
+CREATE TABLE `Dim_Fabrica` (
+  `ID_Fabrica` INT NOT NULL,
+  `Cod_Fabrica` VARCHAR(50),
+  `Desc_Fabrica` VARCHAR(50),
+  PRIMARY KEY (`ID_Fabrica`)
+) CHARACTER SET latin1;
+CREATE TABLE `Fato_Presidencia` (
+  `ID_Tempo` INT NOT NULL,
+  `ID_Fabrica` INT NOT NULL,
+  `ID_Vendedor` INT NOT NULL,
+  `ID_Cliente` INT NOT NULL,
+  `ID_Produto` INT NOT NULL,
+  `Faturamento` DOUBLE,
+  `Unidade_Vendida` DOUBLE,
+  `Quantidade_Vendida` DOUBLE,
+  `Imposto` DOUBLE,
+  `Custo_Variavel` DOUBLE,
+  `Custo_Frete` DOUBLE,
+  `Custo_Fixo` DOUBLE,
+  `Meta_Faturamento` DOUBLE,
+  `Meta_Custo` DOUBLE,
+  PRIMARY KEY (`ID_Tempo`, `ID_Fabrica`, `ID_Vendedor`, `ID_Cliente`, `ID_Produto`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_086509_Script_Criacao_DM_V2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_086509_Script_Criacao_DM_V2') AS relationships;
+DROP DATABASE `db_086509_Script_Criacao_DM_V2`;
+UNINSTALL EXTENSION vsql_schematron;

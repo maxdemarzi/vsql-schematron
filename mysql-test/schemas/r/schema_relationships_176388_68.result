@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 176388_68
+#
+CREATE DATABASE `db_176388_68`;
+USE `db_176388_68`;
+CREATE TABLE `comment_thread` (
+`dtype` VARCHAR(50),
+`id` BIGINT NOT NULL,
+`project_id` BIGINT,
+`author_id` BIGINT,
+`author_login_id` VARCHAR(50),
+`author_name` VARCHAR(50),
+`state` VARCHAR(50),
+`commit_id` VARCHAR(50),
+`path` VARCHAR(50),
+`start_side` VARCHAR(50),
+`start_line` INT,
+`start_column` INT,
+`end_side` VARCHAR(50),
+`end_line` INT,
+`end_column` INT,
+`pull_request_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `review_comment` (
+`id` BIGINT NOT NULL,
+`contents` VARCHAR(50),
+`created_date` TIMESTAMP NULL,
+`author_id` BIGINT,
+`author_login_id` VARCHAR(50),
+`author_name` VARCHAR(50),
+`thread_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment_thread_n4user` (
+`comment_thread_id` BIGINT NOT NULL,
+`n4user_id` BIGINT NOT NULL,
+PRIMARY KEY (`comment_thread_id`, `n4user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_176388_68') AS relationships;
+relationships
+Database: db_176388_68
+
+Table Connections:
+------------------
+[Implied]  comment_thread_n4user.comment_thread_id -> comment_thread.id
+[Implied]  review_comment.thread_id -> comment_thread.id
+
+DROP DATABASE `db_176388_68`;
+UNINSTALL EXTENSION vsql_schematron;

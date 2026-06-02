@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 028711_1
+#
+CREATE DATABASE `db_028711_1`;
+USE `db_028711_1`;
+CREATE TABLE `members` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`mail` VARCHAR(50),
+`password` VARCHAR(50),
+`postdate` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`id` BIGINT NOT NULL,
+`mail` VARCHAR(50),
+`message` VARCHAR(50),
+`postdate` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message_members` (
+`message_id` BIGINT NOT NULL,
+`members_id` BIGINT NOT NULL,
+PRIMARY KEY (`message_id`, `members_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_028711_1') AS relationships;
+relationships
+Database: db_028711_1
+
+Table Connections:
+------------------
+[Implied]  message_members.members_id -> members.id
+[Implied]  message_members.message_id -> message.id
+
+DROP DATABASE `db_028711_1`;
+UNINSTALL EXTENSION vsql_schematron;

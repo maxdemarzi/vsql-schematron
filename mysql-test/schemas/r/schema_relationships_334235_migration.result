@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 334235_migration
+#
+CREATE DATABASE `db_334235_migration`;
+USE `db_334235_migration`;
+CREATE TABLE `comic_imgs` (
+`id` INT NOT NULL,
+`height` INT,
+`width` INT,
+`ratio` DOUBLE,
+`sourceUrl` VARCHAR(50),
+`size` VARCHAR(50),
+`comic_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comics` (
+`id` INT NOT NULL,
+`publishedAt` TIMESTAMP NULL,
+`news` TEXT,
+`safeTitle` TEXT,
+`title` TEXT,
+`transcript` TEXT,
+`alt` TEXT,
+`sourceUrl` VARCHAR(50),
+`explainUrl` VARCHAR(50),
+`interactiveUrl` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `device_tokens` (
+`token` VARCHAR(50) NOT NULL,
+`version` VARCHAR(50),
+`lastComicIdSent` INT,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+PRIMARY KEY (`token`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_334235_migration') AS relationships;
+relationships
+Database: db_334235_migration
+
+Table Connections:
+------------------
+[Implied]  comic_imgs.comic_id -> comics.id
+
+DROP DATABASE `db_334235_migration`;
+UNINSTALL EXTENSION vsql_schematron;

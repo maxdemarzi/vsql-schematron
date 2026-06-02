@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 334943_SoloBeer
+--echo #
+CREATE DATABASE `db_334943_SoloBeer`;
+USE `db_334943_SoloBeer`;
+CREATE TABLE `Beer` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `abv` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Container` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `volume` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `BeerContainer` (
+  `id_beer` INT NOT NULL,
+  `id_container` INT NOT NULL,
+  PRIMARY KEY (`id_beer`, `id_container`)
+) CHARACTER SET latin1;
+CREATE TABLE `Client` (
+  `id` INT NOT NULL,
+  `pseudo` VARCHAR(50),
+  `hash` VARCHAR(50),
+  `salt` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_334943_SoloBeer') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_334943_SoloBeer') AS relationships;
+DROP DATABASE `db_334943_SoloBeer`;
+UNINSTALL EXTENSION vsql_schematron;

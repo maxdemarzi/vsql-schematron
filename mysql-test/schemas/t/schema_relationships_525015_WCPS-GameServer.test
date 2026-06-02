@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 525015_WCPS-GameServer
+--echo #
+CREATE DATABASE `db_525015_WCPS_GameServer`;
+USE `db_525015_WCPS_GameServer`;
+CREATE TABLE `user_stats` (
+  `ID` VARCHAR(50),
+  `kills` VARCHAR(50),
+  `deaths` VARCHAR(50),
+  `headshots` VARCHAR(50),
+  `bombs_planted` VARCHAR(50),
+  `bombs_defused` VARCHAR(50),
+  `rounds_played` VARCHAR(50),
+  `flags_taken` VARCHAR(50),
+  `victories` VARCHAR(50),
+  `defeats` VARCHAR(50),
+  `vehicles_destroyed` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+  `ID` VARCHAR(50) NOT NULL,
+  `xp` VARCHAR(50),
+  `money` VARCHAR(50),
+  `premium` VARCHAR(50),
+  `premium_expiredate` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_525015_WCPS_GameServer') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_525015_WCPS_GameServer') AS relationships;
+DROP DATABASE `db_525015_WCPS_GameServer`;
+UNINSTALL EXTENSION vsql_schematron;

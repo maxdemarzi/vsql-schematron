@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 254247_patch2
+--echo #
+CREATE DATABASE `db_254247_patch2`;
+USE `db_254247_patch2`;
+CREATE TABLE `world` (
+  `uuid` VARCHAR(50) NOT NULL,
+  `map_id` VARCHAR(50),
+  `size_x` INT,
+  `size_y` INT,
+  PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `world_tile` (
+  `id` INT NOT NULL,
+  `world_uuid` CHAR(50),
+  `x` INT,
+  `y` INT,
+  `tile_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `world_building` (
+  `id` INT NOT NULL,
+  `world_uuid` CHAR(50),
+  `x` INT,
+  `y` INT,
+  `building_id` INT,
+  `owner_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_254247_patch2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_254247_patch2') AS relationships;
+DROP DATABASE `db_254247_patch2`;
+UNINSTALL EXTENSION vsql_schematron;

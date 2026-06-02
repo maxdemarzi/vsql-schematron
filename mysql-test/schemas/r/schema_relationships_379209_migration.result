@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 379209_migration
+#
+CREATE DATABASE `db_379209_migration`;
+USE `db_379209_migration`;
+CREATE TABLE `ProductType` (
+`id` INT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Product` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`productTypeId` INT,
+`placeId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Item` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`productId` INT,
+`quantity` DECIMAL(10,2),
+`unit` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Place` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_379209_migration') AS relationships;
+relationships
+Database: db_379209_migration
+
+Table Connections:
+------------------
+[Implied]  Item.productId -> Product.id
+[Implied]  Product.placeId -> Place.id
+[Implied]  Product.productTypeId -> ProductType.id
+
+DROP DATABASE `db_379209_migration`;
+UNINSTALL EXTENSION vsql_schematron;

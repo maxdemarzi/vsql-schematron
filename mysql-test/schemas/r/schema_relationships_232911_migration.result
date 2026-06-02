@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 232911_migration
+#
+CREATE DATABASE `db_232911_migration`;
+USE `db_232911_migration`;
+CREATE TABLE `user` (
+`id` VARCHAR(50) NOT NULL,
+`email` TEXT,
+`password` TEXT,
+`username` TEXT,
+`firstName` TEXT,
+`lastName` TEXT,
+`updatedAt` TIMESTAMP NULL,
+`createdAt` TIMESTAMP NULL,
+`status` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_channels` (
+`id` VARCHAR(50) NOT NULL,
+`userId` TEXT,
+`channelId` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `channel` (
+`id` VARCHAR(50) NOT NULL,
+`name` TEXT,
+`creatorId` TEXT,
+`updatedAt` TIMESTAMP NULL,
+`createdAt` TIMESTAMP NULL,
+`isPrivate` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`id` VARCHAR(50) NOT NULL,
+`content` TEXT,
+`senderId` TEXT,
+`receiverId` TEXT,
+`updatedAt` TIMESTAMP NULL,
+`createdAt` TIMESTAMP NULL,
+`channelId` TEXT,
+`seen` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_232911_migration') AS relationships;
+relationships
+Database: db_232911_migration
+
+Table Connections:
+------------------
+[Implied]  channel.creatorId -> user.id
+[Implied]  message.channelId -> channel.id
+[Implied]  message.receiverId -> user.id
+[Implied]  message.senderId -> user.id
+[Implied]  users_channels.channelId -> channel.id
+[Implied]  users_channels.userId -> user.id
+
+DROP DATABASE `db_232911_migration`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,123 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 480647_dump
+--echo #
+CREATE DATABASE `db_480647_dump`;
+USE `db_480647_dump`;
+CREATE TABLE `users` (
+  `user_id` INT NOT NULL,
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  `name` VARCHAR(50),
+  `billing` TEXT,
+  `api_key` VARCHAR(50),
+  `token_code` VARCHAR(50),
+  `twofa_secret` VARCHAR(50),
+  `one_time_login_code` VARCHAR(50),
+  `pending_email` VARCHAR(50),
+  `email_activation_code` VARCHAR(50),
+  `lost_password_code` VARCHAR(50),
+  `facebook_id` BIGINT,
+  `type` INT,
+  `active` INT,
+  `plan_id` VARCHAR(50),
+  `plan_expiration_date` DATETIME,
+  `plan_settings` TEXT,
+  `plan_trial_done` TINYINT,
+  `plan_expiry_reminder` TINYINT,
+  `payment_subscription_id` VARCHAR(50),
+  `referral_key` VARCHAR(50),
+  `referred_by` VARCHAR(50),
+  `referred_by_has_converted` TINYINT,
+  `language` VARCHAR(50),
+  `timezone` VARCHAR(50),
+  `date` DATETIME,
+  `ip` VARCHAR(50),
+  `country` VARCHAR(50),
+  `last_activity` DATETIME,
+  `last_user_agent` TEXT,
+  `total_logins` INT,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `biolinks_blocks` (
+  `biolink_block_id` INT NOT NULL,
+  `user_id` INT,
+  `link_id` INT,
+  `type` VARCHAR(50),
+  `location_url` VARCHAR(50),
+  `clicks` INT,
+  `settings` TEXT,
+  `order` INT,
+  `start_date` DATETIME,
+  `end_date` DATETIME,
+  `is_enabled` TINYINT,
+  `datetime` DATETIME,
+  PRIMARY KEY (`biolink_block_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pixels` (
+  `pixel_id` INT NOT NULL,
+  `user_id` INT,
+  `type` VARCHAR(50),
+  `name` VARCHAR(50),
+  `pixel` VARCHAR(50),
+  `last_datetime` DATETIME,
+  `datetime` DATETIME,
+  PRIMARY KEY (`pixel_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `plans` (
+  `plan_id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `monthly_price` DOUBLE,
+  `annual_price` DOUBLE,
+  `lifetime_price` DOUBLE,
+  `settings` TEXT,
+  `taxes_ids` TEXT,
+  `status` TINYINT,
+  `order` VARCHAR(50),
+  `date` DATETIME,
+  PRIMARY KEY (`plan_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pages` (
+  `page_id` INT NOT NULL,
+  `pages_category_id` INT,
+  `url` VARCHAR(50),
+  `title` VARCHAR(50),
+  `description` VARCHAR(50),
+  `content` VARCHAR(50),
+  `type` VARCHAR(50),
+  `position` VARCHAR(50),
+  `order` INT,
+  `total_views` INT,
+  `date` DATETIME,
+  `last_date` DATETIME,
+  PRIMARY KEY (`page_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_logs` (
+  `id` VARCHAR(50) NOT NULL,
+  `user_id` INT,
+  `type` VARCHAR(50),
+  `date` DATETIME,
+  `ip` VARCHAR(50),
+  `public` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_480647_dump') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_480647_dump') AS relationships;
+DROP DATABASE `db_480647_dump`;
+UNINSTALL EXTENSION vsql_schematron;

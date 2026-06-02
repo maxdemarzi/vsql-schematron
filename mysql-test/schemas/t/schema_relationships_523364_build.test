@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 523364_build
+--echo #
+CREATE DATABASE `db_523364_build`;
+USE `db_523364_build`;
+CREATE TABLE `User` (
+  `user_id` INT NOT NULL,
+  `firstname` VARCHAR(50),
+  `lastname` VARCHAR(50),
+  `password` TEXT,
+  `email` VARCHAR(50),
+  `backup_email` VARCHAR(50),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Appointment` (
+  `appointment_id` INT NOT NULL,
+  `date` DATE,
+  PRIMARY KEY (`appointment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Appointment_member` (
+  `appointment_member_id` INT NOT NULL,
+  `fk_appointment_id` INT,
+  `fk_user_id` INT,
+  PRIMARY KEY (`appointment_member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sponsorship` (
+  `sponsorship_id` INT NOT NULL,
+  `fk_user_sponsored_id` INT,
+  `fk_user_sponsor_id` INT,
+  `date` DATE,
+  PRIMARY KEY (`sponsorship_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Message` (
+  `message_id` INT NOT NULL,
+  `fk_user_receiver_id` INT,
+  `fk_user_sender_id` INT,
+  `content` TEXT,
+  `date` DATE,
+  PRIMARY KEY (`message_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Location` (
+  `location_id` INT NOT NULL,
+  `fk_user_id` INT,
+  `latitude` DECIMAL(10,2),
+  `longitude` DECIMAL(10,2),
+  `date` DATE,
+  PRIMARY KEY (`location_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Login_history` (
+  `fk_user_id` INT,
+  `ip_address` VARCHAR(50),
+  `date` DATE
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_523364_build') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_523364_build') AS relationships;
+DROP DATABASE `db_523364_build`;
+UNINSTALL EXTENSION vsql_schematron;

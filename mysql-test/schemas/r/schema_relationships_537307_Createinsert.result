@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 537307_Createinsert
+#
+CREATE DATABASE `db_537307_Createinsert`;
+USE `db_537307_Createinsert`;
+CREATE TABLE `Customer` (
+`custID` DECIMAL(10,2) NOT NULL,
+`custName` VARCHAR(50),
+`custPhone` VARCHAR(50),
+`custEmail` VARCHAR(50),
+PRIMARY KEY (`custID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Species` (
+`speciesCode` DECIMAL(10,2) NOT NULL,
+`speciesName` VARCHAR(50),
+`speciesPrice` DECIMAL(10,2),
+PRIMARY KEY (`speciesCode`)
+) CHARACTER SET latin1;
+CREATE TABLE `Animal` (
+`animalID` DECIMAL(10,2) NOT NULL,
+`animalName` VARCHAR(50),
+`dateShopPurchased` DATE,
+`speciesCode` DECIMAL(10,2),
+PRIMARY KEY (`animalID`)
+) CHARACTER SET latin1;
+CREATE TABLE `AnimalSale` (
+`custID` DECIMAL(10,2) NOT NULL,
+`animalID` DECIMAL(10,2) NOT NULL,
+`saleDate` DATE,
+PRIMARY KEY (`custID`, `animalID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_537307_Createinsert') AS relationships;
+relationships
+Database: db_537307_Createinsert
+
+Table Connections:
+------------------
+[Implied]  Animal.speciesCode -> Species.speciesCode
+[Implied]  AnimalSale.animalID -> Animal.animalID
+[Implied]  AnimalSale.custID -> Customer.custID
+
+DROP DATABASE `db_537307_Createinsert`;
+UNINSTALL EXTENSION vsql_schematron;

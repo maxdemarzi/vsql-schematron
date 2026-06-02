@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 645929_clean_state
+--echo #
+CREATE DATABASE `db_645929_clean_state`;
+USE `db_645929_clean_state`;
+CREATE TABLE `list_action` (
+  `action_id` INT NOT NULL,
+  `action` VARCHAR(50),
+  PRIMARY KEY (`action_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `list_activity` (
+  `activity_id` INT NOT NULL,
+  `action_id` INT,
+  `admin_id` INT,
+  `platform` TEXT,
+  `browser` TEXT,
+  `ip_address` VARCHAR(50),
+  `time` DATETIME,
+  `description` TEXT,
+  `meta_data` VARCHAR(50),
+  PRIMARY KEY (`activity_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `list_bank` (
+  `bank_id` INT NOT NULL,
+  `bank_name` VARCHAR(50),
+  `branch_name` VARCHAR(50),
+  `bank_code` VARCHAR(50),
+  `account_number` VARCHAR(50),
+  `holder_name` VARCHAR(50),
+  `is_active` TINYINT,
+  PRIMARY KEY (`bank_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `list_customer_status` (
+  `customer_status_id` INT NOT NULL,
+  `customer_status` VARCHAR(50),
+  PRIMARY KEY (`customer_status_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `list_customer` (
+  `customer_id` INT NOT NULL,
+  `customer_name` VARCHAR(50),
+  `customer_phone` VARCHAR(50),
+  `customer_email` VARCHAR(50),
+  `customer_password` VARCHAR(50),
+  `customer_address` TEXT,
+  `province_id` INT,
+  `province_name` VARCHAR(50),
+  `district_id` INT,
+  `district_name` VARCHAR(50),
+  `customer_photo` TEXT,
+  `customer_status_id` INT,
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_645929_clean_state') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_645929_clean_state') AS relationships;
+DROP DATABASE `db_645929_clean_state`;
+UNINSTALL EXTENSION vsql_schematron;

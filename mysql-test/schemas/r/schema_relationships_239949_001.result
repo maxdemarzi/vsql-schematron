@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 239949_001
+#
+CREATE DATABASE `db_239949_001`;
+USE `db_239949_001`;
+CREATE TABLE `Projects` (
+`id` INT NOT NULL,
+`slug` TEXT,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Test_Cases` (
+`id` INT NOT NULL,
+`project_id` INT,
+`class` TEXT,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Test_Runs` (
+`id` INT NOT NULL,
+`project_id` INT,
+`timestamp` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Test_Run_Results` (
+`run_id` INT NOT NULL,
+`case_id` INT NOT NULL,
+`flaky_status` TEXT,
+PRIMARY KEY (`run_id`, `case_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_239949_001') AS relationships;
+relationships
+Database: db_239949_001
+
+Table Connections:
+------------------
+[Implied]  Test_Cases.project_id -> Projects.id
+[Implied]  Test_Run_Results.case_id -> Test_Cases.id
+[Implied]  Test_Run_Results.run_id -> Test_Runs.id
+[Implied]  Test_Runs.project_id -> Projects.id
+
+DROP DATABASE `db_239949_001`;
+UNINSTALL EXTENSION vsql_schematron;

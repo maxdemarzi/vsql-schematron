@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 006636_create
+#
+CREATE DATABASE `db_006636_create`;
+USE `db_006636_create`;
+CREATE TABLE `brand` (
+`brandId` INT NOT NULL,
+`brandName` VARCHAR(50),
+PRIMARY KEY (`brandId`)
+) CHARACTER SET latin1;
+CREATE TABLE `carmodal` (
+`modelId` INT NOT NULL,
+`modalName` VARCHAR(50),
+`brandId` INT,
+PRIMARY KEY (`modelId`)
+) CHARACTER SET latin1;
+CREATE TABLE `carInfo` (
+`carId` INT NOT NULL,
+`carName` VARCHAR(50),
+`carPrice` DECIMAL(10,2),
+`carDisplacement` VARCHAR(50),
+`carModalId` INT,
+`carClutch` VARCHAR(50),
+`carColor` VARCHAR(50),
+PRIMARY KEY (`carId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_006636_create') AS relationships;
+relationships
+Database: db_006636_create
+
+Table Connections:
+------------------
+[Implied]  carInfo.carModalId -> carmodal.modelId
+[Implied]  carmodal.brandId -> brand.brandId
+
+DROP DATABASE `db_006636_create`;
+UNINSTALL EXTENSION vsql_schematron;

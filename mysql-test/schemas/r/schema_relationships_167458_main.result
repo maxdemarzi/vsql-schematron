@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 167458_main
+#
+CREATE DATABASE `db_167458_main`;
+USE `db_167458_main`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`username` TEXT,
+`password` TEXT,
+`salt` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `canvasses` (
+`id` INT NOT NULL,
+`title` TEXT,
+`owner_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notes` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`owner_id` INT,
+`body` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `placements` (
+`id` INT NOT NULL,
+`notes_id` INT,
+`canvas_id` INT,
+`coordinates` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_167458_main') AS relationships;
+relationships
+Database: db_167458_main
+
+Table Connections:
+------------------
+[Implied]  canvasses.owner_id -> users.id
+[Implied]  notes.owner_id -> users.id
+[Implied]  placements.canvas_id -> canvasses.id
+[Implied]  placements.notes_id -> notes.id
+
+DROP DATABASE `db_167458_main`;
+UNINSTALL EXTENSION vsql_schematron;

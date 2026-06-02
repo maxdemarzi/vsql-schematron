@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 279950_pocket
+#
+CREATE DATABASE `db_279950_pocket`;
+USE `db_279950_pocket`;
+CREATE TABLE `tasks` (
+`Id_tasks` INT NOT NULL,
+`tas_name` VARCHAR(50),
+`tas_description` VARCHAR(50),
+`tas_points` INT,
+PRIMARY KEY (`Id_tasks`)
+) CHARACTER SET latin1;
+CREATE TABLE `person` (
+`Id_person` INT NOT NULL,
+`per_name` VARCHAR(50),
+`per_age` INT,
+PRIMARY KEY (`Id_person`)
+) CHARACTER SET latin1;
+CREATE TABLE `ligne_task` (
+`Id_tasks` INT NOT NULL,
+`Id_person` INT NOT NULL,
+`pai_scale` INT,
+`date_done` DATE,
+`voluntary` BOOLEAN,
+PRIMARY KEY (`Id_tasks`, `Id_person`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_279950_pocket') AS relationships;
+relationships
+Database: db_279950_pocket
+
+Table Connections:
+------------------
+[Implied]  ligne_task.Id_person -> person.Id_person
+[Implied]  ligne_task.Id_tasks -> tasks.Id_tasks
+
+DROP DATABASE `db_279950_pocket`;
+UNINSTALL EXTENSION vsql_schematron;

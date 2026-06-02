@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 196233_V001__criacao-inicial
+#
+CREATE DATABASE `db_196233_V001__criacao_inicial`;
+USE `db_196233_V001__criacao_inicial`;
+CREATE TABLE `sprint` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+`link` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `estoria` (
+`id` INT NOT NULL,
+`id_sprint` BIGINT,
+`nome` VARCHAR(50),
+`link` VARCHAR(50),
+`pontuacao` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `desenvolvedor` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+`email` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `voto` (
+`id_estoria` BIGINT NOT NULL,
+`id_desenvolvedor` BIGINT NOT NULL,
+`pontos` INT,
+`data_hora` TIMESTAMP NULL,
+PRIMARY KEY (`id_estoria`, `id_desenvolvedor`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_196233_V001__criacao_inicial') AS relationships;
+relationships
+Database: db_196233_V001__criacao_inicial
+
+Table Connections:
+------------------
+[Implied]  estoria.id_sprint -> sprint.id
+[Implied]  voto.id_desenvolvedor -> desenvolvedor.id
+[Implied]  voto.id_estoria -> estoria.id
+
+DROP DATABASE `db_196233_V001__criacao_inicial`;
+UNINSTALL EXTENSION vsql_schematron;

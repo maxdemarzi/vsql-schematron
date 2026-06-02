@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 102424_Database
+--echo #
+CREATE DATABASE `db_102424_Database`;
+USE `db_102424_Database`;
+CREATE TABLE `mydb.Room` (
+  `roomNo` INT NOT NULL,
+  `roomName` VARCHAR(50),
+  `area` DOUBLE,
+  `category` VARCHAR(50),
+  `pricePerUnit` DECIMAL(10,2),
+  `lastUpdate` TIMESTAMP NULL,
+  `createdAt` TIMESTAMP NULL,
+  PRIMARY KEY (`roomNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.Room_has_Booking` (
+  `Room_roomNo` INT NOT NULL,
+  `Booking_bookingId` INT NOT NULL,
+  PRIMARY KEY (`Room_roomNo`, `Booking_bookingId`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_102424_Database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_102424_Database') AS relationships;
+DROP DATABASE `db_102424_Database`;
+UNINSTALL EXTENSION vsql_schematron;

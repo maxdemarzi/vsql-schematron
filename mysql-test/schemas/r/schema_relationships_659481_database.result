@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 659481_database
+#
+CREATE DATABASE `db_659481_database`;
+USE `db_659481_database`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`username` CHAR(50),
+`password` VARCHAR(50),
+`name` CHAR(50),
+`isAdmin` BOOLEAN,
+`is_approved` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `logs` (
+`id` INT NOT NULL,
+`log_post` VARCHAR(50),
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT NOT NULL,
+`comments_post` VARCHAR(50),
+`logs_id` INT,
+`users_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `trophies` (
+`id` INT NOT NULL,
+`animals_id` INT,
+`weight` INT,
+`points` INT,
+`buck_score` INT,
+`user_id` INT,
+`is_approved` BOOLEAN,
+`year` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `animals` (
+`id` INT NOT NULL,
+`name` CHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hunterClubs` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_659481_database') AS relationships;
+relationships
+Database: db_659481_database
+
+Table Connections:
+------------------
+[Implied]  comments.logs_id -> logs.id
+[Implied]  comments.users_id -> users.id
+[Implied]  logs.user_id -> users.id
+[Implied]  trophies.animals_id -> animals.id
+[Implied]  trophies.user_id -> users.id
+
+DROP DATABASE `db_659481_database`;
+UNINSTALL EXTENSION vsql_schematron;

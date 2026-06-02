@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 572481_V1__initial
+#
+CREATE DATABASE `db_572481_V1__initial`;
+USE `db_572481_V1__initial`;
+CREATE TABLE `users.users` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`active` INT,
+`time_created` TIMESTAMP NULL,
+`last_updated` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users.datasets` (
+`id` INT NOT NULL,
+`owner_id` INT,
+`name` TEXT,
+`time_created` TIMESTAMP NULL,
+`last_updated` TIMESTAMP NULL,
+`metadata` VARCHAR(50),
+`loid` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users.jobs` (
+`id` INT NOT NULL,
+`owner_id` INT,
+`job_class` TEXT,
+`jobdata` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_572481_V1__initial') AS relationships;
+relationships
+Database: db_572481_V1__initial
+
+Table Connections:
+------------------
+[Implied]  users.datasets.owner_id -> users.users.id
+[Implied]  users.jobs.owner_id -> users.users.id
+
+DROP DATABASE `db_572481_V1__initial`;
+UNINSTALL EXTENSION vsql_schematron;

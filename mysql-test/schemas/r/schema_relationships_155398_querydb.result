@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 155398_querydb
+#
+CREATE DATABASE `db_155398_querydb`;
+USE `db_155398_querydb`;
+CREATE TABLE `usuario_app` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+`enabled` VARCHAR(50),
+`nombres` VARCHAR(50),
+`apellidos` VARCHAR(50),
+`email` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_app` (
+`id` INT NOT NULL,
+`nombre` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario_rol` (
+`usuario_id` INT NOT NULL,
+`role_id` INT NOT NULL,
+PRIMARY KEY (`usuario_id`, `role_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_155398_querydb') AS relationships;
+relationships
+Database: db_155398_querydb
+
+Table Connections:
+------------------
+[Implied]  usuario_rol.role_id -> role_app.id
+[Implied]  usuario_rol.usuario_id -> usuario_app.id
+
+DROP DATABASE `db_155398_querydb`;
+UNINSTALL EXTENSION vsql_schematron;

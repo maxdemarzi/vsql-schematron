@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 486708_jobs-sqlite
+--echo #
+CREATE DATABASE `db_486708_jobs_sqlite`;
+USE `db_486708_jobs_sqlite`;
+CREATE TABLE `job` (
+  `id` INT NOT NULL,
+  `job_id` TEXT,
+  `user_id` TEXT,
+  `project_id` TEXT,
+  `cluster_id` TEXT,
+  `start_time` INT,
+  `duration` INT,
+  `walltime` INT,
+  `job_state` TEXT,
+  `num_nodes` INT,
+  `node_list` TEXT,
+  `has_profile` INT,
+  `mem_used_max` DOUBLE,
+  `flops_any_avg` DOUBLE,
+  `mem_bw_avg` DOUBLE,
+  `load_avg` DOUBLE,
+  `net_bw_avg` DOUBLE,
+  `file_bw_avg` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+  `id` INT NOT NULL,
+  `tag_type` TEXT,
+  `tag_name` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `jobtag` (
+  `job_id` INT NOT NULL,
+  `tag_id` INT NOT NULL,
+  PRIMARY KEY (`job_id`, `tag_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_486708_jobs_sqlite') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_486708_jobs_sqlite') AS relationships;
+DROP DATABASE `db_486708_jobs_sqlite`;
+UNINSTALL EXTENSION vsql_schematron;

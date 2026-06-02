@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 331162_init
+#
+CREATE DATABASE `db_331162_init`;
+USE `db_331162_init`;
+CREATE TABLE `category` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question` (
+`id` INT NOT NULL,
+`category_id` INT,
+`text` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answer` (
+`id` INT NOT NULL,
+`question_id` INT,
+`text` VARCHAR(50),
+`is_correct` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_331162_init') AS relationships;
+relationships
+Database: db_331162_init
+
+Table Connections:
+------------------
+[Implied]  answer.question_id -> question.id
+[Implied]  question.category_id -> category.id
+
+DROP DATABASE `db_331162_init`;
+UNINSTALL EXTENSION vsql_schematron;

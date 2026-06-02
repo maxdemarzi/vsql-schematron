@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 693579_data
+--echo #
+CREATE DATABASE `db_693579_data`;
+USE `db_693579_data`;
+CREATE TABLE `Booking` (
+  `id_travel` INT NOT NULL,
+  `user_email` VARCHAR(50) NOT NULL,
+  `departure_date` DATE,
+  `return_date` DATE,
+  `total_cost` DOUBLE,
+  `validation_status` VARCHAR(50),
+  `created` TIMESTAMP NULL,
+  `updated` TIMESTAMP NULL,
+  PRIMARY KEY (`id_travel`, `user_email`)
+) CHARACTER SET latin1;
+CREATE TABLE `Country` (
+  `iso_code` VARCHAR(50) NOT NULL,
+  `name` VARCHAR(50),
+  `created` TIMESTAMP NULL,
+  `updated` TIMESTAMP NULL,
+  PRIMARY KEY (`iso_code`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+  `email` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(50),
+  `name` VARCHAR(50),
+  `first_name` VARCHAR(50),
+  `phone` VARCHAR(50),
+  `city` VARCHAR(50),
+  `zip_code` VARCHAR(50),
+  `street` VARCHAR(50),
+  `birth_date` DATE,
+  `country_code` VARCHAR(50),
+  `token` VARCHAR(50),
+  `created` TIMESTAMP NULL,
+  `updated` TIMESTAMP NULL,
+  PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_693579_data') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_693579_data') AS relationships;
+DROP DATABASE `db_693579_data`;
+UNINSTALL EXTENSION vsql_schematron;

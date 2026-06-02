@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 619969_V1_0__Initial_ddl
+#
+CREATE DATABASE `db_619969_V1_0__Initial_ddl`;
+USE `db_619969_V1_0__Initial_ddl`;
+CREATE TABLE `provider` (
+`id` DECIMAL(10,2) NOT NULL,
+`jwtid` VARCHAR(50),
+`identifier` VARCHAR(50),
+`email` VARCHAR(50),
+`phone` VARCHAR(50),
+`created` TIMESTAMP NULL,
+`updated` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transfer_log` (
+`id` DECIMAL(10,2) NOT NULL,
+`provider_id` DECIMAL(10,2),
+`items` INT,
+`md5` VARCHAR(50),
+`payload` TEXT,
+`status` VARCHAR(50),
+`message` VARCHAR(50),
+`created` TIMESTAMP NULL,
+`updated` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ad_state` (
+`id` DECIMAL(10,2) NOT NULL,
+`uuid` VARCHAR(50),
+`provider_id` DECIMAL(10,2),
+`reference` VARCHAR(50),
+`json_payload` TEXT,
+`version_id` DECIMAL(10,2),
+`created` TIMESTAMP NULL,
+`updated` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `admin_status` (
+`id` DECIMAL(10,2) NOT NULL,
+`uuid` VARCHAR(50),
+`provider_id` DECIMAL(10,2),
+`status` VARCHAR(50),
+`message` VARCHAR(50),
+`reference` VARCHAR(50),
+`version_id` DECIMAL(10,2),
+`created` TIMESTAMP NULL,
+`updated` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shedlock` (
+`name` VARCHAR(50) NOT NULL,
+`lock_until` TIMESTAMP NULL,
+`locked_at` TIMESTAMP NULL,
+`locked_by` VARCHAR(50),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `feedtask` (
+`name` VARCHAR(50) NOT NULL,
+`lastRun` TIMESTAMP NULL,
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_619969_V1_0__Initial_ddl') AS relationships;
+relationships
+Database: db_619969_V1_0__Initial_ddl
+
+Table Connections:
+------------------
+[Implied]  ad_state.provider_id -> provider.id
+[Implied]  admin_status.provider_id -> provider.id
+[Implied]  transfer_log.provider_id -> provider.id
+
+DROP DATABASE `db_619969_V1_0__Initial_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

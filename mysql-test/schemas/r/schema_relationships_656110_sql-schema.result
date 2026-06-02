@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 656110_sql-schema
+#
+CREATE DATABASE `db_656110_sql_schema`;
+USE `db_656110_sql_schema`;
+CREATE TABLE `customers` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`surname` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`id` INT NOT NULL,
+`item_name` VARCHAR(50),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT NOT NULL,
+`cust_id` INT,
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_items` (
+`id` INT NOT NULL,
+`order_id` INT,
+`item_id` INT,
+`quantity` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_656110_sql_schema') AS relationships;
+relationships
+Database: db_656110_sql_schema
+
+Table Connections:
+------------------
+[Implied]  order_items.item_id -> items.id
+[Implied]  order_items.order_id -> orders.id
+[Implied]  orders.cust_id -> customers.id
+
+DROP DATABASE `db_656110_sql_schema`;
+UNINSTALL EXTENSION vsql_schematron;

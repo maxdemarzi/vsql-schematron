@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 639541_mysql_schema
+#
+CREATE DATABASE `db_639541_mysql_schema`;
+USE `db_639541_mysql_schema`;
+CREATE TABLE `authors` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`name_hash` CHAR(50),
+`image_path` VARCHAR(50),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`name_hash` CHAR(50),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `quotes` (
+`id` INT NOT NULL,
+`text` TEXT,
+`text_hash` CHAR(50),
+`author_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `quote_tag_assoc` (
+`id` INT NOT NULL,
+`quote_id` INT,
+`tag_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_639541_mysql_schema') AS relationships;
+relationships
+Database: db_639541_mysql_schema
+
+Table Connections:
+------------------
+[Implied]  quote_tag_assoc.quote_id -> quotes.id
+[Implied]  quote_tag_assoc.tag_id -> tags.id
+[Implied]  quotes.author_id -> authors.id
+
+DROP DATABASE `db_639541_mysql_schema`;
+UNINSTALL EXTENSION vsql_schematron;

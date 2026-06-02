@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 032949_create_db
+--echo #
+CREATE DATABASE `db_032949_create_db`;
+USE `db_032949_create_db`;
+CREATE TABLE `players` (
+  `steam_id` VARCHAR(50) NOT NULL,
+  `score_count` INT,
+  `evaluation_sum` INT,
+  `evaluation` INT,
+  `cached_display_name` TEXT,
+  PRIMARY KEY (`steam_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `levels` (
+  `level_id` VARCHAR(50) NOT NULL,
+  `score_count` INT,
+  `evaluation_sum` INT,
+  `file_id` TEXT,
+  `cached_display_name` TEXT,
+  PRIMARY KEY (`level_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `steam_leaderboard` (
+  `level_id` VARCHAR(50) NOT NULL,
+  `steam_id` VARCHAR(50) NOT NULL,
+  `score` INT,
+  `placement` INT,
+  `evaluation` INT,
+  PRIMARY KEY (`level_id`, `steam_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_032949_create_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_032949_create_db') AS relationships;
+DROP DATABASE `db_032949_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

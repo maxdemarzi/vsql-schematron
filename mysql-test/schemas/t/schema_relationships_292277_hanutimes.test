@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 292277_hanutimes
+--echo #
+CREATE DATABASE `db_292277_hanutimes`;
+USE `db_292277_hanutimes`;
+CREATE TABLE `category` (
+  `id` INT NOT NULL,
+  `category` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `news` (
+  `id` INT NOT NULL,
+  `title` TEXT,
+  `short_intro` TEXT,
+  `content` TEXT,
+  `created_date` DATE,
+  `pic` VARCHAR(50),
+  `author` VARCHAR(50),
+  `cat_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+  `id` INT NOT NULL,
+  `content` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tagnews` (
+  `id` INT NOT NULL,
+  `tag_id` INT,
+  `news_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  `comment` TEXT,
+  `news_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_292277_hanutimes') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_292277_hanutimes') AS relationships;
+DROP DATABASE `db_292277_hanutimes`;
+UNINSTALL EXTENSION vsql_schematron;

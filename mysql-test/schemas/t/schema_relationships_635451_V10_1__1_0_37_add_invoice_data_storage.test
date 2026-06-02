@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 635451_V10_1__1.0.37_add_invoice_data_storage
+--echo #
+CREATE DATABASE `db_635451_V10_1__1_0_37_add_invoice_data_storage`;
+USE `db_635451_V10_1__1_0_37_add_invoice_data_storage`;
+CREATE TABLE `rpt.invoice` (
+  `id` BIGINT NOT NULL,
+  `external_id` CHAR(50),
+  `invoice_id` CHAR(50),
+  `status` VARCHAR(50),
+  `status_created_at` TIMESTAMP NULL,
+  `party_id` CHAR(50),
+  `shop_id` CHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `product` CHAR(50),
+  `description` CHAR(50),
+  `due` TIMESTAMP NULL,
+  `amount` BIGINT,
+  `currency_code` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rpt.invoice_additional_info` (
+  `ext_invoice_id` BIGINT NOT NULL,
+  `status_details` CHAR(50),
+  `party_revision` BIGINT,
+  `cart_json` CHAR(50),
+  `context_type` CHAR(50),
+  `context` VARCHAR(50),
+  `template_id` CHAR(50),
+  PRIMARY KEY (`ext_invoice_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_635451_V10_1__1_0_37_add_invoice_data_storage') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_635451_V10_1__1_0_37_add_invoice_data_storage') AS relationships;
+DROP DATABASE `db_635451_V10_1__1_0_37_add_invoice_data_storage`;
+UNINSTALL EXTENSION vsql_schematron;

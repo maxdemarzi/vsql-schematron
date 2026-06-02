@@ -1,0 +1,32 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 195078_CreateTable
+#
+CREATE DATABASE `db_195078_CreateTable`;
+USE `db_195078_CreateTable`;
+CREATE TABLE `Employees` (
+`user_id` VARCHAR(50) NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`dept` VARCHAR(50),
+`is_admin` TINYINT,
+`is_system_admin` TINYINT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reservations` (
+`user_id` VARCHAR(50) NOT NULL,
+`desk_id` INT NOT NULL,
+`from_date` TIMESTAMP NOT NULL,
+`to_date` TIMESTAMP NOT NULL,
+PRIMARY KEY (`user_id`, `desk_id`, `from_date`, `to_date`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_195078_CreateTable') AS relationships;
+relationships
+Database: db_195078_CreateTable
+
+Table Connections:
+------------------
+[Implied]  Reservations.user_id -> Employees.user_id
+
+DROP DATABASE `db_195078_CreateTable`;
+UNINSTALL EXTENSION vsql_schematron;

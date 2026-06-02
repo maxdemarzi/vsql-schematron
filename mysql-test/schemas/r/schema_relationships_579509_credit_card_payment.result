@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 579509_credit_card_payment
+#
+CREATE DATABASE `db_579509_credit_card_payment`;
+USE `db_579509_credit_card_payment`;
+CREATE TABLE `currency` (
+`primaryKey` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`primaryKey`)
+) CHARACTER SET latin1;
+CREATE TABLE `exchange` (
+`primaryKey` VARCHAR(50) NOT NULL,
+`rate` DECIMAL(10,2),
+`currency1` CHAR(50),
+`currency2` CHAR(50),
+PRIMARY KEY (`primaryKey`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`primaryKey` VARCHAR(50) NOT NULL,
+`code` INT,
+`summa` DECIMAL(10,2),
+`card_number` VARCHAR(50),
+`card_owner` VARCHAR(50),
+`card_month` INT,
+`card_year` INT,
+`cvv` INT,
+`currency` CHAR(50),
+PRIMARY KEY (`primaryKey`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_579509_credit_card_payment') AS relationships;
+relationships
+Database: db_579509_credit_card_payment
+
+Table Connections:
+------------------
+[Implied]  exchange.currency1 -> currency.primaryKey
+[Implied]  exchange.currency2 -> currency.primaryKey
+[Implied]  orders.currency -> currency.primaryKey
+
+DROP DATABASE `db_579509_credit_card_payment`;
+UNINSTALL EXTENSION vsql_schematron;

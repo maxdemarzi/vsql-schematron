@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 568075_V1__base_tables
+#
+CREATE DATABASE `db_568075_V1__base_tables`;
+USE `db_568075_V1__base_tables`;
+CREATE TABLE `terminal` (
+`terminal_id` BIGINT NOT NULL,
+`created` TIMESTAMP NULL,
+`last_updated` TIMESTAMP NULL,
+PRIMARY KEY (`terminal_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`id` BIGINT NOT NULL,
+`created` TIMESTAMP NULL,
+`last_updated` TIMESTAMP NULL,
+`message_type` SMALLINT,
+`terminal_id` BIGINT,
+`issuer_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `issuer` (
+`id` BIGINT NOT NULL,
+`created` TIMESTAMP NULL,
+`last_updated` TIMESTAMP NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `card_range` (
+`id` BIGINT NOT NULL,
+`created` TIMESTAMP NULL,
+`last_updated` TIMESTAMP NULL,
+`min_card_number` INT,
+`max_card_number` INT,
+`issuer_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_568075_V1__base_tables') AS relationships;
+relationships
+Database: db_568075_V1__base_tables
+
+Table Connections:
+------------------
+[Implied]  card_range.issuer_id -> issuer.id
+[Implied]  message.issuer_id -> issuer.id
+[Implied]  message.terminal_id -> terminal.terminal_id
+
+DROP DATABASE `db_568075_V1__base_tables`;
+UNINSTALL EXTENSION vsql_schematron;

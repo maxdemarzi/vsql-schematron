@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 638909_up
+#
+CREATE DATABASE `db_638909_up`;
+USE `db_638909_up`;
+CREATE TABLE `rbac_principals` (
+`id` VARCHAR(50) NOT NULL,
+`organization_id` VARCHAR(50),
+`username` VARCHAR(50),
+`description` TEXT,
+`created_by` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_by` VARCHAR(50),
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rbac_group_principals` (
+`group_id` VARCHAR(50) NOT NULL,
+`principal_id` VARCHAR(50) NOT NULL,
+`created_by` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_by` VARCHAR(50),
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`group_id`, `principal_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_638909_up') AS relationships;
+relationships
+Database: db_638909_up
+
+Table Connections:
+------------------
+[Implied]  rbac_group_principals.principal_id -> rbac_principals.id
+
+DROP DATABASE `db_638909_up`;
+UNINSTALL EXTENSION vsql_schematron;

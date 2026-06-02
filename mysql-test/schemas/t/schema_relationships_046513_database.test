@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 046513_database
+--echo #
+CREATE DATABASE `db_046513_database`;
+USE `db_046513_database`;
+CREATE TABLE `bitacora_ici_uct.usuario` (
+  `gapi_uid` VARCHAR(50) NOT NULL,
+  `usua_nombres` VARCHAR(50),
+  `usua_apellidos` VARCHAR(50),
+  `usua_email` VARCHAR(50),
+  PRIMARY KEY (`gapi_uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `bitacora_ici_uct.bitacora` (
+  `gapi_uid` VARCHAR(50) NOT NULL,
+  `bita_fecha` DATE NOT NULL,
+  `bita_actividades` VARCHAR(50),
+  `bita_conclusiones` VARCHAR(50),
+  PRIMARY KEY (`gapi_uid`, `bita_fecha`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_046513_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_046513_database') AS relationships;
+DROP DATABASE `db_046513_database`;
+UNINSTALL EXTENSION vsql_schematron;

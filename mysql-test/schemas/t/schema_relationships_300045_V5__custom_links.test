@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 300045_V5__custom_links
+--echo #
+CREATE DATABASE `db_300045_V5__custom_links`;
+USE `db_300045_V5__custom_links`;
+CREATE TABLE `custom_link_group` (
+  `id` DECIMAL(10,2) NOT NULL,
+  `name` VARCHAR(50),
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `custom_link` (
+  `id` DECIMAL(10,2) NOT NULL,
+  `custom_link_group_id` DECIMAL(10,2),
+  `name` VARCHAR(50),
+  `description` VARCHAR(50),
+  `url` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_300045_V5__custom_links') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_300045_V5__custom_links') AS relationships;
+DROP DATABASE `db_300045_V5__custom_links`;
+UNINSTALL EXTENSION vsql_schematron;

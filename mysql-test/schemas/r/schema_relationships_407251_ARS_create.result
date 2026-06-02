@@ -1,0 +1,114 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 407251_ARS_create
+#
+CREATE DATABASE `db_407251_ARS_create`;
+USE `db_407251_ARS_create`;
+CREATE TABLE `panstwo` (
+`id_panstwo` INT NOT NULL,
+`nazwa` VARCHAR(50),
+PRIMARY KEY (`id_panstwo`)
+) CHARACTER SET latin1;
+CREATE TABLE `linia_lotnicza` (
+`id_linia` INT NOT NULL,
+`nazwa` VARCHAR(50),
+`id_panstwo` INT,
+PRIMARY KEY (`id_linia`)
+) CHARACTER SET latin1;
+CREATE TABLE `producent` (
+`id_producent` INT NOT NULL,
+`nazwa` VARCHAR(50),
+PRIMARY KEY (`id_producent`)
+) CHARACTER SET latin1;
+CREATE TABLE `model` (
+`id_model` INT NOT NULL,
+`nazwa` VARCHAR(50),
+`liczba_miejsc` INT,
+`id_producent` INT,
+PRIMARY KEY (`id_model`)
+) CHARACTER SET latin1;
+CREATE TABLE `samolot` (
+`id_samolot` INT NOT NULL,
+`rejestracja` VARCHAR(50),
+`id_model` INT,
+`id_linia` INT,
+PRIMARY KEY (`id_samolot`)
+) CHARACTER SET latin1;
+CREATE TABLE `miasto` (
+`id_miasto` INT NOT NULL,
+`nazwa` VARCHAR(50),
+`id_panstwo` INT,
+PRIMARY KEY (`id_miasto`)
+) CHARACTER SET latin1;
+CREATE TABLE `lotnisko` (
+`id_lotnisko` INT NOT NULL,
+`nazwa` VARCHAR(50),
+`kod_lotniska` VARCHAR(50),
+`id_miasto` INT,
+PRIMARY KEY (`id_lotnisko`)
+) CHARACTER SET latin1;
+CREATE TABLE `lot` (
+`id_lot` INT NOT NULL,
+`kod_lotu` VARCHAR(50),
+`id_samolot` INT,
+`id_lotnisko_odlotu` INT,
+`id_lotnisko_przylotu` INT,
+`czas_odlotu` TIMESTAMP NULL,
+`czas_przylotu` TIMESTAMP NULL,
+PRIMARY KEY (`id_lot`)
+) CHARACTER SET latin1;
+CREATE TABLE `konto` (
+`id_konto` INT NOT NULL,
+`email` VARCHAR(50),
+`haslo` VARCHAR(50),
+`rola` VARCHAR(50),
+PRIMARY KEY (`id_konto`)
+) CHARACTER SET latin1;
+CREATE TABLE `rezerwacja` (
+`id_rezerwacja` INT NOT NULL,
+`status` VARCHAR(50),
+`data` TIMESTAMP NULL,
+`id_konto` INT,
+PRIMARY KEY (`id_rezerwacja`)
+) CHARACTER SET latin1;
+CREATE TABLE `bilet` (
+`id_bilet` INT NOT NULL,
+`klasa_podrozy` VARCHAR(50),
+`id_lot` INT,
+`id_rezerwacja` INT,
+PRIMARY KEY (`id_bilet`)
+) CHARACTER SET latin1;
+CREATE TABLE `pasazer` (
+`id_pasazer` INT NOT NULL,
+`adres` VARCHAR(50),
+`id_miasto` INT,
+`id_konto` INT,
+`imie` VARCHAR(50),
+`nazwisko` VARCHAR(50),
+`email` VARCHAR(50),
+`numer_telefonu` VARCHAR(50),
+PRIMARY KEY (`id_pasazer`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_407251_ARS_create') AS relationships;
+relationships
+Database: db_407251_ARS_create
+
+Table Connections:
+------------------
+[Implied]  bilet.id_lot -> lot.id_lot
+[Implied]  bilet.id_rezerwacja -> rezerwacja.id_rezerwacja
+[Implied]  linia_lotnicza.id_panstwo -> panstwo.id_panstwo
+[Implied]  lot.id_lotnisko_odlotu -> lotnisko.id_lotnisko
+[Implied]  lot.id_lotnisko_przylotu -> lotnisko.id_lotnisko
+[Implied]  lot.id_samolot -> samolot.id_samolot
+[Implied]  lotnisko.id_miasto -> miasto.id_miasto
+[Implied]  miasto.id_panstwo -> panstwo.id_panstwo
+[Implied]  model.id_producent -> producent.id_producent
+[Implied]  pasazer.id_konto -> konto.id_konto
+[Implied]  pasazer.id_miasto -> miasto.id_miasto
+[Implied]  rezerwacja.id_konto -> konto.id_konto
+[Implied]  samolot.id_linia -> linia_lotnicza.id_linia
+[Implied]  samolot.id_model -> model.id_model
+
+DROP DATABASE `db_407251_ARS_create`;
+UNINSTALL EXTENSION vsql_schematron;

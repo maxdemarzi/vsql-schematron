@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 184235_migration
+#
+CREATE DATABASE `db_184235_migration`;
+USE `db_184235_migration`;
+CREATE TABLE `daily_exchange` (
+`id` INT NOT NULL,
+`currency_id` INT,
+`open` INT,
+`high` INT,
+`low` INT,
+`close` INT,
+`date` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `weekly_exchange` (
+`id` INT NOT NULL,
+`currency_id` INT,
+`open` INT,
+`high` INT,
+`low` INT,
+`close` INT,
+`date` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `monthly_exchange` (
+`id` INT NOT NULL,
+`currency_id` INT,
+`open` INT,
+`high` INT,
+`low` INT,
+`close` INT,
+`date` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+`id` INT NOT NULL,
+`house_number` INT,
+`user_id` TEXT,
+`person_id` TEXT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `provinces` (
+`id` INT NOT NULL,
+`name` TEXT,
+`address_id` INT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cities` (
+`id` INT NOT NULL,
+`name` TEXT,
+`Zip_code` INT,
+`province_id` INT,
+`address_id` INT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `neighborhoods` (
+`id` INT NOT NULL,
+`name` TEXT,
+`city_id` INT,
+`address_id` INT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `blocks` (
+`id` INT NOT NULL,
+`block` INT,
+`neighborhood_id` INT,
+`address_id` INT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_184235_migration') AS relationships;
+relationships
+Database: db_184235_migration
+
+Table Connections:
+------------------
+[Implied]  blocks.address_id -> address.id
+[Implied]  blocks.neighborhood_id -> neighborhoods.id
+[Implied]  cities.address_id -> address.id
+[Implied]  cities.province_id -> provinces.id
+[Implied]  neighborhoods.address_id -> address.id
+[Implied]  neighborhoods.city_id -> cities.id
+[Implied]  provinces.address_id -> address.id
+
+DROP DATABASE `db_184235_migration`;
+UNINSTALL EXTENSION vsql_schematron;

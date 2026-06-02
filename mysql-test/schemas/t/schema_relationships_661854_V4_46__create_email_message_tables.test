@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 661854_V4.46__create_email_message_tables
+--echo #
+CREATE DATABASE `db_661854_V4_46__create_email_message_tables`;
+USE `db_661854_V4_46__create_email_message_tables`;
+CREATE TABLE `ptcore.email_message_type` (
+  `id` BIGINT NOT NULL,
+  `created` TIMESTAMP NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ptcore.email_message_template` (
+  `id` BIGINT NOT NULL,
+  `email_message_type_id` BIGINT,
+  `created` TIMESTAMP NULL,
+  `d_email_subject` VARCHAR(50),
+  `d_email_text` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_661854_V4_46__create_email_message_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_661854_V4_46__create_email_message_tables') AS relationships;
+DROP DATABASE `db_661854_V4_46__create_email_message_tables`;
+UNINSTALL EXTENSION vsql_schematron;

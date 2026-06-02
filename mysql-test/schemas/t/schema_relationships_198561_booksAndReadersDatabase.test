@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 198561_booksAndReadersDatabase
+--echo #
+CREATE DATABASE `db_198561_booksAndReadersDatabase`;
+USE `db_198561_booksAndReadersDatabase`;
+CREATE TABLE `Reader` (
+  `ReaderID` INT NOT NULL,
+  `ReaderName` CHAR(50),
+  `Rating` INT,
+  PRIMARY KEY (`ReaderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Book` (
+  `ISBN_NO` INT NOT NULL,
+  `BookName` CHAR(50),
+  `Color` CHAR(50),
+  PRIMARY KEY (`ISBN_NO`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reserve` (
+  `ReaderID` INT NOT NULL,
+  `ISBN_NO` INT NOT NULL,
+  `Date` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`ReaderID`, `ISBN_NO`, `Date`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_198561_booksAndReadersDatabase') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_198561_booksAndReadersDatabase') AS relationships;
+DROP DATABASE `db_198561_booksAndReadersDatabase`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 513220_create_db
+#
+CREATE DATABASE `db_513220_create_db`;
+USE `db_513220_create_db`;
+CREATE TABLE `student_space.customer` (
+`customer_id` INT NOT NULL,
+`exp_mo` INT,
+`exp_year` INT,
+`name_first` VARCHAR(50),
+`name_last` VARCHAR(50),
+`address1` VARCHAR(50),
+`address2` VARCHAR(50),
+`city` VARCHAR(50),
+`state` VARCHAR(50),
+`zip` INT,
+`country` VARCHAR(50),
+`phone` VARCHAR(50),
+`fax` VARCHAR(50),
+`mail_list` TINYINT,
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_space.order` (
+`order_id` INT NOT NULL,
+`order_date` DATE,
+`customer_id` INT,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_space.order_product` (
+`item_no` INT NOT NULL,
+`order_id` INT NOT NULL,
+`quantity` DOUBLE,
+PRIMARY KEY (`item_no`, `order_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_513220_create_db') AS relationships;
+relationships
+Database: db_513220_create_db
+
+Table Connections:
+------------------
+[Implied]  student_space.order.customer_id -> student_space.customer.customer_id
+[Implied]  student_space.order_product.order_id -> student_space.order.order_id
+
+DROP DATABASE `db_513220_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

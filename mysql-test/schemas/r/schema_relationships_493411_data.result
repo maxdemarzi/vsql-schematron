@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 493411_data
+#
+CREATE DATABASE `db_493411_data`;
+USE `db_493411_data`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`hash` VARCHAR(50),
+`firstname` VARCHAR(50),
+`lastname` VARCHAR(50),
+`admin` BOOLEAN,
+`phone` INT,
+`linkedin` VARCHAR(50),
+`github` VARCHAR(50),
+`message` VARCHAR(50),
+`team_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`description` VARCHAR(50),
+`created_at` TIME,
+`checked` BOOLEAN,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `team` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_493411_data') AS relationships;
+relationships
+Database: db_493411_data
+
+Table Connections:
+------------------
+[Implied]  tasks.user_id -> users.id
+[Implied]  users.team_id -> team.id
+
+DROP DATABASE `db_493411_data`;
+UNINSTALL EXTENSION vsql_schematron;

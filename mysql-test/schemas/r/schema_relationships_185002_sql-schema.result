@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 185002_sql-schema
+#
+CREATE DATABASE `db_185002_sql_schema`;
+USE `db_185002_sql_schema`;
+CREATE TABLE `customers` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`surname` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`value` DOUBLE,
+`quantity` INT,
+`type` VARCHAR(50),
+`brand` VARCHAR(50),
+`shaft` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT NOT NULL,
+`customer_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders_items` (
+`orderItems_id` INT NOT NULL,
+`order_id` INT,
+`items_id` INT,
+PRIMARY KEY (`orderItems_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_185002_sql_schema') AS relationships;
+relationships
+Database: db_185002_sql_schema
+
+Table Connections:
+------------------
+[Implied]  orders.customer_id -> customers.id
+[Implied]  orders_items.items_id -> items.id
+[Implied]  orders_items.order_id -> orders.id
+
+DROP DATABASE `db_185002_sql_schema`;
+UNINSTALL EXTENSION vsql_schematron;

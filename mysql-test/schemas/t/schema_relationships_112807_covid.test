@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 112807_covid
+--echo #
+CREATE DATABASE `db_112807_covid`;
+USE `db_112807_covid`;
+CREATE TABLE `rendez_vous` (
+  `idrendez_vous` INT NOT NULL,
+  `datetime` DATETIME,
+  `patient` VARCHAR(50),
+  PRIMARY KEY (`idrendez_vous`)
+) CHARACTER SET latin1;
+CREATE TABLE `patient` (
+  `idtable1` INT NOT NULL,
+  `prenom` VARCHAR(50),
+  `nom` VARCHAR(50),
+  `date de naissance` DATE,
+  `vacciné` TINYINT,
+  `comorbidités` INT,
+  `rendez_vous_idrendez_vous` INT NOT NULL,
+  PRIMARY KEY (`idtable1`, `rendez_vous_idrendez_vous`)
+) CHARACTER SET latin1;
+CREATE TABLE `test` (
+  `idtest` INT NOT NULL,
+  `nom` VARCHAR(50),
+  `disponibilité` INT,
+  `utilisé` INT,
+  PRIMARY KEY (`idtest`)
+) CHARACTER SET latin1;
+CREATE TABLE `rendez_vous_has_test` (
+  `rendez_vous_idrendez-vous` INT NOT NULL,
+  `test_idtest` INT NOT NULL,
+  PRIMARY KEY (`rendez_vous_idrendez-vous`, `test_idtest`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_112807_covid') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_112807_covid') AS relationships;
+DROP DATABASE `db_112807_covid`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 215027_migration
+#
+CREATE DATABASE `db_215027_migration`;
+USE `db_215027_migration`;
+CREATE TABLE `Project` (
+`id` INT NOT NULL,
+`projectName` TEXT,
+`accountId` INT,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Schema` (
+`id` INT NOT NULL,
+`schemaName` TEXT,
+`projectId` INT,
+`accountId` INT,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `SchemaField` (
+`id` INT NOT NULL,
+`fieldName` TEXT,
+`fieldType` TEXT,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`schemaId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Content` (
+`id` INT NOT NULL,
+`accountId` INT,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Assets` (
+`id` INT NOT NULL,
+`accountId` INT,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Account` (
+`id` INT NOT NULL,
+`uuid` TEXT,
+`identifier` TEXT,
+`authProvider` TEXT,
+`password` TEXT,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profile` (
+`id` INT NOT NULL,
+`email` TEXT,
+`name` TEXT,
+`bio` TEXT,
+`accountId` INT,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Config` (
+`id` INT NOT NULL,
+`key` TEXT,
+`value` TEXT,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_215027_migration') AS relationships;
+relationships
+Database: db_215027_migration
+
+Table Connections:
+------------------
+[Implied]  Assets.accountId -> Account.id
+[Implied]  Content.accountId -> Account.id
+[Implied]  Profile.accountId -> Account.id
+[Implied]  Project.accountId -> Account.id
+[Implied]  Schema.accountId -> Account.id
+[Implied]  Schema.projectId -> Project.id
+[Implied]  SchemaField.schemaId -> Schema.id
+
+DROP DATABASE `db_215027_migration`;
+UNINSTALL EXTENSION vsql_schematron;

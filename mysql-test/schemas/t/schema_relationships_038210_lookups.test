@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 038210_lookups
+--echo #
+CREATE DATABASE `db_038210_lookups`;
+USE `db_038210_lookups`;
+CREATE TABLE `departments` (
+  `dept_id` VARCHAR(50) NOT NULL,
+  `dept_name` VARCHAR(50),
+  PRIMARY KEY (`dept_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `complex` (
+  `bldg_id` INT NOT NULL,
+  `bldg_name` VARCHAR(50),
+  PRIMARY KEY (`bldg_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `suite` (
+  `bldg_id` INT NOT NULL,
+  `room_id` VARCHAR(50) NOT NULL,
+  `room_name` VARCHAR(50),
+  `room_level` VARCHAR(50),
+  `seating_capacity` INT,
+  PRIMARY KEY (`bldg_id`, `room_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_038210_lookups') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_038210_lookups') AS relationships;
+DROP DATABASE `db_038210_lookups`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 456469_bd_facturacion
+--echo #
+CREATE DATABASE `db_456469_bd_facturacion`;
+USE `db_456469_bd_facturacion`;
+CREATE TABLE `cliente` (
+  `codCliente` INT NOT NULL,
+  `nombres` VARCHAR(50),
+  `apellidos` VARCHAR(50),
+  `direccion` VARCHAR(50),
+  PRIMARY KEY (`codCliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `detallefactura` (
+  `codDetalle` INT NOT NULL,
+  `codFactura` INT,
+  `codProducto` INT,
+  `codBarra` VARCHAR(50),
+  `nombreProducto` VARCHAR(50),
+  `cantidad` INT,
+  `precioVenta` DECIMAL(10,2),
+  `total` DECIMAL(10,2),
+  PRIMARY KEY (`codDetalle`)
+) CHARACTER SET latin1;
+CREATE TABLE `factura` (
+  `codFactura` INT NOT NULL,
+  `numeroFactura` VARCHAR(50),
+  `codVendedor` INT,
+  `codCliente` INT,
+  `totalVenta` DECIMAL(10,2),
+  `fechaRegistro` TIMESTAMP NULL,
+  PRIMARY KEY (`codFactura`)
+) CHARACTER SET latin1;
+CREATE TABLE `producto` (
+  `codProducto` INT NOT NULL,
+  `nombreProducto` VARCHAR(50),
+  `precioVenta` DECIMAL(10,2),
+  `stockMinimo` INT,
+  `stockActual` INT,
+  `codBarra` VARCHAR(50),
+  PRIMARY KEY (`codProducto`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario` (
+  `codUsuario` INT NOT NULL,
+  `nombreUsuario` VARCHAR(50),
+  `password` VARCHAR(50),
+  `codVendedor` INT,
+  PRIMARY KEY (`codUsuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendedor` (
+  `codVendedor` INT NOT NULL,
+  `nombres` VARCHAR(50),
+  `apellidos` VARCHAR(50),
+  `cid` VARCHAR(50),
+  `celular` VARCHAR(50),
+  `direccion` VARCHAR(50),
+  PRIMARY KEY (`codVendedor`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_456469_bd_facturacion') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_456469_bd_facturacion') AS relationships;
+DROP DATABASE `db_456469_bd_facturacion`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 021600_V1.0.0__create_course_related_tables
+--echo #
+CREATE DATABASE `db_021600_V1_0_0__create_course_related_tables`;
+USE `db_021600_V1_0_0__create_course_related_tables`;
+CREATE TABLE `course` (
+  `id` INT NOT NULL,
+  `title` VARCHAR(50),
+  `description` VARCHAR(50),
+  `teacher` VARCHAR(50),
+  `price` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course_date` (
+  `id` INT NOT NULL,
+  `course_id` INT,
+  `begin` DATETIME,
+  `end` DATETIME,
+  `amount` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_021600_V1_0_0__create_course_related_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_021600_V1_0_0__create_course_related_tables') AS relationships;
+DROP DATABASE `db_021600_V1_0_0__create_course_related_tables`;
+UNINSTALL EXTENSION vsql_schematron;

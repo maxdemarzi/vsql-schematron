@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 432181_postgres
+#
+CREATE DATABASE `db_432181_postgres`;
+USE `db_432181_postgres`;
+CREATE TABLE `teams` (
+`id` INT NOT NULL,
+`uuid` CHAR(50),
+`name` VARCHAR(50),
+`name_upper` VARCHAR(50),
+`description` TEXT,
+`credits` INT,
+`created_at` TIMESTAMP NULL,
+`activated_at` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`team_id` INT,
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`status` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `camelCase` (
+`primaryKey` INT NOT NULL,
+PRIMARY KEY (`primaryKey`)
+) CHARACTER SET latin1;
+CREATE TABLE `page_visits` (
+`request_path` VARCHAR(50),
+`user_agent` VARCHAR(50),
+`created_at` TIMESTAMP NULL
+) CHARACTER SET latin1;
+CREATE TABLE `test.test` (
+`id` INT NOT NULL,
+`number` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_432181_postgres') AS relationships;
+relationships
+Database: db_432181_postgres
+
+Table Connections:
+------------------
+[Implied]  users.team_id -> teams.id
+
+DROP DATABASE `db_432181_postgres`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 478569_Script
+#
+CREATE DATABASE `db_478569_Script`;
+USE `db_478569_Script`;
+CREATE TABLE `Livre` (
+`titreLivre` VARCHAR(50) NOT NULL,
+`annee` DECIMAL(10,2),
+`editeur` VARCHAR(50),
+`genre` VARCHAR(50),
+`chiffreAffaire` DECIMAL(10,2),
+PRIMARY KEY (`titreLivre`)
+) CHARACTER SET latin1;
+CREATE TABLE `Chapitre` (
+`numChapitre` DECIMAL(10,2) NOT NULL,
+`titreLivre` VARCHAR(50),
+`titreChapitre` VARCHAR(50),
+`nbPages` DECIMAL(10,2),
+PRIMARY KEY (`numChapitre`)
+) CHARACTER SET latin1;
+CREATE TABLE `Auteur` (
+`nom` VARCHAR(50) NOT NULL,
+`prenom` VARCHAR(50),
+`dateNaissance` VARCHAR(50),
+PRIMARY KEY (`nom`)
+) CHARACTER SET latin1;
+CREATE TABLE `Redaction` (
+`nomAuteur` VARCHAR(50) NOT NULL,
+`numChapitre` DECIMAL(10,2) NOT NULL,
+PRIMARY KEY (`nomAuteur`, `numChapitre`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_478569_Script') AS relationships;
+relationships
+Database: db_478569_Script
+
+Table Connections:
+------------------
+[Implied]  Chapitre.titreLivre -> Livre.titreLivre
+[Implied]  Redaction.nomAuteur -> Auteur.nom
+[Implied]  Redaction.numChapitre -> Chapitre.numChapitre
+
+DROP DATABASE `db_478569_Script`;
+UNINSTALL EXTENSION vsql_schematron;

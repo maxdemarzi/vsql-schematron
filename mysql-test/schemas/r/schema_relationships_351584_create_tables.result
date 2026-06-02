@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 351584_create_tables
+#
+CREATE DATABASE `db_351584_create_tables`;
+USE `db_351584_create_tables`;
+CREATE TABLE `account` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`github_id` VARCHAR(50),
+`google_id` VARCHAR(50),
+`facebook_id` VARCHAR(50),
+`password` VARCHAR(50),
+`realname` VARCHAR(50),
+`email` VARCHAR(50),
+`register_date` DATE,
+`tier` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `note` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`content` TEXT,
+`updated_at` TIMESTAMP NULL,
+`created_at` TIMESTAMP NULL,
+`account_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `backupnote` (
+`id` INT NOT NULL,
+`note_id` INT,
+`title` VARCHAR(50),
+`content` TEXT,
+`updated_at` TIMESTAMP NULL,
+`created_at` TIMESTAMP NULL,
+`account_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notetag` (
+`note_id` INT,
+`tag_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_351584_create_tables') AS relationships;
+relationships
+Database: db_351584_create_tables
+
+Table Connections:
+------------------
+[Implied]  backupnote.account_id -> account.id
+[Implied]  backupnote.note_id -> note.id
+[Implied]  note.account_id -> account.id
+[Implied]  notetag.note_id -> note.id
+[Implied]  notetag.tag_id -> tag.id
+
+DROP DATABASE `db_351584_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

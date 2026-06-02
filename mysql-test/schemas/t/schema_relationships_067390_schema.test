@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 067390_schema
+--echo #
+CREATE DATABASE `db_067390_schema`;
+USE `db_067390_schema`;
+CREATE TABLE `songs` (
+  `id` VARCHAR(50) NOT NULL,
+  `samples` VARCHAR(50),
+  `sample_rate` INT,
+  `channels` INT,
+  `bit_rate` INT,
+  `codec` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `songs_external_metadata` (
+  `id` VARCHAR(50) NOT NULL,
+  `title` TEXT,
+  `artist` TEXT,
+  `album` TEXT,
+  `year` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `songs_features` (
+  `id` VARCHAR(50) NOT NULL,
+  `length` DOUBLE,
+  `average_loudness` DOUBLE,
+  `bpm` DOUBLE,
+  `hpcp` VARCHAR(50),
+  `chords_histogram` VARCHAR(50),
+  `tags` VARCHAR(50),
+  `tags_intensity` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_067390_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_067390_schema') AS relationships;
+DROP DATABASE `db_067390_schema`;
+UNINSTALL EXTENSION vsql_schematron;

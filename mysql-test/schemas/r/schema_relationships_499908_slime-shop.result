@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 499908_slime-shop
+#
+CREATE DATABASE `db_499908_slime_shop`;
+USE `db_499908_slime_shop`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`uuid` VARCHAR(50),
+`full_name` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`price` DECIMAL(10,2),
+`description` TEXT,
+`image` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT NOT NULL,
+`user_id` INT,
+`status` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_items` (
+`order_id` INT,
+`product_id` INT,
+`quantity` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_499908_slime_shop') AS relationships;
+relationships
+Database: db_499908_slime_shop
+
+Table Connections:
+------------------
+[Implied]  order_items.order_id -> orders.id
+[Implied]  order_items.product_id -> products.id
+[Implied]  orders.user_id -> users.id
+
+DROP DATABASE `db_499908_slime_shop`;
+UNINSTALL EXTENSION vsql_schematron;

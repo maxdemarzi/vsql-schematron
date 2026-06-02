@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 222805_schema_v1
+--echo #
+CREATE DATABASE `db_222805_schema_v1`;
+USE `db_222805_schema_v1`;
+CREATE TABLE `studies` (
+  `id` VARCHAR(50) NOT NULL,
+  `name` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `assays` (
+  `id` VARCHAR(50) NOT NULL,
+  `name` TEXT,
+  `study_id` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `search_configuration` (
+  `id` INT NOT NULL,
+  `equate_il` INT,
+  `filter_duplicates` INT,
+  `missing_cleavage_handling` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pept2data` (
+  `assay_id` VARCHAR(50) NOT NULL,
+  `index_buffer` BLOB,
+  `data_buffer` BLOB,
+  PRIMARY KEY (`assay_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `peptide_trust` (
+  `assay_id` VARCHAR(50) NOT NULL,
+  `missed_peptides` TEXT,
+  `matched_peptides` INT,
+  `searched_peptides` INT,
+  PRIMARY KEY (`assay_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `storage_metadata` (
+  `assay_id` VARCHAR(50) NOT NULL,
+  `configuration_id` INT,
+  `endpoint` TEXT,
+  `db_version` TEXT,
+  `analysis_date` TEXT,
+  PRIMARY KEY (`assay_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `database_metadata` (
+  `application_version` TEXT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_222805_schema_v1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_222805_schema_v1') AS relationships;
+DROP DATABASE `db_222805_schema_v1`;
+UNINSTALL EXTENSION vsql_schematron;

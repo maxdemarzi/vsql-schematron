@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 436604_V10_5__1.0.37_add_payout_data_storage
+--echo #
+CREATE DATABASE `db_436604_V10_5__1_0_37_add_payout_data_storage`;
+USE `db_436604_V10_5__1_0_37_add_payout_data_storage`;
+CREATE TABLE `rpt.payout` (
+  `id` BIGINT NOT NULL,
+  `party_id` CHAR(50),
+  `shop_id` CHAR(50),
+  `payout_id` CHAR(50),
+  `contract_id` CHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `amount` BIGINT,
+  `fee` BIGINT,
+  `currency_code` CHAR(50),
+  `type` VARCHAR(50),
+  `wallet_id` CHAR(50),
+  `summary` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rpt.payout_account` (
+  `ext_payout_id` BIGINT NOT NULL,
+  `type` VARCHAR(50),
+  `bank_id` CHAR(50),
+  `bank_corr_id` CHAR(50),
+  `bank_local_code` CHAR(50),
+  `bank_name` CHAR(50),
+  `purpose` CHAR(50),
+  `inn` CHAR(50),
+  `legal_agreement_id` CHAR(50),
+  `legal_agreement_signed_at` TIMESTAMP NULL,
+  `trading_name` CHAR(50),
+  `legal_name` CHAR(50),
+  `actual_address` CHAR(50),
+  `registered_address` CHAR(50),
+  `registered_number` CHAR(50),
+  `bank_iban` CHAR(50),
+  `bank_number` CHAR(50),
+  `bank_address` CHAR(50),
+  `bank_bic` CHAR(50),
+  `bank_aba_rtn` CHAR(50),
+  `bank_country_code` CHAR(50),
+  PRIMARY KEY (`ext_payout_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rpt.payout_international_account` (
+  `ext_payout_id` BIGINT NOT NULL,
+  `bank_account` CHAR(50),
+  `bank_number` CHAR(50),
+  `bank_iban` CHAR(50),
+  `bank_name` CHAR(50),
+  `bank_address` CHAR(50),
+  `bank_bic` CHAR(50),
+  `bank_aba_rtn` CHAR(50),
+  `bank_country_code` CHAR(50),
+  PRIMARY KEY (`ext_payout_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rpt.payout_state` (
+  `id` BIGINT NOT NULL,
+  `event_id` BIGINT,
+  `event_created_at` TIMESTAMP NULL,
+  `payout_id` CHAR(50),
+  `ext_payout_id` CHAR(50),
+  `status` VARCHAR(50),
+  `cancel_details` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_436604_V10_5__1_0_37_add_payout_data_storage') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_436604_V10_5__1_0_37_add_payout_data_storage') AS relationships;
+DROP DATABASE `db_436604_V10_5__1_0_37_add_payout_data_storage`;
+UNINSTALL EXTENSION vsql_schematron;

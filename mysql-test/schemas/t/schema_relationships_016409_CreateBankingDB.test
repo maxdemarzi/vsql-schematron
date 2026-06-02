@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 016409_CreateBankingDB
+--echo #
+CREATE DATABASE `db_016409_CreateBankingDB`;
+USE `db_016409_CreateBankingDB`;
+CREATE TABLE `business` (
+  `INCORP_DATE` DATE,
+  `NAME` VARCHAR(50),
+  `STATE_ID` VARCHAR(50),
+  `CUST_ID` INT NOT NULL,
+  PRIMARY KEY (`CUST_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `individual` (
+  `BIRTH_DATE` DATE,
+  `FIRST_NAME` VARCHAR(50),
+  `LAST_NAME` VARCHAR(50),
+  `CUST_ID` INT NOT NULL,
+  PRIMARY KEY (`CUST_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+  `PRODUCT_CD` VARCHAR(50) NOT NULL,
+  `DATE_OFFERED` DATE,
+  `DATE_RETIRED` DATE,
+  `NAME` VARCHAR(50),
+  `PRODUCT_TYPE_CD` VARCHAR(50),
+  PRIMARY KEY (`PRODUCT_CD`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_type` (
+  `PRODUCT_TYPE_CD` VARCHAR(50) NOT NULL,
+  `NAME` VARCHAR(50),
+  PRIMARY KEY (`PRODUCT_TYPE_CD`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_016409_CreateBankingDB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_016409_CreateBankingDB') AS relationships;
+DROP DATABASE `db_016409_CreateBankingDB`;
+UNINSTALL EXTENSION vsql_schematron;

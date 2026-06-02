@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 045426_hw04q01-tables-create
+--echo #
+CREATE DATABASE `db_045426_hw04q01_tables_create`;
+USE `db_045426_hw04q01_tables_create`;
+CREATE TABLE `Parts` (
+  `pid` DECIMAL(10,2) NOT NULL,
+  `pname` VARCHAR(50),
+  `year` DECIMAL(10,2),
+  `price` DECIMAL(10,2),
+  PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Suppliers` (
+  `sid` DECIMAL(10,2) NOT NULL,
+  `sname` VARCHAR(50),
+  `state` VARCHAR(50),
+  `zipcode` VARCHAR(50),
+  PRIMARY KEY (`sid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Orders` (
+  `pid` DECIMAL(10,2) NOT NULL,
+  `sid` DECIMAL(10,2) NOT NULL,
+  `quantity` DECIMAL(10,2),
+  PRIMARY KEY (`pid`, `sid`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_045426_hw04q01_tables_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_045426_hw04q01_tables_create') AS relationships;
+DROP DATABASE `db_045426_hw04q01_tables_create`;
+UNINSTALL EXTENSION vsql_schematron;

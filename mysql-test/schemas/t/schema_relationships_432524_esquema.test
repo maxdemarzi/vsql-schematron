@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 432524_esquema
+--echo #
+CREATE DATABASE `db_432524_esquema`;
+USE `db_432524_esquema`;
+CREATE TABLE `conejos` (
+  `id` VARCHAR(50) NOT NULL,
+  `descripcion` VARCHAR(50),
+  `genero` CHAR(50),
+  `fecha_nacimiento` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cubricion_conejos` (
+  `id` VARCHAR(50) NOT NULL,
+  `id_conejo` VARCHAR(50),
+  `fecha_inicio` VARCHAR(50),
+  `fecha_fin` VARCHAR(50),
+  `exitosa` BOOLEAN,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_432524_esquema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_432524_esquema') AS relationships;
+DROP DATABASE `db_432524_esquema`;
+UNINSTALL EXTENSION vsql_schematron;

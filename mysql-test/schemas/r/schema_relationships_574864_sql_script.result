@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 574864_sql_script
+#
+CREATE DATABASE `db_574864_sql_script`;
+USE `db_574864_sql_script`;
+CREATE TABLE `Estado` (
+`IdEstado` INT NOT NULL,
+`Nome` VARCHAR(50),
+`Abreviacao` VARCHAR(50),
+PRIMARY KEY (`IdEstado`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cidade` (
+`IdCidade` INT NOT NULL,
+`Nome` VARCHAR(50),
+`Abreviacao` VARCHAR(50),
+`Estado_Id` INT,
+PRIMARY KEY (`IdCidade`)
+) CHARACTER SET latin1;
+CREATE TABLE `Local` (
+`IdLocal` BIGINT NOT NULL,
+`Nome` VARCHAR(50),
+`Endereco` VARCHAR(50),
+`Avaliacao` INT,
+`Descricao` VARCHAR(50),
+`HoraFunc` TIME,
+`Tipo` VARCHAR(50),
+`Telefone` VARCHAR(50),
+`Comentarios` VARCHAR(50),
+`NumVisitas` BIGINT,
+`Cidade` INT,
+PRIMARY KEY (`IdLocal`)
+) CHARACTER SET latin1;
+CREATE TABLE `RotaLocal` (
+`IdRotaLocal` BIGINT NOT NULL,
+`IdLocal` BIGINT,
+`OrdemVisita` INT,
+`IdRoteiro` BIGINT,
+PRIMARY KEY (`IdRotaLocal`)
+) CHARACTER SET latin1;
+CREATE TABLE `Roteiro` (
+`IdRoteiro` BIGINT NOT NULL,
+`IdUsuario` BIGINT,
+`NomeRota` VARCHAR(50),
+PRIMARY KEY (`IdRoteiro`)
+) CHARACTER SET latin1;
+CREATE TABLE `Usuario` (
+`IdUsuario` BIGINT NOT NULL,
+`Nome` VARCHAR(50),
+`CPF` VARCHAR(50),
+`CNPJ` VARCHAR(50),
+`DataNasc` DATE,
+`Sexo` CHAR(50),
+`Email` VARCHAR(50),
+`Endereco` VARCHAR(50),
+`Senha` VARCHAR(50),
+`Telefone` VARCHAR(50),
+`IdRoteiro` BIGINT,
+PRIMARY KEY (`IdUsuario`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_574864_sql_script') AS relationships;
+relationships
+Database: db_574864_sql_script
+
+Table Connections:
+------------------
+[Implied]  Cidade.Estado_Id -> Estado.IdEstado
+[Implied]  Local.Cidade -> Cidade.IdCidade
+[Implied]  RotaLocal.IdLocal -> Local.IdLocal
+[Implied]  RotaLocal.IdRoteiro -> Roteiro.IdRoteiro
+[Implied]  Roteiro.IdUsuario -> Usuario.IdUsuario
+[Implied]  Usuario.IdRoteiro -> Roteiro.IdRoteiro
+
+DROP DATABASE `db_574864_sql_script`;
+UNINSTALL EXTENSION vsql_schematron;

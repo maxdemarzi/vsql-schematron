@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 550838_migration
+#
+CREATE DATABASE `db_550838_migration`;
+USE `db_550838_migration`;
+CREATE TABLE `Project` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`title` VARCHAR(50),
+`authorId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profile` (
+`id` INT NOT NULL,
+`bio` TEXT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` INT NOT NULL,
+`email` TEXT,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_550838_migration') AS relationships;
+relationships
+Database: db_550838_migration
+
+Table Connections:
+------------------
+[Implied]  Profile.userId -> User.id
+[Implied]  Project.authorId -> User.id
+
+DROP DATABASE `db_550838_migration`;
+UNINSTALL EXTENSION vsql_schematron;

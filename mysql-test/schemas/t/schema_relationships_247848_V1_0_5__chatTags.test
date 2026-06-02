@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 247848_V1_0_5__chatTags
+--echo #
+CREATE DATABASE `db_247848_V1_0_5__chatTags`;
+USE `db_247848_V1_0_5__chatTags`;
+CREATE TABLE `tags` (
+  `id` INT NOT NULL,
+  `tag` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chats_tags` (
+  `id_tag` BIGINT NOT NULL,
+  `id_chat` BIGINT NOT NULL,
+  PRIMARY KEY (`id_tag`, `id_chat`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_247848_V1_0_5__chatTags') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_247848_V1_0_5__chatTags') AS relationships;
+DROP DATABASE `db_247848_V1_0_5__chatTags`;
+UNINSTALL EXTENSION vsql_schematron;

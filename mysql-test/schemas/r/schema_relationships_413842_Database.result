@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 413842_Database
+#
+CREATE DATABASE `db_413842_Database`;
+USE `db_413842_Database`;
+CREATE TABLE `department` (
+`departmentName` VARCHAR(50) NOT NULL,
+`deptManager` VARCHAR(50),
+`aisle` INT,
+PRIMARY KEY (`departmentName`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`barcode` INT NOT NULL,
+`itemName` VARCHAR(50),
+`departmentName` VARCHAR(50),
+`aisle` INT,
+`deptManager` VARCHAR(50),
+`price` INT,
+`stock` INT,
+PRIMARY KEY (`barcode`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`empID` INT NOT NULL,
+`empName` VARCHAR(50),
+`position` VARCHAR(50),
+`departmentName` VARCHAR(50),
+`shift` VARCHAR(50),
+`salary` INT,
+PRIMARY KEY (`empID`)
+) CHARACTER SET latin1;
+CREATE TABLE `suppliers` (
+`supplierID` INT NOT NULL,
+`supplierName` VARCHAR(50),
+`supplierAddress` VARCHAR(50),
+`supplierPhoneNumber` VARCHAR(50),
+`other_details` VARCHAR(50),
+PRIMARY KEY (`supplierID`)
+) CHARACTER SET latin1;
+CREATE TABLE `branches` (
+`branchNumber` VARCHAR(50) NOT NULL,
+`branchManager` VARCHAR(50) NOT NULL,
+`branchName` VARCHAR(50),
+`branchAddress` VARCHAR(50),
+`branchPhoneNumber` VARCHAR(50),
+PRIMARY KEY (`branchNumber`, `branchManager`)
+) CHARACTER SET latin1;
+CREATE TABLE `transactions` (
+`transactionID` INT NOT NULL,
+`transactionDate` TIMESTAMP NULL,
+`empID` INT,
+`totalPrice` DECIMAL(10,2),
+`paymentMethod` VARCHAR(50),
+PRIMARY KEY (`transactionID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_413842_Database') AS relationships;
+relationships
+Database: db_413842_Database
+
+Table Connections:
+------------------
+[Implied]  employees.departmentName -> department.departmentName
+[Implied]  items.departmentName -> department.departmentName
+[Implied]  transactions.empID -> employees.empID
+
+DROP DATABASE `db_413842_Database`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 002042_migration
+#
+CREATE DATABASE `db_002042_migration`;
+USE `db_002042_migration`;
+CREATE TABLE `EventType` (
+`id` INT NOT NULL,
+`title` TEXT,
+`slug` TEXT,
+`description` TEXT,
+`locations` VARCHAR(50),
+`length` INT,
+`hidden` BOOLEAN,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Credential` (
+`id` INT NOT NULL,
+`type` TEXT,
+`key` VARCHAR(50),
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`username` TEXT,
+`name` TEXT,
+`email` TEXT,
+`password` TEXT,
+`bio` TEXT,
+`avatar` TEXT,
+`timeZone` TEXT,
+`weekStart` TEXT,
+`startTime` INT,
+`endTime` INT,
+`created` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_002042_migration') AS relationships;
+relationships
+Database: db_002042_migration
+
+Table Connections:
+------------------
+[Implied]  Credential.userId -> users.id
+[Implied]  EventType.userId -> users.id
+
+DROP DATABASE `db_002042_migration`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 195124_structure
+#
+CREATE DATABASE `db_195124_structure`;
+USE `db_195124_structure`;
+CREATE TABLE `product` (
+`id` VARCHAR(50) NOT NULL,
+`p_description` VARCHAR(50),
+`number_of_searches` VARCHAR(50),
+`images` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`id` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `productxcategory` (
+`product_id` VARCHAR(50) NOT NULL,
+`category_id` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`product_id`, `category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `country` (
+`id` VARCHAR(50) NOT NULL,
+`maximum_discount_percentage` DOUBLE,
+`currency_abbreviation` VARCHAR(50),
+`currency_symbol` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_195124_structure') AS relationships;
+relationships
+Database: db_195124_structure
+
+Table Connections:
+------------------
+[Implied]  productxcategory.category_id -> category.id
+[Implied]  productxcategory.product_id -> product.id
+
+DROP DATABASE `db_195124_structure`;
+UNINSTALL EXTENSION vsql_schematron;

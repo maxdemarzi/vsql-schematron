@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 027553_migration
+#
+CREATE DATABASE `db_027553_migration`;
+USE `db_027553_migration`;
+CREATE TABLE `User` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`name` TEXT,
+`email` TEXT,
+`hashedPassword` TEXT,
+`role` TEXT,
+`picture` TEXT,
+`organizationId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`expiresAt` TIMESTAMP NULL,
+`handle` TEXT,
+`hashedSessionToken` TEXT,
+`antiCSRFToken` TEXT,
+`publicData` TEXT,
+`privateData` TEXT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Organization` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`domain` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Token` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`hashedToken` TEXT,
+`type` VARCHAR(50),
+`expiresAt` TIMESTAMP NULL,
+`sentTo` TEXT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Task` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`description` TEXT,
+`dueDate` TIMESTAMP NULL,
+`completedAt` TIMESTAMP NULL,
+`assignedUserId` INT,
+`creatorId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_027553_migration') AS relationships;
+relationships
+Database: db_027553_migration
+
+Table Connections:
+------------------
+[Implied]  Session.userId -> User.id
+[Implied]  Task.assignedUserId -> User.id
+[Implied]  Task.creatorId -> User.id
+[Implied]  Token.userId -> User.id
+[Implied]  User.organizationId -> Organization.id
+
+DROP DATABASE `db_027553_migration`;
+UNINSTALL EXTENSION vsql_schematron;

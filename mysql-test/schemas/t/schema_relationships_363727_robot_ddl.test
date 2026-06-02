@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 363727_robot.ddl
+--echo #
+CREATE DATABASE `db_363727_robot_ddl`;
+USE `db_363727_robot_ddl`;
+CREATE TABLE `URL_QUEUE` (
+  `ID` BIGINT NOT NULL,
+  `SESSION_ID` VARCHAR(50),
+  `METHOD` VARCHAR(50),
+  `URL` TEXT,
+  `META_DATA` TEXT,
+  `ENCODING` VARCHAR(50),
+  `PARENT_URL` TEXT,
+  `DEPTH` INT,
+  `LAST_MODIFIED` DATETIME,
+  `CREATE_TIME` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ACCESS_RESULT` (
+  `ID` BIGINT NOT NULL,
+  `SESSION_ID` VARCHAR(50),
+  `RULE_ID` VARCHAR(50),
+  `URL` TEXT,
+  `PARENT_URL` TEXT,
+  `STATUS` INT,
+  `HTTP_STATUS_CODE` INT,
+  `METHOD` VARCHAR(50),
+  `MIME_TYPE` VARCHAR(50),
+  `CONTENT_LENGTH` BIGINT,
+  `EXECUTION_TIME` INT,
+  `LAST_MODIFIED` DATETIME,
+  `CREATE_TIME` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ACCESS_RESULT_DATA` (
+  `ID` BIGINT NOT NULL,
+  `TRANSFORMER_NAME` VARCHAR(50),
+  `DATA` VARCHAR(50),
+  `ENCODING` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `URL_FILTER` (
+  `ID` BIGINT NOT NULL,
+  `SESSION_ID` VARCHAR(50),
+  `URL` TEXT,
+  `FILTER_TYPE` VARCHAR(50),
+  `CREATE_TIME` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_363727_robot_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_363727_robot_ddl') AS relationships;
+DROP DATABASE `db_363727_robot_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

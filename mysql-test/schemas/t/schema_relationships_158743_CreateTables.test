@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 158743_CreateTables
+--echo #
+CREATE DATABASE `db_158743_CreateTables`;
+USE `db_158743_CreateTables`;
+CREATE TABLE `fire` (
+  `id` INT NOT NULL,
+  `burned_area` DOUBLE,
+  `location_id` BIGINT,
+  `indexes_id` BIGINT,
+  `meteorological_conditions_id` BIGINT,
+  `time_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `time` (
+  `id` INT NOT NULL,
+  `day_week` VARCHAR(50),
+  `weekend` BOOLEAN,
+  `month` VARCHAR(50),
+  `season` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `indexes` (
+  `id` INT NOT NULL,
+  `ffmc` DOUBLE,
+  `dmc` DOUBLE,
+  `dc` DOUBLE,
+  `isi` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `meteorological_conditions` (
+  `id` INT NOT NULL,
+  `relative_humidity` DOUBLE,
+  `wind_speed` DOUBLE,
+  `accumulated_precipitation` DOUBLE,
+  `temperature` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `location` (
+  `id` INT NOT NULL,
+  `location_x` INT,
+  `location_y` INT,
+  `locationnswe` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_158743_CreateTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_158743_CreateTables') AS relationships;
+DROP DATABASE `db_158743_CreateTables`;
+UNINSTALL EXTENSION vsql_schematron;

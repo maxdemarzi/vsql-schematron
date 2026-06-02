@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 470403_pruebas_realizadas_sql
+#
+CREATE DATABASE `db_470403_pruebas_realizadas_sql`;
+USE `db_470403_pruebas_realizadas_sql`;
+CREATE TABLE `Sujetos` (
+`SujetoID` INT NOT NULL,
+`Edad` INT,
+`Sexo` TEXT,
+PRIMARY KEY (`SujetoID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PruebasRealizadas` (
+`PruebaRealizadaID` INT NOT NULL,
+`SujetoID` INT,
+`FechaHora` TEXT,
+`PathArchivoEDF` TEXT,
+PRIMARY KEY (`PruebaRealizadaID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tests` (
+`TestID` INT NOT NULL,
+`TestNombre` TEXT,
+`TestDescripcion` TEXT,
+PRIMARY KEY (`TestID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PruebasDetalles` (
+`PruebaRealizadaID` INT NOT NULL,
+`TestRealizadoNumber` INT NOT NULL,
+`Puntuacion` INT,
+`TestID` INT,
+PRIMARY KEY (`PruebaRealizadaID`, `TestRealizadoNumber`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_470403_pruebas_realizadas_sql') AS relationships;
+relationships
+Database: db_470403_pruebas_realizadas_sql
+
+Table Connections:
+------------------
+[Implied]  PruebasDetalles.PruebaRealizadaID -> PruebasRealizadas.PruebaRealizadaID
+[Implied]  PruebasDetalles.TestID -> Tests.TestID
+[Implied]  PruebasRealizadas.SujetoID -> Sujetos.SujetoID
+
+DROP DATABASE `db_470403_pruebas_realizadas_sql`;
+UNINSTALL EXTENSION vsql_schematron;

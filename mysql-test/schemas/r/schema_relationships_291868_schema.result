@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 291868_schema
+#
+CREATE DATABASE `db_291868_schema`;
+USE `db_291868_schema`;
+CREATE TABLE `boards` (
+`id` INT NOT NULL,
+`key` VARCHAR(50),
+`create_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `issues` (
+`id` INT NOT NULL,
+`board_id` INT,
+`title` VARCHAR(50),
+`description` TEXT,
+`status` INT,
+`create_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `statuses` (
+`id` INT NOT NULL,
+`description` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_291868_schema') AS relationships;
+relationships
+Database: db_291868_schema
+
+Table Connections:
+------------------
+[Implied]  issues.board_id -> boards.id
+[Implied]  issues.status -> statuses.id
+
+DROP DATABASE `db_291868_schema`;
+UNINSTALL EXTENSION vsql_schematron;

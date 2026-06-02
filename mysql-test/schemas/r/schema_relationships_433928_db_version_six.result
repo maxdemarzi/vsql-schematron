@@ -1,0 +1,30 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 433928_db_version_six
+#
+CREATE DATABASE `db_433928_db_version_six`;
+USE `db_433928_db_version_six`;
+CREATE TABLE `transport.transaction_type` (
+`transaction_type_id` INT NOT NULL,
+`type` VARCHAR(50),
+PRIMARY KEY (`transaction_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transport.transaction` (
+`transaction_id` INT NOT NULL,
+`current_funds` DECIMAL(10,2),
+`spent_funds` DECIMAL(10,2),
+`date` DATETIME,
+`fk_transaction_type_id` INT,
+`fk_user_id` INT,
+PRIMARY KEY (`transaction_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_433928_db_version_six') AS relationships;
+relationships
+Database: db_433928_db_version_six
+
+Table Connections:
+------------------
+[Implied]  transport.transaction.fk_transaction_type_id -> transport.transaction_type.transaction_type_id
+
+DROP DATABASE `db_433928_db_version_six`;
+UNINSTALL EXTENSION vsql_schematron;

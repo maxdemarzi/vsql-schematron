@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 142976_pim
+#
+CREATE DATABASE `db_142976_pim`;
+USE `db_142976_pim`;
+CREATE TABLE `notes` (
+`id` INT NOT NULL,
+`created_on` DATE,
+`title` TEXT,
+`description` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hashtags` (
+`id` INT NOT NULL,
+`tag` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `links` (
+`id` INT NOT NULL,
+`notes_id` INT,
+`tag_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_142976_pim') AS relationships;
+relationships
+Database: db_142976_pim
+
+Table Connections:
+------------------
+[Implied]  links.notes_id -> notes.id
+[Implied]  links.tag_id -> hashtags.id
+
+DROP DATABASE `db_142976_pim`;
+UNINSTALL EXTENSION vsql_schematron;

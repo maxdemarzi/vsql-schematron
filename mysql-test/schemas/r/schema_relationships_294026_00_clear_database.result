@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 294026_00_clear_database
+#
+CREATE DATABASE `db_294026_00_clear_database`;
+USE `db_294026_00_clear_database`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`salt` VARCHAR(50),
+`reset_token` CHAR(50),
+`reset_token_expire` DATETIME,
+`created_date` DATETIME,
+`last_login_date` DATETIME,
+`is_active` TINYINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT NOT NULL,
+`role_name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles_users` (
+`user_id` INT NOT NULL,
+`role_id` INT NOT NULL,
+PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_294026_00_clear_database') AS relationships;
+relationships
+Database: db_294026_00_clear_database
+
+Table Connections:
+------------------
+[Implied]  roles_users.role_id -> roles.id
+[Implied]  roles_users.user_id -> users.id
+
+DROP DATABASE `db_294026_00_clear_database`;
+UNINSTALL EXTENSION vsql_schematron;

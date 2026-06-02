@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 300845_migration
+#
+CREATE DATABASE `db_300845_migration`;
+USE `db_300845_migration`;
+CREATE TABLE `Post` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`title` VARCHAR(50),
+`content` TEXT,
+`published` BOOLEAN,
+`authorId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profile` (
+`id` INT NOT NULL,
+`bio` TEXT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`email` TEXT,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_300845_migration') AS relationships;
+relationships
+Database: db_300845_migration
+
+Table Connections:
+------------------
+[Implied]  Post.authorId -> User.id
+[Implied]  Profile.userId -> User.id
+
+DROP DATABASE `db_300845_migration`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 442100_00001_database_scheme.up
+#
+CREATE DATABASE `db_442100_00001_database_scheme_up`;
+USE `db_442100_00001_database_scheme_up`;
+CREATE TABLE `users` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`password` VARCHAR(50),
+`avatar_uri` VARCHAR(50),
+`email_id` BIGINT,
+`phone_id` BIGINT,
+`linked_in_id` BIGINT,
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `emails` (
+`id` BIGINT NOT NULL,
+`address` VARCHAR(50),
+`email_confirmed_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `phones` (
+`id` BIGINT NOT NULL,
+`country_code` VARCHAR(50),
+`number` VARCHAR(50),
+`phone_confirmed_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `country_codes` (
+`country_code` VARCHAR(50) NOT NULL,
+`country` VARCHAR(50),
+`iso_code` VARCHAR(50),
+`continent` VARCHAR(50),
+PRIMARY KEY (`country_code`)
+) CHARACTER SET latin1;
+CREATE TABLE `linked_ins` (
+`id` BIGINT NOT NULL,
+`login` VARCHAR(50),
+`linked_in_confirmed_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_442100_00001_database_scheme_up') AS relationships;
+relationships
+Database: db_442100_00001_database_scheme_up
+
+Table Connections:
+------------------
+[Implied]  phones.country_code -> country_codes.country_code
+[Implied]  users.email_id -> emails.id
+[Implied]  users.linked_in_id -> linked_ins.id
+[Implied]  users.phone_id -> phones.id
+
+DROP DATABASE `db_442100_00001_database_scheme_up`;
+UNINSTALL EXTENSION vsql_schematron;

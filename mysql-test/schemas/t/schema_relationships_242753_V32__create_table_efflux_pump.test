@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 242753_V32__create_table_efflux_pump
+--echo #
+CREATE DATABASE `db_242753_V32__create_table_efflux_pump`;
+USE `db_242753_V32__create_table_efflux_pump`;
+CREATE TABLE `efflux_pump` (
+  `id` BIGINT NOT NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `efflux_pump_bacteria` (
+  `fk_bacteria` BIGINT NOT NULL,
+  `fk_efflux_pump` BIGINT NOT NULL,
+  PRIMARY KEY (`fk_bacteria`, `fk_efflux_pump`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_242753_V32__create_table_efflux_pump') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_242753_V32__create_table_efflux_pump') AS relationships;
+DROP DATABASE `db_242753_V32__create_table_efflux_pump`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 148727_schema
+#
+CREATE DATABASE `db_148727_schema`;
+USE `db_148727_schema`;
+CREATE TABLE `foods` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`category` VARCHAR(50),
+`price` DOUBLE,
+`restaurant_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `restaurants` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`rating` DOUBLE,
+`cnpj` VARCHAR(50),
+`phone` VARCHAR(50),
+`location` VARCHAR(50),
+`user_id` INT,
+`category` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`phone` VARCHAR(50),
+`role` INT,
+`location` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `locations` (
+`id` INT NOT NULL,
+`number` INT,
+`street` VARCHAR(50),
+`neighborhood` VARCHAR(50),
+`complement` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT NOT NULL,
+`created_at` TIMESTAMP NULL,
+`rating` DOUBLE,
+`user_id` INT,
+`restaurant_id` INT,
+`location` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_items` (
+`quantity` INT,
+`food_id` INT NOT NULL,
+`order_id` INT NOT NULL,
+PRIMARY KEY (`food_id`, `order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_tokens` (
+`token` VARCHAR(50) NOT NULL,
+`user_id` INT,
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`token`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_148727_schema') AS relationships;
+relationships
+Database: db_148727_schema
+
+Table Connections:
+------------------
+[Implied]  auth_tokens.user_id -> users.id
+[Implied]  foods.restaurant_id -> restaurants.id
+[Implied]  order_items.food_id -> foods.id
+[Implied]  order_items.order_id -> orders.id
+[Implied]  orders.restaurant_id -> restaurants.id
+[Implied]  orders.user_id -> users.id
+[Implied]  restaurants.user_id -> users.id
+
+DROP DATABASE `db_148727_schema`;
+UNINSTALL EXTENSION vsql_schematron;

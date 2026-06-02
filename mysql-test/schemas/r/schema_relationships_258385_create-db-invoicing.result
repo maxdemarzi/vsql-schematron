@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 258385_create-db-invoicing
+#
+CREATE DATABASE `db_258385_create_db_invoicing`;
+USE `db_258385_create_db_invoicing`;
+CREATE TABLE `payment_methods` (
+`payment_method_id` TINYINT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`payment_method_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clients` (
+`client_id` INT NOT NULL,
+`name` VARCHAR(50),
+`address` VARCHAR(50),
+`city` VARCHAR(50),
+`state` CHAR(50),
+`phone` VARCHAR(50),
+PRIMARY KEY (`client_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `invoices` (
+`invoice_id` INT NOT NULL,
+`number` VARCHAR(50),
+`client_id` INT,
+`invoice_total` DECIMAL(10,2),
+`payment_total` DECIMAL(10,2),
+`invoice_date` DATE,
+`due_date` DATE,
+`payment_date` DATE,
+PRIMARY KEY (`invoice_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payments` (
+`payment_id` INT NOT NULL,
+`client_id` INT,
+`invoice_id` INT,
+`date` DATE,
+`amount` DECIMAL(10,2),
+`payment_method` TINYINT,
+PRIMARY KEY (`payment_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_258385_create_db_invoicing') AS relationships;
+relationships
+Database: db_258385_create_db_invoicing
+
+Table Connections:
+------------------
+[Implied]  invoices.client_id -> clients.client_id
+[Implied]  payments.client_id -> clients.client_id
+[Implied]  payments.invoice_id -> invoices.invoice_id
+[Implied]  payments.payment_method -> payment_methods.payment_method_id
+
+DROP DATABASE `db_258385_create_db_invoicing`;
+UNINSTALL EXTENSION vsql_schematron;

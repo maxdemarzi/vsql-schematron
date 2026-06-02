@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 028460_migration
+#
+CREATE DATABASE `db_028460_migration`;
+USE `db_028460_migration`;
+CREATE TABLE `Workspace` (
+`id` INT NOT NULL,
+`handle` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Membership` (
+`id` INT NOT NULL,
+`role` VARCHAR(50),
+`workspaceId` INT,
+`userId` INT,
+`invitedName` TEXT,
+`invitedEmail` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`name` TEXT,
+`email` TEXT,
+`emailIsVerified` BOOLEAN,
+`hashedPassword` TEXT,
+`role` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`expiresAt` TIMESTAMP NULL,
+`handle` TEXT,
+`hashedSessionToken` TEXT,
+`antiCSRFToken` TEXT,
+`publicData` TEXT,
+`privateData` TEXT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Token` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`hashedToken` TEXT,
+`type` VARCHAR(50),
+`expiresAt` TIMESTAMP NULL,
+`sentTo` TEXT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_028460_migration') AS relationships;
+relationships
+Database: db_028460_migration
+
+Table Connections:
+------------------
+[Implied]  Membership.userId -> User.id
+[Implied]  Membership.workspaceId -> Workspace.id
+[Implied]  Session.userId -> User.id
+[Implied]  Token.userId -> User.id
+
+DROP DATABASE `db_028460_migration`;
+UNINSTALL EXTENSION vsql_schematron;

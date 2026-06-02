@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 258680_migration
+#
+CREATE DATABASE `db_258680_migration`;
+USE `db_258680_migration`;
+CREATE TABLE `User` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`name` TEXT,
+`email` TEXT,
+`hashedPassword` TEXT,
+`role` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`expiresAt` TIMESTAMP NULL,
+`handle` TEXT,
+`userId` INT,
+`hashedSessionToken` TEXT,
+`antiCSRFToken` TEXT,
+`publicData` TEXT,
+`privateData` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_258680_migration') AS relationships;
+relationships
+Database: db_258680_migration
+
+Table Connections:
+------------------
+[Implied]  Session.userId -> User.id
+
+DROP DATABASE `db_258680_migration`;
+UNINSTALL EXTENSION vsql_schematron;

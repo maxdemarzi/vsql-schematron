@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 538904_database
+#
+CREATE DATABASE `db_538904_database`;
+USE `db_538904_database`;
+CREATE TABLE `products` (
+`id` INT NOT NULL,
+`category_id` INT,
+`user_id` INT,
+`name` TEXT,
+`description` TEXT,
+`old_price` INT,
+`price` INT,
+`quantity` INT,
+`status` INT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `files` (
+`id` INT NOT NULL,
+`name` TEXT,
+`path` TEXT,
+`product_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_538904_database') AS relationships;
+relationships
+Database: db_538904_database
+
+Table Connections:
+------------------
+[Implied]  files.product_id -> products.id
+[Implied]  products.category_id -> categories.id
+
+DROP DATABASE `db_538904_database`;
+UNINSTALL EXTENSION vsql_schematron;

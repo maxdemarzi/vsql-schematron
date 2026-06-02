@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 322499_cms
+--echo #
+CREATE DATABASE `db_322499_cms`;
+USE `db_322499_cms`;
+CREATE TABLE `member` (
+  `mem_id` VARCHAR(50) NOT NULL,
+  `fn` VARCHAR(50),
+  `gender` VARCHAR(50),
+  `ln` VARCHAR(50),
+  `age` INT,
+  `dob` DATE,
+  `cnt_no` VARCHAR(50),
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  `plan_code` VARCHAR(50),
+  `cov_start_date` DATE,
+  `cov_end_date` DATE,
+  `address` VARCHAR(50),
+  `city` VARCHAR(50),
+  `state` VARCHAR(50),
+  `zip_code` INT,
+  PRIMARY KEY (`mem_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `admin` (
+  `admin_id` VARCHAR(50) NOT NULL,
+  `fn` VARCHAR(50),
+  `gender` VARCHAR(50),
+  `ln` VARCHAR(50),
+  `age` INT,
+  `dob` DATE,
+  `cnt_no` VARCHAR(50),
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  PRIMARY KEY (`admin_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `claim` (
+  `claim_id` VARCHAR(50) NOT NULL,
+  `mem_id` VARCHAR(50),
+  `work_accident` VARCHAR(50),
+  `auto_accident` VARCHAR(50),
+  `date_of_accident` DATE,
+  PRIMARY KEY (`claim_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_322499_cms') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_322499_cms') AS relationships;
+DROP DATABASE `db_322499_cms`;
+UNINSTALL EXTENSION vsql_schematron;

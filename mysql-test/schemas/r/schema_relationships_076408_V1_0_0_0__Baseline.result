@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 076408_V1_0_0_0__Baseline
+#
+CREATE DATABASE `db_076408_V1_0_0_0__Baseline`;
+USE `db_076408_V1_0_0_0__Baseline`;
+CREATE TABLE `account` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`display_name` VARCHAR(50),
+`password` VARCHAR(50),
+`is_admin` BOOLEAN,
+`is_active` BOOLEAN,
+`created` TIMESTAMP NULL,
+`modified` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`id` INT NOT NULL,
+`number` INT,
+`name` VARCHAR(50),
+`first_name` VARCHAR(50),
+`title` VARCHAR(50),
+`salutation` SMALLINT,
+`mail` VARCHAR(50),
+`phone` VARCHAR(50),
+`street` VARCHAR(50),
+`city` VARCHAR(50),
+`zip` VARCHAR(50),
+`notes` TEXT,
+`created` TIMESTAMP NULL,
+`modified` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `announce` (
+`id` INT NOT NULL,
+`number` INT,
+`customer` INT,
+`status` SMALLINT,
+`notes` TEXT,
+`title` VARCHAR(50),
+`message` TEXT,
+`created` TIMESTAMP NULL,
+`modified` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `letter` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`status` SMALLINT,
+`published` TIMESTAMP NULL,
+`created` TIMESTAMP NULL,
+`modified` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `letter_announce` (
+`id` INT NOT NULL,
+`letter` INT,
+`announce` INT,
+`order` SMALLINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_076408_V1_0_0_0__Baseline') AS relationships;
+relationships
+Database: db_076408_V1_0_0_0__Baseline
+
+Table Connections:
+------------------
+[Implied]  announce.customer -> customer.id
+[Implied]  letter_announce.announce -> announce.id
+[Implied]  letter_announce.letter -> letter.id
+
+DROP DATABASE `db_076408_V1_0_0_0__Baseline`;
+UNINSTALL EXTENSION vsql_schematron;

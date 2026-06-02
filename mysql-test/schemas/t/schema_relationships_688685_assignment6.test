@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 688685_assignment6
+--echo #
+CREATE DATABASE `db_688685_assignment6`;
+USE `db_688685_assignment6`;
+CREATE TABLE `Branch` (
+  `branchNo` VARCHAR(50) NOT NULL,
+  `street` VARCHAR(50),
+  `city` VARCHAR(50),
+  `state` CHAR(50),
+  `zip` VARCHAR(50),
+  PRIMARY KEY (`branchNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `DVD` (
+  `catalogNo` VARCHAR(50) NOT NULL,
+  `title` VARCHAR(50),
+  `category` VARCHAR(50),
+  `dailyRent` DOUBLE,
+  PRIMARY KEY (`catalogNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rental` (
+  `branchNo` VARCHAR(50) NOT NULL,
+  `catalogNo` VARCHAR(50) NOT NULL,
+  `yearMonth` VARCHAR(50) NOT NULL,
+  `days` INT,
+  PRIMARY KEY (`branchNo`, `catalogNo`, `yearMonth`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_688685_assignment6') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_688685_assignment6') AS relationships;
+DROP DATABASE `db_688685_assignment6`;
+UNINSTALL EXTENSION vsql_schematron;

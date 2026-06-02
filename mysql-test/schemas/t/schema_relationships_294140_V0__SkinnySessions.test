@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 294140_V0__SkinnySessions
+--echo #
+CREATE DATABASE `db_294140_V0__SkinnySessions`;
+USE `db_294140_V0__SkinnySessions`;
+CREATE TABLE `skinny_sessions` (
+  `id` BIGINT NOT NULL,
+  `created_at` TIMESTAMP NULL,
+  `expire_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `servlet_sessions` (
+  `jsession_id` VARCHAR(50) NOT NULL,
+  `skinny_session_id` BIGINT,
+  `created_at` TIMESTAMP NULL,
+  PRIMARY KEY (`jsession_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `skinny_session_attributes` (
+  `skinny_session_id` BIGINT,
+  `attribute_name` VARCHAR(50),
+  `attribute_value` BLOB
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_294140_V0__SkinnySessions') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_294140_V0__SkinnySessions') AS relationships;
+DROP DATABASE `db_294140_V0__SkinnySessions`;
+UNINSTALL EXTENSION vsql_schematron;

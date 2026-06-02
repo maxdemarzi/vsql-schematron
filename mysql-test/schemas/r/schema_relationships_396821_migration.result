@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 396821_migration
+#
+CREATE DATABASE `db_396821_migration`;
+USE `db_396821_migration`;
+CREATE TABLE `Admin` (
+`id` INT NOT NULL,
+`dataCriacao` TIMESTAMP NULL,
+`dataAtualizacao` TIMESTAMP NULL,
+`nome` TEXT,
+`email` TEXT,
+`senha` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sessao` (
+`id` INT NOT NULL,
+`dataCriacao` TIMESTAMP NULL,
+`dataAtualizacao` TIMESTAMP NULL,
+`valido` BOOLEAN,
+`token` TEXT,
+`adminId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Obra` (
+`id` INT NOT NULL,
+`dataCriacao` TIMESTAMP NULL,
+`dataAtualizacao` TIMESTAMP NULL,
+`categoria` VARCHAR(50),
+`numeroLicitacao` TEXT,
+`descricao` TEXT,
+`convenioNumeroAno` TEXT,
+`convenioConcedente` TEXT,
+`convenioRepasse` DOUBLE,
+`convenioContrapartida` DOUBLE,
+`contratadoCpfCcnpj` TEXT,
+`contratadoRasaoSocial` TEXT,
+`contratoNumeroAno` TEXT,
+`contratoDataInicio` TEXT,
+`contratoPrazo` TEXT,
+`contratoValorContratado` DOUBLE,
+`contratoDataConclusao` TEXT,
+`aditivoPrazoAditado` TEXT,
+`aditivoValorAditadoAcumulado` TEXT,
+`execucaoReajuste` DOUBLE,
+`execucaoNaturezaDespesa` TEXT,
+`execucaoValorMedidoAcumulado` DOUBLE,
+`execucaoValorPagoAcumuladoPeriodo` DOUBLE,
+`execucaoValorPagoAcumuladoExercicio` DOUBLE,
+`valorPagoAcumulado` DOUBLE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comentario` (
+`id` INT NOT NULL,
+`dataCriacao` TIMESTAMP NULL,
+`dataAtualizacao` TIMESTAMP NULL,
+`token` TEXT,
+`titulo` TEXT,
+`mensagem` TEXT,
+`nomeUsuario` TEXT,
+`email` TEXT,
+`imagemUrl` TEXT,
+`obraId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Nota` (
+`id` INT NOT NULL,
+`dataCriacao` TIMESTAMP NULL,
+`dataAtualizacao` TIMESTAMP NULL,
+`token` TEXT,
+`nota` INT,
+`email` TEXT,
+`obraId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Noticia` (
+`id` INT NOT NULL,
+`dataCriacao` TIMESTAMP NULL,
+`dataAtualizacao` TIMESTAMP NULL,
+`token` TEXT,
+`titulo` TEXT,
+`mensagem` TEXT,
+`link` TEXT,
+`imagemUrl` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_396821_migration') AS relationships;
+relationships
+Database: db_396821_migration
+
+Table Connections:
+------------------
+[Implied]  Comentario.obraId -> Obra.id
+[Implied]  Nota.obraId -> Obra.id
+[Implied]  Sessao.adminId -> Admin.id
+
+DROP DATABASE `db_396821_migration`;
+UNINSTALL EXTENSION vsql_schematron;

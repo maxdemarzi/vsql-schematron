@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 425798_database_generation
+#
+CREATE DATABASE `db_425798_database_generation`;
+USE `db_425798_database_generation`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`name` TEXT,
+`email` TEXT,
+`password_hash` TEXT,
+`wallet` INT,
+`is_admin` BOOLEAN,
+`last_login` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `game_instances` (
+`id` INT NOT NULL,
+`user_id` INT,
+`game_mode_id` INT,
+`bet_amount` INT,
+`pickled_game` VARCHAR(50),
+`game_over` BOOLEAN,
+`result` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_425798_database_generation') AS relationships;
+relationships
+Database: db_425798_database_generation
+
+Table Connections:
+------------------
+[Implied]  game_instances.user_id -> users.id
+
+DROP DATABASE `db_425798_database_generation`;
+UNINSTALL EXTENSION vsql_schematron;

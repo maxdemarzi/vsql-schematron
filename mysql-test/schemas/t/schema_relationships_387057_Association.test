@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 387057_Association
+--echo #
+CREATE DATABASE `db_387057_Association`;
+USE `db_387057_Association`;
+CREATE TABLE `objectDB` (
+  `objectDBID` INT NOT NULL,
+  `uniprotID` VARCHAR(50),
+  `objType` VARCHAR(50),
+  `Synonyms` VARCHAR(50),
+  `Name` VARCHAR(50),
+  PRIMARY KEY (`objectDBID`)
+) CHARACTER SET latin1;
+CREATE TABLE `GO` (
+  `GOnumberID` INT NOT NULL,
+  `GOID` VARCHAR(50),
+  `Ontology` VARCHAR(50),
+  PRIMARY KEY (`GOnumberID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Association` (
+  `AssociationID` INT NOT NULL,
+  `GOnumberID` INT,
+  `QuantifierID` INT,
+  `objectDBID` INT,
+  `EvidenceID` INT,
+  `GeneID` INT,
+  `TaxonID` INT,
+  `ReferenceID` INT,
+  `WithFromID` INT,
+  `Version` DATE,
+  PRIMARY KEY (`AssociationID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Gene` (
+  `GeneID` INT NOT NULL,
+  `Symbol` VARCHAR(50),
+  PRIMARY KEY (`GeneID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Taxon` (
+  `TaxonID` INT NOT NULL,
+  `Name` VARCHAR(50),
+  PRIMARY KEY (`TaxonID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Evidence` (
+  `EvidenceID` INT NOT NULL,
+  `Name` VARCHAR(50),
+  PRIMARY KEY (`EvidenceID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Quantifier` (
+  `QuantifierID` INT NOT NULL,
+  `Name` VARCHAR(50),
+  PRIMARY KEY (`QuantifierID`)
+) CHARACTER SET latin1;
+CREATE TABLE `WithFrom` (
+  `WithFromID` INT NOT NULL,
+  `Name` VARCHAR(50),
+  PRIMARY KEY (`WithFromID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reference` (
+  `ReferenceID` INT NOT NULL,
+  `Name` VARCHAR(50),
+  PRIMARY KEY (`ReferenceID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_387057_Association') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_387057_Association') AS relationships;
+DROP DATABASE `db_387057_Association`;
+UNINSTALL EXTENSION vsql_schematron;

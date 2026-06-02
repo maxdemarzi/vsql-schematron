@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 574864_sql_script
+--echo #
+CREATE DATABASE `db_574864_sql_script`;
+USE `db_574864_sql_script`;
+CREATE TABLE `Estado` (
+  `IdEstado` INT NOT NULL,
+  `Nome` VARCHAR(50),
+  `Abreviacao` VARCHAR(50),
+  PRIMARY KEY (`IdEstado`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cidade` (
+  `IdCidade` INT NOT NULL,
+  `Nome` VARCHAR(50),
+  `Abreviacao` VARCHAR(50),
+  `Estado_Id` INT,
+  PRIMARY KEY (`IdCidade`)
+) CHARACTER SET latin1;
+CREATE TABLE `Local` (
+  `IdLocal` BIGINT NOT NULL,
+  `Nome` VARCHAR(50),
+  `Endereco` VARCHAR(50),
+  `Avaliacao` INT,
+  `Descricao` VARCHAR(50),
+  `HoraFunc` TIME,
+  `Tipo` VARCHAR(50),
+  `Telefone` VARCHAR(50),
+  `Comentarios` VARCHAR(50),
+  `NumVisitas` BIGINT,
+  `Cidade` INT,
+  PRIMARY KEY (`IdLocal`)
+) CHARACTER SET latin1;
+CREATE TABLE `RotaLocal` (
+  `IdRotaLocal` BIGINT NOT NULL,
+  `IdLocal` BIGINT,
+  `OrdemVisita` INT,
+  `IdRoteiro` BIGINT,
+  PRIMARY KEY (`IdRotaLocal`)
+) CHARACTER SET latin1;
+CREATE TABLE `Roteiro` (
+  `IdRoteiro` BIGINT NOT NULL,
+  `IdUsuario` BIGINT,
+  `NomeRota` VARCHAR(50),
+  PRIMARY KEY (`IdRoteiro`)
+) CHARACTER SET latin1;
+CREATE TABLE `Usuario` (
+  `IdUsuario` BIGINT NOT NULL,
+  `Nome` VARCHAR(50),
+  `CPF` VARCHAR(50),
+  `CNPJ` VARCHAR(50),
+  `DataNasc` DATE,
+  `Sexo` CHAR(50),
+  `Email` VARCHAR(50),
+  `Endereco` VARCHAR(50),
+  `Senha` VARCHAR(50),
+  `Telefone` VARCHAR(50),
+  `IdRoteiro` BIGINT,
+  PRIMARY KEY (`IdUsuario`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_574864_sql_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_574864_sql_script') AS relationships;
+DROP DATABASE `db_574864_sql_script`;
+UNINSTALL EXTENSION vsql_schematron;

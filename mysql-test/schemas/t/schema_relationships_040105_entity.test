@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 040105_entity
+--echo #
+CREATE DATABASE `db_040105_entity`;
+USE `db_040105_entity`;
+CREATE TABLE `entity` (
+  `entityid` INT NOT NULL,
+  `name1` VARCHAR(50),
+  `name2` VARCHAR(50),
+  `type` CHAR(50),
+  PRIMARY KEY (`entityid`)
+) CHARACTER SET latin1;
+CREATE TABLE `entityaddress` (
+  `addressid` INT NOT NULL,
+  `entityid` INT,
+  `saddress1` VARCHAR(50),
+  `saddress2` VARCHAR(50),
+  `scity` VARCHAR(50),
+  `cstate` CHAR(50),
+  `spostalcode` VARCHAR(50),
+  `stype` VARCHAR(50),
+  PRIMARY KEY (`addressid`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_040105_entity') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_040105_entity') AS relationships;
+DROP DATABASE `db_040105_entity`;
+UNINSTALL EXTENSION vsql_schematron;

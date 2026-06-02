@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 658887_2019110513525900_scenario_metric_table_setup
+#
+CREATE DATABASE `db_658887_2019110513525900_scenario_metric_table_setup`;
+USE `db_658887_2019110513525900_scenario_metric_table_setup`;
+CREATE TABLE `scenarios` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`assumptions` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `metric_data` (
+`id` INT NOT NULL,
+`scenario_id` INT,
+`metric_id` INT,
+`year` INT,
+`value` DOUBLE,
+`spatial_table_column` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `metrics` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`low_outcome` DOUBLE,
+`high_outcome` DOUBLE,
+`low_outcome_text` VARCHAR(50),
+`high_outcome_text` VARCHAR(50),
+`unit` VARCHAR(50),
+`bins` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_658887_2019110513525900_scenario_metric_table_setup') AS relationships;
+relationships
+Database: db_658887_2019110513525900_scenario_metric_table_setup
+
+Table Connections:
+------------------
+[Implied]  metric_data.metric_id -> metrics.id
+[Implied]  metric_data.scenario_id -> scenarios.id
+
+DROP DATABASE `db_658887_2019110513525900_scenario_metric_table_setup`;
+UNINSTALL EXTENSION vsql_schematron;

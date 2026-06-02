@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 405266_pisado
+#
+CREATE DATABASE `db_405266_pisado`;
+USE `db_405266_pisado`;
+CREATE TABLE `comentario_group` (
+`id` INT NOT NULL,
+`id_group` BIGINT,
+`nia` BIGINT,
+`nombre` VARCHAR(50),
+`date` TIMESTAMP NULL,
+`text` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comentario_pisado` (
+`id` INT NOT NULL,
+`id_pisado` BIGINT,
+`nia` BIGINT,
+`nombre` VARCHAR(50),
+`date` TIMESTAMP NULL,
+`text` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group` (
+`id` INT NOT NULL,
+`subject` VARCHAR(50),
+`date` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `archive` (
+`id` INT NOT NULL,
+`id_pisado` BIGINT,
+`date` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pisado` (
+`id` INT NOT NULL,
+`nia` BIGINT,
+`email` VARCHAR(50),
+`autor` VARCHAR(50),
+`date` TIMESTAMP NULL,
+`id_titulacion` BIGINT,
+`asignatura` VARCHAR(50),
+`curso` SMALLINT,
+`grupo` BIGINT,
+`profesor` VARCHAR(50),
+`texto` TEXT,
+`id_group` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_405266_pisado') AS relationships;
+relationships
+Database: db_405266_pisado
+
+Table Connections:
+------------------
+[Implied]  archive.id_pisado -> pisado.id
+[Implied]  comentario_group.id_group -> group.id
+[Implied]  comentario_pisado.id_pisado -> pisado.id
+[Implied]  pisado.id_group -> group.id
+
+DROP DATABASE `db_405266_pisado`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 421629_Modelo%20fisico%20sql%20%20routebus
+#
+CREATE DATABASE `db_421629_Modelo_20fisico_20sql_20_20routebus`;
+USE `db_421629_Modelo_20fisico_20sql_20_20routebus`;
+CREATE TABLE `cidade` (
+`id_cidade` INT NOT NULL,
+`nome_cidade` VARCHAR(50),
+PRIMARY KEY (`id_cidade`)
+) CHARACTER SET latin1;
+CREATE TABLE `Ruas` (
+`id_rua` INT NOT NULL,
+`nome_rua` VARCHAR(50),
+PRIMARY KEY (`id_rua`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuarios` (
+`id_usuario` INT NOT NULL,
+`nome_usuario` VARCHAR(50),
+`email_usuario` VARCHAR(50),
+`senha_usuario` CHAR(50),
+`telefone_usuario` CHAR(50),
+`cpf_usuario` CHAR(50),
+`id_tipo_usuario` INT,
+PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `pontos` (
+`id_ponto` INT NOT NULL,
+`horario_bairro` TIME,
+`lat_ponto` VARCHAR(50),
+`lng_ponto` VARCHAR(50),
+`id_bairro` INT,
+`id_rua` INT,
+PRIMARY KEY (`id_ponto`)
+) CHARACTER SET latin1;
+CREATE TABLE `reclamações` (
+`id_reclamação` INT NOT NULL,
+`data_de_reclamação` DATE,
+`desc_reclamação` TEXT,
+`tipo_reclamção` VARCHAR(50),
+`anexo_arquivo` TEXT,
+`id_usuario` INT,
+PRIMARY KEY (`id_reclamação`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tipo_de_usuario` (
+`id_tipo_usuario` INT NOT NULL,
+`nome_tipo_usuario` VARCHAR(50),
+`nivel_de_acesso` INT,
+PRIMARY KEY (`id_tipo_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `bairros` (
+`id_bairro` INT NOT NULL,
+`lat` VARCHAR(50),
+`lng` VARCHAR(50),
+`cep_rua` CHAR(50),
+`numero_linha` CHAR(50),
+`nome_bairro` VARCHAR(50),
+`id_cidade` INT,
+PRIMARY KEY (`id_bairro`)
+) CHARACTER SET latin1;
+CREATE TABLE `favoritos` (
+`id_favorito` INT NOT NULL,
+`data_salvo` DATE,
+`id_usuario` INT,
+`id_bairro` INT,
+PRIMARY KEY (`id_favorito`)
+) CHARACTER SET latin1;
+CREATE TABLE `comentario` (
+`id_comentario` INT NOT NULL,
+`comentario` TEXT,
+`id_reclamação` INT,
+PRIMARY KEY (`id_comentario`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_421629_Modelo_20fisico_20sql_20_20routebus') AS relationships;
+relationships
+Database: db_421629_Modelo_20fisico_20sql_20_20routebus
+
+Table Connections:
+------------------
+[Implied]  bairros.id_cidade -> cidade.id_cidade
+[Implied]  comentario.id_reclamação -> reclamações.id_reclamação
+[Implied]  favoritos.id_bairro -> bairros.id_bairro
+[Implied]  favoritos.id_usuario -> usuarios.id_usuario
+[Implied]  pontos.id_bairro -> bairros.id_bairro
+[Implied]  pontos.id_rua -> Ruas.id_rua
+[Implied]  reclamações.id_usuario -> usuarios.id_usuario
+[Implied]  usuarios.id_tipo_usuario -> Tipo_de_usuario.id_tipo_usuario
+
+DROP DATABASE `db_421629_Modelo_20fisico_20sql_20_20routebus`;
+UNINSTALL EXTENSION vsql_schematron;

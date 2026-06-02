@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 390556_V1_1__initial
+#
+CREATE DATABASE `db_390556_V1_1__initial`;
+USE `db_390556_V1_1__initial`;
+CREATE TABLE `BESVARELSE` (
+`besvarelse_id` DECIMAL(10,2) NOT NULL,
+`aktor_id` VARCHAR(50),
+`under_oppfolging` DECIMAL(10,2),
+`besvarelse_dato` TIMESTAMP NULL,
+PRIMARY KEY (`besvarelse_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `SVAR` (
+`svar_id` DECIMAL(10,2) NOT NULL,
+`besvarelse_id` DECIMAL(10,2),
+`sporsmal_key` VARCHAR(50),
+`sporsmal` VARCHAR(50),
+`tips_key` VARCHAR(50),
+`tips` VARCHAR(50),
+PRIMARY KEY (`svar_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `SVARALTERNATIV` (
+`svaralternativ_id` DECIMAL(10,2) NOT NULL,
+`svar_id` DECIMAL(10,2),
+`svaralternativ_key` VARCHAR(50),
+`svaralternativ` VARCHAR(50),
+PRIMARY KEY (`svaralternativ_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RAAD` (
+`raad_id` DECIMAL(10,2) NOT NULL,
+`besvarelse_id` DECIMAL(10,2),
+`raad` VARCHAR(50),
+PRIMARY KEY (`raad_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_390556_V1_1__initial') AS relationships;
+relationships
+Database: db_390556_V1_1__initial
+
+Table Connections:
+------------------
+[Implied]  RAAD.besvarelse_id -> BESVARELSE.besvarelse_id
+[Implied]  SVAR.besvarelse_id -> BESVARELSE.besvarelse_id
+[Implied]  SVARALTERNATIV.svar_id -> SVAR.svar_id
+
+DROP DATABASE `db_390556_V1_1__initial`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 002708_schema
+#
+CREATE DATABASE `db_002708_schema`;
+USE `db_002708_schema`;
+CREATE TABLE `roles` (
+`id` INT NOT NULL,
+`display_name` VARCHAR(50),
+`importance` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`email` VARCHAR(50),
+`pass` VARCHAR(50),
+`salt` VARCHAR(50),
+`role_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`id` INT NOT NULL,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_002708_schema') AS relationships;
+relationships
+Database: db_002708_schema
+
+Table Connections:
+------------------
+[Implied]  sessions.user_id -> users.id
+[Implied]  users.role_id -> roles.id
+
+DROP DATABASE `db_002708_schema`;
+UNINSTALL EXTENSION vsql_schematron;

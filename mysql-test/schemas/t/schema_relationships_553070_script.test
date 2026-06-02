@@ -1,0 +1,110 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 553070_script
+--echo #
+CREATE DATABASE `db_553070_script`;
+USE `db_553070_script`;
+CREATE TABLE `Usuario` (
+  `id` INT NOT NULL,
+  `login` VARCHAR(50),
+  `senha` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UnidadeDeSaude` (
+  `id` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `logradouro` VARCHAR(50),
+  `numero` SMALLINT,
+  `bairro` VARCHAR(50),
+  `cep` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Especialidade` (
+  `id` INT NOT NULL,
+  `descricao` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Paciente` (
+  `id` INT NOT NULL,
+  `id_usuario` INT,
+  `nome` VARCHAR(50),
+  `cpf` VARCHAR(50),
+  `cartaosus` VARCHAR(50),
+  `datanascimento` DATE,
+  `sexo` CHAR(50),
+  `estadocivil` VARCHAR(50),
+  `logradouro` VARCHAR(50),
+  `numero` SMALLINT,
+  `bairro` VARCHAR(50),
+  `cep` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Medico` (
+  `id` INT NOT NULL,
+  `id_usuario` INT,
+  `nome` VARCHAR(50),
+  `cpf` VARCHAR(50),
+  `datanascimento` DATE,
+  `crm` VARCHAR(50),
+  `sexo` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `MedicoEspecialidade` (
+  `id` INT NOT NULL,
+  `id_medico` INT,
+  `id_especialidade` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Agenda` (
+  `id` INT NOT NULL,
+  `datainicio` DATE,
+  `datafim` DATE,
+  `horainicio` TIME,
+  `horafim` TIME,
+  `duracao` TIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `MedicoAgendaUnidadeDeSaude` (
+  `id` INT NOT NULL,
+  `id_medico` INT,
+  `id_agenda` INT,
+  `id_unidadedesaude` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Agendamento` (
+  `id` INT NOT NULL,
+  `id_paciente` INT,
+  `id_medicoagendaunidadedesaude` INT,
+  `datahoracriacao` DATETIME,
+  `status` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Consulta` (
+  `id` INT NOT NULL,
+  `id_agendamento` INT,
+  `sintomas` VARCHAR(50),
+  `prescricao` VARCHAR(50),
+  `datahoracriacao` DATETIME,
+  `status` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_553070_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_553070_script') AS relationships;
+DROP DATABASE `db_553070_script`;
+UNINSTALL EXTENSION vsql_schematron;

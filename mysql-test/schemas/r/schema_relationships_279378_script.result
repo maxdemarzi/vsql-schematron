@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 279378_script
+#
+CREATE DATABASE `db_279378_script`;
+USE `db_279378_script`;
+CREATE TABLE `Customer` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`address` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Item` (
+`code` VARCHAR(50) NOT NULL,
+`description` VARCHAR(50),
+`unitPrice` DECIMAL(10,2),
+`qtyOnHand` INT,
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+CREATE TABLE `Order` (
+`id` VARCHAR(50) NOT NULL,
+`date` DATE,
+`customerId` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderDetail` (
+`orderId` VARCHAR(50) NOT NULL,
+`itemCode` VARCHAR(50) NOT NULL,
+`qty` INT,
+`unitPrice` DECIMAL(10,2),
+PRIMARY KEY (`orderId`, `itemCode`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_279378_script') AS relationships;
+relationships
+Database: db_279378_script
+
+Table Connections:
+------------------
+[Implied]  Order.customerId -> Customer.id
+[Implied]  OrderDetail.itemCode -> Item.code
+[Implied]  OrderDetail.orderId -> Order.id
+
+DROP DATABASE `db_279378_script`;
+UNINSTALL EXTENSION vsql_schematron;

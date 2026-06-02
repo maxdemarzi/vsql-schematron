@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 288324_up
+#
+CREATE DATABASE `db_288324_up`;
+USE `db_288324_up`;
+CREATE TABLE `manufacturers` (
+`id` INT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `parts` (
+`id` INT NOT NULL,
+`manufacturer_id` INT,
+`name` TEXT,
+`description` TEXT,
+`amount` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tagnames` (
+`id` INT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` INT NOT NULL,
+`tagname_id` INT,
+`value` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `part_tag` (
+`id` INT NOT NULL,
+`part_id` INT,
+`tag_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_288324_up') AS relationships;
+relationships
+Database: db_288324_up
+
+Table Connections:
+------------------
+[Implied]  part_tag.part_id -> parts.id
+[Implied]  part_tag.tag_id -> tags.id
+[Implied]  parts.manufacturer_id -> manufacturers.id
+[Implied]  tags.tagname_id -> tagnames.id
+
+DROP DATABASE `db_288324_up`;
+UNINSTALL EXTENSION vsql_schematron;

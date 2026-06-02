@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 540699_schema-003
+--echo #
+CREATE DATABASE `db_540699_schema_003`;
+USE `db_540699_schema_003`;
+CREATE TABLE `SchemaVersion` (
+  `version` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Accounts` (
+  `id` INT NOT NULL,
+  `key_exponent` BLOB,
+  `key_modulus` BLOB,
+  `display_name` VARCHAR(50),
+  `hashed_phone_number` CHAR(50),
+  `password_hash` BLOB,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LoginChallenges` (
+  `id` INT NOT NULL,
+  `challenge` BLOB,
+  `account_id` INT,
+  `created_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sessions` (
+  `id` INT NOT NULL,
+  `auth_token` TEXT,
+  `account_id` INT,
+  `created_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `GamesCompletedAt` (
+  `id` INT NOT NULL,
+  `completed_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Games` (
+  `id` INT NOT NULL,
+  `completed_at_id` INT,
+  `next_expiration` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Turns` (
+  `id` INT NOT NULL,
+  `account_id` INT,
+  `game_id` INT,
+  `is_complete` BOOLEAN,
+  `is_drawing` BOOLEAN,
+  `label` TEXT,
+  `drawing` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_540699_schema_003') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_540699_schema_003') AS relationships;
+DROP DATABASE `db_540699_schema_003`;
+UNINSTALL EXTENSION vsql_schematron;

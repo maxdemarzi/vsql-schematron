@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 361982_cria%C3%A7%C3%A3o%20banco
+--echo #
+CREATE DATABASE `db_361982_cria_C3_A7_C3_A3o_20banco`;
+USE `db_361982_cria_C3_A7_C3_A3o_20banco`;
+CREATE TABLE `curto` (
+  `_id` INT NOT NULL,
+  `titulo` TEXT,
+  `conteudo` TEXT,
+  PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `longo` (
+  `_id` INT NOT NULL,
+  `conteudo` TEXT,
+  `_id_curto` INT,
+  PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `referencia` (
+  `_id` INT NOT NULL,
+  `referencia` TEXT,
+  `_id_longo` INT,
+  PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_361982_cria_C3_A7_C3_A3o_20banco') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_361982_cria_C3_A7_C3_A3o_20banco') AS relationships;
+DROP DATABASE `db_361982_cria_C3_A7_C3_A3o_20banco`;
+UNINSTALL EXTENSION vsql_schematron;

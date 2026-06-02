@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 321708_Sqlite
+#
+CREATE DATABASE `db_321708_Sqlite`;
+USE `db_321708_Sqlite`;
+CREATE TABLE `__EFMigrationsHistory` (
+`MigrationId` VARCHAR(50) NOT NULL,
+`ProductVersion` TEXT,
+PRIMARY KEY (`MigrationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Emails` (
+`Id` VARCHAR(50) NOT NULL,
+`Application` BLOB,
+`Body` TEXT,
+`From` TEXT,
+`HTML` INT,
+`Status` INT,
+`Subject` TEXT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PhoneMessages` (
+`Id` VARCHAR(50) NOT NULL,
+`Application` BLOB,
+`From` TEXT,
+`Message` TEXT,
+`Status` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `EmailAddress` (
+`EmailId` VARCHAR(50) NOT NULL,
+`Address` VARCHAR(50) NOT NULL,
+`Blind` INT,
+`Copy` INT,
+PRIMARY KEY (`EmailId`, `Address`)
+) CHARACTER SET latin1;
+CREATE TABLE `PhoneNumber` (
+`PhoneMessageId` VARCHAR(50) NOT NULL,
+`Number` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`PhoneMessageId`, `Number`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_321708_Sqlite') AS relationships;
+relationships
+Database: db_321708_Sqlite
+
+Table Connections:
+------------------
+[Implied]  EmailAddress.EmailId -> Emails.Id
+[Implied]  PhoneNumber.PhoneMessageId -> PhoneMessages.Id
+
+DROP DATABASE `db_321708_Sqlite`;
+UNINSTALL EXTENSION vsql_schematron;

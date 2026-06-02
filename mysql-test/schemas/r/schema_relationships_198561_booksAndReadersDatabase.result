@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 198561_booksAndReadersDatabase
+#
+CREATE DATABASE `db_198561_booksAndReadersDatabase`;
+USE `db_198561_booksAndReadersDatabase`;
+CREATE TABLE `Reader` (
+`ReaderID` INT NOT NULL,
+`ReaderName` CHAR(50),
+`Rating` INT,
+PRIMARY KEY (`ReaderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Book` (
+`ISBN_NO` INT NOT NULL,
+`BookName` CHAR(50),
+`Color` CHAR(50),
+PRIMARY KEY (`ISBN_NO`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reserve` (
+`ReaderID` INT NOT NULL,
+`ISBN_NO` INT NOT NULL,
+`Date` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`ReaderID`, `ISBN_NO`, `Date`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_198561_booksAndReadersDatabase') AS relationships;
+relationships
+Database: db_198561_booksAndReadersDatabase
+
+Table Connections:
+------------------
+[Implied]  Reserve.ISBN_NO -> Book.ISBN_NO
+[Implied]  Reserve.ReaderID -> Reader.ReaderID
+
+DROP DATABASE `db_198561_booksAndReadersDatabase`;
+UNINSTALL EXTENSION vsql_schematron;

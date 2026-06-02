@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 456450_create_db
+#
+CREATE DATABASE `db_456450_create_db`;
+USE `db_456450_create_db`;
+CREATE TABLE `Autor` (
+`id_autor` INT NOT NULL,
+`nombre` VARCHAR(50),
+PRIMARY KEY (`id_autor`)
+) CHARACTER SET latin1;
+CREATE TABLE `Genero` (
+`id_genero` INT NOT NULL,
+`nombre` VARCHAR(50),
+PRIMARY KEY (`id_genero`)
+) CHARACTER SET latin1;
+CREATE TABLE `Editorial` (
+`id_editorial` INT NOT NULL,
+`nombre` VARCHAR(50),
+PRIMARY KEY (`id_editorial`)
+) CHARACTER SET latin1;
+CREATE TABLE `Libro` (
+`isbn` VARCHAR(50) NOT NULL,
+`id_autor` INT,
+`id_editorial` INT,
+`titulo` VARCHAR(50),
+`img_referencia` VARCHAR(50),
+`year` INT,
+`descripcion` TEXT,
+`edicion` INT,
+`ubicacion_archivo` VARCHAR(50),
+PRIMARY KEY (`isbn`)
+) CHARACTER SET latin1;
+CREATE TABLE `LibroHasGenero` (
+`id_lhg` INT NOT NULL,
+`id_libro` VARCHAR(50),
+`id_genero` INT,
+PRIMARY KEY (`id_lhg`)
+) CHARACTER SET latin1;
+CREATE TABLE `Usuario` (
+`id_usuario` VARCHAR(50) NOT NULL,
+`tipo` VARCHAR(50),
+`nombre` VARCHAR(50),
+`nacimiento` DATE,
+`correo` VARCHAR(50),
+`psswd` VARCHAR(50),
+PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `Favorito` (
+`id_favorito` VARCHAR(50) NOT NULL,
+`id_usuario` VARCHAR(50),
+`id_libro` VARCHAR(50),
+PRIMARY KEY (`id_favorito`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_456450_create_db') AS relationships;
+relationships
+Database: db_456450_create_db
+
+Table Connections:
+------------------
+[Implied]  Favorito.id_libro -> Libro.isbn
+[Implied]  Favorito.id_usuario -> Usuario.id_usuario
+[Implied]  Libro.id_autor -> Autor.id_autor
+[Implied]  Libro.id_editorial -> Editorial.id_editorial
+[Implied]  LibroHasGenero.id_genero -> Genero.id_genero
+[Implied]  LibroHasGenero.id_libro -> Libro.isbn
+
+DROP DATABASE `db_456450_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

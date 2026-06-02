@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 271808_testphp
+--echo #
+CREATE DATABASE `db_271808_testphp`;
+USE `db_271808_testphp`;
+CREATE TABLE `contactpost` (
+  `post_id` INT,
+  `contact_name` VARCHAR(50),
+  `contact_email` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `descriptivepost` (
+  `post_id` INT,
+  `position_description` VARCHAR(50),
+  `salary` INT,
+  `starts_at` DATE,
+  `ends_at` DATE
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+  `id` INT NOT NULL,
+  `type` VARCHAR(50),
+  `company_name` VARCHAR(50),
+  `position` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `postqueue` (
+  `id` INT,
+  `post_id` INT,
+  `post_at` DATETIME,
+  `notification_sent_at` DATETIME
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_271808_testphp') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_271808_testphp') AS relationships;
+DROP DATABASE `db_271808_testphp`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 005674_schema_h2
+--echo #
+CREATE DATABASE `db_005674_schema_h2`;
+USE `db_005674_schema_h2`;
+CREATE TABLE `tag_category` (
+  `t_id` BIGINT NOT NULL,
+  `t_name` VARCHAR(50),
+  `is_category` BOOLEAN,
+  `is_delete` BOOLEAN,
+  PRIMARY KEY (`t_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `article` (
+  `a_id` BIGINT NOT NULL,
+  `a_title` VARCHAR(50),
+  `a_summary` VARCHAR(50),
+  `a_md_content` VARCHAR(50),
+  `a_url` VARCHAR(50),
+  `a_author_id` INT,
+  `a_is_original` BOOLEAN,
+  `a_reading_number` INT,
+  `a_like` INT,
+  `a_dislike` INT,
+  `a_category_id` BIGINT,
+  `a_publish_date` DATETIME,
+  `a_update_date` DATETIME,
+  `a_is_open` BOOLEAN,
+  `is_delete` BOOLEAN,
+  PRIMARY KEY (`a_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `article_tag` (
+  `at_id` BIGINT NOT NULL,
+  `a_id` BIGINT,
+  `t_id` BIGINT,
+  PRIMARY KEY (`at_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+  `co_id` BIGINT NOT NULL,
+  `co_page_path` VARCHAR(50),
+  `co_content` TEXT,
+  `co_date` DATETIME,
+  `co_status` TINYINT,
+  `co_pid` BIGINT,
+  `co_from_author_id` INT,
+  `co_to_author_id` INT,
+  PRIMARY KEY (`co_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `links` (
+  `l_id` BIGINT NOT NULL,
+  `l_name` VARCHAR(50),
+  `l_is_open` BOOLEAN,
+  `l_url` VARCHAR(50),
+  `l_icon_path` VARCHAR(50),
+  `l_desc` VARCHAR(50),
+  `is_delete` BOOLEAN,
+  `l_email` VARCHAR(50),
+  `l_notification` BOOLEAN,
+  PRIMARY KEY (`l_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `visitor` (
+  `v_id` BIGINT NOT NULL,
+  `v_date` DATETIME,
+  `v_ip` VARCHAR(50),
+  `v_user_agent` TEXT,
+  `is_delete` BOOLEAN,
+  PRIMARY KEY (`v_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `web_update` (
+  `wu_id` INT NOT NULL,
+  `wu_info` VARCHAR(50),
+  `wu_time` DATETIME,
+  `is_delete` BOOLEAN,
+  PRIMARY KEY (`wu_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_005674_schema_h2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_005674_schema_h2') AS relationships;
+DROP DATABASE `db_005674_schema_h2`;
+UNINSTALL EXTENSION vsql_schematron;

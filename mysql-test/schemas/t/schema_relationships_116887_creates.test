@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 116887_creates
+--echo #
+CREATE DATABASE `db_116887_creates`;
+USE `db_116887_creates`;
+CREATE TABLE `Produto` (
+  `cod_produto` INT NOT NULL,
+  PRIMARY KEY (`cod_produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `Armazem` (
+  `cod_armazem` INT NOT NULL,
+  PRIMARY KEY (`cod_armazem`)
+) CHARACTER SET latin1;
+CREATE TABLE `ArmazemProduto` (
+  `cod_armazem` INT NOT NULL,
+  `cod_produto` INT NOT NULL,
+  `stock` INT,
+  `stock_minimo` INT,
+  `corredor` VARCHAR(50),
+  `prateleira` VARCHAR(50),
+  PRIMARY KEY (`cod_armazem`, `cod_produto`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_116887_creates') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_116887_creates') AS relationships;
+DROP DATABASE `db_116887_creates`;
+UNINSTALL EXTENSION vsql_schematron;

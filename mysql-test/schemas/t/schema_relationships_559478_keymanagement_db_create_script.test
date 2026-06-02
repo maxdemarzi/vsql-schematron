@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 559478_keymanagement_db_create_script
+--echo #
+CREATE DATABASE `db_559478_keymanagement_db_create_script`;
+USE `db_559478_keymanagement_db_create_script`;
+CREATE TABLE `propertytype` (
+  `property_type_id` INT NOT NULL,
+  `property_type` VARCHAR(50),
+  PRIMARY KEY (`property_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `property` (
+  `property_id` INT NOT NULL,
+  `property_name` VARCHAR(50),
+  `property_type_id` INT,
+  `property_address` VARCHAR(50),
+  `property_city` VARCHAR(50),
+  `property_state` VARCHAR(50),
+  `property_zip` CHAR(50),
+  `property_country` CHAR(50),
+  PRIMARY KEY (`property_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `keyholdertype` (
+  `keyholder_type_id` INT NOT NULL,
+  `keyholder_type` VARCHAR(50),
+  PRIMARY KEY (`keyholder_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `keyholder` (
+  `keyholder_id` INT NOT NULL,
+  `first_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `email` VARCHAR(50),
+  `phone` VARCHAR(50),
+  `keyholder_type_id` INT,
+  PRIMARY KEY (`keyholder_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `keybundlestatus` (
+  `keybundle_status_id` INT NOT NULL,
+  `keybundle_status` VARCHAR(50),
+  PRIMARY KEY (`keybundle_status_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `keybundle` (
+  `keybundle_id` INT NOT NULL,
+  `keybundle_status_id` INT,
+  `property_id` INT,
+  `keyholder_id` INT,
+  `keybundle_checkout_date` DATE,
+  `keybundle_due_date` DATE,
+  PRIMARY KEY (`keybundle_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_559478_keymanagement_db_create_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_559478_keymanagement_db_create_script') AS relationships;
+DROP DATABASE `db_559478_keymanagement_db_create_script`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 081742_db_schema_pgsql
+--echo #
+CREATE DATABASE `db_081742_db_schema_pgsql`;
+USE `db_081742_db_schema_pgsql`;
+CREATE TABLE `users` (
+  `id` INT NOT NULL,
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  `created` TIMESTAMP NULL,
+  `modified` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `articles` (
+  `id` INT NOT NULL,
+  `user_id` INT,
+  `title` VARCHAR(50),
+  `slug` VARCHAR(50),
+  `body` TEXT,
+  `published` BOOLEAN,
+  `created` TIMESTAMP NULL,
+  `modified` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+  `id` INT NOT NULL,
+  `title` VARCHAR(50),
+  `created` TIMESTAMP NULL,
+  `modified` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `articles_tags` (
+  `article_id` INT NOT NULL,
+  `tag_id` INT NOT NULL,
+  PRIMARY KEY (`article_id`, `tag_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_081742_db_schema_pgsql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_081742_db_schema_pgsql') AS relationships;
+DROP DATABASE `db_081742_db_schema_pgsql`;
+UNINSTALL EXTENSION vsql_schematron;

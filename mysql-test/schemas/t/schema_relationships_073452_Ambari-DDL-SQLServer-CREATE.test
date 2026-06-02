@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 073452_Ambari-DDL-SQLServer-CREATE
+--echo #
+CREATE DATABASE `db_073452_Ambari_DDL_SQLServer_CREATE`;
+USE `db_073452_Ambari_DDL_SQLServer_CREATE`;
+CREATE TABLE `ambari_sequences` (
+  `sequence_name` VARCHAR(50) NOT NULL,
+  `sequence_value` BIGINT,
+  PRIMARY KEY (`sequence_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `roleauthorization` (
+  `authorization_id` VARCHAR(50) NOT NULL,
+  `authorization_name` VARCHAR(50),
+  PRIMARY KEY (`authorization_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `permission_roleauthorization` (
+  `permission_id` BIGINT NOT NULL,
+  `authorization_id` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`permission_id`, `authorization_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `alert_target_states` (
+  `target_id` BIGINT,
+  `alert_state` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `hdfsEvent` (
+  `timestamp` BIGINT,
+  `userName` VARCHAR(50),
+  `clientIP` VARCHAR(50),
+  `operation` VARCHAR(50),
+  `srcPath` VARCHAR(50),
+  `dstPath` VARCHAR(50),
+  `permissions` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `mapreduceEvent` (
+  `timestamp` BIGINT,
+  `userName` VARCHAR(50),
+  `clientIP` VARCHAR(50),
+  `operation` VARCHAR(50),
+  `target` VARCHAR(50),
+  `result` TEXT,
+  `description` TEXT,
+  `permissions` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `clusterEvent` (
+  `timestamp` BIGINT,
+  `service` VARCHAR(50),
+  `status` TEXT,
+  `error` TEXT,
+  `data` TEXT,
+  `host` TEXT,
+  `rack` TEXT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_073452_Ambari_DDL_SQLServer_CREATE') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_073452_Ambari_DDL_SQLServer_CREATE') AS relationships;
+DROP DATABASE `db_073452_Ambari_DDL_SQLServer_CREATE`;
+UNINSTALL EXTENSION vsql_schematron;

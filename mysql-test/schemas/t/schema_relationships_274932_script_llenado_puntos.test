@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 274932_script_llenado_puntos
+--echo #
+CREATE DATABASE `db_274932_script_llenado_puntos`;
+USE `db_274932_script_llenado_puntos`;
+CREATE TABLE `area` (
+  `id_area` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  PRIMARY KEY (`id_area`)
+) CHARACTER SET latin1;
+CREATE TABLE `profesor` (
+  `numero_economico` VARCHAR(50) NOT NULL,
+  `nombre` VARCHAR(50),
+  `primer_apellido` VARCHAR(50),
+  `segundo_apellido` VARCHAR(50),
+  `grado_academico` VARCHAR(50),
+  `area_id_area` INT,
+  PRIMARY KEY (`numero_economico`)
+) CHARACTER SET latin1;
+CREATE TABLE `proyecto_investigacion` (
+  `id_proyecto_investigacion` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  `area_id_area` INT,
+  PRIMARY KEY (`id_proyecto_investigacion`)
+) CHARACTER SET latin1;
+CREATE TABLE `profesor_proyecto_investigacion` (
+  `id_profesor_proyecto_investigacion` INT NOT NULL,
+  `rol` VARCHAR(50),
+  `profesor_numero_economico` VARCHAR(50),
+  `proyecto_investigacion_id_proyecto_investigacion` INT,
+  PRIMARY KEY (`id_profesor_proyecto_investigacion`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_274932_script_llenado_puntos') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_274932_script_llenado_puntos') AS relationships;
+DROP DATABASE `db_274932_script_llenado_puntos`;
+UNINSTALL EXTENSION vsql_schematron;

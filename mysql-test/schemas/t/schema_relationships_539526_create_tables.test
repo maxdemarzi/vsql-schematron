@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 539526_create_tables
+--echo #
+CREATE DATABASE `db_539526_create_tables`;
+USE `db_539526_create_tables`;
+CREATE TABLE `Login` (
+  `username` VARCHAR(50),
+  `password` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `Runway` (
+  `run_no` INT NOT NULL,
+  `status` VARCHAR(50),
+  `Time` TIME,
+  PRIMARY KEY (`run_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `Route` (
+  `r_no` INT NOT NULL,
+  `status` VARCHAR(50),
+  PRIMARY KEY (`r_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `Hangar` (
+  `p_no` INT NOT NULL,
+  `status` VARCHAR(50),
+  `Time` TIME,
+  PRIMARY KEY (`p_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `FlightAir` (
+  `f_no` VARCHAR(50) NOT NULL,
+  `p_no` INT,
+  `r_no` INT,
+  `run_no` INT,
+  `landing` TIME,
+  `leaving` TIME,
+  `arrival` TIME,
+  `duration` TIME,
+  `departure` TIME,
+  PRIMARY KEY (`f_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `Schedule` (
+  `Time` TIME NOT NULL,
+  `f_no` VARCHAR(50) NOT NULL,
+  `task` VARCHAR(50),
+  PRIMARY KEY (`Time`, `f_no`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_539526_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_539526_create_tables') AS relationships;
+DROP DATABASE `db_539526_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

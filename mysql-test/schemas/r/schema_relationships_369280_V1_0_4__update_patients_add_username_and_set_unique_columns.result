@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 369280_V1_0_4__update_patients_add_username_and_set_unique_columns
+#
+CREATE DATABASE `db_369280_V1_0_4__update_patients_add_username_and_set_unique_co`;
+USE `db_369280_V1_0_4__update_patients_add_username_and_set_unique_co`;
+CREATE TABLE `credentials` (
+`ID` INT NOT NULL,
+`USERNAME` VARCHAR(50),
+`HASHED_PASSWORD` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`ID` INT NOT NULL,
+`NAME` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `credential_roles` (
+`CREDENTIAL_ID` INT NOT NULL,
+`ROLE_ID` INT NOT NULL,
+PRIMARY KEY (`CREDENTIAL_ID`, `ROLE_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `personnel` (
+`ID` INT NOT NULL,
+`PERSONAL_ID` VARCHAR(50),
+`NAME` VARCHAR(50),
+`PHONE` VARCHAR(50),
+`CREDENTIALS_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_369280_V1_0_4__update_patients_add_username_and_set_unique_co') AS relationships;
+relationships
+Database: db_369280_V1_0_4__update_patients_add_username_and_set_unique_co
+
+Table Connections:
+------------------
+[Implied]  credential_roles.CREDENTIAL_ID -> credentials.ID
+[Implied]  credential_roles.ROLE_ID -> roles.ID
+[Implied]  personnel.CREDENTIALS_ID -> credentials.ID
+
+DROP DATABASE `db_369280_V1_0_4__update_patients_add_username_and_set_unique_co`;
+UNINSTALL EXTENSION vsql_schematron;

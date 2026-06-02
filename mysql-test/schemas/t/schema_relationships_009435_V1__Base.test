@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 009435_V1__Base
+--echo #
+CREATE DATABASE `db_009435_V1__Base`;
+USE `db_009435_V1__Base`;
+CREATE TABLE `COURSES` (
+  `COURSE_ID` VARCHAR(50) NOT NULL,
+  `COURSE_TITLE` VARCHAR(50),
+  `STAFF_NAME` VARCHAR(50),
+  `SECTION` CHAR(50),
+  PRIMARY KEY (`COURSE_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `STUDENTS` (
+  `STUDENT_ID` VARCHAR(50) NOT NULL,
+  `STUDENT_NAME` VARCHAR(50),
+  `DEPARTMENT` VARCHAR(50),
+  `ADDRESS` VARCHAR(50),
+  `BIRTHDATE` DATE,
+  `GENDER` VARCHAR(50),
+  PRIMARY KEY (`STUDENT_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ENROLLMENT` (
+  `STUDENT_ID` VARCHAR(50) NOT NULL,
+  `COURSE_ID` VARCHAR(50) NOT NULL,
+  `REG_DATE` DATE,
+  `GRADE` DECIMAL(10,2),
+  PRIMARY KEY (`STUDENT_ID`, `COURSE_ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_009435_V1__Base') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_009435_V1__Base') AS relationships;
+DROP DATABASE `db_009435_V1__Base`;
+UNINSTALL EXTENSION vsql_schematron;

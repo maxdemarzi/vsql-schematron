@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 530489_000006-create-stories-table
+--echo #
+CREATE DATABASE `db_530489_000006_create_stories_table`;
+USE `db_530489_000006_create_stories_table`;
+CREATE TABLE `stories` (
+  `id` INT NOT NULL,
+  `active` BOOLEAN,
+  `copyright` SMALLINT,
+  `library_id` INT,
+  `name` TEXT,
+  `notes` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `authors_stories` (
+  `id` INT NOT NULL,
+  `author_id` INT,
+  `story_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `series_stories` (
+  `id` INT NOT NULL,
+  `series_id` INT,
+  `story_id` INT,
+  `ordinal` SMALLINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `volumes_stories` (
+  `id` INT NOT NULL,
+  `volume_id` INT,
+  `story_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_530489_000006_create_stories_table') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_530489_000006_create_stories_table') AS relationships;
+DROP DATABASE `db_530489_000006_create_stories_table`;
+UNINSTALL EXTENSION vsql_schematron;

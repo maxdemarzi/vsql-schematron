@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 082224_saw
+#
+CREATE DATABASE `db_082224_saw`;
+USE `db_082224_saw`;
+CREATE TABLE `tb_kriteria` (
+`id_kriteria` VARCHAR(50) NOT NULL,
+`kriteria` VARCHAR(50),
+`keterangan` VARCHAR(50),
+`bobot` DOUBLE,
+PRIMARY KEY (`id_kriteria`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_calon_siswa` (
+`nisn` VARCHAR(50) NOT NULL,
+`nama` VARCHAR(50),
+`jenis_kelamin` VARCHAR(50),
+`tanggal_lahir` DATE,
+`alamat` TEXT,
+`asal_sekolah` VARCHAR(50),
+`tahun_lulus` INT,
+`status` BOOLEAN,
+PRIMARY KEY (`nisn`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_nilai_calon_siswa` (
+`id_nilai` VARCHAR(50) NOT NULL,
+`c1` DOUBLE,
+`c2` DOUBLE,
+`c3` DOUBLE,
+`c4` DOUBLE,
+`c5` DOUBLE,
+`nisn` VARCHAR(50),
+PRIMARY KEY (`id_nilai`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_normalisasi` (
+`id_normalisasi` VARCHAR(50) NOT NULL,
+`nilai_c1` DOUBLE,
+`nilai_c2` DOUBLE,
+`nilai_c3` DOUBLE,
+`nilai_c4` DOUBLE,
+`nilai_c5` DOUBLE,
+`total_nilai` DOUBLE,
+`nisn` VARCHAR(50),
+PRIMARY KEY (`id_normalisasi`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_user` (
+`email` VARCHAR(50) NOT NULL,
+`password` VARCHAR(50),
+PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_082224_saw') AS relationships;
+relationships
+Database: db_082224_saw
+
+Table Connections:
+------------------
+[Implied]  tb_nilai_calon_siswa.nisn -> tb_calon_siswa.nisn
+[Implied]  tb_normalisasi.nisn -> tb_calon_siswa.nisn
+
+DROP DATABASE `db_082224_saw`;
+UNINSTALL EXTENSION vsql_schematron;

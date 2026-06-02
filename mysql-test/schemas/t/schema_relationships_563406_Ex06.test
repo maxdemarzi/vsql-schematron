@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 563406_Ex06
+--echo #
+CREATE DATABASE `db_563406_Ex06`;
+USE `db_563406_Ex06`;
+CREATE TABLE `publisher` (
+  `pubNo` VARCHAR(50) NOT NULL,
+  `pubName` VARCHAR(50),
+  PRIMARY KEY (`pubNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `book` (
+  `bookNo` VARCHAR(50) NOT NULL,
+  `bookName` VARCHAR(50),
+  `bookAuthor` VARCHAR(50),
+  `bookPrice` DECIMAL(10,2),
+  `bookDate` DATE,
+  `bookStock` DECIMAL(10,2),
+  `pubNo` VARCHAR(50),
+  PRIMARY KEY (`bookNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `client` (
+  `clientNo` VARCHAR(50) NOT NULL,
+  `clientName` VARCHAR(50),
+  `clientPhone` VARCHAR(50),
+  `clientAddress` VARCHAR(50),
+  `clientBirth` DATE,
+  `clientHobby` VARCHAR(50),
+  `clientGender` VARCHAR(50),
+  PRIMARY KEY (`clientNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookSale` (
+  `bsNo` VARCHAR(50) NOT NULL,
+  `bsDate` DATE,
+  `bsQty` DECIMAL(10,2),
+  `clientNo` VARCHAR(50),
+  `bookNo` VARCHAR(50),
+  PRIMARY KEY (`bsNo`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_563406_Ex06') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_563406_Ex06') AS relationships;
+DROP DATABASE `db_563406_Ex06`;
+UNINSTALL EXTENSION vsql_schematron;

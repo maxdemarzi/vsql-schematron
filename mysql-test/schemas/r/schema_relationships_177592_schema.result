@@ -1,0 +1,33 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 177592_schema
+#
+CREATE DATABASE `db_177592_schema`;
+USE `db_177592_schema`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+`id` INT NOT NULL,
+`sender` INT,
+`content` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipients` (
+`message_id` INT,
+`recipient_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_177592_schema') AS relationships;
+relationships
+Database: db_177592_schema
+
+Table Connections:
+------------------
+[Implied]  messages.sender -> users.id
+[Implied]  recipients.message_id -> messages.id
+[Implied]  recipients.recipient_id -> users.id
+
+DROP DATABASE `db_177592_schema`;
+UNINSTALL EXTENSION vsql_schematron;

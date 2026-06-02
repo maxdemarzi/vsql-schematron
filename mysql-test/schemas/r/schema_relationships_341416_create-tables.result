@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 341416_create-tables
+#
+CREATE DATABASE `db_341416_create_tables`;
+USE `db_341416_create_tables`;
+CREATE TABLE `Person` (
+`id` INT NOT NULL,
+`forename` VARCHAR(50),
+`surname` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Project` (
+`id` INT NOT NULL,
+`person` INT,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Task` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`priority` INT,
+`schedule` DATE,
+`completed` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProjectTask` (
+`project` INT NOT NULL,
+`task` INT NOT NULL,
+PRIMARY KEY (`project`, `task`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_341416_create_tables') AS relationships;
+relationships
+Database: db_341416_create_tables
+
+Table Connections:
+------------------
+[Implied]  Project.person -> Person.id
+[Implied]  ProjectTask.project -> Project.id
+[Implied]  ProjectTask.task -> Task.id
+
+DROP DATABASE `db_341416_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

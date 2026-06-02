@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 355502_V0.0.0__sourcemanager
+--echo #
+CREATE DATABASE `db_355502_V0_0_0__sourcemanager`;
+USE `db_355502_V0_0_0__sourcemanager`;
+CREATE TABLE `sourceutile` (
+  `enginetype` VARCHAR(50) NOT NULL,
+  `datatype` VARCHAR(50),
+  `dataformat` VARCHAR(50),
+  `sourcekind` VARCHAR(50),
+  PRIMARY KEY (`enginetype`)
+) CHARACTER SET latin1;
+CREATE TABLE `sourcemanager` (
+  `sourceid` VARCHAR(50) NOT NULL,
+  `spaceid` VARCHAR(50),
+  `sourcetype` VARCHAR(50),
+  `name` VARCHAR(50),
+  `comment` VARCHAR(50),
+  `url` VARCHAR(50),
+  `createtime` VARCHAR(50),
+  `updatetime` VARCHAR(50),
+  `state` VARCHAR(50),
+  PRIMARY KEY (`sourceid`)
+) CHARACTER SET latin1;
+CREATE TABLE `sourcetables` (
+  `tableid` VARCHAR(50) NOT NULL,
+  `sourceid` VARCHAR(50),
+  `spaceid` VARCHAR(50),
+  `name` VARCHAR(50),
+  `comment` VARCHAR(50),
+  `url` VARCHAR(50),
+  `createtime` VARCHAR(50),
+  `updatetime` VARCHAR(50),
+  `direction` VARCHAR(50),
+  PRIMARY KEY (`tableid`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_355502_V0_0_0__sourcemanager') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_355502_V0_0_0__sourcemanager') AS relationships;
+DROP DATABASE `db_355502_V0_0_0__sourcemanager`;
+UNINSTALL EXTENSION vsql_schematron;

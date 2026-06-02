@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 497477_scriptTP1
+#
+CREATE DATABASE `db_497477_scriptTP1`;
+USE `db_497477_scriptTP1`;
+CREATE TABLE `Etudiant` (
+`num` INT NOT NULL,
+`nom` VARCHAR(50),
+`prenom` VARCHAR(50),
+`anniversaire` VARCHAR(50),
+`niveau` VARCHAR(50),
+`groupe` DECIMAL(10,2),
+`departement` VARCHAR(50),
+PRIMARY KEY (`num`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cours` (
+`num` VARCHAR(50) NOT NULL,
+`intitule` VARCHAR(50),
+PRIMARY KEY (`num`)
+) CHARACTER SET latin1;
+CREATE TABLE `moyenneNotation` (
+`moyenne` DECIMAL(10,2),
+`numEtud` INT NOT NULL,
+`numCours` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`numEtud`, `numCours`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_497477_scriptTP1') AS relationships;
+relationships
+Database: db_497477_scriptTP1
+
+Table Connections:
+------------------
+[Implied]  moyenneNotation.numCours -> Cours.num
+[Implied]  moyenneNotation.numEtud -> Etudiant.num
+
+DROP DATABASE `db_497477_scriptTP1`;
+UNINSTALL EXTENSION vsql_schematron;

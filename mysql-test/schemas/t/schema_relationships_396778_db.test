@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 396778_db
+--echo #
+CREATE DATABASE `db_396778_db`;
+USE `db_396778_db`;
+CREATE TABLE `ticker` (
+  `id` INT NOT NULL,
+  `ticker` VARCHAR(50),
+  `created_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ticker_data` (
+  `id` INT NOT NULL,
+  `rank` INT,
+  `close` DECIMAL(10,2),
+  `dollar_change` DECIMAL(10,2),
+  `percent_change` DECIMAL(10,2),
+  `volume` INT,
+  `tsi` DECIMAL(10,2),
+  `ticker_id` INT,
+  `created_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_396778_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_396778_db') AS relationships;
+DROP DATABASE `db_396778_db`;
+UNINSTALL EXTENSION vsql_schematron;

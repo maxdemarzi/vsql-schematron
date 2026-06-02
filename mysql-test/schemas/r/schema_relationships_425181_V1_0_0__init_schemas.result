@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 425181_V1.0.0__init_schemas
+#
+CREATE DATABASE `db_425181_V1_0_0__init_schemas`;
+USE `db_425181_V1_0_0__init_schemas`;
+CREATE TABLE `authorities` (
+`id` BIGINT NOT NULL,
+`authority` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` BIGINT NOT NULL,
+`enabled` BOOLEAN,
+`password` VARCHAR(50),
+`status` INT,
+`username` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_authorities` (
+`user_id` BIGINT NOT NULL,
+`authority_id` BIGINT NOT NULL,
+PRIMARY KEY (`user_id`, `authority_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_425181_V1_0_0__init_schemas') AS relationships;
+relationships
+Database: db_425181_V1_0_0__init_schemas
+
+Table Connections:
+------------------
+[Implied]  user_authorities.authority_id -> authorities.id
+[Implied]  user_authorities.user_id -> users.id
+
+DROP DATABASE `db_425181_V1_0_0__init_schemas`;
+UNINSTALL EXTENSION vsql_schematron;

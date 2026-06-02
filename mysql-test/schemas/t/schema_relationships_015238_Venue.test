@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 015238_Venue
+--echo #
+CREATE DATABASE `db_015238_Venue`;
+USE `db_015238_Venue`;
+CREATE TABLE `Venue` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `postalAddress` VARCHAR(50),
+  `latitude` DOUBLE,
+  `longitude` DOUBLE,
+  `locationHint` VARCHAR(50),
+  `createdBy` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `VenueRoom` (
+  `venue` BIGINT NOT NULL,
+  `id` SMALLINT NOT NULL,
+  `name` VARCHAR(50),
+  `capacity` INT,
+  `locationHint` VARCHAR(50),
+  PRIMARY KEY (`venue`, `id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_015238_Venue') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_015238_Venue') AS relationships;
+DROP DATABASE `db_015238_Venue`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 476835_schema
+#
+CREATE DATABASE `db_476835_schema`;
+USE `db_476835_schema`;
+CREATE TABLE `users` (
+`userId` INT NOT NULL,
+`name` VARCHAR(50),
+`email` VARCHAR(50),
+`passwordHash` VARCHAR(50),
+`dateJoined` DATETIME,
+`daiPrincipal` DECIMAL(10,2),
+`daiInterestWithdrawn` DECIMAL(10,2),
+`usdcPrincipal` DECIMAL(10,2),
+`usdcInterestWithdrawn` DECIMAL(10,2),
+`userAddress` VARCHAR(50),
+`contractAddress` VARCHAR(50),
+`contractVersion` VARCHAR(50),
+`loginCount` INT,
+`lastLogin` DATETIME,
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `transactions` (
+`transactionId` INT NOT NULL,
+`userId` INT,
+`transactionType` VARCHAR(50),
+`token` CHAR(50),
+`transactionAmountToPrincipal` DECIMAL(10,2),
+`transactionAmountToInterest` DECIMAL(10,2),
+`transactionDate` DATETIME,
+`txHash` VARCHAR(50),
+PRIMARY KEY (`transactionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `admin` (
+`adminId` INT NOT NULL,
+`adminAddress` VARCHAR(50),
+`active` VARCHAR(50),
+PRIMARY KEY (`adminId`)
+) CHARACTER SET latin1;
+CREATE TABLE `gas` (
+`contractGasPrice` DECIMAL(10,2),
+`transactionGasPrice` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `interestRates` (
+`sevenDay` DECIMAL(10,2),
+`thirtyDay` DECIMAL(10,2),
+`sixtyDay` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `exchangeRates` (
+`exchangeRate` DECIMAL(10,2)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_476835_schema') AS relationships;
+relationships
+Database: db_476835_schema
+
+Table Connections:
+------------------
+[Implied]  transactions.userId -> users.userId
+
+DROP DATABASE `db_476835_schema`;
+UNINSTALL EXTENSION vsql_schematron;

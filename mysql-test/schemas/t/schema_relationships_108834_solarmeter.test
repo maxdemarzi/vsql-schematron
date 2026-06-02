@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 108834_solarmeter
+--echo #
+CREATE DATABASE `db_108834_solarmeter`;
+USE `db_108834_solarmeter`;
+CREATE TABLE `sensors` (
+  `id` INT NOT NULL,
+  `serial_num` VARCHAR(50),
+  `part_num` VARCHAR(50),
+  `mfg_date` VARCHAR(50),
+  `firmware` VARCHAR(50),
+  `inverter_type` VARCHAR(50),
+  `grid_standard` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `plan` (
+  `id` INT NOT NULL,
+  `payment` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `live` (
+  `time` TIMESTAMP NULL,
+  `sensor_id` INT,
+  `plan_id` INT,
+  `total_energy` DOUBLE,
+  `voltage_p1` DOUBLE,
+  `current_p1` DOUBLE,
+  `power_p1` DOUBLE,
+  `voltage_p2` DOUBLE,
+  `current_p2` DOUBLE,
+  `power_p2` DOUBLE,
+  `grid_voltage` DOUBLE,
+  `grid_current` DOUBLE,
+  `grid_power` DOUBLE,
+  `frequency` DOUBLE,
+  `efficiency` DOUBLE,
+  `inverter_temp` DOUBLE,
+  `booster_temp` DOUBLE,
+  `r_iso` DOUBLE
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_108834_solarmeter') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_108834_solarmeter') AS relationships;
+DROP DATABASE `db_108834_solarmeter`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 563406_Ex06
+#
+CREATE DATABASE `db_563406_Ex06`;
+USE `db_563406_Ex06`;
+CREATE TABLE `publisher` (
+`pubNo` VARCHAR(50) NOT NULL,
+`pubName` VARCHAR(50),
+PRIMARY KEY (`pubNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `book` (
+`bookNo` VARCHAR(50) NOT NULL,
+`bookName` VARCHAR(50),
+`bookAuthor` VARCHAR(50),
+`bookPrice` DECIMAL(10,2),
+`bookDate` DATE,
+`bookStock` DECIMAL(10,2),
+`pubNo` VARCHAR(50),
+PRIMARY KEY (`bookNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `client` (
+`clientNo` VARCHAR(50) NOT NULL,
+`clientName` VARCHAR(50),
+`clientPhone` VARCHAR(50),
+`clientAddress` VARCHAR(50),
+`clientBirth` DATE,
+`clientHobby` VARCHAR(50),
+`clientGender` VARCHAR(50),
+PRIMARY KEY (`clientNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookSale` (
+`bsNo` VARCHAR(50) NOT NULL,
+`bsDate` DATE,
+`bsQty` DECIMAL(10,2),
+`clientNo` VARCHAR(50),
+`bookNo` VARCHAR(50),
+PRIMARY KEY (`bsNo`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_563406_Ex06') AS relationships;
+relationships
+Database: db_563406_Ex06
+
+Table Connections:
+------------------
+[Implied]  book.pubNo -> publisher.pubNo
+[Implied]  bookSale.bookNo -> book.bookNo
+[Implied]  bookSale.clientNo -> client.clientNo
+
+DROP DATABASE `db_563406_Ex06`;
+UNINSTALL EXTENSION vsql_schematron;

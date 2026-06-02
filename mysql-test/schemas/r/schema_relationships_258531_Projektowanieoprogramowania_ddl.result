@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 258531_Projektowanieoprogramowania.ddl
+#
+CREATE DATABASE `db_258531_Projektowanieoprogramowania_ddl`;
+USE `db_258531_Projektowanieoprogramowania_ddl`;
+CREATE TABLE `User` (
+`id` VARCHAR(50) NOT NULL,
+`login` VARCHAR(50),
+`password` VARCHAR(50),
+`email` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Series` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`releaseYear` INT,
+`description` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rate` (
+`rate` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`rate`)
+) CHARACTER SET latin1;
+CREATE TABLE `FollowedSeries` (
+`id` VARCHAR(50) NOT NULL,
+`rate` VARCHAR(50),
+`comment` VARCHAR(50),
+`userId` VARCHAR(50),
+`seriesId` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Season` (
+`id` VARCHAR(50) NOT NULL,
+`number` INT,
+`description` VARCHAR(50),
+`releaseYear` INT,
+`seriesId` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Episode` (
+`id` VARCHAR(50) NOT NULL,
+`number` INT,
+`title` VARCHAR(50),
+`releaseDate` VARCHAR(50),
+`duration` INT,
+`seasonId` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `WatchedEpisode` (
+`id` VARCHAR(50) NOT NULL,
+`rate` VARCHAR(50),
+`comment` VARCHAR(50),
+`userId` VARCHAR(50),
+`episodeId` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_258531_Projektowanieoprogramowania_ddl') AS relationships;
+relationships
+Database: db_258531_Projektowanieoprogramowania_ddl
+
+Table Connections:
+------------------
+[Implied]  Episode.seasonId -> Season.id
+[Implied]  FollowedSeries.rate -> Rate.rate
+[Implied]  FollowedSeries.seriesId -> Series.id
+[Implied]  FollowedSeries.userId -> User.id
+[Implied]  Season.seriesId -> Series.id
+[Implied]  WatchedEpisode.episodeId -> Episode.id
+[Implied]  WatchedEpisode.rate -> Rate.rate
+[Implied]  WatchedEpisode.userId -> User.id
+
+DROP DATABASE `db_258531_Projektowanieoprogramowania_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

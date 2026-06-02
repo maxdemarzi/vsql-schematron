@@ -1,0 +1,33 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 284448_1
+#
+CREATE DATABASE `db_284448_1`;
+USE `db_284448_1`;
+CREATE TABLE `scalaVersion` (
+`id` INT NOT NULL,
+`sha` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `compilerOption` (
+`id` INT NOT NULL,
+`opt` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `scalaVersionCompilerOption` (
+`scalaVersionId` BIGINT NOT NULL,
+`compilerOptionId` BIGINT NOT NULL,
+`idx` INT,
+PRIMARY KEY (`scalaVersionId`, `compilerOptionId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_284448_1') AS relationships;
+relationships
+Database: db_284448_1
+
+Table Connections:
+------------------
+[Implied]  scalaVersionCompilerOption.compilerOptionId -> compilerOption.id
+[Implied]  scalaVersionCompilerOption.scalaVersionId -> scalaVersion.id
+
+DROP DATABASE `db_284448_1`;
+UNINSTALL EXTENSION vsql_schematron;

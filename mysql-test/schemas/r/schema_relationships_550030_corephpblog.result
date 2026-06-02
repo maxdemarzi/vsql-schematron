@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 550030_corephpblog
+#
+CREATE DATABASE `db_550030_corephpblog`;
+USE `db_550030_corephpblog`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`email` VARCHAR(50),
+`role` VARCHAR(50),
+`password` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT NOT NULL,
+`user_id` INT,
+`title` VARCHAR(50),
+`slug` VARCHAR(50),
+`views` INT,
+`image` VARCHAR(50),
+`body` TEXT,
+`published` TINYINT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `topics` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`slug` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_topic` (
+`id` INT NOT NULL,
+`post_id` INT,
+`topic_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_550030_corephpblog') AS relationships;
+relationships
+Database: db_550030_corephpblog
+
+Table Connections:
+------------------
+[Implied]  post_topic.post_id -> posts.id
+[Implied]  post_topic.topic_id -> topics.id
+[Implied]  posts.user_id -> users.id
+
+DROP DATABASE `db_550030_corephpblog`;
+UNINSTALL EXTENSION vsql_schematron;

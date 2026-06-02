@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 059132_Query1
+#
+CREATE DATABASE `db_059132_Query1`;
+USE `db_059132_Query1`;
+CREATE TABLE `socio` (
+`codigo` INT NOT NULL,
+`DNI` INT,
+`Apellido` VARCHAR(50),
+`Nombre` VARCHAR(50),
+`Direccion` VARCHAR(50),
+`localidad` VARCHAR(50),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `TelefonoxSocio` (
+`codigo` INT NOT NULL,
+`NroTelefono` VARCHAR(50),
+`codigo_socio` INT,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `editorial` (
+`codigo` INT NOT NULL,
+`razon_social` VARCHAR(50),
+`telefono` VARCHAR(50),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `autor` (
+`codigo` INT NOT NULL,
+`Apellido` VARCHAR(50),
+`Nombre` VARCHAR(50),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `libro` (
+`codigo` INT NOT NULL,
+`ISBN` VARCHAR(50),
+`Titulo` VARCHAR(50),
+`Anio_Escrituta` DATE,
+`codigo_autor` INT,
+`Anio_Edicion` DATE,
+`codigo_editorial` INT,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `prestamo` (
+`codigo` INT NOT NULL,
+`codigo_socio` INT,
+`fecha` DATETIME,
+`fecha_devolucion` DATE,
+`fecha_tope` DATE,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `volumen` (
+`codigo` INT NOT NULL,
+`codigo_libro` INT,
+`deteriarado` BOOLEAN,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `pestamoxvolumen` (
+`codigo` INT NOT NULL,
+`codigo_prestamo` INT,
+`codigo_volumen` INT,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_059132_Query1') AS relationships;
+relationships
+Database: db_059132_Query1
+
+Table Connections:
+------------------
+[Implied]  TelefonoxSocio.codigo_socio -> socio.codigo
+[Implied]  libro.codigo_autor -> autor.codigo
+[Implied]  libro.codigo_editorial -> editorial.codigo
+[Implied]  pestamoxvolumen.codigo_prestamo -> prestamo.codigo
+[Implied]  pestamoxvolumen.codigo_volumen -> volumen.codigo
+[Implied]  prestamo.codigo_socio -> socio.codigo
+[Implied]  volumen.codigo_libro -> libro.codigo
+
+DROP DATABASE `db_059132_Query1`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 564038_imsDB_Schema
+--echo #
+CREATE DATABASE `db_564038_imsDB_Schema`;
+USE `db_564038_imsDB_Schema`;
+CREATE TABLE `ims.product` (
+  `id` INT NOT NULL,
+  `title` VARCHAR(50),
+  `category` VARCHAR(50),
+  `manufacturer` VARCHAR(50),
+  `minumum_limit` INT,
+  `boh` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ims.product_stock` (
+  `id` INT,
+  `product_id` INT,
+  `transaction_date` DATE,
+  `vendor` VARCHAR(50),
+  `batch_code` VARCHAR(50),
+  `invoice_number` VARCHAR(50),
+  `quantity` INT,
+  `transaction_type` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `ims.user` (
+  `uid` INT NOT NULL,
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  `permision_level` VARCHAR(50),
+  PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_564038_imsDB_Schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_564038_imsDB_Schema') AS relationships;
+DROP DATABASE `db_564038_imsDB_Schema`;
+UNINSTALL EXTENSION vsql_schematron;

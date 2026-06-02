@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 205284_bootstrap
+#
+CREATE DATABASE `db_205284_bootstrap`;
+USE `db_205284_bootstrap`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`deleted_at` TIMESTAMP NULL,
+`first_name` CHAR(50),
+`last_name` CHAR(50),
+`email` CHAR(50),
+`is_staff` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `news` (
+`id` INT NOT NULL,
+`published_at` TIMESTAMP NULL,
+`deleted_at` TIMESTAMP NULL,
+`status` CHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT NOT NULL,
+`created_at` TIMESTAMP NULL,
+`deleted_at` TIMESTAMP NULL,
+`email` CHAR(50),
+`status` CHAR(50),
+`user_id` INT,
+`message` CHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_205284_bootstrap') AS relationships;
+relationships
+Database: db_205284_bootstrap
+
+Table Connections:
+------------------
+[Implied]  comments.user_id -> users.id
+
+DROP DATABASE `db_205284_bootstrap`;
+UNINSTALL EXTENSION vsql_schematron;

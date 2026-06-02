@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 602704_setupDB
+#
+CREATE DATABASE `db_602704_setupDB`;
+USE `db_602704_setupDB`;
+CREATE TABLE `users` (
+`user_id` INT NOT NULL,
+`user_name` VARCHAR(50),
+`user_password` VARCHAR(50),
+`user_admin` BOOLEAN,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `card_templates` (
+`card_template_id` INT NOT NULL,
+`user_id` INT,
+`card_template_description` VARCHAR(50),
+`card_front_template` TEXT,
+`card_back_template` TEXT,
+PRIMARY KEY (`card_template_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cards` (
+`card_id` INT NOT NULL,
+`card_template_id` INT,
+`card_data` TEXT,
+PRIMARY KEY (`card_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_602704_setupDB') AS relationships;
+relationships
+Database: db_602704_setupDB
+
+Table Connections:
+------------------
+[Implied]  card_templates.user_id -> users.user_id
+[Implied]  cards.card_template_id -> card_templates.card_template_id
+
+DROP DATABASE `db_602704_setupDB`;
+UNINSTALL EXTENSION vsql_schematron;

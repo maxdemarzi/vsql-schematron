@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 367142_livrariaVirtual
+#
+CREATE DATABASE `db_367142_livrariaVirtual`;
+USE `db_367142_livrariaVirtual`;
+CREATE TABLE `cliente` (
+`id` INT NOT NULL,
+`cpf` VARCHAR(50),
+`nome` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `livro` (
+`id` INT NOT NULL,
+`isbn` VARCHAR(50),
+`titulo` VARCHAR(50),
+`autor` VARCHAR(50),
+`anoPublicacao` INT,
+`quantidadeEstoque` INT,
+`preco` DOUBLE,
+`ativo` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido` (
+`id` INT NOT NULL,
+`idCliente` INT,
+`dataPedido` DATETIME,
+`confirmacaoPagamento` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedidoLivro` (
+`idPedido` INT NOT NULL,
+`idLivro` INT NOT NULL,
+`quantidade` INT,
+`preco` DOUBLE,
+PRIMARY KEY (`idPedido`, `idLivro`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_367142_livrariaVirtual') AS relationships;
+relationships
+Database: db_367142_livrariaVirtual
+
+Table Connections:
+------------------
+[Implied]  pedido.idCliente -> cliente.id
+[Implied]  pedidoLivro.idLivro -> livro.id
+[Implied]  pedidoLivro.idPedido -> pedido.id
+
+DROP DATABASE `db_367142_livrariaVirtual`;
+UNINSTALL EXTENSION vsql_schematron;

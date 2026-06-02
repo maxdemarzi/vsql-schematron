@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 030888_structure
+#
+CREATE DATABASE `db_030888_structure`;
+USE `db_030888_structure`;
+CREATE TABLE `answers` (
+`id` INT NOT NULL,
+`question_id` INT,
+`answer_text` TEXT,
+`is_correct` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questions` (
+`id` INT NOT NULL,
+`quiz_id` INT,
+`question_text` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `quizes` (
+`id` INT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_answer` (
+`user_id` INT NOT NULL,
+`answer_id` INT NOT NULL,
+PRIMARY KEY (`user_id`, `answer_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_030888_structure') AS relationships;
+relationships
+Database: db_030888_structure
+
+Table Connections:
+------------------
+[Implied]  answers.question_id -> questions.id
+[Implied]  questions.quiz_id -> quizes.id
+[Implied]  user_answer.answer_id -> answers.id
+
+DROP DATABASE `db_030888_structure`;
+UNINSTALL EXTENSION vsql_schematron;

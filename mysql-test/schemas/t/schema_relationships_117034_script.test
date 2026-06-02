@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 117034_script
+--echo #
+CREATE DATABASE `db_117034_script`;
+USE `db_117034_script`;
+CREATE TABLE `cliente` (
+  `cpf` VARCHAR(50) NOT NULL,
+  `nome` VARCHAR(50),
+  `nascimento` DATE,
+  `cidade` VARCHAR(50),
+  `uf` VARCHAR(50),
+  PRIMARY KEY (`cpf`)
+) CHARACTER SET latin1;
+CREATE TABLE `servico` (
+  `cod_servico` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `descricao` VARCHAR(50),
+  `preco` DECIMAL(10,2),
+  PRIMARY KEY (`cod_servico`)
+) CHARACTER SET latin1;
+CREATE TABLE `modelo_veiculo` (
+  `cod_modelo` INT NOT NULL,
+  `moto` BOOLEAN,
+  `nome` VARCHAR(50),
+  `descricao` VARCHAR(50),
+  PRIMARY KEY (`cod_modelo`)
+) CHARACTER SET latin1;
+CREATE TABLE `veiculo` (
+  `placa` VARCHAR(50) NOT NULL,
+  `nome` VARCHAR(50),
+  `marca` VARCHAR(50),
+  `cod_modelo` INT,
+  `cod_cliente` VARCHAR(50),
+  PRIMARY KEY (`placa`)
+) CHARACTER SET latin1;
+CREATE TABLE `manutencao` (
+  `cod_manutencao` INT NOT NULL,
+  `descricao` VARCHAR(50),
+  `dia` DATE,
+  `inicio` TIME,
+  `fim` TIME,
+  `cod_veiculo` VARCHAR(50),
+  PRIMARY KEY (`cod_manutencao`)
+) CHARACTER SET latin1;
+CREATE TABLE `manutencao_servico` (
+  `codigo_ms` INT NOT NULL,
+  `cod_manutencao` INT,
+  `cod_servico` INT,
+  PRIMARY KEY (`codigo_ms`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_117034_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_117034_script') AS relationships;
+DROP DATABASE `db_117034_script`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 324398_.library_init
+--echo #
+CREATE DATABASE `db_324398__library_init`;
+USE `db_324398__library_init`;
+CREATE TABLE `Library` (
+  `version` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+CREATE TABLE `TagTypes` (
+  `name` VARCHAR(50) NOT NULL,
+  `color` INT,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tags` (
+  `name` VARCHAR(50) NOT NULL,
+  `type` VARCHAR(50),
+  `description` TEXT,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `SongHasTag` (
+  `song_file` VARCHAR(50) NOT NULL,
+  `tag` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`song_file`, `tag`)
+) CHARACTER SET latin1;
+CREATE TABLE `Data` (
+  `k` VARCHAR(50) NOT NULL,
+  `v` VARCHAR(50),
+  PRIMARY KEY (`k`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_324398__library_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_324398__library_init') AS relationships;
+DROP DATABASE `db_324398__library_init`;
+UNINSTALL EXTENSION vsql_schematron;

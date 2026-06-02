@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 136530_create_tables
+--echo #
+CREATE DATABASE `db_136530_create_tables`;
+USE `db_136530_create_tables`;
+CREATE TABLE `events` (
+  `id` INT NOT NULL,
+  `timestamp` TIMESTAMP NULL,
+  `event_type_id` INT,
+  `patient_id` INT,
+  `gateway_id` INT,
+  `visit_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_types` (
+  `id` INT NOT NULL,
+  `event_type` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `patients` (
+  `id` INT NOT NULL,
+  `HEUCOD_patient_id` VARCHAR(50),
+  `full_name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `caregivers` (
+  `id` INT NOT NULL,
+  `HEUCOD_caregiver_id` VARCHAR(50),
+  `username` VARCHAR(50),
+  `login_credential_hash` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `caregiver_patient_relation` (
+  `id` INT NOT NULL,
+  `caregiver_id` INT,
+  `patient_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sensors` (
+  `id` INT NOT NULL,
+  `sensor_type` VARCHAR(50),
+  `device_model` VARCHAR(50),
+  `device_vendor` VARCHAR(50),
+  `HEUCOD_sensor_id` CHAR(50),
+  `gateway_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `gateways` (
+  `id` INT NOT NULL,
+  `HEUCOD_gateway_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `number_of_visits` (
+  `count` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_136530_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_136530_create_tables') AS relationships;
+DROP DATABASE `db_136530_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 041613_V1.0__Initialize_Tables
+--echo #
+CREATE DATABASE `db_041613_V1_0__Initialize_Tables`;
+USE `db_041613_V1_0__Initialize_Tables`;
+CREATE TABLE `T_PERSON` (
+  `PERSON_ID` DECIMAL(10,2) NOT NULL,
+  `IDENT` VARCHAR(50),
+  `IDENTTYPE` VARCHAR(50),
+  `KJONN` VARCHAR(50),
+  `FORNAVN` VARCHAR(50),
+  `MELLOMNAVN` VARCHAR(50),
+  `ETTERNAVN` VARCHAR(50),
+  `STATSBORGERSKAP` VARCHAR(50),
+  `REGDATO` DATE,
+  `OPPRETTET_DATO` TIMESTAMP NULL,
+  `OPPRETTET_AV` VARCHAR(50),
+  `ENDRET_DATO` TIMESTAMP NULL,
+  `ENDRET_AV` VARCHAR(50),
+  `SPESREG` VARCHAR(50),
+  `SPESREG_DATO` DATE,
+  `GRUPPE_ID` DECIMAL(10,2),
+  PRIMARY KEY (`PERSON_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_GATEADRESSE` (
+  `ADRESSE_ID` DECIMAL(10,2) NOT NULL,
+  `PERSON_ID` DECIMAL(10,2),
+  `GATEADRESSE` VARCHAR(50),
+  `HUSNUMMER` VARCHAR(50),
+  `GATEKODE` VARCHAR(50),
+  `POSTNR` VARCHAR(50),
+  `KOMMUNENR` VARCHAR(50),
+  `FLYTTE_DATO` DATE,
+  PRIMARY KEY (`ADRESSE_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_POSTADRESSE` (
+  `POSTADRESSE_ID` DECIMAL(10,2) NOT NULL,
+  `PERSON_ID` DECIMAL(10,2),
+  `POST_LINJE_1` VARCHAR(50),
+  `POST_LINJE_2` VARCHAR(50),
+  `POST_LINJE_3` VARCHAR(50),
+  `POST_LAND` VARCHAR(50),
+  PRIMARY KEY (`POSTADRESSE_ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_041613_V1_0__Initialize_Tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_041613_V1_0__Initialize_Tables') AS relationships;
+DROP DATABASE `db_041613_V1_0__Initialize_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

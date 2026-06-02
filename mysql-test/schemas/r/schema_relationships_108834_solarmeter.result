@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 108834_solarmeter
+#
+CREATE DATABASE `db_108834_solarmeter`;
+USE `db_108834_solarmeter`;
+CREATE TABLE `sensors` (
+`id` INT NOT NULL,
+`serial_num` VARCHAR(50),
+`part_num` VARCHAR(50),
+`mfg_date` VARCHAR(50),
+`firmware` VARCHAR(50),
+`inverter_type` VARCHAR(50),
+`grid_standard` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `plan` (
+`id` INT NOT NULL,
+`payment` DOUBLE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `live` (
+`time` TIMESTAMP NULL,
+`sensor_id` INT,
+`plan_id` INT,
+`total_energy` DOUBLE,
+`voltage_p1` DOUBLE,
+`current_p1` DOUBLE,
+`power_p1` DOUBLE,
+`voltage_p2` DOUBLE,
+`current_p2` DOUBLE,
+`power_p2` DOUBLE,
+`grid_voltage` DOUBLE,
+`grid_current` DOUBLE,
+`grid_power` DOUBLE,
+`frequency` DOUBLE,
+`efficiency` DOUBLE,
+`inverter_temp` DOUBLE,
+`booster_temp` DOUBLE,
+`r_iso` DOUBLE
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_108834_solarmeter') AS relationships;
+relationships
+Database: db_108834_solarmeter
+
+Table Connections:
+------------------
+[Implied]  live.plan_id -> plan.id
+[Implied]  live.sensor_id -> sensors.id
+
+DROP DATABASE `db_108834_solarmeter`;
+UNINSTALL EXTENSION vsql_schematron;

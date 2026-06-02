@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 441925_schema
+#
+CREATE DATABASE `db_441925_schema`;
+USE `db_441925_schema`;
+CREATE TABLE `currency` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`abbr` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bank_account` (
+`id` INT,
+`owner_name` VARCHAR(50),
+`balance` DECIMAL(10,2),
+`blocked_amount` DECIMAL(10,2),
+`currency_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `transaction_status` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction` (
+`id` INT,
+`from_account_id` BIGINT,
+`to_account_id` BIGINT,
+`amount` DECIMAL(10,2),
+`currency_id` INT,
+`creation_date` TIMESTAMP NULL,
+`update_date` TIMESTAMP NULL,
+`status_id` INT,
+`failMessage` VARCHAR(50)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_441925_schema') AS relationships;
+relationships
+Database: db_441925_schema
+
+Table Connections:
+------------------
+[Implied]  bank_account.currency_id -> currency.id
+[Implied]  transaction.currency_id -> currency.id
+[Implied]  transaction.from_account_id -> bank_account.id
+[Implied]  transaction.status_id -> transaction_status.id
+[Implied]  transaction.to_account_id -> bank_account.id
+
+DROP DATABASE `db_441925_schema`;
+UNINSTALL EXTENSION vsql_schematron;

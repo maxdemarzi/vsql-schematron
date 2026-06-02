@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 476490_create_database
+--echo #
+CREATE DATABASE `db_476490_create_database`;
+USE `db_476490_create_database`;
+CREATE TABLE `account` (
+  `AccountNo` INT NOT NULL,
+  `FirstName` VARCHAR(50),
+  `LastName` VARCHAR(50),
+  `Email` VARCHAR(50),
+  `Password` VARCHAR(50),
+  `Gender` VARCHAR(50),
+  `BirthDate` DATE,
+  `AccountRole` VARCHAR(50),
+  `Nationality` VARCHAR(50),
+  `PhoneNumber` VARCHAR(50),
+  `AccountTimestamp` TIMESTAMP NULL,
+  PRIMARY KEY (`AccountNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment` (
+  `PaymentNo` INT NOT NULL,
+  `PaymentType` VARCHAR(50),
+  `CardName` VARCHAR(50),
+  `CardNumber` VARCHAR(50),
+  `CardExpiration` VARCHAR(50),
+  `CVV` INT,
+  `AccountNo` INT,
+  PRIMARY KEY (`PaymentNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `bus` (
+  `BusNo` VARCHAR(50) NOT NULL,
+  `BusCompany` VARCHAR(50),
+  `BusCapacity` INT,
+  PRIMARY KEY (`BusNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `bus_schedule` (
+  `ScheduleNo` VARCHAR(50) NOT NULL,
+  `BusNo` VARCHAR(50),
+  `ScheduleDepart` VARCHAR(50),
+  `ScheduleArrive` VARCHAR(50),
+  `ScheduleStartTime` TIME,
+  `ScheduleDuration` INT,
+  `TicketPrice` DOUBLE,
+  PRIMARY KEY (`ScheduleNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `promo_code` (
+  `PromoCode` VARCHAR(50) NOT NULL,
+  `ScheduleNo` VARCHAR(50),
+  `PromoCodeDescription` VARCHAR(50),
+  `PromoPercentage` INT,
+  `PromoCodeEndTimestamp` DATE,
+  `PromoCodeStartTimestamp` TIMESTAMP NULL,
+  PRIMARY KEY (`PromoCode`)
+) CHARACTER SET latin1;
+CREATE TABLE `booking` (
+  `BookingNo` VARCHAR(50) NOT NULL,
+  `AccountNo` INT,
+  `PromoCode` VARCHAR(50),
+  `ScheduleNo` VARCHAR(50),
+  `Quantity` INT,
+  `BusSeat` INT,
+  `BusDateTime` DATETIME,
+  `PaymentNo` INT,
+  `BookingStatus` VARCHAR(50),
+  `BookingTimestamp` TIMESTAMP NULL,
+  PRIMARY KEY (`BookingNo`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_476490_create_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_476490_create_database') AS relationships;
+DROP DATABASE `db_476490_create_database`;
+UNINSTALL EXTENSION vsql_schematron;

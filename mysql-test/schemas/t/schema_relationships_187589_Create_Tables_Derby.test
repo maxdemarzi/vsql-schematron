@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 187589_Create_Tables_Derby
+--echo #
+CREATE DATABASE `db_187589_Create_Tables_Derby`;
+USE `db_187589_Create_Tables_Derby`;
+CREATE TABLE `client` (
+  `username` VARCHAR(50) NOT NULL,
+  `name` VARCHAR(50),
+  `lastname` VARCHAR(50),
+  `mail` VARCHAR(50),
+  `password` VARCHAR(50),
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `clienthistory` (
+  `record_id` INT NOT NULL,
+  `username` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`record_id`, `username`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_187589_Create_Tables_Derby') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_187589_Create_Tables_Derby') AS relationships;
+DROP DATABASE `db_187589_Create_Tables_Derby`;
+UNINSTALL EXTENSION vsql_schematron;

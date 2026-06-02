@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 077678_redundant_join_fk_create
+#
+CREATE DATABASE `db_077678_redundant_join_fk_create`;
+USE `db_077678_redundant_join_fk_create`;
+CREATE TABLE `professors` (
+`prof_id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`nickname` VARCHAR(50),
+PRIMARY KEY (`prof_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`course_id` VARCHAR(50) NOT NULL,
+`nb_students` INT,
+`duration` DECIMAL(10,2),
+PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teaching` (
+`course_id` VARCHAR(50) NOT NULL,
+`prof_id` INT NOT NULL,
+PRIMARY KEY (`course_id`, `prof_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_077678_redundant_join_fk_create') AS relationships;
+relationships
+Database: db_077678_redundant_join_fk_create
+
+Table Connections:
+------------------
+[Implied]  teaching.course_id -> course.course_id
+[Implied]  teaching.prof_id -> professors.prof_id
+
+DROP DATABASE `db_077678_redundant_join_fk_create`;
+UNINSTALL EXTENSION vsql_schematron;

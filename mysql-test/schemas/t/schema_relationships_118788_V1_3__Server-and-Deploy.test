@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 118788_V1_3__Server-and-Deploy
+--echo #
+CREATE DATABASE `db_118788_V1_3__Server_and_Deploy`;
+USE `db_118788_V1_3__Server_and_Deploy`;
+CREATE TABLE `server` (
+  `id` BIGINT NOT NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `deploy` (
+  `id` BIGINT NOT NULL,
+  `deployed_at` DATETIME,
+  `build_id` BIGINT,
+  `server_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `deploy_label` (
+  `id` BIGINT NOT NULL,
+  `label_key` VARCHAR(50),
+  `label_value` VARCHAR(50),
+  `deploy_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_118788_V1_3__Server_and_Deploy') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_118788_V1_3__Server_and_Deploy') AS relationships;
+DROP DATABASE `db_118788_V1_3__Server_and_Deploy`;
+UNINSTALL EXTENSION vsql_schematron;

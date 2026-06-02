@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 233226_migration
+#
+CREATE DATABASE `db_233226_migration`;
+USE `db_233226_migration`;
+CREATE TABLE `User` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`name` TEXT,
+`email` TEXT,
+`hashedPassword` TEXT,
+`role` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`expiresAt` TIMESTAMP NULL,
+`handle` TEXT,
+`hashedSessionToken` TEXT,
+`antiCSRFToken` TEXT,
+`publicData` TEXT,
+`privateData` TEXT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Token` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`hashedToken` TEXT,
+`type` VARCHAR(50),
+`expiresAt` TIMESTAMP NULL,
+`sentTo` TEXT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Listing` (
+`id` INT NOT NULL,
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`category` TEXT,
+`tagline` TEXT,
+`img` TEXT,
+`logo` TEXT,
+`name` TEXT,
+`likes` INT,
+`tags` TEXT,
+`website` TEXT,
+`social` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_233226_migration') AS relationships;
+relationships
+Database: db_233226_migration
+
+Table Connections:
+------------------
+[Implied]  Session.userId -> User.id
+[Implied]  Token.userId -> User.id
+
+DROP DATABASE `db_233226_migration`;
+UNINSTALL EXTENSION vsql_schematron;

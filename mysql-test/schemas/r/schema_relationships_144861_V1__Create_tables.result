@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 144861_V1__Create_tables
+#
+CREATE DATABASE `db_144861_V1__Create_tables`;
+USE `db_144861_V1__Create_tables`;
+CREATE TABLE `programmer` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`favorite_number` BIGINT,
+`company_id` BIGINT,
+`birthday` DATE,
+`created_timestamp` TIMESTAMP NULL,
+`updated_timestamp` TIMESTAMP NULL,
+`deleted_timestamp` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `company` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`url` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+`deleted_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `skill` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `programmer_skill` (
+`programmer_id` BIGINT NOT NULL,
+`skill_id` BIGINT NOT NULL,
+PRIMARY KEY (`programmer_id`, `skill_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_144861_V1__Create_tables') AS relationships;
+relationships
+Database: db_144861_V1__Create_tables
+
+Table Connections:
+------------------
+[Implied]  programmer.company_id -> company.id
+[Implied]  programmer_skill.programmer_id -> programmer.id
+[Implied]  programmer_skill.skill_id -> skill.id
+
+DROP DATABASE `db_144861_V1__Create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 631603_filehosting
+#
+CREATE DATABASE `db_631603_filehosting`;
+USE `db_631603_filehosting`;
+CREATE TABLE `files` (
+`id` INT NOT NULL,
+`name` CHAR(50),
+`uploader` CHAR(50),
+`upload_date` TIMESTAMP NULL,
+`size` INT,
+`downloads` INT,
+`auth_token` CHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT NOT NULL,
+`parent_id` INT,
+`file_id` INT,
+`author` CHAR(50),
+`date_posted` TIMESTAMP NULL,
+`comment_text` TEXT,
+`matpath` CHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_631603_filehosting') AS relationships;
+relationships
+Database: db_631603_filehosting
+
+Table Connections:
+------------------
+[Implied]  comments.file_id -> files.id
+[Implied]  comments.parent_id -> comments.id
+
+DROP DATABASE `db_631603_filehosting`;
+UNINSTALL EXTENSION vsql_schematron;

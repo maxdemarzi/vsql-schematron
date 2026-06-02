@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 217265_V3__Graphenee
+#
+CREATE DATABASE `db_217265_V3__Graphenee`;
+USE `db_217265_V3__Graphenee`;
+CREATE TABLE `gx_country` (
+`oid` INT NOT NULL,
+`is_active` BOOLEAN,
+`country_name` VARCHAR(50),
+`alpha3_code` VARCHAR(50),
+`numeric_code` INT,
+PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `gx_state` (
+`oid` INT NOT NULL,
+`is_active` BOOLEAN,
+`state_name` VARCHAR(50),
+`state_code` VARCHAR(50),
+`oid_gx_country` INT,
+PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `gx_city` (
+`oid` INT NOT NULL,
+`is_active` BOOLEAN,
+`city_name` VARCHAR(50),
+`oid_gx_country` INT,
+`oid_gx_state` INT,
+PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_217265_V3__Graphenee') AS relationships;
+relationships
+Database: db_217265_V3__Graphenee
+
+Table Connections:
+------------------
+[Implied]  gx_city.oid_gx_country -> gx_country.oid
+[Implied]  gx_city.oid_gx_state -> gx_state.oid
+[Implied]  gx_state.oid_gx_country -> gx_country.oid
+
+DROP DATABASE `db_217265_V3__Graphenee`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 268913_script
+--echo #
+CREATE DATABASE `db_268913_script`;
+USE `db_268913_script`;
+CREATE TABLE `proveedor` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  `direccion` VARCHAR(50),
+  `telefono` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cliente` (
+  `cedula` VARCHAR(50) NOT NULL,
+  `nombres` VARCHAR(50),
+  `apellidos` VARCHAR(50),
+  `telefono` VARCHAR(50),
+  `direccion` VARCHAR(50),
+  `correoe` VARCHAR(50),
+  PRIMARY KEY (`cedula`)
+) CHARACTER SET latin1;
+CREATE TABLE `producto` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  `descripcion` VARCHAR(50),
+  `precio_compra` DOUBLE,
+  `precio_venta` DOUBLE,
+  `cantidad` INT,
+  `cantidad_minima_stock` INT,
+  `proveedor_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `factura_producto` (
+  `factura_id` INT NOT NULL,
+  `producto_id` INT NOT NULL,
+  `cantidad` INT,
+  PRIMARY KEY (`factura_id`, `producto_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_268913_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_268913_script') AS relationships;
+DROP DATABASE `db_268913_script`;
+UNINSTALL EXTENSION vsql_schematron;

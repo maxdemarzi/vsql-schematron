@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 441256_SQL%20Example
+--echo #
+CREATE DATABASE `db_441256_SQL_20Example`;
+USE `db_441256_SQL_20Example`;
+CREATE TABLE `DeptDiv` (
+  `dept_div_cd` VARCHAR(50) NOT NULL,
+  `dept_div_nm` VARCHAR(50),
+  PRIMARY KEY (`dept_div_cd`)
+) CHARACTER SET latin1;
+CREATE TABLE `GovofcDiv` (
+  `govofc_div_cd` VARCHAR(50) NOT NULL,
+  `dept_div_cd` VARCHAR(50),
+  `govofc_div_nm` VARCHAR(50),
+  PRIMARY KEY (`govofc_div_cd`)
+) CHARACTER SET latin1;
+CREATE TABLE `HgdeptDiv` (
+  `hgdept_div_cd` VARCHAR(50) NOT NULL,
+  `govofc_div_cd` VARCHAR(50),
+  `hgdept_div_nm` VARCHAR(50),
+  PRIMARY KEY (`hgdept_div_cd`)
+) CHARACTER SET latin1;
+CREATE TABLE `AccnutDiv` (
+  `accnut_div_cd` VARCHAR(50) NOT NULL,
+  `accnut_div_nm` VARCHAR(50),
+  PRIMARY KEY (`accnut_div_cd`)
+) CHARACTER SET latin1;
+CREATE TABLE `BizPlace` (
+  `biz_reg_no` VARCHAR(50) NOT NULL,
+  `place_nm` VARCHAR(50),
+  PRIMARY KEY (`biz_reg_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserRecommend` (
+  `biz_reg_no` VARCHAR(50),
+  `like_account` INT
+) CHARACTER SET latin1;
+CREATE TABLE `ExpendtrExcut` (
+  `accnut_yy` VARCHAR(50),
+  `accnut_div_cd` VARCHAR(50),
+  `dept_cd_nm` VARCHAR(50),
+  `summry_info` DATE,
+  `expendtr_rsltn_amt` INT,
+  `biz_reg_no` VARCHAR(50)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_441256_SQL_20Example') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_441256_SQL_20Example') AS relationships;
+DROP DATABASE `db_441256_SQL_20Example`;
+UNINSTALL EXTENSION vsql_schematron;

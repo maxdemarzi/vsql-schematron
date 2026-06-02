@@ -1,0 +1,28 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 002512_migration
+#
+CREATE DATABASE `db_002512_migration`;
+USE `db_002512_migration`;
+CREATE TABLE `Team` (
+`id` INT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Membership` (
+`teamId` INT NOT NULL,
+`userId` INT NOT NULL,
+`accepted` BOOLEAN,
+`role` VARCHAR(50),
+PRIMARY KEY (`userId`, `teamId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_002512_migration') AS relationships;
+relationships
+Database: db_002512_migration
+
+Table Connections:
+------------------
+[Implied]  Membership.teamId -> Team.id
+
+DROP DATABASE `db_002512_migration`;
+UNINSTALL EXTENSION vsql_schematron;

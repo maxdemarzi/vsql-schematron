@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 542257_ocfr
+#
+CREATE DATABASE `db_542257_ocfr`;
+USE `db_542257_ocfr`;
+CREATE TABLE `People` (
+`userID` INT NOT NULL,
+`firstName` VARCHAR(50),
+`lastName` VARCHAR(50),
+`address` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`phoneNumber` INT,
+`dob` DATE,
+`gender` VARCHAR(50),
+`startDate` DATE,
+`departmentPosition` VARCHAR(50),
+`radioNumber` INT,
+`stationNumber` INT,
+`isActive` BOOLEAN,
+PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Certification` (
+`certificationID` INT NOT NULL,
+`agency` VARCHAR(50),
+`name` VARCHAR(50),
+`city` VARCHAR(50),
+`expirationPeriod` VARCHAR(50),
+PRIMARY KEY (`certificationID`)
+) CHARACTER SET latin1;
+CREATE TABLE `certifiedPeople` (
+`certifiedPeopleID` INT NOT NULL,
+`userID` INT,
+`certificationID` INT,
+`certificationName` VARCHAR(50),
+`firstName` VARCHAR(50),
+`lastName` VARCHAR(50),
+PRIMARY KEY (`certifiedPeopleID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_542257_ocfr') AS relationships;
+relationships
+Database: db_542257_ocfr
+
+Table Connections:
+------------------
+[Implied]  certifiedPeople.certificationID -> Certification.certificationID
+[Implied]  certifiedPeople.userID -> People.userID
+
+DROP DATABASE `db_542257_ocfr`;
+UNINSTALL EXTENSION vsql_schematron;

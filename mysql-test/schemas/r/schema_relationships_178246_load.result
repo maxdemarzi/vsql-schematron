@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 178246_load
+#
+CREATE DATABASE `db_178246_load`;
+USE `db_178246_load`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`username` TEXT,
+`password` TEXT,
+`email_address` TEXT,
+`first_name` TEXT,
+`last_name` TEXT,
+`active` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`id` INT NOT NULL,
+`role` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`user_id` INT NOT NULL,
+`role_id` INT NOT NULL,
+PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_178246_load') AS relationships;
+relationships
+Database: db_178246_load
+
+Table Connections:
+------------------
+[Implied]  user_role.role_id -> role.id
+[Implied]  user_role.user_id -> users.id
+
+DROP DATABASE `db_178246_load`;
+UNINSTALL EXTENSION vsql_schematron;

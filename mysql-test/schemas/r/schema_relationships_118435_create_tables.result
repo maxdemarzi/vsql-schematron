@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 118435_create_tables
+#
+CREATE DATABASE `db_118435_create_tables`;
+USE `db_118435_create_tables`;
+CREATE TABLE `Flights` (
+`flno` INT NOT NULL,
+`ffrom` VARCHAR(50),
+`tto` VARCHAR(50),
+`distance` INT,
+`departs` DATE,
+`arrives` DATE,
+`price` DOUBLE,
+PRIMARY KEY (`flno`)
+) CHARACTER SET latin1;
+CREATE TABLE `Aircraft` (
+`aid` INT NOT NULL,
+`aname` VARCHAR(50),
+`cruisingrange` INT,
+PRIMARY KEY (`aid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employees` (
+`eid` INT NOT NULL,
+`ename` VARCHAR(50),
+`salary` DOUBLE,
+PRIMARY KEY (`eid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Certified` (
+`eid` INT NOT NULL,
+`aid` INT NOT NULL,
+PRIMARY KEY (`eid`, `aid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_118435_create_tables') AS relationships;
+relationships
+Database: db_118435_create_tables
+
+Table Connections:
+------------------
+[Implied]  Certified.aid -> Aircraft.aid
+[Implied]  Certified.eid -> Employees.eid
+
+DROP DATABASE `db_118435_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

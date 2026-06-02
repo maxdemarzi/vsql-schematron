@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 214417_daily_assi
+#
+CREATE DATABASE `db_214417_daily_assi`;
+USE `db_214417_daily_assi`;
+CREATE TABLE `teamb-2019winter.users` (
+`e_mail` VARCHAR(50),
+`fname` VARCHAR(50),
+`lname` VARCHAR(50),
+`hash_pwd` VARCHAR(50),
+`sex` VARCHAR(50),
+`user_seq_num` INT NOT NULL,
+`admin` TINYINT,
+`hash` VARCHAR(50),
+`active` TINYINT,
+PRIMARY KEY (`user_seq_num`)
+) CHARACTER SET latin1;
+CREATE TABLE `teamb-2019winter.sensor` (
+`mac_addr` CHAR(50),
+`dev_id` INT NOT NULL,
+`dev_name` VARCHAR(50),
+`users_user_seq_num` INT,
+PRIMARY KEY (`dev_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teamb-2019winter.air_sensor` (
+`air_date` DATETIME,
+`lat` DOUBLE,
+`lon` DOUBLE,
+`RAW_PM` DOUBLE,
+`RAW_CO` DOUBLE,
+`RAW_SO2` DOUBLE,
+`RAW_NO2` DOUBLE,
+`RAW_O3` DOUBLE,
+`air_id` INT NOT NULL,
+`AQI_PM` INT,
+`AQI_CO` INT,
+`AQI_NO2` INT,
+`AQI_SO2` INT,
+`AQI_O3` INT,
+`sensor_dev_id` INT,
+`temperature` DOUBLE,
+PRIMARY KEY (`air_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teamb-2019winter.heart_sensor` (
+`heart_date` DATETIME,
+`heart_rate` INT,
+`heart_id` INT NOT NULL,
+`heart_lat` DOUBLE,
+`heart_lon` DOUBLE,
+`users_user_seq_num` INT,
+PRIMARY KEY (`heart_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_214417_daily_assi') AS relationships;
+relationships
+Database: db_214417_daily_assi
+
+Table Connections:
+------------------
+[Implied]  teamb-2019winter.air_sensor.sensor_dev_id -> teamb-2019winter.sensor.dev_id
+[Implied]  teamb-2019winter.heart_sensor.users_user_seq_num -> teamb-2019winter.users.user_seq_num
+[Implied]  teamb-2019winter.sensor.users_user_seq_num -> teamb-2019winter.users.user_seq_num
+
+DROP DATABASE `db_214417_daily_assi`;
+UNINSTALL EXTENSION vsql_schematron;

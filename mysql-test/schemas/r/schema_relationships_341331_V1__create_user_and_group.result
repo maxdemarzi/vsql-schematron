@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 341331_V1__create_user_and_group
+#
+CREATE DATABASE `db_341331_V1__create_user_and_group`;
+USE `db_341331_V1__create_user_and_group`;
+CREATE TABLE `user_entity` (
+`user_id` VARCHAR(50) NOT NULL,
+`password` VARCHAR(50),
+`last_name` VARCHAR(50),
+`first_name` VARCHAR(50),
+`gender` CHAR(50),
+`deleted_flg` CHAR(50),
+`created` TIMESTAMP NULL,
+`created_by` VARCHAR(50),
+`updated` TIMESTAMP NULL,
+`updated_by` VARCHAR(50),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group_entity` (
+`group_code` VARCHAR(50) NOT NULL,
+`group_name` VARCHAR(50),
+`deleted_flg` CHAR(50),
+`created` TIMESTAMP NULL,
+`created_by` VARCHAR(50),
+`updated` TIMESTAMP NULL,
+`updated_by` VARCHAR(50),
+PRIMARY KEY (`group_code`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_group_relation` (
+`user_id` VARCHAR(50) NOT NULL,
+`group_code` VARCHAR(50) NOT NULL,
+`deleted_flg` CHAR(50),
+`created` TIMESTAMP NULL,
+`created_by` VARCHAR(50),
+`updated` TIMESTAMP NULL,
+`updated_by` VARCHAR(50),
+PRIMARY KEY (`user_id`, `group_code`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_341331_V1__create_user_and_group') AS relationships;
+relationships
+Database: db_341331_V1__create_user_and_group
+
+Table Connections:
+------------------
+[Implied]  user_group_relation.group_code -> group_entity.group_code
+[Implied]  user_group_relation.user_id -> user_entity.user_id
+
+DROP DATABASE `db_341331_V1__create_user_and_group`;
+UNINSTALL EXTENSION vsql_schematron;

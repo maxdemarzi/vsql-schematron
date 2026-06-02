@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 246751_struct
+#
+CREATE DATABASE `db_246751_struct`;
+USE `db_246751_struct`;
+CREATE TABLE `occurrence` (
+`id_occurrence` INT NOT NULL,
+`id_resource` INT,
+`name_solicitant` VARCHAR(50),
+`phone` VARCHAR(50),
+`city` VARCHAR(50),
+`address` VARCHAR(50),
+`number_address` VARCHAR(50),
+`complement` VARCHAR(50),
+`neighborhood` VARCHAR(50),
+`reference_address` VARCHAR(50),
+`comments` TEXT,
+`emergency` VARCHAR(50),
+`status` VARCHAR(50),
+`location` VARCHAR(50),
+PRIMARY KEY (`id_occurrence`)
+) CHARACTER SET latin1;
+CREATE TABLE `patient` (
+`id_patient` INT NOT NULL,
+`name_patient` VARCHAR(50),
+`bith_year` INT,
+`blood_type` VARCHAR(50),
+`gender` VARCHAR(50),
+`allergy` VARCHAR(50),
+PRIMARY KEY (`id_patient`)
+) CHARACTER SET latin1;
+CREATE TABLE `occurrence_patient` (
+`id_occurrence_patient` INT NOT NULL,
+`id_patient` INT,
+`id_occurrence` INT,
+`complaint_patient` TEXT,
+`informations_patient` TEXT,
+`multimedia_communication` VARCHAR(50),
+PRIMARY KEY (`id_occurrence_patient`)
+) CHARACTER SET latin1;
+CREATE TABLE `resource` (
+`id_resource` INT NOT NULL,
+`board_resource` VARCHAR(50),
+`number_resource` VARCHAR(50),
+`status_resource` INT,
+`location` VARCHAR(50),
+`player_id` VARCHAR(50),
+`password_resource` VARCHAR(50),
+PRIMARY KEY (`id_resource`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_246751_struct') AS relationships;
+relationships
+Database: db_246751_struct
+
+Table Connections:
+------------------
+[Implied]  occurrence.id_resource -> resource.id_resource
+[Implied]  occurrence_patient.id_occurrence -> occurrence.id_occurrence
+[Implied]  occurrence_patient.id_patient -> patient.id_patient
+
+DROP DATABASE `db_246751_struct`;
+UNINSTALL EXTENSION vsql_schematron;

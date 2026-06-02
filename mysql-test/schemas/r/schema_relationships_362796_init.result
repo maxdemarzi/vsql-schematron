@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 362796_init
+#
+CREATE DATABASE `db_362796_init`;
+USE `db_362796_init`;
+CREATE TABLE `transaction` (
+`id` VARCHAR(50) NOT NULL,
+`title` VARCHAR(50),
+`description` TEXT,
+`amount` DECIMAL(10,2),
+`date` TIMESTAMP NULL,
+`mode_of_payment` VARCHAR(50),
+`essential` SMALLINT,
+`category_id` INT,
+`currency_id` INT,
+`transaction_type_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`transaction_type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `currency` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`country` VARCHAR(50),
+`symbol` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction_type` (
+`id` INT NOT NULL,
+`type` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_362796_init') AS relationships;
+relationships
+Database: db_362796_init
+
+Table Connections:
+------------------
+[Implied]  category.transaction_type_id -> transaction_type.id
+[Implied]  transaction.category_id -> category.id
+[Implied]  transaction.currency_id -> currency.id
+[Implied]  transaction.transaction_type_id -> transaction_type.id
+
+DROP DATABASE `db_362796_init`;
+UNINSTALL EXTENSION vsql_schematron;

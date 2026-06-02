@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 218793_database
+#
+CREATE DATABASE `db_218793_database`;
+USE `db_218793_database`;
+CREATE TABLE `categorias` (
+`id` INT NOT NULL,
+`nombre` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario` (
+`id` INT NOT NULL,
+`nickname` VARCHAR(50),
+`password` VARCHAR(50),
+`nombre` VARCHAR(50),
+`fecha` DATE,
+`email` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `productos` (
+`id` INT NOT NULL,
+`nombre` VARCHAR(50),
+`descripcion` TEXT,
+`precio` DOUBLE,
+`imagen` VARCHAR(50),
+`stock` VARCHAR(50),
+`id_categoria` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ventas` (
+`id` INT NOT NULL,
+`id_usuario` INT,
+`total` DOUBLE,
+`fecha` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `carrito` (
+`id` INT NOT NULL,
+`id_producto` INT,
+`cantidad` DOUBLE,
+`id_usuario` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `productos_venta` (
+`id` INT NOT NULL,
+`id_venta` INT,
+`id_producto` INT,
+`cantidad` DOUBLE,
+`precio` DOUBLE,
+`subtotal` DOUBLE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `direcciones` (
+`id` INT NOT NULL,
+`calle` VARCHAR(50),
+`numero_exterior` VARCHAR(50),
+`numero_interior` VARCHAR(50),
+`estado` VARCHAR(50),
+`colonia` VARCHAR(50),
+`cp` VARCHAR(50),
+`municipio` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `direcciones_usuario` (
+`id` INT NOT NULL,
+`direcciones_id` INT NOT NULL,
+`usuario_id` INT NOT NULL,
+PRIMARY KEY (`id`, `direcciones_id`, `usuario_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_218793_database') AS relationships;
+relationships
+Database: db_218793_database
+
+Table Connections:
+------------------
+[Implied]  carrito.id_producto -> productos.id
+[Implied]  carrito.id_usuario -> usuario.id
+[Implied]  direcciones_usuario.direcciones_id -> direcciones.id
+[Implied]  direcciones_usuario.usuario_id -> usuario.id
+[Implied]  productos.id_categoria -> categorias.id
+[Implied]  productos_venta.id_producto -> productos.id
+[Implied]  productos_venta.id_venta -> ventas.id
+[Implied]  ventas.id_usuario -> usuario.id
+
+DROP DATABASE `db_218793_database`;
+UNINSTALL EXTENSION vsql_schematron;

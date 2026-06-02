@@ -1,0 +1,33 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 383252_001_init.up
+#
+CREATE DATABASE `db_383252_001_init_up`;
+USE `db_383252_001_init_up`;
+CREATE TABLE `bake` (
+`id` VARCHAR(50) NOT NULL,
+`create_time` TIMESTAMP NULL,
+`name` TEXT,
+`bake_status` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `toppings` (
+`id` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bake_toppings` (
+`bake_id` VARCHAR(50) NOT NULL,
+`topping_id` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`bake_id`, `topping_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_383252_001_init_up') AS relationships;
+relationships
+Database: db_383252_001_init_up
+
+Table Connections:
+------------------
+[Implied]  bake_toppings.bake_id -> bake.id
+[Implied]  bake_toppings.topping_id -> toppings.id
+
+DROP DATABASE `db_383252_001_init_up`;
+UNINSTALL EXTENSION vsql_schematron;

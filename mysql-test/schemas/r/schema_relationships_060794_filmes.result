@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 060794_filmes
+#
+CREATE DATABASE `db_060794_filmes`;
+USE `db_060794_filmes`;
+CREATE TABLE `Artista` (
+`codArt` INT NOT NULL,
+`nomeArt` VARCHAR(50),
+`cidade` VARCHAR(50),
+`pais` VARCHAR(50),
+`dataNasc` DATE,
+PRIMARY KEY (`codArt`)
+) CHARACTER SET latin1;
+CREATE TABLE `PERSONAGEM` (
+`nomePers` VARCHAR(50),
+`cache` DECIMAL(10,2),
+`codFilme` INT,
+`codArt` INT
+) CHARACTER SET latin1;
+CREATE TABLE `filme` (
+`codFilme` INT NOT NULL,
+`titulo` VARCHAR(50),
+`duracao` INT,
+`ano` INT,
+`codEst` INT,
+`codCateg` INT,
+PRIMARY KEY (`codFilme`)
+) CHARACTER SET latin1;
+CREATE TABLE `estudio` (
+`codEst` INT NOT NULL,
+`nomeEst` VARCHAR(50),
+PRIMARY KEY (`codEst`)
+) CHARACTER SET latin1;
+CREATE TABLE `categoria` (
+`codCateg` INT NOT NULL,
+`descCateg` VARCHAR(50),
+PRIMARY KEY (`codCateg`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_060794_filmes') AS relationships;
+relationships
+Database: db_060794_filmes
+
+Table Connections:
+------------------
+[Implied]  PERSONAGEM.codArt -> Artista.codArt
+[Implied]  PERSONAGEM.codFilme -> filme.codFilme
+[Implied]  filme.codCateg -> categoria.codCateg
+[Implied]  filme.codEst -> estudio.codEst
+
+DROP DATABASE `db_060794_filmes`;
+UNINSTALL EXTENSION vsql_schematron;

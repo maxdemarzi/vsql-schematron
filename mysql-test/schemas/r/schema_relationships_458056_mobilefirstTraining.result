@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 458056_mobilefirstTraining
+#
+CREATE DATABASE `db_458056_mobilefirstTraining`;
+USE `db_458056_mobilefirstTraining`;
+CREATE TABLE `accounts` (
+`accountId` VARCHAR(50) NOT NULL,
+`userId` VARCHAR(50),
+`accountType` VARCHAR(50),
+PRIMARY KEY (`accountId`)
+) CHARACTER SET latin1;
+CREATE TABLE `accounttransactions` (
+`transactionId` VARCHAR(50) NOT NULL,
+`fromAccount` VARCHAR(50),
+`toAccount` VARCHAR(50),
+`transactionType` VARCHAR(50),
+`transactionDate` DATETIME,
+`transactionAmount` DECIMAL(10,2),
+PRIMARY KEY (`transactionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`userId` VARCHAR(50) NOT NULL,
+`firstName` VARCHAR(50),
+`lastName` VARCHAR(50),
+`password` VARCHAR(50),
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `weather` (
+`city` TEXT,
+`identifier` TEXT,
+`summary` TEXT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_458056_mobilefirstTraining') AS relationships;
+relationships
+Database: db_458056_mobilefirstTraining
+
+Table Connections:
+------------------
+[Implied]  accounts.userId -> users.userId
+[Implied]  accounttransactions.fromAccount -> accounts.accountId
+[Implied]  accounttransactions.toAccount -> accounts.accountId
+
+DROP DATABASE `db_458056_mobilefirstTraining`;
+UNINSTALL EXTENSION vsql_schematron;

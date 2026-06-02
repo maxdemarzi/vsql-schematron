@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 470250_create
+--echo #
+CREATE DATABASE `db_470250_create`;
+USE `db_470250_create`;
+CREATE TABLE `user` (
+  `user_id` INT NOT NULL,
+  `username` TEXT,
+  `password` TEXT,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `habit` (
+  `habit_id` INT NOT NULL,
+  `name` TEXT,
+  `description` TEXT,
+  `user_id` INT,
+  PRIMARY KEY (`habit_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `record` (
+  `record_date` VARCHAR(50) NOT NULL,
+  `status` INT,
+  `habit_id` INT NOT NULL,
+  PRIMARY KEY (`habit_id`, `record_date`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_470250_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_470250_create') AS relationships;
+DROP DATABASE `db_470250_create`;
+UNINSTALL EXTENSION vsql_schematron;

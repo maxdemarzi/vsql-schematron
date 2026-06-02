@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 067436_create_database_pedidos
+--echo #
+CREATE DATABASE `db_067436_create_database_pedidos`;
+USE `db_067436_create_database_pedidos`;
+CREATE TABLE `colaborador` (
+  `id` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `email` VARCHAR(50),
+  `isAdmin` INT,
+  `isAcessible` INT,
+  `isActive` INT,
+  `password` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fornecedor` (
+  `id` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `cnpj` VARCHAR(50),
+  `email` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `endereco` (
+  `id` INT NOT NULL,
+  `fornecedor_id` INT,
+  `rua` VARCHAR(50),
+  `numero` VARCHAR(50),
+  `bairro` VARCHAR(50),
+  `cidade` VARCHAR(50),
+  `estado` VARCHAR(50),
+  `cep` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `produtos` (
+  `id` INT NOT NULL,
+  `descricao` VARCHAR(50),
+  `qtdEstoque` INT,
+  `valorUnit` DECIMAL(10,2),
+  `isActive` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido` (
+  `cod` INT NOT NULL,
+  `cod_fornecedor` INT,
+  `cod_colaborador` INT,
+  `dataPedido` DATETIME,
+  `valorTotal` DECIMAL(10,2),
+  `statusPedido` INT,
+  PRIMARY KEY (`cod`)
+) CHARACTER SET latin1;
+CREATE TABLE `itens_pedido` (
+  `cod_produto` INT NOT NULL,
+  `cod_pedido` INT NOT NULL,
+  `qtd` INT,
+  `valorUnit` DECIMAL(10,2),
+  PRIMARY KEY (`cod_pedido`, `cod_produto`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_067436_create_database_pedidos') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_067436_create_database_pedidos') AS relationships;
+DROP DATABASE `db_067436_create_database_pedidos`;
+UNINSTALL EXTENSION vsql_schematron;

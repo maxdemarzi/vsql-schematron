@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 607052_V15__create_checking_data_set_results
+--echo #
+CREATE DATABASE `db_607052_V15__create_checking_data_set_results`;
+USE `db_607052_V15__create_checking_data_set_results`;
+CREATE TABLE `af.test_data_set_checking_result` (
+  `id` BIGINT NOT NULL,
+  `test_data_set_id` BIGINT,
+  `initiator` CHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `template` TEXT,
+  `party_id` CHAR(50),
+  `shop_id` CHAR(50),
+  `checking_timestamp` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `af.test_payment_checking_result` (
+  `id` BIGINT NOT NULL,
+  `test_data_set_checking_result_id` BIGINT,
+  `test_payment_id` BIGINT,
+  `checked_template` CHAR(50),
+  `result_status` CHAR(50),
+  `rule_checked` CHAR(50),
+  `notifications_rule` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_607052_V15__create_checking_data_set_results') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_607052_V15__create_checking_data_set_results') AS relationships;
+DROP DATABASE `db_607052_V15__create_checking_data_set_results`;
+UNINSTALL EXTENSION vsql_schematron;

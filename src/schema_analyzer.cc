@@ -412,15 +412,27 @@ bool matchMiddleIdConvention(const std::string& col, const std::string& tbl_b, b
     size_t pos = c.find("_id_");
     if (pos != std::string::npos && pos > 0) {
         std::string entity = c.substr(0, pos);
-        if (matchTableName(entity, tbl_b, allow_substring)) return true;
+        bool entity_allow_substring = allow_substring;
+        if (std::islower(col[0])) {
+            entity_allow_substring = false;
+        }
+        if (matchTableName(entity, tbl_b, entity_allow_substring)) return true;
     }
-    if (c.rfind("id_", 0) == 0) {
+    if (c.rfind("id_", 0) == 0 && col.length() > 3) {
         std::string entity = c.substr(3);
-        if (matchTableName(entity, tbl_b, allow_substring)) return true;
+        bool entity_allow_substring = allow_substring;
+        if (std::islower(col[3])) {
+            entity_allow_substring = false;
+        }
+        if (matchTableName(entity, tbl_b, entity_allow_substring)) return true;
     }
-    if (c.rfind("id", 0) == 0 && col.length() > 2 && std::isupper(col[2])) {
+    if (c.rfind("id", 0) == 0 && col.length() > 2) {
         std::string entity = c.substr(2);
-        if (matchTableName(entity, tbl_b, allow_substring)) return true;
+        bool entity_allow_substring = allow_substring;
+        if (std::islower(col[2])) {
+            entity_allow_substring = false;
+        }
+        if (matchTableName(entity, tbl_b, entity_allow_substring)) return true;
     }
     return false;
 }
@@ -432,13 +444,28 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
     std::string clean_b = stripTablePrefix(b);
     if (clean_a == clean_b) return true;
     if (clean_a.length() > clean_b.length()) {
+        // Exclude catalog/lookup tables from being subtypes
+        size_t last_underscore = clean_a.rfind('_');
+        if (last_underscore != std::string::npos && last_underscore > 0) {
+            std::string suffix = clean_a.substr(last_underscore + 1);
+            static const std::unordered_set<std::string> CATALOG_SUFFIXES = {
+                "type", "types", "status", "statuses", "cat", "category", "categories",
+                "class", "classes", "group", "groups", "genre", "genres", "role", "roles",
+                "state", "states", "level", "levels", "priority", "priorities", "lookup", "lookups",
+                "code", "codes", "mode", "modes", "action", "actions", "tag", "tags"
+            };
+            if (CATALOG_SUFFIXES.count(suffix)) {
+                return false;
+            }
+        }
+
         size_t pos = clean_a.rfind(clean_b);
         if (pos != std::string::npos && pos == clean_a.length() - clean_b.length()) return true;
         
         // Prefix-based hierarchy (e.g. step_video -> steps)
         std::string sb = clean_b;
         if (sb.length() > 1 && sb.back() == 's') sb = sb.substr(0, sb.length() - 1);
-        if (clean_a.rfind(sb + "_", 0) == 0) {
+        if (clean_a.rfind(sb + "_", 0) == 0 || clean_a.rfind(clean_b + "_", 0) == 0) {
             return true;
         }
     }
@@ -496,7 +523,9 @@ const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
     "plaintiff", "vendor", "supplier", "provider", "partner", "merchant", "buyer", 
     "seller", "tenant", "landlord", "holder", "borrower", "lender", "debtor", "creditor", 
     "shipper", "carrier", "objector", "proponent", "proprietor", "advisor", "from", "to",
-    "sender", "receiver", "recipient", "profile", "investigator", "invitee", "inviter"
+    "sender", "receiver", "recipient", "profile", "investigator", "invitee", "inviter",
+    "judge", "prosecutor", "offender", "complainant", "police", "witness", "attorney",
+    "counsel", "lawyer", "defense_att", "oid"
 };
 
 bool isPersonMatch(const std::string& prefix_a, const std::string& tbl_b) {
@@ -695,10 +724,12 @@ void findImpliedRelationships(
             
             // Check if col_a is one of the effective PKs of tbl_a
             bool col_a_is_pk = false;
-            for (const auto& pk_a : pks_a) {
-                if (to_lower(col_a_clean) == to_lower(pk_a)) {
-                    col_a_is_pk = true;
-                    break;
+            if (pks_a.size() == 1) {
+                for (const auto& pk_a : pks_a) {
+                    if (to_lower(col_a_clean) == to_lower(pk_a)) {
+                        col_a_is_pk = true;
+                        break;
+                    }
                 }
             }
             
@@ -842,6 +873,25 @@ void findImpliedRelationships(
 
                         // Heuristic: User ID fallback match (orders.ID -> user.ID)
                         if (to_lower(col_a_clean) == "id" && to_lower(pk_b) == "id") {
+                            std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                            if (PERSON_TABLE_SYNONYMS.count(clean_b)) {
+                                Relationship rel;
+                                rel.from_table = tbl_a;
+                                rel.from_column = col_a;
+                                rel.to_table = tbl_b;
+                                rel.to_column = pk_b;
+                                rel.is_explicit = false;
+                                relationships.insert(rel);
+                                continue;
+                            }
+                        }
+
+                        // Heuristic: Direct Role Match to Person Table (without requiring _id suffix)
+                        bool type_a_is_numeric = (type_a.find("int") != std::string::npos ||
+                                                  type_a.find("serial") != std::string::npos ||
+                                                  type_a.find("numeric") != std::string::npos ||
+                                                  type_a.find("number") != std::string::npos);
+                        if (PERSON_ROLE_SYNONYMS.count(to_lower(col_a_clean)) && isGenericIdentifier(pk_b) && type_a_is_numeric) {
                             std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
                             if (PERSON_TABLE_SYNONYMS.count(clean_b)) {
                                 Relationship rel;
@@ -1062,7 +1112,28 @@ void findImpliedRelationships(
                         }
                         if (!already_has_rel) {
                             if (isSubtypeTable(tbl_a, tbl_b)) {
-                                is_subtype = true;
+                                bool col_name_matches = false;
+                                if (to_lower(col_a_clean) == to_lower(pk_b)) {
+                                    col_name_matches = true;
+                                } else if (isGenericIdentifier(col_a_clean)) {
+                                    col_name_matches = true;
+                                } else if (matchTableName(col_a_clean, tbl_b, false)) {
+                                    col_name_matches = true;
+                                } else {
+                                    std::string prefix_a, suffix_a;
+                                    if (splitColumnName(col_a_clean, prefix_a, suffix_a)) {
+                                        if (matchTableName(prefix_a, tbl_b, false)) {
+                                            col_name_matches = true;
+                                        } else if (to_lower(suffix_a) == to_lower(pk_b) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b))) {
+                                            if (matchTableName(prefix_a, tbl_b, false)) {
+                                                col_name_matches = true;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (col_name_matches) {
+                                    is_subtype = true;
+                                }
                             } else {
                                 std::string clean_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
                                 std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));

@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 485383_schema
+#
+CREATE DATABASE `db_485383_schema`;
+USE `db_485383_schema`;
+CREATE TABLE `locations` (
+`id` INT NOT NULL,
+`search_query` VARCHAR(50),
+`formatted_query` VARCHAR(50),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `weathers` (
+`id` INT NOT NULL,
+`created_at` BIGINT,
+`forecast` VARCHAR(50),
+`time` VARCHAR(50),
+`location_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`id` INT NOT NULL,
+`created_at` BIGINT,
+`link` VARCHAR(50),
+`name` VARCHAR(50),
+`event_date` DATE,
+`summary` VARCHAR(50),
+`location_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movies` (
+`id` INT NOT NULL,
+`created_at` BIGINT,
+`title` VARCHAR(50),
+`overview` VARCHAR(50),
+`average_votes` VARCHAR(50),
+`total_votes` DECIMAL(10,2),
+`image_url` VARCHAR(50),
+`popularity` DECIMAL(10,2),
+`released_on` DATE,
+`location_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `restaurants` (
+`id` INT NOT NULL,
+`created_at` BIGINT,
+`name` VARCHAR(50),
+`image_url` VARCHAR(50),
+`price` DECIMAL(10,2),
+`rating` DECIMAL(10,2),
+`url` VARCHAR(50),
+`location_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_485383_schema') AS relationships;
+relationships
+Database: db_485383_schema
+
+Table Connections:
+------------------
+[Implied]  events.location_id -> locations.id
+[Implied]  movies.location_id -> locations.id
+[Implied]  restaurants.location_id -> locations.id
+[Implied]  weathers.location_id -> locations.id
+
+DROP DATABASE `db_485383_schema`;
+UNINSTALL EXTENSION vsql_schematron;

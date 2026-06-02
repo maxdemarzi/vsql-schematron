@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 076715_20210102_create_scheduled_transactions.up
+--echo #
+CREATE DATABASE `db_076715_20210102_create_scheduled_transactions_up`;
+USE `db_076715_20210102_create_scheduled_transactions_up`;
+CREATE TABLE `scheduled_transactions` (
+  `id` INT NOT NULL,
+  `start_date` DATE,
+  `end_date` DATE,
+  `enabled` BOOLEAN,
+  `last_occurrence` DATE,
+  `date_spec` VARCHAR(50),
+  `interval_type` VARCHAR(50),
+  `interval_count` INT,
+  `entity_id` INT,
+  `description` CHAR(50),
+  `memo` CHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `scheduled_transaction_items` (
+  `id` INT NOT NULL,
+  `scheduled_transaction_id` INT,
+  `account_id` INT,
+  `action` CHAR(50),
+  `quantity` DECIMAL(10,2),
+  `memo` CHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_076715_20210102_create_scheduled_transactions_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_076715_20210102_create_scheduled_transactions_up') AS relationships;
+DROP DATABASE `db_076715_20210102_create_scheduled_transactions_up`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 000139_bookmark_app_sample_db
+--echo #
+CREATE DATABASE `db_000139_bookmark_app_sample_db`;
+USE `db_000139_bookmark_app_sample_db`;
+CREATE TABLE `Bookmarks` (
+  `User Name` VARCHAR(50) NOT NULL,
+  `Url ID` INT NOT NULL,
+  `Bookmark Name` VARCHAR(50),
+  PRIMARY KEY (`User Name`, `Url ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+  `User Name` VARCHAR(50) NOT NULL,
+  `User Password` BLOB,
+  PRIMARY KEY (`User Name`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_000139_bookmark_app_sample_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_000139_bookmark_app_sample_db') AS relationships;
+DROP DATABASE `db_000139_bookmark_app_sample_db`;
+UNINSTALL EXTENSION vsql_schematron;

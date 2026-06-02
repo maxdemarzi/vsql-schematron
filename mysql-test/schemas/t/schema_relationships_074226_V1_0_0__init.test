@@ -1,0 +1,85 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 074226_V1.0.0__init
+--echo #
+CREATE DATABASE `db_074226_V1_0_0__init`;
+USE `db_074226_V1_0_0__init`;
+CREATE TABLE `airports` (
+  `id` INT NOT NULL,
+  `iata_code` VARCHAR(50),
+  `city` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `airlines` (
+  `id` INT NOT NULL,
+  `iata_code` VARCHAR(50),
+  `name` VARCHAR(50),
+  `infant_price` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `flights` (
+  `id` INT NOT NULL,
+  `origin` VARCHAR(50),
+  `destination` VARCHAR(50),
+  `flight_code` VARCHAR(50),
+  `base_price` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pricingRules` (
+  `id` INT NOT NULL,
+  `days_to_departure` INT,
+  `until` INT,
+  `percentage` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+  `id` INT NOT NULL,
+  `street` VARCHAR(50),
+  `block_number` VARCHAR(50),
+  `zip_code` VARCHAR(50),
+  `city` VARCHAR(50),
+  `country` VARCHAR(50),
+  `created_at` BIGINT,
+  `updated_at` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `passenger` (
+  `id` INT NOT NULL,
+  `nif` VARCHAR(50),
+  `name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `contact_number` VARCHAR(50),
+  `created_at` BIGINT,
+  `updated_at` BIGINT,
+  `address_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `basket` (
+  `id` INT NOT NULL,
+  `flight` VARCHAR(50),
+  `price` DECIMAL(10,2),
+  `created_at` BIGINT,
+  `updated_at` BIGINT,
+  `passenger_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_074226_V1_0_0__init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_074226_V1_0_0__init') AS relationships;
+DROP DATABASE `db_074226_V1_0_0__init`;
+UNINSTALL EXTENSION vsql_schematron;

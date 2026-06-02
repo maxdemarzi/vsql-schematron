@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 115811_V86_12_0__Create_Notes_And_Queries_tables
+#
+CREATE DATABASE `db_115811_V86_12_0__Create_Notes_And_Queries_tables`;
+USE `db_115811_V86_12_0__Create_Notes_And_Queries_tables`;
+CREATE TABLE `thread` (
+`id` BIGINT NOT NULL,
+`class_pk` BIGINT,
+`class_name` VARCHAR(50),
+`thread_type` VARCHAR(50),
+`title` VARCHAR(50),
+`created_on` TIMESTAMP NULL,
+`section` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`id` BIGINT NOT NULL,
+`thread_id` BIGINT,
+`author_id` BIGINT,
+`body` TEXT,
+`created_on` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_attachment` (
+`post_id` BIGINT NOT NULL,
+`file_entry_id` BIGINT NOT NULL,
+PRIMARY KEY (`post_id`, `file_entry_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_115811_V86_12_0__Create_Notes_And_Queries_tables') AS relationships;
+relationships
+Database: db_115811_V86_12_0__Create_Notes_And_Queries_tables
+
+Table Connections:
+------------------
+[Implied]  post.thread_id -> thread.id
+[Implied]  post_attachment.post_id -> post.id
+
+DROP DATABASE `db_115811_V86_12_0__Create_Notes_And_Queries_tables`;
+UNINSTALL EXTENSION vsql_schematron;

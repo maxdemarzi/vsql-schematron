@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 003189_mysql_simple
+--echo #
+CREATE DATABASE `db_003189_mysql_simple`;
+USE `db_003189_mysql_simple`;
+CREATE TABLE `users` (
+  `id` VARCHAR(50) NOT NULL,
+  `username` VARCHAR(50),
+  `email` VARCHAR(50),
+  `active` TINYINT,
+  `gender` CHAR(50),
+  `created_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+  `id` VARCHAR(50) NOT NULL,
+  `user_id` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_items` (
+  `id` VARCHAR(50) NOT NULL,
+  `order_id` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_003189_mysql_simple') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_003189_mysql_simple') AS relationships;
+DROP DATABASE `db_003189_mysql_simple`;
+UNINSTALL EXTENSION vsql_schematron;

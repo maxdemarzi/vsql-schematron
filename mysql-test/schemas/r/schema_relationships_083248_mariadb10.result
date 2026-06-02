@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 083248_mariadb10
+#
+CREATE DATABASE `db_083248_mariadb10`;
+USE `db_083248_mariadb10`;
+CREATE TABLE `mh_blocking_job` (
+`id` BIGINT,
+`blocking_job_list` BIGINT,
+`job_index` INT
+) CHARACTER SET latin1;
+CREATE TABLE `mh_event_comment` (
+`id` BIGINT NOT NULL,
+`organization` VARCHAR(50),
+`event` VARCHAR(50),
+`creation_date` DATETIME,
+`author` VARCHAR(50),
+`text` VARCHAR(50),
+`reason` VARCHAR(50),
+`modification_date` DATETIME,
+`resolved_status` TINYINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mh_event_comment_reply` (
+`id` BIGINT NOT NULL,
+`event_comment_id` BIGINT,
+`creation_date` DATETIME,
+`author` VARCHAR(50),
+`text` VARCHAR(50),
+`modification_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_083248_mariadb10') AS relationships;
+relationships
+Database: db_083248_mariadb10
+
+Table Connections:
+------------------
+[Implied]  mh_event_comment_reply.event_comment_id -> mh_event_comment.id
+
+DROP DATABASE `db_083248_mariadb10`;
+UNINSTALL EXTENSION vsql_schematron;

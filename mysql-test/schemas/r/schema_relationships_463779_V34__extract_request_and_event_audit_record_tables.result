@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 463779_V34__extract_request_and_event_audit_record_tables
+#
+CREATE DATABASE `db_463779_V34__extract_request_and_event_audit_record_tables`;
+USE `db_463779_V34__extract_request_and_event_audit_record_tables`;
+CREATE TABLE `request_audit_record` (
+`uuid` VARCHAR(50) NOT NULL,
+`host_name` VARCHAR(50),
+`now` BIGINT,
+`path` VARCHAR(50),
+`requester_ip` VARCHAR(50),
+`auth_valid_from` BIGINT,
+`auth_valid_until` BIGINT,
+`uaa_url` VARCHAR(50),
+`user_id` VARCHAR(50),
+`user_name` VARCHAR(50),
+`x_forwarded_for` VARCHAR(50),
+`scope` VARCHAR(50),
+`grant_type` VARCHAR(50),
+`client_id` VARCHAR(50),
+`method` VARCHAR(50),
+`status_code` INT,
+`query_parameters` VARCHAR(50),
+`auth_method` VARCHAR(50),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_audit_record` (
+`uuid` VARCHAR(50) NOT NULL,
+`request_uuid` VARCHAR(50),
+`now` BIGINT,
+`operation` VARCHAR(50),
+`credential_name` VARCHAR(50),
+`actor` VARCHAR(50),
+`success` BOOLEAN,
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_463779_V34__extract_request_and_event_audit_record_tables') AS relationships;
+relationships
+Database: db_463779_V34__extract_request_and_event_audit_record_tables
+
+Table Connections:
+------------------
+[Implied]  event_audit_record.request_uuid -> request_audit_record.uuid
+
+DROP DATABASE `db_463779_V34__extract_request_and_event_audit_record_tables`;
+UNINSTALL EXTENSION vsql_schematron;

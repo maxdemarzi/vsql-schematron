@@ -1,0 +1,126 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 067046_20140321_00_create_tables_final
+--echo #
+CREATE DATABASE `db_067046_20140321_00_create_tables_final`;
+USE `db_067046_20140321_00_create_tables_final`;
+CREATE TABLE `diagnoses` (
+  `id` VARCHAR(50) NOT NULL,
+  `created` DATETIME,
+  `modified` DATETIME,
+  `patient_id` CHAR(50),
+  `dxname` VARCHAR(50),
+  `icd10code` VARCHAR(50),
+  `icd9code` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `medhistory_complaints` (
+  `id` VARCHAR(50) NOT NULL,
+  `created` DATETIME,
+  `modified` DATETIME,
+  `visit_id` VARCHAR(50),
+  `complaints` TEXT,
+  `current_pregnancy` VARCHAR(50),
+  `hypo` VARCHAR(50),
+  `weight_gain` VARCHAR(50),
+  `renal_gu` VARCHAR(50),
+  `gi_sx` VARCHAR(50),
+  `chf` VARCHAR(50),
+  `cvd` VARCHAR(50),
+  `bone` VARCHAR(50),
+  `sleep_apnea` VARCHAR(50),
+  `stress_incont` VARCHAR(50),
+  `family_hist_diabetes` VARCHAR(50),
+  `phys_active` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `visits` (
+  `id` VARCHAR(50) NOT NULL,
+  `created` DATETIME,
+  `modified` DATETIME,
+  `patient_id` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `profiles` (
+  `id` VARCHAR(50) NOT NULL,
+  `user_id` VARCHAR(50),
+  `title` VARCHAR(50),
+  `firstname` VARCHAR(50),
+  `lastname` VARCHAR(50),
+  `phone` VARCHAR(50),
+  `address` VARCHAR(50),
+  `created` DATETIME,
+  `modified` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `treatment_run_algorithms` (
+  `id` VARCHAR(50) NOT NULL,
+  `created` DATETIME,
+  `modified` DATETIME,
+  `treatment_id` VARCHAR(50),
+  `type` VARCHAR(50),
+  `recommendations` TEXT,
+  `medicine_name_one` VARCHAR(50),
+  `dose_one` DOUBLE,
+  `medicine_name_two` VARCHAR(50),
+  `dose_two` DOUBLE,
+  `medicine_name_three` VARCHAR(50),
+  `dose_three` DOUBLE,
+  `edited_by_user` VARCHAR(50),
+  `edited_justification` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `treatments` (
+  `id` VARCHAR(50) NOT NULL,
+  `created` DATETIME,
+  `modified` DATETIME,
+  `visit_id` VARCHAR(50),
+  `prescriber_username` VARCHAR(50),
+  `a1c_goal` DOUBLE,
+  `weight_goal` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vitals_labs` (
+  `id` VARCHAR(50) NOT NULL,
+  `created` DATETIME,
+  `modified` DATETIME,
+  `visit_id` VARCHAR(50),
+  `weight` DOUBLE,
+  `height` DOUBLE,
+  `bps` INT,
+  `bpd` INT,
+  `bmi` DOUBLE,
+  `bmi_status` VARCHAR(50),
+  `A1c` DOUBLE,
+  `eGFR` INT,
+  `waist` DOUBLE,
+  `gtt` INT,
+  `fbg` INT,
+  `ldl` INT,
+  `hdl` INT,
+  `vhdl` INT,
+  `cholesterol_total` INT,
+  `triglycerides` INT,
+  `notes` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_067046_20140321_00_create_tables_final') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_067046_20140321_00_create_tables_final') AS relationships;
+DROP DATABASE `db_067046_20140321_00_create_tables_final`;
+UNINSTALL EXTENSION vsql_schematron;

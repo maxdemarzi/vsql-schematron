@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 527087_V001__init_module_admin
+--echo #
+CREATE DATABASE `db_527087_V001__init_module_admin`;
+USE `db_527087_V001__init_module_admin`;
+CREATE TABLE `userrole` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `deleted` BOOLEAN,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `login` (
+  `id` INT NOT NULL,
+  `email` VARCHAR(50),
+  `name` VARCHAR(50),
+  `password` VARCHAR(50),
+  `deleted` BOOLEAN,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `login_userrole` (
+  `login_id` INT NOT NULL,
+  `userrole_id` INT NOT NULL,
+  PRIMARY KEY (`login_id`, `userrole_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_527087_V001__init_module_admin') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_527087_V001__init_module_admin') AS relationships;
+DROP DATABASE `db_527087_V001__init_module_admin`;
+UNINSTALL EXTENSION vsql_schematron;

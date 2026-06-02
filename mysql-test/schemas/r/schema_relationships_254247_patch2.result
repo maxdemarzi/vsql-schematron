@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 254247_patch2
+#
+CREATE DATABASE `db_254247_patch2`;
+USE `db_254247_patch2`;
+CREATE TABLE `world` (
+`uuid` VARCHAR(50) NOT NULL,
+`map_id` VARCHAR(50),
+`size_x` INT,
+`size_y` INT,
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `world_tile` (
+`id` INT NOT NULL,
+`world_uuid` CHAR(50),
+`x` INT,
+`y` INT,
+`tile_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `world_building` (
+`id` INT NOT NULL,
+`world_uuid` CHAR(50),
+`x` INT,
+`y` INT,
+`building_id` INT,
+`owner_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_254247_patch2') AS relationships;
+relationships
+Database: db_254247_patch2
+
+Table Connections:
+------------------
+[Implied]  world_building.world_uuid -> world.uuid
+[Implied]  world_tile.world_uuid -> world.uuid
+
+DROP DATABASE `db_254247_patch2`;
+UNINSTALL EXTENSION vsql_schematron;

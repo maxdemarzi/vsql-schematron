@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 349964_postgresql
+--echo #
+CREATE DATABASE `db_349964_postgresql`;
+USE `db_349964_postgresql`;
+CREATE TABLE `accountschema.Address` (
+  `addressId` INT NOT NULL,
+  `streetAddress1` VARCHAR(50),
+  `streetAddress2` VARCHAR(50),
+  `city` VARCHAR(50),
+  `zipCode` VARCHAR(50),
+  `countryCd` VARCHAR(50),
+  `stateCd` VARCHAR(50),
+  `createDTM` DATE,
+  `createUserId` VARCHAR(50),
+  `lastUpdtDTM` DATE,
+  `lastUpdtUserId` VARCHAR(50),
+  PRIMARY KEY (`addressId`)
+) CHARACTER SET latin1;
+CREATE TABLE `accountschema.Customer` (
+  `cusId` INT NOT NULL,
+  `cusName` VARCHAR(50),
+  `addressId` INT,
+  `contactNo` VARCHAR(50),
+  `createDTM` DATE,
+  `createUserId` VARCHAR(50),
+  `lastUpdtDTM` DATE,
+  `lastUpdtUserId` VARCHAR(50),
+  PRIMARY KEY (`cusId`)
+) CHARACTER SET latin1;
+CREATE TABLE `accountschema.Account` (
+  `accId` INT NOT NULL,
+  `cusId` INT,
+  `accName` VARCHAR(50),
+  `accBalance` VARCHAR(50),
+  `status` BOOLEAN,
+  `createDTM` DATE,
+  `createUserId` VARCHAR(50),
+  `lastUpdtDTM` DATE,
+  `lastUpdtUserId` VARCHAR(50),
+  PRIMARY KEY (`accId`)
+) CHARACTER SET latin1;
+CREATE TABLE `accountschema.AccountFeature` (
+  `accountFeatureId` INT NOT NULL,
+  `accId` INT,
+  `card` VARCHAR(50),
+  `cardtype` VARCHAR(50),
+  `cardlimit` VARCHAR(50),
+  `createDTM` DATE,
+  `createUserId` VARCHAR(50),
+  `lastUpdtDTM` DATE,
+  `lastUpdtUserId` VARCHAR(50),
+  PRIMARY KEY (`accountFeatureId`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_349964_postgresql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_349964_postgresql') AS relationships;
+DROP DATABASE `db_349964_postgresql`;
+UNINSTALL EXTENSION vsql_schematron;

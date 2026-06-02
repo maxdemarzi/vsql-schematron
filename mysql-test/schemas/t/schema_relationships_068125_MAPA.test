@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 068125_MAPA
+--echo #
+CREATE DATABASE `db_068125_MAPA`;
+USE `db_068125_MAPA`;
+CREATE TABLE `TIPO_PRODUTO` (
+  `ID` INT NOT NULL,
+  `DESCRICAO` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `TIPO_PAGAMENTO` (
+  `ID` INT NOT NULL,
+  `DESCRICAO` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRODUTOS` (
+  `ID` INT NOT NULL,
+  `DESCRICAO` VARCHAR(50),
+  `VALOR` DECIMAL(10,2),
+  `ID_TIPO_PRODUTO` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PEDIDOS` (
+  `ID` INT NOT NULL,
+  `DATAB` DATE,
+  `ID_TIPO_PAGAMENTO` INT,
+  `VALOR_TOTAL` DECIMAL(10,2),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PEDIDOS_PRODUTOS` (
+  `ID` INT NOT NULL,
+  `ID_PEDIDO` INT,
+  `ID_PRODUTO` INT,
+  `QTDE` INT,
+  `VALOR_UNIT` DECIMAL(10,2),
+  `VALOR_TOTAL` DECIMAL(10,2),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_068125_MAPA') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_068125_MAPA') AS relationships;
+DROP DATABASE `db_068125_MAPA`;
+UNINSTALL EXTENSION vsql_schematron;

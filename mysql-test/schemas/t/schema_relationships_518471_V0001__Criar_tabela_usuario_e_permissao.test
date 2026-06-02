@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 518471_V0001__Criar_tabela_usuario_e_permissao
+--echo #
+CREATE DATABASE `db_518471_V0001__Criar_tabela_usuario_e_permissao`;
+USE `db_518471_V0001__Criar_tabela_usuario_e_permissao`;
+CREATE TABLE `usuario` (
+  `id` BIGINT NOT NULL,
+  `nome` VARCHAR(50),
+  `email` VARCHAR(50),
+  `senha` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `permissao` (
+  `id` BIGINT NOT NULL,
+  `nome` VARCHAR(50),
+  `descricao` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario_permissao` (
+  `id_usuario` BIGINT NOT NULL,
+  `id_permissao` BIGINT NOT NULL,
+  PRIMARY KEY (`id_usuario`, `id_permissao`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_518471_V0001__Criar_tabela_usuario_e_permissao') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_518471_V0001__Criar_tabela_usuario_e_permissao') AS relationships;
+DROP DATABASE `db_518471_V0001__Criar_tabela_usuario_e_permissao`;
+UNINSTALL EXTENSION vsql_schematron;

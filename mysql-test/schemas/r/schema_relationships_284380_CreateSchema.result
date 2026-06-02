@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 284380_CreateSchema
+#
+CREATE DATABASE `db_284380_CreateSchema`;
+USE `db_284380_CreateSchema`;
+CREATE TABLE `Portfolio` (
+`Id` INT NOT NULL,
+`PortfolioName` TEXT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PortfolioValuation` (
+`Id` INT NOT NULL,
+`PortfolioId` INT,
+`ValuationDate` DATETIME,
+`Value` DOUBLE,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `HoldingValuation` (
+`Id` INT NOT NULL,
+`PortfolioId` INT,
+`ValuationDate` DATETIME,
+`Symbol` TEXT,
+`Value` DOUBLE,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_284380_CreateSchema') AS relationships;
+relationships
+Database: db_284380_CreateSchema
+
+Table Connections:
+------------------
+[Implied]  HoldingValuation.PortfolioId -> Portfolio.Id
+[Implied]  PortfolioValuation.PortfolioId -> Portfolio.Id
+
+DROP DATABASE `db_284380_CreateSchema`;
+UNINSTALL EXTENSION vsql_schematron;

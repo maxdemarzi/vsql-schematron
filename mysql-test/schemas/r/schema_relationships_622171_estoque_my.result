@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 622171_estoque_my
+#
+CREATE DATABASE `db_622171_estoque_my`;
+USE `db_622171_estoque_my`;
+CREATE TABLE `categorias` (
+`id` INT NOT NULL,
+`descricao` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `funcionarios` (
+`id` INT NOT NULL,
+`cpf` CHAR(50),
+`nome` CHAR(50),
+`senha` CHAR(50),
+`email` VARCHAR(50),
+`data_nasc` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clientes` (
+`id` INT NOT NULL,
+`nome` CHAR(50),
+`email` VARCHAR(50),
+`cpf` CHAR(50),
+`credito_liberado` CHAR(50),
+`nascimento` DATE,
+`categoria_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedidos` (
+`id` INT NOT NULL,
+`cliente_id` INT,
+`funcionario_id` INT,
+`data_pedido` DATE,
+`data_confirmacao` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido_itens` (
+`id` INT NOT NULL,
+`quantidade` INT,
+`preco_venda` DECIMAL(10,2),
+`pedido_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `produtos` (
+`id` INT NOT NULL,
+`descricao` VARCHAR(50),
+`unidade` CHAR(50),
+`cadastro` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_622171_estoque_my') AS relationships;
+relationships
+Database: db_622171_estoque_my
+
+Table Connections:
+------------------
+[Implied]  clientes.categoria_id -> categorias.id
+[Implied]  pedido_itens.pedido_id -> pedidos.id
+[Implied]  pedidos.cliente_id -> clientes.id
+[Implied]  pedidos.funcionario_id -> funcionarios.id
+
+DROP DATABASE `db_622171_estoque_my`;
+UNINSTALL EXTENSION vsql_schematron;

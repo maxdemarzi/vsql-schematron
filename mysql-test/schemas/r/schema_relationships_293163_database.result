@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 293163_database
+#
+CREATE DATABASE `db_293163_database`;
+USE `db_293163_database`;
+CREATE TABLE `cities` (
+`id` INT NOT NULL,
+`city` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`email` VARCHAR(50),
+`phone` VARCHAR(50),
+`password` TEXT,
+`city_id` INT,
+`reset_token` TEXT,
+`reset_token_expires` TEXT,
+`is_admin` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rooms` (
+`id` INT NOT NULL,
+`room` INT,
+`city_id` INT,
+`limit` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `desks` (
+`id` INT NOT NULL,
+`room_id` INT,
+`position` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schedules` (
+`id` INT NOT NULL,
+`schedule` TIMESTAMP NULL,
+`user_id` INT,
+`desk_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_293163_database') AS relationships;
+relationships
+Database: db_293163_database
+
+Table Connections:
+------------------
+[Implied]  desks.room_id -> rooms.id
+[Implied]  rooms.city_id -> cities.id
+[Implied]  schedules.desk_id -> desks.id
+[Implied]  schedules.user_id -> users.id
+[Implied]  users.city_id -> cities.id
+
+DROP DATABASE `db_293163_database`;
+UNINSTALL EXTENSION vsql_schematron;

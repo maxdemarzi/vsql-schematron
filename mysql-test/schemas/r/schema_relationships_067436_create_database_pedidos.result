@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 067436_create_database_pedidos
+#
+CREATE DATABASE `db_067436_create_database_pedidos`;
+USE `db_067436_create_database_pedidos`;
+CREATE TABLE `colaborador` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+`email` VARCHAR(50),
+`isAdmin` INT,
+`isAcessible` INT,
+`isActive` INT,
+`password` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fornecedor` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+`cnpj` VARCHAR(50),
+`email` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `endereco` (
+`id` INT NOT NULL,
+`fornecedor_id` INT,
+`rua` VARCHAR(50),
+`numero` VARCHAR(50),
+`bairro` VARCHAR(50),
+`cidade` VARCHAR(50),
+`estado` VARCHAR(50),
+`cep` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `produtos` (
+`id` INT NOT NULL,
+`descricao` VARCHAR(50),
+`qtdEstoque` INT,
+`valorUnit` DECIMAL(10,2),
+`isActive` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido` (
+`cod` INT NOT NULL,
+`cod_fornecedor` INT,
+`cod_colaborador` INT,
+`dataPedido` DATETIME,
+`valorTotal` DECIMAL(10,2),
+`statusPedido` INT,
+PRIMARY KEY (`cod`)
+) CHARACTER SET latin1;
+CREATE TABLE `itens_pedido` (
+`cod_produto` INT NOT NULL,
+`cod_pedido` INT NOT NULL,
+`qtd` INT,
+`valorUnit` DECIMAL(10,2),
+PRIMARY KEY (`cod_pedido`, `cod_produto`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_067436_create_database_pedidos') AS relationships;
+relationships
+Database: db_067436_create_database_pedidos
+
+Table Connections:
+------------------
+[Implied]  endereco.fornecedor_id -> fornecedor.id
+[Implied]  itens_pedido.cod_pedido -> pedido.cod
+[Implied]  itens_pedido.cod_produto -> produtos.id
+[Implied]  pedido.cod_colaborador -> colaborador.id
+[Implied]  pedido.cod_fornecedor -> fornecedor.id
+
+DROP DATABASE `db_067436_create_database_pedidos`;
+UNINSTALL EXTENSION vsql_schematron;

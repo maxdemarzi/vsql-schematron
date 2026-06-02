@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 447352_Database
+--echo #
+CREATE DATABASE `db_447352_Database`;
+USE `db_447352_Database`;
+CREATE TABLE `tb_clientes` (
+  `id_cliente` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `telefone` VARCHAR(50),
+  `cep` VARCHAR(50),
+  `rua` VARCHAR(50),
+  `numero` VARCHAR(50),
+  `complemento` VARCHAR(50),
+  `bairro` VARCHAR(50),
+  `fg_ativo` INT,
+  PRIMARY KEY (`id_cliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_pizzas` (
+  `id_pizza` INT NOT NULL,
+  `sabor` VARCHAR(50),
+  `valor` DECIMAL(10,2),
+  `fg_ativo` INT,
+  PRIMARY KEY (`id_pizza`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_pedido` (
+  `id_pedido` INT NOT NULL,
+  `id_cliente` INT,
+  `data_compra` DATE,
+  `valor` DECIMAL(10,2),
+  PRIMARY KEY (`id_pedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_item_pedido` (
+  `id_item` INT NOT NULL,
+  `id_pedido` INT NOT NULL,
+  `id_pizza` INT NOT NULL,
+  `quantidade` INT,
+  `fg_meia` INT,
+  `valor` DECIMAL(10,2),
+  PRIMARY KEY (`id_pedido`, `id_pizza`, `id_item`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_447352_Database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_447352_Database') AS relationships;
+DROP DATABASE `db_447352_Database`;
+UNINSTALL EXTENSION vsql_schematron;

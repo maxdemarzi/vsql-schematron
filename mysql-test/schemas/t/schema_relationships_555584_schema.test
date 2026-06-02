@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 555584_schema
+--echo #
+CREATE DATABASE `db_555584_schema`;
+USE `db_555584_schema`;
+CREATE TABLE `Products` (
+  `id` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reviews` (
+  `id` VARCHAR(50) NOT NULL,
+  `product_id` VARCHAR(50),
+  `rating` TINYINT,
+  `review_date` TIMESTAMP NULL,
+  `summary` VARCHAR(50),
+  `body` VARCHAR(50),
+  `recommend` BOOLEAN,
+  `reported` BOOLEAN,
+  `reviewer_name` VARCHAR(50),
+  `reviewer_email` VARCHAR(50),
+  `response` VARCHAR(50),
+  `helpfulness` TINYINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Characteristics` (
+  `id` VARCHAR(50) NOT NULL,
+  `product_id` VARCHAR(50),
+  `characteristic_name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Characteristic_Reviews` (
+  `id` VARCHAR(50) NOT NULL,
+  `characteristic_id` VARCHAR(50),
+  `review_id` VARCHAR(50),
+  `characteristic_value` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Photos` (
+  `id` VARCHAR(50) NOT NULL,
+  `review_id` VARCHAR(50),
+  `photo_url` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_555584_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_555584_schema') AS relationships;
+DROP DATABASE `db_555584_schema`;
+UNINSTALL EXTENSION vsql_schematron;

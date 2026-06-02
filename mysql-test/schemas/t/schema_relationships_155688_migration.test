@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 155688_migration
+--echo #
+CREATE DATABASE `db_155688_migration`;
+USE `db_155688_migration`;
+CREATE TABLE `Priority` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Client` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  `location` TEXT,
+  `createdAt` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Project` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  `priorityId` INT,
+  `clientId` INT,
+  `due` TIMESTAMP NULL,
+  `createdAt` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Work` (
+  `id` INT NOT NULL,
+  `description` TEXT,
+  `date` TIMESTAMP NULL,
+  `hoursWorked` INT,
+  `clientId` INT,
+  `projectId` INT,
+  `createdAt` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Test` (
+  `id` INT NOT NULL,
+  `description` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_155688_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_155688_migration') AS relationships;
+DROP DATABASE `db_155688_migration`;
+UNINSTALL EXTENSION vsql_schematron;

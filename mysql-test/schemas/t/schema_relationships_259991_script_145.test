@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 259991_script_145
+--echo #
+CREATE DATABASE `db_259991_script_145`;
+USE `db_259991_script_145`;
+CREATE TABLE `media_file` (
+  `id` BIGINT NOT NULL,
+  `uid` VARCHAR(50),
+  `creation_time` TIMESTAMP NULL,
+  `stored_time` TIMESTAMP NULL,
+  `bucket` VARCHAR(50),
+  `key` VARCHAR(50),
+  `read_count` BIGINT,
+  `mime_type` VARCHAR(50),
+  `md5_hash` VARCHAR(50),
+  `version` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `live_wire_media_files` (
+  `live_wire_alert_id` BIGINT NOT NULL,
+  `media_file_id` BIGINT NOT NULL,
+  PRIMARY KEY (`live_wire_alert_id`, `media_file_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_259991_script_145') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_259991_script_145') AS relationships;
+DROP DATABASE `db_259991_script_145`;
+UNINSTALL EXTENSION vsql_schematron;

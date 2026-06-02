@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 321708_Sqlite
+--echo #
+CREATE DATABASE `db_321708_Sqlite`;
+USE `db_321708_Sqlite`;
+CREATE TABLE `__EFMigrationsHistory` (
+  `MigrationId` VARCHAR(50) NOT NULL,
+  `ProductVersion` TEXT,
+  PRIMARY KEY (`MigrationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Emails` (
+  `Id` VARCHAR(50) NOT NULL,
+  `Application` BLOB,
+  `Body` TEXT,
+  `From` TEXT,
+  `HTML` INT,
+  `Status` INT,
+  `Subject` TEXT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PhoneMessages` (
+  `Id` VARCHAR(50) NOT NULL,
+  `Application` BLOB,
+  `From` TEXT,
+  `Message` TEXT,
+  `Status` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `EmailAddress` (
+  `EmailId` VARCHAR(50) NOT NULL,
+  `Address` VARCHAR(50) NOT NULL,
+  `Blind` INT,
+  `Copy` INT,
+  PRIMARY KEY (`EmailId`, `Address`)
+) CHARACTER SET latin1;
+CREATE TABLE `PhoneNumber` (
+  `PhoneMessageId` VARCHAR(50) NOT NULL,
+  `Number` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`PhoneMessageId`, `Number`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_321708_Sqlite') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_321708_Sqlite') AS relationships;
+DROP DATABASE `db_321708_Sqlite`;
+UNINSTALL EXTENSION vsql_schematron;

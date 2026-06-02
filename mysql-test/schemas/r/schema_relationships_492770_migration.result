@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 492770_migration
+#
+CREATE DATABASE `db_492770_migration`;
+USE `db_492770_migration`;
+CREATE TABLE `Team` (
+`id` INT NOT NULL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`name` TEXT,
+`teamsetId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Teamset` (
+`id` INT NOT NULL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `new_User` (
+`id` INT NOT NULL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`name` TEXT,
+`email` TEXT,
+`hashedPassword` TEXT,
+`role` TEXT,
+`teamId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_492770_migration') AS relationships;
+relationships
+Database: db_492770_migration
+
+Table Connections:
+------------------
+[Implied]  Team.teamsetId -> Teamset.id
+[Implied]  new_User.teamId -> Team.id
+
+DROP DATABASE `db_492770_migration`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 015018_ocorrencia
+#
+CREATE DATABASE `db_015018_ocorrencia`;
+USE `db_015018_ocorrencia`;
+CREATE TABLE `ocorrencia.usuario` (
+`idusuario` INT NOT NULL,
+`nomeCompleto` VARCHAR(50),
+`raCpf` VARCHAR(50),
+PRIMARY KEY (`idusuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `ocorrencia.patrimonio` (
+`idpatrimonio` INT NOT NULL,
+`numPatrimonio` INT,
+`descricao` VARCHAR(50),
+`modelo` VARCHAR(50),
+`marca` VARCHAR(50),
+PRIMARY KEY (`idpatrimonio`)
+) CHARACTER SET latin1;
+CREATE TABLE `ocorrencia.laboratorio` (
+`idlaboratorio` INT NOT NULL,
+`sala` VARCHAR(50),
+PRIMARY KEY (`idlaboratorio`)
+) CHARACTER SET latin1;
+CREATE TABLE `ocorrencia.dadosOcorrencia` (
+`idocorrencia` INT NOT NULL,
+`dataAbertura` DATE,
+`descricaoProblema` VARCHAR(50),
+`usuario_idusuario` INT,
+`patrimonio_idpatrimonio` INT,
+`laboratorio_idlaboratorio` INT,
+PRIMARY KEY (`idocorrencia`)
+) CHARACTER SET latin1;
+CREATE TABLE `ocorrencia.statusOcorrencia` (
+`idstatus` INT NOT NULL,
+`data` DATE,
+`status` VARCHAR(50),
+PRIMARY KEY (`idstatus`)
+) CHARACTER SET latin1;
+CREATE TABLE `ocorrencia.dadosStatus` (
+`dadosOcorrencia_idocorrencia` INT NOT NULL,
+`statusOcorrencia_idstatus` INT NOT NULL,
+PRIMARY KEY (`dadosOcorrencia_idocorrencia`, `statusOcorrencia_idstatus`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_015018_ocorrencia') AS relationships;
+relationships
+Database: db_015018_ocorrencia
+
+Table Connections:
+------------------
+[Implied]  ocorrencia.dadosOcorrencia.laboratorio_idlaboratorio -> ocorrencia.laboratorio.idlaboratorio
+[Implied]  ocorrencia.dadosOcorrencia.patrimonio_idpatrimonio -> ocorrencia.patrimonio.idpatrimonio
+[Implied]  ocorrencia.dadosOcorrencia.usuario_idusuario -> ocorrencia.usuario.idusuario
+[Implied]  ocorrencia.dadosStatus.dadosOcorrencia_idocorrencia -> ocorrencia.dadosOcorrencia.idocorrencia
+[Implied]  ocorrencia.dadosStatus.statusOcorrencia_idstatus -> ocorrencia.statusOcorrencia.idstatus
+
+DROP DATABASE `db_015018_ocorrencia`;
+UNINSTALL EXTENSION vsql_schematron;

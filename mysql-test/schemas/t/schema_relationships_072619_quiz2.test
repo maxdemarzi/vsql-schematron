@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 072619_quiz2
+--echo #
+CREATE DATABASE `db_072619_quiz2`;
+USE `db_072619_quiz2`;
+CREATE TABLE `Student` (
+  `zid` VARCHAR(50) NOT NULL,
+  `name` TEXT,
+  `age` INT,
+  PRIMARY KEY (`zid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Class` (
+  `code` INT NOT NULL,
+  `name` TEXT,
+  PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+CREATE TABLE `Enrolment` (
+  `student` VARCHAR(50) NOT NULL,
+  `class` INT NOT NULL,
+  `mark` INT,
+  PRIMARY KEY (`student`, `class`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_072619_quiz2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_072619_quiz2') AS relationships;
+DROP DATABASE `db_072619_quiz2`;
+UNINSTALL EXTENSION vsql_schematron;

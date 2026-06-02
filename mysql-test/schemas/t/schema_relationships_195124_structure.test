@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 195124_structure
+--echo #
+CREATE DATABASE `db_195124_structure`;
+USE `db_195124_structure`;
+CREATE TABLE `product` (
+  `id` VARCHAR(50) NOT NULL,
+  `p_description` VARCHAR(50),
+  `number_of_searches` VARCHAR(50),
+  `images` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+  `id` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `productxcategory` (
+  `product_id` VARCHAR(50) NOT NULL,
+  `category_id` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`product_id`, `category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `country` (
+  `id` VARCHAR(50) NOT NULL,
+  `maximum_discount_percentage` DOUBLE,
+  `currency_abbreviation` VARCHAR(50),
+  `currency_symbol` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_195124_structure') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_195124_structure') AS relationships;
+DROP DATABASE `db_195124_structure`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 006636_create
+--echo #
+CREATE DATABASE `db_006636_create`;
+USE `db_006636_create`;
+CREATE TABLE `brand` (
+  `brandId` INT NOT NULL,
+  `brandName` VARCHAR(50),
+  PRIMARY KEY (`brandId`)
+) CHARACTER SET latin1;
+CREATE TABLE `carmodal` (
+  `modelId` INT NOT NULL,
+  `modalName` VARCHAR(50),
+  `brandId` INT,
+  PRIMARY KEY (`modelId`)
+) CHARACTER SET latin1;
+CREATE TABLE `carInfo` (
+  `carId` INT NOT NULL,
+  `carName` VARCHAR(50),
+  `carPrice` DECIMAL(10,2),
+  `carDisplacement` VARCHAR(50),
+  `carModalId` INT,
+  `carClutch` VARCHAR(50),
+  `carColor` VARCHAR(50),
+  PRIMARY KEY (`carId`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_006636_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_006636_create') AS relationships;
+DROP DATABASE `db_006636_create`;
+UNINSTALL EXTENSION vsql_schematron;

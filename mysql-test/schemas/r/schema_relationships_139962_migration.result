@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 139962_migration
+#
+CREATE DATABASE `db_139962_migration`;
+USE `db_139962_migration`;
+CREATE TABLE `Project` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`status` VARCHAR(50),
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProjectAssignment` (
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+`projectId` INT NOT NULL,
+`userId` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`projectId`, `userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`createdAt` TIMESTAMP NULL,
+`updatedAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_139962_migration') AS relationships;
+relationships
+Database: db_139962_migration
+
+Table Connections:
+------------------
+[Implied]  ProjectAssignment.projectId -> Project.id
+[Implied]  ProjectAssignment.userId -> User.id
+
+DROP DATABASE `db_139962_migration`;
+UNINSTALL EXTENSION vsql_schematron;

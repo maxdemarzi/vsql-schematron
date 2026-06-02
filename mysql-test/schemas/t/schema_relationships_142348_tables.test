@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 142348_tables
+--echo #
+CREATE DATABASE `db_142348_tables`;
+USE `db_142348_tables`;
+CREATE TABLE `types` (
+  `id_type` INT NOT NULL,
+  `description` TEXT,
+  PRIMARY KEY (`id_type`)
+) CHARACTER SET latin1;
+CREATE TABLE `performers` (
+  `id_performer` INT NOT NULL,
+  `id_type` INT,
+  `name` TEXT,
+  PRIMARY KEY (`id_performer`)
+) CHARACTER SET latin1;
+CREATE TABLE `persons` (
+  `id_person` INT NOT NULL,
+  `stage_name` TEXT,
+  `real_name` TEXT,
+  `birth_date` TEXT,
+  `death_date` TEXT,
+  PRIMARY KEY (`id_person`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+  `id_group` INT NOT NULL,
+  `name` TEXT,
+  `start_date` TEXT,
+  `end_date` TEXT,
+  PRIMARY KEY (`id_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `albums` (
+  `id_album` INT NOT NULL,
+  `path` TEXT,
+  `name` TEXT,
+  `year` INT,
+  PRIMARY KEY (`id_album`)
+) CHARACTER SET latin1;
+CREATE TABLE `rolas` (
+  `id_rola` INT NOT NULL,
+  `id_performer` INT,
+  `id_album` INT,
+  `path` TEXT,
+  `title` TEXT,
+  `track` INT,
+  `year` INT,
+  `genre` TEXT,
+  PRIMARY KEY (`id_rola`)
+) CHARACTER SET latin1;
+CREATE TABLE `in_group` (
+  `id_person` INT NOT NULL,
+  `id_group` INT NOT NULL,
+  PRIMARY KEY (`id_person`, `id_group`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_142348_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_142348_tables') AS relationships;
+DROP DATABASE `db_142348_tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 457901_migration
+#
+CREATE DATABASE `db_457901_migration`;
+USE `db_457901_migration`;
+CREATE TABLE `User` (
+`id` INT NOT NULL,
+`username` TEXT,
+`password` TEXT,
+`token` TEXT,
+`administrator` BOOLEAN,
+`embedTitle` TEXT,
+`embedColor` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Image` (
+`id` INT NOT NULL,
+`file` TEXT,
+`mimetype` TEXT,
+`created_at` TIMESTAMP NULL,
+`views` INT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `InvisibleImage` (
+`id` INT,
+`invis` TEXT
+) CHARACTER SET latin1;
+CREATE TABLE `Url` (
+`id` INT NOT NULL,
+`to` TEXT,
+`created_at` TIMESTAMP NULL,
+`views` INT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `InvisibleUrl` (
+`id` INT,
+`invis` TEXT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_457901_migration') AS relationships;
+relationships
+Database: db_457901_migration
+
+Table Connections:
+------------------
+[Implied]  Image.userId -> User.id
+[Implied]  InvisibleImage.id -> Image.id
+[Implied]  InvisibleUrl.id -> Url.id
+[Implied]  Url.userId -> User.id
+
+DROP DATABASE `db_457901_migration`;
+UNINSTALL EXTENSION vsql_schematron;

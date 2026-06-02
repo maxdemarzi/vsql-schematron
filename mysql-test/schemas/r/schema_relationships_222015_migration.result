@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 222015_migration
+#
+CREATE DATABASE `db_222015_migration`;
+USE `db_222015_migration`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`uuid` TEXT,
+`name` VARCHAR(50),
+`email` VARCHAR(50),
+`role` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updater_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`uuid` TEXT,
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updater_at` TIMESTAMP NULL,
+`body` TEXT,
+`UserId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_222015_migration') AS relationships;
+relationships
+Database: db_222015_migration
+
+Table Connections:
+------------------
+[Implied]  posts.UserId -> users.id
+
+DROP DATABASE `db_222015_migration`;
+UNINSTALL EXTENSION vsql_schematron;

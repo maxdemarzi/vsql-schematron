@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 062395_atividade29-08-2021
+#
+CREATE DATABASE `db_062395_atividade29_08_2021`;
+USE `db_062395_atividade29_08_2021`;
+CREATE TABLE `cliente` (
+`nome` VARCHAR(50),
+`codigo` INT NOT NULL,
+`STATUS` CHAR(50),
+`limite_credito` VARCHAR(50),
+`cpf` CHAR(50),
+`rua` VARCHAR(50),
+`numero` CHAR(50),
+`cep` INT,
+`bairro` VARCHAR(50),
+`cidade` VARCHAR(50),
+`UF` CHAR(50),
+`complemento` VARCHAR(50),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `telefone` (
+`numero` INT,
+`codigo` INT NOT NULL,
+`tipo` VARCHAR(50),
+`DDD` CHAR(50),
+`codCliente` INT,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido` (
+`codigo` INT NOT NULL,
+`DATA` DATE,
+`numero` INT,
+`codCliente` INT,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `produto` (
+`nome` VARCHAR(50),
+`codigo` INT NOT NULL,
+`categoria` VARCHAR(50),
+`preco` VARCHAR(50),
+`quantidade` INT,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedidoProduto` (
+`codigo` INT NOT NULL,
+`codPedido` INT,
+`codProduto` INT,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_062395_atividade29_08_2021') AS relationships;
+relationships
+Database: db_062395_atividade29_08_2021
+
+Table Connections:
+------------------
+[Implied]  pedido.codCliente -> cliente.codigo
+[Implied]  pedidoProduto.codPedido -> pedido.codigo
+[Implied]  pedidoProduto.codProduto -> produto.codigo
+[Implied]  telefone.codCliente -> cliente.codigo
+
+DROP DATABASE `db_062395_atividade29_08_2021`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 343989_setup
+#
+CREATE DATABASE `db_343989_setup`;
+USE `db_343989_setup`;
+CREATE TABLE `Categories` (
+`CategoryID` INT NOT NULL,
+`CategoryName` VARCHAR(50),
+`CategoryDescription` VARCHAR(50),
+PRIMARY KEY (`CategoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Products` (
+`ProductNumber` INT NOT NULL,
+`ProductName` VARCHAR(50),
+`ProductDescription` VARCHAR(50),
+`Price` DECIMAL(10,2),
+`CategoryID` INT,
+PRIMARY KEY (`ProductNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `SalesRecords` (
+`SalesRecordNumber` INT NOT NULL,
+`SalesDate` DATETIME,
+`Comment` VARCHAR(50),
+PRIMARY KEY (`SalesRecordNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `SaleRecordDetails` (
+`SalesRecordNumber` INT NOT NULL,
+`ProductNumber` INT NOT NULL,
+`QuotedPrice` DECIMAL(10,2),
+`QuantityOrdered` INT,
+PRIMARY KEY (`SalesRecordNumber`, `ProductNumber`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_343989_setup') AS relationships;
+relationships
+Database: db_343989_setup
+
+Table Connections:
+------------------
+[Implied]  Products.CategoryID -> Categories.CategoryID
+[Implied]  SaleRecordDetails.ProductNumber -> Products.ProductNumber
+[Implied]  SaleRecordDetails.SalesRecordNumber -> SalesRecords.SalesRecordNumber
+
+DROP DATABASE `db_343989_setup`;
+UNINSTALL EXTENSION vsql_schematron;

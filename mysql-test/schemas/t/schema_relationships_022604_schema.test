@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 022604_schema
+--echo #
+CREATE DATABASE `db_022604_schema`;
+USE `db_022604_schema`;
+CREATE TABLE `Author` (
+  `id` INT NOT NULL,
+  `first_name` VARCHAR(50),
+  `family_name` VARCHAR(50),
+  `date_of_birth` DATE,
+  `date_of_death` DATE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Genre` (
+  `id` INT NOT NULL,
+  `genre_name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Book` (
+  `id` INT NOT NULL,
+  `title` VARCHAR(50),
+  `author` INT,
+  `summary` VARCHAR(50),
+  `isbn` VARCHAR(50),
+  `genre` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `BookInstance` (
+  `id` INT NOT NULL,
+  `book` INT,
+  `imprint` VARCHAR(50),
+  `instance_status` VARCHAR(50),
+  `due_back` DATE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_022604_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_022604_schema') AS relationships;
+DROP DATABASE `db_022604_schema`;
+UNINSTALL EXTENSION vsql_schematron;

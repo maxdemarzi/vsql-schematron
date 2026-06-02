@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 075603_EventDAL
+--echo #
+CREATE DATABASE `db_075603_EventDAL`;
+USE `db_075603_EventDAL`;
+CREATE TABLE `EventDB` (
+  `event_id` INT NOT NULL,
+  `event_name` VARCHAR(50),
+  `address` VARCHAR(50),
+  `description` VARCHAR(50),
+  `event_time` VARCHAR(50),
+  PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserDB` (
+  `user_id` INT NOT NULL,
+  `user_name` VARCHAR(50),
+  `user_password` VARCHAR(50),
+  `name_user` VARCHAR(50),
+  `age` INT,
+  `type_account` INT,
+  `job` VARCHAR(50),
+  `address` VARCHAR(50),
+  `email` VARCHAR(50),
+  `phone_number` VARCHAR(50),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `EventDetailsDB` (
+  `user_id` INT NOT NULL,
+  `event_id` INT NOT NULL,
+  `event_status` VARCHAR(50),
+  PRIMARY KEY (`user_id`, `event_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_075603_EventDAL') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_075603_EventDAL') AS relationships;
+DROP DATABASE `db_075603_EventDAL`;
+UNINSTALL EXTENSION vsql_schematron;

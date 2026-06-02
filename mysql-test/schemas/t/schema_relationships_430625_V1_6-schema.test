@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 430625_V1.6-schema
+--echo #
+CREATE DATABASE `db_430625_V1_6_schema`;
+USE `db_430625_V1_6_schema`;
+CREATE TABLE `mapping.organisation_type` (
+  `organisation_type` VARCHAR(50) NOT NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`organisation_type`)
+) CHARACTER SET latin1;
+CREATE TABLE `mapping.organisation` (
+  `ods_code` VARCHAR(50) NOT NULL,
+  `organisation_name` VARCHAR(50),
+  `organisation_type` CHAR(50),
+  `address_line1` VARCHAR(50),
+  `address_line2` VARCHAR(50),
+  `town` VARCHAR(50),
+  `county` VARCHAR(50),
+  `postcode` VARCHAR(50),
+  `phone_number` VARCHAR(50),
+  `is_mapped` BOOLEAN,
+  `last_updated` TIMESTAMP NULL,
+  PRIMARY KEY (`ods_code`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_430625_V1_6_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_430625_V1_6_schema') AS relationships;
+DROP DATABASE `db_430625_V1_6_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 189352_V14__create_data_set
+--echo #
+CREATE DATABASE `db_189352_V14__create_data_set`;
+USE `db_189352_V14__create_data_set`;
+CREATE TABLE `af.test_data_set` (
+  `id` BIGINT NOT NULL,
+  `name` CHAR(50),
+  `last_modification_initiator` CHAR(50),
+  `last_modification_time` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `af.test_payment` (
+  `id` BIGINT NOT NULL,
+  `test_data_set_id` BIGINT,
+  `last_modification_initiator` CHAR(50),
+  `last_modification_time` TIMESTAMP NULL,
+  `payment_id` CHAR(50),
+  `event_time` TIMESTAMP NULL,
+  `amount` INT,
+  `currency` CHAR(50),
+  `card_token` CHAR(50),
+  `status` CHAR(50),
+  `payer_type` CHAR(50),
+  `payment_system` CHAR(50),
+  `payment_country` CHAR(50),
+  `payment_tool` CHAR(50),
+  `mobile` BOOLEAN,
+  `recurrent` BOOLEAN,
+  `party_id` CHAR(50),
+  `shop_id` CHAR(50),
+  `ip` CHAR(50),
+  `fingerprint` CHAR(50),
+  `email` CHAR(50),
+  `error_code` CHAR(50),
+  `error_reason` CHAR(50),
+  `provider_id` CHAR(50),
+  `terminal_id` CHAR(50),
+  `country` CHAR(50),
+  `bin` CHAR(50),
+  `last_digits` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_189352_V14__create_data_set') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_189352_V14__create_data_set') AS relationships;
+DROP DATABASE `db_189352_V14__create_data_set`;
+UNINSTALL EXTENSION vsql_schematron;

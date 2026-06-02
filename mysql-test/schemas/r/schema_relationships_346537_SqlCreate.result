@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 346537_SqlCreate
+#
+CREATE DATABASE `db_346537_SqlCreate`;
+USE `db_346537_SqlCreate`;
+CREATE TABLE `word_type` (
+`ID` INT NOT NULL,
+`word_type` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRAVA` (
+`ID` INT NOT NULL,
+`NAZEV` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRAVAXSKUPINAPRAV` (
+`ID` INT NOT NULL,
+`fk_prava` INT,
+`fk_skupinaprav` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `UZIVATEL` (
+`ID` INT NOT NULL,
+`JMENO` VARCHAR(50),
+`PRIJMENI` VARCHAR(50),
+`fk_skupinaprav` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SKUPINAPRAV` (
+`ID` INT NOT NULL,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_346537_SqlCreate') AS relationships;
+relationships
+Database: db_346537_SqlCreate
+
+Table Connections:
+------------------
+[Implied]  PRAVAXSKUPINAPRAV.fk_prava -> PRAVA.ID
+[Implied]  PRAVAXSKUPINAPRAV.fk_skupinaprav -> SKUPINAPRAV.ID
+[Implied]  UZIVATEL.fk_skupinaprav -> SKUPINAPRAV.ID
+
+DROP DATABASE `db_346537_SqlCreate`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 099401_ScriptBd
+#
+CREATE DATABASE `db_099401_ScriptBd`;
+USE `db_099401_ScriptBd`;
+CREATE TABLE `persistableUser` (
+`userId` VARCHAR(50) NOT NULL,
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+`authorities` VARCHAR(50),
+`nonExpired` TINYINT,
+`nonLocked` TINYINT,
+`credentialsNonExpired` TINYINT,
+`enabled` TINYINT,
+`email` VARCHAR(50),
+`firstName` VARCHAR(50),
+`name` VARCHAR(50),
+`addressStreetName` VARCHAR(50),
+`addressNumber` VARCHAR(50),
+`addressBox` VARCHAR(50),
+`addressLocality` VARCHAR(50),
+`addressPostalCode` INT,
+`phoneNumber` VARCHAR(50),
+`sexe` VARCHAR(50),
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `language` (
+`languageId` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`languageId`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`categoryId` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`categoryId`)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+`orderId` VARCHAR(50) NOT NULL,
+`userId` VARCHAR(50),
+`creationDate` DATE,
+`isPaid` VARCHAR(50),
+PRIMARY KEY (`orderId`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`productId` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`categoryId` VARCHAR(50),
+`unitPrice` DECIMAL(10,2),
+`vatRate` DECIMAL(10,2),
+`type` VARCHAR(50),
+`isSparkling` TINYINT,
+`isSpicy` TINYINT,
+`isSweet` TINYINT,
+PRIMARY KEY (`productId`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderLine` (
+`orderLineId` VARCHAR(50) NOT NULL,
+`productId` VARCHAR(50),
+`orderId` VARCHAR(50),
+`unitPrice` DECIMAL(10,2),
+`quantity` INT,
+PRIMARY KEY (`orderLineId`)
+) CHARACTER SET latin1;
+CREATE TABLE `promotion` (
+`promotionId` VARCHAR(50) NOT NULL,
+`startDate` DATETIME,
+`endDate` DATETIME,
+`typeChoosenItem` TINYINT,
+`categoryId` VARCHAR(50),
+`productId` VARCHAR(50),
+`typeReduction` VARCHAR(50),
+`amountReduction` DECIMAL(10,2),
+PRIMARY KEY (`promotionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `translationCategory` (
+`translationId` VARCHAR(50) NOT NULL,
+`categoryId` VARCHAR(50),
+`languageId` VARCHAR(50),
+`content` VARCHAR(50),
+PRIMARY KEY (`translationId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_099401_ScriptBd') AS relationships;
+relationships
+Database: db_099401_ScriptBd
+
+Table Connections:
+------------------
+[Implied]  order.userId -> persistableUser.userId
+[Implied]  orderLine.orderId -> order.orderId
+[Implied]  orderLine.productId -> product.productId
+[Implied]  product.categoryId -> category.categoryId
+[Implied]  promotion.categoryId -> category.categoryId
+[Implied]  promotion.productId -> product.productId
+[Implied]  translationCategory.categoryId -> category.categoryId
+[Implied]  translationCategory.languageId -> language.languageId
+
+DROP DATABASE `db_099401_ScriptBd`;
+UNINSTALL EXTENSION vsql_schematron;

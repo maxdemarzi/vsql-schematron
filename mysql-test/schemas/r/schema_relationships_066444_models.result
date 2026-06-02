@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 066444_models
+#
+CREATE DATABASE `db_066444_models`;
+USE `db_066444_models`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+`email` VARCHAR(50),
+`year` INT,
+`admin` BOOLEAN,
+`picture` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subjects` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`year` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT NOT NULL,
+`user_id` INT,
+`subject_id` INT,
+`title` VARCHAR(50),
+`category` VARCHAR(50),
+`body` TEXT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `replies` (
+`id` INT NOT NULL,
+`user_id` INT,
+`post_id` INT,
+`body` TEXT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_066444_models') AS relationships;
+relationships
+Database: db_066444_models
+
+Table Connections:
+------------------
+[Implied]  posts.subject_id -> subjects.id
+[Implied]  posts.user_id -> users.id
+[Implied]  replies.post_id -> posts.id
+[Implied]  replies.user_id -> users.id
+
+DROP DATABASE `db_066444_models`;
+UNINSTALL EXTENSION vsql_schematron;

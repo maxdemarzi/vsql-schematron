@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 274932_script_llenado_puntos
+#
+CREATE DATABASE `db_274932_script_llenado_puntos`;
+USE `db_274932_script_llenado_puntos`;
+CREATE TABLE `area` (
+`id_area` INT NOT NULL,
+`nombre` VARCHAR(50),
+PRIMARY KEY (`id_area`)
+) CHARACTER SET latin1;
+CREATE TABLE `profesor` (
+`numero_economico` VARCHAR(50) NOT NULL,
+`nombre` VARCHAR(50),
+`primer_apellido` VARCHAR(50),
+`segundo_apellido` VARCHAR(50),
+`grado_academico` VARCHAR(50),
+`area_id_area` INT,
+PRIMARY KEY (`numero_economico`)
+) CHARACTER SET latin1;
+CREATE TABLE `proyecto_investigacion` (
+`id_proyecto_investigacion` INT NOT NULL,
+`nombre` VARCHAR(50),
+`area_id_area` INT,
+PRIMARY KEY (`id_proyecto_investigacion`)
+) CHARACTER SET latin1;
+CREATE TABLE `profesor_proyecto_investigacion` (
+`id_profesor_proyecto_investigacion` INT NOT NULL,
+`rol` VARCHAR(50),
+`profesor_numero_economico` VARCHAR(50),
+`proyecto_investigacion_id_proyecto_investigacion` INT,
+PRIMARY KEY (`id_profesor_proyecto_investigacion`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_274932_script_llenado_puntos') AS relationships;
+relationships
+Database: db_274932_script_llenado_puntos
+
+Table Connections:
+------------------
+[Implied]  profesor.area_id_area -> area.id_area
+[Implied]  profesor_proyecto_investigacion.profesor_numero_economico -> profesor.numero_economico
+[Implied]  profesor_proyecto_investigacion.proyecto_investigacion_id_proyecto_investigacion -> proyecto_investigacion.id_proyecto_investigacion
+[Implied]  proyecto_investigacion.area_id_area -> area.id_area
+
+DROP DATABASE `db_274932_script_llenado_puntos`;
+UNINSTALL EXTENSION vsql_schematron;

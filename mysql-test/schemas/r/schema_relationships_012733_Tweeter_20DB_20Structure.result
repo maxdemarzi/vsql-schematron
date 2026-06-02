@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 012733_Tweeter%20DB%20Structure
+#
+CREATE DATABASE `db_012733_Tweeter_20DB_20Structure`;
+USE `db_012733_Tweeter_20DB_20Structure`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`handle` VARCHAR(50),
+`role` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+`deleted_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tweets` (
+`id` INT NOT NULL,
+`user_id` INT,
+`content` VARCHAR(50),
+`media` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+`deleted_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT NOT NULL,
+`user_id` INT,
+`name` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+`deleted_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `followers` (
+`id` INT NOT NULL,
+`user_id` INT,
+`follower_id` INT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+`deleted_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_012733_Tweeter_20DB_20Structure') AS relationships;
+relationships
+Database: db_012733_Tweeter_20DB_20Structure
+
+Table Connections:
+------------------
+[Implied]  followers.user_id -> users.id
+[Implied]  roles.user_id -> users.id
+[Implied]  tweets.user_id -> users.id
+
+DROP DATABASE `db_012733_Tweeter_20DB_20Structure`;
+UNINSTALL EXTENSION vsql_schematron;

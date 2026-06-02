@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 204065_sql-schema
+#
+CREATE DATABASE `db_204065_sql_schema`;
+USE `db_204065_sql_schema`;
+CREATE TABLE `customers` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`surname` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`id` INT NOT NULL,
+`item_name` VARCHAR(50),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT NOT NULL,
+`id_customers` INT,
+`total` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders_items` (
+`id` INT NOT NULL,
+`id_orders` INT,
+`id_items` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_204065_sql_schema') AS relationships;
+relationships
+Database: db_204065_sql_schema
+
+Table Connections:
+------------------
+[Implied]  orders.id_customers -> customers.id
+[Implied]  orders_items.id_items -> items.id
+[Implied]  orders_items.id_orders -> orders.id
+
+DROP DATABASE `db_204065_sql_schema`;
+UNINSTALL EXTENSION vsql_schematron;

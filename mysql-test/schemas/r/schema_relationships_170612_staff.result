@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 170612_staff
+#
+CREATE DATABASE `db_170612_staff`;
+USE `db_170612_staff`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`name` TEXT,
+`password` TEXT,
+`description` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+`id` INT NOT NULL,
+`name` TEXT,
+`description` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_to_groups` (
+`id` INT NOT NULL,
+`userid` INT,
+`groupid` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `objects` (
+`id` INT NOT NULL,
+`name` TEXT,
+`description` TEXT,
+`parentid` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `objects_to_users_acl` (
+`id` INT NOT NULL,
+`objectid` INT,
+`userid` INT,
+`permit` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `objects_to_groups_acl` (
+`id` INT NOT NULL,
+`objectid` INT,
+`groupid` INT,
+`permit` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `settings` (
+`id` INT NOT NULL,
+`name` TEXT,
+`value` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_170612_staff') AS relationships;
+relationships
+Database: db_170612_staff
+
+Table Connections:
+------------------
+[Implied]  objects.parentid -> objects.id
+[Implied]  objects_to_groups_acl.groupid -> groups.id
+[Implied]  objects_to_groups_acl.objectid -> objects.id
+[Implied]  objects_to_users_acl.objectid -> objects.id
+[Implied]  objects_to_users_acl.userid -> users.id
+[Implied]  users_to_groups.groupid -> groups.id
+[Implied]  users_to_groups.userid -> users.id
+
+DROP DATABASE `db_170612_staff`;
+UNINSTALL EXTENSION vsql_schematron;

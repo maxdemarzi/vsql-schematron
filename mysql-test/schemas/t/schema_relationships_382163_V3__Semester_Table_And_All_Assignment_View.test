@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 382163_V3__Semester_Table_And_All_Assignment_View
+--echo #
+CREATE DATABASE `db_382163_V3__Semester_Table_And_All_Assignment_View`;
+USE `db_382163_V3__Semester_Table_And_All_Assignment_View`;
+CREATE TABLE `semester` (
+  `unique_id` INT NOT NULL,
+  `term` TEXT,
+  `year` INT,
+  PRIMARY KEY (`unique_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+  `unique_id` INT NOT NULL,
+  `name` TEXT,
+  `department` TEXT,
+  `course_number` TEXT,
+  `section_number` TEXT,
+  `semester_id` INT,
+  PRIMARY KEY (`unique_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `assignment` (
+  `unique_id` INT NOT NULL,
+  `name` TEXT,
+  `image_file_path` TEXT,
+  `course_id` INT,
+  `student_id` INT,
+  `created_date_time` TEXT,
+  PRIMARY KEY (`unique_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_382163_V3__Semester_Table_And_All_Assignment_View') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_382163_V3__Semester_Table_And_All_Assignment_View') AS relationships;
+DROP DATABASE `db_382163_V3__Semester_Table_And_All_Assignment_View`;
+UNINSTALL EXTENSION vsql_schematron;

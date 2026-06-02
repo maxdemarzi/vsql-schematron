@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 152230_init
+#
+CREATE DATABASE `db_152230_init`;
+USE `db_152230_init`;
+CREATE TABLE `data` (
+`id` INT NOT NULL,
+`mes` INT,
+`ano` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cidade` (
+`id` INT NOT NULL,
+`nome` VARCHAR(50),
+`estado` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clima` (
+`id` INT NOT NULL,
+`temp_med_celsius` DOUBLE,
+`temp_min_celsius` DOUBLE,
+`temp_max_celsius` DOUBLE,
+`precipitacao_mensal_mm` DOUBLE,
+`data_id` INT,
+`cidade_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dengue` (
+`id` INT NOT NULL,
+`n_casos` INT,
+`data_id` INT,
+`cidade_id` INT,
+`clima_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_152230_init') AS relationships;
+relationships
+Database: db_152230_init
+
+Table Connections:
+------------------
+[Implied]  clima.cidade_id -> cidade.id
+[Implied]  clima.data_id -> data.id
+[Implied]  dengue.cidade_id -> cidade.id
+[Implied]  dengue.clima_id -> clima.id
+[Implied]  dengue.data_id -> data.id
+
+DROP DATABASE `db_152230_init`;
+UNINSTALL EXTENSION vsql_schematron;

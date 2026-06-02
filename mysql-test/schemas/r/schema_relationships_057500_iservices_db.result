@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 057500_iservices_db
+#
+CREATE DATABASE `db_057500_iservices_db`;
+USE `db_057500_iservices_db`;
+CREATE TABLE `services` (
+`srv_id` VARCHAR(50) NOT NULL,
+`srv_name` VARCHAR(50),
+`srv_shdesc` VARCHAR(50),
+`srv_desc` VARCHAR(50),
+`srv_limit` VARCHAR(50),
+`srv_duration` VARCHAR(50),
+PRIMARY KEY (`srv_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `access_services` (
+`acc_id` VARCHAR(50) NOT NULL,
+`srv_id` VARCHAR(50),
+`acc_type` VARCHAR(50),
+`acc_info` VARCHAR(50),
+`acc_limit` VARCHAR(50),
+PRIMARY KEY (`acc_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `allocated_services` (
+`alloc_id` VARCHAR(50) NOT NULL,
+`srv_id` VARCHAR(50),
+`srv_uuid` VARCHAR(50),
+`portal_user` VARCHAR(50),
+`alloc_ts` DATETIME,
+`alloc_expts` DATETIME,
+`alloc_state` VARCHAR(50),
+PRIMARY KEY (`alloc_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `allocated_access` (
+`access_id` VARCHAR(50) NOT NULL,
+`alloc_id` VARCHAR(50),
+`acc_type` VARCHAR(50),
+`acc_info` VARCHAR(50),
+PRIMARY KEY (`access_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_057500_iservices_db') AS relationships;
+relationships
+Database: db_057500_iservices_db
+
+Table Connections:
+------------------
+[Implied]  access_services.srv_id -> services.srv_id
+[Implied]  allocated_access.alloc_id -> allocated_services.alloc_id
+[Implied]  allocated_services.srv_id -> services.srv_id
+
+DROP DATABASE `db_057500_iservices_db`;
+UNINSTALL EXTENSION vsql_schematron;

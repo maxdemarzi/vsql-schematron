@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 115456_schema_mysql
+#
+CREATE DATABASE `db_115456_schema_mysql`;
+USE `db_115456_schema_mysql`;
+CREATE TABLE `BATCH_JOB_CONFIGURATION` (
+`job_configuration_id` BIGINT NOT NULL,
+`application_name` VARCHAR(50),
+`job_name` VARCHAR(50),
+`job_incrementer` VARCHAR(50),
+`job_configuration_type` INT,
+PRIMARY KEY (`job_configuration_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `BATCH_JOB_CONFIGURATION_VALUE` (
+`id` BIGINT NOT NULL,
+`job_configuration_id` BIGINT,
+`value_key` VARCHAR(50),
+`configuration_value` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `BATCH_JOB_CONFIGURATION_PARAMETERS` (
+`id` BIGINT NOT NULL,
+`job_configuration_id` BIGINT,
+`parameter_name` VARCHAR(50),
+`parameter_value` VARCHAR(50),
+`parameter_type` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_115456_schema_mysql') AS relationships;
+relationships
+Database: db_115456_schema_mysql
+
+Table Connections:
+------------------
+[Implied]  BATCH_JOB_CONFIGURATION_PARAMETERS.job_configuration_id -> BATCH_JOB_CONFIGURATION.job_configuration_id
+[Implied]  BATCH_JOB_CONFIGURATION_VALUE.job_configuration_id -> BATCH_JOB_CONFIGURATION.job_configuration_id
+
+DROP DATABASE `db_115456_schema_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

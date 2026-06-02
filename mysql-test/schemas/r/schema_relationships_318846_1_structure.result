@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 318846_1_structure
+#
+CREATE DATABASE `db_318846_1_structure`;
+USE `db_318846_1_structure`;
+CREATE TABLE `USERS` (
+`ID` BIGINT NOT NULL,
+`USERNAME` VARCHAR(50),
+`PASSWORD` BLOB,
+`TYPE` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `USERS_DATA_APPROVAL` (
+`ID` BIGINT NOT NULL,
+`USER_ID` BIGINT,
+`APPROVAL_DATE` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PHRASES` (
+`ID` BIGINT NOT NULL,
+`USER_ID` BIGINT,
+`LANGUAGE` VARCHAR(50),
+`PHRASE` TEXT,
+`STATE` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_318846_1_structure') AS relationships;
+relationships
+Database: db_318846_1_structure
+
+Table Connections:
+------------------
+[Implied]  PHRASES.USER_ID -> USERS.ID
+[Implied]  USERS_DATA_APPROVAL.USER_ID -> USERS.ID
+
+DROP DATABASE `db_318846_1_structure`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 428357_boat
+--echo #
+CREATE DATABASE `db_428357_boat`;
+USE `db_428357_boat`;
+CREATE TABLE `Sailors` (
+  `sid` DECIMAL(10,2) NOT NULL,
+  `s_name` VARCHAR(50),
+  `rating` DECIMAL(10,2),
+  `age` DECIMAL(10,2),
+  PRIMARY KEY (`sid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Boats` (
+  `bid` DECIMAL(10,2) NOT NULL,
+  `bname` VARCHAR(50),
+  `color` VARCHAR(50),
+  PRIMARY KEY (`bid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reserves` (
+  `sid` DECIMAL(10,2) NOT NULL,
+  `bid` DECIMAL(10,2) NOT NULL,
+  `day` DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (`sid`, `bid`, `day`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_428357_boat') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_428357_boat') AS relationships;
+DROP DATABASE `db_428357_boat`;
+UNINSTALL EXTENSION vsql_schematron;

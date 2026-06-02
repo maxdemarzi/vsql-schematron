@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 036913_dao2
+#
+CREATE DATABASE `db_036913_dao2`;
+USE `db_036913_dao2`;
+CREATE TABLE `author` (
+`author_id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`pen_name` VARCHAR(50),
+PRIMARY KEY (`author_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `editor` (
+`editor_id` BIGINT NOT NULL,
+`first_name` CHAR(50),
+`middle_name` CHAR(50),
+`last_name` CHAR(50),
+PRIMARY KEY (`editor_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `title` (
+`title_id` BIGINT NOT NULL,
+`title_descr` CHAR(50),
+`title_cost` DOUBLE,
+`editor_id` BIGINT,
+PRIMARY KEY (`title_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `title_author` (
+`title_id` BIGINT,
+`author_id` BIGINT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_036913_dao2') AS relationships;
+relationships
+Database: db_036913_dao2
+
+Table Connections:
+------------------
+[Implied]  title.editor_id -> editor.editor_id
+[Implied]  title_author.author_id -> author.author_id
+[Implied]  title_author.title_id -> title.title_id
+
+DROP DATABASE `db_036913_dao2`;
+UNINSTALL EXTENSION vsql_schematron;

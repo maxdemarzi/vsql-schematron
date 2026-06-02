@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 462744_schema
+--echo #
+CREATE DATABASE `db_462744_schema`;
+USE `db_462744_schema`;
+CREATE TABLE `locations` (
+  `id` INT NOT NULL,
+  `search_query` VARCHAR(50),
+  `formatted_address` VARCHAR(50),
+  `latitude` DECIMAL(10,2),
+  `longitude` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `weathers` (
+  `id` INT NOT NULL,
+  `forecast` VARCHAR(50),
+  `time` VARCHAR(50),
+  `location_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+  `id` INT NOT NULL,
+  `link` VARCHAR(50),
+  `name` VARCHAR(50),
+  `event_date` VARCHAR(50),
+  `summary` VARCHAR(50),
+  `location_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_462744_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_462744_schema') AS relationships;
+DROP DATABASE `db_462744_schema`;
+UNINSTALL EXTENSION vsql_schematron;

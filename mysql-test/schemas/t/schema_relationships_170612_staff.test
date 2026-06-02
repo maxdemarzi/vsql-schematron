@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 170612_staff
+--echo #
+CREATE DATABASE `db_170612_staff`;
+USE `db_170612_staff`;
+CREATE TABLE `users` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  `password` TEXT,
+  `description` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  `description` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_to_groups` (
+  `id` INT NOT NULL,
+  `userid` INT,
+  `groupid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `objects` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  `description` TEXT,
+  `parentid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `objects_to_users_acl` (
+  `id` INT NOT NULL,
+  `objectid` INT,
+  `userid` INT,
+  `permit` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `objects_to_groups_acl` (
+  `id` INT NOT NULL,
+  `objectid` INT,
+  `groupid` INT,
+  `permit` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `settings` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  `value` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_170612_staff') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_170612_staff') AS relationships;
+DROP DATABASE `db_170612_staff`;
+UNINSTALL EXTENSION vsql_schematron;

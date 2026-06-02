@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 202508_script
+#
+CREATE DATABASE `db_202508_script`;
+USE `db_202508_script`;
+CREATE TABLE `users` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`password` VARCHAR(50),
+`cpf_cnpj` VARCHAR(50),
+`cep` VARCHAR(50),
+`address` VARCHAR(50),
+`email` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products_categories` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ads` (
+`id` VARCHAR(50) NOT NULL,
+`users_id` VARCHAR(50),
+`products_categories_id` INT,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`price` DECIMAL(10,2),
+`old_price` DECIMAL(10,2),
+`quantity` INT,
+`available` BOOLEAN,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `file` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`path` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ads_photos` (
+`id` INT NOT NULL,
+`ads_id` VARCHAR(50),
+`file_id` INT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+`id` VARCHAR(50) NOT NULL,
+`users_id` VARCHAR(50),
+`ads_id` VARCHAR(50),
+`status` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales` (
+`id` VARCHAR(50) NOT NULL,
+`users_id` VARCHAR(50),
+`ads_id` VARCHAR(50),
+`status` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_202508_script') AS relationships;
+relationships
+Database: db_202508_script
+
+Table Connections:
+------------------
+[Implied]  ads.products_categories_id -> products_categories.id
+[Implied]  ads.users_id -> users.id
+[Implied]  ads_photos.ads_id -> ads.id
+[Implied]  ads_photos.file_id -> file.id
+[Implied]  order.ads_id -> ads.id
+[Implied]  order.users_id -> users.id
+[Implied]  sales.ads_id -> ads.id
+[Implied]  sales.users_id -> users.id
+
+DROP DATABASE `db_202508_script`;
+UNINSTALL EXTENSION vsql_schematron;

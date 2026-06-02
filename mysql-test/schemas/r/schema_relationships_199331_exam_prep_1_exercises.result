@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 199331_exam_prep_1_exercises
+#
+CREATE DATABASE `db_199331_exam_prep_1_exercises`;
+USE `db_199331_exam_prep_1_exercises`;
+CREATE TABLE `countries` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `towns` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`country_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stadiums` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`capacity` INT,
+`town_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teams` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`established` DATE,
+`fan_base` BIGINT,
+`stadium_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `skills_data` (
+`id` INT NOT NULL,
+`dribbling` INT,
+`pace` INT,
+`passing` INT,
+`shooting` INT,
+`speed` INT,
+`strength` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `coaches` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`salary` DECIMAL(10,2),
+`coach_level` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `players_coaches` (
+`player_id` INT NOT NULL,
+`coach_id` INT NOT NULL,
+PRIMARY KEY (`player_id`, `coach_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_199331_exam_prep_1_exercises') AS relationships;
+relationships
+Database: db_199331_exam_prep_1_exercises
+
+Table Connections:
+------------------
+[Implied]  players_coaches.coach_id -> coaches.id
+[Implied]  stadiums.town_id -> towns.id
+[Implied]  teams.stadium_id -> stadiums.id
+[Implied]  towns.country_id -> countries.id
+
+DROP DATABASE `db_199331_exam_prep_1_exercises`;
+UNINSTALL EXTENSION vsql_schematron;

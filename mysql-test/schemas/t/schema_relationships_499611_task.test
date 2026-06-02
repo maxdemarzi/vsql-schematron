@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 499611_task
+--echo #
+CREATE DATABASE `db_499611_task`;
+USE `db_499611_task`;
+CREATE TABLE `TASK_TYPE` (
+  `NAME` VARCHAR(50) NOT NULL,
+  `DESCRIPTION` VARCHAR(50),
+  `INPUT_SCHEMA` VARCHAR(50),
+  `OUTPUT_SCHEMA` VARCHAR(50),
+  `enable` CHAR(50),
+  `CRON_FREQUENT` VARCHAR(50),
+  PRIMARY KEY (`NAME`)
+) CHARACTER SET latin1;
+CREATE TABLE `TASK` (
+  `UUID` VARCHAR(50) NOT NULL,
+  `TASK_TYPE_NAME` CHAR(50),
+  `INPUT` VARCHAR(50),
+  `OUTPUT` VARCHAR(50),
+  `HISTORY` VARCHAR(50),
+  `START_TIME` TIMESTAMP NULL,
+  `END_TIME` TIMESTAMP NULL,
+  `ERROR` VARCHAR(50),
+  `FINISH` CHAR(50),
+  `CREATED_TIME` TIMESTAMP NULL,
+  PRIMARY KEY (`UUID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_499611_task') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_499611_task') AS relationships;
+DROP DATABASE `db_499611_task`;
+UNINSTALL EXTENSION vsql_schematron;

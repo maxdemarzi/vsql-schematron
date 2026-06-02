@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 197276_ddl.mysql
+#
+CREATE DATABASE `db_197276_ddl_mysql`;
+USE `db_197276_ddl_mysql`;
+CREATE TABLE `Usuarios` (
+`Id` INT NOT NULL,
+`Email` VARCHAR(50),
+`Senha` VARCHAR(50),
+`CPF` VARCHAR(50),
+`DataCadastro` DATETIME,
+`Logado` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Professores` (
+`Id` INT NOT NULL,
+`IdUsuario` INT,
+`Instituicao` VARCHAR(50),
+`Url` VARCHAR(50),
+`AreaAtuacao` VARCHAR(50),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Alunos` (
+`Id` INT NOT NULL,
+`IdUsuario` INT,
+`NumeroRegistro` VARCHAR(50),
+`NivelEscolaridade` VARCHAR(50),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Aulas` (
+`Id` INT NOT NULL,
+`IdProfessor` INT,
+`Codigo` VARCHAR(50),
+`Data` DATETIME,
+`Descricao` VARCHAR(50),
+`Aovivo` INT,
+`Transcript` TEXT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `AlunosAulas` (
+`Id` INT NOT NULL,
+`IdAluno` INT,
+`IdAula` INT,
+`Ativo` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Arquivos` (
+`Id` INT NOT NULL,
+`IdUsuario` INT,
+`IdAula` INT,
+`Descricao` VARCHAR(50),
+`DataCadastro` DATETIME,
+`Ativo` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_197276_ddl_mysql') AS relationships;
+relationships
+Database: db_197276_ddl_mysql
+
+Table Connections:
+------------------
+[Implied]  Alunos.IdUsuario -> Usuarios.Id
+[Implied]  AlunosAulas.IdAluno -> Alunos.Id
+[Implied]  AlunosAulas.IdAula -> Aulas.Id
+[Implied]  Arquivos.IdAula -> Aulas.Id
+[Implied]  Arquivos.IdUsuario -> Usuarios.Id
+[Implied]  Aulas.IdProfessor -> Professores.Id
+[Implied]  Professores.IdUsuario -> Usuarios.Id
+
+DROP DATABASE `db_197276_ddl_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

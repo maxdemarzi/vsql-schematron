@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 545691_db_sman_2_01
+#
+CREATE DATABASE `db_545691_db_sman_2_01`;
+USE `db_545691_db_sman_2_01`;
+CREATE TABLE `data_ekskul` (
+`id` INT NOT NULL,
+`id_ekskul` INT,
+`id_semester` INT,
+`nilai_ekskul` VARCHAR(50),
+`keterangan` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `data_nilai` (
+`id` INT NOT NULL,
+`id_mata_pelajaran` INT,
+`id_semester` INT,
+`nilai_pengetahuan` INT,
+`nilai_keterampilan` INT,
+`predikat_pengetahuan` VARCHAR(50),
+`predikat_keterampilan` VARCHAR(50),
+`last_modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `data_semester` (
+`id` INT NOT NULL,
+`id_siswa` INT,
+`semester` INT,
+`kelas` VARCHAR(50),
+`penilaian_spiritual` TEXT,
+`penilaian_sosial` TEXT,
+`absen_sakit` INT,
+`absen_izin` INT,
+`absen_alfa` INT,
+`terlambat` INT,
+`tahun_ajar_awal` VARCHAR(50),
+`tahun_ajar_akhir` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `data_siswa` (
+`id` INT NOT NULL,
+`nama` VARCHAR(50),
+`nis` VARCHAR(50),
+`nisn` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ref_ekskul` (
+`id` INT NOT NULL,
+`nama` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_545691_db_sman_2_01') AS relationships;
+relationships
+Database: db_545691_db_sman_2_01
+
+Table Connections:
+------------------
+[Implied]  data_ekskul.id_ekskul -> ref_ekskul.id
+[Implied]  data_ekskul.id_semester -> data_semester.id
+[Implied]  data_nilai.id_semester -> data_semester.id
+[Implied]  data_semester.id_siswa -> data_siswa.id
+
+DROP DATABASE `db_545691_db_sman_2_01`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 616842_unit01_data_organization
+--echo #
+CREATE DATABASE `db_616842_unit01_data_organization`;
+USE `db_616842_unit01_data_organization`;
+CREATE TABLE `PLAYER` (
+  `ID_player` DECIMAL(10,2) NOT NULL,
+  `name` VARCHAR(50),
+  `position` VARCHAR(50),
+  `BI` VARCHAR(50),
+  PRIMARY KEY (`ID_player`)
+) CHARACTER SET latin1;
+CREATE TABLE `HIRED` (
+  `ID_player` DECIMAL(10,2) NOT NULL,
+  `Initial_date` DATE NOT NULL,
+  `final_date` DATE,
+  PRIMARY KEY (`ID_player`, `Initial_date`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_616842_unit01_data_organization') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_616842_unit01_data_organization') AS relationships;
+DROP DATABASE `db_616842_unit01_data_organization`;
+UNINSTALL EXTENSION vsql_schematron;

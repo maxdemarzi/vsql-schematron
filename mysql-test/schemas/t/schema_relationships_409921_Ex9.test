@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 409921_Ex9
+--echo #
+CREATE DATABASE `db_409921_Ex9`;
+USE `db_409921_Ex9`;
+CREATE TABLE `Cliente` (
+  `idCliente` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `CPF` CHAR(50),
+  `endereco` VARCHAR(50),
+  `fone` VARCHAR(50),
+  `CNH` CHAR(50),
+  `idade` INT,
+  PRIMARY KEY (`idCliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `Marca` (
+  `idMarca` INT NOT NULL,
+  `marca` VARCHAR(50),
+  `nacionalidade` VARCHAR(50),
+  PRIMARY KEY (`idMarca`)
+) CHARACTER SET latin1;
+CREATE TABLE `Carro` (
+  `idCarro` INT NOT NULL,
+  `marca` INT,
+  `modelo` VARCHAR(50),
+  `ano` INT,
+  `cor` VARCHAR(50),
+  `placa` CHAR(50),
+  `nChassi` CHAR(50),
+  PRIMARY KEY (`idCarro`)
+) CHARACTER SET latin1;
+CREATE TABLE `Aluga` (
+  `idCliente` INT NOT NULL,
+  `idCarro` INT NOT NULL,
+  `data` DATE NOT NULL,
+  `km` INT,
+  PRIMARY KEY (`idCliente`, `idCarro`, `data`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_409921_Ex9') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_409921_Ex9') AS relationships;
+DROP DATABASE `db_409921_Ex9`;
+UNINSTALL EXTENSION vsql_schematron;

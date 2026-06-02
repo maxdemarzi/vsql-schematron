@@ -1,0 +1,33 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 627453_21.do.permissions
+#
+CREATE DATABASE `db_627453_21_do_permissions`;
+USE `db_627453_21_do_permissions`;
+CREATE TABLE `permission_subject` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `permission_action` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles_permissions` (
+`role_id` INT NOT NULL,
+`permission_subject_id` INT NOT NULL,
+`permission_action_id` INT NOT NULL,
+PRIMARY KEY (`role_id`, `permission_subject_id`, `permission_action_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_627453_21_do_permissions') AS relationships;
+relationships
+Database: db_627453_21_do_permissions
+
+Table Connections:
+------------------
+[Implied]  roles_permissions.permission_action_id -> permission_action.id
+[Implied]  roles_permissions.permission_subject_id -> permission_subject.id
+
+DROP DATABASE `db_627453_21_do_permissions`;
+UNINSTALL EXTENSION vsql_schematron;

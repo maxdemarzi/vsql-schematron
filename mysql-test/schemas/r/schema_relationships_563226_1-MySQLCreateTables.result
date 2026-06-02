@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 563226_1-MySQLCreateTables
+#
+CREATE DATABASE `db_563226_1_MySQLCreateTables`;
+USE `db_563226_1_MySQLCreateTables`;
+CREATE TABLE `Province` (
+`provinceId` BIGINT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`provinceId`)
+) CHARACTER SET latin1;
+CREATE TABLE `SportEventType` (
+`typeId` BIGINT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`typeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `SportEvent` (
+`eventId` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`date` TIMESTAMP NULL,
+`price` DECIMAL(10,2),
+`maxParticipants` SMALLINT,
+`numParticipants` SMALLINT,
+`location` VARCHAR(50),
+`typeId` BIGINT,
+`provinceId` BIGINT,
+`numberOfRates` SMALLINT,
+`valueOfRates` SMALLINT,
+`version` BIGINT,
+PRIMARY KEY (`eventId`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` BIGINT NOT NULL,
+`userName` VARCHAR(50),
+`password` VARCHAR(50),
+`firstName` VARCHAR(50),
+`lastName` VARCHAR(50),
+`email` VARCHAR(50),
+`role` TINYINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Inscription` (
+`inscriptionId` BIGINT NOT NULL,
+`userId` BIGINT,
+`sportEventId` BIGINT,
+`dorsal` SMALLINT,
+`creditCard` VARCHAR(50),
+`collected` VARCHAR(50),
+`rated` VARCHAR(50),
+`rateValue` TINYINT,
+`date` TIMESTAMP NULL,
+PRIMARY KEY (`inscriptionId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_563226_1_MySQLCreateTables') AS relationships;
+relationships
+Database: db_563226_1_MySQLCreateTables
+
+Table Connections:
+------------------
+[Implied]  Inscription.sportEventId -> SportEvent.eventId
+[Implied]  Inscription.userId -> User.id
+[Implied]  SportEvent.provinceId -> Province.provinceId
+[Implied]  SportEvent.typeId -> SportEventType.typeId
+
+DROP DATABASE `db_563226_1_MySQLCreateTables`;
+UNINSTALL EXTENSION vsql_schematron;

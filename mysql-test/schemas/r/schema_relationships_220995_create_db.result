@@ -1,0 +1,32 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 220995_create_db
+#
+CREATE DATABASE `db_220995_create_db`;
+USE `db_220995_create_db`;
+CREATE TABLE `employee` (
+`employee_id` INT NOT NULL,
+`employee_name` VARCHAR(50),
+PRIMARY KEY (`employee_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `company` (
+`company_id` INT NOT NULL,
+`company_name` VARCHAR(50),
+PRIMARY KEY (`company_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `company_employee` (
+`employee_id` INT NOT NULL,
+`company_id` INT NOT NULL,
+PRIMARY KEY (`employee_id`, `company_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_220995_create_db') AS relationships;
+relationships
+Database: db_220995_create_db
+
+Table Connections:
+------------------
+[Implied]  company_employee.company_id -> company.company_id
+[Implied]  company_employee.employee_id -> employee.employee_id
+
+DROP DATABASE `db_220995_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

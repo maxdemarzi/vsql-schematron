@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 104401_V1.7.1__scirpt_1.0
+--echo #
+CREATE DATABASE `db_104401_V1_7_1__scirpt_1_0`;
+USE `db_104401_V1_7_1__scirpt_1_0`;
+CREATE TABLE `NOTE_BOOK` (
+  `ID` VARCHAR(50) NOT NULL,
+  `CRT_DTTM` DATETIME,
+  `CRT_USER` VARCHAR(50),
+  `ENABLE_FLAG` VARCHAR(50),
+  `LAST_UPDATE_DTTM` DATETIME,
+  `LAST_UPDATE_USER` VARCHAR(50),
+  `VERSION` BIGINT,
+  `NAME` VARCHAR(50),
+  `DESCRIPTION` TEXT,
+  `SESSIONS_ID` VARCHAR(50),
+  `CODE_TYPE` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CODE_SNIPPET` (
+  `ID` VARCHAR(50) NOT NULL,
+  `CRT_DTTM` DATETIME,
+  `CRT_USER` VARCHAR(50),
+  `ENABLE_FLAG` VARCHAR(50),
+  `LAST_UPDATE_DTTM` DATETIME,
+  `LAST_UPDATE_USER` VARCHAR(50),
+  `VERSION` BIGINT,
+  `FK_NOTE_BOOK_ID` VARCHAR(50),
+  `EXECUTE_ID` VARCHAR(50),
+  `CODE_CONTENT` TEXT,
+  `CODE_SNIPPET_SORT` BIGINT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `FLOW_GLOBAL_PARAMS` (
+  `ID` VARCHAR(50) NOT NULL,
+  `CRT_DTTM` DATETIME,
+  `CRT_USER` VARCHAR(50),
+  `ENABLE_FLAG` VARCHAR(50),
+  `LAST_UPDATE_DTTM` DATETIME,
+  `LAST_UPDATE_USER` VARCHAR(50),
+  `VERSION` BIGINT,
+  `NAME` VARCHAR(50),
+  `TYPE` VARCHAR(50),
+  `CONTENT` TEXT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ASSOCIATION_GLOBAL_PARAMS_FLOW` (
+  `GLOBAL_PARAMS_ID` VARCHAR(50),
+  `FLOW_ID` VARCHAR(50),
+  `PROCESS_ID` VARCHAR(50)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_104401_V1_7_1__scirpt_1_0') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_104401_V1_7_1__scirpt_1_0') AS relationships;
+DROP DATABASE `db_104401_V1_7_1__scirpt_1_0`;
+UNINSTALL EXTENSION vsql_schematron;

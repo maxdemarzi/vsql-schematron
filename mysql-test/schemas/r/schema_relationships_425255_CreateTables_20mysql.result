@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 425255_CreateTables%20mysql
+#
+CREATE DATABASE `db_425255_CreateTables_20mysql`;
+USE `db_425255_CreateTables_20mysql`;
+CREATE TABLE `ProjectCategories` (
+`categoryId` VARCHAR(50) NOT NULL,
+`categoryName` VARCHAR(50),
+PRIMARY KEY (`categoryId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employers` (
+`employerId` VARCHAR(50) NOT NULL,
+`employerName` VARCHAR(50),
+PRIMARY KEY (`employerId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Projects` (
+`projectId` VARCHAR(50) NOT NULL,
+`title` VARCHAR(50),
+`projectDescription` VARCHAR(50),
+`projectDate` DATE,
+`categoryId` VARCHAR(50),
+`employerId` VARCHAR(50),
+`active` BOOLEAN,
+`ranking` VARCHAR(50),
+PRIMARY KEY (`projectId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Posters` (
+`posterId` VARCHAR(50) NOT NULL,
+`projectId` VARCHAR(50),
+`posterDescription` VARCHAR(50),
+`posterUrl` VARCHAR(50),
+`thumbnailUrl` VARCHAR(50),
+PRIMARY KEY (`posterId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+`userId` VARCHAR(50) NOT NULL,
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_425255_CreateTables_20mysql') AS relationships;
+relationships
+Database: db_425255_CreateTables_20mysql
+
+Table Connections:
+------------------
+[Implied]  Posters.projectId -> Projects.projectId
+[Implied]  Projects.categoryId -> ProjectCategories.categoryId
+[Implied]  Projects.employerId -> Employers.employerId
+
+DROP DATABASE `db_425255_CreateTables_20mysql`;
+UNINSTALL EXTENSION vsql_schematron;

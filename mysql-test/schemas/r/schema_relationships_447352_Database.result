@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 447352_Database
+#
+CREATE DATABASE `db_447352_Database`;
+USE `db_447352_Database`;
+CREATE TABLE `tb_clientes` (
+`id_cliente` INT NOT NULL,
+`nome` VARCHAR(50),
+`telefone` VARCHAR(50),
+`cep` VARCHAR(50),
+`rua` VARCHAR(50),
+`numero` VARCHAR(50),
+`complemento` VARCHAR(50),
+`bairro` VARCHAR(50),
+`fg_ativo` INT,
+PRIMARY KEY (`id_cliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_pizzas` (
+`id_pizza` INT NOT NULL,
+`sabor` VARCHAR(50),
+`valor` DECIMAL(10,2),
+`fg_ativo` INT,
+PRIMARY KEY (`id_pizza`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_pedido` (
+`id_pedido` INT NOT NULL,
+`id_cliente` INT,
+`data_compra` DATE,
+`valor` DECIMAL(10,2),
+PRIMARY KEY (`id_pedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_item_pedido` (
+`id_item` INT NOT NULL,
+`id_pedido` INT NOT NULL,
+`id_pizza` INT NOT NULL,
+`quantidade` INT,
+`fg_meia` INT,
+`valor` DECIMAL(10,2),
+PRIMARY KEY (`id_pedido`, `id_pizza`, `id_item`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_447352_Database') AS relationships;
+relationships
+Database: db_447352_Database
+
+Table Connections:
+------------------
+[Implied]  tb_item_pedido.id_pedido -> tb_pedido.id_pedido
+[Implied]  tb_item_pedido.id_pizza -> tb_pizzas.id_pizza
+[Implied]  tb_pedido.id_cliente -> tb_clientes.id_cliente
+
+DROP DATABASE `db_447352_Database`;
+UNINSTALL EXTENSION vsql_schematron;

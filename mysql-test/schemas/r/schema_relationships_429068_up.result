@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 429068_up
+#
+CREATE DATABASE `db_429068_up`;
+USE `db_429068_up`;
+CREATE TABLE `guilds` (
+`id` BIGINT NOT NULL,
+`cache_name` VARCHAR(50),
+`online` BOOLEAN,
+`listed` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `channels` (
+`id` BIGINT NOT NULL,
+`guild_id` BIGINT,
+`cache_name` VARCHAR(50),
+`cache_desc` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `channel_hours` (
+`channel_id` BIGINT NOT NULL,
+`date` DATE NOT NULL,
+`hour` INT NOT NULL,
+`message` BIGINT,
+PRIMARY KEY (`channel_id`, `date`, `hour`)
+) CHARACTER SET latin1;
+CREATE TABLE `known_invites` (
+`code` VARCHAR(50) NOT NULL,
+`guild_id` BIGINT,
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_429068_up') AS relationships;
+relationships
+Database: db_429068_up
+
+Table Connections:
+------------------
+[Implied]  channel_hours.channel_id -> channels.id
+[Implied]  channels.guild_id -> guilds.id
+[Implied]  known_invites.guild_id -> guilds.id
+
+DROP DATABASE `db_429068_up`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 348435_criaBD
+#
+CREATE DATABASE `db_348435_criaBD`;
+USE `db_348435_criaBD`;
+CREATE TABLE `Fornecedor` (
+`id_fornecedor` INT NOT NULL,
+`razao_social` VARCHAR(50),
+`nome_fantasia` VARCHAR(50),
+`rua` VARCHAR(50),
+`numero` INT,
+`cep` VARCHAR(50),
+`cnpj` VARCHAR(50),
+`telefone` VARCHAR(50),
+`email` VARCHAR(50),
+PRIMARY KEY (`id_fornecedor`)
+) CHARACTER SET latin1;
+CREATE TABLE `Produto` (
+`id_produto` INT NOT NULL,
+`descricao` VARCHAR(50),
+`preco` DECIMAL(10,2),
+PRIMARY KEY (`id_produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `Funcionario` (
+`id_funcionario` INT NOT NULL,
+`nome` VARCHAR(50),
+`cpf` VARCHAR(50),
+`email` VARCHAR(50),
+`data_nascimento` DATE,
+`data_admissao` DATE,
+`conta_salario` VARCHAR(50),
+`numero_carteira` VARCHAR(50),
+`rua` VARCHAR(50),
+`cep` VARCHAR(50),
+`numero` INT,
+`cargo` INT,
+PRIMARY KEY (`id_funcionario`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pedido` (
+`id_pedido` INT NOT NULL,
+`valor_total` DOUBLE,
+`data` DATE,
+`status` INT,
+`id_funcionario` INT,
+PRIMARY KEY (`id_pedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `Item_Pedido` (
+`id_produto` INT,
+`id_pedido` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Ingrediente` (
+`id_ingrediente` INT NOT NULL,
+`descricao` VARCHAR(50),
+`perecibilidade` INT,
+PRIMARY KEY (`id_ingrediente`)
+) CHARACTER SET latin1;
+CREATE TABLE `Estoque` (
+`id_estoque` INT NOT NULL,
+`quantidade` DOUBLE,
+`data_validade` DATE,
+`id_ingrediente` INT,
+`id_produto` INT,
+PRIMARY KEY (`id_estoque`)
+) CHARACTER SET latin1;
+CREATE TABLE `Fornecedor_Estoque` (
+`id_fornecedor` INT NOT NULL,
+`id_estoque` INT NOT NULL,
+`data_entrega` DATE,
+`quantidade_entrega` DECIMAL(10,2),
+PRIMARY KEY (`id_fornecedor`, `id_estoque`)
+) CHARACTER SET latin1;
+CREATE TABLE `Produto_Ingrediente` (
+`id_produto` INT,
+`id_ingrediente` INT,
+`quantidade` DOUBLE
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_348435_criaBD') AS relationships;
+relationships
+Database: db_348435_criaBD
+
+Table Connections:
+------------------
+[Implied]  Estoque.id_ingrediente -> Ingrediente.id_ingrediente
+[Implied]  Estoque.id_produto -> Produto.id_produto
+[Implied]  Fornecedor_Estoque.id_estoque -> Estoque.id_estoque
+[Implied]  Fornecedor_Estoque.id_fornecedor -> Fornecedor.id_fornecedor
+[Implied]  Item_Pedido.id_pedido -> Pedido.id_pedido
+[Implied]  Item_Pedido.id_produto -> Produto.id_produto
+[Implied]  Pedido.id_funcionario -> Funcionario.id_funcionario
+[Implied]  Produto_Ingrediente.id_ingrediente -> Ingrediente.id_ingrediente
+[Implied]  Produto_Ingrediente.id_produto -> Produto.id_produto
+
+DROP DATABASE `db_348435_criaBD`;
+UNINSTALL EXTENSION vsql_schematron;

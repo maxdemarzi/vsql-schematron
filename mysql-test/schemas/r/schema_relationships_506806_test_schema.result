@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 506806_test_schema
+#
+CREATE DATABASE `db_506806_test_schema`;
+USE `db_506806_test_schema`;
+CREATE TABLE `items` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+`id` INT NOT NULL,
+`sender` INT,
+`message` VARCHAR(50),
+`timestamp` DATETIME,
+`latitude` DOUBLE,
+`longitude` DOUBLE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items_owned` (
+`id` INT NOT NULL,
+`user_id` INT,
+`item_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages_found` (
+`id` INT NOT NULL,
+`user_id` INT,
+`message_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_506806_test_schema') AS relationships;
+relationships
+Database: db_506806_test_schema
+
+Table Connections:
+------------------
+[Implied]  items_owned.item_id -> items.id
+[Implied]  items_owned.user_id -> users.id
+[Implied]  messages.sender -> users.id
+[Implied]  messages_found.message_id -> messages.id
+[Implied]  messages_found.user_id -> users.id
+
+DROP DATABASE `db_506806_test_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 240659_V1.0__Initial_Schema
+#
+CREATE DATABASE `db_240659_V1_0__Initial_Schema`;
+USE `db_240659_V1_0__Initial_Schema`;
+CREATE TABLE `secure` (
+`id` BIGINT,
+`key` VARCHAR(50),
+`encrypted_data` VARCHAR(50),
+`iv` VARCHAR(50),
+`algo` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `certificate_uses` (
+`certificate_use` VARCHAR(50) NOT NULL,
+`config` VARCHAR(50),
+PRIMARY KEY (`certificate_use`)
+) CHARACTER SET latin1;
+CREATE TABLE `certificates` (
+`id` BIGINT,
+`serial_number` DECIMAL(10,2),
+`not_valid_before` TIMESTAMP NULL,
+`not_valid_after` TIMESTAMP NULL,
+`subject` VARCHAR(50),
+`status` VARCHAR(50),
+`revocation_reason` VARCHAR(50),
+`revocation_time` TIMESTAMP NULL,
+`user_id` VARCHAR(50),
+`x509_cert_pem` VARCHAR(50),
+`certificate_use` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `crl` (
+`id` BIGINT,
+`this_update` TIMESTAMP NULL,
+`next_update` TIMESTAMP NULL,
+`x509_crl_pem` VARCHAR(50)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_240659_V1_0__Initial_Schema') AS relationships;
+relationships
+Database: db_240659_V1_0__Initial_Schema
+
+Table Connections:
+------------------
+[Implied]  certificates.certificate_use -> certificate_uses.certificate_use
+
+DROP DATABASE `db_240659_V1_0__Initial_Schema`;
+UNINSTALL EXTENSION vsql_schematron;

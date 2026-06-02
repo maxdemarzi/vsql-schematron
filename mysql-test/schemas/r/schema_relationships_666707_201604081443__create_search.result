@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 666707_201604081443__create_search
+#
+CREATE DATABASE `db_666707_201604081443__create_search`;
+USE `db_666707_201604081443__create_search`;
+CREATE TABLE `search_profile` (
+`id` VARCHAR(50) NOT NULL,
+`name_pt` VARCHAR(50),
+`name_en` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `search_question` (
+`id` VARCHAR(50) NOT NULL,
+`description_pt` VARCHAR(50),
+`description_en` VARCHAR(50),
+`answer` VARCHAR(50),
+`profile_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `search_selector` (
+`id` VARCHAR(50) NOT NULL,
+`name_pt` VARCHAR(50),
+`name_en` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `search_question_selector` (
+`question_id` VARCHAR(50) NOT NULL,
+`selector_id` VARCHAR(50) NOT NULL,
+`order` INT,
+PRIMARY KEY (`question_id`, `selector_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_666707_201604081443__create_search') AS relationships;
+relationships
+Database: db_666707_201604081443__create_search
+
+Table Connections:
+------------------
+[Implied]  search_question.profile_id -> search_profile.id
+[Implied]  search_question_selector.question_id -> search_question.id
+[Implied]  search_question_selector.selector_id -> search_selector.id
+
+DROP DATABASE `db_666707_201604081443__create_search`;
+UNINSTALL EXTENSION vsql_schematron;

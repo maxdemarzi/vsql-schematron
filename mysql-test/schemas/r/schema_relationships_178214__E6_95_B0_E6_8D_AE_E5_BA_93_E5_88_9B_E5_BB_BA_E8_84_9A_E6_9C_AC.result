@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 178214_%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%9B%E5%BB%BA%E8%84%9A%E6%9C%AC
+#
+CREATE DATABASE `db_178214__E6_95_B0_E6_8D_AE_E5_BA_93_E5_88_9B_E5_BB_BA_E8_84_9A`;
+USE `db_178214__E6_95_B0_E6_8D_AE_E5_BA_93_E5_88_9B_E5_BB_BA_E8_84_9A`;
+CREATE TABLE `dept` (
+`did` INT NOT NULL,
+`title` VARCHAR(50),
+`note` VARCHAR(50),
+PRIMARY KEY (`did`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`rid` INT NOT NULL,
+`title` VARCHAR(50),
+`note` VARCHAR(50),
+PRIMARY KEY (`rid`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+`gid` INT NOT NULL,
+`title` VARCHAR(50),
+`icon` VARCHAR(50),
+`note` VARCHAR(50),
+PRIMARY KEY (`gid`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_groups` (
+`rid` INT,
+`gid` INT
+) CHARACTER SET latin1;
+CREATE TABLE `action` (
+`actid` INT NOT NULL,
+`gid` INT,
+`title` VARCHAR(50),
+`icon` VARCHAR(50),
+`url` VARCHAR(50),
+PRIMARY KEY (`actid`)
+) CHARACTER SET latin1;
+CREATE TABLE `admin` (
+`aid` VARCHAR(50) NOT NULL,
+`rid` INT,
+`did` INT,
+`password` VARCHAR(50),
+`photo` VARCHAR(50),
+`lastdate` DATETIME,
+`type` INT,
+`status` INT,
+PRIMARY KEY (`aid`)
+) CHARACTER SET latin1;
+CREATE TABLE `logs` (
+`logid` INT NOT NULL,
+`aid` VARCHAR(50),
+`indate` DATETIME,
+`ip` VARCHAR(50),
+PRIMARY KEY (`logid`)
+) CHARACTER SET latin1;
+CREATE TABLE `document` (
+`dcid` INT NOT NULL,
+`did` INT,
+`aid` VARCHAR(50),
+`title` VARCHAR(50),
+`filename` VARCHAR(50),
+`credate` DATETIME,
+`status` INT,
+PRIMARY KEY (`dcid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_178214__E6_95_B0_E6_8D_AE_E5_BA_93_E5_88_9B_E5_BB_BA_E8_84_9A') AS relationships;
+relationships
+Database: db_178214__E6_95_B0_E6_8D_AE_E5_BA_93_E5_88_9B_E5_BB_BA_E8_84_9A
+
+Table Connections:
+------------------
+[Implied]  action.gid -> groups.gid
+[Implied]  admin.did -> dept.did
+[Implied]  admin.rid -> role.rid
+[Implied]  document.aid -> admin.aid
+[Implied]  document.did -> dept.did
+[Implied]  logs.aid -> admin.aid
+[Implied]  role_groups.gid -> groups.gid
+[Implied]  role_groups.rid -> role.rid
+
+DROP DATABASE `db_178214__E6_95_B0_E6_8D_AE_E5_BA_93_E5_88_9B_E5_BB_BA_E8_84_9A`;
+UNINSTALL EXTENSION vsql_schematron;

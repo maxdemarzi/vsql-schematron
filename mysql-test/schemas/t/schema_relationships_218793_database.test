@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 218793_database
+--echo #
+CREATE DATABASE `db_218793_database`;
+USE `db_218793_database`;
+CREATE TABLE `categorias` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario` (
+  `id` INT NOT NULL,
+  `nickname` VARCHAR(50),
+  `password` VARCHAR(50),
+  `nombre` VARCHAR(50),
+  `fecha` DATE,
+  `email` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `productos` (
+  `id` INT NOT NULL,
+  `nombre` VARCHAR(50),
+  `descripcion` TEXT,
+  `precio` DOUBLE,
+  `imagen` VARCHAR(50),
+  `stock` VARCHAR(50),
+  `id_categoria` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ventas` (
+  `id` INT NOT NULL,
+  `id_usuario` INT,
+  `total` DOUBLE,
+  `fecha` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `carrito` (
+  `id` INT NOT NULL,
+  `id_producto` INT,
+  `cantidad` DOUBLE,
+  `id_usuario` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `productos_venta` (
+  `id` INT NOT NULL,
+  `id_venta` INT,
+  `id_producto` INT,
+  `cantidad` DOUBLE,
+  `precio` DOUBLE,
+  `subtotal` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `direcciones` (
+  `id` INT NOT NULL,
+  `calle` VARCHAR(50),
+  `numero_exterior` VARCHAR(50),
+  `numero_interior` VARCHAR(50),
+  `estado` VARCHAR(50),
+  `colonia` VARCHAR(50),
+  `cp` VARCHAR(50),
+  `municipio` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `direcciones_usuario` (
+  `id` INT NOT NULL,
+  `direcciones_id` INT NOT NULL,
+  `usuario_id` INT NOT NULL,
+  PRIMARY KEY (`id`, `direcciones_id`, `usuario_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_218793_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_218793_database') AS relationships;
+DROP DATABASE `db_218793_database`;
+UNINSTALL EXTENSION vsql_schematron;

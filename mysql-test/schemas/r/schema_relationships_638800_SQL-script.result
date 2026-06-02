@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 638800_SQL-script
+#
+CREATE DATABASE `db_638800_SQL_script`;
+USE `db_638800_SQL_script`;
+CREATE TABLE `Kunden` (
+`Kunden_ID` INT NOT NULL,
+`Vorname` VARCHAR(50),
+`Nachname` VARCHAR(50),
+`Adresse` VARCHAR(50),
+`Aktiv` BOOLEAN,
+`Beginndatum` DATE,
+`Enddatum` DATE,
+PRIMARY KEY (`Kunden_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bikes` (
+`Bike_ID` INT NOT NULL,
+`Kunden_ID` INT,
+`Fahrradtyp` VARCHAR(50),
+`Kaufdatum` DATE,
+`GPS` VARCHAR(50),
+`Standort` VARCHAR(50),
+`Status` VARCHAR(50),
+PRIMARY KEY (`Bike_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BikesService` (
+`BikesService_ID` INT NOT NULL,
+`Serviceart` VARCHAR(50),
+`Bike_ID` INT,
+`Erstellungsdatum` DATE,
+`Bearbeitungsdatum` DATE,
+PRIMARY KEY (`BikesService_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_638800_SQL_script') AS relationships;
+relationships
+Database: db_638800_SQL_script
+
+Table Connections:
+------------------
+[Implied]  Bikes.Kunden_ID -> Kunden.Kunden_ID
+[Implied]  BikesService.Bike_ID -> Bikes.Bike_ID
+
+DROP DATABASE `db_638800_SQL_script`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 345065_addItemTable
+--echo #
+CREATE DATABASE `db_345065_addItemTable`;
+USE `db_345065_addItemTable`;
+CREATE TABLE `item` (
+  `itemID` INT NOT NULL,
+  `itemName` VARCHAR(50),
+  `itemPrice` VARCHAR(50),
+  `itemDesc` VARCHAR(50),
+  PRIMARY KEY (`itemID`)
+) CHARACTER SET latin1;
+CREATE TABLE `itemColour` (
+  `itemColourID` INT NOT NULL,
+  `itemID` INT,
+  `itemColourName` VARCHAR(50),
+  `itemColourImage` VARCHAR(50),
+  PRIMARY KEY (`itemColourID`)
+) CHARACTER SET latin1;
+CREATE TABLE `size` (
+  `sizeID` INT NOT NULL,
+  `itemID` INT,
+  `sizeName` VARCHAR(50),
+  PRIMARY KEY (`sizeID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_345065_addItemTable') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_345065_addItemTable') AS relationships;
+DROP DATABASE `db_345065_addItemTable`;
+UNINSTALL EXTENSION vsql_schematron;

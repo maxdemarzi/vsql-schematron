@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 278143_sql_queries
+--echo #
+CREATE DATABASE `db_278143_sql_queries`;
+USE `db_278143_sql_queries`;
+CREATE TABLE `city` (
+  `CityID` INT NOT NULL,
+  `City` VARCHAR(50),
+  PRIMARY KEY (`CityID`)
+) CHARACTER SET latin1;
+CREATE TABLE `postal_codes` (
+  `PostalCodeID` INT NOT NULL,
+  `PostalCode` VARCHAR(50),
+  `CityId` INT,
+  PRIMARY KEY (`PostalCodeID`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+  `CategoryID` INT NOT NULL,
+  `Category` VARCHAR(50),
+  PRIMARY KEY (`CategoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `restaurants_info` (
+  `id` VARCHAR(50) NOT NULL,
+  `RestaurantName` VARCHAR(50),
+  `Reviews` INT,
+  `Rating` DECIMAL(10,2),
+  `Price` VARCHAR(50),
+  `RestaurantPhone` VARCHAR(50),
+  `RestaurantAddress` VARCHAR(50),
+  `RestaurantLatitude` DECIMAL(10,2),
+  `RestaurantLongitude` DECIMAL(10,2),
+  `RestaurantDistance` DECIMAL(10,2),
+  `PostalCodeID` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `restaurants_with_categories` (
+  `RestaurantID` VARCHAR(50),
+  `CategoryID` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_278143_sql_queries') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_278143_sql_queries') AS relationships;
+DROP DATABASE `db_278143_sql_queries`;
+UNINSTALL EXTENSION vsql_schematron;

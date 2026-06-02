@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 490344_1420149037
+#
+CREATE DATABASE `db_490344_1420149037`;
+USE `db_490344_1420149037`;
+CREATE TABLE `job` (
+`id` INT NOT NULL,
+`created_on` TIMESTAMP NULL,
+`completed_on` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `job_urls` (
+`id` INT NOT NULL,
+`job_id` INT,
+`url` TEXT,
+`completed` BOOLEAN,
+`completed_on` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `url` (
+`id` INT NOT NULL,
+`mime` TEXT,
+`url` TEXT,
+`referer` TEXT,
+`has_descendants` BOOLEAN,
+`created_on` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `url_pending` (
+`id` INT NOT NULL,
+`origin` TEXT,
+`descendant` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_490344_1420149037') AS relationships;
+relationships
+Database: db_490344_1420149037
+
+Table Connections:
+------------------
+[Implied]  job_urls.job_id -> job.id
+
+DROP DATABASE `db_490344_1420149037`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 240353_V000004__Create_schedules
+--echo #
+CREATE DATABASE `db_240353_V000004__Create_schedules`;
+USE `db_240353_V000004__Create_schedules`;
+CREATE TABLE `schedules` (
+  `schedule_id` VARCHAR(50) NOT NULL,
+  `schedule_code` VARCHAR(50),
+  `user_id` VARCHAR(50),
+  `target_start_date` DATE,
+  `attributes` TEXT,
+  `create_user_code` VARCHAR(50),
+  `create_at` BIGINT,
+  `last_update_user_code` VARCHAR(50),
+  `last_update_at` BIGINT,
+  `version_no` BIGINT,
+  PRIMARY KEY (`schedule_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schedule_school_connections` (
+  `schedule_school_connection_id` VARCHAR(50) NOT NULL,
+  `schedule_id` VARCHAR(50),
+  `school_id` VARCHAR(50),
+  `connection_index` BIGINT,
+  `calculation_target` BOOLEAN,
+  PRIMARY KEY (`schedule_school_connection_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_240353_V000004__Create_schedules') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_240353_V000004__Create_schedules') AS relationships;
+DROP DATABASE `db_240353_V000004__Create_schedules`;
+UNINSTALL EXTENSION vsql_schematron;

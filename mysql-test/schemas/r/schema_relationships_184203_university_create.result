@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 184203_university_create
+#
+CREATE DATABASE `db_184203_university_create`;
+USE `db_184203_university_create`;
+CREATE TABLE `SYSTEM.professors` (
+`prof_id` DECIMAL(10,2) NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`nickname` VARCHAR(50),
+PRIMARY KEY (`prof_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `SYSTEM.course` (
+`course_id` VARCHAR(50) NOT NULL,
+`nb_students` DECIMAL(10,2),
+`duration` DECIMAL(10,2),
+PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `SYSTEM.teaching` (
+`course_id` VARCHAR(50) NOT NULL,
+`prof_id` DECIMAL(10,2) NOT NULL,
+PRIMARY KEY (`course_id`, `prof_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_184203_university_create') AS relationships;
+relationships
+Database: db_184203_university_create
+
+Table Connections:
+------------------
+[Implied]  SYSTEM.teaching.course_id -> SYSTEM.course.course_id
+[Implied]  SYSTEM.teaching.prof_id -> SYSTEM.professors.prof_id
+
+DROP DATABASE `db_184203_university_create`;
+UNINSTALL EXTENSION vsql_schematron;

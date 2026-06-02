@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 355875_migration
+#
+CREATE DATABASE `db_355875_migration`;
+USE `db_355875_migration`;
+CREATE TABLE `Article` (
+`id` INT NOT NULL,
+`identification` INT,
+`name` TEXT,
+`availableStock` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Product` (
+`id` INT NOT NULL,
+`name` TEXT,
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ArticlesOnProducts` (
+`productId` INT NOT NULL,
+`articleId` INT NOT NULL,
+`quantity` INT,
+PRIMARY KEY (`productId`, `articleId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_355875_migration') AS relationships;
+relationships
+Database: db_355875_migration
+
+Table Connections:
+------------------
+[Implied]  ArticlesOnProducts.articleId -> Article.id
+[Implied]  ArticlesOnProducts.productId -> Product.id
+
+DROP DATABASE `db_355875_migration`;
+UNINSTALL EXTENSION vsql_schematron;

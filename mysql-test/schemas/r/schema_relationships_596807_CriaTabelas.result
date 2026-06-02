@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 596807_CriaTabelas
+#
+CREATE DATABASE `db_596807_CriaTabelas`;
+USE `db_596807_CriaTabelas`;
+CREATE TABLE `fornecedores` (
+`cdfornecedor` INT NOT NULL,
+`dcfornecedor` VARCHAR(50),
+`endereco` VARCHAR(50),
+`bairro` VARCHAR(50),
+`cidade` VARCHAR(50),
+`telefone` VARCHAR(50),
+`cep` VARCHAR(50),
+PRIMARY KEY (`cdfornecedor`)
+) CHARACTER SET latin1;
+CREATE TABLE `clientes` (
+`cdcliente` INT NOT NULL,
+`dccliente` VARCHAR(50),
+`endereco` VARCHAR(50),
+`bairro` VARCHAR(50),
+`cidade` VARCHAR(50),
+`telefone` VARCHAR(50),
+`cep` VARCHAR(50),
+PRIMARY KEY (`cdcliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendedores` (
+`cdvendedor` INT NOT NULL,
+`dcvendedor` VARCHAR(50),
+PRIMARY KEY (`cdvendedor`)
+) CHARACTER SET latin1;
+CREATE TABLE `produtos` (
+`cdproduto` INT NOT NULL,
+`dcproduto` VARCHAR(50),
+`vlproduto` DECIMAL(10,2),
+`qtestoque` DECIMAL(10,2),
+`qtminima` DECIMAL(10,2),
+`cdfornecedor` INT,
+PRIMARY KEY (`cdproduto`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendas` (
+`nrvenda` INT NOT NULL,
+`dtvenda` DATE,
+`cdcliente` INT,
+`cdvendedor` INT,
+PRIMARY KEY (`nrvenda`)
+) CHARACTER SET latin1;
+CREATE TABLE `itens` (
+`nrvenda` INT NOT NULL,
+`nritem` INT NOT NULL,
+`cdproduto` INT,
+`qtvenda` DECIMAL(10,2),
+`vlproduto` DECIMAL(10,2),
+PRIMARY KEY (`nrvenda`, `nritem`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_596807_CriaTabelas') AS relationships;
+relationships
+Database: db_596807_CriaTabelas
+
+Table Connections:
+------------------
+[Implied]  itens.cdproduto -> produtos.cdproduto
+[Implied]  itens.nrvenda -> vendas.nrvenda
+[Implied]  produtos.cdfornecedor -> fornecedores.cdfornecedor
+[Implied]  vendas.cdcliente -> clientes.cdcliente
+[Implied]  vendas.cdvendedor -> vendedores.cdvendedor
+
+DROP DATABASE `db_596807_CriaTabelas`;
+UNINSTALL EXTENSION vsql_schematron;

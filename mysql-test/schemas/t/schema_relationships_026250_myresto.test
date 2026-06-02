@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 026250_myresto
+--echo #
+CREATE DATABASE `db_026250_myresto`;
+USE `db_026250_myresto`;
+CREATE TABLE `role` (
+  `id_role` INT NOT NULL,
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id_role`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+  `id_category` INT NOT NULL,
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id_category`)
+) CHARACTER SET latin1;
+CREATE TABLE `status` (
+  `id_status` INT NOT NULL,
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id_status`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+  `id_user` INT NOT NULL,
+  `surname` VARCHAR(50),
+  `firstname` VARCHAR(50),
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  `address` VARCHAR(50),
+  `id_role` INT,
+  PRIMARY KEY (`id_user`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+  `id_product` INT NOT NULL,
+  `name` VARCHAR(50),
+  `description` VARCHAR(50),
+  `price` DOUBLE,
+  `allergen` VARCHAR(50),
+  `image` VARCHAR(50),
+  `stock` INT,
+  `id_category` INT,
+  PRIMARY KEY (`id_product`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+  `id_order` INT NOT NULL,
+  `order_date` TIMESTAMP NULL,
+  `id_status` INT,
+  `id_user` INT,
+  PRIMARY KEY (`id_order`)
+) CHARACTER SET latin1;
+CREATE TABLE `list` (
+  `id_product` INT NOT NULL,
+  `id_order` INT NOT NULL,
+  `quantity` INT,
+  PRIMARY KEY (`id_product`, `id_order`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_026250_myresto') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_026250_myresto') AS relationships;
+DROP DATABASE `db_026250_myresto`;
+UNINSTALL EXTENSION vsql_schematron;

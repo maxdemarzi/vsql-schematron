@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 343551_smartmeter
+#
+CREATE DATABASE `db_343551_smartmeter`;
+USE `db_343551_smartmeter`;
+CREATE TABLE `sensors` (
+`id` INT NOT NULL,
+`serial` VARCHAR(50),
+`custom_id` VARCHAR(50),
+`device_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `plan` (
+`id` INT NOT NULL,
+`price` DOUBLE,
+`rate` DOUBLE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `live` (
+`time` TIMESTAMP NULL,
+`sensor_id` INT,
+`plan_id` INT,
+`energy` DOUBLE,
+`power` DOUBLE,
+`power_l1` DOUBLE,
+`power_l2` DOUBLE,
+`power_l3` DOUBLE,
+`voltage_l1` DOUBLE,
+`voltage_l2` DOUBLE,
+`voltage_l3` DOUBLE,
+`lifetime` BIGINT,
+`status` VARCHAR(50)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_343551_smartmeter') AS relationships;
+relationships
+Database: db_343551_smartmeter
+
+Table Connections:
+------------------
+[Implied]  live.plan_id -> plan.id
+[Implied]  live.sensor_id -> sensors.id
+
+DROP DATABASE `db_343551_smartmeter`;
+UNINSTALL EXTENSION vsql_schematron;

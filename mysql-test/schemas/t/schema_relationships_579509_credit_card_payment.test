@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 579509_credit_card_payment
+--echo #
+CREATE DATABASE `db_579509_credit_card_payment`;
+USE `db_579509_credit_card_payment`;
+CREATE TABLE `currency` (
+  `primaryKey` VARCHAR(50) NOT NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`primaryKey`)
+) CHARACTER SET latin1;
+CREATE TABLE `exchange` (
+  `primaryKey` VARCHAR(50) NOT NULL,
+  `rate` DECIMAL(10,2),
+  `currency1` CHAR(50),
+  `currency2` CHAR(50),
+  PRIMARY KEY (`primaryKey`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+  `primaryKey` VARCHAR(50) NOT NULL,
+  `code` INT,
+  `summa` DECIMAL(10,2),
+  `card_number` VARCHAR(50),
+  `card_owner` VARCHAR(50),
+  `card_month` INT,
+  `card_year` INT,
+  `cvv` INT,
+  `currency` CHAR(50),
+  PRIMARY KEY (`primaryKey`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_579509_credit_card_payment') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_579509_credit_card_payment') AS relationships;
+DROP DATABASE `db_579509_credit_card_payment`;
+UNINSTALL EXTENSION vsql_schematron;

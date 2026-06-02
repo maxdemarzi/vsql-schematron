@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 631181_quickpayment-v2
+--echo #
+CREATE DATABASE `db_631181_quickpayment_v2`;
+USE `db_631181_quickpayment_v2`;
+CREATE TABLE `usergroups` (
+  `ID_UG` VARCHAR(50) NOT NULL,
+  `Name_UG` VARCHAR(50),
+  PRIMARY KEY (`ID_UG`)
+) CHARACTER SET latin1;
+CREATE TABLE `workplaces` (
+  `ID_WP` VARCHAR(50) NOT NULL,
+  `description` VARCHAR(50),
+  PRIMARY KEY (`ID_WP`)
+) CHARACTER SET latin1;
+CREATE TABLE `members` (
+  `id_member` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(50),
+  `name` VARCHAR(50),
+  `sex` VARCHAR(50),
+  `dayofbirth` DATE,
+  `phone` INT,
+  `ID_UG` VARCHAR(50),
+  `ID_WP` VARCHAR(50),
+  `balance` INT,
+  PRIMARY KEY (`id_member`)
+) CHARACTER SET latin1;
+CREATE TABLE `payments` (
+  `date_time` TIMESTAMP NOT NULL,
+  `id_pay_member` VARCHAR(50) NOT NULL,
+  `id_collect_member` VARCHAR(50),
+  `amountofmoney` INT,
+  `type_payment` VARCHAR(50),
+  PRIMARY KEY (`date_time`, `id_pay_member`)
+) CHARACTER SET latin1;
+CREATE TABLE `cards` (
+  `id_Card` VARCHAR(50) NOT NULL,
+  `id_member` VARCHAR(50),
+  PRIMARY KEY (`id_Card`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_631181_quickpayment_v2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_631181_quickpayment_v2') AS relationships;
+DROP DATABASE `db_631181_quickpayment_v2`;
+UNINSTALL EXTENSION vsql_schematron;

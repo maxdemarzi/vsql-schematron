@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 402038_script
+#
+CREATE DATABASE `db_402038_script`;
+USE `db_402038_script`;
+CREATE TABLE `Users` (
+`Id` VARCHAR(50) NOT NULL,
+`Nom` VARCHAR(50),
+`Prenom` VARCHAR(50),
+`Username` VARCHAR(50),
+`Mdp` VARCHAR(50),
+`Groupe` VARCHAR(50),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Regions` (
+`Region` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`Region`)
+) CHARACTER SET latin1;
+CREATE TABLE `News` (
+`Idnew` VARCHAR(50) NOT NULL,
+`Iduser` VARCHAR(50),
+`Region` VARCHAR(50),
+`Title` VARCHAR(50),
+`Label` TEXT,
+`Image` TEXT,
+`Dateajout` DATE,
+PRIMARY KEY (`Idnew`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cas` (
+`Idcas` VARCHAR(50) NOT NULL,
+`Iduser` VARCHAR(50),
+`Region` VARCHAR(50),
+`Deaths` INT,
+`Date` DATE,
+`Title` VARCHAR(50),
+`Newcases` INT,
+`Healed` INT,
+PRIMARY KEY (`Idcas`)
+) CHARACTER SET latin1;
+CREATE TABLE `OtherNews` (
+`Idother` VARCHAR(50) NOT NULL,
+`Iduser` VARCHAR(50),
+`Region` VARCHAR(50),
+`label` TEXT,
+`lien` TEXT,
+`etat` INT,
+PRIMARY KEY (`Idother`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_402038_script') AS relationships;
+relationships
+Database: db_402038_script
+
+Table Connections:
+------------------
+[Implied]  Cas.Iduser -> Users.Id
+[Implied]  Cas.Region -> Regions.Region
+[Implied]  News.Iduser -> Users.Id
+[Implied]  News.Region -> Regions.Region
+[Implied]  OtherNews.Iduser -> Users.Id
+[Implied]  OtherNews.Region -> Regions.Region
+
+DROP DATABASE `db_402038_script`;
+UNINSTALL EXTENSION vsql_schematron;

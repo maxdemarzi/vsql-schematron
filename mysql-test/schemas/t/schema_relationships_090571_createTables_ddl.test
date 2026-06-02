@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 090571_createTables.ddl
+--echo #
+CREATE DATABASE `db_090571_createTables_ddl`;
+USE `db_090571_createTables_ddl`;
+CREATE TABLE `Portfolio` (
+  `owner` VARCHAR(50) NOT NULL,
+  `total` DOUBLE,
+  `accountID` VARCHAR(50),
+  PRIMARY KEY (`owner`)
+) CHARACTER SET latin1;
+CREATE TABLE `Stock` (
+  `owner` VARCHAR(50) NOT NULL,
+  `symbol` VARCHAR(50) NOT NULL,
+  `shares` INT,
+  `price` DOUBLE,
+  `total` DOUBLE,
+  `dateQuoted` DATE,
+  `commission` DOUBLE,
+  PRIMARY KEY (`owner`, `symbol`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_090571_createTables_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_090571_createTables_ddl') AS relationships;
+DROP DATABASE `db_090571_createTables_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 209000_OrderDB
+#
+CREATE DATABASE `db_209000_OrderDB`;
+USE `db_209000_OrderDB`;
+CREATE TABLE `Customers` (
+`customer_id` INT NOT NULL,
+`customer_name` VARCHAR(50),
+`customer_address` VARCHAR(50),
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Items` (
+`item_id` INT NOT NULL,
+`item_name` VARCHAR(50),
+`unit_price` DECIMAL(10,2),
+`amount` INT,
+`item_status` TINYINT,
+`item_description` VARCHAR(50),
+PRIMARY KEY (`item_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Orders` (
+`order_id` INT NOT NULL,
+`order_date` DATETIME,
+`customer_id` INT,
+`order_status` INT,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderDetails` (
+`order_id` INT NOT NULL,
+`item_id` INT NOT NULL,
+`unit_price` DECIMAL(10,2),
+`quantity` INT,
+PRIMARY KEY (`order_id`, `item_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_209000_OrderDB') AS relationships;
+relationships
+Database: db_209000_OrderDB
+
+Table Connections:
+------------------
+[Implied]  OrderDetails.item_id -> Items.item_id
+[Implied]  OrderDetails.order_id -> Orders.order_id
+[Implied]  Orders.customer_id -> Customers.customer_id
+
+DROP DATABASE `db_209000_OrderDB`;
+UNINSTALL EXTENSION vsql_schematron;

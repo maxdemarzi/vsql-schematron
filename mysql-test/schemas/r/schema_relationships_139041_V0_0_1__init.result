@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 139041_V0.0.1__init
+#
+CREATE DATABASE `db_139041_V0_0_1__init`;
+USE `db_139041_V0_0_1__init`;
+CREATE TABLE `exon` (
+`exon_id` INT NOT NULL,
+`seq_region_id` INT,
+`seq_region_start` INT,
+`seq_region_end` INT,
+`seq_region_strand` TINYINT,
+`phase` TINYINT,
+`end_phase` TINYINT,
+`is_current` TINYINT,
+`is_constitutive` TINYINT,
+`stable_id` VARCHAR(50),
+`version` SMALLINT,
+`created_date` DATETIME,
+`modified_date` DATETIME,
+PRIMARY KEY (`exon_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transcript` (
+`transcript_id` INT NOT NULL,
+`gene_id` INT,
+`analysis_id` SMALLINT,
+`seq_region_id` INT,
+`seq_region_start` INT,
+`seq_region_end` INT,
+`seq_region_strand` TINYINT,
+`display_xref_id` INT,
+`source` VARCHAR(50),
+`biotype` VARCHAR(50),
+`description` TEXT,
+`is_current` TINYINT,
+`canonical_translation_id` INT,
+`stable_id` VARCHAR(50),
+`version` SMALLINT,
+`created_date` DATETIME,
+`modified_date` DATETIME,
+PRIMARY KEY (`transcript_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `exon_transcript` (
+`margerita` INT,
+`exon_id` INT NOT NULL,
+`transcript_id` INT NOT NULL,
+PRIMARY KEY (`exon_id`, `transcript_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_139041_V0_0_1__init') AS relationships;
+relationships
+Database: db_139041_V0_0_1__init
+
+Table Connections:
+------------------
+[Implied]  exon_transcript.exon_id -> exon.exon_id
+[Implied]  exon_transcript.transcript_id -> transcript.transcript_id
+
+DROP DATABASE `db_139041_V0_0_1__init`;
+UNINSTALL EXTENSION vsql_schematron;

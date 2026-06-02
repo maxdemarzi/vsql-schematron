@@ -1,0 +1,110 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 640184_Banco
+--echo #
+CREATE DATABASE `db_640184_Banco`;
+USE `db_640184_Banco`;
+CREATE TABLE `Ubs` (
+  `CD_Ubs` INT NOT NULL,
+  `NM_Ubs` VARCHAR(50),
+  `NM_Endereco` VARCHAR(50),
+  `NM_Bairro` VARCHAR(50),
+  `NR_Residencia` INT,
+  PRIMARY KEY (`CD_Ubs`)
+) CHARACTER SET latin1;
+CREATE TABLE `Funcionario` (
+  `NR_Cpf` VARCHAR(50) NOT NULL,
+  `CD_Nivel` CHAR(50),
+  `NM_Funcionario` VARCHAR(50),
+  `NM_Senha` VARCHAR(50),
+  `NM_TipoFuncionario` VARCHAR(50),
+  `NM_Sexo` VARCHAR(50),
+  `ID_Status` TINYINT,
+  `ID_Ubs` INT,
+  PRIMARY KEY (`NR_Cpf`)
+) CHARACTER SET latin1;
+CREATE TABLE `Medico` (
+  `NR_Cpf` VARCHAR(50) NOT NULL,
+  `NR_Crm` VARCHAR(50),
+  `NM_Medico` VARCHAR(50),
+  `DS_Especialidade` VARCHAR(50),
+  `NM_Sexo` VARCHAR(50),
+  `ID_Status` TINYINT,
+  `ID_Ubs` INT,
+  PRIMARY KEY (`NR_Cpf`)
+) CHARACTER SET latin1;
+CREATE TABLE `Enfermeiro` (
+  `NR_Cpf` VARCHAR(50) NOT NULL,
+  `NR_Coren` VARCHAR(50),
+  `NM_Enfermeiro` VARCHAR(50),
+  `NM_Sexo` VARCHAR(50),
+  `ID_Status` TINYINT,
+  `ID_Ubs` INT,
+  PRIMARY KEY (`NR_Cpf`)
+) CHARACTER SET latin1;
+CREATE TABLE `Prontuario` (
+  `CD_Prontuario` INT NOT NULL,
+  `NM_Endereco` VARCHAR(50),
+  `NM_Bairro` VARCHAR(50),
+  `NM_Complemento` VARCHAR(50),
+  `NR_Residencia` INT,
+  `NR_Fixo` VARCHAR(50),
+  `NR_Celular` VARCHAR(50),
+  `NM_Email` VARCHAR(50),
+  `NM_Senha` VARCHAR(50),
+  `ID_Status` TINYINT,
+  `ID_Ubs` INT,
+  PRIMARY KEY (`CD_Prontuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `Paciente` (
+  `NR_Cpf` VARCHAR(50) NOT NULL,
+  `NR_Sus` VARCHAR(50),
+  `NM_Paciente` VARCHAR(50),
+  `NM_Sexo` VARCHAR(50),
+  `ID_Chefe` TINYINT,
+  `ID_Status` TINYINT,
+  `ID_Prontuario` INT,
+  PRIMARY KEY (`NR_Cpf`)
+) CHARACTER SET latin1;
+CREATE TABLE `Consulta` (
+  `CD_Consulta` INT NOT NULL,
+  `NM_Consulta` VARCHAR(50),
+  `HR_ConsultaInicio` VARCHAR(50),
+  `HR_ConsultaFinal` VARCHAR(50),
+  `NM_DiasSemana` VARCHAR(50),
+  `ID_Status` TINYINT,
+  `ID_Funcionario` VARCHAR(50),
+  `ID_Medico` VARCHAR(50),
+  `ID_Enfermeiro` VARCHAR(50),
+  `ID_Ubs` INT,
+  PRIMARY KEY (`CD_Consulta`)
+) CHARACTER SET latin1;
+CREATE TABLE `AgendamentoConsulta` (
+  `CD_AgendamentoConsulta` INT NOT NULL,
+  `DT_AgendamentoConsulta` VARCHAR(50),
+  `NM_Situacao` VARCHAR(50),
+  `ID_Funcionario` VARCHAR(50),
+  `ID_Paciente` VARCHAR(50),
+  `ID_Consulta` INT,
+  PRIMARY KEY (`CD_AgendamentoConsulta`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_640184_Banco') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_640184_Banco') AS relationships;
+DROP DATABASE `db_640184_Banco`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 372986_DataWarehouseCreation
+--echo #
+CREATE DATABASE `db_372986_DataWarehouseCreation`;
+USE `db_372986_DataWarehouseCreation`;
+CREATE TABLE `author_dim` (
+  `author_id` INT NOT NULL,
+  `name` TEXT,
+  PRIMARY KEY (`author_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `site_dim` (
+  `site_id` INT NOT NULL,
+  `domain` TEXT,
+  `url` TEXT,
+  `supersite_id` INT,
+  PRIMARY KEY (`site_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `article_dim` (
+  `article_id` INT NOT NULL,
+  `title` TEXT,
+  `URL` TEXT,
+  `published_date` TIMESTAMP NULL,
+  `accessed_date` TIMESTAMP NULL,
+  `body` TEXT,
+  `html` TEXT,
+  `keywords` TEXT,
+  `summary` TEXT,
+  PRIMARY KEY (`article_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `statistic_dim` (
+  `statistic_id` INT NOT NULL,
+  `NLP_results` VARCHAR(50),
+  PRIMARY KEY (`statistic_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fact` (
+  `fact_id` INT,
+  `article_id` INT,
+  `author_id` INT,
+  `site_id` INT,
+  `statistic_id` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_372986_DataWarehouseCreation') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_372986_DataWarehouseCreation') AS relationships;
+DROP DATABASE `db_372986_DataWarehouseCreation`;
+UNINSTALL EXTENSION vsql_schematron;

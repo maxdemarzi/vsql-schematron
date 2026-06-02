@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 008074_structure
+#
+CREATE DATABASE `db_008074_structure`;
+USE `db_008074_structure`;
+CREATE TABLE `users` (
+`id` BIGINT NOT NULL,
+`email` CHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `todos` (
+`id` BIGINT NOT NULL,
+`user_id` BIGINT,
+`description` CHAR(50),
+`completed_at` TIMESTAMP NULL,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` BIGINT NOT NULL,
+`user_id` BIGINT,
+`description` CHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `taggings` (
+`id` BIGINT NOT NULL,
+`todo_id` BIGINT,
+`tag_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recommended_todos` (
+`id` BIGINT NOT NULL,
+`todo_id` BIGINT,
+`user_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_008074_structure') AS relationships;
+relationships
+Database: db_008074_structure
+
+Table Connections:
+------------------
+[Implied]  recommended_todos.todo_id -> todos.id
+[Implied]  recommended_todos.user_id -> users.id
+[Implied]  taggings.tag_id -> tags.id
+[Implied]  taggings.todo_id -> todos.id
+[Implied]  tags.user_id -> users.id
+[Implied]  todos.user_id -> users.id
+
+DROP DATABASE `db_008074_structure`;
+UNINSTALL EXTENSION vsql_schematron;

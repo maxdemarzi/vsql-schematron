@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 335520_V1.2__Create_table_message
+#
+CREATE DATABASE `db_335520_V1_2__Create_table_message`;
+USE `db_335520_V1_2__Create_table_message`;
+CREATE TABLE `Message` (
+`id` BIGINT NOT NULL,
+`iv` BLOB,
+`type` VARCHAR(50),
+`sender` VARCHAR(50),
+`recipient` VARCHAR(50),
+`data` BLOB,
+`sent` BIGINT,
+`received` BIGINT,
+`status` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Label` (
+`id` BIGINT NOT NULL,
+`label` VARCHAR(50),
+`type` VARCHAR(50),
+`color` INT,
+`ord` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Message_Label` (
+`message_id` BIGINT NOT NULL,
+`label_id` BIGINT NOT NULL,
+PRIMARY KEY (`message_id`, `label_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_335520_V1_2__Create_table_message') AS relationships;
+relationships
+Database: db_335520_V1_2__Create_table_message
+
+Table Connections:
+------------------
+[Implied]  Message_Label.label_id -> Label.id
+[Implied]  Message_Label.message_id -> Message.id
+
+DROP DATABASE `db_335520_V1_2__Create_table_message`;
+UNINSTALL EXTENSION vsql_schematron;

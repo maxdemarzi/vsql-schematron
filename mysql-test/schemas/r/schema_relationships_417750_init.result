@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 417750_init
+#
+CREATE DATABASE `db_417750_init`;
+USE `db_417750_init`;
+CREATE TABLE `settings` (
+`id` INT NOT NULL,
+`leagueid` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lobby` (
+`id` BIGINT NOT NULL,
+`name` TEXT,
+`password` TEXT,
+`settings_id` INT,
+`status` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` BIGINT NOT NULL,
+`steam-id` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lobby_user` (
+`id` BIGINT NOT NULL,
+`lobby_id` BIGINT,
+`user_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bot` (
+`id` INT NOT NULL,
+`steam_name` TEXT,
+`steam_user` TEXT,
+`steam_pass` TEXT,
+`steam_guard_code` TEXT,
+`two_factor_code` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_417750_init') AS relationships;
+relationships
+Database: db_417750_init
+
+Table Connections:
+------------------
+[Implied]  lobby.settings_id -> settings.id
+[Implied]  lobby_user.lobby_id -> lobby.id
+[Implied]  lobby_user.user_id -> user.id
+
+DROP DATABASE `db_417750_init`;
+UNINSTALL EXTENSION vsql_schematron;

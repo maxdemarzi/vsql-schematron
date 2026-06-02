@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 428999_TableCreation
+--echo #
+CREATE DATABASE `db_428999_TableCreation`;
+USE `db_428999_TableCreation`;
+CREATE TABLE `User` (
+  `UserName` VARCHAR(50) NOT NULL,
+  `FirstName` VARCHAR(50),
+  `LastName` VARCHAR(50),
+  `Password` VARCHAR(50),
+  `Wallet` VARCHAR(50),
+  `CreditCard` VARCHAR(50),
+  `Admin` VARCHAR(50),
+  PRIMARY KEY (`UserName`)
+) CHARACTER SET latin1;
+CREATE TABLE `GameTag` (
+  `GameId` INT NOT NULL,
+  `TagId` INT NOT NULL,
+  PRIMARY KEY (`GameId`, `TagId`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserDLC` (
+  `UserName` VARCHAR(50) NOT NULL,
+  `DLCId` INT NOT NULL,
+  PRIMARY KEY (`UserName`, `DLCId`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_428999_TableCreation') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_428999_TableCreation') AS relationships;
+DROP DATABASE `db_428999_TableCreation`;
+UNINSTALL EXTENSION vsql_schematron;

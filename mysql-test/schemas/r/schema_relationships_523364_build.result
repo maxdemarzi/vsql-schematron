@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 523364_build
+#
+CREATE DATABASE `db_523364_build`;
+USE `db_523364_build`;
+CREATE TABLE `User` (
+`user_id` INT NOT NULL,
+`firstname` VARCHAR(50),
+`lastname` VARCHAR(50),
+`password` TEXT,
+`email` VARCHAR(50),
+`backup_email` VARCHAR(50),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Appointment` (
+`appointment_id` INT NOT NULL,
+`date` DATE,
+PRIMARY KEY (`appointment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Appointment_member` (
+`appointment_member_id` INT NOT NULL,
+`fk_appointment_id` INT,
+`fk_user_id` INT,
+PRIMARY KEY (`appointment_member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sponsorship` (
+`sponsorship_id` INT NOT NULL,
+`fk_user_sponsored_id` INT,
+`fk_user_sponsor_id` INT,
+`date` DATE,
+PRIMARY KEY (`sponsorship_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Message` (
+`message_id` INT NOT NULL,
+`fk_user_receiver_id` INT,
+`fk_user_sender_id` INT,
+`content` TEXT,
+`date` DATE,
+PRIMARY KEY (`message_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Location` (
+`location_id` INT NOT NULL,
+`fk_user_id` INT,
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`date` DATE,
+PRIMARY KEY (`location_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Login_history` (
+`fk_user_id` INT,
+`ip_address` VARCHAR(50),
+`date` DATE
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_523364_build') AS relationships;
+relationships
+Database: db_523364_build
+
+Table Connections:
+------------------
+[Implied]  Appointment_member.fk_appointment_id -> Appointment.appointment_id
+[Implied]  Appointment_member.fk_user_id -> User.user_id
+[Implied]  Location.fk_user_id -> User.user_id
+[Implied]  Login_history.fk_user_id -> User.user_id
+[Implied]  Message.fk_user_receiver_id -> User.user_id
+[Implied]  Message.fk_user_sender_id -> User.user_id
+[Implied]  Sponsorship.fk_user_sponsor_id -> User.user_id
+[Implied]  Sponsorship.fk_user_sponsored_id -> User.user_id
+
+DROP DATABASE `db_523364_build`;
+UNINSTALL EXTENSION vsql_schematron;

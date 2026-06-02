@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 044480_schema_postgres
+--echo #
+CREATE DATABASE `db_044480_schema_postgres`;
+USE `db_044480_schema_postgres`;
+CREATE TABLE `BATCH_JOB_CONFIGURATION` (
+  `job_configuration_id` INT NOT NULL,
+  `application_name` VARCHAR(50),
+  `job_name` VARCHAR(50),
+  `job_incrementer` VARCHAR(50),
+  `job_configuration_type` INT,
+  PRIMARY KEY (`job_configuration_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `BATCH_JOB_CONFIGURATION_VALUE` (
+  `id` INT NOT NULL,
+  `job_configuration_id` BIGINT,
+  `value_key` VARCHAR(50),
+  `configuration_value` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `BATCH_JOB_CONFIGURATION_PARAMETERS` (
+  `id` INT NOT NULL,
+  `job_configuration_id` BIGINT,
+  `parameter_name` VARCHAR(50),
+  `parameter_value` VARCHAR(50),
+  `parameter_type` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_044480_schema_postgres') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_044480_schema_postgres') AS relationships;
+DROP DATABASE `db_044480_schema_postgres`;
+UNINSTALL EXTENSION vsql_schematron;

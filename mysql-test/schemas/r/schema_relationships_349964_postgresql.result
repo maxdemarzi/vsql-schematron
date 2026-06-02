@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 349964_postgresql
+#
+CREATE DATABASE `db_349964_postgresql`;
+USE `db_349964_postgresql`;
+CREATE TABLE `accountschema.Address` (
+`addressId` INT NOT NULL,
+`streetAddress1` VARCHAR(50),
+`streetAddress2` VARCHAR(50),
+`city` VARCHAR(50),
+`zipCode` VARCHAR(50),
+`countryCd` VARCHAR(50),
+`stateCd` VARCHAR(50),
+`createDTM` DATE,
+`createUserId` VARCHAR(50),
+`lastUpdtDTM` DATE,
+`lastUpdtUserId` VARCHAR(50),
+PRIMARY KEY (`addressId`)
+) CHARACTER SET latin1;
+CREATE TABLE `accountschema.Customer` (
+`cusId` INT NOT NULL,
+`cusName` VARCHAR(50),
+`addressId` INT,
+`contactNo` VARCHAR(50),
+`createDTM` DATE,
+`createUserId` VARCHAR(50),
+`lastUpdtDTM` DATE,
+`lastUpdtUserId` VARCHAR(50),
+PRIMARY KEY (`cusId`)
+) CHARACTER SET latin1;
+CREATE TABLE `accountschema.Account` (
+`accId` INT NOT NULL,
+`cusId` INT,
+`accName` VARCHAR(50),
+`accBalance` VARCHAR(50),
+`status` BOOLEAN,
+`createDTM` DATE,
+`createUserId` VARCHAR(50),
+`lastUpdtDTM` DATE,
+`lastUpdtUserId` VARCHAR(50),
+PRIMARY KEY (`accId`)
+) CHARACTER SET latin1;
+CREATE TABLE `accountschema.AccountFeature` (
+`accountFeatureId` INT NOT NULL,
+`accId` INT,
+`card` VARCHAR(50),
+`cardtype` VARCHAR(50),
+`cardlimit` VARCHAR(50),
+`createDTM` DATE,
+`createUserId` VARCHAR(50),
+`lastUpdtDTM` DATE,
+`lastUpdtUserId` VARCHAR(50),
+PRIMARY KEY (`accountFeatureId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_349964_postgresql') AS relationships;
+relationships
+Database: db_349964_postgresql
+
+Table Connections:
+------------------
+[Implied]  accountschema.Account.cusId -> accountschema.Customer.cusId
+[Implied]  accountschema.AccountFeature.accId -> accountschema.Account.accId
+[Implied]  accountschema.Customer.addressId -> accountschema.Address.addressId
+
+DROP DATABASE `db_349964_postgresql`;
+UNINSTALL EXTENSION vsql_schematron;

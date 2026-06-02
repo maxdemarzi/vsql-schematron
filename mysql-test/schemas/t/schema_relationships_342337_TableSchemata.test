@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 342337_TableSchemata
+--echo #
+CREATE DATABASE `db_342337_TableSchemata`;
+USE `db_342337_TableSchemata`;
+CREATE TABLE `titles` (
+  `id` VARCHAR(50) NOT NULL,
+  `title` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `departments` (
+  `id` VARCHAR(50) NOT NULL,
+  `department_name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+  `id` VARCHAR(50) NOT NULL,
+  `first_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `title_id` VARCHAR(50),
+  `hire_date` DATE,
+  `sex` VARCHAR(50),
+  `birthdate` DATE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `salaries` (
+  `id` INT NOT NULL,
+  `salary` VARCHAR(50),
+  `employee_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `department_employees` (
+  `id` INT NOT NULL,
+  `department_id` VARCHAR(50),
+  `employee_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `department_managers` (
+  `id` INT NOT NULL,
+  `department_id` VARCHAR(50),
+  `employee_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_342337_TableSchemata') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_342337_TableSchemata') AS relationships;
+DROP DATABASE `db_342337_TableSchemata`;
+UNINSTALL EXTENSION vsql_schematron;

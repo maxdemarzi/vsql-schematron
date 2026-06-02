@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 032853_changelog
+#
+CREATE DATABASE `db_032853_changelog`;
+USE `db_032853_changelog`;
+CREATE TABLE `sizes` (
+`id` INT NOT NULL,
+`code` VARCHAR(50),
+`sort_order` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `colors` (
+`id` INT NOT NULL,
+`code` VARCHAR(50),
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`size_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_colors` (
+`product_id` INT,
+`color_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `product_sizes` (
+`product_id` INT,
+`size_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_032853_changelog') AS relationships;
+relationships
+Database: db_032853_changelog
+
+Table Connections:
+------------------
+[Implied]  product_colors.color_id -> colors.id
+[Implied]  product_colors.product_id -> products.id
+[Implied]  product_sizes.product_id -> products.id
+[Implied]  product_sizes.size_id -> sizes.id
+[Implied]  products.size_id -> sizes.id
+
+DROP DATABASE `db_032853_changelog`;
+UNINSTALL EXTENSION vsql_schematron;

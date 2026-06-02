@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 580116_DDL
+#
+CREATE DATABASE `db_580116_DDL`;
+USE `db_580116_DDL`;
+CREATE TABLE `student` (
+`susername` VARCHAR(50) NOT NULL,
+`password` VARCHAR(50),
+PRIMARY KEY (`susername`)
+) CHARACTER SET latin1;
+CREATE TABLE `tutor` (
+`tusername` VARCHAR(50) NOT NULL,
+`password` VARCHAR(50),
+PRIMARY KEY (`tusername`)
+) CHARACTER SET latin1;
+CREATE TABLE `assignment` (
+`assignmentid` INT NOT NULL,
+`tusername` VARCHAR(50),
+`description` TEXT,
+`publishedat` DATE,
+`deadline` DATE,
+PRIMARY KEY (`assignmentid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks` (
+`assignmentid` INT NOT NULL,
+`susername` VARCHAR(50) NOT NULL,
+`remarks` TEXT,
+`status` CHAR(50),
+PRIMARY KEY (`assignmentid`, `susername`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_580116_DDL') AS relationships;
+relationships
+Database: db_580116_DDL
+
+Table Connections:
+------------------
+[Implied]  assignment.tusername -> tutor.tusername
+[Implied]  tasks.assignmentid -> assignment.assignmentid
+[Implied]  tasks.susername -> student.susername
+
+DROP DATABASE `db_580116_DDL`;
+UNINSTALL EXTENSION vsql_schematron;

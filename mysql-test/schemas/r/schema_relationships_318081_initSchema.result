@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 318081_initSchema
+#
+CREATE DATABASE `db_318081_initSchema`;
+USE `db_318081_initSchema`;
+CREATE TABLE `product_info` (
+`product_id` INT NOT NULL,
+`name` VARCHAR(50),
+`slogan` VARCHAR(50),
+`description` TEXT,
+`category` VARCHAR(50),
+`default_price` INT,
+PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `styles` (
+`style_id` INT NOT NULL,
+`product_id` BIGINT,
+`name` VARCHAR(50),
+`sale_price` INT,
+`original_price` INT,
+`if_default` INT,
+PRIMARY KEY (`style_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `features` (
+`feature_id` INT NOT NULL,
+`product_id` BIGINT,
+`feature` VARCHAR(50),
+`value` VARCHAR(50),
+PRIMARY KEY (`feature_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `skus` (
+`sku_id` INT NOT NULL,
+`style_id` BIGINT,
+`size` VARCHAR(50),
+`quantity` INT,
+PRIMARY KEY (`sku_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `photos` (
+`photo_id` INT NOT NULL,
+`style_id` BIGINT,
+`url` TEXT,
+`thumbnail_url` TEXT,
+PRIMARY KEY (`photo_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_318081_initSchema') AS relationships;
+relationships
+Database: db_318081_initSchema
+
+Table Connections:
+------------------
+[Implied]  features.product_id -> product_info.product_id
+[Implied]  photos.style_id -> styles.style_id
+[Implied]  skus.style_id -> styles.style_id
+[Implied]  styles.product_id -> product_info.product_id
+
+DROP DATABASE `db_318081_initSchema`;
+UNINSTALL EXTENSION vsql_schematron;

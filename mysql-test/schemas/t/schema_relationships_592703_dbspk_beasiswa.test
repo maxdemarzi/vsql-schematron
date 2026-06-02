@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 592703_dbspk_beasiswa
+--echo #
+CREATE DATABASE `db_592703_dbspk_beasiswa`;
+USE `db_592703_dbspk_beasiswa`;
+CREATE TABLE `admin` (
+  `username` VARCHAR(50) NOT NULL,
+  `password` VARCHAR(50),
+  `nama_admin` VARCHAR(50),
+  `jabatan` CHAR(50),
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `nilai` (
+  `ID_RANGE` INT NOT NULL,
+  `NIS` VARCHAR(50) NOT NULL,
+  `NORMALISASI` DOUBLE,
+  PRIMARY KEY (`ID_RANGE`, `NIS`)
+) CHARACTER SET latin1;
+CREATE TABLE `siswa` (
+  `NIS` VARCHAR(50) NOT NULL,
+  `NAMA_SISWA` VARCHAR(50),
+  `JENIS_KELAMIN` CHAR(50),
+  `ALAMAT` TEXT,
+  `PEKERJAAN_ORANGTUA` VARCHAR(50),
+  `PENGHASILAN_ORANGTUA` DOUBLE,
+  `JUMLAH_SAUDARA` INT,
+  PRIMARY KEY (`NIS`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_592703_dbspk_beasiswa') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_592703_dbspk_beasiswa') AS relationships;
+DROP DATABASE `db_592703_dbspk_beasiswa`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 342205_Olympics
+#
+CREATE DATABASE `db_342205_Olympics`;
+USE `db_342205_Olympics`;
+CREATE TABLE `Sport` (
+`sportCode` DECIMAL(10,2) NOT NULL,
+`sportName` VARCHAR(50),
+PRIMARY KEY (`sportCode`)
+) CHARACTER SET latin1;
+CREATE TABLE `Discipline` (
+`disciplineID` DECIMAL(10,2) NOT NULL,
+`disciplineName` VARCHAR(50),
+`sportCode` DECIMAL(10,2),
+PRIMARY KEY (`disciplineID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Event` (
+`eventID` DECIMAL(10,2) NOT NULL,
+`eventName` VARCHAR(50),
+`eventDate` DATE,
+`disciplineID` DECIMAL(10,2),
+PRIMARY KEY (`eventID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Competitor` (
+`compID` DECIMAL(10,2) NOT NULL,
+`compName` VARCHAR(50),
+`compDOB` DATE,
+PRIMARY KEY (`compID`)
+) CHARACTER SET latin1;
+CREATE TABLE `EventResults` (
+`eventID` DECIMAL(10,2) NOT NULL,
+`compID` DECIMAL(10,2) NOT NULL,
+`Position` DECIMAL(10,2),
+PRIMARY KEY (`eventID`, `compID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_342205_Olympics') AS relationships;
+relationships
+Database: db_342205_Olympics
+
+Table Connections:
+------------------
+[Implied]  Discipline.sportCode -> Sport.sportCode
+[Implied]  Event.disciplineID -> Discipline.disciplineID
+[Implied]  EventResults.compID -> Competitor.compID
+[Implied]  EventResults.eventID -> Event.eventID
+
+DROP DATABASE `db_342205_Olympics`;
+UNINSTALL EXTENSION vsql_schematron;

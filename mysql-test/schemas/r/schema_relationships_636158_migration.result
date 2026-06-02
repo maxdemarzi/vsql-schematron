@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 636158_migration
+#
+CREATE DATABASE `db_636158_migration`;
+USE `db_636158_migration`;
+CREATE TABLE `BloodPressure` (
+`id` INT NOT NULL,
+`diastolic` INT,
+`systolic` INT,
+`vitalID` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `WaterIntake` (
+`id` INT NOT NULL,
+`measurement` VARCHAR(50),
+`intake` INT,
+`vitalID` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` INT NOT NULL,
+`password` TEXT,
+`email` TEXT,
+`firstName` TEXT,
+`lastName` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Vital` (
+`id` INT NOT NULL,
+`notes` TEXT,
+`pulse` INT,
+`bodyTemperature` TEXT,
+`userId` INT,
+`createdAt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_636158_migration') AS relationships;
+relationships
+Database: db_636158_migration
+
+Table Connections:
+------------------
+[Implied]  BloodPressure.vitalID -> Vital.id
+[Implied]  Vital.userId -> User.id
+[Implied]  WaterIntake.vitalID -> Vital.id
+
+DROP DATABASE `db_636158_migration`;
+UNINSTALL EXTENSION vsql_schematron;

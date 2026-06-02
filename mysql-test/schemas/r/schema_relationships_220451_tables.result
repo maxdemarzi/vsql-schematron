@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 220451_tables
+#
+CREATE DATABASE `db_220451_tables`;
+USE `db_220451_tables`;
+CREATE TABLE `SystemUsers` (
+`Id` INT NOT NULL,
+`Login` VARCHAR(50),
+`Password` VARCHAR(50),
+`FullName` VARCHAR(50),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sessions` (
+`Id` INT NOT NULL,
+`UserId` INT,
+`Token` VARCHAR(50),
+`Data` TEXT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Posts` (
+`Id` INT NOT NULL,
+`UserId` INT,
+`Data` TEXT,
+`Subject` VARCHAR(50),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_220451_tables') AS relationships;
+relationships
+Database: db_220451_tables
+
+Table Connections:
+------------------
+[Implied]  Posts.UserId -> SystemUsers.Id
+[Implied]  Sessions.UserId -> SystemUsers.Id
+
+DROP DATABASE `db_220451_tables`;
+UNINSTALL EXTENSION vsql_schematron;

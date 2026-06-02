@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 618395_schema
+#
+CREATE DATABASE `db_618395_schema`;
+USE `db_618395_schema`;
+CREATE TABLE `application_user` (
+`id` BIGINT NOT NULL,
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `email_address` (
+`id` BIGINT NOT NULL,
+`address` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_email` (
+`user_id` BIGINT NOT NULL,
+`email_id` BIGINT NOT NULL,
+`created_at` DATETIME,
+PRIMARY KEY (`user_id`, `email_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_618395_schema') AS relationships;
+relationships
+Database: db_618395_schema
+
+Table Connections:
+------------------
+[Implied]  user_email.email_id -> email_address.id
+[Implied]  user_email.user_id -> application_user.id
+
+DROP DATABASE `db_618395_schema`;
+UNINSTALL EXTENSION vsql_schematron;

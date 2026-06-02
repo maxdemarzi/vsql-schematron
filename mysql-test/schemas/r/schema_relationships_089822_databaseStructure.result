@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 089822_databaseStructure
+#
+CREATE DATABASE `db_089822_databaseStructure`;
+USE `db_089822_databaseStructure`;
+CREATE TABLE `roles` (
+`id` VARCHAR(50) NOT NULL,
+`title` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `permissions` (
+`id` VARCHAR(50) NOT NULL,
+`title` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles_permissions` (
+`id` VARCHAR(50) NOT NULL,
+`roles_id` VARCHAR(50),
+`permissions_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `logs` (
+`id` BIGINT NOT NULL,
+`header` TEXT,
+`body` VARCHAR(50),
+`tracking_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notification_emails` (
+`id` BIGINT NOT NULL,
+`messages_id` VARCHAR(50),
+`provider_type` VARCHAR(50),
+`accounts_senders_id` VARCHAR(50),
+`sender_from` VARCHAR(50),
+`sender_reply_to` VARCHAR(50),
+`subject` VARCHAR(50),
+`body` TEXT,
+`recipient_to` VARCHAR(50),
+`recipient_cc` VARCHAR(50),
+`recipient_bcc` VARCHAR(50),
+`accounts_recipients_id` VARCHAR(50),
+`time_sent` TIMESTAMP NULL,
+`status` VARCHAR(50),
+`type` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notification_sms` (
+`id` BIGINT NOT NULL,
+`message_id` VARCHAR(50),
+`provider_name` VARCHAR(50),
+`accounts_senders_id` VARCHAR(50),
+`sender_title` VARCHAR(50),
+`body` VARCHAR(50),
+`recipient_phone` VARCHAR(50),
+`accounts_recipient_id` VARCHAR(50),
+`time_queued` TIMESTAMP NULL,
+`time_sent` TIMESTAMP NULL,
+`time_received` TIMESTAMP NULL,
+`time_failed` TIMESTAMP NULL,
+`status` VARCHAR(50),
+`type` VARCHAR(50),
+`price_internal` VARCHAR(50),
+`price_external` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`id` VARCHAR(50) NOT NULL,
+`token` VARCHAR(50),
+`state` VARCHAR(50),
+`accounts_id` VARCHAR(50),
+`issueTime` TIMESTAMP NULL,
+`ttl` VARCHAR(50),
+`sliding` VARCHAR(50),
+`signExpirationTime` TIMESTAMP NULL,
+`tokenExpirationTime` TIMESTAMP NULL,
+`revokeTime` TIMESTAMP NULL,
+`footprint` VARCHAR(50),
+`userAgent` VARCHAR(50),
+`ip` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tracking` (
+`id` VARCHAR(50) NOT NULL,
+`method` VARCHAR(50),
+`url` VARCHAR(50),
+`referrer` VARCHAR(50),
+`tracking_token` VARCHAR(50),
+`accounts_id` BIGINT,
+`time` TIMESTAMP NULL,
+`access_token` VARCHAR(50),
+`user_agent` VARCHAR(50),
+`ip` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_089822_databaseStructure') AS relationships;
+relationships
+Database: db_089822_databaseStructure
+
+Table Connections:
+------------------
+[Implied]  logs.tracking_id -> tracking.id
+[Implied]  roles_permissions.permissions_id -> permissions.id
+[Implied]  roles_permissions.roles_id -> roles.id
+
+DROP DATABASE `db_089822_databaseStructure`;
+UNINSTALL EXTENSION vsql_schematron;
