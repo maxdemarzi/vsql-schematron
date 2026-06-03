@@ -3,6 +3,8 @@
 #include <cctype>
 #include <algorithm>
 #include <sstream>
+#include <unordered_set>
+#include <unordered_map>
 
 namespace {
 
@@ -159,6 +161,26 @@ std::string analyzeDataRelationships(const std::string& db_name, vsql::preview_s
 
     std::set<DataRelationship> relationships;
 
+    // Cache to fetch and hold distinct values for each column once
+    std::unordered_map<std::string, std::unordered_set<std::string>> values_cache;
+    auto get_distinct_values = [&](const std::string& tbl, const std::string& col) -> const std::unordered_set<std::string>& {
+        std::string key = tbl + "." + col;
+        auto cache_it = values_cache.find(key);
+        if (cache_it != values_cache.end()) {
+            return cache_it->second;
+        }
+        std::unordered_set<std::string> vals;
+        std::string sql = "SELECT DISTINCT `" + col + "` FROM `" + db_name + "`.`" + tbl + "` WHERE `" + col + "` IS NOT NULL";
+        auto res = session.sql(sql).execute();
+        if (res && !res.has_error()) {
+            while (res.next()) {
+                std::string_view val = res.column_str(0);
+                vals.insert(std::string(val));
+            }
+        }
+        return values_cache.emplace(key, std::move(vals)).first->second;
+    };
+
     for (const auto& tbl_a_name : table_names) {
         auto it_a = tables_metadata.find(tbl_a_name);
         if (it_a == tables_metadata.end()) continue;
@@ -183,26 +205,27 @@ std::string analyzeDataRelationships(const std::string& db_name, vsql::preview_s
                     if (!col_b.is_pk_candidate) continue;
                     if (!areTypesCompatible(col_a.data_type, col_b.data_type)) continue;
 
-                    std::ostringstream q_oss;
-                    q_oss << "SELECT COUNT(DISTINCT `" << col_a.name << "`) FROM `" 
-                          << db_name << "`.`" << tbl_a_name 
-                          << "` WHERE `" << col_a.name << "` IS NOT NULL AND `" << col_a.name 
-                          << "` NOT IN (SELECT `" << col_b.name << "` FROM `" 
-                          << db_name << "`.`" << tbl_b_name << "` WHERE `" << col_b.name << "` IS NOT NULL)";
-                    
-                    auto res = session.sql(q_oss.str()).execute();
-                    if (res && !res.has_error() && res.next()) {
-                        long long not_contained = res.column_int(0);
-                        double ratio = static_cast<double>(col_a.distinct_count - not_contained) / col_a.distinct_count;
-                        if (ratio >= 0.95) {
-                            DataRelationship rel;
-                            rel.from_table = tbl_a_name;
-                            rel.from_column = col_a.name;
-                            rel.to_table = tbl_b_name;
-                            rel.to_column = col_b.name;
-                            rel.containment_ratio = ratio;
-                            relationships.insert(rel);
+                    const auto& vals_a = get_distinct_values(tbl_a_name, col_a.name);
+                    const auto& vals_b = get_distinct_values(tbl_b_name, col_b.name);
+
+                    if (vals_a.empty() || vals_b.empty()) continue;
+
+                    long long not_contained = 0;
+                    for (const auto& val : vals_a) {
+                        if (vals_b.find(val) == vals_b.end()) {
+                            not_contained++;
                         }
+                    }
+
+                    double ratio = static_cast<double>(vals_a.size() - not_contained) / vals_a.size();
+                    if (ratio >= 0.95) {
+                        DataRelationship rel;
+                        rel.from_table = tbl_a_name;
+                        rel.from_column = col_a.name;
+                        rel.to_table = tbl_b_name;
+                        rel.to_column = col_b.name;
+                        rel.containment_ratio = ratio;
+                        relationships.insert(rel);
                     }
                 }
             }
