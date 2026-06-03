@@ -37,6 +37,8 @@ add_library(vsql_schematron_lib SHARED
     src/domain_specific_matching.cc
     src/data_analyzer.cc
     src/implied_relationships.cc
+    src/string_helpers.cc
+    src/name_matching.cc
 )
 
 # Include directories
