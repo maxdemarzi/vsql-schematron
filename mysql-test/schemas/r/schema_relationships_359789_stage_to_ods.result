@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 359789_stage_to_ods
+#
+CREATE DATABASE `db_359789_stage_to_ods`;
+USE `db_359789_stage_to_ods`;
+CREATE TABLE `complex` (
+`complex_id` INT NOT NULL,
+`complex_name` VARCHAR(50),
+PRIMARY KEY (`complex_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`employee_id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`badge_status` VARCHAR(50),
+`remote_office` VARCHAR(50),
+PRIMARY KEY (`employee_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `facilities` (
+`building_id` INT NOT NULL,
+`building_name` VARCHAR(50),
+`sqft` VARCHAR(50),
+`complex_id` INT,
+PRIMARY KEY (`building_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `high_touch_areas` (
+`spot_id` INT NOT NULL,
+`high_touch_areas` VARCHAR(50),
+PRIMARY KEY (`spot_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `protocols` (
+`protocol_id` INT NOT NULL,
+`step_id` INT,
+`step_name` VARCHAR(50),
+PRIMARY KEY (`protocol_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `floors` (
+`floor_id` INT NOT NULL,
+`floor_name` VARCHAR(50),
+`building_id` INT,
+PRIMARY KEY (`floor_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rooms` (
+`room_id` INT NOT NULL,
+`room_name` VARCHAR(50),
+`floor_id` INT,
+`building_id` INT,
+`total_area` INT,
+`area_cleaned` INT,
+PRIMARY KEY (`room_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `frequency` (
+`frequency_id` INT NOT NULL,
+`frequency` VARCHAR(50),
+`building_id` INT,
+PRIMARY KEY (`frequency_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cleaning_schedule` (
+`transaction_id` INT NOT NULL,
+`step_id` INT,
+`cleaned_on` VARCHAR(50),
+`frequency_id` INT,
+`building_id` INT,
+`floor_id` INT,
+`room_id` INT,
+`employee_id` INT,
+`spot_id` INT,
+`test_value` DECIMAL(10,2),
+`efficiency` DECIMAL(10,2),
+PRIMARY KEY (`transaction_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_359789_stage_to_ods') AS relationships;
+relationships
+Database: db_359789_stage_to_ods
+
+Table Connections:
+------------------
+[Implied]  cleaning_schedule.building_id -> facilities.building_id
+[Implied]  cleaning_schedule.employee_id -> employees.employee_id
+[Implied]  cleaning_schedule.floor_id -> floors.floor_id
+[Implied]  cleaning_schedule.frequency_id -> frequency.frequency_id
+[Implied]  cleaning_schedule.room_id -> rooms.room_id
+[Implied]  cleaning_schedule.spot_id -> high_touch_areas.spot_id
+[Implied]  facilities.complex_id -> complex.complex_id
+[Implied]  floors.building_id -> facilities.building_id
+[Implied]  frequency.building_id -> facilities.building_id
+[Implied]  rooms.building_id -> facilities.building_id
+[Implied]  rooms.floor_id -> floors.floor_id
+
+DROP DATABASE `db_359789_stage_to_ods`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 633940_post-community-db
+#
+CREATE DATABASE `db_633940_post_community_db`;
+USE `db_633940_post_community_db`;
+CREATE TABLE `user` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`avatar` VARCHAR(50),
+`description` VARCHAR(50),
+`created_date` DATE,
+`password` VARCHAR(50),
+`email` VARCHAR(50),
+`wechat_openid` VARCHAR(50),
+`phone_number` VARCHAR(50),
+`role` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `topic` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`content` TEXT,
+`create_datetime` DATETIME,
+`last_edit_datetime` DATETIME,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_category` (
+`id` INT NOT NULL,
+`post_id` INT,
+`category_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_topic` (
+`id` INT NOT NULL,
+`post_id` INT,
+`topic_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`id` INT NOT NULL,
+`content` TEXT,
+`user_id` INT,
+`post_id` INT,
+`parent_comment_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_633940_post_community_db') AS relationships;
+relationships
+Database: db_633940_post_community_db
+
+Table Connections:
+------------------
+[Implied]  comment.parent_comment_id -> comment.id
+[Implied]  comment.post_id -> post.id
+[Implied]  comment.user_id -> user.id
+[Implied]  post.user_id -> user.id
+[Implied]  post_category.category_id -> category.id
+[Implied]  post_category.post_id -> post.id
+[Implied]  post_topic.post_id -> post.id
+[Implied]  post_topic.topic_id -> topic.id
+
+DROP DATABASE `db_633940_post_community_db`;
+UNINSTALL EXTENSION vsql_schematron;

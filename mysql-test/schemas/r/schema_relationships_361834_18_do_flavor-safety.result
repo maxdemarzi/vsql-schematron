@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 361834_18.do.flavor-safety
+#
+CREATE DATABASE `db_361834_18_do_flavor_safety`;
+USE `db_361834_18_do_flavor_safety`;
+CREATE TABLE `ingredient_category` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`ordinal` INT,
+`description` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ingredient` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`cas_number` VARCHAR(50),
+`ingredient_category_id` INT,
+`notes` TEXT,
+`created` TIMESTAMP NULL,
+`updated` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `flavors_ingredients` (
+`flavor_id` BIGINT NOT NULL,
+`ingredient_id` INT NOT NULL,
+`created` TIMESTAMP NULL,
+`updated` TIMESTAMP NULL,
+PRIMARY KEY (`flavor_id`, `ingredient_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_361834_18_do_flavor_safety') AS relationships;
+relationships
+Database: db_361834_18_do_flavor_safety
+
+Table Connections:
+------------------
+[Implied]  flavors_ingredients.ingredient_id -> ingredient.id
+[Implied]  ingredient.ingredient_category_id -> ingredient_category.id
+
+DROP DATABASE `db_361834_18_do_flavor_safety`;
+UNINSTALL EXTENSION vsql_schematron;

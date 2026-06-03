@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 492188_modell_ddl_6
+#
+CREATE DATABASE `db_492188_modell_ddl_6`;
+USE `db_492188_modell_ddl_6`;
+CREATE TABLE `songs` (
+`id` INT NOT NULL,
+`title` TEXT,
+`duration_in_seconds` INT,
+`release_date` DATE,
+`album` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `artists` (
+`artistID` INT NOT NULL,
+`first_name` TEXT,
+`last_name` TEXT,
+PRIMARY KEY (`artistID`)
+) CHARACTER SET latin1;
+CREATE TABLE `albums` (
+`albumID` INT NOT NULL,
+`name` TEXT,
+`release_date` DATE,
+PRIMARY KEY (`albumID`)
+) CHARACTER SET latin1;
+CREATE TABLE `producers` (
+`producerID` INT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`producerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `song_artists` (
+`song_artistsID` INT NOT NULL,
+`song` INT,
+`artist` INT,
+PRIMARY KEY (`song_artistsID`)
+) CHARACTER SET latin1;
+CREATE TABLE `song_producers` (
+`song_producersID` INT NOT NULL,
+`song` INT,
+`producer` INT,
+PRIMARY KEY (`song_producersID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_492188_modell_ddl_6') AS relationships;
+relationships
+Database: db_492188_modell_ddl_6
+
+Table Connections:
+------------------
+[Implied]  song_artists.artist -> artists.artistID
+[Implied]  song_artists.song -> songs.id
+[Implied]  song_producers.producer -> producers.producerID
+[Implied]  song_producers.song -> songs.id
+[Implied]  songs.album -> albums.albumID
+
+DROP DATABASE `db_492188_modell_ddl_6`;
+UNINSTALL EXTENSION vsql_schematron;

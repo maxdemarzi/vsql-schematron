@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 409311_mysqldump
+#
+CREATE DATABASE `db_409311_mysqldump`;
+USE `db_409311_mysqldump`;
+CREATE TABLE `state_table` (
+`id_state` SMALLINT NOT NULL,
+`state` VARCHAR(50),
+PRIMARY KEY (`id_state`)
+) CHARACTER SET latin1;
+CREATE TABLE `BloodBags` (
+`serial` VARCHAR(50) NOT NULL,
+`Rh` CHAR(50),
+`creation` INT,
+`expiring` INT,
+`donatorCF` CHAR(50),
+`note` TEXT,
+`id_state` SMALLINT,
+PRIMARY KEY (`serial`)
+) CHARACTER SET latin1;
+CREATE TABLE `Logger` (
+`id` INT NOT NULL,
+`timestamp` INT,
+`user` CHAR(50),
+`operation` CHAR(50),
+`note_action` CHAR(50),
+`bloodbag_serial` CHAR(50),
+`note` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Roles` (
+`idrole` INT NOT NULL,
+`rolename` CHAR(50),
+`roledescr` CHAR(50),
+`getLog` BOOLEAN,
+`createUser` BOOLEAN,
+`editUser` BOOLEAN,
+`dropUser` BOOLEAN,
+`setMasterNode` BOOLEAN,
+`listBag` BOOLEAN,
+`addBag` BOOLEAN,
+`removeBag` BOOLEAN,
+`checkBag` BOOLEAN,
+PRIMARY KEY (`idrole`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+`iduser` INT NOT NULL,
+`username` CHAR(50),
+`password` CHAR(50),
+`lastaccess` INT,
+`idrole` INT,
+PRIMARY KEY (`iduser`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_409311_mysqldump') AS relationships;
+relationships
+Database: db_409311_mysqldump
+
+Table Connections:
+------------------
+[Implied]  BloodBags.id_state -> state_table.id_state
+[Implied]  Logger.bloodbag_serial -> BloodBags.serial
+[Implied]  Users.idrole -> Roles.idrole
+
+DROP DATABASE `db_409311_mysqldump`;
+UNINSTALL EXTENSION vsql_schematron;

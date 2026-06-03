@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 086174_mysql_schema_v2
+#
+CREATE DATABASE `db_086174_mysql_schema_v2`;
+USE `db_086174_mysql_schema_v2`;
+CREATE TABLE `time_kind` (
+`kind_id` INT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`kind_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `code` (
+`code_id` INT NOT NULL,
+`code_ir` TEXT,
+`code_raw` TEXT,
+PRIMARY KEY (`code_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `time` (
+`time_id` INT NOT NULL,
+`code_id` INT,
+`arch_id` INT,
+`kind_id` INT,
+`cycle_count` INT,
+PRIMARY KEY (`time_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `time_metadata` (
+`metadata_id` INT NOT NULL,
+`time_id` INT,
+`l1drmisses` INT,
+`l1dwmisses` INT,
+`l1imisses` INT,
+`conswitch` INT,
+PRIMARY KEY (`metadata_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_086174_mysql_schema_v2') AS relationships;
+relationships
+Database: db_086174_mysql_schema_v2
+
+Table Connections:
+------------------
+[Implied]  time.code_id -> code.code_id
+[Implied]  time.kind_id -> time_kind.kind_id
+[Implied]  time_metadata.time_id -> time.time_id
+
+DROP DATABASE `db_086174_mysql_schema_v2`;
+UNINSTALL EXTENSION vsql_schematron;

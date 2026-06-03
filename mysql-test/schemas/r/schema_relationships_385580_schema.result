@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 385580_schema
+#
+CREATE DATABASE `db_385580_schema`;
+USE `db_385580_schema`;
+CREATE TABLE `events` (
+`id` INT NOT NULL,
+`title` TEXT,
+`description` TEXT,
+`geom` VARCHAR(50),
+`updated_at` TIMESTAMP NULL,
+`created_at` TIMESTAMP NULL,
+`publisher_id` INT,
+`feature_id` TEXT,
+`properties` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `http_requests` (
+`id` VARCHAR(50) NOT NULL,
+`scheme` CHAR(50),
+`userinfo` TEXT,
+`host` TEXT,
+`port` INT,
+`path` TEXT,
+`query` TEXT,
+`fragment` TEXT,
+`method` CHAR(50),
+`response_status` INT,
+`duration` INT,
+`started_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `publishers` (
+`id` INT NOT NULL,
+`title` TEXT,
+`endpoint` TEXT,
+`updated_at` TIMESTAMP NULL,
+`created_at` TIMESTAMP NULL,
+`active` BOOLEAN,
+`city` TEXT,
+`icon` TEXT,
+`visible` BOOLEAN,
+`state` TEXT,
+`description` TEXT,
+`tags` VARCHAR(50),
+`event_display_endpoint` TEXT,
+`events_are_polygons` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schema_info` (
+`version` INT
+) CHARACTER SET latin1;
+CREATE TABLE `subscriptions` (
+`geom` VARCHAR(50),
+`updated_at` TIMESTAMP NULL,
+`created_at` TIMESTAMP NULL,
+`publisher_id` INT,
+`channel` TEXT,
+`phone_number` TEXT,
+`email_address` TEXT,
+`webhook_url` TEXT,
+`unsubscribed_at` TIMESTAMP NULL,
+`id` VARCHAR(50) NOT NULL,
+`last_notified` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_385580_schema') AS relationships;
+relationships
+Database: db_385580_schema
+
+Table Connections:
+------------------
+[Implied]  events.publisher_id -> publishers.id
+[Implied]  subscriptions.publisher_id -> publishers.id
+
+DROP DATABASE `db_385580_schema`;
+UNINSTALL EXTENSION vsql_schematron;

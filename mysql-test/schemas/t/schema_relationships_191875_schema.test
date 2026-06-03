@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 191875_schema
+--echo #
+CREATE DATABASE `db_191875_schema`;
+USE `db_191875_schema`;
+CREATE TABLE `PERSON_TYPE` (
+  `ID` INT NOT NULL,
+  `NAME` VARCHAR(50),
+  `LAST_UPDATED` TIMESTAMP NULL,
+  `LAST_UPDATE_USER` VARCHAR(50),
+  `CREATED` TIMESTAMP NULL,
+  `CREATE_USER` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PERSON` (
+  `ID` INT NOT NULL,
+  `FIRST_NAME` VARCHAR(50),
+  `LAST_NAME` VARCHAR(50),
+  `TYPE` INT,
+  `LOCK_VERSION` INT,
+  `LAST_UPDATED` TIMESTAMP NULL,
+  `LAST_UPDATE_USER` VARCHAR(50),
+  `CREATED` TIMESTAMP NULL,
+  `CREATE_USER` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PERSON_STUDENT` (
+  `ID` INT,
+  `SCHOOL_NAME` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `PERSON_PROFESSIONAL` (
+  `ID` INT,
+  `COMPANY_NAME` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `ADDRESS` (
+  `ID` INT NOT NULL,
+  `PERSON_ID` INT,
+  `ADDRESS` VARCHAR(50),
+  `CITY` VARCHAR(50),
+  `STATE` VARCHAR(50),
+  `ZIP_POSTAL` VARCHAR(50),
+  `COUNTRY` VARCHAR(50),
+  `LOCK_VERSION` INT,
+  `LAST_UPDATED` TIMESTAMP NULL,
+  `LAST_UPDATE_USER` VARCHAR(50),
+  `CREATED` TIMESTAMP NULL,
+  `CREATE_USER` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_191875_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_191875_schema') AS relationships;
+DROP DATABASE `db_191875_schema`;
+UNINSTALL EXTENSION vsql_schematron;

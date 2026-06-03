@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 277055_schema
+#
+CREATE DATABASE `db_277055_schema`;
+USE `db_277055_schema`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`password` TEXT,
+`role` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subjects` (
+`id` INT NOT NULL,
+`subject_name` TEXT,
+`password` TEXT,
+`content` TEXT,
+`require_permission` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rooms` (
+`id` INT NOT NULL,
+`room_name` TEXT,
+`user_id` INT,
+`subject_id` INT,
+`visible` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+`id` INT NOT NULL,
+`user_id` INT,
+`room_id` INT,
+`content` TEXT,
+`created_at` TIMESTAMP NULL,
+`visible` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subject_rights` (
+`id` INT NOT NULL,
+`user_id` INT,
+`subject_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_277055_schema') AS relationships;
+relationships
+Database: db_277055_schema
+
+Table Connections:
+------------------
+[Implied]  messages.room_id -> rooms.id
+[Implied]  messages.user_id -> users.id
+[Implied]  rooms.subject_id -> subjects.id
+[Implied]  rooms.user_id -> users.id
+[Implied]  subject_rights.subject_id -> subjects.id
+[Implied]  subject_rights.user_id -> users.id
+
+DROP DATABASE `db_277055_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 104352_cronnit
+--echo #
+CREATE DATABASE `db_104352_cronnit`;
+USE `db_104352_cronnit`;
+CREATE TABLE `account` (
+  `id` VARCHAR(50) NOT NULL,
+  `name` VARCHAR(50),
+  `token` VARCHAR(50),
+  `stop_nagging` VARCHAR(50),
+  `admin` VARCHAR(50),
+  `banned` VARCHAR(50),
+  `donator` INT,
+  `hide_thanks` VARCHAR(50),
+  `daily_limit` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+  `id` VARCHAR(50) NOT NULL,
+  `body` TEXT,
+  `delay` VARCHAR(50),
+  `post_id` VARCHAR(50),
+  `url` VARCHAR(50),
+  `error` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+  `id` VARCHAR(50) NOT NULL,
+  `subreddit` VARCHAR(50),
+  `title` TEXT,
+  `body` TEXT,
+  `account_id` VARCHAR(50),
+  `when` DOUBLE,
+  `whenzone` VARCHAR(50),
+  `url` VARCHAR(50),
+  `error` VARCHAR(50),
+  `sendreplies` VARCHAR(50),
+  `nsfw` VARCHAR(50),
+  `ratelimit_count` VARCHAR(50),
+  `ratelimit_sum` VARCHAR(50),
+  `when_original` VARCHAR(50),
+  `when_posted` VARCHAR(50),
+  `bulk` VARCHAR(50),
+  `deleted` VARCHAR(50),
+  `flair_id` TEXT,
+  `flair_text` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shard` (
+  `id` VARCHAR(50) NOT NULL,
+  `address` VARCHAR(50),
+  `proxy` VARCHAR(50),
+  `when` VARCHAR(50),
+  `rate_limit` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_104352_cronnit') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_104352_cronnit') AS relationships;
+DROP DATABASE `db_104352_cronnit`;
+UNINSTALL EXTENSION vsql_schematron;

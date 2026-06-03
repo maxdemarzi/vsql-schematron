@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 159720_CreateTables_InsertData
+#
+CREATE DATABASE `db_159720_CreateTables_InsertData`;
+USE `db_159720_CreateTables_InsertData`;
+CREATE TABLE `rooms_type` (
+`id` INT NOT NULL,
+`fname` VARCHAR(50),
+`price` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rooms` (
+`id` INT NOT NULL,
+`number` INT,
+`type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookings` (
+`id` INT NOT NULL,
+`booking_date` DATE,
+`check_in_date` DATE,
+`check_out_date` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rooms_booked` (
+`id` INT NOT NULL,
+`rooms_id` INT,
+`bookings_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `capacity` (
+`id` INT NOT NULL,
+`type_id` INT,
+`total_rooms` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_159720_CreateTables_InsertData') AS relationships;
+relationships
+Database: db_159720_CreateTables_InsertData
+
+Table Connections:
+------------------
+[Implied]  capacity.type_id -> rooms_type.id
+[Implied]  rooms.type_id -> rooms_type.id
+[Implied]  rooms_booked.bookings_id -> bookings.id
+[Implied]  rooms_booked.rooms_id -> rooms.id
+
+DROP DATABASE `db_159720_CreateTables_InsertData`;
+UNINSTALL EXTENSION vsql_schematron;

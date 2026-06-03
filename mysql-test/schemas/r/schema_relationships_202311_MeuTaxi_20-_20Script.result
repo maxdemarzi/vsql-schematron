@@ -1,0 +1,102 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 202311_MeuTaxi%20-%20Script
+#
+CREATE DATABASE `db_202311_MeuTaxi_20__20Script`;
+USE `db_202311_MeuTaxi_20__20Script`;
+CREATE TABLE `proprietario` (
+`id_proprietario` BIGINT NOT NULL,
+`senha` VARCHAR(50),
+`rua` VARCHAR(50),
+`bairro` VARCHAR(50),
+`cidade` VARCHAR(50),
+`estado` VARCHAR(50),
+`telefone` BIGINT,
+`login` VARCHAR(50),
+`cep` VARCHAR(50),
+`email` VARCHAR(50),
+`numero` INT,
+`nome` VARCHAR(50),
+PRIMARY KEY (`id_proprietario`)
+) CHARACTER SET latin1;
+CREATE TABLE `motorista` (
+`id_motorista` BIGINT NOT NULL,
+`senha` VARCHAR(50),
+`rua` VARCHAR(50),
+`bairro` VARCHAR(50),
+`cidade` VARCHAR(50),
+`estado` VARCHAR(50),
+`telefone` BIGINT,
+`login` VARCHAR(50),
+`cep` VARCHAR(50),
+`email` VARCHAR(50),
+`numero` INT,
+`nome` VARCHAR(50),
+`id_proprietario` BIGINT,
+PRIMARY KEY (`id_motorista`)
+) CHARACTER SET latin1;
+CREATE TABLE `veiculo` (
+`id_veiculo` BIGINT NOT NULL,
+`placa` VARCHAR(50),
+`marca` VARCHAR(50),
+`modelo` VARCHAR(50),
+`ano` INT,
+`prefixo` BIGINT,
+`id_proprietario` BIGINT,
+PRIMARY KEY (`id_veiculo`)
+) CHARACTER SET latin1;
+CREATE TABLE `veiculo_motorista` (
+`id_veiculo_motorista` BIGINT NOT NULL,
+`id_veiculo` BIGINT,
+`id_motorista` BIGINT,
+PRIMARY KEY (`id_veiculo_motorista`)
+) CHARACTER SET latin1;
+CREATE TABLE `diaria` (
+`id_diaria` BIGINT NOT NULL,
+`hora_inicial` TIME,
+`hora_final` TIME,
+`dia` VARCHAR(50),
+`comissao` DOUBLE,
+`km_inicial` DOUBLE,
+`km_final` DOUBLE,
+`preco_km` DOUBLE,
+`combustivel` DOUBLE,
+`id_proprietario` BIGINT,
+`id_veiculo` BIGINT,
+`id_motorista` BIGINT,
+PRIMARY KEY (`id_diaria`)
+) CHARACTER SET latin1;
+CREATE TABLE `gasto` (
+`id_gasto` BIGINT NOT NULL,
+`descricao` VARCHAR(50),
+`valor` DOUBLE,
+`id_diaria` BIGINT,
+PRIMARY KEY (`id_gasto`)
+) CHARACTER SET latin1;
+CREATE TABLE `corrida` (
+`id_corrida` BIGINT NOT NULL,
+`hora_inicial` TIME,
+`hora_final` TIME,
+`preco` DOUBLE,
+`cartao` BOOLEAN,
+`id_diaria` BIGINT,
+PRIMARY KEY (`id_corrida`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_202311_MeuTaxi_20__20Script') AS relationships;
+relationships
+Database: db_202311_MeuTaxi_20__20Script
+
+Table Connections:
+------------------
+[Implied]  corrida.id_diaria -> diaria.id_diaria
+[Implied]  diaria.id_motorista -> motorista.id_motorista
+[Implied]  diaria.id_proprietario -> proprietario.id_proprietario
+[Implied]  diaria.id_veiculo -> veiculo.id_veiculo
+[Implied]  gasto.id_diaria -> diaria.id_diaria
+[Implied]  motorista.id_proprietario -> proprietario.id_proprietario
+[Implied]  veiculo.id_proprietario -> proprietario.id_proprietario
+[Implied]  veiculo_motorista.id_motorista -> motorista.id_motorista
+[Implied]  veiculo_motorista.id_veiculo -> veiculo.id_veiculo
+
+DROP DATABASE `db_202311_MeuTaxi_20__20Script`;
+UNINSTALL EXTENSION vsql_schematron;

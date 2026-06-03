@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 237649_library_test_table_info
+#
+CREATE DATABASE `db_237649_library_test_table_info`;
+USE `db_237649_library_test_table_info`;
+CREATE TABLE `librarian` (
+`lib_id` VARCHAR(50) NOT NULL,
+`f_name` VARCHAR(50),
+`l_name` VARCHAR(50),
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+PRIMARY KEY (`lib_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`uid` DECIMAL(10,2) NOT NULL,
+`f_name` VARCHAR(50),
+`l_name` VARCHAR(50),
+`gender` VARCHAR(50),
+`yr` VARCHAR(50),
+`division` VARCHAR(50),
+`roll_no` DECIMAL(10,2),
+PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `book` (
+`isbn` DECIMAL(10,2) NOT NULL,
+`name` VARCHAR(50),
+`author` VARCHAR(50),
+`publisher` VARCHAR(50),
+`issued` VARCHAR(50),
+PRIMARY KEY (`isbn`)
+) CHARACTER SET latin1;
+CREATE TABLE `issue_book` (
+`i_id` VARCHAR(50) NOT NULL,
+`lib_id` VARCHAR(50),
+`st_uid` DECIMAL(10,2),
+`isbn` DECIMAL(10,2),
+`issue_date` DATE,
+PRIMARY KEY (`i_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `return_book` (
+`i_id` VARCHAR(50),
+`due_date` DATE,
+`fine` DECIMAL(10,2)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_237649_library_test_table_info') AS relationships;
+relationships
+Database: db_237649_library_test_table_info
+
+Table Connections:
+------------------
+[Implied]  issue_book.isbn -> book.isbn
+[Implied]  issue_book.lib_id -> librarian.lib_id
+[Implied]  issue_book.st_uid -> student.uid
+[Implied]  return_book.i_id -> issue_book.i_id
+
+DROP DATABASE `db_237649_library_test_table_info`;
+UNINSTALL EXTENSION vsql_schematron;

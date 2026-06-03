@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 494752_up
+#
+CREATE DATABASE `db_494752_up`;
+USE `db_494752_up`;
+CREATE TABLE `site_user_status` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `site_user` (
+`id` INT NOT NULL,
+`site_user_status_id` INT,
+`username` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`created` TIMESTAMP NULL,
+`updated` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_group` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_category` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+`label` TEXT,
+`post_group_id` INT,
+`post_category_id` INT,
+`content` TEXT,
+`published` BOOLEAN,
+`embedded` BOOLEAN,
+`created` TIMESTAMP NULL,
+`updated` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`id` INT NOT NULL,
+`content` VARCHAR(50),
+`post_id` INT,
+`site_user_id` INT,
+`parent_comment_id` INT,
+`created` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_494752_up') AS relationships;
+relationships
+Database: db_494752_up
+
+Table Connections:
+------------------
+[Implied]  comment.parent_comment_id -> comment.id
+[Implied]  comment.post_id -> post.id
+[Implied]  comment.site_user_id -> site_user.id
+[Implied]  post.post_category_id -> post_category.id
+[Implied]  post.post_group_id -> post_group.id
+[Implied]  site_user.site_user_status_id -> site_user_status.id
+
+DROP DATABASE `db_494752_up`;
+UNINSTALL EXTENSION vsql_schematron;

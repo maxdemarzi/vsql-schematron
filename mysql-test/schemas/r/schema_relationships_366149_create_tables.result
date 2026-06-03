@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 366149_create_tables
+#
+CREATE DATABASE `db_366149_create_tables`;
+USE `db_366149_create_tables`;
+CREATE TABLE `Author` (
+`authorid` INT NOT NULL,
+`name` VARCHAR(50),
+`city` VARCHAR(50),
+`country` VARCHAR(50),
+PRIMARY KEY (`authorid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Publisher` (
+`publisherid` INT NOT NULL,
+`name` VARCHAR(50),
+`city` VARCHAR(50),
+`country` VARCHAR(50),
+PRIMARY KEY (`publisherid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Book_Category` (
+`categoryid` INT NOT NULL,
+`description` VARCHAR(50),
+PRIMARY KEY (`categoryid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Book_Catalog` (
+`bookid` INT NOT NULL,
+`title` VARCHAR(50),
+`authorid` INT,
+`publisherid` INT,
+`categoryid` INT,
+`yearofpublish` INT,
+`price` INT,
+PRIMARY KEY (`bookid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Order_Details` (
+`orderno` INT NOT NULL,
+`bookid` INT NOT NULL,
+`quantity` INT,
+PRIMARY KEY (`orderno`, `bookid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_366149_create_tables') AS relationships;
+relationships
+Database: db_366149_create_tables
+
+Table Connections:
+------------------
+[Implied]  Book_Catalog.authorid -> Author.authorid
+[Implied]  Book_Catalog.categoryid -> Book_Category.categoryid
+[Implied]  Book_Catalog.publisherid -> Publisher.publisherid
+[Implied]  Order_Details.bookid -> Book_Catalog.bookid
+
+DROP DATABASE `db_366149_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

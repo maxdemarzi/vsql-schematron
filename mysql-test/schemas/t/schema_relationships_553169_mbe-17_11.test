@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 553169_mbe-17.11
+--echo #
+CREATE DATABASE `db_553169_mbe_17_11`;
+USE `db_553169_mbe_17_11`;
+CREATE TABLE `time_clock` (
+  `time_clock_id` VARCHAR(50) NOT NULL,
+  `address` VARCHAR(50),
+  `last_sync` DATETIME,
+  `sync` TINYINT,
+  PRIMARY KEY (`time_clock_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `time_clock_record` (
+  `time_clock_record_id` VARCHAR(50) NOT NULL,
+  `enroll_number` INT,
+  `datetime` DATETIME,
+  `type` INT,
+  `employee` INT,
+  PRIMARY KEY (`time_clock_record_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `expenses` (
+  `expense_id` INT NOT NULL,
+  `expense` VARCHAR(50),
+  `comment` VARCHAR(50),
+  PRIMARY KEY (`expense_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `expense_voucher` (
+  `expense_voucher_id` INT NOT NULL,
+  `creator` INT,
+  `updater` INT,
+  `store` INT,
+  `cash_session` INT,
+  `comment` VARCHAR(50),
+  `date` DATETIME,
+  `creation_time` DATETIME,
+  `modification_time` DATETIME,
+  `completed` TINYINT,
+  `cancelled` TINYINT,
+  PRIMARY KEY (`expense_voucher_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `expense_voucher_detail` (
+  `expense_voucher_detail_id` INT NOT NULL,
+  `expense_voucher` INT,
+  `expense` INT,
+  `amount` DECIMAL(10,2),
+  `comment` VARCHAR(50),
+  PRIMARY KEY (`expense_voucher_detail_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment_on_delivery` (
+  `payment_on_delivery_id` INT NOT NULL,
+  `customer_payment` INT,
+  `cash_session` INT,
+  `paid` TINYINT,
+  `date` DATETIME,
+  PRIMARY KEY (`payment_on_delivery_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_553169_mbe_17_11') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_553169_mbe_17_11') AS relationships;
+DROP DATABASE `db_553169_mbe_17_11`;
+UNINSTALL EXTENSION vsql_schematron;

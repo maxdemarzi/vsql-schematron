@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 178618_schema
+#
+CREATE DATABASE `db_178618_schema`;
+USE `db_178618_schema`;
+CREATE TABLE `parts` (
+`id` INT NOT NULL,
+`isTempPart` BOOLEAN,
+`manufacturerOneId` VARCHAR(50),
+`manufactureContractOneId` VARCHAR(50),
+`uniqueId` VARCHAR(50),
+`manufacturerUniqueId` VARCHAR(50),
+`customerUniqueId` VARCHAR(50),
+`qualityAlert` BOOLEAN,
+`qualityType` VARCHAR(50),
+`importTimestampUtc` TIMESTAMP NULL,
+`validUntilUtc` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `partRelations` (
+`parentPartId` INT,
+`childPartId` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_178618_schema') AS relationships;
+relationships
+Database: db_178618_schema
+
+Table Connections:
+------------------
+[Implied]  partRelations.childPartId -> parts.id
+[Implied]  partRelations.parentPartId -> parts.id
+
+DROP DATABASE `db_178618_schema`;
+UNINSTALL EXTENSION vsql_schematron;

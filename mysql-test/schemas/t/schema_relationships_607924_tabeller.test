@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 607924_tabeller
+--echo #
+CREATE DATABASE `db_607924_tabeller`;
+USE `db_607924_tabeller`;
+CREATE TABLE `forlag` (
+  `forlag_id` INT NOT NULL,
+  `forlag_navn` VARCHAR(50),
+  `adresse` VARCHAR(50),
+  `telefon` CHAR(50),
+  PRIMARY KEY (`forlag_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bok` (
+  `bok_id` INT NOT NULL,
+  `tittel` VARCHAR(50),
+  `utgitt_aar` INT,
+  `forlag_id` INT,
+  PRIMARY KEY (`bok_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `forfatter` (
+  `forfatter_id` INT NOT NULL,
+  `fornavn` VARCHAR(50),
+  `etternavn` VARCHAR(50),
+  `fode_aar` INT,
+  `dod_aar` INT,
+  `nasjonalitet` VARCHAR(50),
+  PRIMARY KEY (`forfatter_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bok_forfatter` (
+  `bok_id` INT NOT NULL,
+  `forfatter_id` INT NOT NULL,
+  PRIMARY KEY (`bok_id`, `forfatter_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `konsulent` (
+  `kons_id` INT NOT NULL,
+  `fornavn` VARCHAR(50),
+  `etternavn` VARCHAR(50),
+  `epost` VARCHAR(50),
+  PRIMARY KEY (`kons_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_607924_tabeller') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_607924_tabeller') AS relationships;
+DROP DATABASE `db_607924_tabeller`;
+UNINSTALL EXTENSION vsql_schematron;

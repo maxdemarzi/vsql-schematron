@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 348429_init
+--echo #
+CREATE DATABASE `db_348429_init`;
+USE `db_348429_init`;
+CREATE TABLE `rack` (
+  `rack_id` INT NOT NULL,
+  `rack_number` VARCHAR(50),
+  PRIMARY KEY (`rack_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shelf` (
+  `shelf_id` INT NOT NULL,
+  `shelf_number` VARCHAR(50),
+  `rack_id` INT,
+  PRIMARY KEY (`shelf_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cell` (
+  `cell_id` INT NOT NULL,
+  `cell_number` VARCHAR(50),
+  `shelf_id` INT,
+  PRIMARY KEY (`cell_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document_subject` (
+  `document_subject_id` INT NOT NULL,
+  `document_subject_name` VARCHAR(50),
+  PRIMARY KEY (`document_subject_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document` (
+  `document_id` INT NOT NULL,
+  `document_name` VARCHAR(50),
+  `inventory_number` VARCHAR(50),
+  `arrived_at` TIMESTAMP NULL,
+  `cell_id` INT,
+  `document_subject_id` INT,
+  PRIMARY KEY (`document_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document_copy` (
+  `copy_id` INT NOT NULL,
+  `copy_name` VARCHAR(50),
+  `inventory_number` VARCHAR(50),
+  `document_id` INT,
+  PRIMARY KEY (`copy_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `department` (
+  `department_id` INT NOT NULL,
+  `phone_number` VARCHAR(50),
+  PRIMARY KEY (`department_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subscriber` (
+  `subscriber_id` INT NOT NULL,
+  `first_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `middle_name` VARCHAR(50),
+  `subscriber_number` VARCHAR(50),
+  `department_id` INT,
+  PRIMARY KEY (`subscriber_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document_issue` (
+  `issue_id` INT NOT NULL,
+  `issued_at` TIMESTAMP NULL,
+  `returned_at` TIMESTAMP NULL,
+  `subscriber_id` INT,
+  `document_id` INT,
+  PRIMARY KEY (`issue_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `operator` (
+  `operator_id` INT NOT NULL,
+  `operator_name` VARCHAR(50),
+  `operator_password` VARCHAR(50),
+  PRIMARY KEY (`operator_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_348429_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_348429_init') AS relationships;
+DROP DATABASE `db_348429_init`;
+UNINSTALL EXTENSION vsql_schematron;

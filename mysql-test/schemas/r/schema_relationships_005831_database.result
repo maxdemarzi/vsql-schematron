@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 005831_database
+#
+CREATE DATABASE `db_005831_database`;
+USE `db_005831_database`;
+CREATE TABLE `pet_types` (
+`id` INT NOT NULL,
+`type` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pets` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`pet_type_id` INT,
+`age` SMALLINT,
+`has_microchip` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `owners` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`email` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pet_owners` (
+`id` INT NOT NULL,
+`pet_id` INT,
+`owner_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_005831_database') AS relationships;
+relationships
+Database: db_005831_database
+
+Table Connections:
+------------------
+[Implied]  pet_owners.owner_id -> owners.id
+[Implied]  pet_owners.pet_id -> pets.id
+[Implied]  pets.pet_type_id -> pet_types.id
+
+DROP DATABASE `db_005831_database`;
+UNINSTALL EXTENSION vsql_schematron;

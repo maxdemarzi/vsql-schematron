@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 632504_db_setup
+#
+CREATE DATABASE `db_632504_db_setup`;
+USE `db_632504_db_setup`;
+CREATE TABLE `users` (
+`user_email` VARCHAR(50) NOT NULL,
+`user_key` VARCHAR(50),
+`name` VARCHAR(50),
+`salt` VARCHAR(50),
+`admin` VARCHAR(50),
+PRIMARY KEY (`user_email`)
+) CHARACTER SET latin1;
+CREATE TABLE `eval` (
+`eval_id` INT NOT NULL,
+`eval_name` VARCHAR(50),
+`date_of_eval` DATE,
+`description` VARCHAR(50),
+`max_marks` INT,
+PRIMARY KEY (`eval_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `marks` (
+`record_number` INT NOT NULL,
+`user_email` VARCHAR(50),
+`eval_id` INT,
+`score` INT,
+`verified` VARCHAR(50),
+PRIMARY KEY (`record_number`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_632504_db_setup') AS relationships;
+relationships
+Database: db_632504_db_setup
+
+Table Connections:
+------------------
+[Implied]  marks.eval_id -> eval.eval_id
+[Implied]  marks.user_email -> users.user_email
+
+DROP DATABASE `db_632504_db_setup`;
+UNINSTALL EXTENSION vsql_schematron;

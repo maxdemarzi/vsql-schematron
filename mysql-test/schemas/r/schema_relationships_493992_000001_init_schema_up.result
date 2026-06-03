@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 493992_000001_init_schema.up
+#
+CREATE DATABASE `db_493992_000001_init_schema_up`;
+USE `db_493992_000001_init_schema_up`;
+CREATE TABLE `accounts` (
+`id` INT NOT NULL,
+`owner` VARCHAR(50),
+`balance` DECIMAL(10,2),
+`currency` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `entries` (
+`id` INT NOT NULL,
+`account_id` BIGINT,
+`amount` DECIMAL(10,2),
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transfers` (
+`id` INT NOT NULL,
+`from_account_id` BIGINT,
+`to_account_id` BIGINT,
+`amount` DECIMAL(10,2),
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_493992_000001_init_schema_up') AS relationships;
+relationships
+Database: db_493992_000001_init_schema_up
+
+Table Connections:
+------------------
+[Implied]  entries.account_id -> accounts.id
+[Implied]  transfers.from_account_id -> accounts.id
+[Implied]  transfers.to_account_id -> accounts.id
+
+DROP DATABASE `db_493992_000001_init_schema_up`;
+UNINSTALL EXTENSION vsql_schematron;

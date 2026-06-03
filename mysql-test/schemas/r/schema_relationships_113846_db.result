@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 113846_db
+#
+CREATE DATABASE `db_113846_db`;
+USE `db_113846_db`;
+CREATE TABLE `config` (
+`key` VARCHAR(50) NOT NULL,
+`value` TEXT,
+`datatype` VARCHAR(50),
+PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`email` VARCHAR(50),
+`name` VARCHAR(50),
+`password` VARCHAR(50),
+`passwordSalt` VARCHAR(50),
+`languageCode` VARCHAR(50),
+`verifyEmailCode` VARCHAR(50),
+`verifyEmailCodeExpires` DATETIME,
+`isAdmin` BOOLEAN,
+`lastUpdated` DATETIME,
+`badLoginAttempts` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reset_password` (
+`userId` INT,
+`token` VARCHAR(50),
+`expires` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `recipes` (
+`id` INT NOT NULL,
+`userId` INT,
+`public` BOOLEAN,
+`languageCode` VARCHAR(50),
+`name` VARCHAR(50),
+`description` TEXT,
+`category` VARCHAR(50),
+`portions` INT,
+`difficulty` INT,
+`preparation` TEXT,
+`preparationTime` INT,
+`restTime` INT,
+`cookTime` INT,
+`publishDate` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ingredients` (
+`id` INT NOT NULL,
+`recipeId` INT,
+`amount` DOUBLE,
+`unit` VARCHAR(50),
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipe_images` (
+`id` INT NOT NULL,
+`recipeId` INT,
+`path` TEXT,
+`mimeType` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_113846_db') AS relationships;
+relationships
+Database: db_113846_db
+
+Table Connections:
+------------------
+[Implied]  ingredients.recipeId -> recipes.id
+[Implied]  recipe_images.recipeId -> recipes.id
+[Implied]  recipes.userId -> users.id
+[Implied]  reset_password.userId -> users.id
+
+DROP DATABASE `db_113846_db`;
+UNINSTALL EXTENSION vsql_schematron;

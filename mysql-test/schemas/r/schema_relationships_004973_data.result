@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 004973_data
+#
+CREATE DATABASE `db_004973_data`;
+USE `db_004973_data`;
+CREATE TABLE `clases` (
+`id` BIGINT NOT NULL,
+`aforo` INT,
+`dia` INT,
+`hora` INT,
+`nombre_sala` VARCHAR(50),
+`profesor` VARCHAR(50),
+`tipo` VARCHAR(50),
+`sala_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cliente` (
+`id` BIGINT NOT NULL,
+`edad` INT,
+`email` VARCHAR(50),
+`name` VARCHAR(50),
+`password_hash` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cliente_clases` (
+`cliente_id` BIGINT,
+`clases_id` BIGINT
+) CHARACTER SET latin1;
+CREATE TABLE `cliente_roles` (
+`cliente_id` BIGINT,
+`roles` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `hibernate_sequence` (
+`next_val` BIGINT
+) CHARACTER SET latin1;
+CREATE TABLE `opinion` (
+`id` BIGINT NOT NULL,
+`comentario` VARCHAR(50),
+`cliente_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `salas` (
+`id` BIGINT NOT NULL,
+`aforomax` INT,
+`nombre` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tarifa` (
+`id` BIGINT NOT NULL,
+`edad` INT,
+`precio` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_004973_data') AS relationships;
+relationships
+Database: db_004973_data
+
+Table Connections:
+------------------
+[Implied]  clases.sala_id -> salas.id
+[Implied]  cliente_clases.clases_id -> clases.id
+[Implied]  cliente_clases.cliente_id -> cliente.id
+[Implied]  cliente_roles.cliente_id -> cliente.id
+[Implied]  opinion.cliente_id -> cliente.id
+
+DROP DATABASE `db_004973_data`;
+UNINSTALL EXTENSION vsql_schematron;

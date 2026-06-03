@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 307565_V0.1.1_20190908214100__WHITEPAPPERS-01_initial_create_and_populate
+#
+CREATE DATABASE `db_307565_V0_1_1_20190908214100__WHITEPAPPERS_01_initial_create_`;
+USE `db_307565_V0_1_1_20190908214100__WHITEPAPPERS_01_initial_create_`;
+CREATE TABLE `s_user` (
+`id` BIGINT NOT NULL,
+`last_name` TEXT,
+`first_name` TEXT,
+`middle_name` TEXT,
+`login` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `white_papper` (
+`id` BIGINT NOT NULL,
+`name` TEXT,
+`created_user_id` BIGINT,
+`created_dt` TIMESTAMP NULL,
+`updated_user_id` BIGINT,
+`updated_dt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `white_papper_metadata` (
+`id` BIGINT NOT NULL,
+`name` TEXT,
+`type` TEXT,
+`registration_number` TEXT,
+`white_papper_id` BIGINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `file_metadata` (
+`id` BIGINT NOT NULL,
+`file_name` TEXT,
+`storage` TEXT,
+`uuid` TEXT,
+`is_deleted` BOOLEAN,
+`white_papper_id` BIGINT,
+`created_user_id` BIGINT,
+`created_dt` TIMESTAMP NULL,
+`updated_user_id` BIGINT,
+`updated_dt` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `scope` (
+`id` BIGINT NOT NULL,
+`name` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_307565_V0_1_1_20190908214100__WHITEPAPPERS_01_initial_create_') AS relationships;
+relationships
+Database: db_307565_V0_1_1_20190908214100__WHITEPAPPERS_01_initial_create_
+
+Table Connections:
+------------------
+[Implied]  file_metadata.created_user_id -> s_user.id
+[Implied]  file_metadata.updated_user_id -> s_user.id
+[Implied]  file_metadata.white_papper_id -> white_papper.id
+[Implied]  white_papper.created_user_id -> s_user.id
+[Implied]  white_papper.updated_user_id -> s_user.id
+[Implied]  white_papper_metadata.white_papper_id -> white_papper.id
+
+DROP DATABASE `db_307565_V0_1_1_20190908214100__WHITEPAPPERS_01_initial_create_`;
+UNINSTALL EXTENSION vsql_schematron;

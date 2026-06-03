@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 390703_gross
+--echo #
+CREATE DATABASE `db_390703_gross`;
+USE `db_390703_gross`;
+CREATE TABLE `admin` (
+  `id` VARCHAR(50) NOT NULL,
+  `name` VARCHAR(50),
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `coordinate_type` (
+  `id` VARCHAR(50) NOT NULL,
+  `type` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `coordinate` (
+  `id` VARCHAR(50) NOT NULL,
+  `latitude` VARCHAR(50),
+  `longitude` VARCHAR(50),
+  `type_id` VARCHAR(50),
+  `title` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `setting` (
+  `id` INT NOT NULL,
+  `_key` VARCHAR(50),
+  `_value` VARCHAR(50),
+  `private` TINYINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `slider` (
+  `id` VARCHAR(50) NOT NULL,
+  `title` VARCHAR(50),
+  `image_description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `slider_file` (
+  `id` VARCHAR(50),
+  `path` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `summary_status` (
+  `id` VARCHAR(50) NOT NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vacancy` (
+  `id` VARCHAR(50) NOT NULL,
+  `title` VARCHAR(50),
+  `image_description` VARCHAR(50),
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `summary` (
+  `id` VARCHAR(50) NOT NULL,
+  `vacancy_id` VARCHAR(50),
+  `date` TIMESTAMP NULL,
+  `name` VARCHAR(50),
+  `happy_date` DATE,
+  `phone_number` VARCHAR(50),
+  `sex` VARCHAR(50),
+  `email` VARCHAR(50),
+  `resume_text` VARCHAR(50),
+  `status_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `summary_file` (
+  `id` VARCHAR(50),
+  `path` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `vacancy_file` (
+  `id` VARCHAR(50),
+  `path` VARCHAR(50)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_390703_gross') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_390703_gross') AS relationships;
+DROP DATABASE `db_390703_gross`;
+UNINSTALL EXTENSION vsql_schematron;

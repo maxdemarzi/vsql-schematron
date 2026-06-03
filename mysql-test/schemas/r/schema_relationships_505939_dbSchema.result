@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 505939_dbSchema
+#
+CREATE DATABASE `db_505939_dbSchema`;
+USE `db_505939_dbSchema`;
+CREATE TABLE `applications` (
+`id` INT NOT NULL,
+`job_seeker_id` INT,
+`company` VARCHAR(50),
+`job_title` VARCHAR(50),
+`how_applied` VARCHAR(50),
+`date_applied` DATE,
+`location` VARCHAR(50),
+`found_by` VARCHAR(50),
+`notes` VARCHAR(50),
+`app_status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `job_seekers` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`email` VARCHAR(50),
+`password` VARCHAR(50),
+`cur_salary` INT,
+`dob` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `app_statuses` (
+`id` INT NOT NULL,
+`app_status` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `steps` (
+`id` INT NOT NULL,
+`app_id` INT,
+`date` DATE,
+`step_type` VARCHAR(50),
+`contact_name` VARCHAR(50),
+`contact_role` VARCHAR(50),
+`contact` VARCHAR(50),
+`notes` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_505939_dbSchema') AS relationships;
+relationships
+Database: db_505939_dbSchema
+
+Table Connections:
+------------------
+[Implied]  applications.app_status -> app_statuses.id
+[Implied]  applications.job_seeker_id -> job_seekers.id
+[Implied]  steps.app_id -> applications.id
+
+DROP DATABASE `db_505939_dbSchema`;
+UNINSTALL EXTENSION vsql_schematron;

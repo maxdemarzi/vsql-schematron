@@ -1,0 +1,154 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 010841_create_tables
+#
+CREATE DATABASE `db_010841_create_tables`;
+USE `db_010841_create_tables`;
+CREATE TABLE `objects` (
+`id` INT NOT NULL,
+`source` VARCHAR(50),
+`full_id` VARCHAR(50),
+`category` VARCHAR(50),
+`ignore_flag` BOOLEAN,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `joints` (
+`id` INT NOT NULL,
+`moving_part_id` INT,
+`base_part_id` INT,
+`contact_region` VARCHAR(50),
+`joint_features` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `programs` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`version` VARCHAR(50),
+`motion_identification_rules` VARCHAR(50),
+`motion_parameter_rules` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `programs_to_joints` (
+`id` INT NOT NULL,
+`program_id` INT,
+`joint_id` INT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rules` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`library_rule` BOOLEAN,
+`type` VARCHAR(50),
+`motion_type` VARCHAR(50),
+`rule_text` VARCHAR(50),
+`created_by` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_by` VARCHAR(50),
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `collections` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`version` VARCHAR(50),
+`created_by` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_by` VARCHAR(50),
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `collections_to_rules` (
+`id` INT NOT NULL,
+`collection_id` INT,
+`rule_id` INT,
+`created_by` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_by` VARCHAR(50),
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `annotated_part_articulations` (
+`id` INT NOT NULL,
+`object_art_id` INT,
+`app_id` VARCHAR(50),
+`worker_id` VARCHAR(50),
+`part_id` INT,
+`joint_id` INT,
+`data` VARCHAR(50),
+`render_hash` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `proposed_part_articulations` (
+`id` INT NOT NULL,
+`part_id` INT,
+`joint_id` INT,
+`collection_id` INT,
+`axis_rule_id` INT,
+`range_rule_id` INT,
+`status` VARCHAR(50),
+`render_hash` VARCHAR(50),
+`filename` VARCHAR(50),
+`axis_rule_score` DOUBLE,
+`range_rule_score` DOUBLE,
+`motion_type` VARCHAR(50),
+`motion_axis` VARCHAR(50),
+`motion_origin` VARCHAR(50),
+`motion_min_range` VARCHAR(50),
+`motion_max_range` VARCHAR(50),
+`motion_ref` VARCHAR(50),
+`motion_current_pose` VARCHAR(50),
+`created_by` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_by` VARCHAR(50),
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `logs` (
+`id` INT NOT NULL,
+`app_name` VARCHAR(50),
+`type` VARCHAR(50),
+`endpoint` VARCHAR(50),
+`msg` VARCHAR(50),
+`level` VARCHAR(50),
+`trace` VARCHAR(50),
+`created_by` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_annotation_session` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`session_name` VARCHAR(50),
+`start_time` TIMESTAMP NULL,
+`end_time` TIMESTAMP NULL,
+`comments` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_010841_create_tables') AS relationships;
+relationships
+Database: db_010841_create_tables
+
+Table Connections:
+------------------
+[Implied]  annotated_part_articulations.joint_id -> joints.id
+[Implied]  collections_to_rules.collection_id -> collections.id
+[Implied]  collections_to_rules.rule_id -> rules.id
+[Implied]  programs_to_joints.joint_id -> joints.id
+[Implied]  programs_to_joints.program_id -> programs.id
+[Implied]  proposed_part_articulations.axis_rule_id -> rules.id
+[Implied]  proposed_part_articulations.collection_id -> collections.id
+[Implied]  proposed_part_articulations.joint_id -> joints.id
+[Implied]  proposed_part_articulations.range_rule_id -> rules.id
+
+DROP DATABASE `db_010841_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

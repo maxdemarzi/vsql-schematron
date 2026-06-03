@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 235107_db_ilpp
+--echo #
+CREATE DATABASE `db_235107_db_ilpp`;
+USE `db_235107_db_ilpp`;
+CREATE TABLE `akses` (
+  `id_akses` INT,
+  `nama_akses` VARCHAR(50),
+  `level` INT
+) CHARACTER SET latin1;
+CREATE TABLE `buku_tamu` (
+  `id_tamu` INT NOT NULL,
+  `tanggal` DATE,
+  `keperluan` VARCHAR(50),
+  `kontak` VARCHAR(50),
+  `nama` VARCHAR(50),
+  PRIMARY KEY (`id_tamu`)
+) CHARACTER SET latin1;
+CREATE TABLE `laporan_informasi` (
+  `id_laporan_info` INT NOT NULL,
+  `bentuk_pelayanan` VARCHAR(50),
+  `isi_pelayanan` VARCHAR(50),
+  `pelaksanaan_pelayanan` VARCHAR(50),
+  `keterangan` VARCHAR(50),
+  `tanggal` DATE,
+  PRIMARY KEY (`id_laporan_info`)
+) CHARACTER SET latin1;
+CREATE TABLE `laporan_informasi_web` (
+  `id_laporan_infoweb` INT NOT NULL,
+  `tanggal` DATE,
+  `substansi` VARCHAR(50),
+  PRIMARY KEY (`id_laporan_infoweb`)
+) CHARACTER SET latin1;
+CREATE TABLE `laporan_kedeputian` (
+  `id_laporan_deputi` INT,
+  `bentuk_pelayanan` VARCHAR(50),
+  `isi_pelayanan` VARCHAR(50),
+  `pelaksanaan_pelayanan` VARCHAR(50),
+  `keterangan` VARCHAR(50),
+  `id_pengguna` INT,
+  `tanggal` DATE
+) CHARACTER SET latin1;
+CREATE TABLE `laporan_pelayanan_publik` (
+  `id_laporan_pelayanan` INT NOT NULL,
+  `pelaksana` VARCHAR(50),
+  `kontrak` VARCHAR(50),
+  `pekerjaan` VARCHAR(50),
+  `nilai_kontrak` INT,
+  `tanggal` DATE,
+  `metode` VARCHAR(50),
+  PRIMARY KEY (`id_laporan_pelayanan`)
+) CHARACTER SET latin1;
+CREATE TABLE `laporan_rapat` (
+  `id_laporan_rapat` INT NOT NULL,
+  `tanggal` DATE,
+  `kegiatan` VARCHAR(50),
+  `tempat` VARCHAR(50),
+  `pimpinan` VARCHAR(50),
+  PRIMARY KEY (`id_laporan_rapat`)
+) CHARACTER SET latin1;
+CREATE TABLE `pengguna` (
+  `id_pengguna` INT,
+  `username` VARCHAR(50),
+  `nama_pengguna` VARCHAR(50),
+  `id_akses` INT,
+  `password` TEXT,
+  `foto` VARCHAR(50)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_235107_db_ilpp') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_235107_db_ilpp') AS relationships;
+DROP DATABASE `db_235107_db_ilpp`;
+UNINSTALL EXTENSION vsql_schematron;

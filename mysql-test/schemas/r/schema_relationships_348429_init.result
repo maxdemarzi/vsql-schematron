@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 348429_init
+#
+CREATE DATABASE `db_348429_init`;
+USE `db_348429_init`;
+CREATE TABLE `rack` (
+`rack_id` INT NOT NULL,
+`rack_number` VARCHAR(50),
+PRIMARY KEY (`rack_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shelf` (
+`shelf_id` INT NOT NULL,
+`shelf_number` VARCHAR(50),
+`rack_id` INT,
+PRIMARY KEY (`shelf_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cell` (
+`cell_id` INT NOT NULL,
+`cell_number` VARCHAR(50),
+`shelf_id` INT,
+PRIMARY KEY (`cell_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document_subject` (
+`document_subject_id` INT NOT NULL,
+`document_subject_name` VARCHAR(50),
+PRIMARY KEY (`document_subject_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document` (
+`document_id` INT NOT NULL,
+`document_name` VARCHAR(50),
+`inventory_number` VARCHAR(50),
+`arrived_at` TIMESTAMP NULL,
+`cell_id` INT,
+`document_subject_id` INT,
+PRIMARY KEY (`document_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document_copy` (
+`copy_id` INT NOT NULL,
+`copy_name` VARCHAR(50),
+`inventory_number` VARCHAR(50),
+`document_id` INT,
+PRIMARY KEY (`copy_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `department` (
+`department_id` INT NOT NULL,
+`phone_number` VARCHAR(50),
+PRIMARY KEY (`department_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subscriber` (
+`subscriber_id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`middle_name` VARCHAR(50),
+`subscriber_number` VARCHAR(50),
+`department_id` INT,
+PRIMARY KEY (`subscriber_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document_issue` (
+`issue_id` INT NOT NULL,
+`issued_at` TIMESTAMP NULL,
+`returned_at` TIMESTAMP NULL,
+`subscriber_id` INT,
+`document_id` INT,
+PRIMARY KEY (`issue_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `operator` (
+`operator_id` INT NOT NULL,
+`operator_name` VARCHAR(50),
+`operator_password` VARCHAR(50),
+PRIMARY KEY (`operator_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_348429_init') AS relationships;
+relationships
+Database: db_348429_init
+
+Table Connections:
+------------------
+[Implied]  cell.shelf_id -> shelf.shelf_id
+[Implied]  document.cell_id -> cell.cell_id
+[Implied]  document.document_subject_id -> document_subject.document_subject_id
+[Implied]  document_copy.document_id -> document.document_id
+[Implied]  document_issue.document_id -> document.document_id
+[Implied]  document_issue.subscriber_id -> subscriber.subscriber_id
+[Implied]  shelf.rack_id -> rack.rack_id
+[Implied]  subscriber.department_id -> department.department_id
+
+DROP DATABASE `db_348429_init`;
+UNINSTALL EXTENSION vsql_schematron;

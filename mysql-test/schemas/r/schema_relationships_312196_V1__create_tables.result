@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 312196_V1__create_tables
+#
+CREATE DATABASE `db_312196_V1__create_tables`;
+USE `db_312196_V1__create_tables`;
+CREATE TABLE `auction` (
+`id` BIGINT NOT NULL,
+`item_code` VARCHAR(50),
+`status` VARCHAR(50),
+`min_base_price` DOUBLE,
+`step_price` DOUBLE,
+`max_bid_amount` DOUBLE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`status` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bid` (
+`id` BIGINT NOT NULL,
+`auction_id` BIGINT,
+`user_id` BIGINT,
+`bid_amount` DOUBLE,
+`status` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_312196_V1__create_tables') AS relationships;
+relationships
+Database: db_312196_V1__create_tables
+
+Table Connections:
+------------------
+[Implied]  bid.auction_id -> auction.id
+[Implied]  bid.user_id -> user.id
+
+DROP DATABASE `db_312196_V1__create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

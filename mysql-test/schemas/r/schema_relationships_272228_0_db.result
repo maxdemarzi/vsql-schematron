@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 272228_0_db
+#
+CREATE DATABASE `db_272228_0_db`;
+USE `db_272228_0_db`;
+CREATE TABLE `OPENBILL_CATEGORIES` (
+`id` VARCHAR(50) NOT NULL,
+`name` CHAR(50),
+`parent_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OPENBILL_ACCOUNTS` (
+`owner_id` VARCHAR(50),
+`id` VARCHAR(50) NOT NULL,
+`category_id` VARCHAR(50),
+`key` CHAR(50),
+`amount_cents` DECIMAL(10,2),
+`amount_currency` CHAR(50),
+`details` TEXT,
+`transactions_count` INT,
+`meta` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OPENBILL_TRANSACTIONS` (
+`id` VARCHAR(50) NOT NULL,
+`owner_id` VARCHAR(50),
+`username` CHAR(50),
+`date` DATE,
+`created_at` TIMESTAMP NULL,
+`from_account_id` VARCHAR(50),
+`to_account_id` VARCHAR(50),
+`amount_cents` DECIMAL(10,2),
+`amount_currency` CHAR(50),
+`key` CHAR(50),
+`details` TEXT,
+`meta` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_272228_0_db') AS relationships;
+relationships
+Database: db_272228_0_db
+
+Table Connections:
+------------------
+[Implied]  OPENBILL_ACCOUNTS.category_id -> OPENBILL_CATEGORIES.id
+[Implied]  OPENBILL_CATEGORIES.parent_id -> OPENBILL_CATEGORIES.id
+[Implied]  OPENBILL_TRANSACTIONS.from_account_id -> OPENBILL_ACCOUNTS.id
+[Implied]  OPENBILL_TRANSACTIONS.to_account_id -> OPENBILL_ACCOUNTS.id
+
+DROP DATABASE `db_272228_0_db`;
+UNINSTALL EXTENSION vsql_schematron;

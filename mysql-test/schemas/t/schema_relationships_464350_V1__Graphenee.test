@@ -1,0 +1,150 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 464350_V1__Graphenee
+--echo #
+CREATE DATABASE `db_464350_V1__Graphenee`;
+USE `db_464350_V1__Graphenee`;
+CREATE TABLE `gx_namespace` (
+  `oid` INT NOT NULL,
+  `namespace` VARCHAR(50),
+  `namespace_description` VARCHAR(50),
+  `is_active` BOOLEAN,
+  `is_protected` BOOLEAN,
+  PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `gx_namespace_property` (
+  `oid` INT NOT NULL,
+  `property_key` VARCHAR(50),
+  `property_value` VARCHAR(50),
+  `property_default_value` VARCHAR(50),
+  `oid_namespace` INT,
+  PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `gx_supported_locale` (
+  `oid` INT NOT NULL,
+  `locale_name` VARCHAR(50),
+  `locale_code` VARCHAR(50),
+  `is_left_to_right` BOOLEAN,
+  `is_active` BOOLEAN,
+  `is_protected` BOOLEAN,
+  PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `gx_term` (
+  `oid` INT NOT NULL,
+  `term_key` VARCHAR(50),
+  `term_singular` VARCHAR(50),
+  `term_plural` VARCHAR(50),
+  `is_active` BOOLEAN,
+  `is_protected` BOOLEAN,
+  `oid_supported_locale` INT,
+  `oid_namespace` INT,
+  PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `gx_email_template` (
+  `oid` INT NOT NULL,
+  `template_name` VARCHAR(50),
+  `subject` VARCHAR(50),
+  `body` TEXT,
+  `cc_list` VARCHAR(50),
+  `bcc_list` VARCHAR(50),
+  `is_active` BOOLEAN,
+  `is_protected` BOOLEAN,
+  `oid_namespace` INT,
+  PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `gx_security_group` (
+  `oid` INT NOT NULL,
+  `security_group_name` VARCHAR(50),
+  `priority` INT,
+  `is_active` BOOLEAN,
+  `is_protected` BOOLEAN,
+  `oid_namespace` INT,
+  PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `gx_security_policy` (
+  `oid` INT NOT NULL,
+  `security_policy_name` VARCHAR(50),
+  `priority` INT,
+  `is_active` BOOLEAN,
+  `is_protected` BOOLEAN,
+  `oid_namespace` INT,
+  PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `gx_security_policy_document` (
+  `oid` INT NOT NULL,
+  `document_json` TEXT,
+  `is_default` BOOLEAN,
+  `oid_security_policy` INT,
+  PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `gx_security_group_security_policy_join` (
+  `oid_security_group` INT,
+  `oid_security_policy` INT
+) CHARACTER SET latin1;
+CREATE TABLE `gx_gender` (
+  `oid` INT NOT NULL,
+  `gender_name` VARCHAR(50),
+  `gender_code` VARCHAR(50),
+  `is_active` BOOLEAN,
+  `is_protected` BOOLEAN,
+  PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `gx_user_account` (
+  `oid` INT NOT NULL,
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  `first_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `full_name_native` VARCHAR(50),
+  `email` VARCHAR(50),
+  `profile_image` BLOB,
+  `is_active` BOOLEAN,
+  `is_locked` BOOLEAN,
+  `is_protected` BOOLEAN,
+  `is_password_change_required` BOOLEAN,
+  `verification_token` VARCHAR(50),
+  `verification_token_expiry_date` TIMESTAMP NULL,
+  `account_activation_date` TIMESTAMP NULL,
+  `last_login_date` TIMESTAMP NULL,
+  `last_login_failed_date` TIMESTAMP NULL,
+  `count_login_failed` INT,
+  `oid_gender` INT,
+  PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `gx_user_account_security_group_join` (
+  `oid_user_account` INT,
+  `oid_security_group` INT
+) CHARACTER SET latin1;
+CREATE TABLE `gx_user_account_security_policy_join` (
+  `oid_user_account` INT,
+  `oid_security_policy` INT
+) CHARACTER SET latin1;
+CREATE TABLE `gx_audit_log` (
+  `oid` INT NOT NULL,
+  `audit_date` TIMESTAMP NULL,
+  `audit_event` VARCHAR(50),
+  `audit_entity` VARCHAR(50),
+  `oid_audit_entity` INT,
+  `oid_user_account` INT,
+  PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_464350_V1__Graphenee') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_464350_V1__Graphenee') AS relationships;
+DROP DATABASE `db_464350_V1__Graphenee`;
+UNINSTALL EXTENSION vsql_schematron;

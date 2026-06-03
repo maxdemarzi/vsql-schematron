@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 617128_voting
+#
+CREATE DATABASE `db_617128_voting`;
+USE `db_617128_voting`;
+CREATE TABLE `surveys` (
+`survey_id` INT NOT NULL,
+`title` VARCHAR(50),
+`description` TEXT,
+`start_time` DATETIME,
+`end_time` DATETIME,
+`access_key` CHAR(50),
+`group_id` INT,
+`public` BOOLEAN,
+`results_shown` BOOLEAN,
+`creator` INT,
+PRIMARY KEY (`survey_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `survey_question_types` (
+`type_id` INT NOT NULL,
+`type_name` VARCHAR(50),
+`choices` BOOLEAN,
+PRIMARY KEY (`type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `survey_questions` (
+`question_id` INT NOT NULL,
+`survey_id` INT,
+`title` VARCHAR(50),
+`description` TEXT,
+`list_order` INT,
+`type_id` INT,
+PRIMARY KEY (`question_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `survey_question_choices` (
+`choice_id` INT NOT NULL,
+`question_id` INT,
+`choice` VARCHAR(50),
+PRIMARY KEY (`choice_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `survey_responses` (
+`response_id` INT NOT NULL,
+`question_id` INT,
+`user_id` INT,
+`response` TEXT,
+PRIMARY KEY (`response_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_617128_voting') AS relationships;
+relationships
+Database: db_617128_voting
+
+Table Connections:
+------------------
+[Implied]  survey_question_choices.question_id -> survey_questions.question_id
+[Implied]  survey_questions.survey_id -> surveys.survey_id
+[Implied]  survey_questions.type_id -> survey_question_types.type_id
+[Implied]  survey_responses.question_id -> survey_questions.question_id
+
+DROP DATABASE `db_617128_voting`;
+UNINSTALL EXTENSION vsql_schematron;

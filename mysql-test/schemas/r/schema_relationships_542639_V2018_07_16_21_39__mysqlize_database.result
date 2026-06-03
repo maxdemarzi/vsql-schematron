@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 542639_V2018.07.16.21.39__mysqlize_database
+#
+CREATE DATABASE `db_542639_V2018_07_16_21_39__mysqlize_database`;
+USE `db_542639_V2018_07_16_21_39__mysqlize_database`;
+CREATE TABLE `user_details` (
+`user_id` BIGINT NOT NULL,
+`user_ref` VARCHAR(50),
+`email` VARCHAR(50),
+`display_name` VARCHAR(50),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_tokens` (
+`user_token_id` BIGINT NOT NULL,
+`public_user_token` VARCHAR(50),
+`created_at` TIMESTAMP NULL,
+`expires_at` TIMESTAMP NULL,
+`valid` BOOLEAN,
+`user_id` BIGINT,
+PRIMARY KEY (`user_token_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `target` (
+`target_id` BIGINT NOT NULL,
+`target_name` VARCHAR(50),
+PRIMARY KEY (`target_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `target_access_rule` (
+`rule_id` BIGINT NOT NULL,
+`target_id` BIGINT,
+`resource_name` VARCHAR(50),
+`action_name` VARCHAR(50),
+PRIMARY KEY (`rule_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rule_grant` (
+`grant_id` BIGINT NOT NULL,
+`rule_id` BIGINT,
+`user_id` BIGINT,
+PRIMARY KEY (`grant_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ss_UserConnection` (
+`userId` VARCHAR(50) NOT NULL,
+`providerId` VARCHAR(50) NOT NULL,
+`providerUserId` VARCHAR(50) NOT NULL,
+`rank` INT,
+`displayName` VARCHAR(50),
+`profileUrl` VARCHAR(50),
+`imageUrl` VARCHAR(50),
+`accessToken` VARCHAR(50),
+`secret` VARCHAR(50),
+`refreshToken` VARCHAR(50),
+`expireTime` BIGINT,
+PRIMARY KEY (`userId`, `providerId`, `providerUserId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_542639_V2018_07_16_21_39__mysqlize_database') AS relationships;
+relationships
+Database: db_542639_V2018_07_16_21_39__mysqlize_database
+
+Table Connections:
+------------------
+[Implied]  rule_grant.rule_id -> target_access_rule.rule_id
+[Implied]  rule_grant.user_id -> user_details.user_id
+[Implied]  target_access_rule.target_id -> target.target_id
+[Implied]  user_tokens.user_id -> user_details.user_id
+
+DROP DATABASE `db_542639_V2018_07_16_21_39__mysqlize_database`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,138 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 023586_1_Your_guitar
+--echo #
+CREATE DATABASE `db_023586_1_Your_guitar`;
+USE `db_023586_1_Your_guitar`;
+CREATE TABLE `Address` (
+  `Address_ID` INT NOT NULL,
+  `Address_1` VARCHAR(50),
+  `Address_2` VARCHAR(50),
+  `City` VARCHAR(50),
+  `St` CHAR(50),
+  `Zip` INT,
+  PRIMARY KEY (`Address_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+  `Customer_ID` INT NOT NULL,
+  `Email` VARCHAR(50),
+  `Phone` INT,
+  `First_Name` VARCHAR(50),
+  `Last_Name` VARCHAR(50),
+  `Address_ID` INT,
+  PRIMARY KEY (`Customer_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Suppliers` (
+  `Sup_ID` INT NOT NULL,
+  `Sup_Name` VARCHAR(50),
+  `Website` VARCHAR(50),
+  `Email` VARCHAR(50),
+  `Address_ID` INT,
+  PRIMARY KEY (`Sup_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Shipping` (
+  `Ship_ID` INT NOT NULL,
+  `Tracking_number` INT,
+  `Shipping_date` DATE,
+  `Shipping_company` VARCHAR(50),
+  `Address_ID` INT,
+  PRIMARY KEY (`Ship_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Payments` (
+  `Payment_ID` INT NOT NULL,
+  `Payment_Type` VARCHAR(50),
+  `Payment_Number` INT,
+  `Verification_code` INT,
+  `Expiration_ID` DATE,
+  `Address_ID` INT,
+  `Customer_id` INT,
+  PRIMARY KEY (`Payment_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Guitar_Body` (
+  `Body_ID` INT NOT NULL,
+  `Body_Shape` VARCHAR(50),
+  `Body_Wood` VARCHAR(50),
+  `Sup_ID` INT,
+  PRIMARY KEY (`Body_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Neck` (
+  `Neck_ID` INT NOT NULL,
+  `Neck_Wood` VARCHAR(50),
+  `Headstock_Format` VARCHAR(50),
+  `Sup_ID` INT,
+  PRIMARY KEY (`Neck_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Finishes` (
+  `finish_id` INT NOT NULL,
+  `finish_color` VARCHAR(50),
+  `finish_type` VARCHAR(50),
+  `sup_id` INT,
+  PRIMARY KEY (`finish_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bridge` (
+  `bridge_id` INT NOT NULL,
+  `bridge_type` VARCHAR(50),
+  `bridge_color` VARCHAR(50),
+  `sup_id` INT,
+  PRIMARY KEY (`bridge_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tuner` (
+  `tuner_id` INT NOT NULL,
+  `tuner_type` VARCHAR(50),
+  `tuner_color` VARCHAR(50),
+  `sup_id` INT,
+  PRIMARY KEY (`tuner_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Fingerboard` (
+  `finger_id` INT NOT NULL,
+  `finger_wood` VARCHAR(50),
+  `inlay_type` VARCHAR(50),
+  `sup_id` INT,
+  PRIMARY KEY (`finger_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pickup` (
+  `pickup_id` INT NOT NULL,
+  `pickup_name` VARCHAR(50),
+  `pickup_color` VARCHAR(50),
+  `pickup_style` VARCHAR(50),
+  `sup_id` INT,
+  PRIMARY KEY (`pickup_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Guitars` (
+  `Guitar_ID` INT NOT NULL,
+  `Finish_ID` INT,
+  `Body_ID` INT,
+  `Neck_ID` INT,
+  `Finger_ID` INT,
+  `Pickup_ID` INT,
+  `Tuner_ID` INT,
+  `Bridge_ID` INT,
+  PRIMARY KEY (`Guitar_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Orders` (
+  `Order_ID` INT NOT NULL,
+  `Customer_ID` INT,
+  `Guitar_ID` INT,
+  `Payment_ID` INT,
+  PRIMARY KEY (`Order_ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_023586_1_Your_guitar') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_023586_1_Your_guitar') AS relationships;
+DROP DATABASE `db_023586_1_Your_guitar`;
+UNINSTALL EXTENSION vsql_schematron;

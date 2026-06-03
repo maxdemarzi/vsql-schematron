@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 054620_seed-data-auth
+--echo #
+CREATE DATABASE `db_054620_seed_data_auth`;
+USE `db_054620_seed_data_auth`;
+CREATE TABLE `email_address` (
+  `id` BIGINT NOT NULL,
+  `created_timestamp` TIMESTAMP NULL,
+  `deleted_timestamp` TIMESTAMP NULL,
+  `last_modified_timestamp` TIMESTAMP NULL,
+  `confirmed` BOOLEAN,
+  `is_primary` BOOLEAN,
+  `email_address` VARCHAR(50),
+  `account_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `phone_number` (
+  `id` BIGINT NOT NULL,
+  `created_timestamp` TIMESTAMP NULL,
+  `deleted_timestamp` TIMESTAMP NULL,
+  `last_modified_timestamp` TIMESTAMP NULL,
+  `confirmed` BOOLEAN,
+  `phone_number` VARCHAR(50),
+  `account_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `login_attempt` (
+  `id` BIGINT NOT NULL,
+  `created_timestamp` TIMESTAMP NULL,
+  `success` BOOLEAN,
+  `account_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `password` (
+  `id` BIGINT NOT NULL,
+  `created_timestamp` TIMESTAMP NULL,
+  `iteration_count` INT,
+  `salt` VARCHAR(50),
+  `password_hash` VARCHAR(50),
+  `account_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account` (
+  `id` BIGINT NOT NULL,
+  `created_timestamp` TIMESTAMP NULL,
+  `deleted_timestamp` TIMESTAMP NULL,
+  `last_modified_timestamp` TIMESTAMP NULL,
+  `disabled` BOOLEAN,
+  `multi_factor_required` BOOLEAN,
+  `username` VARCHAR(50),
+  `current_password_id` BIGINT,
+  `primary_email_address_id` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_054620_seed_data_auth') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_054620_seed_data_auth') AS relationships;
+DROP DATABASE `db_054620_seed_data_auth`;
+UNINSTALL EXTENSION vsql_schematron;

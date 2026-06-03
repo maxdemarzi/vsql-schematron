@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 153205_schemacarmodels
+#
+CREATE DATABASE `db_153205_schemacarmodels`;
+USE `db_153205_schemacarmodels`;
+CREATE TABLE `car_brands` (
+`car_brand_id` INT NOT NULL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`car_brand_name` VARCHAR(50),
+`brand_photo` VARCHAR(50),
+PRIMARY KEY (`car_brand_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `car_models` (
+`car_model_id` INT NOT NULL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`car_model_name` VARCHAR(50),
+`car_brand` INT,
+PRIMARY KEY (`car_model_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `body_types` (
+`body_type_id` INT NOT NULL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`body_type` VARCHAR(50),
+PRIMARY KEY (`body_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cars` (
+`car_id` INT NOT NULL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`car_name` VARCHAR(50),
+`car_model` INT,
+`body_type` INT,
+`modification` VARCHAR(50),
+`capacity` INT,
+`year_of_issue` INT,
+`year_end` INT,
+PRIMARY KEY (`car_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `car_photos` (
+`photo_id` INT NOT NULL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`car_id` INT,
+`rand_photo` VARCHAR(50),
+PRIMARY KEY (`photo_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_153205_schemacarmodels') AS relationships;
+relationships
+Database: db_153205_schemacarmodels
+
+Table Connections:
+------------------
+[Implied]  car_models.car_brand -> car_brands.car_brand_id
+[Implied]  car_photos.car_id -> cars.car_id
+[Implied]  cars.body_type -> body_types.body_type_id
+[Implied]  cars.car_model -> car_models.car_model_id
+
+DROP DATABASE `db_153205_schemacarmodels`;
+UNINSTALL EXTENSION vsql_schematron;

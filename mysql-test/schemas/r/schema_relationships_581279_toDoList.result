@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 581279_toDoList
+#
+CREATE DATABASE `db_581279_toDoList`;
+USE `db_581279_toDoList`;
+CREATE TABLE `record_info` (
+`id` INT NOT NULL,
+`author` VARCHAR(50),
+`content` VARCHAR(50),
+`time` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_info` (
+`user_name` VARCHAR(50) NOT NULL,
+`user_pas` VARCHAR(50),
+PRIMARY KEY (`user_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `blog_like` (
+`id` INT NOT NULL,
+`like_user` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`id`, `like_user`)
+) CHARACTER SET latin1;
+CREATE TABLE `blog_comment` (
+`comment_id` INT NOT NULL,
+`blog_id` INT,
+`comment_user` VARCHAR(50),
+`comment_content` VARCHAR(50),
+`time` VARCHAR(50),
+PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `blog_attention` (
+`give_User` VARCHAR(50) NOT NULL,
+`get_User` VARCHAR(50) NOT NULL,
+PRIMARY KEY (`give_User`, `get_User`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_581279_toDoList') AS relationships;
+relationships
+Database: db_581279_toDoList
+
+Table Connections:
+------------------
+[Implied]  blog_attention.get_User -> user_info.user_name
+[Implied]  blog_attention.give_User -> user_info.user_name
+[Implied]  blog_comment.comment_user -> user_info.user_name
+[Implied]  blog_like.like_user -> user_info.user_name
+
+DROP DATABASE `db_581279_toDoList`;
+UNINSTALL EXTENSION vsql_schematron;

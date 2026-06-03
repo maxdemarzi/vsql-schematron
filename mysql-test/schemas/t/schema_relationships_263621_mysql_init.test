@@ -1,0 +1,122 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 263621_mysql_init
+--echo #
+CREATE DATABASE `db_263621_mysql_init`;
+USE `db_263621_mysql_init`;
+CREATE TABLE `venues` (
+  `id` VARCHAR(50) NOT NULL,
+  `name` VARCHAR(50),
+  `institute` VARCHAR(50),
+  `building_name` VARCHAR(50),
+  `floor` INT,
+  `location` VARCHAR(50),
+  `type` VARCHAR(50),
+  `strength` INT,
+  `distance_from_ncbs` DECIMAL(10,2),
+  `has_projector` VARCHAR(50),
+  `suitable_for_conference` VARCHAR(50),
+  `has_skype` VARCHAR(50),
+  `total_events` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+  `gid` INT NOT NULL,
+  `eid` INT NOT NULL,
+  `is_public_event` VARCHAR(50),
+  `class` VARCHAR(50),
+  `title` VARCHAR(50),
+  `description` TEXT,
+  `date` DATE,
+  `venue` VARCHAR(50),
+  `user` VARCHAR(50),
+  `start_time` TIME,
+  `end_time` TIME,
+  `status` VARCHAR(50),
+  `calendar_id` VARCHAR(50),
+  `calendar_event_id` VARCHAR(50),
+  `url` VARCHAR(50),
+  PRIMARY KEY (`gid`, `eid`)
+) CHARACTER SET latin1;
+CREATE TABLE `supervisors` (
+  `email` VARCHAR(50) NOT NULL,
+  `first_name` VARCHAR(50),
+  `middle_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `affiliation` VARCHAR(50),
+  `url` VARCHAR(50),
+  PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+CREATE TABLE `faculty` (
+  `email` VARCHAR(50) NOT NULL,
+  `first_name` VARCHAR(50),
+  `middle_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `status` VARCHAR(50),
+  `affiliation` VARCHAR(50),
+  `created_on` TIMESTAMP NULL,
+  `modified_on` DATETIME,
+  `url` VARCHAR(50),
+  PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+CREATE TABLE `upcoming_aws` (
+  `id` INT NOT NULL,
+  `speaker` VARCHAR(50),
+  `date` DATE,
+  `time` TIME,
+  `supervisor_1` VARCHAR(50),
+  `supervisor_2` VARCHAR(50),
+  `tcm_member_1` VARCHAR(50),
+  `tcm_member_2` VARCHAR(50),
+  `tcm_member_3` VARCHAR(50),
+  `tcm_member_4` VARCHAR(50),
+  `title` VARCHAR(50),
+  `abstract` TEXT,
+  `status` VARCHAR(50),
+  `comment` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `aws_requests` (
+  `id` INT NOT NULL,
+  `speaker` VARCHAR(50),
+  `date` DATE,
+  `time` TIME,
+  `supervisor_1` VARCHAR(50),
+  `supervisor_2` VARCHAR(50),
+  `tcm_member_1` VARCHAR(50),
+  `tcm_member_2` VARCHAR(50),
+  `tcm_member_3` VARCHAR(50),
+  `tcm_member_4` VARCHAR(50),
+  `scheduled_on` DATE,
+  `title` VARCHAR(50),
+  `abstract` TEXT,
+  `status` VARCHAR(50),
+  `modidfied_on` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `logins_metadata` (
+  `login` VARCHAR(50) NOT NULL,
+  `user_image` BLOB,
+  `other_image` BLOB,
+  PRIMARY KEY (`login`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_263621_mysql_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_263621_mysql_init') AS relationships;
+DROP DATABASE `db_263621_mysql_init`;
+UNINSTALL EXTENSION vsql_schematron;

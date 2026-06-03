@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 621945_bd_pedemeia
+--echo #
+CREATE DATABASE `db_621945_bd_pedemeia`;
+USE `db_621945_bd_pedemeia`;
+CREATE TABLE `conta` (
+  `id_conta` INT NOT NULL,
+  `nome` VARCHAR(50),
+  `email` VARCHAR(50),
+  `senha` VARCHAR(50),
+  `avatar` VARCHAR(50),
+  PRIMARY KEY (`id_conta`)
+) CHARACTER SET latin1;
+CREATE TABLE `cartao_debito` (
+  `n_cartao_debito` BIGINT NOT NULL,
+  `valor_atual` DOUBLE,
+  `bandeira` VARCHAR(50),
+  `conta_id_conta` INT,
+  PRIMARY KEY (`n_cartao_debito`)
+) CHARACTER SET latin1;
+CREATE TABLE `cartao_credito` (
+  `n_cartao_credito` BIGINT NOT NULL,
+  `limite` DOUBLE,
+  `credito` DOUBLE,
+  `dia_fatura` INT,
+  `valor_fatura` DOUBLE,
+  `bandeira` VARCHAR(50),
+  `conta_id_conta` INT,
+  PRIMARY KEY (`n_cartao_credito`)
+) CHARACTER SET latin1;
+CREATE TABLE `receita_data` (
+  `cod_receita` INT NOT NULL,
+  `dia` INT,
+  `mes` INT,
+  `ano` INT,
+  PRIMARY KEY (`cod_receita`)
+) CHARACTER SET latin1;
+CREATE TABLE `receita` (
+  `receita_data_cod_receita` INT,
+  `total` DOUBLE,
+  `conta_id_conta` INT
+) CHARACTER SET latin1;
+CREATE TABLE `despesa_data` (
+  `cod_despesa` INT NOT NULL,
+  `receita_data_cod_receita` INT,
+  `dia` INT,
+  `mes` INT,
+  `ano` INT,
+  `conta_id_conta` INT,
+  PRIMARY KEY (`cod_despesa`)
+) CHARACTER SET latin1;
+CREATE TABLE `categoria` (
+  `categoriaId` INT NOT NULL,
+  `categoriaTipo` VARCHAR(50),
+  `conta_id_conta` INT,
+  PRIMARY KEY (`categoriaId`)
+) CHARACTER SET latin1;
+CREATE TABLE `despesa` (
+  `despesa_data_cod_despesa` INT,
+  `valor` DOUBLE,
+  `categoria_id` INT,
+  `descricao` VARCHAR(50),
+  `f_pagamento` VARCHAR(50),
+  `num_cartao` BIGINT,
+  `estatus` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `despesa_credito` (
+  `n_parcelas` INT,
+  `despesa_data_cod_despesa` INT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_621945_bd_pedemeia') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_621945_bd_pedemeia') AS relationships;
+DROP DATABASE `db_621945_bd_pedemeia`;
+UNINSTALL EXTENSION vsql_schematron;

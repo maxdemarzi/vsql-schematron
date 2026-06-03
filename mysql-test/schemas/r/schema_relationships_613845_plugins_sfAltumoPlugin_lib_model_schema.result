@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 613845_plugins.sfAltumoPlugin.lib.model.schema
+#
+CREATE DATABASE `db_613845_plugins_sfAltumoPlugin_lib_model_schema`;
+USE `db_613845_plugins_sfAltumoPlugin_lib_model_schema`;
+CREATE TABLE `system_event_subscription` (
+`id` INT NOT NULL,
+`system_event_id` INT,
+`remote_url` VARCHAR(50),
+`enabled` TINYINT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `system_event_instance` (
+`id` INT NOT NULL,
+`system_event_id` INT,
+`message` TEXT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `system_event_instance_message` (
+`id` INT NOT NULL,
+`system_event_instance_id` INT,
+`system_event_subscription_id` INT,
+`received` TINYINT,
+`received_at` DATETIME,
+`status_message` VARCHAR(50),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_613845_plugins_sfAltumoPlugin_lib_model_schema') AS relationships;
+relationships
+Database: db_613845_plugins_sfAltumoPlugin_lib_model_schema
+
+Table Connections:
+------------------
+[Implied]  system_event_instance_message.system_event_instance_id -> system_event_instance.id
+[Implied]  system_event_instance_message.system_event_subscription_id -> system_event_subscription.id
+
+DROP DATABASE `db_613845_plugins_sfAltumoPlugin_lib_model_schema`;
+UNINSTALL EXTENSION vsql_schematron;

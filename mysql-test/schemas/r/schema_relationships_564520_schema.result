@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 564520_schema
+#
+CREATE DATABASE `db_564520_schema`;
+USE `db_564520_schema`;
+CREATE TABLE `dream_session` (
+`id` VARCHAR(50) NOT NULL,
+`label` TEXT,
+`expires_at` DOUBLE,
+`payload` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `app_user` (
+`id` INT NOT NULL,
+`username` TEXT,
+`name` TEXT,
+`password` TEXT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `api_key` (
+`id` INT NOT NULL,
+`uuid` TEXT,
+`last_used` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sensor` (
+`id` INT NOT NULL,
+`name` TEXT,
+`description` TEXT,
+`api_key` INT,
+`step` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sensor_reading` (
+`id` INT NOT NULL,
+`sensor` INT,
+`occurred` DATE,
+`readings` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_sensor` (
+`id` INT NOT NULL,
+`app_user` INT,
+`sensor` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_564520_schema') AS relationships;
+relationships
+Database: db_564520_schema
+
+Table Connections:
+------------------
+[Implied]  sensor.api_key -> api_key.id
+[Implied]  sensor_reading.sensor -> sensor.id
+[Implied]  user_sensor.app_user -> app_user.id
+[Implied]  user_sensor.sensor -> sensor.id
+
+DROP DATABASE `db_564520_schema`;
+UNINSTALL EXTENSION vsql_schematron;

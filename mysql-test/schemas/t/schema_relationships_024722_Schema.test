@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 024722_Schema
+--echo #
+CREATE DATABASE `db_024722_Schema`;
+USE `db_024722_Schema`;
+CREATE TABLE `LostPets.tuser` (
+  `ID` BIGINT NOT NULL,
+  `FIRST_NAME` VARCHAR(50),
+  `LAST_NAME` VARCHAR(50),
+  `EMAIL` VARCHAR(50),
+  `PHONE` VARCHAR(50),
+  `PASSWORD` VARCHAR(50),
+  `ROLE` VARCHAR(50),
+  `STATUS` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `LostPets.tad` (
+  `ID` BIGINT NOT NULL,
+  `CODE` VARCHAR(50),
+  `DATE` TIMESTAMP NULL,
+  `AD_STATUS` VARCHAR(50),
+  `PET_STATUS` VARCHAR(50),
+  `REWARD` DOUBLE,
+  `LATITUDE` DOUBLE,
+  `LONGITUDE` DOUBLE,
+  `NAME` VARCHAR(50),
+  `TYPE` VARCHAR(50),
+  `RACE` VARCHAR(50),
+  `SEX` VARCHAR(50),
+  `COLOUR` VARCHAR(50),
+  `MICROCHIP_ID` VARCHAR(50),
+  `OBSERVATIONS` VARCHAR(50),
+  `PHOTO` VARCHAR(50),
+  `USER_ID` BIGINT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `LostPets.tchat` (
+  `ID` BIGINT NOT NULL,
+  `CODE` VARCHAR(50),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `LostPets.tmessage` (
+  `ID` BIGINT NOT NULL,
+  `CODE` VARCHAR(50),
+  `CONTENT` VARCHAR(50),
+  `DATE` TIMESTAMP NULL,
+  `MESSAGE_STATUS` VARCHAR(50),
+  `FROM_USER_ID` BIGINT,
+  `TO_USER_ID` BIGINT,
+  `CHAT_ID` BIGINT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_024722_Schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_024722_Schema') AS relationships;
+DROP DATABASE `db_024722_Schema`;
+UNINSTALL EXTENSION vsql_schematron;

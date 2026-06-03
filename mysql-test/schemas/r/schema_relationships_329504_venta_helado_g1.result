@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 329504_venta_helado_g1
+#
+CREATE DATABASE `db_329504_venta_helado_g1`;
+USE `db_329504_venta_helado_g1`;
+CREATE TABLE `Rol_Usuario` (
+`id_rol` INT NOT NULL,
+`nombre_rol` VARCHAR(50),
+PRIMARY KEY (`id_rol`)
+) CHARACTER SET latin1;
+CREATE TABLE `Usuario` (
+`id_usuario` INT NOT NULL,
+`id_rol` INT,
+`correo_usuario` VARCHAR(50),
+`password_usuario` VARCHAR(50),
+`nombre_usuario` VARCHAR(50),
+`apellido_usuario` VARCHAR(50),
+`direccion_usuario` VARCHAR(50),
+PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `Categoria` (
+`id_categoria` INT NOT NULL,
+`nombre_categoria` VARCHAR(50),
+`descripcion_categoria` VARCHAR(50),
+PRIMARY KEY (`id_categoria`)
+) CHARACTER SET latin1;
+CREATE TABLE `Helado` (
+`id_helado` INT NOT NULL,
+`nombre_helado` VARCHAR(50),
+`precio_helado` DOUBLE,
+`stock_helado` INT,
+`imagen1_helado` VARCHAR(50),
+`imagen2_helado` VARCHAR(50),
+`descripcion` VARCHAR(50),
+`id_categoria` INT,
+PRIMARY KEY (`id_helado`)
+) CHARACTER SET latin1;
+CREATE TABLE `Ventas` (
+`id_venta` INT NOT NULL,
+`id_usuario` INT,
+`id_helado` INT,
+`fecha` DATETIME,
+`cantidad` INT,
+`precio_total` DOUBLE,
+PRIMARY KEY (`id_venta`)
+) CHARACTER SET latin1;
+CREATE TABLE `Empresa` (
+`id_empresa` INT NOT NULL,
+`nombre_empresa` VARCHAR(50),
+`slogan_empresa` VARCHAR(50),
+`telefono1_empresa` VARCHAR(50),
+`telefono2_empresa` VARCHAR(50),
+`email1_empresa` VARCHAR(50),
+`email2_empresa` VARCHAR(50),
+`icono_empresa` VARCHAR(50),
+`logo_empresa` VARCHAR(50),
+`ubicacion_empresa` VARCHAR(50),
+`mapa_empresa` VARCHAR(50),
+PRIMARY KEY (`id_empresa`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_329504_venta_helado_g1') AS relationships;
+relationships
+Database: db_329504_venta_helado_g1
+
+Table Connections:
+------------------
+[Implied]  Helado.id_categoria -> Categoria.id_categoria
+[Implied]  Usuario.id_rol -> Rol_Usuario.id_rol
+[Implied]  Ventas.id_helado -> Helado.id_helado
+[Implied]  Ventas.id_usuario -> Usuario.id_usuario
+
+DROP DATABASE `db_329504_venta_helado_g1`;
+UNINSTALL EXTENSION vsql_schematron;

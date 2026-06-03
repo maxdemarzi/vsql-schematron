@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 304040_schema
+#
+CREATE DATABASE `db_304040_schema`;
+USE `db_304040_schema`;
+CREATE TABLE `customer` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`email` VARCHAR(50),
+`created_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `profile` (
+`customer_id` BIGINT,
+`street_number` VARCHAR(50),
+`street_name` VARCHAR(50),
+`district` VARCHAR(50),
+`city` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+`description` VARCHAR(50),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`id` BIGINT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_tag` (
+`tag_id` BIGINT NOT NULL,
+`product_id` BIGINT NOT NULL,
+PRIMARY KEY (`tag_id`, `product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer_order` (
+`id` BIGINT NOT NULL,
+`customer_id` BIGINT,
+`discount` DECIMAL(10,2),
+`created_date` DATETIME,
+`last_modified` DATETIME,
+`status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_304040_schema') AS relationships;
+relationships
+Database: db_304040_schema
+
+Table Connections:
+------------------
+[Implied]  customer_order.customer_id -> customer.id
+[Implied]  product_tag.product_id -> product.id
+[Implied]  product_tag.tag_id -> tag.id
+[Implied]  profile.customer_id -> customer.id
+
+DROP DATABASE `db_304040_schema`;
+UNINSTALL EXTENSION vsql_schematron;

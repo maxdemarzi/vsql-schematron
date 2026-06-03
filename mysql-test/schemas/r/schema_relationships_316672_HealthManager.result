@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 316672_HealthManager
+#
+CREATE DATABASE `db_316672_HealthManager`;
+USE `db_316672_HealthManager`;
+CREATE TABLE `comment` (
+`comment_id` INT NOT NULL,
+`content` VARCHAR(50),
+`time` VARCHAR(50),
+`user_num` VARCHAR(50),
+`post_id` INT,
+PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`course_id` INT NOT NULL,
+`course_data` VARCHAR(50),
+`course_name` VARCHAR(50),
+`course_time` VARCHAR(50),
+`information` VARCHAR(50),
+`tea_id` INT,
+PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course_students` (
+`course_course_id` INT,
+`students_stu_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `homework` (
+`homework_id` INT NOT NULL,
+`grade` DOUBLE,
+`path` VARCHAR(50),
+`status` VARCHAR(50),
+`time` VARCHAR(50),
+`homework_title_id` INT,
+PRIMARY KEY (`homework_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `homework_title` (
+`homework_title_id` INT NOT NULL,
+`content` VARCHAR(50),
+`num` INT,
+`course_id` INT,
+PRIMARY KEY (`homework_title_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`post_id` INT NOT NULL,
+`content` VARCHAR(50),
+`time` VARCHAR(50),
+`title` VARCHAR(50),
+`type` INT,
+`user_num` VARCHAR(50),
+`tea_id` INT,
+`course_id` INT,
+PRIMARY KEY (`post_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_courses` (
+`student_stu_id` INT,
+`courses_course_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_316672_HealthManager') AS relationships;
+relationships
+Database: db_316672_HealthManager
+
+Table Connections:
+------------------
+[Implied]  comment.post_id -> post.post_id
+[Implied]  course_students.course_course_id -> course.course_id
+[Implied]  homework.homework_title_id -> homework_title.homework_title_id
+[Implied]  homework_title.course_id -> course.course_id
+[Implied]  post.course_id -> course.course_id
+[Implied]  student_courses.courses_course_id -> course.course_id
+
+DROP DATABASE `db_316672_HealthManager`;
+UNINSTALL EXTENSION vsql_schematron;

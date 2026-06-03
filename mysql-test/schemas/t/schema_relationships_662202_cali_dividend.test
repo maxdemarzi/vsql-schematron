@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 662202_cali_dividend
+--echo #
+CREATE DATABASE `db_662202_cali_dividend`;
+USE `db_662202_cali_dividend`;
+CREATE TABLE `public.setup` (
+  `id` INT NOT NULL,
+  `asset_code` CHAR(50),
+  `issuer` CHAR(50),
+  `ledger_seq` INT,
+  `active` BOOLEAN,
+  `wait_time` INT,
+  `created_at` DATE,
+  `updated_at` DATE,
+  `updated_by` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.progress` (
+  `id` INT NOT NULL,
+  `setup_id` INT,
+  `ledger_seq` INT,
+  `created_at` DATE,
+  `updated_at` DATE,
+  `updated_by` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.active_accounts` (
+  `id` INT NOT NULL,
+  `setup_id` INT,
+  `account_id` CHAR(50),
+  `change_trust_ledger_seq` INT,
+  `change_trust_tx_id` CHAR(50),
+  `created_at` DATE,
+  `updated_at` DATE,
+  `updated_by` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.removed_accounts` (
+  `id` INT NOT NULL,
+  `setup_id` INT,
+  `account_id` CHAR(50),
+  `change_trust_ledger_seq` INT,
+  `change_trust_tx_id` CHAR(50),
+  `created_at` DATE,
+  `updated_at` DATE,
+  `updated_by` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_662202_cali_dividend') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_662202_cali_dividend') AS relationships;
+DROP DATABASE `db_662202_cali_dividend`;
+UNINSTALL EXTENSION vsql_schematron;

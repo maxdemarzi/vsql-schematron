@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 434703_db_perai
+--echo #
+CREATE DATABASE `db_434703_db_perai`;
+USE `db_434703_db_perai`;
+CREATE TABLE `tb_usuario` (
+  `id_usuario` INT NOT NULL,
+  `nome_usuario` VARCHAR(50),
+  `senha_usuario` VARCHAR(50),
+  `email_usuario` VARCHAR(50),
+  PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_professor` (
+  `id_professor` INT NOT NULL,
+  `nome_professor` VARCHAR(50),
+  `url_imagem_professor` VARCHAR(50),
+  `id_usuario` INT,
+  PRIMARY KEY (`id_professor`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_monitor` (
+  `id_monitor` INT NOT NULL,
+  `nome_monitor` VARCHAR(50),
+  `url_imagem_monitor` VARCHAR(50),
+  `id_usuario` INT,
+  PRIMARY KEY (`id_monitor`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_aluno` (
+  `id_aluno` INT NOT NULL,
+  `nome_aluno` VARCHAR(50),
+  `url_imagem_aluno` VARCHAR(50),
+  `id_usuario` INT,
+  PRIMARY KEY (`id_aluno`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_servidor` (
+  `id_servidor` INT NOT NULL,
+  `nome_servidor` VARCHAR(50),
+  `url_imagem_servidor` VARCHAR(50),
+  `info_servidor` VARCHAR(50),
+  PRIMARY KEY (`id_servidor`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_usuario_servidor` (
+  `id_usuario_servidor` INT NOT NULL,
+  `tipo_usuario` VARCHAR(50),
+  `id_usuario` INT,
+  `id_servidor` INT,
+  PRIMARY KEY (`id_usuario_servidor`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_canal` (
+  `id_canal` INT NOT NULL,
+  `nome_canal` VARCHAR(50),
+  `id_servidor` INT,
+  `info_canal` VARCHAR(50),
+  PRIMARY KEY (`id_canal`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_post` (
+  `id_post` INT NOT NULL,
+  `nome_post` VARCHAR(50),
+  `data_post` DATETIME,
+  `conteudo_post` TEXT,
+  `id_canal` INT,
+  PRIMARY KEY (`id_post`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_url_arquivo` (
+  `id_url_arquivo` INT NOT NULL,
+  `url_arquivo` VARCHAR(50),
+  `id_post` INT,
+  PRIMARY KEY (`id_url_arquivo`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_comentario` (
+  `id_comentario` INT NOT NULL,
+  `conteudo_comentario` VARCHAR(50),
+  `data_comentario` DATETIME,
+  `id_usuario` INT,
+  `id_post` INT,
+  PRIMARY KEY (`id_comentario`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_434703_db_perai') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_434703_db_perai') AS relationships;
+DROP DATABASE `db_434703_db_perai`;
+UNINSTALL EXTENSION vsql_schematron;

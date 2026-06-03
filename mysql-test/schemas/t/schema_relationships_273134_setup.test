@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 273134_setup
+--echo #
+CREATE DATABASE `db_273134_setup`;
+USE `db_273134_setup`;
+CREATE TABLE `image` (
+  `id` VARCHAR(50) NOT NULL,
+  `file_ext` VARCHAR(50),
+  `title` VARCHAR(50),
+  `source` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `edited_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag_category` (
+  `slug` VARCHAR(50) NOT NULL,
+  `color` CHAR(50),
+  PRIMARY KEY (`slug`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+  `slug` VARCHAR(50) NOT NULL,
+  `category` VARCHAR(50),
+  PRIMARY KEY (`slug`)
+) CHARACTER SET latin1;
+CREATE TABLE `image_tag` (
+  `image_id` VARCHAR(50) NOT NULL,
+  `tag` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`image_id`, `tag`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_273134_setup') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_273134_setup') AS relationships;
+DROP DATABASE `db_273134_setup`;
+UNINSTALL EXTENSION vsql_schematron;

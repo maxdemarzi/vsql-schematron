@@ -1,0 +1,163 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 511271_setup
+--echo #
+CREATE DATABASE `db_511271_setup`;
+USE `db_511271_setup`;
+CREATE TABLE `customers` (
+  `id` BIGINT NOT NULL,
+  `email` VARCHAR(50),
+  `name` VARCHAR(50),
+  `first_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  `phone` VARCHAR(50),
+  `address` VARCHAR(50),
+  `city` VARCHAR(50),
+  `zip` VARCHAR(50),
+  `country` VARCHAR(50),
+  `total_spent` DECIMAL(10,2),
+  `verified_email` BOOLEAN,
+  `note` VARCHAR(50),
+  `accepts_marketing` BOOLEAN,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+  `id` BIGINT NOT NULL,
+  `customer_id` BIGINT,
+  `name` VARCHAR(50),
+  `fulfillment_status` VARCHAR(50),
+  `financial_status` VARCHAR(50),
+  `total_price` DECIMAL(10,2),
+  `total_line_items_price` DECIMAL(10,2),
+  `total_discounts_amount` DECIMAL(10,2),
+  `total_tax_amount` DECIMAL(10,2),
+  `taxes_included` BOOLEAN,
+  `currency` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `closed_at` TIMESTAMP NULL,
+  `processed_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `discounts` (
+  `id` INT NOT NULL,
+  `order_id` BIGINT,
+  `discount_code` VARCHAR(50),
+  `discount_type` VARCHAR(50),
+  `discount_value` DECIMAL(10,2),
+  `discount_value_type` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+  `id` BIGINT NOT NULL,
+  `title` VARCHAR(50),
+  `status` VARCHAR(50),
+  `product_type` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `vendor` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_variants` (
+  `id` BIGINT NOT NULL,
+  `product_id` BIGINT,
+  `price` DECIMAL(10,2),
+  `title` VARCHAR(50),
+  `sku` VARCHAR(50),
+  `option1` VARCHAR(50),
+  `option2` VARCHAR(50),
+  `option3` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `line_item_products` (
+  `id` BIGINT NOT NULL,
+  `order_id` BIGINT,
+  `product_id` BIGINT,
+  `title` VARCHAR(50),
+  `sku` VARCHAR(50),
+  `unit_price` DECIMAL(10,2),
+  `total_price` DECIMAL(10,2),
+  `total_discount_amount` DECIMAL(10,2),
+  `quantity` INT,
+  `vendor` VARCHAR(50),
+  `variant_title` VARCHAR(50),
+  `tax_amount` DECIMAL(10,2),
+  `tax_rate` DECIMAL(10,2),
+  `tax_title` VARCHAR(50),
+  `taxable` BOOLEAN,
+  `currency` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transactions` (
+  `id` BIGINT NOT NULL,
+  `order_id` BIGINT,
+  `status` VARCHAR(50),
+  `amount` DECIMAL(10,2),
+  `currency` VARCHAR(50),
+  `error_code` VARCHAR(50),
+  `gateway` VARCHAR(50),
+  `kind` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `processed_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shipping` (
+  `id` BIGINT NOT NULL,
+  `order_id` BIGINT,
+  `code` VARCHAR(50),
+  `price` DECIMAL(10,2),
+  `discounted_price` DECIMAL(10,2),
+  `currency` VARCHAR(50),
+  `title` VARCHAR(50),
+  `source` VARCHAR(50),
+  `phone` VARCHAR(50),
+  `address` VARCHAR(50),
+  `city` VARCHAR(50),
+  `zip` VARCHAR(50),
+  `country` VARCHAR(50),
+  `latitude` DECIMAL(10,2),
+  `longitude` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `refunds` (
+  `id` BIGINT NOT NULL,
+  `order_id` BIGINT,
+  `transaction_id` BIGINT,
+  `note` VARCHAR(50),
+  `refunded_product_cnt` INT,
+  `created_at` TIMESTAMP NULL,
+  `processed_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `line_item_product_refunds` (
+  `id` BIGINT NOT NULL,
+  `refund_id` BIGINT,
+  `line_item_product_id` BIGINT,
+  `quantity` INT,
+  `currency` VARCHAR(50),
+  `refund_amount` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_511271_setup') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_511271_setup') AS relationships;
+DROP DATABASE `db_511271_setup`;
+UNINSTALL EXTENSION vsql_schematron;

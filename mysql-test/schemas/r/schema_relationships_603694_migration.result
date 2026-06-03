@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 603694_migration
+#
+CREATE DATABASE `db_603694_migration`;
+USE `db_603694_migration`;
+CREATE TABLE `account` (
+`id` INT NOT NULL,
+`avatar` TEXT,
+`full_name` TEXT,
+`email` TEXT,
+`passcode` TEXT,
+`tell` TEXT,
+`address` TEXT,
+`phone` TEXT,
+`status` INT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_category` (
+`id` INT NOT NULL,
+`account_id` INT,
+`code` TEXT,
+`name` TEXT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_post` (
+`id` INT NOT NULL,
+`code` TEXT,
+`name` TEXT,
+`title` TEXT,
+`category_id` INT,
+`status` INT,
+`created_at` TIMESTAMP NULL,
+`updated_at` TIMESTAMP NULL,
+`account_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_603694_migration') AS relationships;
+relationships
+Database: db_603694_migration
+
+Table Connections:
+------------------
+[Implied]  account_category.account_id -> account.id
+[Implied]  account_post.account_id -> account.id
+[Implied]  account_post.category_id -> account_category.id
+
+DROP DATABASE `db_603694_migration`;
+UNINSTALL EXTENSION vsql_schematron;

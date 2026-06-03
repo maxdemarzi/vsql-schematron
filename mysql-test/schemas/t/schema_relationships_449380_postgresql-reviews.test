@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 449380_postgresql-reviews
+--echo #
+CREATE DATABASE `db_449380_postgresql_reviews`;
+USE `db_449380_postgresql_reviews`;
+CREATE TABLE `characteristics` (
+  `id` INT NOT NULL,
+  `product_id` BIGINT,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `characteristic_reviews` (
+  `id` INT NOT NULL,
+  `characteristic_id` BIGINT,
+  `review_id` BIGINT,
+  `value` SMALLINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reviews_temp` (
+  `id` BIGINT,
+  `product_id` BIGINT,
+  `rating` SMALLINT,
+  `date` VARCHAR(50),
+  `summary` VARCHAR(50),
+  `body` VARCHAR(50),
+  `recommend` VARCHAR(50),
+  `reported` VARCHAR(50),
+  `reviewer_name` VARCHAR(50),
+  `reviewer_email` VARCHAR(50),
+  `response` VARCHAR(50),
+  `helpfulness` SMALLINT
+) CHARACTER SET latin1;
+CREATE TABLE `reviews_photos` (
+  `id` INT NOT NULL,
+  `review_id` BIGINT,
+  `url` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_449380_postgresql_reviews') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_449380_postgresql_reviews') AS relationships;
+DROP DATABASE `db_449380_postgresql_reviews`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 070357_base_schema
+--echo #
+CREATE DATABASE `db_070357_base_schema`;
+USE `db_070357_base_schema`;
+CREATE TABLE `user` (
+  `id` INT NOT NULL,
+  `full_name` VARCHAR(50),
+  `phone_no` VARCHAR(50),
+  `email` VARCHAR(50),
+  `profile_photo` VARCHAR(50),
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  `pwd_reset_token` VARCHAR(50),
+  `pwd_reset_token_created_at` DATETIME,
+  `api_key` VARCHAR(50),
+  `api_secret` VARCHAR(50),
+  `logged_in` TINYINT,
+  `auth_token` VARCHAR(50),
+  `auth_token_created_at` DATETIME,
+  `user_active` TINYINT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_group` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `description` VARCHAR(50),
+  `is_default` TINYINT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+  `id` BIGINT NOT NULL,
+  `user_id` INT,
+  `group_id` INT,
+  `is_deleted` TINYINT,
+  `is_published` TINYINT,
+  `slug` VARCHAR(50),
+  `post_title` TEXT,
+  `post_body` VARCHAR(50),
+  `thumbnail_url` VARCHAR(50),
+  `total_views` INT,
+  `last_viewed_on` DATETIME,
+  `published_on` DATETIME,
+  `updated_on` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `description` VARCHAR(50),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_tags` (
+  `id` BIGINT NOT NULL,
+  `tag_id` INT,
+  `post_id` BIGINT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `images` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_images` (
+  `id` INT NOT NULL,
+  `post_id` BIGINT,
+  `image_id` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_070357_base_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_070357_base_schema') AS relationships;
+DROP DATABASE `db_070357_base_schema`;
+UNINSTALL EXTENSION vsql_schematron;

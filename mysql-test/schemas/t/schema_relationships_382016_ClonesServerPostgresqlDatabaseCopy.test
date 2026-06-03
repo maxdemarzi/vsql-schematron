@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 382016_ClonesServerPostgresqlDatabaseCopy
+--echo #
+CREATE DATABASE `db_382016_ClonesServerPostgresqlDatabaseCopy`;
+USE `db_382016_ClonesServerPostgresqlDatabaseCopy`;
+CREATE TABLE `achievements` (
+  `id` BIGINT NOT NULL,
+  `achievements_type` BIGINT,
+  `_user` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `achievements_type` (
+  `id` BIGINT NOT NULL,
+  `type` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `general_stats` (
+  `id` BIGINT NOT NULL,
+  `value` BIGINT,
+  `general_stats_type` BIGINT,
+  `_user` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `general_stats_type` (
+  `id` BIGINT NOT NULL,
+  `type` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `level_points` (
+  `id` BIGINT NOT NULL,
+  `level` BIGINT,
+  `points` BIGINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+  `name` CHAR(50),
+  `id` BIGINT NOT NULL,
+  `google_id` CHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_382016_ClonesServerPostgresqlDatabaseCopy') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_382016_ClonesServerPostgresqlDatabaseCopy') AS relationships;
+DROP DATABASE `db_382016_ClonesServerPostgresqlDatabaseCopy`;
+UNINSTALL EXTENSION vsql_schematron;

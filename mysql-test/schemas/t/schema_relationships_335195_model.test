@@ -1,0 +1,101 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 335195_model
+--echo #
+CREATE DATABASE `db_335195_model`;
+USE `db_335195_model`;
+CREATE TABLE `users` (
+  `id` INT NOT NULL,
+  `first_name` VARCHAR(50),
+  `last_name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_groups` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group_users` (
+  `id` INT NOT NULL,
+  `user_id` INT,
+  `group_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fields` (
+  `id` INT NOT NULL,
+  `tinyint_field` TINYINT,
+  `tinyint_unsigned_field` VARCHAR(50),
+  `tinyint_nullable_field` TINYINT,
+  `tinyint_unsigned_nullable_field` VARCHAR(50),
+  `smallint_field` SMALLINT,
+  `smallint_unsigned_field` VARCHAR(50),
+  `smallint_nullable_field` SMALLINT,
+  `smallint_unsigned_nullable_field` VARCHAR(50),
+  `mediumint_field` MEDIUMINT,
+  `mediumint_unsigned_field` VARCHAR(50),
+  `mediumint_nullable_field` MEDIUMINT,
+  `mediumint_unsigned_nullable_field` VARCHAR(50),
+  `int_field` INT,
+  `int_unsigned_field` VARCHAR(50),
+  `int_nullable_field` INT,
+  `int_unsigned_nullable_field` VARCHAR(50),
+  `bigint_field` BIGINT,
+  `bigint_unsigned_field` VARCHAR(50),
+  `bigint_nullable_field` BIGINT,
+  `bigint_unsigned_nullable_field` VARCHAR(50),
+  `float_field` DOUBLE,
+  `float_null_field` DOUBLE,
+  `double_field` DOUBLE,
+  `double_null_field` DOUBLE,
+  `tinytext_field` VARCHAR(50),
+  `tinytext_null_field` VARCHAR(50),
+  `mediumtext_field` VARCHAR(50),
+  `mediumtext_null_field` VARCHAR(50),
+  `text_field` TEXT,
+  `text_null_field` TEXT,
+  `longtext_field` VARCHAR(50),
+  `longtext_null_field` VARCHAR(50),
+  `varchar_filed_field` VARCHAR(50),
+  `varchar_null_field` VARCHAR(50),
+  `char_filed_field` CHAR(50),
+  `char_filed_null_field` CHAR(50),
+  `date_field` DATE,
+  `date_null_field` DATE,
+  `datetime_field` DATETIME,
+  `datetime_null_field` DATETIME,
+  `time_field` TIME,
+  `time_null_field` TIME,
+  `timestamp_field` TIMESTAMP NULL,
+  `timestamp_null_field` TIMESTAMP NULL,
+  `tinyblob_field` VARCHAR(50),
+  `tinyblob_null_field` VARCHAR(50),
+  `mediumblob_field` VARCHAR(50),
+  `mediumblob_null_field` VARCHAR(50),
+  `blob_field` BLOB,
+  `blob_null_field` BLOB,
+  `longblob_field` VARCHAR(50),
+  `longblob_null_field` VARCHAR(50),
+  `json_field` VARCHAR(50),
+  `json_null_field` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_335195_model') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_335195_model') AS relationships;
+DROP DATABASE `db_335195_model`;
+UNINSTALL EXTENSION vsql_schematron;

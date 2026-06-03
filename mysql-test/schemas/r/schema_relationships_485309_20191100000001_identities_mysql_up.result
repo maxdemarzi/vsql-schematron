@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 485309_20191100000001_identities.mysql.up
+#
+CREATE DATABASE `db_485309_20191100000001_identities_mysql_up`;
+USE `db_485309_20191100000001_identities_mysql_up`;
+CREATE TABLE `identities` (
+`id` VARCHAR(50) NOT NULL,
+`traits_schema_id` VARCHAR(50),
+`traits` VARCHAR(50),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `identity_credential_types` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `identity_credentials` (
+`id` VARCHAR(50) NOT NULL,
+`config` VARCHAR(50),
+`identity_credential_type_id` CHAR(50),
+`identity_id` CHAR(50),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `identity_credential_identifiers` (
+`id` VARCHAR(50) NOT NULL,
+`identifier` VARCHAR(50),
+`identity_credential_id` CHAR(50),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_485309_20191100000001_identities_mysql_up') AS relationships;
+relationships
+Database: db_485309_20191100000001_identities_mysql_up
+
+Table Connections:
+------------------
+[Implied]  identity_credential_identifiers.identity_credential_id -> identity_credentials.id
+[Implied]  identity_credentials.identity_credential_type_id -> identity_credential_types.id
+[Implied]  identity_credentials.identity_id -> identities.id
+
+DROP DATABASE `db_485309_20191100000001_identities_mysql_up`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,117 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 432624_1%20-%20CREACION%20TABLAS%20Y%20SECUENCIAS
+--echo #
+CREATE DATABASE `db_432624_1_20__20CREACION_20TABLAS_20Y_20SECUENCIAS`;
+USE `db_432624_1_20__20CREACION_20TABLAS_20Y_20SECUENCIAS`;
+CREATE TABLE `FERIADOS` (
+  `id_feriado` DECIMAL(10,2),
+  `feriado` TIMESTAMP NOT NULL,
+  `descripcion` VARCHAR(50),
+  PRIMARY KEY (`feriado`)
+) CHARACTER SET latin1;
+CREATE TABLE `PERMISO_RESOLUCIONES` (
+  `id_resolucion` DECIMAL(10,2) NOT NULL,
+  `codigo` VARCHAR(50),
+  `detalle` VARCHAR(50),
+  `ruta_documento` VARCHAR(50),
+  `fecha_creacion` TIMESTAMP NULL,
+  PRIMARY KEY (`id_resolucion`)
+) CHARACTER SET latin1;
+CREATE TABLE `PERMISO_ADJUNTOS` (
+  `id_adjunto` DECIMAL(10,2) NOT NULL,
+  `nombre_documento` VARCHAR(50),
+  `ruta_documento` VARCHAR(50),
+  PRIMARY KEY (`id_adjunto`)
+) CHARACTER SET latin1;
+CREATE TABLE `PERMISO_ESTADOS` (
+  `id_estado` DECIMAL(10,2) NOT NULL,
+  `estado` VARCHAR(50),
+  `descripcion` VARCHAR(50),
+  PRIMARY KEY (`id_estado`)
+) CHARACTER SET latin1;
+CREATE TABLE `PERMISO_TIPOS` (
+  `id_tipo` DECIMAL(10,2) NOT NULL,
+  `tipo` VARCHAR(50),
+  `dias` DECIMAL(10,2),
+  `descripcion` VARCHAR(50),
+  `estado_tipo` DECIMAL(10,2),
+  PRIMARY KEY (`id_tipo`)
+) CHARACTER SET latin1;
+CREATE TABLE `PERMISO_MOTIVOS` (
+  `id_motivo` DECIMAL(10,2) NOT NULL,
+  `motivo` VARCHAR(50),
+  PRIMARY KEY (`id_motivo`)
+) CHARACTER SET latin1;
+CREATE TABLE `USUARIO_PERFILES` (
+  `id_perfil` DECIMAL(10,2) NOT NULL,
+  `perfil` VARCHAR(50),
+  `descripcion` VARCHAR(50),
+  PRIMARY KEY (`id_perfil`)
+) CHARACTER SET latin1;
+CREATE TABLE `USUARIO_CARGOS` (
+  `id_cargo` DECIMAL(10,2) NOT NULL,
+  `cargo` VARCHAR(50),
+  `descripcion` VARCHAR(50),
+  PRIMARY KEY (`id_cargo`)
+) CHARACTER SET latin1;
+CREATE TABLE `USUARIO_DEPARTAMENTOS` (
+  `id_departamento` DECIMAL(10,2) NOT NULL,
+  `departamento` VARCHAR(50),
+  `descripcion` VARCHAR(50),
+  PRIMARY KEY (`id_departamento`)
+) CHARACTER SET latin1;
+CREATE TABLE `USUARIOS` (
+  `rut` DECIMAL(10,2) NOT NULL,
+  `dv` VARCHAR(50),
+  `clave` VARCHAR(50),
+  `nombres` VARCHAR(50),
+  `apellido_paterno` VARCHAR(50),
+  `apellido_materno` VARCHAR(50),
+  `direccion` VARCHAR(50),
+  `comuna` VARCHAR(50),
+  `telefono` DECIMAL(10,2),
+  `email` VARCHAR(50),
+  `dd_legales` DECIMAL(10,2),
+  `dd_administrativos` DECIMAL(10,2),
+  `fecha_contrato` TIMESTAMP NULL,
+  `perfil` DECIMAL(10,2),
+  `cargo` DECIMAL(10,2),
+  `departamento` DECIMAL(10,2),
+  PRIMARY KEY (`rut`)
+) CHARACTER SET latin1;
+CREATE TABLE `PERMISOS` (
+  `id_permiso` DECIMAL(10,2) NOT NULL,
+  `fecha_creacion` TIMESTAMP NULL,
+  `fecha_desde` TIMESTAMP NULL,
+  `fecha_hasta` TIMESTAMP NULL,
+  `dias` DECIMAL(10,2),
+  `observacion` VARCHAR(50),
+  `usuario` DECIMAL(10,2),
+  `resolucion` DECIMAL(10,2),
+  `adjunto` DECIMAL(10,2),
+  `estado` DECIMAL(10,2),
+  `tipo` DECIMAL(10,2),
+  `motivo` DECIMAL(10,2),
+  PRIMARY KEY (`id_permiso`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_432624_1_20__20CREACION_20TABLAS_20Y_20SECUENCIAS') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_432624_1_20__20CREACION_20TABLAS_20Y_20SECUENCIAS') AS relationships;
+DROP DATABASE `db_432624_1_20__20CREACION_20TABLAS_20Y_20SECUENCIAS`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 403650_database
+--echo #
+CREATE DATABASE `db_403650_database`;
+USE `db_403650_database`;
+CREATE TABLE `user` (
+  `id` INT NOT NULL,
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  `zip_code` VARCHAR(50),
+  `band` BOOLEAN,
+  `venue` BOOLEAN,
+  `photo` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `venues` (
+  `id` INT NOT NULL,
+  `bandname` VARCHAR(50),
+  `user_name_id` INT,
+  `address` VARCHAR(50),
+  `phone` VARCHAR(50),
+  `description` VARCHAR(50),
+  `twitter` VARCHAR(50),
+  `facebook` VARCHAR(50),
+  `www` VARCHAR(50),
+  `youtube` VARCHAR(50),
+  `venue_photo` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bands` (
+  `id` INT NOT NULL,
+  `venuename` VARCHAR(50),
+  `user_name_id` INT,
+  `description` VARCHAR(50),
+  `twitter` VARCHAR(50),
+  `facebook` VARCHAR(50),
+  `www` VARCHAR(50),
+  `youtube` VARCHAR(50),
+  `band_photo` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `calendar` (
+  `id` INT NOT NULL,
+  `bands_id` INT,
+  `venues_id` INT,
+  `date` TIMESTAMP NULL,
+  `cost` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `genres` (
+  `id` INT NOT NULL,
+  `genre` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bands_genres` (
+  `id` INT NOT NULL,
+  `bands_id` INT,
+  `genres_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_403650_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_403650_database') AS relationships;
+DROP DATABASE `db_403650_database`;
+UNINSTALL EXTENSION vsql_schematron;

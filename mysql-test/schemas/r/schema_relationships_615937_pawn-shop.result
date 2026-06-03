@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 615937_pawn-shop
+#
+CREATE DATABASE `db_615937_pawn_shop`;
+USE `db_615937_pawn_shop`;
+CREATE TABLE `client` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`identity_number` VARCHAR(50),
+`address` VARCHAR(50),
+`city` VARCHAR(50),
+`country` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contract_item_type` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contract` (
+`id` INT NOT NULL,
+`client_id` INT,
+`amount` DECIMAL(10,2),
+`release_date` DATE,
+`released` TINYINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contract_item` (
+`id` INT NOT NULL,
+`contract_id` INT,
+`type` INT,
+`value` DECIMAL(10,2),
+`description` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_615937_pawn_shop') AS relationships;
+relationships
+Database: db_615937_pawn_shop
+
+Table Connections:
+------------------
+[Implied]  contract.client_id -> client.id
+[Implied]  contract_item.contract_id -> contract.id
+[Implied]  contract_item.type -> contract_item_type.id
+
+DROP DATABASE `db_615937_pawn_shop`;
+UNINSTALL EXTENSION vsql_schematron;

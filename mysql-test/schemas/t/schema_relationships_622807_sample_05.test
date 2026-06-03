@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 622807_sample_05
+--echo #
+CREATE DATABASE `db_622807_sample_05`;
+USE `db_622807_sample_05`;
+CREATE TABLE `e_authtype` (
+  `id` VARCHAR(50) NOT NULL,
+  `Value` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `e_person` (
+  `id` VARCHAR(50) NOT NULL,
+  `NameFirst` VARCHAR(50),
+  `NameLast` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `r_person_authtype` (
+  `id` VARCHAR(50) NOT NULL,
+  `person` VARCHAR(50),
+  `authtype` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `r_person_phone_auth` (
+  `id` VARCHAR(50) NOT NULL,
+  `person` VARCHAR(50),
+  `phone` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_622807_sample_05') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_622807_sample_05') AS relationships;
+DROP DATABASE `db_622807_sample_05`;
+UNINSTALL EXTENSION vsql_schematron;

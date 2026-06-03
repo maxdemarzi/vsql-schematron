@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 077976_schema
+#
+CREATE DATABASE `db_077976_schema`;
+USE `db_077976_schema`;
+CREATE TABLE `semesters` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `courses` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+`credit` DOUBLE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+`id` VARCHAR(50) NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `students` (
+`id` VARCHAR(50) NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`group_id` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `semester_courses` (
+`semester_id` VARCHAR(50),
+`course_id` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `semester_students` (
+`semester_id` VARCHAR(50),
+`student_id` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `course_students` (
+`id` VARCHAR(50) NOT NULL,
+`course_id` VARCHAR(50),
+`student_id` VARCHAR(50),
+`grade` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_077976_schema') AS relationships;
+relationships
+Database: db_077976_schema
+
+Table Connections:
+------------------
+[Implied]  course_students.course_id -> courses.id
+[Implied]  course_students.student_id -> students.id
+[Implied]  semester_courses.course_id -> courses.id
+[Implied]  semester_courses.semester_id -> semesters.id
+[Implied]  semester_students.semester_id -> semesters.id
+[Implied]  semester_students.student_id -> students.id
+[Implied]  students.group_id -> groups.id
+
+DROP DATABASE `db_077976_schema`;
+UNINSTALL EXTENSION vsql_schematron;

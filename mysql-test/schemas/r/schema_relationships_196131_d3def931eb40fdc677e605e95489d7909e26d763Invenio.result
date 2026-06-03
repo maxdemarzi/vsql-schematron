@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 196131_d3def931eb40fdc677e605e95489d7909e26d763Invenio
+#
+CREATE DATABASE `db_196131_d3def931eb40fdc677e605e95489d7909e26d763Invenio`;
+USE `db_196131_d3def931eb40fdc677e605e95489d7909e26d763Invenio`;
+CREATE TABLE `vol_surface` (
+`vol_surface_id` INT NOT NULL,
+`vol_surface_type` VARCHAR(50),
+PRIMARY KEY (`vol_surface_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `VOL_DUMP` (
+`vol_dump_id` INT NOT NULL,
+`product` VARCHAR(50),
+`vol_surface_id` INT,
+`start` DECIMAL(10,2),
+`step` DECIMAL(10,2),
+`extrapolate` VARCHAR(50),
+`multiple` DECIMAL(10,2),
+`code` VARCHAR(50),
+`future_ref` VARCHAR(50),
+`options_ref` VARCHAR(50),
+`expiry_date` DATE,
+PRIMARY KEY (`vol_dump_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `instrument` (
+`instrument_id` INT NOT NULL,
+`instrument_name` VARCHAR(50),
+`instrument_code` VARCHAR(50),
+`portfolio` VARCHAR(50),
+`maturity` VARCHAR(50),
+`start_value` DECIMAL(10,2),
+`end_value` DECIMAL(10,2),
+`multiple` DECIMAL(10,2),
+PRIMARY KEY (`instrument_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `M_US_DUMP` (
+`m_us_dump_id` INT NOT NULL,
+`instrument_id` INT,
+`strike_code` VARCHAR(50),
+`market_value` DECIMAL(10,2),
+`book_value` DECIMAL(10,2),
+`market_us` DECIMAL(10,2),
+`strike_price` DECIMAL(10,2),
+`strike_total` DECIMAL(10,2),
+`market_val_call` DECIMAL(10,2),
+`market_cal_put` DECIMAL(10,2),
+`options_expiry_date` DATETIME,
+`instrument_display` VARCHAR(50),
+PRIMARY KEY (`m_us_dump_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OPT_DUMP` (
+`opt_dump_id` INT NOT NULL,
+`instrument_id` INT,
+`active_lots` INT,
+`month` INT,
+`strike` DECIMAL(10,2),
+`c_p` DECIMAL(10,2),
+`prem` DECIMAL(10,2),
+`orig_lots` DECIMAL(10,2),
+`portfolio` VARCHAR(50),
+`multiple` DECIMAL(10,2),
+`lots_for_pivot` DECIMAL(10,2),
+`counterparty` VARCHAR(50),
+`duplicated` VARCHAR(50),
+`internal` VARCHAR(50),
+`trn` VARCHAR(50),
+`trn_date` DATETIME,
+`buy_sell` VARCHAR(50),
+`initial_qty` INT,
+`contract_maturity` VARCHAR(50),
+`call_put` VARCHAR(50),
+`stl_prm` DECIMAL(10,2),
+`counterpart_label` VARCHAR(50),
+`live_qty` INT,
+PRIMARY KEY (`opt_dump_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `FUT_DUMP` (
+`fut_dump_id` INT NOT NULL,
+`instrument_id` INT,
+`book_value` DECIMAL(10,2),
+`net_pos` DECIMAL(10,2),
+`fut_price` DECIMAL(10,2),
+`contract` VARCHAR(50),
+`fut_settlement` DECIMAL(10,2),
+`adapted_delta` DECIMAL(10,2),
+`gamma_smt` DECIMAL(10,2),
+`theta` DECIMAL(10,2),
+`vega` DECIMAL(10,2),
+PRIMARY KEY (`fut_dump_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_196131_d3def931eb40fdc677e605e95489d7909e26d763Invenio') AS relationships;
+relationships
+Database: db_196131_d3def931eb40fdc677e605e95489d7909e26d763Invenio
+
+Table Connections:
+------------------
+[Implied]  FUT_DUMP.instrument_id -> instrument.instrument_id
+[Implied]  M_US_DUMP.instrument_id -> instrument.instrument_id
+[Implied]  OPT_DUMP.instrument_id -> instrument.instrument_id
+[Implied]  VOL_DUMP.vol_surface_id -> vol_surface.vol_surface_id
+
+DROP DATABASE `db_196131_d3def931eb40fdc677e605e95489d7909e26d763Invenio`;
+UNINSTALL EXTENSION vsql_schematron;

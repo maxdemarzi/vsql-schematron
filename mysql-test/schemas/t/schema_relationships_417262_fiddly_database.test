@@ -1,0 +1,115 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 417262_fiddly_database
+--echo #
+CREATE DATABASE `db_417262_fiddly_database`;
+USE `db_417262_fiddly_database`;
+CREATE TABLE `role` (
+  `role_id` INT NOT NULL,
+  `role_name` TEXT,
+  PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+  `user_id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  `user_image` VARCHAR(50),
+  `role_id_FK` INT,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_data` (
+  `user_data_id` INT NOT NULL,
+  `address` TEXT,
+  `zipcode` VARCHAR(50),
+  `city` VARCHAR(50),
+  `country` TEXT,
+  `phone` VARCHAR(50),
+  `date_of_birth` DATE,
+  `user_id_FK` INT,
+  PRIMARY KEY (`user_data_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+  `order_id` INT NOT NULL,
+  `order_date` DATE,
+  `payment_status` VARCHAR(50),
+  `delivery_status` VARCHAR(50),
+  `user_id_FK` INT,
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+  `product_id` INT NOT NULL,
+  `name` TEXT,
+  `image_link` VARCHAR(50),
+  `description` VARCHAR(50),
+  `description_en` VARCHAR(50),
+  PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_type` (
+  `product_type_id` INT NOT NULL,
+  `type` TEXT,
+  `pieces` INT,
+  `price` DECIMAL(10,2),
+  `quantity` INT,
+  `product_id_FK` INT,
+  PRIMARY KEY (`product_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `serialnumber` (
+  `serialnumber_id` INT NOT NULL,
+  `number` INT,
+  `date` TIMESTAMP NULL,
+  `order_id_FK` INT,
+  PRIMARY KEY (`serialnumber_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fiddly_gps` (
+  `fiddly_gps_id` INT NOT NULL,
+  `name` TEXT,
+  `activation_date` TIMESTAMP NULL,
+  `image_link` VARCHAR(50),
+  `user_id_FK` INT,
+  `serialnumber_id_FK` INT,
+  PRIMARY KEY (`fiddly_gps_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fiddly_gps_data` (
+  `fiddly_gps_data_id` INT NOT NULL,
+  `longitude` VARCHAR(50),
+  `lattitude` VARCHAR(50),
+  `battery_status` INT,
+  `fiddly_gps_id_FK` INT,
+  PRIMARY KEY (`fiddly_gps_data_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chat_form` (
+  `chat_id` INT NOT NULL,
+  `email` VARCHAR(50),
+  `issue` VARCHAR(50),
+  `message` VARCHAR(50),
+  PRIMARY KEY (`chat_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contact_form` (
+  `contact_id` INT NOT NULL,
+  `email` VARCHAR(50),
+  `name` VARCHAR(50),
+  `subject` VARCHAR(50),
+  `message` VARCHAR(50),
+  PRIMARY KEY (`contact_id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_417262_fiddly_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_417262_fiddly_database') AS relationships;
+DROP DATABASE `db_417262_fiddly_database`;
+UNINSTALL EXTENSION vsql_schematron;

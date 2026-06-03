@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 109275_update5.0
+--echo #
+CREATE DATABASE `db_109275_update5_0`;
+USE `db_109275_update5_0`;
+CREATE TABLE `VEHICULES_TYPES` (
+  `idVehiculesType` INT NOT NULL,
+  `libelleType` VARCHAR(50),
+  PRIMARY KEY (`idVehiculesType`)
+) CHARACTER SET latin1;
+CREATE TABLE `VEHICULES` (
+  `idVehicule` INT NOT NULL,
+  `libelleVehicule` VARCHAR(50),
+  `immatriculation` VARCHAR(50),
+  `marqueModele` VARCHAR(50),
+  `idLieu` INT,
+  `kilometrage` INT,
+  `nbPlaces` INT,
+  `dimensions` VARCHAR(50),
+  `idVehiculesType` INT,
+  `idEtat` INT,
+  `idResponsable` INT,
+  `dateAchat` DATE,
+  `dateNextRevision` DATE,
+  `dateNextCT` DATE,
+  `assuranceNumero` VARCHAR(50),
+  `assuranceExpiration` DATE,
+  `pneusAVhivers` BOOLEAN,
+  `pneusARhivers` BOOLEAN,
+  `climatisation` BOOLEAN,
+  `signaletiqueOrange` BOOLEAN,
+  `signaletiqueBleue` BOOLEAN,
+  `signaletique2tons` BOOLEAN,
+  `signaletique3tons` BOOLEAN,
+  `pmv` BOOLEAN,
+  `fleche` BOOLEAN,
+  `nbCones` INT,
+  `priseAlimentation220` BOOLEAN,
+  `remarquesVehicule` VARCHAR(50),
+  PRIMARY KEY (`idVehicule`)
+) CHARACTER SET latin1;
+CREATE TABLE `DOCUMENTS_VEHICULES` (
+  `idDocVehicules` INT NOT NULL,
+  `idVehicule` INT,
+  `nomDocVehicule` VARCHAR(50),
+  `formatDocVehicule` VARCHAR(50),
+  `dateDocVehicule` DATETIME,
+  `urlFichierDocVehicule` VARCHAR(50),
+  `idTypeDocument` INT,
+  PRIMARY KEY (`idDocVehicules`)
+) CHARACTER SET latin1;
+CREATE TABLE `VEHICULES_MAINTENANCE_TYPES` (
+  `idTypeMaintenance` INT NOT NULL,
+  `libelleTypeMaintenance` VARCHAR(50),
+  PRIMARY KEY (`idTypeMaintenance`)
+) CHARACTER SET latin1;
+CREATE TABLE `VEHICULES_MAINTENANCE` (
+  `idMaintenance` INT NOT NULL,
+  `idVehicule` INT,
+  `idExecutant` INT,
+  `dateMaintenance` DATETIME,
+  `idTypeMaintenance` INT,
+  `detailsMaintenance` VARCHAR(50),
+  PRIMARY KEY (`idMaintenance`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_109275_update5_0') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_109275_update5_0') AS relationships;
+DROP DATABASE `db_109275_update5_0`;
+UNINSTALL EXTENSION vsql_schematron;

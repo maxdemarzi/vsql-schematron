@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 591068_db
+#
+CREATE DATABASE `db_591068_db`;
+USE `db_591068_db`;
+CREATE TABLE `users` (
+`id` INT NOT NULL,
+`cpf` CHAR(50),
+`email` VARCHAR(50),
+`name` VARCHAR(50),
+`password` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dates` (
+`id` INT NOT NULL,
+`date` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `apps` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_dates` (
+`id` INT NOT NULL,
+`user_id` INT,
+`date_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_apps` (
+`id` INT NOT NULL,
+`user_id` INT,
+`app_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_591068_db') AS relationships;
+relationships
+Database: db_591068_db
+
+Table Connections:
+------------------
+[Implied]  user_apps.app_id -> apps.id
+[Implied]  user_apps.user_id -> users.id
+[Implied]  user_dates.date_id -> dates.id
+[Implied]  user_dates.user_id -> users.id
+
+DROP DATABASE `db_591068_db`;
+UNINSTALL EXTENSION vsql_schematron;

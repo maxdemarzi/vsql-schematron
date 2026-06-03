@@ -1,0 +1,148 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 307582_db_pcb
+--echo #
+CREATE DATABASE `db_307582_db_pcb`;
+USE `db_307582_db_pcb`;
+CREATE TABLE `admin` (
+  `id_admin` INT NOT NULL,
+  `username_admin` VARCHAR(50),
+  `password` VARCHAR(50),
+  PRIMARY KEY (`id_admin`)
+) CHARACTER SET latin1;
+CREATE TABLE `bor` (
+  `id_bor` INT NOT NULL,
+  `start_bor` TIMESTAMP NULL,
+  `stop_bor` TIMESTAMP NULL,
+  PRIMARY KEY (`id_bor`)
+) CHARACTER SET latin1;
+CREATE TABLE `ctk_jalur_bwh` (
+  `id_ctk_bwh` INT NOT NULL,
+  `start_ctk_bwh` TIMESTAMP NULL,
+  `stop_ctk_bwh` TIMESTAMP NULL,
+  PRIMARY KEY (`id_ctk_bwh`)
+) CHARACTER SET latin1;
+CREATE TABLE `ctk_jlr_atas` (
+  `id_ctk_atas` INT NOT NULL,
+  `start_jlr_atas` TIMESTAMP NULL,
+  `stop_jlr_atas` TIMESTAMP NULL,
+  PRIMARY KEY (`id_ctk_atas`)
+) CHARACTER SET latin1;
+CREATE TABLE `finishing` (
+  `id_finishing` INT NOT NULL,
+  `start_finishing` TIMESTAMP NULL,
+  `stop_finishing` TIMESTAMP NULL,
+  PRIMARY KEY (`id_finishing`)
+) CHARACTER SET latin1;
+CREATE TABLE `karyawan` (
+  `id_karyawan` INT NOT NULL,
+  `nama_customer` VARCHAR(50),
+  `no_invoice` VARCHAR(50),
+  `spec_pcb` VARCHAR(50),
+  `jumlah` VARCHAR(50),
+  `nama_karyawan` VARCHAR(50),
+  PRIMARY KEY (`id_karyawan`)
+) CHARACTER SET latin1;
+CREATE TABLE `masking_atas` (
+  `id_masking_atas` INT NOT NULL,
+  `start_masking_atas` TIMESTAMP NULL,
+  `stop_masking_atas` TIMESTAMP NULL,
+  PRIMARY KEY (`id_masking_atas`)
+) CHARACTER SET latin1;
+CREATE TABLE `masking_bwh` (
+  `id_masking_bwh` INT NOT NULL,
+  `start_masking_bawah` TIMESTAMP NULL,
+  `stop_masking_bawah` TIMESTAMP NULL,
+  PRIMARY KEY (`id_masking_bwh`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_masuk` (
+  `no_invoice` INT NOT NULL,
+  `nama_customer` VARCHAR(50),
+  `spec_pcb` VARCHAR(50),
+  `id_karyawan` INT,
+  `jumlah` INT,
+  `id_verif` INT,
+  `id_potong` INT,
+  `id_silkscreen_bwh` INT,
+  `id_ctk_bwh` INT,
+  `id_ctk_atas` INT,
+  `id_masking_bwh` INT,
+  `id_masking_atas` INT,
+  `id_silkscreen_atas` INT,
+  `id_bor` INT,
+  `id_plating` INT,
+  `id_finishing` INT,
+  `id_qc` INT,
+  `id_packing` INT,
+  PRIMARY KEY (`no_invoice`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_verified` (
+  `id_verif` INT NOT NULL,
+  `start_order` TIMESTAMP NULL,
+  `stop_order` TIMESTAMP NULL,
+  PRIMARY KEY (`id_verif`)
+) CHARACTER SET latin1;
+CREATE TABLE `packing` (
+  `id_packing` INT NOT NULL,
+  `start_packing` TIMESTAMP NULL,
+  `stop_packing` TIMESTAMP NULL,
+  PRIMARY KEY (`id_packing`)
+) CHARACTER SET latin1;
+CREATE TABLE `plating` (
+  `id_plating` INT NOT NULL,
+  `start_plating` TIMESTAMP NULL,
+  `stop_plating` TIMESTAMP NULL,
+  PRIMARY KEY (`id_plating`)
+) CHARACTER SET latin1;
+CREATE TABLE `potong_pcb` (
+  `id_potong` INT NOT NULL,
+  `start_potong` TIMESTAMP NULL,
+  `stop_potong` TIMESTAMP NULL,
+  PRIMARY KEY (`id_potong`)
+) CHARACTER SET latin1;
+CREATE TABLE `qc` (
+  `id_qc` INT NOT NULL,
+  `start_qc` TIMESTAMP NULL,
+  `stop_qc` TIMESTAMP NULL,
+  PRIMARY KEY (`id_qc`)
+) CHARACTER SET latin1;
+CREATE TABLE `silkscreen_atas` (
+  `id_silkscreen_atas` INT NOT NULL,
+  `start_silkscreen_atas` TIMESTAMP NULL,
+  `stop_silkscreen_atas` TIMESTAMP NULL,
+  PRIMARY KEY (`id_silkscreen_atas`)
+) CHARACTER SET latin1;
+CREATE TABLE `silkscreen_bwh` (
+  `id_silkscreen_bwh` INT NOT NULL,
+  `start_silkscreen_bwh` TIMESTAMP NULL,
+  `stop_silkscreen_bwh` TIMESTAMP NULL,
+  PRIMARY KEY (`id_silkscreen_bwh`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+  `id_user` INT NOT NULL,
+  `nama` VARCHAR(50),
+  `email` VARCHAR(50),
+  `no_telp` INT,
+  `password` VARCHAR(50),
+  PRIMARY KEY (`id_user`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_307582_db_pcb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_307582_db_pcb') AS relationships;
+DROP DATABASE `db_307582_db_pcb`;
+UNINSTALL EXTENSION vsql_schematron;

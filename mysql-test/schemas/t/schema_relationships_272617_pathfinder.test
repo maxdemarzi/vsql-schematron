@@ -1,0 +1,180 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 272617_pathfinder
+--echo #
+CREATE DATABASE `db_272617_pathfinder`;
+USE `db_272617_pathfinder`;
+CREATE TABLE `races` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `characters` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `alignment` VARCHAR(50),
+  `race_id` INT,
+  `gender` VARCHAR(50),
+  `age` INT,
+  `height` INT,
+  `weight` INT,
+  `strength` INT,
+  `dexterity` INT,
+  `constitution` INT,
+  `intelligence` INT,
+  `wisdom` INT,
+  `charisma` INT,
+  `hp` INT,
+  `pc` INT,
+  `pa` INT,
+  `po` INT,
+  `pp` INT,
+  `exp` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `classes` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `character_classes` (
+  `id` INT NOT NULL,
+  `character_id` INT,
+  `class_id` INT,
+  `lvl` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `weapons` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `category` VARCHAR(50),
+  `range_cat` VARCHAR(50),
+  `price` INT,
+  `damage_p` VARCHAR(50),
+  `damage_m` VARCHAR(50),
+  `critical` VARCHAR(50),
+  `range` INT,
+  `weight` INT,
+  `damage_type` VARCHAR(50),
+  `special` VARCHAR(50),
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `armors` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `category` VARCHAR(50),
+  `price` INT,
+  `bonus_ca` INT,
+  `max_dex_bonus` INT,
+  `test_penalty` INT,
+  `spell_failure_risk` INT,
+  `speed_9` DOUBLE,
+  `speed_6` DOUBLE,
+  `weight` INT,
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `price` INT,
+  `weight` INT,
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `character_weapons` (
+  `id` INT NOT NULL,
+  `character_id` INT,
+  `weapon_id` INT,
+  `equipped` BOOLEAN,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `character_armors` (
+  `id` INT NOT NULL,
+  `character_id` INT,
+  `armor_id` INT,
+  `equipped` BOOLEAN,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `character_items` (
+  `id` INT NOT NULL,
+  `character_id` INT,
+  `item_id` INT,
+  `equipped` BOOLEAN,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `talents` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `conditions` VARCHAR(50),
+  `advantages` VARCHAR(50),
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `character_talents` (
+  `id` INT NOT NULL,
+  `character_id` INT,
+  `talent_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `skills` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `require_training` BOOLEAN,
+  `attribute` VARCHAR(50),
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `character_skills` (
+  `id` INT NOT NULL,
+  `character_id` INT,
+  `skill_id` INT,
+  `class_skill` BOOLEAN,
+  `rank` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `spells` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `school` VARCHAR(50),
+  `level` VARCHAR(50),
+  `casting_time` VARCHAR(50),
+  `components` VARCHAR(50),
+  `range` VARCHAR(50),
+  `target` VARCHAR(50),
+  `effect` VARCHAR(50),
+  `duration` VARCHAR(50),
+  `saving_throw` VARCHAR(50),
+  `spell_resistance` BOOLEAN,
+  `description` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `character_spells` (
+  `id` INT NOT NULL,
+  `character_id` INT,
+  `spell_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_272617_pathfinder') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_272617_pathfinder') AS relationships;
+DROP DATABASE `db_272617_pathfinder`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -7,6 +7,8 @@
 
 namespace {
 
+thread_local std::string g_dynamic_prefix = "";
+
 std::string to_lower(std::string s) {
     for (char &c : s) c = std::tolower(c);
     return s;
@@ -22,15 +24,23 @@ std::string stripSchemaPrefix(const std::string& name) {
 
 std::string stripTablePrefix(const std::string& name) {
     std::string n = to_lower(name);
+    if (!g_dynamic_prefix.empty()) {
+        std::string dp = to_lower(g_dynamic_prefix) + "_";
+        if (n.rfind(dp, 0) == 0) {
+            n = n.substr(dp.length());
+        }
+    }
     if (n.rfind("tbl_", 0) == 0) n = n.substr(4);
     if (n.rfind("ref", 0) == 0) n = n.substr(3);
     
     size_t underscore = n.find('_');
     while (underscore != std::string::npos && underscore > 0) {
         std::string prefix = n.substr(0, underscore);
-        if (prefix == "idn" || prefix == "oauth" || prefix == "comtn" || 
+        if (prefix == "idn" || prefix == "oauth" || prefix == "oauth2" || 
+            prefix == "oauth1a" || prefix == "oidc" || prefix == "comtn" || 
             prefix == "vsql" || prefix == "sys" || prefix == "db" || 
-            prefix == "tbl" || prefix == "ref" || prefix.length() <= 3) {
+            prefix == "tbl" || prefix == "ref" || prefix == "cuds" || 
+            prefix == "ext" || prefix.length() <= 2) {
             n = n.substr(underscore + 1);
             underscore = n.find('_');
         } else {
@@ -164,7 +174,8 @@ std::string stripRolePrefix(const std::string& name) {
         "main", "sub", "old", "new", "parent", "child", "prev", "next",
         "local", "external", "global", "remote", "internal", "mapped", "referred",
         "target", "source", "src", "dest", "original", "orig", "current", "curr",
-        "default", "def", "temp", "temporary", "master", "detail", "base", "derived"
+        "default", "def", "temp", "temporary", "master", "detail", "base", "derived",
+        "for", "from", "to"
     };
     bool changed = true;
     while (changed) {
@@ -178,6 +189,55 @@ std::string stripRolePrefix(const std::string& name) {
         }
     }
     return n;
+}
+
+std::string singularize(const std::string& w) {
+    if (w.length() > 3 && w.rfind("ies") == w.length() - 3) {
+        return w.substr(0, w.length() - 3) + "y";
+    }
+    if (w.length() > 2 && w.rfind("es") == w.length() - 2) {
+        if (w.length() > 4 && w.rfind("sses") == w.length() - 4) {
+            return w.substr(0, w.length() - 2);
+        }
+        if (w.length() > 4 && w.rfind("uses") == w.length() - 4) {
+            return w.substr(0, w.length() - 2);
+        }
+        if (w.length() > 3 && (w.rfind("che") == w.length() - 3 || w.rfind("she") == w.length() - 3)) {
+            return w.substr(0, w.length() - 2);
+        }
+        if (w.length() > 2 && (w[w.length() - 3] == 'x' || w[w.length() - 3] == 'z')) {
+            return w.substr(0, w.length() - 2);
+        }
+        return w.substr(0, w.length() - 1);
+    }
+    if (w.length() > 1 && w.back() == 's') {
+        if (w.length() > 2 && (w.rfind("ss") == w.length() - 2 || w.rfind("us") == w.length() - 2 || w.rfind("is") == w.length() - 2 || w.rfind("as") == w.length() - 2)) {
+            return w;
+        }
+        return w.substr(0, w.length() - 1);
+    }
+    return w;
+}
+
+bool isGenericTableSuffix(const std::string& suffix) {
+    static const std::unordered_set<std::string> SUFFIXES = {
+        "session", "sessions", "profile", "profiles", "info", "infos", "detail", "details",
+        "history", "histories", "log", "logs", "metadata", "meta", "ext", "extension", "extensions",
+        "type", "types", "status", "statuses", "category", "categories", "genre", "genres",
+        "state", "states", "level", "levels", "priority", "priorities", "lookup", "lookups",
+        "code", "codes", "mode", "modes", "action", "actions", "tag", "tags",
+        "list", "lists", "table", "tables", "tbl", "tbls", "data", "datas", "ref", "refs",
+        "record", "records", "item", "items", "base", "bases", "catalog", "catalogs",
+        "app", "apps", "cfg", "rel", "map", "link", "t"
+    };
+    return SUFFIXES.count(to_lower(suffix));
+}
+
+bool isKnown2CharAbbreviation(const std::string& s) {
+    static const std::unordered_set<std::string> ABBR = {
+        "tx", "dt", "cd", "cl", "db", "yr", "wk", "hr", "ms", "nm", "st", "nb", "fk", "pk", "no"
+    };
+    return ABBR.count(s);
 }
 
 bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow_substring) {
@@ -194,7 +254,23 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
         std::string ies = tl.substr(0, tl.length() - 1) + "ies";
         if (pl == ies) return true;
     }
-    if (tl.rfind(pl + "_", 0) == 0 || pl.rfind(tl + "_", 0) == 0) return true;
+    if (allow_substring) {
+        if (tl.rfind(pl + "_", 0) == 0 || pl.rfind(tl + "_", 0) == 0) return true;
+        if (pl.rfind(tl + "_", 0) == 0 || (tl.length() > pl.length() && tl.rfind("_" + pl) == tl.length() - pl.length() - 1)) return true;
+        
+        size_t underscore = tl.find('_');
+        std::string first_word = (underscore == std::string::npos) ? tl : tl.substr(0, underscore);
+        if (first_word == pl) {
+            if (tl.length() > pl.length()) {
+                std::string remaining = tl.substr(pl.length() + 1);
+                size_t next_under = remaining.find('_');
+                std::string rem_word = (next_under == std::string::npos) ? remaining : remaining.substr(0, next_under);
+                if (isGenericTableSuffix(rem_word)) return true;
+            }
+        } else if (first_word.length() > pl.length() && (pl.length() >= 3 || (pl.length() == 2 && isKnown2CharAbbreviation(pl))) && first_word.rfind(pl, 0) == 0) {
+            return true;
+        }
+    }
     
     std::string ep = expandAllAbbreviations(p);
     std::string et = expandAllAbbreviations(t);
@@ -209,7 +285,23 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
         std::string ies = et.substr(0, et.length() - 1) + "ies";
         if (ep == ies) return true;
     }
-    if (et.rfind(ep + "_", 0) == 0 || ep.rfind(et + "_", 0) == 0) return true;
+    if (allow_substring) {
+        if (et.rfind(ep + "_", 0) == 0 || ep.rfind(et + "_", 0) == 0) return true;
+        if (ep.rfind(et + "_", 0) == 0 || (et.length() > ep.length() && et.rfind("_" + ep) == et.length() - ep.length() - 1)) return true;
+        
+        size_t underscore = et.find('_');
+        std::string first_word = (underscore == std::string::npos) ? et : et.substr(0, underscore);
+        if (first_word == ep) {
+            if (et.length() > ep.length()) {
+                std::string remaining = et.substr(ep.length() + 1);
+                size_t next_under = remaining.find('_');
+                std::string rem_word = (next_under == std::string::npos) ? remaining : remaining.substr(0, next_under);
+                if (isGenericTableSuffix(rem_word)) return true;
+            }
+        } else if (first_word.length() > ep.length() && (ep.length() >= 3 || (ep.length() == 2 && isKnown2CharAbbreviation(ep))) && first_word.rfind(ep, 0) == 0) {
+            return true;
+        }
+    }
     
     std::string p_clean = ep;
     std::string t_clean = et;
@@ -218,6 +310,10 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
     if (p_clean == t_clean) return true;
     if (t_clean == p_clean + "s" || t_clean == p_clean + "es") return true;
     if (p_clean == t_clean + "s" || p_clean == t_clean + "es") return true;
+    
+    std::string p_sing = singularize(p_clean);
+    std::string t_sing = singularize(t_clean);
+    if (p_sing == t_sing) return true;
     
     if (allow_substring && p_clean.length() >= 3) {
         if (t_clean.length() >= p_clean.length()) {
@@ -241,6 +337,17 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
             
             size_t pos_es = p_clean.rfind(t_clean + "es");
             if (pos_es != std::string::npos && pos_es == p_clean.length() - t_clean.length() - 2) return true;
+        }
+        
+        if (p_sing.length() >= 3 && t_sing.length() >= 3) {
+            if (t_sing.length() >= p_sing.length()) {
+                size_t pos = t_sing.rfind(p_sing);
+                if (pos != std::string::npos && pos == t_sing.length() - p_sing.length()) return true;
+            }
+            if (p_sing.length() >= t_sing.length()) {
+                size_t pos = p_sing.rfind(t_sing);
+                if (pos != std::string::npos && pos == p_sing.length() - t_sing.length()) return true;
+            }
         }
     }
     return false;
@@ -282,6 +389,30 @@ bool isSystemColumn(const std::string& col_name) {
            s == "_created_on" || s == "created_on" ||
            s == "createddate" || s == "created_date" ||
            s == "updateddate" || s == "updated_date";
+}
+
+bool isStatisticColumn(const std::string& col_name) {
+    std::string s = to_lower(col_name);
+    if (s == "num" || s == "count" || s == "cnt" || s == "qty" || s == "quantity" || s == "total" || s == "sum" || s == "avg" || s == "min" || s == "max" || s == "pct" || s == "percent" || s == "percentage") return true;
+    if (s.rfind("num_", 0) == 0 || s.rfind("number_", 0) == 0 || s.rfind("count_", 0) == 0 || s.rfind("cnt_", 0) == 0 || s.rfind("total_", 0) == 0 || s.rfind("tot_", 0) == 0 || s.rfind("sum_", 0) == 0 || s.rfind("avg_", 0) == 0 || s.rfind("min_", 0) == 0 || s.rfind("max_", 0) == 0 || s.rfind("qty_", 0) == 0 || s.rfind("quantity_", 0) == 0) return true;
+    if (s.length() > 6 && (s.rfind("_count") == s.length() - 6 || s.rfind("_total") == s.length() - 6)) return true;
+    if (s.length() > 4 && (s.rfind("_cnt") == s.length() - 4 || s.rfind("_qty") == s.length() - 4 || s.rfind("_sum") == s.length() - 4 || s.rfind("_avg") == s.length() - 4 || s.rfind("_min") == s.length() - 4 || s.rfind("_max") == s.length() - 4 || s.rfind("_pct") == s.length() - 4)) return true;
+    if (s.length() > 9 && s.rfind("_quantity") == s.length() - 9) return true;
+    if (s.length() > 8 && s.rfind("_percent") == s.length() - 8) return true;
+    if (s.length() > 11 && s.rfind("_percentage") == s.length() - 11) return true;
+    
+    // If it ends with key/id suffix, it's not a simple statistic/count
+    if (s.length() > 3 && (s.rfind("_id") == s.length() - 3 || s.rfind("_cd") == s.length() - 3)) return false;
+    if (s.length() > 4 && (s.rfind("_key") == s.length() - 4 || s.rfind("_uid") == s.length() - 4)) return false;
+    if (s.length() > 5) {
+        std::vector<std::string> suffixes = {"_uuid", "_guid", "_code"};
+        for (const auto& sfx : suffixes) {
+            if (s.rfind(sfx) == s.length() - sfx.length()) {
+                return false;
+            }
+        }
+    }
+    return false;
 }
 
 bool isSelfReferentialPrefix(const std::string& prefix) {
@@ -437,22 +568,138 @@ bool matchMiddleIdConvention(const std::string& col, const std::string& tbl_b, b
     return false;
 }
 
+std::string detectSharedTablePrefix(const std::vector<std::string>& table_names) {
+    if (table_names.size() < 2) {
+        return "";
+    }
+    std::unordered_set<std::string> stripped_table_names;
+    for (const auto& name : table_names) {
+        std::string clean = to_lower(stripSchemaPrefix(name));
+        stripped_table_names.insert(clean);
+        stripped_table_names.insert(singularize(clean));
+    }
+    
+    std::unordered_map<std::string, int> prefix_counts;
+    for (const auto& name : table_names) {
+        std::string tbl = to_lower(name);
+        size_t dot = tbl.rfind('.');
+        if (dot != std::string::npos) {
+            tbl = tbl.substr(dot + 1);
+        }
+        
+        size_t underscore = tbl.find('_');
+        while (underscore != std::string::npos && underscore > 0) {
+            std::string prefix = tbl.substr(0, underscore);
+            if (stripped_table_names.count(prefix) == 0) {
+                prefix_counts[prefix]++;
+            }
+            underscore = tbl.find('_', underscore + 1);
+        }
+    }
+    
+    std::string best_prefix = "";
+    int best_count = 0;
+    for (const auto& pair : prefix_counts) {
+        std::string prefix = pair.first;
+        int count = pair.second;
+        if (count >= 2) {
+            if (count >= 3 || count == table_names.size()) {
+                if (best_prefix.empty()) {
+                    best_prefix = prefix;
+                    best_count = count;
+                } else {
+                    if (count > best_count) {
+                        best_prefix = prefix;
+                        best_count = count;
+                    } else if (count == best_count) {
+                        if (prefix.length() > best_prefix.length()) {
+                            best_prefix = prefix;
+                        } else if (prefix.length() == best_prefix.length()) {
+                            if (prefix < best_prefix) {
+                                best_prefix = prefix;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return best_prefix;
+}
+
+bool isSequenceOrSystemTable(const std::string& tbl_name) {
+    std::string tbl = to_lower(tbl_name);
+    size_t dot = tbl.rfind('.');
+    if (dot != std::string::npos) {
+        tbl = tbl.substr(dot + 1);
+    }
+    if (tbl.rfind("seq_", 0) == 0 || tbl.rfind("sequence_", 0) == 0) {
+        return true;
+    }
+    if (tbl.length() > 4 && tbl.rfind("_seq") == tbl.length() - 4) {
+        return true;
+    }
+    if (tbl.length() > 9 && tbl.rfind("_sequence") == tbl.length() - 9) {
+        return true;
+    }
+    if (tbl.rfind("tmp_", 0) == 0 || tbl.rfind("temp_", 0) == 0 ||
+        tbl.rfind("bak_", 0) == 0 || tbl.rfind("backup_", 0) == 0) {
+        return true;
+    }
+    return false;
+}
+
+bool typesAreSemanticallyCompatible(const std::string& col_a, const std::string& type_a, const std::string& type_b) {
+    if (!typeMatches(type_a, type_b)) return false;
+    
+    std::string ta = to_lower(type_a);
+    std::string tb = to_lower(type_b);
+    std::string col = to_lower(col_a);
+    
+    bool a_is_bool = (ta.find("tinyint") != std::string::npos || ta.find("bool") != std::string::npos);
+    bool b_is_bool = (tb.find("tinyint") != std::string::npos || tb.find("bool") != std::string::npos);
+    
+    if (a_is_bool != b_is_bool) {
+        bool col_is_key = (col == "id" || col == "uid" || col == "uuid" || col == "guid" || col == "key");
+        if (!col_is_key) {
+            if (col.length() > 3 && (col.rfind("_id") == col.length() - 3 || col.rfind("_cd") == col.length() - 3)) {
+                col_is_key = true;
+            } else if (col.length() > 4 && (col.rfind("_key") == col.length() - 4 || col.rfind("_uid") == col.length() - 4)) {
+                col_is_key = true;
+            } else if (col.length() > 5) {
+                std::vector<std::string> suffixes = {"_uuid", "_guid", "_code"};
+                for (const auto& sfx : suffixes) {
+                    if (col.rfind(sfx) == col.length() - sfx.length()) {
+                        col_is_key = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!col_is_key) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
     std::string a = stripSchemaPrefix(to_lower(tbl_a));
     std::string b = stripSchemaPrefix(to_lower(tbl_b));
     std::string clean_a = stripTablePrefix(a);
     std::string clean_b = stripTablePrefix(b);
-    if (clean_a == clean_b) return true;
+    if (clean_a == clean_b) return a.length() > b.length();
     if (clean_a.length() > clean_b.length()) {
         // Exclude catalog/lookup tables from being subtypes
         size_t last_underscore = clean_a.rfind('_');
         if (last_underscore != std::string::npos && last_underscore > 0) {
             std::string suffix = clean_a.substr(last_underscore + 1);
             static const std::unordered_set<std::string> CATALOG_SUFFIXES = {
-                "type", "types", "status", "statuses", "cat", "category", "categories",
+                "type", "types", "status", "statuses", "cat", "cats", "category", "categories",
                 "class", "classes", "group", "groups", "genre", "genres", "role", "roles",
                 "state", "states", "level", "levels", "priority", "priorities", "lookup", "lookups",
-                "code", "codes", "mode", "modes", "action", "actions", "tag", "tags"
+                "code", "codes", "mode", "modes", "action", "actions", "tag", "tags", "master", "mstr", "dict",
+                "version", "versions", "ver", "vers"
             };
             if (CATALOG_SUFFIXES.count(suffix)) {
                 return false;
@@ -700,6 +947,8 @@ void findImpliedRelationships(
     const std::set<std::pair<std::string, std::string>>& explicit_mapped_cols,
     std::set<Relationship>& relationships) {
 
+    g_dynamic_prefix = detectSharedTablePrefix(table_names);
+
     // Pass 1: Find all non-subtype relationships
     for (const auto& tbl_a : table_names) {
         auto it_a = tables_info.find(tbl_a);
@@ -712,7 +961,7 @@ void findImpliedRelationships(
             const std::string& col_a = col_pair.first;
             const std::string& type_a = col_pair.second;
 
-            if (isTemporalType(type_a) || isSystemColumn(col_a)) {
+            if (isTemporalType(type_a) || isSystemColumn(col_a) || isStatisticColumn(col_a)) {
                 continue;
             }
 
@@ -737,6 +986,7 @@ void findImpliedRelationships(
             matchDomainSpecificKeys(tbl_a, col_a, type_a, table_names, tables_info, relationships);
 
             for (const auto& tbl_b : table_names) {
+                if (isSequenceOrSystemTable(tbl_b)) continue;
                 auto it_b = tables_info.find(tbl_b);
                 if (it_b == tables_info.end()) continue;
                 const auto& info_b = it_b->second;
@@ -816,7 +1066,7 @@ void findImpliedRelationships(
 
                     for (const auto& pk_b : pks_b) {
                         auto it_b_col = info_b.column_types.find(pk_b);
-                        if (it_b_col == info_b.column_types.end() || !typeMatches(type_a, it_b_col->second)) {
+                        if (it_b_col == info_b.column_types.end() || !typesAreSemanticallyCompatible(col_a, type_a, it_b_col->second)) {
                             continue;
                         }
 
@@ -967,7 +1217,22 @@ void findImpliedRelationships(
                                         break;
                                     }
                                 }
-                                if (matchTableName(prefix_a, tbl_b, !prefix_has_exact) || isPersonMatch(prefix_a, tbl_b) || isLookupMatch(prefix_a, tbl_b, table_names)) {
+
+                                bool is_ambiguous = false;
+                                if (!prefix_has_exact) {
+                                    int prefix_match_count = 0;
+                                    for (const auto& other_tbl : table_names) {
+                                        if (other_tbl == tbl_a) continue;
+                                        if (matchTableName(prefix_a, other_tbl, !prefix_has_exact)) {
+                                            prefix_match_count++;
+                                        }
+                                    }
+                                    if (prefix_match_count > 1) {
+                                        is_ambiguous = true;
+                                    }
+                                }
+
+                                if (!is_ambiguous && (matchTableName(prefix_a, tbl_b, !prefix_has_exact) || isPersonMatch(prefix_a, tbl_b) || isLookupMatch(prefix_a, tbl_b, table_names))) {
                                     suffix_match = true;
                                 }
                             }
@@ -981,7 +1246,22 @@ void findImpliedRelationships(
                                         break;
                                     }
                                 }
-                                if (matchTableName(suffix_a, tbl_b, !suffix_has_exact)) {
+
+                                bool is_ambiguous = false;
+                                if (!suffix_has_exact) {
+                                    int suffix_match_count = 0;
+                                    for (const auto& other_tbl : table_names) {
+                                        if (other_tbl == tbl_a) continue;
+                                        if (matchTableName(suffix_a, other_tbl, !suffix_has_exact)) {
+                                            suffix_match_count++;
+                                        }
+                                    }
+                                    if (suffix_match_count > 1) {
+                                        is_ambiguous = true;
+                                    }
+                                }
+
+                                if (!is_ambiguous && matchTableName(suffix_a, tbl_b, !suffix_has_exact)) {
                                     suffix_match = true;
                                 }
                             }
@@ -1054,6 +1334,126 @@ void findImpliedRelationships(
         }
     }
 
+    // Pass 1.5: Same Key Column Fallback Match
+    for (const auto& tbl_a : table_names) {
+        auto it_a = tables_info.find(tbl_a);
+        if (it_a == tables_info.end()) continue;
+        const auto& info_a = it_a->second;
+        
+        std::vector<std::string> pks_a = getEffectivePKs(tbl_a, info_a);
+        
+        for (const auto& col_pair : info_a.column_types) {
+            const std::string& col_name_a = col_pair.first;
+            const std::string& type_a = col_pair.second;
+            std::string col_a = to_lower(col_name_a);
+            
+            bool col_a_is_pk = false;
+            for (const auto& pk_a : pks_a) {
+                if (to_lower(col_name_a) == to_lower(pk_a)) {
+                    col_a_is_pk = true;
+                    break;
+                }
+            }
+            if (col_a_is_pk) continue;
+            
+            if (isTemporalType(type_a) || isSystemColumn(col_name_a) || isStatisticColumn(col_name_a)) continue;
+            
+            auto is_key_column = [](const std::string& name) -> bool {
+                std::string n = to_lower(name);
+                if (n == "id" || n == "uuid" || n == "guid" || n == "uid" || n == "key" || n == "code") return true;
+                if (n.length() > 3 && (n.rfind("_id") == n.length() - 3 || n.rfind("_key") == n.length() - 4 || n.rfind("_uid") == n.length() - 4)) return true;
+                if (n.length() > 5 && (n.rfind("_code") == n.length() - 5 || n.rfind("_uuid") == n.length() - 5 || n.rfind("_guid") == n.length() - 5)) return true;
+                return false;
+            };
+            if (!is_key_column(col_name_a)) continue;
+            
+            std::string prefix_a, suffix_a;
+            bool has_prefix = splitColumnName(stripAcronymPrefix(col_name_a, tbl_a), prefix_a, suffix_a);
+            
+            for (const auto& tbl_b : table_names) {
+                if (tbl_a == tbl_b) continue;
+                if (isSequenceOrSystemTable(tbl_b)) continue;
+                
+                bool already_has_rel = false;
+                for (const auto& r : relationships) {
+                    if (r.from_table == tbl_a && to_lower(r.from_column) == col_a && r.to_table == tbl_b) {
+                        already_has_rel = true;
+                        break;
+                    }
+                }
+                if (already_has_rel) continue;
+                
+                auto it_b = tables_info.find(tbl_b);
+                if (it_b == tables_info.end()) continue;
+                const auto& info_b = it_b->second;
+                std::vector<std::string> pks_b = getEffectivePKs(tbl_b, info_b);
+                
+                for (const auto& col_pair_b : info_b.column_types) {
+                    const std::string& col_name_b = col_pair_b.first;
+                    const std::string& type_b = col_pair_b.second;
+                    std::string col_b = to_lower(col_name_b);
+                    
+                    bool col_b_is_pk = false;
+                    for (const auto& pk_b : info_b.pk_columns) {
+                        if (to_lower(col_name_b) == to_lower(pk_b)) {
+                            col_b_is_pk = true;
+                            break;
+                        }
+                    }
+                    if (col_b_is_pk) continue;
+                    
+                    bool col_b_is_fk = false;
+                    std::string prefix_b, suffix_b;
+                    if (splitColumnName(col_name_b, prefix_b, suffix_b)) {
+                        for (const auto& other_tbl : table_names) {
+                            if (other_tbl != tbl_b && matchTableName(prefix_b, other_tbl, false)) {
+                                col_b_is_fk = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (col_b_is_fk) continue;
+                    
+                    if (col_a == col_b && typesAreSemanticallyCompatible(col_name_a, type_a, type_b)) {
+                        bool should_match = false;
+                        if (pks_b.empty() && info_a.pk_columns.empty()) {
+                            bool tbl_b_has_outgoing = false;
+                            for (const auto& r : relationships) {
+                                if (r.from_table == tbl_b) {
+                                    tbl_b_has_outgoing = true;
+                                    break;
+                                }
+                            }
+                            if (!tbl_b_has_outgoing) {
+                                std::string prefix_b_check, suffix_b_check;
+                                if (splitColumnName(col_name_b, prefix_b_check, suffix_b_check)) {
+                                    std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                                    std::string p_b = to_lower(prefix_b_check);
+                                    std::string s_b = to_lower(suffix_b_check);
+                                    if (clean_b.rfind(p_b, 0) == 0 || clean_b == s_b || (clean_b.length() > s_b.length() && clean_b.rfind(s_b, 0) == 0)) {
+                                        should_match = true;
+                                    }
+                                }
+                            }
+                        } else if (pks_b.empty() && has_prefix && matchTableName(prefix_a, tbl_b)) {
+                            should_match = true;
+                        }
+                        
+                        if (should_match) {
+                            Relationship rel;
+                            rel.from_table = tbl_a;
+                            rel.from_column = col_name_a;
+                            rel.to_table = tbl_b;
+                            rel.to_column = col_name_b;
+                            rel.is_explicit = false;
+                            relationships.insert(rel);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // Pass 2: Find all subtype relationships (only if no relationship between tbl_a and tbl_b via other columns already exists)
     for (const auto& tbl_a : table_names) {
         auto it_a = tables_info.find(tbl_a);
@@ -1078,6 +1478,7 @@ void findImpliedRelationships(
 
             for (const auto& tbl_b : table_names) {
                 if (tbl_a == tbl_b) continue;
+                if (isSequenceOrSystemTable(tbl_b)) continue;
 
                 auto it_b = tables_info.find(tbl_b);
                 if (it_b == tables_info.end()) continue;
@@ -1156,6 +1557,7 @@ void findImpliedRelationships(
             }
         }
     }
+    g_dynamic_prefix = "";
 }
 
 } // namespace

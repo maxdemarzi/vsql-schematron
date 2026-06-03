@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 221145_mysql
+--echo #
+CREATE DATABASE `db_221145_mysql`;
+USE `db_221145_mysql`;
+CREATE TABLE `classes` (
+  `id` INT NOT NULL,
+  `mask` INT,
+  `powertype` VARCHAR(50),
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `class_colors` (
+  `id` INT NOT NULL,
+  `class_id` INT,
+  `color` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `races` (
+  `id` INT NOT NULL,
+  `mask` INT,
+  `side` VARCHAR(50),
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `toon` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `race_id` INT,
+  `class_id` INT,
+  `gender` INT,
+  `realm` VARCHAR(50),
+  `region` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stats` (
+  `id` INT NOT NULL,
+  `toon_id` INT,
+  `last_modified` BIGINT,
+  `create_date` DATE,
+  `achievement_points` INT,
+  `number_exalted` INT,
+  `mounts_owned` INT,
+  `quests_completed` INT,
+  `fish_caught` INT,
+  `pets_owned` INT,
+  `pet_battles_won` INT,
+  `pet_battles_pvp_won` INT,
+  `level` INT,
+  `item_level` INT,
+  `honorable_kills` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_221145_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_221145_mysql') AS relationships;
+DROP DATABASE `db_221145_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 495586_database
+#
+CREATE DATABASE `db_495586_database`;
+USE `db_495586_database`;
+CREATE TABLE `tblgeneros` (
+`idgeneros` INT NOT NULL,
+`genero` VARCHAR(50),
+`sigla` VARCHAR(50),
+PRIMARY KEY (`idgeneros`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblfaleconosco` (
+`idfaleconosco` INT NOT NULL,
+`nome` VARCHAR(50),
+`telefone` VARCHAR(50),
+`celular` VARCHAR(50),
+`email` VARCHAR(50),
+`homepage` VARCHAR(50),
+`tipomensagem` VARCHAR(50),
+`mensagem` VARCHAR(50),
+`idgeneros` INT,
+`profissao` VARCHAR(50),
+PRIMARY KEY (`idfaleconosco`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbluser` (
+`iduser` INT NOT NULL,
+`usuario` VARCHAR(50),
+`senha` VARCHAR(50),
+`nome` VARCHAR(50),
+`email` VARCHAR(50),
+`cpf` VARCHAR(50),
+`statusContato` BOOLEAN,
+`celular` VARCHAR(50),
+`idgeneros` INT,
+PRIMARY KEY (`iduser`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblprodutos` (
+`idProduto` INT NOT NULL,
+`foto` VARCHAR(50),
+`nomeProduto` VARCHAR(50),
+`descricao` VARCHAR(50),
+`preco` INT,
+`desconto` INT,
+`precoFinal` INT,
+`destaque` BOOLEAN,
+`statusProduto` BOOLEAN,
+`idSubcategoria` INT,
+PRIMARY KEY (`idProduto`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblcategoria` (
+`idCategoria` INT NOT NULL,
+`nome` VARCHAR(50),
+`statusCategoria` BOOLEAN,
+PRIMARY KEY (`idCategoria`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblsubcategoria` (
+`idSubcategoria` INT NOT NULL,
+`nomesub` VARCHAR(50),
+`statusSubcategoria` BOOLEAN,
+`idCategoria` INT,
+PRIMARY KEY (`idSubcategoria`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbllojas` (
+`idlojas` INT NOT NULL,
+`nome` VARCHAR(50),
+`cep` VARCHAR(50),
+`rua` VARCHAR(50),
+`bairro` VARCHAR(50),
+`cidade` VARCHAR(50),
+`estado` VARCHAR(50),
+`statusLoja` BOOLEAN,
+`foto` VARCHAR(50),
+PRIMARY KEY (`idlojas`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblsobre` (
+`idsobre` INT NOT NULL,
+`sobre` TEXT,
+`statusSobre` BOOLEAN,
+PRIMARY KEY (`idsobre`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_495586_database') AS relationships;
+relationships
+Database: db_495586_database
+
+Table Connections:
+------------------
+[Implied]  tblfaleconosco.idgeneros -> tblgeneros.idgeneros
+[Implied]  tblprodutos.idSubcategoria -> tblsubcategoria.idSubcategoria
+[Implied]  tblsubcategoria.idCategoria -> tblcategoria.idCategoria
+[Implied]  tbluser.idgeneros -> tblgeneros.idgeneros
+
+DROP DATABASE `db_495586_database`;
+UNINSTALL EXTENSION vsql_schematron;

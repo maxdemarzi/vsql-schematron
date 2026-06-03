@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 169519_V1.0__Initialize
+#
+CREATE DATABASE `db_169519_V1_0__Initialize`;
+USE `db_169519_V1_0__Initialize`;
+CREATE TABLE `account_type` (
+`id` INT NOT NULL,
+`able_to_manage_accounts` BOOLEAN,
+`able_to_manage_hosts` BOOLEAN,
+`able_to_manage_terraria` BOOLEAN,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account` (
+`id` INT NOT NULL,
+`password` VARCHAR(50),
+`session` VARCHAR(50),
+`session_expiration` TIMESTAMP NULL,
+`username` VARCHAR(50),
+`type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `host` (
+`id` INT NOT NULL,
+`alive` BOOLEAN,
+`heartbeat_duration` INT,
+`last_heartbeat` TIMESTAMP NULL,
+`name` VARCHAR(50),
+`os` VARCHAR(50),
+`terraria_instance_directory` VARCHAR(50),
+`url` VARCHAR(50),
+`uuid` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `terraria_world` (
+`id` INT NOT NULL,
+`data` VARCHAR(50),
+`last_modified` TIMESTAMP NULL,
+`name` VARCHAR(50),
+`host_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `terraria_instance` (
+`id` INT NOT NULL,
+`action_execution_start_time` TIMESTAMP NULL,
+`error` VARCHAR(50),
+`location` VARCHAR(50),
+`mod_loader_archive_url` VARCHAR(50),
+`mod_loader_release_id` INT,
+`mod_loader_release_url` VARCHAR(50),
+`mod_loader_version` VARCHAR(50),
+`name` VARCHAR(50),
+`pending_action` VARCHAR(50),
+`state` VARCHAR(50),
+`terraria_server_url` VARCHAR(50),
+`terraria_version` VARCHAR(50),
+`uuid` VARCHAR(50),
+`host_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_169519_V1_0__Initialize') AS relationships;
+relationships
+Database: db_169519_V1_0__Initialize
+
+Table Connections:
+------------------
+[Implied]  account.type_id -> account_type.id
+[Implied]  terraria_instance.host_id -> host.id
+[Implied]  terraria_world.host_id -> host.id
+
+DROP DATABASE `db_169519_V1_0__Initialize`;
+UNINSTALL EXTENSION vsql_schematron;

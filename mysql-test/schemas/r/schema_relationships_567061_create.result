@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 567061_create
+#
+CREATE DATABASE `db_567061_create`;
+USE `db_567061_create`;
+CREATE TABLE `passengers` (
+`passenger_ID` BIGINT NOT NULL,
+`passenger_first_name` TEXT,
+`passenger_last_name` TEXT,
+`passenger_passport` TEXT,
+PRIMARY KEY (`passenger_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `routes` (
+`route_ID` BIGINT NOT NULL,
+`route_number` TEXT,
+`departure_point` TEXT,
+`arrival_point` TEXT,
+PRIMARY KEY (`route_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `flights` (
+`flight_ID` BIGINT NOT NULL,
+`flight_number` TEXT,
+`datetime_departure` TIMESTAMP NULL,
+`datetime_arrival` TIMESTAMP NULL,
+`flight_status` VARCHAR(50),
+`passengers_count` BIGINT,
+`airplane_number` TEXT,
+`route_ID` BIGINT,
+PRIMARY KEY (`flight_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `tickets` (
+`ticket_ID` BIGINT NOT NULL,
+`ticket_number` TEXT,
+`ticket_status` VARCHAR(50),
+`ticket_price` VARCHAR(50),
+`ticket_class` VARCHAR(50),
+`ticket_place_number` TEXT,
+`passenger_ID` BIGINT,
+`flight_ID` BIGINT,
+`route_ID` BIGINT,
+PRIMARY KEY (`ticket_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales` (
+`sale_ID` BIGINT NOT NULL,
+`sale_datetime` TIMESTAMP NULL,
+`ticket_ID` BIGINT,
+PRIMARY KEY (`sale_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `refunds` (
+`refund_ID` BIGINT NOT NULL,
+`refund_datetime` TIMESTAMP NULL,
+`ticket_ID` BIGINT,
+PRIMARY KEY (`refund_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_567061_create') AS relationships;
+relationships
+Database: db_567061_create
+
+Table Connections:
+------------------
+[Implied]  flights.route_ID -> routes.route_ID
+[Implied]  refunds.ticket_ID -> tickets.ticket_ID
+[Implied]  sales.ticket_ID -> tickets.ticket_ID
+[Implied]  tickets.flight_ID -> flights.flight_ID
+[Implied]  tickets.passenger_ID -> passengers.passenger_ID
+[Implied]  tickets.route_ID -> routes.route_ID
+
+DROP DATABASE `db_567061_create`;
+UNINSTALL EXTENSION vsql_schematron;

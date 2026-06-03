@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 421426_rm_message
+#
+CREATE DATABASE `db_421426_rm_message`;
+USE `db_421426_rm_message`;
+CREATE TABLE `RM_MESSAGE` (
+`ID` INT NOT NULL,
+`BIZ_KEYWORD` VARCHAR(50),
+`SENDER_ID` INT,
+`PARENT_MESSAGE_ID` INT,
+`OWNER_ORG_ID` VARCHAR(50),
+`TEMPLATE_ID` INT,
+`IS_AFFIX` CHAR(50),
+`RECORD_ID` VARCHAR(50),
+`MESSAGE_XML_CONTEXT` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `RM_MESSAGE_RECEIVER` (
+`ID` INT NOT NULL,
+`MESSAGE_ID` INT,
+`RECEIVER_ID` INT,
+`IS_HANDLE` CHAR(50),
+`HANDLE_DATE` DATE,
+`HANDLE_RESULT` VARCHAR(50),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_421426_rm_message') AS relationships;
+relationships
+Database: db_421426_rm_message
+
+Table Connections:
+------------------
+[Implied]  RM_MESSAGE.PARENT_MESSAGE_ID -> RM_MESSAGE.ID
+[Implied]  RM_MESSAGE_RECEIVER.MESSAGE_ID -> RM_MESSAGE.ID
+
+DROP DATABASE `db_421426_rm_message`;
+UNINSTALL EXTENSION vsql_schematron;

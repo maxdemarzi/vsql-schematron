@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 161135_script_schema
+#
+CREATE DATABASE `db_161135_script_schema`;
+USE `db_161135_script_schema`;
+CREATE TABLE `Workflows` (
+`Id` INT NOT NULL,
+`WorkflowName` VARCHAR(50),
+`LastRun` TIMESTAMP NULL,
+`NextRun` TIMESTAMP NULL,
+`TimesToRun` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ActivityTypes` (
+`Id` INT NOT NULL,
+`ActivityTypeName` VARCHAR(50),
+`Description` VARCHAR(50),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ParameterTypes` (
+`Id` INT NOT NULL,
+`ActivityType` INT,
+`ParameterName` VARCHAR(50),
+`LogicalType` VARCHAR(50),
+`Description` VARCHAR(50),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Activities` (
+`Id` INT NOT NULL,
+`WorkflowId` INT,
+`ActivityType` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Parameters` (
+`Id` INT NOT NULL,
+`ActivityId` INT,
+`ParameterValue` VARCHAR(50),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_161135_script_schema') AS relationships;
+relationships
+Database: db_161135_script_schema
+
+Table Connections:
+------------------
+[Implied]  Activities.ActivityType -> ActivityTypes.Id
+[Implied]  Activities.WorkflowId -> Workflows.Id
+[Implied]  ParameterTypes.ActivityType -> ActivityTypes.Id
+[Implied]  Parameters.ActivityId -> Activities.Id
+
+DROP DATABASE `db_161135_script_schema`;
+UNINSTALL EXTENSION vsql_schematron;

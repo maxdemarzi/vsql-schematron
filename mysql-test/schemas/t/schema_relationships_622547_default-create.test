@@ -1,0 +1,151 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 622547_default-create
+--echo #
+CREATE DATABASE `db_622547_default_create`;
+USE `db_622547_default_create`;
+CREATE TABLE `billingAddress` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `company` VARCHAR(50),
+  `address_line` VARCHAR(50),
+  `city` VARCHAR(50),
+  `state` VARCHAR(50),
+  `country` VARCHAR(50),
+  `zip` VARCHAR(50),
+  `customer_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cart` (
+  `id` VARCHAR(50) NOT NULL,
+  `customer_id` VARCHAR(50),
+  `sub_Total_Price` DOUBLE,
+  `tax` DOUBLE,
+  `total_Tax_Price` DOUBLE,
+  `shipping_costs` DOUBLE,
+  `total_Price` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cartProduct` (
+  `id` INT NOT NULL,
+  `product_id` INT,
+  `cart_id` VARCHAR(50),
+  `product_count` INT,
+  `finish` VARCHAR(50),
+  `posterSize_id` INT,
+  `price` DOUBLE,
+  `last_update` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `creditCard` (
+  `id` INT NOT NULL,
+  `card_number` VARCHAR(50),
+  `name` VARCHAR(50),
+  `month` INT,
+  `year` INT,
+  `customer_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+  `id` VARCHAR(50) NOT NULL,
+  `email` VARCHAR(50),
+  `password` VARCHAR(50),
+  `name` VARCHAR(50),
+  `first_name` VARCHAR(50),
+  `cart_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ordering` (
+  `id` VARCHAR(50) NOT NULL,
+  `order_date` VARCHAR(50),
+  `shipping_address_id` INT,
+  `billing_address_id` INT,
+  `sub_Total_Costs` DOUBLE,
+  `total_Tax_Costs` DOUBLE,
+  `tax` DOUBLE,
+  `shipping_costs` DOUBLE,
+  `total_costs` DOUBLE,
+  `credit_card_id` INT,
+  `customer_id` VARCHAR(50),
+  `last_update` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderProduct` (
+  `id` INT NOT NULL,
+  `product_id` INT,
+  `ordering_id` VARCHAR(50),
+  `product_count` INT,
+  `finish` VARCHAR(50),
+  `postersize_id` INT,
+  `price` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posterSize` (
+  `id` INT NOT NULL,
+  `width` INT,
+  `height` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `description_detail` VARCHAR(50),
+  `description_overview` VARCHAR(50),
+  `image_url` VARCHAR(50),
+  `show_in_carousel` BOOLEAN,
+  `show_in_top_categorie` BOOLEAN,
+  `subCategory_id` INT,
+  `top_category_id` INT,
+  `minimum_price` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `productPosterSize` (
+  `id` INT NOT NULL,
+  `product_id` INT,
+  `posterSize_id` INT,
+  `price` DOUBLE,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shippingAddress` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `company` VARCHAR(50),
+  `address_line` VARCHAR(50),
+  `city` VARCHAR(50),
+  `state` VARCHAR(50),
+  `country` VARCHAR(50),
+  `zip` VARCHAR(50),
+  `customer_id` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subCategory` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  `topCategory_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `topCategory` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_622547_default_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_622547_default_create') AS relationships;
+DROP DATABASE `db_622547_default_create`;
+UNINSTALL EXTENSION vsql_schematron;

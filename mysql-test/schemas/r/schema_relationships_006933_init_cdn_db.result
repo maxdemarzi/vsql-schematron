@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 006933_init_cdn_db
+#
+CREATE DATABASE `db_006933_init_cdn_db`;
+USE `db_006933_init_cdn_db`;
+CREATE TABLE `cdn_domain_manager_cdnbillmethod` (
+`id` INT NOT NULL,
+`tenant_id` VARCHAR(50),
+`current_type` VARCHAR(50),
+`update_type` VARCHAR(50),
+`update_at` DATETIME,
+`effect_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cdn_domain_manager_domain` (
+`id` INT NOT NULL,
+`tenant_id` VARCHAR(50),
+`user_name` VARCHAR(50),
+`project_name` VARCHAR(50),
+`domain_id` VARCHAR(50),
+`domain_name` VARCHAR(50),
+`domain_cname` VARCHAR(50),
+`source_type` VARCHAR(50),
+`status` VARCHAR(50),
+`Enable` VARCHAR(50),
+`current_type` VARCHAR(50),
+`update_type` VARCHAR(50),
+`created_at` DATETIME,
+`deleted_at` DATETIME,
+`update_at` DATETIME,
+`effect_at` DATETIME,
+`error_log` VARCHAR(50),
+`xCncRequestId` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cdn_domain_manager_sourceaddress` (
+`id` INT NOT NULL,
+`domain_id` INT,
+`source_address` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cdn_domain_manager_cacherule` (
+`id` INT NOT NULL,
+`domain_id` INT,
+`pathPattern` VARCHAR(50),
+`ignoreCacheControl` BOOLEAN,
+`cacheTtl` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cdn_domain_manager_accesscontrol` (
+`id` INT NOT NULL,
+`domain_id` INT,
+`pathPattern` VARCHAR(50),
+`allowNullReffer` BOOLEAN,
+`validRefers` VARCHAR(50),
+`invalidRefers` VARCHAR(50),
+`forbiddenIps` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cdn_cache_refresh_cacherule` (
+`id` INT NOT NULL,
+`cache_type` VARCHAR(50),
+`cache_time` INT,
+`status` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_006933_init_cdn_db') AS relationships;
+relationships
+Database: db_006933_init_cdn_db
+
+Table Connections:
+------------------
+[Implied]  cdn_domain_manager_accesscontrol.domain_id -> cdn_domain_manager_domain.id
+[Implied]  cdn_domain_manager_cacherule.domain_id -> cdn_domain_manager_domain.id
+[Implied]  cdn_domain_manager_sourceaddress.domain_id -> cdn_domain_manager_domain.id
+
+DROP DATABASE `db_006933_init_cdn_db`;
+UNINSTALL EXTENSION vsql_schematron;

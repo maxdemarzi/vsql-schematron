@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 069448_database
+--echo #
+CREATE DATABASE `db_069448_database`;
+USE `db_069448_database`;
+CREATE TABLE `migration` (
+  `version` VARCHAR(50) NOT NULL,
+  `apply_time` INT,
+  PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+  `id` INT,
+  `image` VARCHAR(50),
+  `sku` VARCHAR(50),
+  `title` VARCHAR(50),
+  `product_type` INT
+) CHARACTER SET latin1;
+CREATE TABLE `product_types` (
+  `id` INT NOT NULL,
+  `title` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_warehouse` (
+  `id` INT,
+  `product_id` INT,
+  `quantity` INT
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+  `id` INT NOT NULL,
+  `username` VARCHAR(50),
+  `password` VARCHAR(50),
+  `fullname` VARCHAR(50),
+  `auth_key` VARCHAR(50),
+  `status` SMALLINT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_069448_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_069448_database') AS relationships;
+DROP DATABASE `db_069448_database`;
+UNINSTALL EXTENSION vsql_schematron;

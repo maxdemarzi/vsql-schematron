@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 526770_table_design
+#
+CREATE DATABASE `db_526770_table_design`;
+USE `db_526770_table_design`;
+CREATE TABLE `planets` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `spaceports` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`planet_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `spaceships` (
+`id` INT NOT NULL,
+`name` VARCHAR(50),
+`manufacturer` VARCHAR(50),
+`light_speed_rate` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `colonists` (
+`id` INT NOT NULL,
+`first_name` VARCHAR(50),
+`last_name` VARCHAR(50),
+`ucn` CHAR(50),
+`birth_date` DATE,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `journeys` (
+`id` INT NOT NULL,
+`journey_start` DATETIME,
+`journey_end` DATETIME,
+`purpose` VARCHAR(50),
+`destination_spaceport_id` INT,
+`spaceship_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `travel_cards` (
+`id` INT NOT NULL,
+`card_number` CHAR(50),
+`job_during_journey` VARCHAR(50),
+`colonist_id` INT,
+`journey_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_526770_table_design') AS relationships;
+relationships
+Database: db_526770_table_design
+
+Table Connections:
+------------------
+[Implied]  journeys.destination_spaceport_id -> spaceports.id
+[Implied]  journeys.spaceship_id -> spaceships.id
+[Implied]  spaceports.planet_id -> planets.id
+[Implied]  travel_cards.colonist_id -> colonists.id
+[Implied]  travel_cards.journey_id -> journeys.id
+
+DROP DATABASE `db_526770_table_design`;
+UNINSTALL EXTENSION vsql_schematron;

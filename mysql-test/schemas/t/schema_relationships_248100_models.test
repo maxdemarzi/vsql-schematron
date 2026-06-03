@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 248100_models
+--echo #
+CREATE DATABASE `db_248100_models`;
+USE `db_248100_models`;
+CREATE TABLE `manufactor` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `owner` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `part` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `car` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  `manufactor_id` INT,
+  `owner_id` INT,
+  `enabled` INT,
+  `stealth` INT,
+  `is_deleted` INT,
+  `sort_order` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `car_part` (
+  `id` INT NOT NULL,
+  `car_id` INT,
+  `part_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nestedset_test` (
+  `id` INT NOT NULL,
+  `name` TEXT,
+  `root` INT,
+  `level` INT,
+  `lft` INT,
+  `rgt` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `timezone_test` (
+  `id` INT NOT NULL,
+  `datetime1` DATETIME,
+  `datetime2` DATETIME,
+  `datetime3` DATETIME,
+  `datetime4` DATETIME,
+  `datetime5` DATETIME,
+  `date1` DATE,
+  `time1` TIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `datatype_test` (
+  `id` INT NOT NULL,
+  `data_json` TEXT,
+  `data_serialize` TEXT,
+  `data_string` TEXT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_248100_models') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_248100_models') AS relationships;
+DROP DATABASE `db_248100_models`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 576261_ScriptUnacesp
+#
+CREATE DATABASE `db_576261_ScriptUnacesp`;
+USE `db_576261_ScriptUnacesp`;
+CREATE TABLE `Empresa` (
+`CodEmp` INT NOT NULL,
+`NomeEmp` VARCHAR(50),
+`EndEmp` VARCHAR(50),
+`BairroEmp` VARCHAR(50),
+`CidadeEmp` VARCHAR(50),
+`NumEmp` SMALLINT,
+`UfEmp` VARCHAR(50),
+`CepEmp` VARCHAR(50),
+PRIMARY KEY (`CodEmp`)
+) CHARACTER SET latin1;
+CREATE TABLE `EndAss` (
+`CodEndAss` INT NOT NULL,
+`EndAss` VARCHAR(50),
+`NumResAss` SMALLINT,
+`BairroRes` VARCHAR(50),
+`CidadeRes` VARCHAR(50),
+`UfRes` VARCHAR(50),
+`CepRes` VARCHAR(50),
+PRIMARY KEY (`CodEndAss`)
+) CHARACTER SET latin1;
+CREATE TABLE `Associado` (
+`CodAss` INT NOT NULL,
+`NomeAss` VARCHAR(50),
+`CpfAss` VARCHAR(50),
+`RgAss` VARCHAR(50),
+`NascAss` DATE,
+`EstCivilAss` VARCHAR(50),
+`DepAss` VARCHAR(50),
+`FuncAss` VARCHAR(50),
+`TelRes` VARCHAR(50),
+`TelCom` VARCHAR(50),
+`CelAss` VARCHAR(50),
+`CodBanco` SMALLINT,
+`NomeBanco` VARCHAR(50),
+`Agencia` VARCHAR(50),
+`Conta` VARCHAR(50),
+`Operacao` VARCHAR(50),
+`CodEndAss` INT,
+`CodEmp` INT,
+PRIMARY KEY (`CodAss`)
+) CHARACTER SET latin1;
+CREATE TABLE `Corretor` (
+`CodCorretor` SMALLINT,
+`NomeCorretor` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `DpAss` (
+`CodDp` INT,
+`NomeDp` VARCHAR(50),
+`NascDp` DATE,
+`PrtcDp` VARCHAR(50),
+`CodAss` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Contrato` (
+`CodAss` INT,
+`CodCorretor` SMALLINT,
+`VlrContrato` DOUBLE,
+`VlrAdesao` DOUBLE,
+`DtContrato` DATE,
+`DtCobranca` DATE,
+`Situacao` VARCHAR(50)
+) CHARACTER SET latin1;
+CREATE TABLE `mensalidade` (
+`CodAss` INT,
+`CodMensalidade` INT NOT NULL,
+`VlrMensalidade` DOUBLE,
+`DtMensalidade` DATE,
+PRIMARY KEY (`CodMensalidade`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_576261_ScriptUnacesp') AS relationships;
+relationships
+Database: db_576261_ScriptUnacesp
+
+Table Connections:
+------------------
+[Implied]  Associado.CodEmp -> Empresa.CodEmp
+[Implied]  Associado.CodEndAss -> EndAss.CodEndAss
+[Implied]  Contrato.CodAss -> Associado.CodAss
+[Implied]  Contrato.CodCorretor -> Corretor.CodCorretor
+[Implied]  DpAss.CodAss -> Associado.CodAss
+[Implied]  mensalidade.CodAss -> Associado.CodAss
+
+DROP DATABASE `db_576261_ScriptUnacesp`;
+UNINSTALL EXTENSION vsql_schematron;

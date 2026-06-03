@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 069448_database
+#
+CREATE DATABASE `db_069448_database`;
+USE `db_069448_database`;
+CREATE TABLE `migration` (
+`version` VARCHAR(50) NOT NULL,
+`apply_time` INT,
+PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`image` VARCHAR(50),
+`sku` VARCHAR(50),
+`title` VARCHAR(50),
+`product_type` INT
+) CHARACTER SET latin1;
+CREATE TABLE `product_types` (
+`id` INT NOT NULL,
+`title` VARCHAR(50),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_warehouse` (
+`id` INT,
+`product_id` INT,
+`quantity` INT
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT NOT NULL,
+`username` VARCHAR(50),
+`password` VARCHAR(50),
+`fullname` VARCHAR(50),
+`auth_key` VARCHAR(50),
+`status` SMALLINT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_069448_database') AS relationships;
+relationships
+Database: db_069448_database
+
+Table Connections:
+------------------
+[Implied]  product_warehouse.product_id -> products.id
+[Implied]  products.product_type -> product_types.id
+
+DROP DATABASE `db_069448_database`;
+UNINSTALL EXTENSION vsql_schematron;

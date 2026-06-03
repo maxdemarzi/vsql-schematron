@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 209245_schema
+--echo #
+CREATE DATABASE `db_209245_schema`;
+USE `db_209245_schema`;
+CREATE TABLE `group_variant` (
+  `group_variant_id` BIGINT NOT NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`group_variant_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+  `product_id` BIGINT,
+  `name` VARCHAR(50),
+  `created` DATE,
+  `description` VARCHAR(50),
+  `product_group` BIGINT
+) CHARACTER SET latin1;
+CREATE TABLE `product_group` (
+  `product_group_id` BIGINT,
+  `name` VARCHAR(50),
+  `group_variant` BIGINT
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_209245_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_209245_schema') AS relationships;
+DROP DATABASE `db_209245_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 548780_20191100000001_identities.postgres.up
+--echo #
+CREATE DATABASE `db_548780_20191100000001_identities_postgres_up`;
+USE `db_548780_20191100000001_identities_postgres_up`;
+CREATE TABLE `identities` (
+  `id` VARCHAR(50) NOT NULL,
+  `traits_schema_id` VARCHAR(50),
+  `traits` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `identity_credential_types` (
+  `id` VARCHAR(50) NOT NULL,
+  `name` VARCHAR(50),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `identity_credentials` (
+  `id` VARCHAR(50) NOT NULL,
+  `config` VARCHAR(50),
+  `identity_credential_type_id` VARCHAR(50),
+  `identity_id` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `identity_credential_identifiers` (
+  `id` VARCHAR(50) NOT NULL,
+  `identifier` VARCHAR(50),
+  `identity_credential_id` VARCHAR(50),
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_548780_20191100000001_identities_postgres_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_548780_20191100000001_identities_postgres_up') AS relationships;
+DROP DATABASE `db_548780_20191100000001_identities_postgres_up`;
+UNINSTALL EXTENSION vsql_schematron;
