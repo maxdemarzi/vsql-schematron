@@ -34,7 +34,7 @@ log "Running MTR tests..."
 cd "$VILLAGESQL_BUILD_DIR"
 perl ./mysql-test/mysql-test-run.pl \
     --suite="$EXTENSION_DIR/mysql-test,$EXTENSION_DIR/mysql-test/spider,$EXTENSION_DIR/mysql-test/schemas" \
-    --parallel=1 \
+    --parallel="$JOBS" \
     --nounit-tests \
     --mysqld=--veb-dir="$VEB_DIR" \
     --mysqld=--vsql-allow-preview-extensions=ON \

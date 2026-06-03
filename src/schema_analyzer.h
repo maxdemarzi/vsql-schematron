@@ -30,6 +30,8 @@ struct TableInfo {
 
 bool typeMatches(const std::string& t1, const std::string& t2);
 
+bool typesAreSemanticallyCompatible(const std::string& col_a, const std::string& type_a, const std::string& type_b);
+
 bool isSystemDatabase(const std::string& db);
 
 std::string analyzeSchemaRelationships(const std::string& db_name, vsql::preview_sql_query::Session& session);

@@ -33,6 +33,7 @@ message(STATUS "VillageSQL include dir: ${VillageSQL_INCLUDE_DIR}")
 add_library(vsql_schematron_lib SHARED
     src/vsql_schematron.cc
     src/schema_analyzer.cc
+    src/schema_analyzer_helpers.cc
     src/domain_specific_matching.cc
     src/data_analyzer.cc
 )
