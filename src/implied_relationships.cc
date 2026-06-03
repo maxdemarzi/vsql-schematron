@@ -14,12 +14,12 @@ namespace {
  *   1. Is not already explicitly mapped,
  *   2. Matches a naming convention pointing to another table name (e.g. table acronym,
  *      prefix, middle ID convention, or exact suffix match to the target table's primary keys),
- *   3. And is compatible in data type,
+ *      and is compatible in data type,
  *   Then it suggests an implied relationship.
  *
  * Examples:
- *   orders.customer_id -> customers.id  (where customer is a table name prefix / match)
- *   employees.manager_id -> employees.id (where manager is a self-referential role prefix)
+ *   - orders.customer_id -> customers.id  (where customer is a table name prefix / match)
+ *   - employees.manager_id -> employees.id (where manager is a self-referential role prefix)
  */
 void findPass1ImpliedRelationships(
     const std::vector<std::string>& table_names,
@@ -28,29 +28,34 @@ void findPass1ImpliedRelationships(
     const std::unordered_map<std::string, std::vector<std::string>>& effective_pks,
     std::set<Relationship>& relationships) {
 
-    // Pass 1: Find all non-subtype relationships
+    // Iterate through every table (Table A) in the schema
     for (const auto& tbl_a : table_names) {
         auto it_a = tables_info.find(tbl_a);
         if (it_a == tables_info.end()) continue;
         const auto& info_a = it_a->second;
 
+        // Retrieve precomputed effective primary keys for Table A
         const auto& pks_a = effective_pks.at(tbl_a);
 
+        // Scan every column in Table A
         for (const auto& col_pair : info_a.column_types) {
             const std::string& col_a = col_pair.first;
             const std::string& type_a = col_pair.second;
 
+            // Heuristic Rule: Skip auditing, temporal, and statistics columns (e.g. "created_date", "modified_by", "item_count")
             if (isTemporalType(type_a) || isSystemColumn(col_a) || isStatisticColumn(col_a)) {
                 continue;
             }
 
+            // Heuristic Rule: Skip if the column is already mapped to an explicit constraint
             if (explicit_mapped_cols.find({tbl_a, col_a}) != explicit_mapped_cols.end()) {
                 continue;
             }
 
+            // Strip the table's initials if they prefix the column name (e.g., "oi_quantity" -> "quantity")
             std::string col_a_clean = stripAcronymPrefix(col_a, tbl_a);
             
-            // Check if col_a is one of the effective PKs of tbl_a
+            // Check if col_a is the primary key of Table A
             bool col_a_is_pk = false;
             if (pks_a.size() == 1) {
                 for (const auto& pk_a : pks_a) {
@@ -61,7 +66,7 @@ void findPass1ImpliedRelationships(
                 }
             }
             
-            // Precompute lookup values once per col_a to avoid O(N^3) work in target table loop
+            // Optimization: Precompute table matching lookups to avoid O(N^3) work in the inner table loop
             bool col_has_exact_tbl_match = false;
             for (const auto& other_tbl : table_names) {
                 if (matchTableName(col_a_clean, other_tbl, false)) {
@@ -73,6 +78,7 @@ void findPass1ImpliedRelationships(
             std::string prefix_a, suffix_a;
             bool has_split = splitColumnName(col_a_clean, prefix_a, suffix_a);
             
+            // Check if column prefix has an exact match in the schema table names
             bool prefix_has_exact = false;
             bool prefix_is_ambiguous = false;
             if (has_split) {
@@ -82,6 +88,7 @@ void findPass1ImpliedRelationships(
                         break;
                     }
                 }
+                // Mark prefix as ambiguous if it loose-matches multiple tables (to avoid incorrect guesses)
                 if (!prefix_has_exact) {
                     int prefix_match_count = 0;
                     for (const auto& other_tbl : table_names) {
@@ -96,6 +103,7 @@ void findPass1ImpliedRelationships(
                 }
             }
 
+            // Check if column suffix has an exact match in the schema table names
             bool suffix_has_exact = false;
             bool suffix_is_ambiguous = false;
             if (has_split) {
@@ -105,6 +113,7 @@ void findPass1ImpliedRelationships(
                         break;
                     }
                 }
+                // Mark suffix as ambiguous if it loose-matches multiple tables (to avoid incorrect guesses)
                 if (!suffix_has_exact) {
                     int suffix_match_count = 0;
                     for (const auto& other_tbl : table_names) {
@@ -119,6 +128,7 @@ void findPass1ImpliedRelationships(
                 }
             }
 
+            // Parse out middle ID conventions (e.g. "customer_id_seq" -> "customer")
             bool entity_has_exact = false;
             std::string c_lower = to_lower(col_a_clean);
             std::string entity = "";
@@ -139,9 +149,10 @@ void findPass1ImpliedRelationships(
                 }
             }
 
-            // Phase 4: Domain-Specific Keys Matching for Amazon Vendor Central and similar datasets
+            // Custom Rule: Domain-Specific Keys Matching for Amazon Vendor Central and similar datasets
             matchDomainSpecificKeys(tbl_a, col_a, type_a, table_names, tables_info, relationships);
 
+            // Compare Table A's column against all possible target tables (Table B)
             for (const auto& tbl_b : table_names) {
                 if (isSequenceOrSystemTable(tbl_b)) continue;
                 auto it_b = effective_pks.find(tbl_b);
@@ -155,8 +166,10 @@ void findPass1ImpliedRelationships(
 
                 bool is_self = (tbl_a == tbl_b);
 
+                // --- Scenario 1: Self-Referencing Heuristics (e.g., employee referencing employee) ---
                 if (is_self) {
-                    // Self-referencing role match
+                    // Heuristic: Self-referencing role match
+                    // Example: employees.manager_id -> employees.id
                     std::vector<std::string> self_ref_words = {
                         "parent", "child", "prev", "previous", "next", "successor", "predecessor", "manager", "mgr", "reports", "report"
                     };
@@ -183,7 +196,8 @@ void findPass1ImpliedRelationships(
                         }
                     }
 
-                    // Self-referencing suffix match
+                    // Heuristic: Self-referencing suffix match (checking words like parent/child)
+                    // Example: node.parent_node_id -> node.node_id
                     for (const auto& pk_b : pks_b) {
                         if (to_lower(col_a_clean) == to_lower(pk_b)) continue;
 
@@ -215,9 +229,9 @@ void findPass1ImpliedRelationships(
                         }
                     }
                 } else {
-                    // tbl_a != tbl_b
+                    // --- Scenario 2: Cross-Table Heuristics (tbl_a != tbl_b) ---
                     
-                    // If col_a is a primary key of tbl_a, it can only match via subtype match (Pass 2)
+                    // Primary Key column of Table A can only link cross-table via subtype match (Pass 2)
                     if (col_a_is_pk) {
                         continue;
                     }
@@ -228,7 +242,8 @@ void findPass1ImpliedRelationships(
                             continue;
                         }
 
-                        // Heuristic: Exact match (excluding "id")
+                        // Heuristic: Exact match (excluding generic "id")
+                        // Example: orders.customer_code -> customers.customer_code
                         if (to_lower(col_a_clean) == to_lower(pk_b) && !isGenericIdentifier(col_a_clean)) {
                             Relationship rel;
                             rel.from_table = tbl_a;
@@ -241,6 +256,7 @@ void findPass1ImpliedRelationships(
                         }
 
                         // Heuristic: Column name matches target table name
+                        // Example: orders.customer -> customers.id
                         if (matchTableName(col_a_clean, tbl_b, !col_has_exact_tbl_match)) {
                             Relationship rel;
                             rel.from_table = tbl_a;
@@ -253,6 +269,7 @@ void findPass1ImpliedRelationships(
                         }
 
                         // Heuristic: Column prefix matches target table acronym
+                        // Example: items.bp_id -> best_prices.id (where acronym of best_prices is "bp")
                         std::string ref_tbl_acronym = getTableAcronym(tbl_b);
                         if (!ref_tbl_acronym.empty() && ref_tbl_acronym.length() >= 2) {
                             if (has_split) {
@@ -269,7 +286,8 @@ void findPass1ImpliedRelationships(
                             }
                         }
 
-                        // Heuristic: User ID fallback match (orders.ID -> user.ID)
+                        // Heuristic: User ID fallback match
+                        // Example: orders.id -> users.id (where "users" is identified as a person table)
                         if (to_lower(col_a_clean) == "id" && to_lower(pk_b) == "id") {
                             std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
                             if (isPersonTable(clean_b)) {
@@ -284,7 +302,8 @@ void findPass1ImpliedRelationships(
                             }
                         }
 
-                        // Heuristic: Direct Role Match to Person Table (without requiring _id suffix)
+                        // Heuristic: Direct Role Match to Person Table (without requiring "_id" suffix)
+                        // Example: tasks.owner -> users.id
                         bool type_a_is_numeric = (type_a.find("int") != std::string::npos ||
                                                    type_a.find("serial") != std::string::npos ||
                                                    type_a.find("numeric") != std::string::npos ||
@@ -304,6 +323,8 @@ void findPass1ImpliedRelationships(
                         }
 
                         // Heuristic: Alternate key matching rule
+                        // Example: Table B has column "customer_code" and PK "id". Column A is "customer_code_id".
+                        //          Since B contains a column matching prefix "customer_code", we match to B.id.
                         if (isGenericIdentifier(pk_b)) {
                             if (has_split) {
                                 if (isGenericIdentifier(suffix_a)) {
@@ -328,7 +349,8 @@ void findPass1ImpliedRelationships(
                             }
                         }
 
-                        // Heuristic: Generic PK/FK prefix match (e.g. nro_pront -> nra_pront)
+                        // Heuristic: Generic PK/FK prefix match (matching codes/numbers prefixes)
+                        // Example: orders.nro_pront -> patients.nra_pront (both "pront" prefix/match)
                         if (isGenericPkFkMatch(col_a_clean, pk_b, pks_b)) {
                             Relationship rel;
                             rel.from_table = tbl_a;
@@ -341,6 +363,7 @@ void findPass1ImpliedRelationships(
                         }
 
                         // Heuristic: Suffix matching
+                        // Example: orders.customer_id -> customers.id
                         bool suffix_match = false;
                         if (has_split) {
                             bool suffix_matches = false;
@@ -348,7 +371,7 @@ void findPass1ImpliedRelationships(
                                 suffix_matches = true;
                             } else {
                                 std::string prefix_b_col, suffix_b_col;
-                                if (splitColumnName(pk_b, prefix_b_col, suffix_b_col)) {
+                                  if (splitColumnName(pk_b, prefix_b_col, suffix_b_col)) {
                                     if (to_lower(suffix_a) == to_lower(suffix_b_col) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(suffix_b_col))) {
                                         suffix_matches = true;
                                     }
@@ -361,14 +384,14 @@ void findPass1ImpliedRelationships(
                                 }
                             }
 
-                            // Column suffix matches target table
+                            // Column suffix matches target table (e.g. orders.id_customer -> customers.id)
                             if (!suffix_match) {
                                 if (!suffix_is_ambiguous && matchTableName(suffix_a, tbl_b, !suffix_has_exact)) {
                                     suffix_match = true;
                                 }
                             }
 
-                            // Last word match
+                            // Suffix match on last word
                             if (!suffix_match) {
                                 if (matchLastWord(prefix_a, tbl_b)) {
                                     suffix_match = true;
@@ -376,7 +399,8 @@ void findPass1ImpliedRelationships(
                             }
                         }
 
-                        // Middle ID convention
+                        // Heuristic: Middle ID convention
+                        // Example: orders.customer_id_seq -> customers.id
                         if (!suffix_match) {
                             if (matchMiddleIdConvention(col_a_clean, tbl_b, !entity_has_exact)) {
                                 suffix_match = true;
@@ -395,6 +419,7 @@ void findPass1ImpliedRelationships(
                         }
 
                         // Heuristic: Non-ID PK suffix match
+                        // Example: orders.main_customer_code -> customers.customer_code
                         if (to_lower(pk_b) != "id") {
                             if (col_a_clean.length() > pk_b.length()) {
                                 std::string col_lower = to_lower(col_a_clean);
@@ -427,7 +452,7 @@ void findPass1ImpliedRelationships(
  *   the target entity of that name, we suggest a relationship between them.
  *
  * Examples:
- *   orders.store_code -> stores.store_code
+ *   - orders.store_code -> stores.store_code (where store_code is shared and stores represents the target entity)
  */
 void findPass1_5ImpliedRelationships(
     const std::vector<std::string>& table_names,
@@ -436,7 +461,6 @@ void findPass1_5ImpliedRelationships(
     const std::unordered_map<std::string, std::unordered_map<std::string, bool>>& col_is_fk_cache,
     std::set<Relationship>& relationships) {
 
-    // Pass 1.5: Same Key Column Fallback Match
     for (const auto& tbl_a : table_names) {
         auto it_a = tables_info.find(tbl_a);
         if (it_a == tables_info.end()) continue;
@@ -449,6 +473,7 @@ void findPass1_5ImpliedRelationships(
             const std::string& type_a = col_pair.second;
             std::string col_a = to_lower(col_name_a);
             
+            // Check if column is already Table A's PK
             bool col_a_is_pk = false;
             for (const auto& pk_a : pks_a) {
                 if (to_lower(col_name_a) == to_lower(pk_a)) {
@@ -476,6 +501,7 @@ void findPass1_5ImpliedRelationships(
                 if (tbl_a == tbl_b) continue;
                 if (isSequenceOrSystemTable(tbl_b)) continue;
                 
+                // Skip if a relationship is already registered for this column from A to B
                 bool already_has_rel = false;
                 for (const auto& r : relationships) {
                     if (r.from_table == tbl_a && to_lower(r.from_column) == col_a && r.to_table == tbl_b) {
@@ -495,6 +521,7 @@ void findPass1_5ImpliedRelationships(
                     const std::string& type_b = col_pair_b.second;
                     std::string col_b = to_lower(col_name_b);
                     
+                    // Check if column is Table B's PK
                     bool col_b_is_pk = false;
                     for (const auto& pk_b : info_b.pk_columns) {
                         if (to_lower(col_name_b) == to_lower(pk_b)) {
@@ -504,10 +531,11 @@ void findPass1_5ImpliedRelationships(
                     }
                     if (col_b_is_pk) continue;
                     
-                    // Lookup precomputed FK check to avoid N^3 * C^2 table matching loop
+                    // Lookup precomputed FK check to avoid O(N^3 * C^2) matching loops
                     bool col_b_is_fk = col_is_fk_cache.at(tbl_b).at(col_name_b);
                     if (col_b_is_fk) continue;
                     
+                    // Match shared same-name key columns (e.g. orders.store_code -> stores.store_code)
                     if (col_a == col_b && typesAreSemanticallyCompatible(col_name_a, type_a, type_b)) {
                         bool should_match = false;
                         if (pks_b.empty() && info_a.pk_columns.empty()) {
@@ -560,7 +588,7 @@ void findPass1_5ImpliedRelationships(
  *   3. The primary key types match.
  *
  * Examples:
- *   customers_corporate.customer_id -> customers.customer_id
+ *   - customers_corporate.customer_id -> customers.customer_id
  */
 void findPass2ImpliedRelationships(
     const std::vector<std::string>& table_names,
@@ -569,7 +597,7 @@ void findPass2ImpliedRelationships(
     const std::unordered_map<std::string, std::vector<std::string>>& effective_pks,
     std::set<Relationship>& relationships) {
 
-    // Pass 2: Find all subtype relationships (only if no relationship between tbl_a and tbl_b via other columns already exists)
+    // Find all subtype relationships (only if no relationship between tbl_a and tbl_b via other columns already exists)
     for (const auto& tbl_a : table_names) {
         auto it_a = tables_info.find(tbl_a);
         if (it_a == tables_info.end()) continue;
@@ -609,6 +637,8 @@ void findPass2ImpliedRelationships(
                     }
 
                     // Heuristic: Subtype match
+                    // Example: tbl_a = "customers_corporate", tbl_b = "customers"
+                    //          A primary key customer_id in tbl_a references customer_id in tbl_b.
                     bool is_subtype = false;
                     bool col_a_is_pk = false;
                     for (const auto& pk_a : pks_a) {
@@ -687,9 +717,10 @@ void findImpliedRelationships(
     const std::set<std::pair<std::string, std::string>>& explicit_mapped_cols,
     std::set<Relationship>& relationships) {
 
+    // 1. Detect dynamic table prefixes
     setDynamicPrefix(detectSharedTablePrefix(table_names));
 
-    // Precompute effective PKs for all tables to avoid O(N^3) calls to getEffectivePKs
+    // 2. Precompute effective PKs for all tables to avoid O(N^3) calls to getEffectivePKs
     std::unordered_map<std::string, std::vector<std::string>> effective_pks;
     for (const auto& tbl : table_names) {
         auto it = tables_info.find(tbl);
@@ -698,7 +729,7 @@ void findImpliedRelationships(
         }
     }
 
-    // Precompute col_b_is_fk mapping for Pass 1.5
+    // 3. Precompute col_b_is_fk mapping for Pass 1.5 (checks if column prefix loose-matches any other table)
     std::unordered_map<std::string, std::unordered_map<std::string, bool>> col_is_fk_cache;
     for (const auto& tbl : table_names) {
         auto it = tables_info.find(tbl);
@@ -720,9 +751,11 @@ void findImpliedRelationships(
         }
     }
 
+    // 4. Run the three relationship finding passes sequentially
     findPass1ImpliedRelationships(table_names, tables_info, explicit_mapped_cols, effective_pks, relationships);
     findPass1_5ImpliedRelationships(table_names, tables_info, effective_pks, col_is_fk_cache, relationships);
     findPass2ImpliedRelationships(table_names, tables_info, explicit_mapped_cols, effective_pks, relationships);
 
+    // 5. Clean up the dynamic table prefix
     clearDynamicPrefix();
 }
