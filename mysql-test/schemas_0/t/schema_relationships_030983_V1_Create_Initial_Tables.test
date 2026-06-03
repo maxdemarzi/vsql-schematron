@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 030983_V1__Create_Initial_Tables
+--echo #
+CREATE DATABASE `db_030983_V1_Create_Initial_Tables`;
+USE `db_030983_V1_Create_Initial_Tables`;
+
+CREATE TABLE `course` (
+  `unique_id` INT,
+  `uuid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `semester_id` INT,
+  PRIMARY KEY (`unique_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course_student` (
+  `course_id` INT,
+  `student_id` INT,
+  PRIMARY KEY (`course_id`, `student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `assignment` (
+  `unique_id` INT,
+  `uuid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `image_file_path` VARCHAR(64),
+  `course_id` INT,
+  `student_id` INT,
+  `created_date_time` DATETIME,
+  PRIMARY KEY (`unique_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_030983_V1_Create_Initial_Tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_030983_V1_Create_Initial_Tables') AS relationships;
+DROP DATABASE `db_030983_V1_Create_Initial_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 663062_init
+#
+CREATE DATABASE `db_663062_init`;
+USE `db_663062_init`;
+CREATE TABLE `accounts` (
+`id` VARCHAR(64),
+`used` DECIMAL(10,2),
+`max_limit` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `operations` (
+`id` VARCHAR(64),
+`status` VARCHAR(64),
+`output_field` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tickets` (
+`id` VARCHAR(64),
+`price` DECIMAL(10,2),
+`location_from` VARCHAR(64),
+`location_destination` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ticket_customer` (
+`ticket_id` VARCHAR(64),
+`customer_id` VARCHAR(64),
+PRIMARY KEY (`ticket_id`, `customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bedrooms` (
+`id` VARCHAR(64),
+`description` VARCHAR(64),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `booking` (
+`id` VARCHAR(64),
+`bedroom_id` VARCHAR(64),
+`customer_id` VARCHAR(64),
+`period_from` DATETIME,
+`period_to` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_663062_init') AS relationships;
+relationships
+Database: db_663062_init
+
+Table Connections:
+------------------
+[Implied]  booking.bedroom_id -> bedrooms.id
+[Implied]  ticket_customer.ticket_id -> tickets.id
+
+DROP DATABASE `db_663062_init`;
+UNINSTALL EXTENSION vsql_schematron;

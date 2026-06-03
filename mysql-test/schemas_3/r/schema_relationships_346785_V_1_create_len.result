@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 346785_V_1__create_len
+#
+CREATE DATABASE `db_346785_V_1_create_len`;
+USE `db_346785_V_1_create_len`;
+CREATE TABLE `len_schema_version` (
+`version_key` VARCHAR(64),
+`version_value` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `len_document` (
+`id` DECIMAL(10,2),
+`oid` DECIMAL(10,2),
+`ver_from_instant` DATETIME,
+`ver_to_instant` DATETIME,
+`corr_from_instant` DATETIME,
+`corr_to_instant` DATETIME,
+`name` VARCHAR(64),
+`main_type` VARCHAR(64),
+`sub_type` VARCHAR(64),
+`actual_type` VARCHAR(64),
+`packed_data` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `len_idkey` (
+`id` DECIMAL(10,2),
+`key_scheme` VARCHAR(64),
+`key_value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `len_doc2idkey` (
+`doc_id` DECIMAL(10,2),
+`idkey_id` DECIMAL(10,2),
+PRIMARY KEY (`doc_id`, `idkey_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `len_attr` (
+`id` DECIMAL(10,2),
+`attr_key` VARCHAR(64),
+`attr_value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `len_doc2attr` (
+`doc_id` DECIMAL(10,2),
+`attr_id` DECIMAL(10,2),
+PRIMARY KEY (`doc_id`, `attr_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `len_prop` (
+`id` DECIMAL(10,2),
+`prop_key` VARCHAR(64),
+`prop_value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `len_doc2prop` (
+`doc_id` DECIMAL(10,2),
+`prop_id` DECIMAL(10,2),
+PRIMARY KEY (`doc_id`, `prop_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_346785_V_1_create_len') AS relationships;
+relationships
+Database: db_346785_V_1_create_len
+
+Table Connections:
+------------------
+[Implied]  len_doc2attr.attr_id -> len_attr.id
+[Implied]  len_doc2attr.doc_id -> len_document.id
+[Implied]  len_doc2idkey.doc_id -> len_document.id
+[Implied]  len_doc2idkey.idkey_id -> len_idkey.id
+[Implied]  len_doc2prop.doc_id -> len_document.id
+[Implied]  len_doc2prop.prop_id -> len_prop.id
+[Implied]  len_document.oid -> len_document.id
+
+DROP DATABASE `db_346785_V_1_create_len`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,160 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 144538_admin_system_20170529
+--echo #
+CREATE DATABASE `db_144538_admin_system_20170529`;
+USE `db_144538_admin_system_20170529`;
+
+CREATE TABLE `icons` (
+  `icon_id` INT,
+  `icon_code` VARCHAR(64),
+  `icon_description` VARCHAR(64),
+  `created_by` VARCHAR(64),
+  `created_date` DATETIME,
+  `updated_by` VARCHAR(64),
+  `updated_date` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `logs` (
+  `log_id` INT,
+  `log_desc` VARCHAR(64),
+  `log_user` VARCHAR(64),
+  `created_by` VARCHAR(64),
+  `created_date` DATETIME,
+  `updated_by` VARCHAR(64),
+  `updated_date` DATETIME,
+  PRIMARY KEY (`log_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `menus` (
+  `menu_id` INT,
+  `p_application_id` INT,
+  `parent_id` INT,
+  `menu_title` VARCHAR(64),
+  `menu_url` VARCHAR(64),
+  `menu_icon` VARCHAR(64),
+  `menu_order` INT,
+  `menu_description` VARCHAR(64),
+  `created_by` VARCHAR(64),
+  `created_date` DATETIME,
+  `updated_by` VARCHAR(64),
+  `updated_date` DATETIME,
+  PRIMARY KEY (`menu_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `p_application` (
+  `p_application_id` INT,
+  `code` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_by` VARCHAR(64),
+  `created_date` DATETIME,
+  `updated_by` VARCHAR(64),
+  `updated_date` DATETIME,
+  `is_active` VARCHAR(64),
+  `module_icon` VARCHAR(64),
+  PRIMARY KEY (`p_application_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permission_menu` (
+  `menu_id` INT,
+  `permission_id` INT,
+  `created_by` VARCHAR(64),
+  `created_date` DATETIME,
+  `updated_by` VARCHAR(64),
+  `updated_date` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `permission_role` (
+  `role_id` INT,
+  `permission_id` INT,
+  `created_by` VARCHAR(64),
+  `created_date` DATETIME,
+  `updated_by` VARCHAR(64),
+  `updated_date` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `permissions` (
+  `permission_id` INT,
+  `permission_name` VARCHAR(64),
+  `permission_display_name` VARCHAR(64),
+  `permission_description` VARCHAR(64),
+  `created_by` VARCHAR(64),
+  `created_date` DATETIME,
+  `updated_by` VARCHAR(64),
+  `updated_date` DATETIME,
+  PRIMARY KEY (`permission_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_menu` (
+  `role_id` INT,
+  `menu_id` INT,
+  `created_by` VARCHAR(64),
+  `created_date` DATETIME,
+  `updated_by` VARCHAR(64),
+  `updated_date` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `p_application_role` (
+  `p_application_id` INT,
+  `role_id` INT,
+  `created_by` VARCHAR(64),
+  `created_date` DATETIME,
+  `updated_by` VARCHAR(64),
+  `updated_date` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_user` (
+  `user_id` INT,
+  `role_id` INT,
+  `created_by` VARCHAR(64),
+  `created_date` DATETIME,
+  `updated_by` VARCHAR(64),
+  `updated_date` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `role_id` INT,
+  `role_name` VARCHAR(64),
+  `role_description` VARCHAR(64),
+  `created_by` VARCHAR(64),
+  `created_date` DATETIME,
+  `updated_by` VARCHAR(64),
+  `updated_date` DATETIME,
+  `is_active` VARCHAR(64),
+  PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `user_name` VARCHAR(64),
+  `user_full_name` VARCHAR(64),
+  `user_email` VARCHAR(64),
+  `user_password` VARCHAR(64),
+  `created_by` VARCHAR(64),
+  `created_date` DATETIME,
+  `updated_by` VARCHAR(64),
+  `updated_date` DATETIME,
+  `user_status` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_144538_admin_system_20170529') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_144538_admin_system_20170529') AS relationships;
+DROP DATABASE `db_144538_admin_system_20170529`;
+UNINSTALL EXTENSION vsql_schematron;

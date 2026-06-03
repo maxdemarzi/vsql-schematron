@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 691658_scheme
+--echo #
+CREATE DATABASE `db_691658_scheme`;
+USE `db_691658_scheme`;
+
+CREATE TABLE `resources` (
+  `rid` VARCHAR(64),
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  PRIMARY KEY (`rid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `client_authority` (
+  `cid` VARCHAR(64),
+  `aid` INT,
+  PRIMARY KEY (`cid`, `aid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `client_resource` (
+  `cid` VARCHAR(64),
+  `rid` VARCHAR(64),
+  PRIMARY KEY (`cid`, `rid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `client_scope` (
+  `cid` VARCHAR(64),
+  `sid` INT,
+  `autoApprove` INT,
+  PRIMARY KEY (`cid`, `sid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `client_type` (
+  `cid` VARCHAR(64),
+  `tid` INT,
+  PRIMARY KEY (`cid`, `tid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_authority` (
+  `rid` INT,
+  `aid` INT,
+  PRIMARY KEY (`rid`, `aid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_role` (
+  `uid` INT,
+  `rid` INT,
+  `expiredAt` DATETIME,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  PRIMARY KEY (`uid`, `rid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_691658_scheme') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_691658_scheme') AS relationships;
+DROP DATABASE `db_691658_scheme`;
+UNINSTALL EXTENSION vsql_schematron;

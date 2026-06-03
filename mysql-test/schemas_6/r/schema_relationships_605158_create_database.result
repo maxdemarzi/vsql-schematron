@@ -1,0 +1,115 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 605158_create_database
+#
+CREATE DATABASE `db_605158_create_database`;
+USE `db_605158_create_database`;
+CREATE TABLE `privacy_settings` (
+`privacyID` INT,
+`option` VARCHAR(64),
+PRIMARY KEY (`privacyID`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`userID` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`dob` DATETIME,
+`gender` VARCHAR(64),
+`location` VARCHAR(64),
+`profilephotoURL` VARCHAR(64),
+`privacyID` INT,
+PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `friendship` (
+`userID1` INT,
+`userID2` INT,
+`status` VARCHAR(64),
+`originUserID` INT,
+PRIMARY KEY (`userID1`, `userID2`)
+) CHARACTER SET latin1;
+CREATE TABLE `photo_collection` (
+`collectionID` INT,
+`userID` INT,
+`name` VARCHAR(64),
+`privacyID` INT,
+`date` DATETIME,
+PRIMARY KEY (`collectionID`)
+) CHARACTER SET latin1;
+CREATE TABLE `circle` (
+`circleID` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`privacyID` INT,
+PRIMARY KEY (`circleID`)
+) CHARACTER SET latin1;
+CREATE TABLE `circle_participants` (
+`circleID` INT,
+`userID` INT,
+`userStatus` INT,
+PRIMARY KEY (`circleID`, `userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `photo` (
+`photoID` INT,
+`collectionID` INT,
+`photoURL` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`photoID`)
+) CHARACTER SET latin1;
+CREATE TABLE `photo_comment` (
+`commentID` INT,
+`photoID` INT,
+`userID` INT,
+`comment` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`commentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`messageID` INT,
+`circleID` INT,
+`userID` INT,
+`message` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`messageID`)
+) CHARACTER SET latin1;
+CREATE TABLE `photo_annotation` (
+`photoID` INT,
+`userID` INT,
+`annotationType` INT,
+`date` DATETIME,
+PRIMARY KEY (`photoID`, `userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `blog_entry` (
+`entryID` INT,
+`userID` INT,
+`entry` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`entryID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_605158_create_database') AS relationships;
+relationships
+Database: db_605158_create_database
+
+Table Connections:
+------------------
+[Implied]  blog_entry.userID -> user.userID
+[Implied]  circle.privacyID -> privacy_settings.privacyID
+[Implied]  circle_participants.circleID -> circle.circleID
+[Implied]  circle_participants.userID -> user.userID
+[Implied]  friendship.originUserID -> user.userID
+[Implied]  friendship.userID1 -> user.userID
+[Implied]  friendship.userID2 -> user.userID
+[Implied]  message.circleID -> circle.circleID
+[Implied]  message.userID -> user.userID
+[Implied]  photo.collectionID -> photo_collection.collectionID
+[Implied]  photo_annotation.photoID -> photo.photoID
+[Implied]  photo_annotation.userID -> user.userID
+[Implied]  photo_collection.privacyID -> privacy_settings.privacyID
+[Implied]  photo_collection.userID -> user.userID
+[Implied]  photo_comment.photoID -> photo.photoID
+[Implied]  photo_comment.userID -> user.userID
+[Implied]  user.privacyID -> privacy_settings.privacyID
+
+DROP DATABASE `db_605158_create_database`;
+UNINSTALL EXTENSION vsql_schematron;

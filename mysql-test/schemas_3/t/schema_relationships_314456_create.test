@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 314456_create
+--echo #
+CREATE DATABASE `db_314456_create`;
+USE `db_314456_create`;
+
+CREATE TABLE `CODE_NAME` (
+  `CODE_ID` VARCHAR(64),
+  `CODE_VALUE` VARCHAR(64),
+  `LANG` VARCHAR(64),
+  `SORT_ORDER` INT,
+  `CODE_NAME` VARCHAR(64),
+  `SHORT_NAME` VARCHAR(64),
+  `OPTION01` VARCHAR(64),
+  `OPTION02` VARCHAR(64),
+  `OPTION03` VARCHAR(64),
+  `OPTION04` VARCHAR(64),
+  `OPTION05` VARCHAR(64),
+  `OPTION06` VARCHAR(64),
+  `OPTION07` VARCHAR(64),
+  `OPTION08` VARCHAR(64),
+  `OPTION09` VARCHAR(64),
+  `OPTION10` VARCHAR(64),
+  PRIMARY KEY (`CODE_ID`, `CODE_VALUE`, `LANG`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CODE_PATTERN` (
+  `CODE_ID` VARCHAR(64),
+  `CODE_VALUE` VARCHAR(64),
+  `PATTERN01` VARCHAR(64),
+  `PATTERN02` VARCHAR(64),
+  `PATTERN03` VARCHAR(64),
+  `PATTERN04` VARCHAR(64),
+  `PATTERN05` VARCHAR(64),
+  `PATTERN06` VARCHAR(64),
+  `PATTERN07` VARCHAR(64),
+  `PATTERN08` VARCHAR(64),
+  `PATTERN09` VARCHAR(64),
+  `PATTERN10` VARCHAR(64),
+  `PATTERN11` VARCHAR(64),
+  `PATTERN12` VARCHAR(64),
+  `PATTERN13` VARCHAR(64),
+  `PATTERN14` VARCHAR(64),
+  `PATTERN15` VARCHAR(64),
+  `PATTERN16` VARCHAR(64),
+  `PATTERN17` VARCHAR(64),
+  `PATTERN18` VARCHAR(64),
+  `PATTERN19` VARCHAR(64),
+  `PATTERN20` VARCHAR(64),
+  PRIMARY KEY (`CODE_ID`, `CODE_VALUE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USER_SESSION` (
+  `SESSION_ID` VARCHAR(64),
+  `SESSION_OBJECT` VARCHAR(64),
+  `EXPIRATION_DATETIME` DATETIME,
+  PRIMARY KEY (`SESSION_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DOUBLE_SUBMISSION` (
+  `TOKEN` VARCHAR(64),
+  `CREATED_AT` DATETIME,
+  PRIMARY KEY (`TOKEN`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_314456_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_314456_create') AS relationships;
+DROP DATABASE `db_314456_create`;
+UNINSTALL EXTENSION vsql_schematron;

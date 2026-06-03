@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 396638_studentLecturerSchoolTable
+--echo #
+CREATE DATABASE `db_396638_studentLecturerSchoolTable`;
+USE `db_396638_studentLecturerSchoolTable`;
+
+CREATE TABLE `Student` (
+  `StudentID` INT,
+  `StudentName` VARCHAR(64),
+  PRIMARY KEY (`StudentID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Course` (
+  `CourseID` VARCHAR(64),
+  `CourseName` VARCHAR(64),
+  PRIMARY KEY (`CourseID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Tutorial` (
+  `TutorialID` INT,
+  `CourseID` VARCHAR(64),
+  PRIMARY KEY (`TutorialID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Lecturer` (
+  `LecturerID` INT,
+  `LecturerName` VARCHAR(64),
+  PRIMARY KEY (`LecturerID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `IsQualified` (
+  `LecturerID` INT,
+  `CourseID` VARCHAR(64),
+  `DateQualified` VARCHAR(64),
+  PRIMARY KEY (`LecturerID`, `CourseID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `IsRegistered` (
+  `StudentID` INT,
+  `TutorialID` INT,
+  `Semester` VARCHAR(64),
+  PRIMARY KEY (`StudentID`, `TutorialID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_396638_studentLecturerSchoolTable') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_396638_studentLecturerSchoolTable') AS relationships;
+DROP DATABASE `db_396638_studentLecturerSchoolTable`;
+UNINSTALL EXTENSION vsql_schematron;

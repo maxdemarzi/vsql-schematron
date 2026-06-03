@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 348514_database
+#
+CREATE DATABASE `db_348514_database`;
+USE `db_348514_database`;
+CREATE TABLE `users` (
+`user_id` INT,
+`username` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `section` (
+`section_id` INT,
+`section_name` VARCHAR(64),
+`sorting_order` INT,
+PRIMARY KEY (`section_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `grocery` (
+`grocery_id` INT,
+`grocery_name` VARCHAR(64),
+`section_id` INT,
+PRIMARY KEY (`grocery_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipe` (
+`recipe_id` INT,
+`recipe_name` VARCHAR(64),
+`instructions` VARCHAR(64),
+PRIMARY KEY (`recipe_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ingredient` (
+`ingredient_id` INT,
+`grocery_id` INT,
+`ingredient_amount` INT,
+`ingredient_unit` VARCHAR(64),
+PRIMARY KEY (`ingredient_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shoplist` (
+`user_id` INT,
+`grocery_id` INT,
+PRIMARY KEY (`user_id`, `grocery_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ingredients` (
+`recipe_id` INT,
+`ingredient_id` INT,
+PRIMARY KEY (`recipe_id`, `ingredient_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_348514_database') AS relationships;
+relationships
+Database: db_348514_database
+
+Table Connections:
+------------------
+[Implied]  grocery.section_id -> section.section_id
+[Implied]  ingredient.grocery_id -> grocery.grocery_id
+[Implied]  ingredients.ingredient_id -> ingredient.ingredient_id
+[Implied]  ingredients.recipe_id -> recipe.recipe_id
+[Implied]  shoplist.grocery_id -> grocery.grocery_id
+[Implied]  shoplist.user_id -> users.user_id
+
+DROP DATABASE `db_348514_database`;
+UNINSTALL EXTENSION vsql_schematron;

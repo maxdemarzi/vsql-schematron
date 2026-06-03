@@ -1,0 +1,29 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 161151_example_multivalued_hierarchy_map
+#
+CREATE DATABASE `db_161151_example_multivalued_hierarchy_map`;
+USE `db_161151_example_multivalued_hierarchy_map`;
+CREATE TABLE `EMPLOYEE` (
+`employee_id` INT,
+`employee_name` VARCHAR(64),
+PRIMARY KEY (`employee_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `EMPLOYEE_EMPLOYEE` (
+`employee_id` INT,
+`manager_id` INT,
+`role_type` VARCHAR(64),
+`FTE` DECIMAL(10,2),
+PRIMARY KEY (`employee_id`, `manager_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_161151_example_multivalued_hierarchy_map') AS relationships;
+relationships
+Database: db_161151_example_multivalued_hierarchy_map
+
+Table Connections:
+------------------
+[Implied]  EMPLOYEE_EMPLOYEE.employee_id -> EMPLOYEE.employee_id
+[Implied]  EMPLOYEE_EMPLOYEE.manager_id -> EMPLOYEE.employee_id
+
+DROP DATABASE `db_161151_example_multivalued_hierarchy_map`;
+UNINSTALL EXTENSION vsql_schematron;

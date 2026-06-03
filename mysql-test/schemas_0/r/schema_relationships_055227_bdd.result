@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 055227_bdd
+#
+CREATE DATABASE `db_055227_bdd`;
+USE `db_055227_bdd`;
+CREATE TABLE `Medecin` (
+`id_medecin` INT,
+`civilite` VARCHAR(64),
+`nom` VARCHAR(64),
+`prenom` VARCHAR(64),
+PRIMARY KEY (`id_medecin`)
+) CHARACTER SET latin1;
+CREATE TABLE `Patient` (
+`id_patient` INT,
+`id_medecin` INT,
+`civilite` VARCHAR(64),
+`nom` VARCHAR(64),
+`prenom` VARCHAR(64),
+`adresse` VARCHAR(64),
+`date_naissance` DATETIME,
+`num_secu` VARCHAR(64),
+PRIMARY KEY (`id_patient`)
+) CHARACTER SET latin1;
+CREATE TABLE `Consultation` (
+`id_medecin` INT,
+`id_patient` INT,
+`date_debut` DATETIME,
+`date_fin` DATETIME,
+PRIMARY KEY (`id_medecin`, `id_patient`, `date_debut`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_055227_bdd') AS relationships;
+relationships
+Database: db_055227_bdd
+
+Table Connections:
+------------------
+[Implied]  Consultation.id_medecin -> Medecin.id_medecin
+[Implied]  Consultation.id_patient -> Patient.id_patient
+[Implied]  Patient.id_medecin -> Medecin.id_medecin
+
+DROP DATABASE `db_055227_bdd`;
+UNINSTALL EXTENSION vsql_schematron;

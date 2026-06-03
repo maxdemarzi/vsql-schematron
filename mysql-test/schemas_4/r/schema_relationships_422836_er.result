@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 422836_er
+#
+CREATE DATABASE `db_422836_er`;
+USE `db_422836_er`;
+CREATE TABLE `Agent` (
+`IDAgent` INT,
+`Name` VARCHAR(64),
+`Surname` VARCHAR(64),
+`Office` VARCHAR(64),
+`Address` VARCHAR(64),
+`City` VARCHAR(64),
+`Phone` INT,
+PRIMARY KEY (`IDAgent`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer` (
+`IDCust` INT,
+`Name` VARCHAR(64),
+`Surname` VARCHAR(64),
+`Budget` INT,
+`Address` VARCHAR(64),
+`City` VARCHAR(64),
+`Phone` INT,
+PRIMARY KEY (`IDCust`)
+) CHARACTER SET latin1;
+CREATE TABLE `Owner` (
+`Name` VARCHAR(64),
+`IDOwner` INT,
+`Surname` VARCHAR(64),
+`Address` VARCHAR(64),
+`City` VARCHAR(64),
+`Phone` INT,
+PRIMARY KEY (`IDOwner`)
+) CHARACTER SET latin1;
+CREATE TABLE `Estate` (
+`IDEstate` INT,
+`Category` VARCHAR(64),
+`Area` VARCHAR(64),
+`City` VARCHAR(64),
+`Province` VARCHAR(64),
+`Rooms` INT,
+`Bedrooms` INT,
+`Garage` VARCHAR(64),
+`Meters` INT,
+`IDOwner` INT,
+PRIMARY KEY (`IDEstate`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rent` (
+`RentDate` DATETIME,
+`RentPrice` DECIMAL(10,2),
+`RentStatus` VARCHAR(64),
+`RentTime` DATETIME,
+`IDAgent` INT,
+`IDCust` INT,
+`IDEstate` INT,
+PRIMARY KEY (`IDAgent`, `IDCust`, `IDEstate`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sale` (
+`SaleDate` DATETIME,
+`AgreedSalePrice` DECIMAL(10,2),
+`SaleStatus` VARCHAR(64),
+`IDCust` INT,
+`IDAgent` INT,
+`IDEstate` INT,
+PRIMARY KEY (`IDAgent`, `IDCust`, `IDEstate`)
+) CHARACTER SET latin1;
+CREATE TABLE `Visit` (
+`VisitDate` DATETIME,
+`VisitDuration` INT,
+`IDCust` INT,
+`IDAgent` INT,
+`IDEstate` INT,
+PRIMARY KEY (`IDCust`, `IDAgent`, `IDEstate`)
+) CHARACTER SET latin1;
+CREATE TABLE `Agenda` (
+`ClientName` VARCHAR(64),
+`AgendaDate` DATETIME,
+`AgendaHour` INT,
+`IDAgent` INT,
+`IDEstate` INT,
+PRIMARY KEY (`AgendaDate`, `AgendaHour`, `IDAgent`, `IDEstate`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_422836_er') AS relationships;
+relationships
+Database: db_422836_er
+
+Table Connections:
+------------------
+[Implied]  Agenda.IDAgent -> Agent.IDAgent
+[Implied]  Agenda.IDEstate -> Estate.IDEstate
+[Implied]  Estate.IDOwner -> Owner.IDOwner
+[Implied]  Rent.IDAgent -> Agent.IDAgent
+[Implied]  Rent.IDCust -> Customer.IDCust
+[Implied]  Rent.IDEstate -> Estate.IDEstate
+[Implied]  Sale.IDAgent -> Agent.IDAgent
+[Implied]  Sale.IDCust -> Customer.IDCust
+[Implied]  Sale.IDEstate -> Estate.IDEstate
+[Implied]  Visit.IDAgent -> Agent.IDAgent
+[Implied]  Visit.IDCust -> Customer.IDCust
+[Implied]  Visit.IDEstate -> Estate.IDEstate
+
+DROP DATABASE `db_422836_er`;
+UNINSTALL EXTENSION vsql_schematron;

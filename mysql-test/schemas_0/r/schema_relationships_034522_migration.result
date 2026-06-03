@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 034522_migration
+#
+CREATE DATABASE `db_034522_migration`;
+USE `db_034522_migration`;
+CREATE TABLE `User` (
+`id` VARCHAR(64),
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Post` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`url` VARCHAR(64),
+`body` VARCHAR(64),
+`createdAt` DATETIME,
+`userId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Like` (
+`id` VARCHAR(64),
+`postId` VARCHAR(64),
+`userId` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Dislike` (
+`id` VARCHAR(64),
+`postId` VARCHAR(64),
+`userId` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comment` (
+`id` VARCHAR(64),
+`body` VARCHAR(64),
+`postId` VARCHAR(64),
+`userId` VARCHAR(64),
+`parentId` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_034522_migration') AS relationships;
+relationships
+Database: db_034522_migration
+
+Table Connections:
+------------------
+[Implied]  Comment.parentId -> Comment.id
+[Implied]  Comment.postId -> Post.id
+[Implied]  Comment.userId -> User.id
+[Implied]  Dislike.postId -> Post.id
+[Implied]  Dislike.userId -> User.id
+[Implied]  Like.postId -> Post.id
+[Implied]  Like.userId -> User.id
+[Implied]  Post.userId -> User.id
+
+DROP DATABASE `db_034522_migration`;
+UNINSTALL EXTENSION vsql_schematron;

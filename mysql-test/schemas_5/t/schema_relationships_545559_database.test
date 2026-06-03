@@ -1,0 +1,133 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 545559_database
+--echo #
+CREATE DATABASE `db_545559_database`;
+USE `db_545559_database`;
+
+CREATE TABLE `salespersons` (
+  `salesperson_id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `phone_number` VARCHAR(64),
+  `birth_date` DATETIME,
+  `country` VARCHAR(64),
+  `city` VARCHAR(64),
+  `town` VARCHAR(64),
+  `postal_code` VARCHAR(64),
+  `img` VARCHAR(64),
+  PRIMARY KEY (`salesperson_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customers` (
+  `customer_id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `company` VARCHAR(64),
+  `phone_number` VARCHAR(64),
+  `birth_date` DATETIME,
+  `country` VARCHAR(64),
+  `city` VARCHAR(64),
+  `town` VARCHAR(64),
+  `postal_code` VARCHAR(64),
+  `img` VARCHAR(64),
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `add_` (
+  `salesperson_id` INT,
+  `customer_id` INT,
+  PRIMARY KEY (`salesperson_id`, `customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `services` (
+  `service_id` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `category` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  PRIMARY KEY (`service_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `interest_` (
+  `service_id` INT,
+  `customer_id` INT,
+  PRIMARY KEY (`service_id`, `customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `products` (
+  `product_id` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `category` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `like_` (
+  `product_id` INT,
+  `customer_id` INT,
+  PRIMARY KEY (`product_id`, `customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `order_id` INT,
+  `customer_id` INT,
+  `created_date` DATETIME,
+  `order_status` VARCHAR(64),
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orderItem` (
+  `order_id` INT,
+  `item_type` VARCHAR(64),
+  `item_name` VARCHAR(64),
+  `item_count` INT,
+  `item_price` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bills` (
+  `bill_id` INT,
+  `order_id` INT,
+  `salesperson_id` INT,
+  `total_price` DECIMAL(10,2),
+  `generated_date` DATETIME,
+  PRIMARY KEY (`bill_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `visits` (
+  `visit_id` INT,
+  `customer_id` INT,
+  `title` VARCHAR(64),
+  `location` VARCHAR(64),
+  `customer_phone_number` VARCHAR(64),
+  `start_time` DATETIME,
+  `end_time` DATETIME,
+  PRIMARY KEY (`visit_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_545559_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_545559_database') AS relationships;
+DROP DATABASE `db_545559_database`;
+UNINSTALL EXTENSION vsql_schematron;

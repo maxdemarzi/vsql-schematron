@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 294626_up
+#
+CREATE DATABASE `db_294626_up`;
+USE `db_294626_up`;
+CREATE TABLE `workshops` (
+`id` INT,
+`title` VARCHAR(64),
+`content` VARCHAR(64),
+`end` DATETIME,
+`anonymous` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `criterion` (
+`id` INT,
+`title` VARCHAR(64),
+`content` VARCHAR(64),
+`weight` DECIMAL(10,2),
+`kind` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `criteria` (
+`workshop` INT,
+`criterion` INT,
+PRIMARY KEY (`workshop`, `criterion`)
+) CHARACTER SET latin1;
+CREATE TABLE `workshoplist` (
+`workshop` INT,
+`user` INT,
+`role` VARCHAR(64),
+PRIMARY KEY (`workshop`, `user`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_294626_up') AS relationships;
+relationships
+Database: db_294626_up
+
+Table Connections:
+------------------
+[Implied]  criteria.criterion -> criterion.id
+[Implied]  criteria.workshop -> workshops.id
+[Implied]  workshoplist.workshop -> workshops.id
+
+DROP DATABASE `db_294626_up`;
+UNINSTALL EXTENSION vsql_schematron;

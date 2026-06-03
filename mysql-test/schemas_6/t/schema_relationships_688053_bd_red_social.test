@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 688053_bd_red_social
+--echo #
+CREATE DATABASE `db_688053_bd_red_social`;
+USE `db_688053_bd_red_social`;
+
+CREATE TABLE `amigos_usu` (
+  `id_solicitante` INT,
+  `id_receptor` INT,
+  `fecha_enviada` DATETIME,
+  `solicitud_aceptada` VARCHAR(64),
+  PRIMARY KEY (`id_solicitante`, `id_receptor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `fotos` (
+  `id_foto` INT,
+  `id_usu` INT,
+  `foto_string` VARCHAR(64),
+  `fecha_subida_fot` DATETIME,
+  PRIMARY KEY (`id_foto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `videos` (
+  `id_video` INT,
+  `id_usu` INT,
+  `video_string` VARCHAR(64),
+  `fecha_subida_vid` DATETIME,
+  PRIMARY KEY (`id_video`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entradas` (
+  `id_entrada` INT,
+  `id_usu` INT,
+  `titulo_entrada` VARCHAR(64),
+  `texto_entrada` VARCHAR(64),
+  `fecha_creacion_ent` DATETIME,
+  PRIMARY KEY (`id_entrada`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `publicacion` (
+  `id_publicacion` INT,
+  `id_usu` INT,
+  `titulo_publicacion` VARCHAR(64),
+  `texto_publicacion` VARCHAR(64),
+  `fecha_creacion_pub` DATETIME,
+  `pub_es_privada` VARCHAR(64),
+  PRIMARY KEY (`id_publicacion`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comentario` (
+  `id_comentario` INT,
+  `id_usuario` INT,
+  `id_publicacion` INT,
+  `texto_comentario` VARCHAR(64),
+  `fecha_creacion_com` DATETIME,
+  PRIMARY KEY (`id_comentario`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_688053_bd_red_social') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_688053_bd_red_social') AS relationships;
+DROP DATABASE `db_688053_bd_red_social`;
+UNINSTALL EXTENSION vsql_schematron;

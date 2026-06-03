@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 216287_schema
+#
+CREATE DATABASE `db_216287_schema`;
+USE `db_216287_schema`;
+CREATE TABLE `admin` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `production` (
+`id` INT,
+`title` VARCHAR(64),
+`author` VARCHAR(64),
+`synopsis` VARCHAR(64),
+`status` VARCHAR(64),
+`release_date` DATETIME,
+`format` VARCHAR(64),
+`rating` DECIMAL(10,2),
+`duration` INT,
+`episodes` INT,
+`demography` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `playlist` (
+`id` INT,
+`name` VARCHAR(64),
+`usuario_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `playlist_content` (
+`id` INT,
+`playlist_id` INT,
+`production_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` INT,
+`tag` VARCHAR(64),
+`production_id` INT,
+PRIMARY KEY (`id`, `production_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `casting` (
+`id` INT,
+`cast` VARCHAR(64),
+`production_id` INT,
+PRIMARY KEY (`id`, `production_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_216287_schema') AS relationships;
+relationships
+Database: db_216287_schema
+
+Table Connections:
+------------------
+[Implied]  casting.production_id -> production.id
+[Implied]  playlist.usuario_id -> usuario.id
+[Implied]  playlist_content.playlist_id -> playlist.id
+[Implied]  playlist_content.production_id -> production.id
+[Implied]  tags.production_id -> production.id
+
+DROP DATABASE `db_216287_schema`;
+UNINSTALL EXTENSION vsql_schematron;

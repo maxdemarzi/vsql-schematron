@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 088509_script%20biblioteca
+--echo #
+CREATE DATABASE `db_088509_script_20biblioteca`;
+USE `db_088509_script_20biblioteca`;
+
+CREATE TABLE `CURSO` (
+  `CURSO_ID` INT,
+  `NOME` VARCHAR(64),
+  PRIMARY KEY (`CURSO_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EDITORA` (
+  `EDITORA_ID` INT,
+  `NOME` VARCHAR(64),
+  PRIMARY KEY (`EDITORA_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BIBLIOTECARIO` (
+  `BIBLIOTECARIO_ID` INT,
+  `NOME` VARCHAR(64),
+  PRIMARY KEY (`BIBLIOTECARIO_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUTOR` (
+  `AUTOR_ID` INT,
+  `NOME` VARCHAR(64),
+  PRIMARY KEY (`AUTOR_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LIVRO` (
+  `LIVRO_ID` INT,
+  `EDITORA_ID` INT,
+  `NOME` VARCHAR(64),
+  `ISBN` VARCHAR(64),
+  `FOTO` VARCHAR(64),
+  PRIMARY KEY (`LIVRO_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USUARIO` (
+  `USUARIO_ID` INT,
+  `CURSO_ID` INT,
+  `NOME` VARCHAR(64),
+  `MATRICULA` VARCHAR(64),
+  PRIMARY KEY (`USUARIO_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUTOR_LIVRO` (
+  `AUTOR_ID` INT,
+  `LIVRO_ID` INT,
+  PRIMARY KEY (`AUTOR_ID`, `LIVRO_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EXEMPLAR` (
+  `EXEMPLAR_ID` INT,
+  `LIVRO_ID` INT,
+  `NUMEX` INT,
+  PRIMARY KEY (`EXEMPLAR_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EMPRESTIMO` (
+  `EMPRESTIMO_ID` INT,
+  `EXEMPLAR_ID` INT,
+  `USUARIO_ID` INT,
+  `BIBLIOTECARIO_ID` INT,
+  `DATAENTREGA` DATETIME,
+  `DATADEVOLUCAO` DATETIME,
+  PRIMARY KEY (`EMPRESTIMO_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_088509_script_20biblioteca') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_088509_script_20biblioteca') AS relationships;
+DROP DATABASE `db_088509_script_20biblioteca`;
+UNINSTALL EXTENSION vsql_schematron;

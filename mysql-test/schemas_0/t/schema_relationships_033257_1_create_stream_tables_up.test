@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 033257_1_create_stream_tables.up
+--echo #
+CREATE DATABASE `db_033257_1_create_stream_tables_up`;
+USE `db_033257_1_create_stream_tables_up`;
+
+CREATE TABLE `streams` (
+  `id` VARCHAR(64),
+  `stream_type` VARCHAR(64),
+  `version` INT,
+  PRIMARY KEY (`stream_type`, `id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `events` (
+  `global_sequence_number` INT,
+  `stream_type` VARCHAR(64),
+  `stream_id` VARCHAR(64),
+  `event_type` VARCHAR(64),
+  `version` INT,
+  `event` VARCHAR(64),
+  `metadata` VARCHAR(64),
+  PRIMARY KEY (`stream_type`, `stream_id`, `version`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_033257_1_create_stream_tables_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_033257_1_create_stream_tables_up') AS relationships;
+DROP DATABASE `db_033257_1_create_stream_tables_up`;
+UNINSTALL EXTENSION vsql_schematron;

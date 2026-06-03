@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 334465_third
+--echo #
+CREATE DATABASE `db_334465_third`;
+USE `db_334465_third`;
+
+CREATE TABLE `classroom` (
+  `classroom_id` VARCHAR(64),
+  `class_user` VARCHAR(64),
+  `progress` VARCHAR(64),
+  `column` INT,
+  `row` INT,
+  PRIMARY KEY (`classroom_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `experiment_grant` (
+  `class_id` VARCHAR(64),
+  `experiment_id` VARCHAR(64),
+  PRIMARY KEY (`class_id`, `experiment_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `classroom_grant` (
+  `class_id` VARCHAR(64),
+  `classroom_id` VARCHAR(64),
+  `peroid` INT,
+  `semester_id` VARCHAR(64),
+  PRIMARY KEY (`class_id`, `classroom_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `platform_grant` (
+  `class_id` VARCHAR(64),
+  `mac_address` VARCHAR(64),
+  `column` INT,
+  `row` INT,
+  PRIMARY KEY (`class_id`, `mac_address`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `class_application` (
+  `class_id` VARCHAR(64),
+  `teacher_id` VARCHAR(64),
+  `status` INT,
+  PRIMARY KEY (`class_id`, `teacher_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `class_grant` (
+  `class_id` VARCHAR(64),
+  `teacher_id` VARCHAR(64),
+  PRIMARY KEY (`class_id`, `teacher_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `class_notice` (
+  `class_id` VARCHAR(64),
+  `notice_id` VARCHAR(64),
+  PRIMARY KEY (`class_id`, `notice_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `class_join` (
+  `class_id` VARCHAR(64),
+  `student_id` VARCHAR(64),
+  PRIMARY KEY (`class_id`, `student_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_334465_third') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_334465_third') AS relationships;
+DROP DATABASE `db_334465_third`;
+UNINSTALL EXTENSION vsql_schematron;

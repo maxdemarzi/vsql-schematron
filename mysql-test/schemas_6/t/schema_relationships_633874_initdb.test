@@ -1,0 +1,177 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 633874_initdb
+--echo #
+CREATE DATABASE `db_633874_initdb`;
+USE `db_633874_initdb`;
+
+CREATE TABLE `game` (
+  `title` VARCHAR(64),
+  `platformid` INT,
+  `igdbURL` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `platform` (
+  `name` VARCHAR(64),
+  `brandid` INT,
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `edition` (
+  `edition` VARCHAR(64),
+  `upc` VARCHAR(64),
+  `msrp` DECIMAL(10,2),
+  `gameid` INT,
+  `digital` INT,
+  `currencyid` VARCHAR(64),
+  `region` INT,
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `library` (
+  `cost` DECIMAL(10,2),
+  `timestamp` VARCHAR(64),
+  `editionid` INT,
+  `retailerid` INT,
+  `new` INT,
+  `box` INT,
+  `manual` INT,
+  `progress` INT,
+  `gift` INT,
+  `currencyid` VARCHAR(64),
+  `private` INT,
+  `notes` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `amiibo` (
+  `title` VARCHAR(64),
+  `seriesid` INT,
+  `msrp` DECIMAL(10,2),
+  `type` INT,
+  `currencyid` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `series` (
+  `series` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `figure` (
+  `cost` DECIMAL(10,2),
+  `timestamp` VARCHAR(64),
+  `retailerid` INT,
+  `new` INT,
+  `inbox` INT,
+  `amiiboid` INT,
+  `region` INT,
+  `gift` INT,
+  `currencyid` VARCHAR(64),
+  `notes` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `retailer` (
+  `retailer` VARCHAR(64),
+  `subtext` VARCHAR(64),
+  `online` INT,
+  `lat` DECIMAL(10,2),
+  `long` DECIMAL(10,2),
+  `url` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `brand` (
+  `brand` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wishlist` (
+  `editionid` INT,
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `igdb` (
+  `description` VARCHAR(64),
+  `coverURL` VARCHAR(64),
+  `releasedate` VARCHAR(64),
+  `igdbURL` VARCHAR(64),
+  PRIMARY KEY (`igdbURL`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rating` (
+  `ratingorg` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genre` (
+  `description` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hasagenre` (
+  `igdbURL` VARCHAR(64),
+  `genreid` INT,
+  PRIMARY KEY (`igdbURL`, `genreid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hasarating` (
+  `igdbURL` VARCHAR(64),
+  `ratingid` INT,
+  PRIMARY KEY (`igdbURL`, `ratingid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `currency` (
+  `symbol` VARCHAR(64),
+  `label` VARCHAR(64),
+  `code` VARCHAR(64),
+  PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `region` (
+  `name` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `haslink` (
+  `editionid` INT,
+  `label` VARCHAR(64),
+  `url` VARCHAR(64),
+  PRIMARY KEY (`editionid`, `url`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_633874_initdb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_633874_initdb') AS relationships;
+DROP DATABASE `db_633874_initdb`;
+UNINSTALL EXTENSION vsql_schematron;

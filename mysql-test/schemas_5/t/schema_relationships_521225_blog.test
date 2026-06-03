@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 521225_blog
+--echo #
+CREATE DATABASE `db_521225_blog`;
+USE `db_521225_blog`;
+
+CREATE TABLE `blog_entries` (
+  `id` INT,
+  `url` VARCHAR(64),
+  `status` VARCHAR(64),
+  `posted` INT,
+  `title` VARCHAR(64),
+  `markdown` VARCHAR(64),
+  `content` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `blog_tags` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `count` INT,
+  `lastused` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `blog_entrytags` (
+  `tag` INT,
+  `entry` INT,
+  PRIMARY KEY (`tag`, `entry`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `blog_comments` (
+  `id` INT,
+  `entry` INT,
+  `posted` INT,
+  `user` INT,
+  `name` VARCHAR(64),
+  `contacturl` VARCHAR(64),
+  `html` VARCHAR(64),
+  `markdown` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_521225_blog') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_521225_blog') AS relationships;
+DROP DATABASE `db_521225_blog`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 051974_FKProb
+--echo #
+CREATE DATABASE `db_051974_FKProb`;
+USE `db_051974_FKProb`;
+
+CREATE TABLE `ot` (
+  `ot_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`ot_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vtp` (
+  `vtp_id` INT,
+  `vt_ot_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`vtp_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vtp_restriction` (
+  `vt_ot_id` INT,
+  `vtp_id` INT,
+  PRIMARY KEY (`vt_ot_id`, `vtp_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_051974_FKProb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_051974_FKProb') AS relationships;
+DROP DATABASE `db_051974_FKProb`;
+UNINSTALL EXTENSION vsql_schematron;

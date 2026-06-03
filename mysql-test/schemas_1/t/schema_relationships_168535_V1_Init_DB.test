@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 168535_V1__Init_DB
+--echo #
+CREATE DATABASE `db_168535_V1_Init_DB`;
+USE `db_168535_V1_Init_DB`;
+
+CREATE TABLE `home_work` (
+  `homework_id` INT,
+  `filename` VARCHAR(64),
+  `solution` VARCHAR(64),
+  `title` VARCHAR(64),
+  `user_id` INT,
+  PRIMARY KEY (`homework_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_role` (
+  `user_id` INT,
+  `roles` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usr` (
+  `user_id` INT,
+  `active` VARCHAR(64),
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `activation_code` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `learning_group` (
+  `group_id` INT,
+  `group_name` VARCHAR(64),
+  `group_leader_name` INT,
+  PRIMARY KEY (`group_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_group` (
+  `user_id` INT,
+  `group_id` INT,
+  PRIMARY KEY (`group_id`, `user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `solution` (
+  `solution_id` INT,
+  `filename` VARCHAR(64),
+  `user_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_168535_V1_Init_DB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_168535_V1_Init_DB') AS relationships;
+DROP DATABASE `db_168535_V1_Init_DB`;
+UNINSTALL EXTENSION vsql_schematron;

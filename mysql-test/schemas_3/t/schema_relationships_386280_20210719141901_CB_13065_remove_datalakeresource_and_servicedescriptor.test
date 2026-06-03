@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 386280_20210719141901_CB-13065_remove_datalakeresource_and_servicedescriptor
+--echo #
+CREATE DATABASE `db_386280_20210719141901_CB_13065_remove_datalakeresource_an`;
+USE `db_386280_20210719141901_CB_13065_remove_datalakeresource_an`;
+
+CREATE TABLE `datalakeresources` (
+  `id` INT,
+  `datalakestack_id` INT,
+  `name` VARCHAR(64),
+  `datalakeambariip` VARCHAR(64),
+  `datalakeambarifqdn` VARCHAR(64),
+  `workspace_id` INT,
+  `datalakecomponents` VARCHAR(64),
+  `datalakeclustermanagerip` VARCHAR(64),
+  `datalakeclustermanagerfqdn` VARCHAR(64),
+  `datalakeclustermanagerurl` VARCHAR(64),
+  `environmentcrn` VARCHAR(64),
+  `datalakeambariurl` VARCHAR(64),
+  `kerberosconfig_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `servicedescriptor` (
+  `id` INT,
+  `datalakeresources_id` INT,
+  `workspace_id` INT,
+  `servicename` VARCHAR(64),
+  `blueprintparams` VARCHAR(64),
+  `blueprintsecretparams` VARCHAR(64),
+  `componentshosts` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `datalakeresources_rdsconfig` (
+  `datalakeresources_id` INT,
+  `rdsconfigs_id` INT,
+  PRIMARY KEY (`datalakeresources_id`, `rdsconfigs_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_386280_20210719141901_CB_13065_remove_datalakeresource_an') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_386280_20210719141901_CB_13065_remove_datalakeresource_an') AS relationships;
+DROP DATABASE `db_386280_20210719141901_CB_13065_remove_datalakeresource_an`;
+UNINSTALL EXTENSION vsql_schematron;

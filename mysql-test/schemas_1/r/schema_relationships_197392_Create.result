@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 197392_Create
+#
+CREATE DATABASE `db_197392_Create`;
+USE `db_197392_Create`;
+CREATE TABLE `customer` (
+`customer_id` VARCHAR(64),
+`customer_name` VARCHAR(64),
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+`address_id` VARCHAR(64),
+`country` VARCHAR(64),
+`zone` VARCHAR(64),
+`city` VARCHAR(64),
+PRIMARY KEY (`address_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`product_code` VARCHAR(64),
+`product_name` VARCHAR(64),
+`unit_price` DECIMAL(10,2),
+PRIMARY KEY (`product_code`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_details` (
+`order_id` VARCHAR(64),
+`order_date` DATETIME,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `address_customer` (
+`address_id` VARCHAR(64),
+`customer_id` VARCHAR(64),
+PRIMARY KEY (`address_id`, `customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_order_customer` (
+`product_code` VARCHAR(64),
+`order_id` VARCHAR(64),
+`customer_id` VARCHAR(64),
+`quantity` DECIMAL(10,2),
+PRIMARY KEY (`product_code`, `order_id`, `customer_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_197392_Create') AS relationships;
+relationships
+Database: db_197392_Create
+
+Table Connections:
+------------------
+[Implied]  address_customer.address_id -> address.address_id
+[Implied]  address_customer.customer_id -> customer.customer_id
+[Implied]  product_order_customer.customer_id -> customer.customer_id
+[Implied]  product_order_customer.order_id -> order_details.order_id
+[Implied]  product_order_customer.product_code -> product.product_code
+
+DROP DATABASE `db_197392_Create`;
+UNINSTALL EXTENSION vsql_schematron;

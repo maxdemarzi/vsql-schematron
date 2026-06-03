@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 151415_hyperparameter
+#
+CREATE DATABASE `db_151415_hyperparameter`;
+USE `db_151415_hyperparameter`;
+CREATE TABLE `data_repository` (
+`dataset_id` INT,
+`dataset_name` VARCHAR(64),
+PRIMARY KEY (`dataset_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `predictors` (
+`dataset_id` INT,
+`predictor_name` VARCHAR(64),
+PRIMARY KEY (`dataset_id`, `predictor_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `metadata` (
+`dataset_id` INT,
+`#project_name` VARCHAR(64),
+`#method` VARCHAR(64),
+`run_id` VARCHAR(64),
+`min_mem_size` INT,
+`scale` VARCHAR(64),
+`target` VARCHAR(64),
+`classification` VARCHAR(64),
+`execution_time` INT,
+`strat_time` DECIMAL(10,2),
+`project` VARCHAR(64),
+`end_time` DECIMAL(10,2),
+`nthreads` INT,
+`run_time` INT,
+`max_models` INT,
+`balance` VARCHAR(64),
+`balance_threshold` DECIMAL(10,2),
+PRIMARY KEY (`run_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_151415_hyperparameter') AS relationships;
+relationships
+Database: db_151415_hyperparameter
+
+Table Connections:
+------------------
+[Implied]  metadata.dataset_id -> data_repository.dataset_id
+[Implied]  predictors.dataset_id -> data_repository.dataset_id
+
+DROP DATABASE `db_151415_hyperparameter`;
+UNINSTALL EXTENSION vsql_schematron;

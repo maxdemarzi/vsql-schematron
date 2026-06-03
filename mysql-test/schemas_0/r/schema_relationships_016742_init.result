@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 016742_init
+#
+CREATE DATABASE `db_016742_init`;
+USE `db_016742_init`;
+CREATE TABLE `friends` (
+`one` INT,
+`two` INT
+) CHARACTER SET latin1;
+CREATE TABLE `game` (
+`id` INT,
+`current_index` INT,
+`start_state` VARCHAR(64),
+`game_state` VARCHAR(64),
+`created` DATETIME,
+`lastUpdated` DATETIME,
+`deleted` INT,
+`deletedDate` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `game_event` (
+`game_id` INT,
+`current_index` INT,
+`event_data` VARCHAR(64),
+PRIMARY KEY (`game_id`, `current_index`)
+) CHARACTER SET latin1;
+CREATE TABLE `game_players` (
+`user_id` INT,
+`game_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_016742_init') AS relationships;
+relationships
+Database: db_016742_init
+
+Table Connections:
+------------------
+[Implied]  game_event.game_id -> game.id
+[Implied]  game_players.game_id -> game.id
+
+DROP DATABASE `db_016742_init`;
+UNINSTALL EXTENSION vsql_schematron;

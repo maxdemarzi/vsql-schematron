@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 475129_Exercises_Database_1
+#
+CREATE DATABASE `db_475129_Exercises_Database_1`;
+USE `db_475129_Exercises_Database_1`;
+CREATE TABLE `Complexes` (
+`ComplexID` INT,
+`ComplexName` VARCHAR(64),
+PRIMARY KEY (`ComplexID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tenants` (
+`TenantID` INT,
+`TenantName` VARCHAR(64),
+PRIMARY KEY (`TenantID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Buildings` (
+`BuildingID` INT,
+`ComplexID` INT,
+`BuildingName` VARCHAR(64),
+`Address` VARCHAR(64),
+PRIMARY KEY (`BuildingID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Apartments` (
+`AptID` INT,
+`UnitNumber` VARCHAR(64),
+`BuildingID` INT,
+PRIMARY KEY (`AptID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Requests` (
+`RequestID` INT,
+`Status` VARCHAR(64),
+`AptID` INT,
+`Description` VARCHAR(64),
+PRIMARY KEY (`RequestID`)
+) CHARACTER SET latin1;
+CREATE TABLE `AptTenants` (
+`TenantID` INT,
+`AptID` INT,
+PRIMARY KEY (`TenantID`, `AptID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_475129_Exercises_Database_1') AS relationships;
+relationships
+Database: db_475129_Exercises_Database_1
+
+Table Connections:
+------------------
+[Implied]  Apartments.BuildingID -> Buildings.BuildingID
+[Implied]  AptTenants.AptID -> Apartments.AptID
+[Implied]  AptTenants.TenantID -> Tenants.TenantID
+[Implied]  Buildings.ComplexID -> Complexes.ComplexID
+[Implied]  Requests.AptID -> Apartments.AptID
+
+DROP DATABASE `db_475129_Exercises_Database_1`;
+UNINSTALL EXTENSION vsql_schematron;

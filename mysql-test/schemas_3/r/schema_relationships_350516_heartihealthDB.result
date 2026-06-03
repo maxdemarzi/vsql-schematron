@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 350516_heartihealthDB
+#
+CREATE DATABASE `db_350516_heartihealthDB`;
+USE `db_350516_heartihealthDB`;
+CREATE TABLE `addressinfo` (
+`address_id` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`country` VARCHAR(64),
+`pincode` VARCHAR(64),
+`memberinfo_member_id` VARCHAR(64),
+PRIMARY KEY (`address_id`, `memberinfo_member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bloodtest` (
+`blood_id` VARCHAR(64),
+`date` DATETIME,
+`bloodpressure` INT,
+`fbs` INT,
+`thal` INT,
+`serumcholesterol` INT,
+`memberinfo_member_id` VARCHAR(64),
+PRIMARY KEY (`blood_id`, `memberinfo_member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cardiohistory` (
+`disease_id` VARCHAR(64),
+`diagnoseddate` DATETIME,
+`recovereddate` DATETIME,
+`isrecovered` INT,
+`cardioarrestdetected` INT,
+`memberinfo_member_id` VARCHAR(64),
+PRIMARY KEY (`disease_id`, `memberinfo_member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ecgreport` (
+`ecg_id` VARCHAR(64),
+`date` DATETIME,
+`restecg` INT,
+`memberinfo_member_id` VARCHAR(64),
+PRIMARY KEY (`ecg_id`, `memberinfo_member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `memberinfo` (
+`member_id` VARCHAR(64),
+`username` VARCHAR(64),
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`age` INT,
+`gender` VARCHAR(64),
+`email` VARCHAR(64),
+`phonenumber` INT,
+`firstnme` VARCHAR(64),
+PRIMARY KEY (`member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `symptom` (
+`symptom_id` VARCHAR(64),
+`date` DATETIME,
+`exang` INT,
+`oldpeak` DECIMAL(10,2),
+`cp` INT,
+`memberinfo_member_id` VARCHAR(64),
+PRIMARY KEY (`symptom_id`, `memberinfo_member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `wearabledevicedata` (
+`wearable_device_id` VARCHAR(64),
+`thalach` INT,
+`slope` INT,
+`date` DATETIME,
+`memberinfo_member_id` VARCHAR(64),
+PRIMARY KEY (`wearable_device_id`, `memberinfo_member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `xray` (
+`xray_id` VARCHAR(64),
+`date` DATETIME,
+`ca` INT,
+`memberinfo_member_id` VARCHAR(64),
+PRIMARY KEY (`xray_id`, `memberinfo_member_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_350516_heartihealthDB') AS relationships;
+relationships
+Database: db_350516_heartihealthDB
+
+Table Connections:
+------------------
+[Implied]  addressinfo.memberinfo_member_id -> memberinfo.member_id
+[Implied]  bloodtest.memberinfo_member_id -> memberinfo.member_id
+[Implied]  cardiohistory.memberinfo_member_id -> memberinfo.member_id
+[Implied]  ecgreport.memberinfo_member_id -> memberinfo.member_id
+[Implied]  symptom.memberinfo_member_id -> memberinfo.member_id
+[Implied]  wearabledevicedata.memberinfo_member_id -> memberinfo.member_id
+[Implied]  xray.memberinfo_member_id -> memberinfo.member_id
+
+DROP DATABASE `db_350516_heartihealthDB`;
+UNINSTALL EXTENSION vsql_schematron;

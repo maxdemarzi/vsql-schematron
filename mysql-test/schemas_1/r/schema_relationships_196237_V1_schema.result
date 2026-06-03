@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 196237_V1__schema
+#
+CREATE DATABASE `db_196237_V1_schema`;
+USE `db_196237_V1_schema`;
+CREATE TABLE `auth_user` (
+`uuid` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`password_change_date` DATETIME,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`uuid` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`user_uuid` VARCHAR(64),
+`role_uuid` VARCHAR(64),
+PRIMARY KEY (`user_uuid`, `role_uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`uuid` VARCHAR(64),
+`name` VARCHAR(64),
+`volume` INT,
+`price` INT,
+`count_in_stock` INT,
+`created_at` DATETIME,
+`is_active` VARCHAR(64),
+`user_uuid` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `transporter` (
+`uuid` VARCHAR(64),
+`name` VARCHAR(64),
+`capacity` INT,
+`created_at` DATETIME,
+`is_active` VARCHAR(64),
+`user_uuid` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `shipping` (
+`uuid` VARCHAR(64),
+`name` VARCHAR(64),
+`created_at` DATETIME,
+`time_zone_name` VARCHAR(64),
+`user_uuid` VARCHAR(64),
+`transporter_uuid` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `shipped_item` (
+`uuid` VARCHAR(64),
+`shipped_count` INT,
+`shipping_uuid` VARCHAR(64),
+`product_uuid` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_196237_V1_schema') AS relationships;
+relationships
+Database: db_196237_V1_schema
+
+Table Connections:
+------------------
+[Implied]  product.user_uuid -> auth_user.uuid
+[Implied]  shipped_item.product_uuid -> product.uuid
+[Implied]  shipped_item.shipping_uuid -> shipping.uuid
+[Implied]  shipping.transporter_uuid -> transporter.uuid
+[Implied]  shipping.user_uuid -> auth_user.uuid
+[Implied]  transporter.user_uuid -> auth_user.uuid
+[Implied]  user_role.role_uuid -> role.uuid
+[Implied]  user_role.user_uuid -> auth_user.uuid
+
+DROP DATABASE `db_196237_V1_schema`;
+UNINSTALL EXTENSION vsql_schematron;

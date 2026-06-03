@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 018045_Normalised
+--echo #
+CREATE DATABASE `db_018045_Normalised`;
+USE `db_018045_Normalised`;
+
+CREATE TABLE `Student` (
+  `StudentID` INT,
+  `StudentName` VARCHAR(64),
+  PRIMARY KEY (`StudentID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Address` (
+  `Address_Id` INT,
+  `Street` VARCHAR(64),
+  `State` VARCHAR(64),
+  `ZipCode` VARCHAR(64),
+  PRIMARY KEY (`Address_Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `StudentAddress` (
+  `StudentID` INT,
+  `Address_Id` INT,
+  PRIMARY KEY (`StudentID`, `Address_Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PriorSchool` (
+  `PriorSchoolId` INT,
+  `PriorSchoolAddr` VARCHAR(64),
+  PRIMARY KEY (`PriorSchoolId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Referee` (
+  `Ref_ID` INT,
+  `ReferenceName` VARCHAR(64),
+  `RefInstitution` VARCHAR(64),
+  PRIMARY KEY (`Ref_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `StudentPriorSchool` (
+  `StudentID` INT,
+  `PriorSchoolId` INT,
+  `GPA` DECIMAL(10,2),
+  PRIMARY KEY (`StudentID`, `PriorSchoolId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Application` (
+  `App_No` INT,
+  `App_Year` INT,
+  `StudentID` INT,
+  PRIMARY KEY (`App_No`, `App_Year`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Reference` (
+  `App_No` INT,
+  `App_Year` INT,
+  `Ref_ID` INT,
+  `ReferenceStatement` VARCHAR(64),
+  PRIMARY KEY (`App_No`, `App_Year`, `Ref_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_018045_Normalised') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_018045_Normalised') AS relationships;
+DROP DATABASE `db_018045_Normalised`;
+UNINSTALL EXTENSION vsql_schematron;

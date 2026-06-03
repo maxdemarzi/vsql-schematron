@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 421637_database
+#
+CREATE DATABASE `db_421637_database`;
+USE `db_421637_database`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`user_id` INT,
+`role_id` INT,
+PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `projects` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_in_project` (
+`user_id` INT,
+`project_id` INT,
+PRIMARY KEY (`user_id`, `project_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `appointments` (
+`id` INT,
+`start_date` DATETIME,
+`finish_date` DATETIME,
+`user_id` INT,
+`project_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_421637_database') AS relationships;
+relationships
+Database: db_421637_database
+
+Table Connections:
+------------------
+[Implied]  appointments.project_id -> projects.id
+[Implied]  appointments.user_id -> users.id
+[Implied]  user_in_project.project_id -> projects.id
+[Implied]  user_in_project.user_id -> users.id
+[Implied]  user_role.role_id -> roles.id
+[Implied]  user_role.user_id -> users.id
+
+DROP DATABASE `db_421637_database`;
+UNINSTALL EXTENSION vsql_schematron;

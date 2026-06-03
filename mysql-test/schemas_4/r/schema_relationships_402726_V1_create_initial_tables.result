@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 402726_V1__create_initial_tables
+#
+CREATE DATABASE `db_402726_V1_create_initial_tables`;
+USE `db_402726_V1_create_initial_tables`;
+CREATE TABLE `order` (
+`order_id` VARCHAR(64),
+`customer_id` VARCHAR(64),
+`customer_first_name` VARCHAR(64),
+`customer_last_name` VARCHAR(64),
+`customer_username` VARCHAR(64),
+`address_number` VARCHAR(64),
+`address_street` VARCHAR(64),
+`address_city` VARCHAR(64),
+`address_postcode` VARCHAR(64),
+`address_country` VARCHAR(64),
+`card_long_num` VARCHAR(64),
+`card_expires` DATETIME,
+`card_ccv` VARCHAR(64),
+`shipment_carrier` VARCHAR(64),
+`shipment_tracking_number` VARCHAR(64),
+`shipment_delivery_date` DATETIME,
+`date` DATETIME,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_status` (
+`order_id` VARCHAR(64),
+`status` INT,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `order_item` (
+`order_id` VARCHAR(64),
+`item_id` VARCHAR(64),
+`quantity` INT,
+`unit_price` DECIMAL(10,2),
+PRIMARY KEY (`order_id`, `item_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_402726_V1_create_initial_tables') AS relationships;
+relationships
+Database: db_402726_V1_create_initial_tables
+
+Table Connections:
+------------------
+[Implied]  order_item.order_id -> order.order_id
+[Implied]  order_status.order_id -> order.order_id
+
+DROP DATABASE `db_402726_V1_create_initial_tables`;
+UNINSTALL EXTENSION vsql_schematron;

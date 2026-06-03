@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 021038_EP3_9790930_MODULE_CURRICULUM_DDL
+#
+CREATE DATABASE `db_021038_EP3_9790930_MODULE_CURRICULUM_DDL`;
+USE `db_021038_EP3_9790930_MODULE_CURRICULUM_DDL`;
+CREATE TABLE `b11_DISCIPLINA` (
+`data_inicio` VARCHAR(64),
+`departamento` VARCHAR(64),
+`codigo` VARCHAR(64),
+`jupiter_link` VARCHAR(64),
+`nome` VARCHAR(64),
+`descricao` VARCHAR(64),
+`data_fim` VARCHAR(64),
+`creditos_aula` INT,
+`creditos_trabalho` INT,
+PRIMARY KEY (`data_inicio`, `departamento`, `codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `b12_MODULO` (
+`mod_id` INT,
+`ano` VARCHAR(64),
+`nome` VARCHAR(64),
+PRIMARY KEY (`mod_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `b13_TRILHA` (
+`tri_id` INT,
+`nome` VARCHAR(64),
+`ano` VARCHAR(64),
+`min_mods` INT,
+`min_dis` INT,
+PRIMARY KEY (`tri_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `b14_CURRICULO` (
+`codigo` INT,
+`curso` VARCHAR(64),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `b16_REL_CUR_TRI` (
+`cur_codigo` INT,
+`tri_tri_id` INT,
+`obrigatoria` VARCHAR(64),
+PRIMARY KEY (`cur_codigo`, `tri_tri_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `b17_TR_MO` (
+`tri_tri_id` INT,
+`mo_mod_id` INT,
+`min_creds` INT,
+`obrigatorio` VARCHAR(64),
+`min_dis` INT,
+PRIMARY KEY (`tri_tri_id`, `mo_mod_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `b18_REL_DIS_MOD` (
+`mo_mod_id` INT,
+`dis_data_inicio` VARCHAR(64),
+`dis_departamento` VARCHAR(64),
+`dis_codigo` VARCHAR(64),
+`obrigatorio` VARCHAR(64),
+PRIMARY KEY (`mo_mod_id`, `dis_data_inicio`, `dis_departamento`, `dis_codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `b22_OFERECIMENTO` (
+`ofer_id` INT,
+`pf_nusp` INT,
+`dis_data_inicio` VARCHAR(64),
+`dis_departamento` VARCHAR(64),
+`dis_codigo` VARCHAR(64),
+`semestre` INT,
+`ano` INT,
+PRIMARY KEY (`ofer_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_021038_EP3_9790930_MODULE_CURRICULUM_DDL') AS relationships;
+relationships
+Database: db_021038_EP3_9790930_MODULE_CURRICULUM_DDL
+
+Table Connections:
+------------------
+[Implied]  b16_REL_CUR_TRI.cur_codigo -> b14_CURRICULO.codigo
+[Implied]  b16_REL_CUR_TRI.tri_tri_id -> b13_TRILHA.tri_id
+[Implied]  b17_TR_MO.mo_mod_id -> b12_MODULO.mod_id
+[Implied]  b17_TR_MO.tri_tri_id -> b13_TRILHA.tri_id
+[Implied]  b18_REL_DIS_MOD.mo_mod_id -> b12_MODULO.mod_id
+
+DROP DATABASE `db_021038_EP3_9790930_MODULE_CURRICULUM_DDL`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 117138_5_calendar.up
+--echo #
+CREATE DATABASE `db_117138_5_calendar_up`;
+USE `db_117138_5_calendar_up`;
+
+CREATE TABLE `calendar_type` (
+  `type` VARCHAR(64),
+  `name` VARCHAR(64),
+  `tenant` VARCHAR(64),
+  PRIMARY KEY (`type`, `tenant`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `calendar` (
+  `tenant` VARCHAR(64),
+  `type` VARCHAR(64),
+  `name` VARCHAR(64),
+  `kind` VARCHAR(64),
+  `labels` VARCHAR(64),
+  `day` DATETIME,
+  PRIMARY KEY (`day`, `tenant`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_117138_5_calendar_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_117138_5_calendar_up') AS relationships;
+DROP DATABASE `db_117138_5_calendar_up`;
+UNINSTALL EXTENSION vsql_schematron;

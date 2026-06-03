@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 080803_tas_schema
+#
+CREATE DATABASE `db_080803_tas_schema`;
+USE `db_080803_tas_schema`;
+CREATE TABLE `User` (
+`Username` VARCHAR(64),
+`Password` VARCHAR(64),
+`Enabled` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`Email` VARCHAR(64),
+`DateJoined` DATETIME,
+`LastOnline` DATETIME,
+PRIMARY KEY (`Username`)
+) CHARACTER SET latin1;
+CREATE TABLE `Role` (
+`Name` VARCHAR(64),
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Status` (
+`Name` VARCHAR(64),
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Course` (
+`Number` VARCHAR(64),
+`Name` VARCHAR(64),
+PRIMARY KEY (`Number`)
+) CHARACTER SET latin1;
+CREATE TABLE `Topic` (
+`Name` VARCHAR(64),
+`SubmittingUsername` VARCHAR(64),
+`CourseNumber` VARCHAR(64),
+`Link` VARCHAR(64),
+`SubmissionDate` DATETIME,
+`Blacklisted` INT,
+`Status` VARCHAR(64),
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserCourse` (
+`Username` VARCHAR(64),
+`CourseNumber` VARCHAR(64),
+`Role` VARCHAR(64),
+PRIMARY KEY (`Username`, `CourseNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `Authority` (
+`Name` VARCHAR(64),
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserAuthority` (
+`Username` VARCHAR(64),
+`AuthorityName` VARCHAR(64),
+PRIMARY KEY (`Username`, `AuthorityName`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_080803_tas_schema') AS relationships;
+relationships
+Database: db_080803_tas_schema
+
+Table Connections:
+------------------
+[Implied]  Topic.CourseNumber -> Course.Number
+[Implied]  Topic.Status -> Status.Name
+[Implied]  Topic.SubmittingUsername -> User.Username
+[Implied]  UserAuthority.AuthorityName -> Authority.Name
+[Implied]  UserAuthority.Username -> User.Username
+[Implied]  UserCourse.CourseNumber -> Course.Number
+[Implied]  UserCourse.Role -> Role.Name
+[Implied]  UserCourse.Username -> User.Username
+
+DROP DATABASE `db_080803_tas_schema`;
+UNINSTALL EXTENSION vsql_schematron;

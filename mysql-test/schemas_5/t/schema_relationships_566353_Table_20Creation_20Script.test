@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 566353_Table%20Creation%20Script
+--echo #
+CREATE DATABASE `db_566353_Table_20Creation_20Script`;
+USE `db_566353_Table_20Creation_20Script`;
+
+CREATE TABLE `Dim_Account` (
+  `Account_ID` INT,
+  `Client_ID` INT,
+  `Client_Name` VARCHAR(64),
+  `Client_SSN` INT,
+  `Client_DOB` DATETIME,
+  `Client_Email` VARCHAR(64),
+  `Client_PhoneNumber` VARCHAR(64),
+  `Account_Status` VARCHAR(64),
+  `Account_OpenDate` DATETIME,
+  `Account_CloseDate` DATETIME,
+  PRIMARY KEY (`Account_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Dim_Date` (
+  `Date_ID` INT,
+  `Date_Year` INT,
+  `Date_MonthNumber` INT,
+  `Date_MonthName` VARCHAR(64),
+  `Date_Day` INT,
+  `Date_DayofWeek` VARCHAR(64),
+  `Date_CalendarDate` DATETIME,
+  `Date_WeekNum` INT,
+  PRIMARY KEY (`Date_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Dim_Time` (
+  `Time_ID` INT,
+  `time_Hour` INT,
+  `Time_Minute` INT,
+  `Time_Second` INT,
+  `Time_Milisecond` INT,
+  `Time_ClockHour` DATETIME,
+  PRIMARY KEY (`Time_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Dim_Contracts` (
+  `Contract_ID` INT,
+  `Account_ID` INT,
+  `Contract_SignDate` DATETIME,
+  `Contract_Status` VARCHAR(64),
+  `Contract_TotalDue` DECIMAL(10,2),
+  PRIMARY KEY (`Contract_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Fact_Transactions` (
+  `Account_ID` INT,
+  `Date_ID` INT,
+  `Time_ID` INT,
+  `Transaction_Amount` DECIMAL(10,2),
+  `Transaction_Type` INT,
+  `Transaction_Details` VARCHAR(64),
+  PRIMARY KEY (`Account_ID`, `Date_ID`, `Time_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Fact_Payments` (
+  `Contract_ID` INT,
+  `Date_ID` INT,
+  `Time_ID` INT,
+  `Due_Amount` DECIMAL(10,2),
+  `Paid_Amount` DECIMAL(10,2),
+  `Payment_Date` DATETIME,
+  PRIMARY KEY (`Contract_ID`, `Date_ID`, `Time_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_566353_Table_20Creation_20Script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_566353_Table_20Creation_20Script') AS relationships;
+DROP DATABASE `db_566353_Table_20Creation_20Script`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 691658_scheme
+#
+CREATE DATABASE `db_691658_scheme`;
+USE `db_691658_scheme`;
+CREATE TABLE `resources` (
+`rid` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`rid`)
+) CHARACTER SET latin1;
+CREATE TABLE `client_authority` (
+`cid` VARCHAR(64),
+`aid` INT,
+PRIMARY KEY (`cid`, `aid`)
+) CHARACTER SET latin1;
+CREATE TABLE `client_resource` (
+`cid` VARCHAR(64),
+`rid` VARCHAR(64),
+PRIMARY KEY (`cid`, `rid`)
+) CHARACTER SET latin1;
+CREATE TABLE `client_scope` (
+`cid` VARCHAR(64),
+`sid` INT,
+`autoApprove` INT,
+PRIMARY KEY (`cid`, `sid`)
+) CHARACTER SET latin1;
+CREATE TABLE `client_type` (
+`cid` VARCHAR(64),
+`tid` INT,
+PRIMARY KEY (`cid`, `tid`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_authority` (
+`rid` INT,
+`aid` INT,
+PRIMARY KEY (`rid`, `aid`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`uid` INT,
+`rid` INT,
+`expiredAt` DATETIME,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`uid`, `rid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_691658_scheme') AS relationships;
+relationships
+Database: db_691658_scheme
+
+Table Connections:
+------------------
+[Implied]  client_resource.rid -> resources.rid
+
+DROP DATABASE `db_691658_scheme`;
+UNINSTALL EXTENSION vsql_schematron;

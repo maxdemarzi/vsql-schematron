@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 158722_V0.4__AddWorkflows
+--echo #
+CREATE DATABASE `db_158722_V0_4_AddWorkflows`;
+USE `db_158722_V0_4_AddWorkflows`;
+
+CREATE TABLE `workflows` (
+  `Id` INT,
+  `Uri` VARCHAR(64),
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `organization_unit_workflows` (
+  `OrganizationUnitId` INT,
+  `WorkflowId` INT,
+  PRIMARY KEY (`OrganizationUnitId`, `WorkflowId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `workflow_steps` (
+  `Id` INT,
+  `WorkflowId` INT,
+  `Uri` VARCHAR(64),
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Order` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_158722_V0_4_AddWorkflows') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_158722_V0_4_AddWorkflows') AS relationships;
+DROP DATABASE `db_158722_V0_4_AddWorkflows`;
+UNINSTALL EXTENSION vsql_schematron;

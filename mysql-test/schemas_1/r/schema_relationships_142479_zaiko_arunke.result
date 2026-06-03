@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 142479_zaiko-arunke
+#
+CREATE DATABASE `db_142479_zaiko_arunke`;
+USE `db_142479_zaiko_arunke`;
+CREATE TABLE `item` (
+`id` INT,
+`user_id` INT,
+`sort` INT,
+`name` VARCHAR(64),
+`unit` VARCHAR(64),
+`last_amount` INT,
+`total_amount` INT,
+`first_refill_time` DATETIME,
+`last_refill_time` DATETIME,
+`est_refill_time` DATETIME,
+`refill_frequency` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `refill` (
+`id` INT,
+`item_id` INT,
+`amount` INT,
+`refill_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_142479_zaiko_arunke') AS relationships;
+relationships
+Database: db_142479_zaiko_arunke
+
+Table Connections:
+------------------
+[Implied]  item.refill_frequency -> refill.id
+[Implied]  refill.item_id -> item.id
+
+DROP DATABASE `db_142479_zaiko_arunke`;
+UNINSTALL EXTENSION vsql_schematron;

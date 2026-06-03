@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 680686_sistema-bancario
+#
+CREATE DATABASE `db_680686_sistema_bancario`;
+USE `db_680686_sistema_bancario`;
+CREATE TABLE `cliente` (
+`numero_cliente` VARCHAR(64),
+`nome_cliente` VARCHAR(64),
+`rua_cliente` VARCHAR(64),
+`cidade_cliente` VARCHAR(64),
+`sexo` VARCHAR(64),
+PRIMARY KEY (`numero_cliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `conta` (
+`numero_conta` VARCHAR(64),
+`numero_agencia` VARCHAR(64),
+`numero_cliente` VARCHAR(64),
+`saldo` DECIMAL(10,2),
+PRIMARY KEY (`numero_conta`)
+) CHARACTER SET latin1;
+CREATE TABLE `emprestimo` (
+`numero_emprestimo` VARCHAR(64),
+`numero_agencia` VARCHAR(64),
+`quantia` DECIMAL(10,2),
+PRIMARY KEY (`numero_emprestimo`)
+) CHARACTER SET latin1;
+CREATE TABLE `tomador` (
+`numero_cliente` VARCHAR(64),
+`numero_emprestimo` VARCHAR(64),
+PRIMARY KEY (`numero_cliente`, `numero_emprestimo`)
+) CHARACTER SET latin1;
+CREATE TABLE `agencia` (
+`numero_agencia` VARCHAR(64),
+`nome_agencia` VARCHAR(64),
+`cidade_agencia` VARCHAR(64),
+PRIMARY KEY (`numero_agencia`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_680686_sistema_bancario') AS relationships;
+relationships
+Database: db_680686_sistema_bancario
+
+Table Connections:
+------------------
+[Implied]  conta.numero_agencia -> agencia.numero_agencia
+[Implied]  conta.numero_cliente -> cliente.numero_cliente
+[Implied]  emprestimo.numero_agencia -> agencia.numero_agencia
+[Implied]  tomador.numero_cliente -> cliente.numero_cliente
+[Implied]  tomador.numero_emprestimo -> emprestimo.numero_emprestimo
+
+DROP DATABASE `db_680686_sistema_bancario`;
+UNINSTALL EXTENSION vsql_schematron;

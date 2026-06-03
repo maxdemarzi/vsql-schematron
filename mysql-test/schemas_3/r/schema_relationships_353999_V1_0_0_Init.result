@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 353999_V1.0.0__Init
+#
+CREATE DATABASE `db_353999_V1_0_0_Init`;
+USE `db_353999_V1_0_0_Init`;
+CREATE TABLE `posts` (
+`id` INT,
+`is_active` VARCHAR(64),
+`moderation_status` VARCHAR(64),
+`text` VARCHAR(64),
+`time` DATETIME,
+`title` VARCHAR(64),
+`view_count` INT,
+`user_id` INT,
+`moderator_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`text` VARCHAR(64),
+`time` DATETIME,
+`parent_id` INT,
+`post_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts_tags` (
+`post_id` INT,
+`tag_id` INT,
+PRIMARY KEY (`post_id`, `tag_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `captcha_codes` (
+`id` INT,
+`code` VARCHAR(64),
+`secret_code` VARCHAR(64),
+`time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_353999_V1_0_0_Init') AS relationships;
+relationships
+Database: db_353999_V1_0_0_Init
+
+Table Connections:
+------------------
+[Implied]  comments.parent_id -> comments.id
+[Implied]  comments.post_id -> posts.id
+[Implied]  posts_tags.post_id -> posts.id
+
+DROP DATABASE `db_353999_V1_0_0_Init`;
+UNINSTALL EXTENSION vsql_schematron;

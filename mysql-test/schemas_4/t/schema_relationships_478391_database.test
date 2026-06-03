@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 478391_database
+--echo #
+CREATE DATABASE `db_478391_database`;
+USE `db_478391_database`;
+
+CREATE TABLE `awards_post` (
+  `post_id` VARCHAR(64),
+  `coin_id` VARCHAR(64),
+  `quantity` INT,
+  PRIMARY KEY (`post_id`, `coin_id`, `quantity`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `coin` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `coin_price` INT,
+  `coin_reward` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comment` (
+  `post_id` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  `structure` VARCHAR(64),
+  `date` DATETIME,
+  `score` INT,
+  `comment` VARCHAR(64),
+  PRIMARY KEY (`post_id`, `user_id`, `structure`, `date`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `post` (
+  `id` VARCHAR(64),
+  `title` VARCHAR(64),
+  `selftext` VARCHAR(64),
+  `upvote_ratio` DECIMAL(10,2),
+  `ups` INT,
+  `total_awards_received` INT,
+  `score` INT,
+  `created` DATETIME,
+  `date_added` DATETIME,
+  `permalink` VARCHAR(64),
+  `url` VARCHAR(64),
+  `domain` VARCHAR(64),
+  `subreddit_id` INT,
+  `user_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subreddit` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `subs` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `created` DATETIME,
+  `date_added` DATETIME,
+  `total_karma` INT,
+  `comment_karma` INT,
+  `public_description` VARCHAR(64),
+  `is_employee` VARCHAR(64),
+  `is_gold` VARCHAR(64),
+  `is_mod` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_478391_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_478391_database') AS relationships;
+DROP DATABASE `db_478391_database`;
+UNINSTALL EXTENSION vsql_schematron;

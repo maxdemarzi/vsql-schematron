@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 676575_create
+--echo #
+CREATE DATABASE `db_676575_create`;
+USE `db_676575_create`;
+
+CREATE TABLE `ohlcvs` (
+  `time` DATETIME,
+  `exchange` VARCHAR(64),
+  `base_id` VARCHAR(64),
+  `quote_id` VARCHAR(64),
+  `open` DECIMAL(10,2),
+  `high` DECIMAL(10,2),
+  `low` DECIMAL(10,2),
+  `close` DECIMAL(10,2),
+  `volume` DECIMAL(10,2),
+  PRIMARY KEY (`exchange`, `base_id`, `quote_id`, `time`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `symbol_exchange` (
+  `exchange` VARCHAR(64),
+  `base_id` VARCHAR(64),
+  `quote_id` VARCHAR(64),
+  `symbol` VARCHAR(64),
+  `is_trading` VARCHAR(64),
+  PRIMARY KEY (`exchange`, `base_id`, `quote_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ohlcvs_errors` (
+  `exchange` VARCHAR(64),
+  `symbol` VARCHAR(64),
+  `start_date` DATETIME,
+  `end_date` DATETIME,
+  `time_frame` VARCHAR(64),
+  `ohlcv_section` VARCHAR(64),
+  `resp_status_code` INT,
+  `exception_class` VARCHAR(64),
+  `exception_message` VARCHAR(64),
+  PRIMARY KEY (`exception_class`, `exchange`, `symbol`, `start_date`, `end_date`, `time_frame`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `test` (
+  `id` DECIMAL(10,2),
+  `b` VARCHAR(64),
+  `q` VARCHAR(64),
+  `o` DECIMAL(10,2),
+  `c` DECIMAL(10,2),
+  PRIMARY KEY (`id`, `b`, `q`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_676575_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_676575_create') AS relationships;
+DROP DATABASE `db_676575_create`;
+UNINSTALL EXTENSION vsql_schematron;

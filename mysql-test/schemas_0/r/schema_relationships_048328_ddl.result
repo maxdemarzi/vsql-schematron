@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 048328_ddl
+#
+CREATE DATABASE `db_048328_ddl`;
+USE `db_048328_ddl`;
+CREATE TABLE `Students` (
+`student_id` INT,
+`student_name` VARCHAR(64),
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Courses` (
+`course_id` INT,
+`course_name` VARCHAR(64),
+PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Marks` (
+`student_id` INT,
+`course_id` INT,
+`mark` VARCHAR(64),
+PRIMARY KEY (`student_id`, `course_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Lecturers` (
+`lecturer_id` INT,
+`lecturer_name` VARCHAR(64),
+PRIMARY KEY (`lecturer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Groups` (
+`group_id` INT,
+`group_name` VARCHAR(64),
+PRIMARY KEY (`group_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `GroupCourses` (
+`group_id` INT,
+`course_id` INT,
+`lecturer_id` INT,
+PRIMARY KEY (`group_id`, `course_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_048328_ddl') AS relationships;
+relationships
+Database: db_048328_ddl
+
+Table Connections:
+------------------
+[Implied]  GroupCourses.course_id -> Courses.course_id
+[Implied]  GroupCourses.group_id -> Groups.group_id
+[Implied]  GroupCourses.lecturer_id -> Lecturers.lecturer_id
+[Implied]  Marks.course_id -> Courses.course_id
+[Implied]  Marks.student_id -> Students.student_id
+
+DROP DATABASE `db_048328_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 010546_167%20Teaching%20Requests
+#
+CREATE DATABASE `db_010546_167_20Teaching_20Requests`;
+USE `db_010546_167_20Teaching_20Requests`;
+CREATE TABLE `teaching_request` (
+`uniqueid` DECIMAL(10,2),
+`offering_id` DECIMAL(10,2),
+`nbr_instructors` DECIMAL(10,2),
+`teaching_load` DECIMAL(10,2),
+`same_course_pref` DECIMAL(10,2),
+`same_common_pref` DECIMAL(10,2),
+`responsibility_id` DECIMAL(10,2),
+`assign_coordinator` DECIMAL(10,2),
+PRIMARY KEY (`uniqueid`)
+) CHARACTER SET latin1;
+CREATE TABLE `teachreq_class` (
+`uniqueid` DECIMAL(10,2),
+`percent_share` DECIMAL(10,2),
+`is_lead` DECIMAL(10,2),
+`can_overlap` DECIMAL(10,2),
+`request_id` DECIMAL(10,2),
+`class_id` DECIMAL(10,2),
+`assign_instructor` DECIMAL(10,2),
+`common` DECIMAL(10,2),
+PRIMARY KEY (`uniqueid`)
+) CHARACTER SET latin1;
+CREATE TABLE `teachreq_instructor` (
+`request_id` DECIMAL(10,2),
+`instructor_id` DECIMAL(10,2),
+PRIMARY KEY (`request_id`, `instructor_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_010546_167_20Teaching_20Requests') AS relationships;
+relationships
+Database: db_010546_167_20Teaching_20Requests
+
+Table Connections:
+------------------
+[Implied]  teachreq_class.request_id -> teaching_request.uniqueid
+[Implied]  teachreq_instructor.request_id -> teaching_request.uniqueid
+
+DROP DATABASE `db_010546_167_20Teaching_20Requests`;
+UNINSTALL EXTENSION vsql_schematron;

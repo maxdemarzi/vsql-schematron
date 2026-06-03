@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 019058_schema
+#
+CREATE DATABASE `db_019058_schema`;
+USE `db_019058_schema`;
+CREATE TABLE `msg_threads` (
+`thread_id` VARCHAR(64),
+`num_conversants` INT,
+PRIMARY KEY (`thread_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `msg_thread_keys` (
+`thread_id` VARCHAR(64),
+`key_zid` INT,
+`key_data` VARCHAR(64),
+`etime` DATETIME,
+`write_key` VARCHAR(64),
+`temp_signing_public_key` VARCHAR(64),
+`key_proof` VARCHAR(64),
+`temp_signing_secret_key` VARCHAR(64),
+PRIMARY KEY (`thread_id`, `key_zid`)
+) CHARACTER SET latin1;
+CREATE TABLE `msg_messages` (
+`thread_id` VARCHAR(64),
+`msg_zid` INT,
+`sender_zid` INT,
+`num_chunks` INT,
+`etime` DATETIME,
+`sig` VARCHAR(64),
+PRIMARY KEY (`thread_id`, `msg_zid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_019058_schema') AS relationships;
+relationships
+Database: db_019058_schema
+
+Table Connections:
+------------------
+[Implied]  msg_messages.thread_id -> msg_threads.thread_id
+[Implied]  msg_thread_keys.thread_id -> msg_threads.thread_id
+
+DROP DATABASE `db_019058_schema`;
+UNINSTALL EXTENSION vsql_schematron;

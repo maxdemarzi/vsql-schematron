@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 646454_AirlinesTest
+--echo #
+CREATE DATABASE `db_646454_AirlinesTest`;
+USE `db_646454_AirlinesTest`;
+
+CREATE TABLE `aircraft` (
+  `aircraft` VARCHAR(64),
+  `cruise_speed` INT,
+  `cruise_altitude` INT,
+  `range` INT,
+  PRIMARY KEY (`aircraft`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `airline` (
+  `code` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `fleet` (
+  `airline` VARCHAR(64),
+  `call_sign` VARCHAR(64),
+  `aircraft` VARCHAR(64),
+  `tacometer` INT,
+  PRIMARY KEY (`call_sign`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `classes` (
+  `class` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`class`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `seating` (
+  `call_sign` VARCHAR(64),
+  `class` VARCHAR(64),
+  `rows` INT,
+  `isles` INT,
+  PRIMARY KEY (`call_sign`, `class`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `airport` (
+  `airport` VARCHAR(64),
+  `name` VARCHAR(64),
+  `latitude` DECIMAL(10,2),
+  `longitude` DECIMAL(10,2),
+  `gates` INT,
+  PRIMARY KEY (`airport`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schedule` (
+  `airline` VARCHAR(64),
+  `flight` INT,
+  `call_sign` VARCHAR(64),
+  `depart_airport` VARCHAR(64),
+  `arrive_airport` VARCHAR(64),
+  `depart_time` DATETIME,
+  `arrive_time` DATETIME,
+  `status` VARCHAR(64),
+  PRIMARY KEY (`airline`, `flight`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reservation` (
+  `booking` INT,
+  `airline` VARCHAR(64),
+  `flight` INT,
+  `class` VARCHAR(64),
+  `row` INT,
+  `isle` VARCHAR(64),
+  `title` VARCHAR(64),
+  `passenger` VARCHAR(64),
+  PRIMARY KEY (`booking`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_646454_AirlinesTest') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_646454_AirlinesTest') AS relationships;
+DROP DATABASE `db_646454_AirlinesTest`;
+UNINSTALL EXTENSION vsql_schematron;

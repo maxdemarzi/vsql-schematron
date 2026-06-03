@@ -1,0 +1,115 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 589828_basic_template
+#
+CREATE DATABASE `db_589828_basic_template`;
+USE `db_589828_basic_template`;
+CREATE TABLE `investors` (
+`pk_investor` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`description` VARCHAR(64),
+`date_of_inclusion` VARCHAR(64),
+PRIMARY KEY (`pk_investor`)
+) CHARACTER SET latin1;
+CREATE TABLE `subjects` (
+`pk_subject` INT,
+`tag` VARCHAR(64),
+`description` VARCHAR(64),
+`date_of_inclusion` VARCHAR(64),
+PRIMARY KEY (`pk_subject`)
+) CHARACTER SET latin1;
+CREATE TABLE `currencies` (
+`pk_currency` INT,
+`label` VARCHAR(64),
+`description` VARCHAR(64),
+`date_of_inclusion` VARCHAR(64),
+PRIMARY KEY (`pk_currency`)
+) CHARACTER SET latin1;
+CREATE TABLE `invested_time` (
+`pk_invested_time` INT,
+`fk_investor` INT,
+`fk_currency` INT,
+`date` VARCHAR(64),
+`description` VARCHAR(64),
+`comment` VARCHAR(64),
+`minutes` INT,
+`price_per_unit` DECIMAL(10,2),
+PRIMARY KEY (`pk_invested_time`)
+) CHARACTER SET latin1;
+CREATE TABLE `invested_time_subjects_link` (
+`fk_invested_time` INT,
+`fk_subject` INT,
+PRIMARY KEY (`fk_invested_time`, `fk_subject`)
+) CHARACTER SET latin1;
+CREATE TABLE `invested_assets` (
+`pk_invested_asset` INT,
+`fk_investor` INT,
+`fk_currency` INT,
+`date` VARCHAR(64),
+`short_name` VARCHAR(64),
+`description` VARCHAR(64),
+`comment` VARCHAR(64),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`pk_invested_asset`)
+) CHARACTER SET latin1;
+CREATE TABLE `invested_assets_subjects_link` (
+`fk_invested_asset` INT,
+`fk_subject` INT,
+PRIMARY KEY (`fk_invested_asset`, `fk_subject`)
+) CHARACTER SET latin1;
+CREATE TABLE `bonuses` (
+`pk_bonus` INT,
+`fk_investor` INT,
+`date` VARCHAR(64),
+`short_name` VARCHAR(64),
+`description` VARCHAR(64),
+`comment` VARCHAR(64),
+`reward` VARCHAR(64),
+PRIMARY KEY (`pk_bonus`)
+) CHARACTER SET latin1;
+CREATE TABLE `bonuses_subjects_link` (
+`fk_bonus` INT,
+`fk_subject` INT,
+PRIMARY KEY (`fk_bonus`, `fk_subject`)
+) CHARACTER SET latin1;
+CREATE TABLE `invested_money` (
+`pk_invested_money` INT,
+`fk_investor` INT,
+`fk_currency` INT,
+`date` VARCHAR(64),
+`short_name` VARCHAR(64),
+`description` VARCHAR(64),
+`comment` VARCHAR(64),
+`amount` DECIMAL(10,2),
+PRIMARY KEY (`pk_invested_money`)
+) CHARACTER SET latin1;
+CREATE TABLE `invested_money_subjects_link` (
+`fk_invested_money` INT,
+`fk_subject` INT,
+PRIMARY KEY (`fk_invested_money`, `fk_subject`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_589828_basic_template') AS relationships;
+relationships
+Database: db_589828_basic_template
+
+Table Connections:
+------------------
+[Implied]  bonuses.fk_investor -> investors.pk_investor
+[Implied]  bonuses_subjects_link.fk_bonus -> bonuses.pk_bonus
+[Implied]  bonuses_subjects_link.fk_subject -> subjects.pk_subject
+[Implied]  invested_assets.fk_currency -> currencies.pk_currency
+[Implied]  invested_assets.fk_investor -> investors.pk_investor
+[Implied]  invested_assets_subjects_link.fk_invested_asset -> invested_assets.pk_invested_asset
+[Implied]  invested_assets_subjects_link.fk_subject -> subjects.pk_subject
+[Implied]  invested_money.fk_currency -> currencies.pk_currency
+[Implied]  invested_money.fk_investor -> investors.pk_investor
+[Implied]  invested_money_subjects_link.fk_invested_money -> invested_money.pk_invested_money
+[Implied]  invested_money_subjects_link.fk_subject -> subjects.pk_subject
+[Implied]  invested_time.fk_currency -> currencies.pk_currency
+[Implied]  invested_time.fk_investor -> investors.pk_investor
+[Implied]  invested_time_subjects_link.fk_invested_time -> invested_time.pk_invested_time
+[Implied]  invested_time_subjects_link.fk_subject -> subjects.pk_subject
+
+DROP DATABASE `db_589828_basic_template`;
+UNINSTALL EXTENSION vsql_schematron;

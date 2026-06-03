@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 341903_sem_02
+#
+CREATE DATABASE `db_341903_sem_02`;
+USE `db_341903_sem_02`;
+CREATE TABLE `planes` (
+`id` DECIMAL(10,2),
+`first_class` DECIMAL(10,2),
+`business_class` DECIMAL(10,2),
+`economy_class` DECIMAL(10,2),
+`model` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `flight` (
+`num` VARCHAR(64),
+`date_out` DATETIME,
+`date_in` DATETIME,
+`airport_out` VARCHAR(64),
+`airport_in` VARCHAR(64),
+`plane_id` DECIMAL(10,2),
+PRIMARY KEY (`num`, `date_out`)
+) CHARACTER SET latin1;
+CREATE TABLE `passengers` (
+`full_name` VARCHAR(64),
+`doc_type` VARCHAR(64),
+`series_number` VARCHAR(64),
+`born` DATETIME,
+`id` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tickets` (
+`num` DECIMAL(10,2),
+`position` VARCHAR(64),
+`class_type` VARCHAR(64),
+`price` DECIMAL(10,2),
+`bagage` VARCHAR(64),
+`flight_num` VARCHAR(64),
+`date_out` DATETIME,
+`passenger_id` DECIMAL(10,2)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_341903_sem_02') AS relationships;
+relationships
+Database: db_341903_sem_02
+
+Table Connections:
+------------------
+[Implied]  flight.plane_id -> planes.id
+[Implied]  tickets.passenger_id -> passengers.id
+
+DROP DATABASE `db_341903_sem_02`;
+UNINSTALL EXTENSION vsql_schematron;

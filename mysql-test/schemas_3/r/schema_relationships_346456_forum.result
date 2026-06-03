@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 346456_forum
+#
+CREATE DATABASE `db_346456_forum`;
+USE `db_346456_forum`;
+CREATE TABLE `forum_discussions` (
+`id` INT,
+`threadid` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `forum_replies` (
+`id` INT,
+`postid` INT,
+`discussion` INT,
+`posted` INT,
+`user` INT,
+`name` VARCHAR(64),
+`contacturl` VARCHAR(64),
+`html` VARCHAR(64),
+`markdown` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `forum_tags` (
+`id` INT,
+`name` VARCHAR(64),
+`count` INT,
+`lastused` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `forum_discussion_tags` (
+`tag` INT,
+`discussion` INT,
+PRIMARY KEY (`tag`, `discussion`)
+) CHARACTER SET latin1;
+CREATE TABLE `forum_edits` (
+`id` INT,
+`reply` INT,
+`editor` INT,
+`posted` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_346456_forum') AS relationships;
+relationships
+Database: db_346456_forum
+
+Table Connections:
+------------------
+[Implied]  forum_discussion_tags.discussion -> forum_discussions.id
+[Implied]  forum_discussion_tags.tag -> forum_tags.id
+[Implied]  forum_edits.reply -> forum_replies.id
+[Implied]  forum_replies.discussion -> forum_discussions.id
+
+DROP DATABASE `db_346456_forum`;
+UNINSTALL EXTENSION vsql_schematron;

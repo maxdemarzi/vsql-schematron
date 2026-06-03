@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 071973_schema
+#
+CREATE DATABASE `db_071973_schema`;
+USE `db_071973_schema`;
+CREATE TABLE `contact` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`birth_date` DATETIME,
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hobby` (
+`hobby_id` VARCHAR(64),
+PRIMARY KEY (`hobby_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contact_tel_detail` (
+`id` INT,
+`contact_id` INT,
+`version` INT,
+`tel_type` VARCHAR(64),
+`tel_number` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contact_hobby_detail` (
+`contact_id` INT,
+`hobby_id` VARCHAR(64),
+PRIMARY KEY (`contact_id`, `hobby_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_071973_schema') AS relationships;
+relationships
+Database: db_071973_schema
+
+Table Connections:
+------------------
+[Implied]  contact_hobby_detail.contact_id -> contact.id
+[Implied]  contact_hobby_detail.hobby_id -> hobby.hobby_id
+[Implied]  contact_tel_detail.contact_id -> contact.id
+
+DROP DATABASE `db_071973_schema`;
+UNINSTALL EXTENSION vsql_schematron;

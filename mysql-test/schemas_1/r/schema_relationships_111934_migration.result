@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 111934_migration
+#
+CREATE DATABASE `db_111934_migration`;
+USE `db_111934_migration`;
+CREATE TABLE `rooms` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `participants` (
+`roomId` INT,
+`userId` INT,
+PRIMARY KEY (`roomId`, `userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `chats` (
+`id` INT,
+`content` VARCHAR(64),
+`senderId` INT,
+`roomId` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_111934_migration') AS relationships;
+relationships
+Database: db_111934_migration
+
+Table Connections:
+------------------
+[Implied]  chats.roomId -> rooms.id
+[Implied]  participants.roomId -> rooms.id
+
+DROP DATABASE `db_111934_migration`;
+UNINSTALL EXTENSION vsql_schematron;

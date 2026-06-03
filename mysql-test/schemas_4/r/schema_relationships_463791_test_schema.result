@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 463791_test-schema
+#
+CREATE DATABASE `db_463791_test_schema`;
+USE `db_463791_test_schema`;
+CREATE TABLE `system_project` (
+`project_id` INT,
+`project_name` VARCHAR(64),
+`project_code` VARCHAR(64),
+PRIMARY KEY (`project_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `system_app` (
+`app_id` INT,
+`app_name` VARCHAR(64),
+`app_code` VARCHAR(64),
+`app_project_id` INT,
+PRIMARY KEY (`app_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `system_env` (
+`env_id` INT,
+`env_name` VARCHAR(64),
+`env_code` VARCHAR(64),
+`env_project_id` INT,
+PRIMARY KEY (`env_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `system_config` (
+`config_id` INT,
+`config_name` VARCHAR(64),
+`config_env_id` INT,
+PRIMARY KEY (`config_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `system_property` (
+`property_id` INT,
+`property_key` VARCHAR(64),
+`property_value` VARCHAR(64),
+`property_type` VARCHAR(64),
+`property_config_id` INT,
+PRIMARY KEY (`property_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `relationship_app_config` (
+`relationship_app_id` INT,
+`relationship_config_id` INT,
+PRIMARY KEY (`relationship_app_id`, `relationship_config_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_463791_test_schema') AS relationships;
+relationships
+Database: db_463791_test_schema
+
+Table Connections:
+------------------
+[Implied]  relationship_app_config.relationship_app_id -> system_app.app_id
+[Implied]  relationship_app_config.relationship_config_id -> system_config.config_id
+[Implied]  system_app.app_project_id -> system_project.project_id
+[Implied]  system_config.config_env_id -> system_env.env_id
+[Implied]  system_env.env_project_id -> system_project.project_id
+[Implied]  system_property.property_config_id -> system_config.config_id
+
+DROP DATABASE `db_463791_test_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,108 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 590648_bazaStavki
+--echo #
+CREATE DATABASE `db_590648_bazaStavki`;
+USE `db_590648_bazaStavki`;
+
+CREATE TABLE `Oseba` (
+  `idOseba` INT,
+  `ime` VARCHAR(64),
+  `priimek` VARCHAR(64),
+  `datumRojstva` DATETIME,
+  `spol` INT,
+  `drzava` VARCHAR(64),
+  PRIMARY KEY (`idOseba`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Artist` (
+  `idArtist` INT,
+  `ime` VARCHAR(64),
+  `leto_nastanka` INT,
+  `drzava` VARCHAR(64),
+  `mesto` VARCHAR(64),
+  PRIMARY KEY (`idArtist`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Zalozba` (
+  `idZalozbe` INT,
+  `ime` VARCHAR(64),
+  `drzava` VARCHAR(64),
+  PRIMARY KEY (`idZalozbe`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Zanr` (
+  `idZanr` INT,
+  `imeZanra` VARCHAR(64),
+  PRIMARY KEY (`idZanr`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Izdaja` (
+  `idIzdaja` INT,
+  `naslov` VARCHAR(64),
+  `leto_izida` INT,
+  `celotnaDolzina` DATETIME,
+  `tip` VARCHAR(64),
+  `idZalozbe` INT,
+  PRIMARY KEY (`idIzdaja`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Spada` (
+  `idIzdaja` INT,
+  `idZanr` INT,
+  PRIMARY KEY (`idIzdaja`, `idZanr`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Track` (
+  `idTrack` INT,
+  `naslov` VARCHAR(64),
+  `dolzina` DATETIME,
+  `idIzdaja` INT,
+  PRIMARY KEY (`idTrack`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Vloga` (
+  `idVloga` INT,
+  `Naziv` VARCHAR(64),
+  PRIMARY KEY (`idVloga`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Je_Clan` (
+  `idOseba` INT,
+  `idArtist` INT,
+  PRIMARY KEY (`idOseba`, `idArtist`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Je_Sodeloval` (
+  `idOseba` INT,
+  `idIzdaja` INT,
+  `idVloga` INT,
+  PRIMARY KEY (`idOseba`, `idIzdaja`, `idVloga`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Je_Avtor` (
+  `idIzdaja` INT,
+  `idArtist` INT,
+  PRIMARY KEY (`idIzdaja`, `idArtist`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_590648_bazaStavki') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_590648_bazaStavki') AS relationships;
+DROP DATABASE `db_590648_bazaStavki`;
+UNINSTALL EXTENSION vsql_schematron;

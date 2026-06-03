@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 590648_bazaStavki
+#
+CREATE DATABASE `db_590648_bazaStavki`;
+USE `db_590648_bazaStavki`;
+CREATE TABLE `Oseba` (
+`idOseba` INT,
+`ime` VARCHAR(64),
+`priimek` VARCHAR(64),
+`datumRojstva` DATETIME,
+`spol` INT,
+`drzava` VARCHAR(64),
+PRIMARY KEY (`idOseba`)
+) CHARACTER SET latin1;
+CREATE TABLE `Artist` (
+`idArtist` INT,
+`ime` VARCHAR(64),
+`leto_nastanka` INT,
+`drzava` VARCHAR(64),
+`mesto` VARCHAR(64),
+PRIMARY KEY (`idArtist`)
+) CHARACTER SET latin1;
+CREATE TABLE `Zalozba` (
+`idZalozbe` INT,
+`ime` VARCHAR(64),
+`drzava` VARCHAR(64),
+PRIMARY KEY (`idZalozbe`)
+) CHARACTER SET latin1;
+CREATE TABLE `Zanr` (
+`idZanr` INT,
+`imeZanra` VARCHAR(64),
+PRIMARY KEY (`idZanr`)
+) CHARACTER SET latin1;
+CREATE TABLE `Izdaja` (
+`idIzdaja` INT,
+`naslov` VARCHAR(64),
+`leto_izida` INT,
+`celotnaDolzina` DATETIME,
+`tip` VARCHAR(64),
+`idZalozbe` INT,
+PRIMARY KEY (`idIzdaja`)
+) CHARACTER SET latin1;
+CREATE TABLE `Spada` (
+`idIzdaja` INT,
+`idZanr` INT,
+PRIMARY KEY (`idIzdaja`, `idZanr`)
+) CHARACTER SET latin1;
+CREATE TABLE `Track` (
+`idTrack` INT,
+`naslov` VARCHAR(64),
+`dolzina` DATETIME,
+`idIzdaja` INT,
+PRIMARY KEY (`idTrack`)
+) CHARACTER SET latin1;
+CREATE TABLE `Vloga` (
+`idVloga` INT,
+`Naziv` VARCHAR(64),
+PRIMARY KEY (`idVloga`)
+) CHARACTER SET latin1;
+CREATE TABLE `Je_Clan` (
+`idOseba` INT,
+`idArtist` INT,
+PRIMARY KEY (`idOseba`, `idArtist`)
+) CHARACTER SET latin1;
+CREATE TABLE `Je_Sodeloval` (
+`idOseba` INT,
+`idIzdaja` INT,
+`idVloga` INT,
+PRIMARY KEY (`idOseba`, `idIzdaja`, `idVloga`)
+) CHARACTER SET latin1;
+CREATE TABLE `Je_Avtor` (
+`idIzdaja` INT,
+`idArtist` INT,
+PRIMARY KEY (`idIzdaja`, `idArtist`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_590648_bazaStavki') AS relationships;
+relationships
+Database: db_590648_bazaStavki
+
+Table Connections:
+------------------
+[Implied]  Izdaja.idZalozbe -> Zalozba.idZalozbe
+[Implied]  Je_Avtor.idArtist -> Artist.idArtist
+[Implied]  Je_Avtor.idIzdaja -> Izdaja.idIzdaja
+[Implied]  Je_Clan.idArtist -> Artist.idArtist
+[Implied]  Je_Clan.idOseba -> Oseba.idOseba
+[Implied]  Je_Sodeloval.idIzdaja -> Izdaja.idIzdaja
+[Implied]  Je_Sodeloval.idOseba -> Oseba.idOseba
+[Implied]  Je_Sodeloval.idVloga -> Vloga.idVloga
+[Implied]  Spada.idIzdaja -> Izdaja.idIzdaja
+[Implied]  Spada.idZanr -> Zanr.idZanr
+[Implied]  Track.idIzdaja -> Izdaja.idIzdaja
+
+DROP DATABASE `db_590648_bazaStavki`;
+UNINSTALL EXTENSION vsql_schematron;

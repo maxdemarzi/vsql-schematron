@@ -1,0 +1,99 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 152661_housereportdb
+--echo #
+CREATE DATABASE `db_152661_housereportdb`;
+USE `db_152661_housereportdb`;
+
+CREATE TABLE `address` (
+  `id` INT,
+  `street` VARCHAR(64),
+  `street2` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `postal_code` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `property_type` (
+  `id` INT,
+  `type` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `listing` (
+  `id` INT,
+  `price` DECIMAL(10,2),
+  `square_feet` INT,
+  `bed_number` INT,
+  `bath_number` INT,
+  `property_crime_rate` DECIMAL(10,2),
+  `violent_crime_rate` DECIMAL(10,2),
+  `hoa_monthly_rate` DECIMAL(10,2),
+  `created_on` DATETIME,
+  `year_built` INT,
+  `lot_size_sqft` INT,
+  `property_tax` DECIMAL(10,2),
+  `parking_type` VARCHAR(64),
+  `accuracy_rating` INT,
+  `address_id` INT,
+  `user_id` INT,
+  `property_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event` (
+  `id` INT,
+  `event_type` VARCHAR(64),
+  `event_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `favorite` (
+  `listing_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`listing_id`, `user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comment` (
+  `id` INT,
+  `comment` VARCHAR(64),
+  `comment_date` DATETIME,
+  `user_id` INT,
+  `listing_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `listing_event` (
+  `listing_id` INT,
+  `event_id` INT,
+  PRIMARY KEY (`listing_id`, `event_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rating` (
+  `user_id` INT,
+  `rating` INT,
+  `listing_id` INT,
+  PRIMARY KEY (`user_id`, `listing_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_152661_housereportdb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_152661_housereportdb') AS relationships;
+DROP DATABASE `db_152661_housereportdb`;
+UNINSTALL EXTENSION vsql_schematron;

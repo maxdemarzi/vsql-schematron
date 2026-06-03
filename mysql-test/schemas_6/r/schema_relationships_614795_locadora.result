@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 614795_locadora
+#
+CREATE DATABASE `db_614795_locadora`;
+USE `db_614795_locadora`;
+CREATE TABLE `cliente` (
+`codigo_cliente` DECIMAL(10,2),
+`nome_cliente` VARCHAR(64),
+`telefone` VARCHAR(64),
+`cpf` DECIMAL(10,2),
+`rg` VARCHAR(64),
+`rua` VARCHAR(64),
+`bairro` VARCHAR(64),
+`cidade` VARCHAR(64),
+`cep` VARCHAR(64),
+`datanasc` DATETIME,
+PRIMARY KEY (`codigo_cliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `genero` (
+`codigo_genero` DECIMAL(10,2),
+`nome_genero` VARCHAR(64),
+PRIMARY KEY (`codigo_genero`)
+) CHARACTER SET latin1;
+CREATE TABLE `filme` (
+`codigo_filme` DECIMAL(10,2),
+`titulo` VARCHAR(64),
+`duracao` DECIMAL(10,2),
+`sinopse` VARCHAR(64),
+`estreia` DATETIME,
+PRIMARY KEY (`codigo_filme`)
+) CHARACTER SET latin1;
+CREATE TABLE `filme_genero` (
+`codigo_filme` DECIMAL(10,2),
+`codigo_genero` DECIMAL(10,2),
+PRIMARY KEY (`codigo_filme`, `codigo_genero`)
+) CHARACTER SET latin1;
+CREATE TABLE `ator` (
+`codigo_ator` DECIMAL(10,2),
+`nome_ator` VARCHAR(64),
+`sobrenome` VARCHAR(64),
+`cpf` DECIMAL(10,2),
+PRIMARY KEY (`codigo_ator`)
+) CHARACTER SET latin1;
+CREATE TABLE `filme_ator` (
+`codigo_filme` DECIMAL(10,2),
+`codigo_ator` DECIMAL(10,2),
+PRIMARY KEY (`codigo_filme`, `codigo_ator`)
+) CHARACTER SET latin1;
+CREATE TABLE `diretor` (
+`codigo_diretor` DECIMAL(10,2),
+`nome_diretor` VARCHAR(64),
+PRIMARY KEY (`codigo_diretor`)
+) CHARACTER SET latin1;
+CREATE TABLE `filme_diretor` (
+`codigo_filme` DECIMAL(10,2),
+`codigo_diretor` DECIMAL(10,2),
+PRIMARY KEY (`codigo_filme`, `codigo_diretor`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_614795_locadora') AS relationships;
+relationships
+Database: db_614795_locadora
+
+Table Connections:
+------------------
+[Implied]  filme_ator.codigo_ator -> ator.codigo_ator
+[Implied]  filme_ator.codigo_filme -> filme.codigo_filme
+[Implied]  filme_diretor.codigo_diretor -> diretor.codigo_diretor
+[Implied]  filme_diretor.codigo_filme -> filme.codigo_filme
+[Implied]  filme_genero.codigo_filme -> filme.codigo_filme
+[Implied]  filme_genero.codigo_genero -> genero.codigo_genero
+
+DROP DATABASE `db_614795_locadora`;
+UNINSTALL EXTENSION vsql_schematron;

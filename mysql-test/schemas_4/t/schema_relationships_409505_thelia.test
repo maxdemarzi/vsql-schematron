@@ -1,0 +1,144 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 409505_thelia
+--echo #
+CREATE DATABASE `db_409505_thelia`;
+USE `db_409505_thelia`;
+
+CREATE TABLE `credit_note_address` (
+  `id` INT,
+  `customer_title_id` INT,
+  `company` VARCHAR(64),
+  `firstname` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `address1` VARCHAR(64),
+  `address2` VARCHAR(64),
+  `address3` VARCHAR(64),
+  `zipcode` VARCHAR(64),
+  `city` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `cellphone` VARCHAR(64),
+  `country_id` INT,
+  `state_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_credit_note` (
+  `order_id` INT,
+  `credit_note_id` INT,
+  `amount_price` DECIMAL(10,2),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`order_id`, `credit_note_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cart_credit_note` (
+  `cart_id` INT,
+  `credit_note_id` INT,
+  `amount_price` DECIMAL(10,2),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`cart_id`, `credit_note_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `credit_note_status` (
+  `id` INT,
+  `code` VARCHAR(64),
+  `color` VARCHAR(64),
+  `invoiced` INT,
+  `used` INT,
+  `position` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `credit_note_status_flow` (
+  `id` INT,
+  `from_status_id` INT,
+  `to_status_id` INT,
+  `priority` INT,
+  `root` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `credit_note_type` (
+  `id` INT,
+  `code` VARCHAR(64),
+  `color` VARCHAR(64),
+  `position` INT,
+  `required_order` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `credit_note_detail` (
+  `id` INT,
+  `credit_note_id` INT,
+  `price` DECIMAL(10,2),
+  `price_with_tax` DECIMAL(10,2),
+  `tax_rule_id` INT,
+  `order_product_id` INT,
+  `type` VARCHAR(64),
+  `quantity` INT,
+  `title` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `credit_note_comment` (
+  `id` INT,
+  `credit_note_id` INT,
+  `admin_id` INT,
+  `comment` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `credit_note_status_i18n` (
+  `id` INT,
+  `locale` VARCHAR(64),
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `chapo` VARCHAR(64),
+  `postscriptum` VARCHAR(64),
+  PRIMARY KEY (`id`, `locale`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `credit_note_type_i18n` (
+  `id` INT,
+  `locale` VARCHAR(64),
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `chapo` VARCHAR(64),
+  `postscriptum` VARCHAR(64),
+  PRIMARY KEY (`id`, `locale`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_409505_thelia') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_409505_thelia') AS relationships;
+DROP DATABASE `db_409505_thelia`;
+UNINSTALL EXTENSION vsql_schematron;

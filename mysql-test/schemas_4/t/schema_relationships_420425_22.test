@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 420425_22
+--echo #
+CREATE DATABASE `db_420425_22`;
+USE `db_420425_22`;
+
+CREATE TABLE `notification_event` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `message` VARCHAR(64),
+  `sender_id` INT,
+  `created` DATETIME,
+  `url_to_view` VARCHAR(64),
+  `resource_type` VARCHAR(64),
+  `resource_id` INT,
+  `type` VARCHAR(64),
+  `old_value` VARCHAR(64),
+  `new_value` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notification_event_n4user` (
+  `notification_event_id` INT,
+  `n4user_id` INT,
+  PRIMARY KEY (`notification_event_id`, `n4user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notification_mail` (
+  `id` INT,
+  `notification_event_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_420425_22') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_420425_22') AS relationships;
+DROP DATABASE `db_420425_22`;
+UNINSTALL EXTENSION vsql_schematron;

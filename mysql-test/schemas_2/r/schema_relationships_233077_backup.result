@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 233077_backup
+#
+CREATE DATABASE `db_233077_backup`;
+USE `db_233077_backup`;
+CREATE TABLE `储蓄账户` (
+`账户号` DECIMAL(10,2),
+`利率` DECIMAL(10,2),
+`货币类型` VARCHAR(64),
+PRIMARY KEY (`账户号`)
+) CHARACTER SET latin1;
+CREATE TABLE `员工` (
+`支行名称` VARCHAR(64),
+`部门号` DECIMAL(10,2),
+`员工身份证号` DECIMAL(10,2),
+`员工姓名` VARCHAR(64),
+`员工电话号码` DECIMAL(10,2),
+`员工家庭地址` VARCHAR(64),
+`员工类型` INT,
+`开始工作的日期` DATETIME,
+PRIMARY KEY (`支行名称`, `部门号`, `员工身份证号`)
+) CHARACTER SET latin1;
+CREATE TABLE `客户` (
+`客户身份证号` DECIMAL(10,2),
+`客户姓名` VARCHAR(64),
+`客户联系电话` DECIMAL(10,2),
+`客户家庭住址` VARCHAR(64),
+`联系人姓名` VARCHAR(64),
+`联系人手机号` DECIMAL(10,2),
+`联系人email` VARCHAR(64),
+`联系人与客户的关系` VARCHAR(64),
+PRIMARY KEY (`客户身份证号`)
+) CHARACTER SET latin1;
+CREATE TABLE `客户在银行的账户` (
+`支行名称` VARCHAR(64),
+`客户身份证号` DECIMAL(10,2),
+`账户类型` INT,
+PRIMARY KEY (`支行名称`, `客户身份证号`, `账户类型`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_233077_backup') AS relationships;
+relationships
+Database: db_233077_backup
+
+Table Connections:
+------------------
+[Implied]  客户在银行的账户.客户身份证号 -> 客户.客户身份证号
+
+DROP DATABASE `db_233077_backup`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 399074_database1.2
+#
+CREATE DATABASE `db_399074_database1_2`;
+USE `db_399074_database1_2`;
+CREATE TABLE `administradores` (
+`id` INT,
+`nombre` VARCHAR(64),
+`apellido` VARCHAR(64),
+`correo` VARCHAR(64),
+`password` VARCHAR(64),
+`status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `distribuidores` (
+`id` INT,
+`nombre` VARCHAR(64),
+`apellido` VARCHAR(64),
+`celular` VARCHAR(64),
+`edad` VARCHAR(64),
+`correo` VARCHAR(64),
+`password` VARCHAR(64),
+`licencia` VARCHAR(64),
+`status` INT,
+`idadministrador` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `incidencias` (
+`id` INT,
+`titulo` VARCHAR(64),
+`fecha` DATETIME,
+`mensaje` VARCHAR(64),
+`iddistribuidor` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clientes` (
+`id` INT,
+`nombreempresa` VARCHAR(64),
+`propietario` VARCHAR(64),
+`ubicacion` VARCHAR(64),
+`telefono` VARCHAR(64),
+`celular` VARCHAR(64),
+`status` INT,
+`iddistribuidor` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `productos` (
+`id` INT,
+`descripcion` VARCHAR(64),
+`precioBase` DECIMAL(10,2),
+`precioVenta` DECIMAL(10,2),
+`status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ventas` (
+`id` INT,
+`pagada` INT,
+`vendida` INT,
+`cambios` INT,
+`consigna` INT,
+`consignaanterior` INT,
+`status` INT,
+`iddistribuidor` INT,
+`idproducto` INT,
+`idcliente` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_399074_database1_2') AS relationships;
+relationships
+Database: db_399074_database1_2
+
+Table Connections:
+------------------
+[Implied]  clientes.iddistribuidor -> distribuidores.id
+[Implied]  distribuidores.idadministrador -> administradores.id
+[Implied]  incidencias.iddistribuidor -> distribuidores.id
+[Implied]  productos.precioVenta -> ventas.id
+[Implied]  ventas.idcliente -> clientes.id
+[Implied]  ventas.iddistribuidor -> distribuidores.id
+[Implied]  ventas.idproducto -> productos.id
+
+DROP DATABASE `db_399074_database1_2`;
+UNINSTALL EXTENSION vsql_schematron;

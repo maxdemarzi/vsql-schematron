@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 456107_create_meisai_tables
+--echo #
+CREATE DATABASE `db_456107_create_meisai_tables`;
+USE `db_456107_create_meisai_tables`;
+
+CREATE TABLE `Taiou_meisai` (
+  `tm_no` VARCHAR(64),
+  `taiou_type` VARCHAR(64),
+  `start_date` DATETIME,
+  `end_date` DATETIME,
+  PRIMARY KEY (`tm_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Setti_meisai` (
+  `tm_no` VARCHAR(64),
+  `se_no` VARCHAR(64),
+  `setti_hm` VARCHAR(64),
+  `number_of_setti` INT,
+  PRIMARY KEY (`tm_no`, `se_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Kaisyuu_meisai` (
+  `tm_no` VARCHAR(64),
+  `ka_no` VARCHAR(64),
+  `kaisyuu_hm` VARCHAR(64),
+  `seizou_nm` VARCHAR(64),
+  PRIMARY KEY (`tm_no`, `ka_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Syuttyou_meisai` (
+  `tm_no` VARCHAR(64),
+  `sy_no` VARCHAR(64),
+  `enkaku_type` VARCHAR(64),
+  PRIMARY KEY (`tm_no`, `sy_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Sagyou_meisai` (
+  `tm_no` VARCHAR(64),
+  `sa_no` VARCHAR(64),
+  `time` INT,
+  PRIMARY KEY (`tm_no`, `sa_no`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_456107_create_meisai_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_456107_create_meisai_tables') AS relationships;
+DROP DATABASE `db_456107_create_meisai_tables`;
+UNINSTALL EXTENSION vsql_schematron;

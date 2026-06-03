@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 337938_oto
+#
+CREATE DATABASE `db_337938_oto`;
+USE `db_337938_oto`;
+CREATE TABLE `customer` (
+`id_customer` INT,
+`cus_surname` VARCHAR(64),
+`cus_first_name` VARCHAR(64),
+`cus_address` VARCHAR(64),
+PRIMARY KEY (`id_customer`)
+) CHARACTER SET latin1;
+CREATE TABLE `options_accessories` (
+`id_options_accessories` INT,
+`opt_name` VARCHAR(64),
+`opt_price` DECIMAL(10,2),
+PRIMARY KEY (`id_options_accessories`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales_rep` (
+`id_sales_rep` INT,
+`rep_surname` VARCHAR(64),
+`rep_first_name` VARCHAR(64),
+`rep_tel` INT,
+PRIMARY KEY (`id_sales_rep`)
+) CHARACTER SET latin1;
+CREATE TABLE `vehicles` (
+`id_vehicles` INT,
+`veh_name` VARCHAR(64),
+`veh_reg` VARCHAR(64),
+`veh_make` VARCHAR(64),
+`veh_col` VARCHAR(64),
+`veh_pf` INT,
+`veh_price` VARCHAR(64),
+`veh_age` INT,
+PRIMARY KEY (`id_vehicles`)
+) CHARACTER SET latin1;
+CREATE TABLE `choose` (
+`id_customer` INT,
+`id_options_accessories` INT,
+PRIMARY KEY (`id_customer`, `id_options_accessories`)
+) CHARACTER SET latin1;
+CREATE TABLE `fitted` (
+`id_vehicles` INT,
+`id_options_accessories` INT,
+PRIMARY KEY (`id_vehicles`, `id_options_accessories`)
+) CHARACTER SET latin1;
+CREATE TABLE `associated` (
+`id_vehicles` INT,
+`id_service_history` INT,
+PRIMARY KEY (`id_vehicles`, `id_service_history`)
+) CHARACTER SET latin1;
+CREATE TABLE `assigned` (
+`id_customer` INT,
+`id_sales_rep` INT,
+PRIMARY KEY (`id_customer`, `id_sales_rep`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_337938_oto') AS relationships;
+relationships
+Database: db_337938_oto
+
+Table Connections:
+------------------
+[Implied]  assigned.id_customer -> customer.id_customer
+[Implied]  assigned.id_sales_rep -> sales_rep.id_sales_rep
+[Implied]  associated.id_vehicles -> vehicles.id_vehicles
+[Implied]  choose.id_customer -> customer.id_customer
+[Implied]  choose.id_options_accessories -> options_accessories.id_options_accessories
+[Implied]  fitted.id_options_accessories -> options_accessories.id_options_accessories
+[Implied]  fitted.id_vehicles -> vehicles.id_vehicles
+
+DROP DATABASE `db_337938_oto`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 447412_databaseConfig
+#
+CREATE DATABASE `db_447412_databaseConfig`;
+USE `db_447412_databaseConfig`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`title` VARCHAR(64),
+`body` VARCHAR(64),
+`created_at` DATETIME,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answers` (
+`id` INT,
+`text` VARCHAR(64),
+`created_at` DATETIME,
+`post_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`body` VARCHAR(64),
+`created_at` DATETIME,
+`post_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` INT,
+`tagname` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posttag` (
+`post_id` INT,
+`tag_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`post_id`, `tag_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_447412_databaseConfig') AS relationships;
+relationships
+Database: db_447412_databaseConfig
+
+Table Connections:
+------------------
+[Implied]  answers.post_id -> posts.id
+[Implied]  answers.user_id -> users.id
+[Implied]  comments.post_id -> posts.id
+[Implied]  comments.user_id -> users.id
+[Implied]  posts.user_id -> users.id
+[Implied]  posttag.post_id -> posts.id
+[Implied]  posttag.tag_id -> tags.id
+
+DROP DATABASE `db_447412_databaseConfig`;
+UNINSTALL EXTENSION vsql_schematron;

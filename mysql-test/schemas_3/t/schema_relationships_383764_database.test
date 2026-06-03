@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 383764_database
+--echo #
+CREATE DATABASE `db_383764_database`;
+USE `db_383764_database`;
+
+CREATE TABLE `Contains` (
+  `foodID` VARCHAR(64),
+  `orderID` VARCHAR(64),
+  `quantity` INT,
+  PRIMARY KEY (`foodID`, `orderID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Donation` (
+  `donationID` VARCHAR(64),
+  `donorID` VARCHAR(64),
+  `receiverID` VARCHAR(64),
+  `deliveryWorkerID` VARCHAR(64),
+  `dateTime` DATETIME,
+  `category` VARCHAR(64),
+  `status` VARCHAR(64),
+  `quantity` INT,
+  PRIMARY KEY (`donationID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Food` (
+  `itemID` VARCHAR(64),
+  `name` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `isAvailable` INT,
+  `imagePath` VARCHAR(64),
+  `isVeg` INT,
+  `category` VARCHAR(64),
+  `discount` INT,
+  `restaurantID` VARCHAR(64),
+  PRIMARY KEY (`itemID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Orders` (
+  `orderID` VARCHAR(64),
+  `status` VARCHAR(64),
+  `dateTime` DATETIME,
+  `billAmt` DECIMAL(10,2),
+  `paymentMode` VARCHAR(64),
+  `customerID` VARCHAR(64),
+  `restaurantID` VARCHAR(64),
+  `deliveryWorkerID` VARCHAR(64),
+  `discount` INT,
+  `tip` DECIMAL(10,2),
+  PRIMARY KEY (`orderID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Rates` (
+  `ratings` INT,
+  `customerID` VARCHAR(64),
+  `restaurantID` VARCHAR(64),
+  PRIMARY KEY (`customerID`, `restaurantID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Restaurant` (
+  `restaurantID` VARCHAR(64),
+  `type` VARCHAR(64),
+  `dayOfOpening` DATETIME,
+  `description` VARCHAR(64),
+  `name` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `street` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `pin` VARCHAR(64),
+  `area` VARCHAR(64),
+  `isDineIn` INT,
+  `sNo` VARCHAR(64),
+  PRIMARY KEY (`restaurantID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_383764_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_383764_database') AS relationships;
+DROP DATABASE `db_383764_database`;
+UNINSTALL EXTENSION vsql_schematron;

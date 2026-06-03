@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 031629_migration
+#
+CREATE DATABASE `db_031629_migration`;
+USE `db_031629_migration`;
+CREATE TABLE `Grade` (
+`id` INT,
+`grade` VARCHAR(64),
+`lo` VARCHAR(64),
+`quiz` DECIMAL(10,2),
+`midTest` DECIMAL(10,2),
+`finalTest` DECIMAL(10,2),
+`practicum` DECIMAL(10,2),
+`homework` DECIMAL(10,2),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LectureHistory` (
+`studentId` INT,
+`lectureId` INT,
+`gradeId` INT,
+`attendance` DECIMAL(10,2),
+PRIMARY KEY (`studentId`, `lectureId`, `gradeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `TeachingHistory` (
+`teacherId` INT,
+`lectureId` INT,
+`portfolio` DECIMAL(10,2),
+PRIMARY KEY (`teacherId`, `lectureId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_031629_migration') AS relationships;
+relationships
+Database: db_031629_migration
+
+Table Connections:
+------------------
+[Implied]  LectureHistory.gradeId -> Grade.id
+
+DROP DATABASE `db_031629_migration`;
+UNINSTALL EXTENSION vsql_schematron;

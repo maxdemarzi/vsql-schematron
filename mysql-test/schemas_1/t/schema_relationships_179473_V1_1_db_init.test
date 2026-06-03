@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 179473_V1_1__db_init
+--echo #
+CREATE DATABASE `db_179473_V1_1_db_init`;
+USE `db_179473_V1_1_db_init`;
+
+CREATE TABLE `proxy_history` (
+  `log_context` VARCHAR(64),
+  `message_ref` INT,
+  `client_ip` VARCHAR(64),
+  `client_port` INT,
+  `remote_hostname` VARCHAR(64),
+  `remote_ip` VARCHAR(64),
+  `remote_port` INT,
+  `full_url` VARCHAR(64),
+  `request_scheme` VARCHAR(64),
+  `request_method` VARCHAR(64),
+  `request_url` VARCHAR(64),
+  `request_protocol_version` VARCHAR(64),
+  `request_host_header` VARCHAR(64),
+  `request_bytes` VARCHAR(64),
+  `request_charset` VARCHAR(64),
+  `response_status_code` INT,
+  `response_bytes` VARCHAR(64),
+  `response_charset` VARCHAR(64),
+  `at_client_to_proxy` DATETIME,
+  `at_proxy_to_server_connect_start` DATETIME,
+  `at_proxy_to_server_connected` DATETIME,
+  `at_proxy_to_server_request_sent` DATETIME,
+  `at_server_to_proxy_response_recv` DATETIME,
+  `elapsed_time_connect` INT,
+  `elapsed_time_req_sent` INT,
+  `elapsed_time_res_recv` INT,
+  `elapsed_time_full` INT,
+  `comment` VARCHAR(64),
+  PRIMARY KEY (`log_context`, `message_ref`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `screenshot_history` (
+  `log_context` VARCHAR(64),
+  `message_ref` INT,
+  `sc_id` INT,
+  `screenshot_url` VARCHAR(64),
+  `screenshot_src` VARCHAR(64),
+  `created_at` DATETIME,
+  `comment` VARCHAR(64),
+  PRIMARY KEY (`log_context`, `sc_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_179473_V1_1_db_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_179473_V1_1_db_init') AS relationships;
+DROP DATABASE `db_179473_V1_1_db_init`;
+UNINSTALL EXTENSION vsql_schematron;

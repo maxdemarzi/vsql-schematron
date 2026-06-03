@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 363603_VideoCoursePlatformTableStatements
+--echo #
+CREATE DATABASE `db_363603_VideoCoursePlatformTableStatements`;
+USE `db_363603_VideoCoursePlatformTableStatements`;
+
+CREATE TABLE `User` (
+  `User_Id` INT,
+  `Username` VARCHAR(64),
+  `Password` VARCHAR(64),
+  `First_Name` VARCHAR(64),
+  `Last_Name` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `Sign_Up_Date` VARCHAR(64),
+  PRIMARY KEY (`User_Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Role` (
+  `Role_Id` INT,
+  `Role_Name` VARCHAR(64),
+  `Creation_Date` VARCHAR(64),
+  PRIMARY KEY (`Role_Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `User_Role` (
+  `User_Id` INT,
+  `Role_Id` INT,
+  `Assignment_Date` VARCHAR(64),
+  PRIMARY KEY (`User_Id`, `Role_Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Course` (
+  `Course_Id` INT,
+  `Course_Name` VARCHAR(64),
+  `Creation_Date` VARCHAR(64),
+  `Active` INT,
+  PRIMARY KEY (`Course_Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Enrollment` (
+  `Course_Id` INT,
+  `User_Id` INT,
+  `Enrollment_Date` VARCHAR(64),
+  PRIMARY KEY (`Course_Id`, `User_Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Unit` (
+  `Unit_Id` INT,
+  `Unit_Name` VARCHAR(64),
+  `Unit_Number` INT,
+  `Creation_Date` VARCHAR(64),
+  `Course_Id` INT,
+  PRIMARY KEY (`Unit_Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Lesson` (
+  `Lesson_Id` INT,
+  `Lesson_Name` VARCHAR(64),
+  `Lesson_Video` VARCHAR(64),
+  `Lesson_Number` INT,
+  `CREATION_Date` VARCHAR(64),
+  `Unit_Id` INT,
+  PRIMARY KEY (`Lesson_Id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_363603_VideoCoursePlatformTableStatements') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_363603_VideoCoursePlatformTableStatements') AS relationships;
+DROP DATABASE `db_363603_VideoCoursePlatformTableStatements`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 282434_TP3
+#
+CREATE DATABASE `db_282434_TP3`;
+USE `db_282434_TP3`;
+CREATE TABLE `Equipe` (
+`numEquipe` DECIMAL(10,2),
+`nom` VARCHAR(64),
+`capaciteStade` DECIMAL(10,2),
+`budget` DECIMAL(10,2),
+PRIMARY KEY (`numEquipe`)
+) CHARACTER SET latin1;
+CREATE TABLE `Joueur` (
+`numJoueur` DECIMAL(10,2),
+`nom` VARCHAR(64),
+`prenom` VARCHAR(64),
+`nationalite` VARCHAR(64),
+`nbSelection` DECIMAL(10,2),
+`numEquipe` DECIMAL(10,2),
+PRIMARY KEY (`numJoueur`)
+) CHARACTER SET latin1;
+CREATE TABLE `Competition` (
+`numComp` DECIMAL(10,2),
+`nom` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`numComp`)
+) CHARACTER SET latin1;
+CREATE TABLE `Participer` (
+`numComp` DECIMAL(10,2),
+`numEquipe` DECIMAL(10,2),
+`resultat` DECIMAL(10,2),
+PRIMARY KEY (`numComp`, `numEquipe`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_282434_TP3') AS relationships;
+relationships
+Database: db_282434_TP3
+
+Table Connections:
+------------------
+[Implied]  Joueur.numEquipe -> Equipe.numEquipe
+[Implied]  Participer.numComp -> Competition.numComp
+[Implied]  Participer.numEquipe -> Equipe.numEquipe
+
+DROP DATABASE `db_282434_TP3`;
+UNINSTALL EXTENSION vsql_schematron;

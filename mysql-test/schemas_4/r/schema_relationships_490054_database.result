@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 490054_database
+#
+CREATE DATABASE `db_490054_database`;
+USE `db_490054_database`;
+CREATE TABLE `users` (
+`user_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`username` VARCHAR(64),
+`hash` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `devices` (
+`device_id` INT,
+`user_id` INT,
+`activated` VARCHAR(64),
+`device_name` VARCHAR(64),
+PRIMARY KEY (`device_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notification_options` (
+`notification_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`notification_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_settings` (
+`setting_id` INT,
+`user_id` INT,
+`notification_option_id` INT,
+`start_time` DATETIME,
+`end_time` DATETIME,
+PRIMARY KEY (`setting_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `images` (
+`image_id` INT,
+`user_id` INT,
+`image` VARCHAR(64),
+`date_time` DATETIME,
+PRIMARY KEY (`image_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`sid` VARCHAR(64),
+`session` VARCHAR(64),
+`expires` DATETIME,
+PRIMARY KEY (`sid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_490054_database') AS relationships;
+relationships
+Database: db_490054_database
+
+Table Connections:
+------------------
+[Implied]  devices.user_id -> users.user_id
+[Implied]  images.user_id -> users.user_id
+[Implied]  user_settings.notification_option_id -> notification_options.notification_id
+[Implied]  user_settings.user_id -> users.user_id
+
+DROP DATABASE `db_490054_database`;
+UNINSTALL EXTENSION vsql_schematron;

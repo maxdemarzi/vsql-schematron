@@ -1,0 +1,132 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 261159_bd_ahrm_cds
+#
+CREATE DATABASE `db_261159_bd_ahrm_cds`;
+USE `db_261159_bd_ahrm_cds`;
+CREATE TABLE `uf` (
+`sigla` VARCHAR(64),
+`nome` VARCHAR(64),
+PRIMARY KEY (`sigla`)
+) CHARACTER SET latin1;
+CREATE TABLE `medico` (
+`codigo` INT,
+`nome_medico` VARCHAR(64),
+`cpf_medico` VARCHAR(64),
+`crm` VARCHAR(64),
+`email_medico` VARCHAR(64),
+`telefone` VARCHAR(64),
+`senha` VARCHAR(64),
+`uf` VARCHAR(64),
+`cidade` VARCHAR(64),
+`bairro` VARCHAR(64),
+`rua` VARCHAR(64),
+`numero` VARCHAR(64),
+`genero` VARCHAR(64),
+`data_de_nascimento` DATETIME,
+`nome_imagem_perfil` VARCHAR(64),
+`tamanho_imagem_perfil` VARCHAR(64),
+`tipo_imagem_perfil` VARCHAR(64),
+`imagem_perfil` VARCHAR(64),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `paciente` (
+`codigo` INT,
+`nome_paciente` VARCHAR(64),
+`cpf_paciente` VARCHAR(64),
+`email_paciente` VARCHAR(64),
+`telefone` VARCHAR(64),
+`senha` VARCHAR(64),
+`uf` VARCHAR(64),
+`cidade` VARCHAR(64),
+`bairro` VARCHAR(64),
+`rua` VARCHAR(64),
+`numero` VARCHAR(64),
+`genero` VARCHAR(64),
+`peso` VARCHAR(64),
+`altura` VARCHAR(64),
+`diabetico` VARCHAR(64),
+`data_de_nascimento` DATETIME,
+`nome_imagem_perfil` VARCHAR(64),
+`tamanho_imagem_perfil` VARCHAR(64),
+`tipo_imagem_perfil` VARCHAR(64),
+`imagem_perfil` VARCHAR(64),
+`medico_paciente` INT,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido_vinculo` (
+`codigo` INT,
+`codigo_medico` INT,
+`codigo_paciente` INT,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `vinculo` (
+`codigo` INT,
+`codigo_medico` INT,
+`codigo_paciente` INT,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `sintoma` (
+`codigo` INT,
+`nome` VARCHAR(64),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `exame` (
+`codigo` INT,
+`codigo_paciente` INT,
+`codigo_medico` INT,
+`data_do_exame` DATETIME,
+`tipo_exame` VARCHAR(64),
+`descricao_exame` VARCHAR(64),
+`nome_pdf` VARCHAR(64),
+`tamanho_pdf` VARCHAR(64),
+`tipo_pdf` VARCHAR(64),
+`pdf` VARCHAR(64),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `laudo` (
+`codigo` INT,
+`codigo_paciente` INT,
+`codigo_medico` INT,
+`data_do_laudo` DATETIME,
+`descricao_laudo` VARCHAR(64),
+`nome_pdf` VARCHAR(64),
+`tamanho_pdf` VARCHAR(64),
+`tipo_pdf` VARCHAR(64),
+`pdf` VARCHAR(64),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `tratamento` (
+`codigo` INT,
+`codigo_paciente` INT,
+`codigo_medico` INT,
+`data_do_tratamento` DATETIME,
+`descricao_tratamento` VARCHAR(64),
+`nome_pdf` VARCHAR(64),
+`tamanho_pdf` VARCHAR(64),
+`tipo_pdf` VARCHAR(64),
+`pdf` VARCHAR(64),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_261159_bd_ahrm_cds') AS relationships;
+relationships
+Database: db_261159_bd_ahrm_cds
+
+Table Connections:
+------------------
+[Implied]  exame.codigo_medico -> medico.codigo
+[Implied]  exame.codigo_paciente -> paciente.codigo
+[Implied]  laudo.codigo_medico -> medico.codigo
+[Implied]  laudo.codigo_paciente -> paciente.codigo
+[Implied]  medico.uf -> uf.sigla
+[Implied]  paciente.medico_paciente -> medico.codigo
+[Implied]  paciente.uf -> uf.sigla
+[Implied]  pedido_vinculo.codigo_medico -> medico.codigo
+[Implied]  pedido_vinculo.codigo_paciente -> paciente.codigo
+[Implied]  tratamento.codigo_medico -> medico.codigo
+[Implied]  tratamento.codigo_paciente -> paciente.codigo
+[Implied]  vinculo.codigo_medico -> medico.codigo
+[Implied]  vinculo.codigo_paciente -> paciente.codigo
+
+DROP DATABASE `db_261159_bd_ahrm_cds`;
+UNINSTALL EXTENSION vsql_schematron;

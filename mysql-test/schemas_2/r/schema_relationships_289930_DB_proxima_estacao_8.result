@@ -1,0 +1,149 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 289930_DB_proxima_estacao_8
+#
+CREATE DATABASE `db_289930_DB_proxima_estacao_8`;
+USE `db_289930_DB_proxima_estacao_8`;
+CREATE TABLE `status` (
+`id_status` VARCHAR(64),
+`descricao_status` VARCHAR(64),
+PRIMARY KEY (`id_status`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario` (
+`id_usuario` INT,
+`foto_perfil` VARCHAR(64),
+`nome` VARCHAR(64),
+`sobrenome` VARCHAR(64),
+`apelido` VARCHAR(64),
+`email` VARCHAR(64),
+`senha` VARCHAR(64),
+`numero` VARCHAR(64),
+`id_status` VARCHAR(64),
+`data_nascimento` DATETIME,
+`cpf` VARCHAR(64),
+PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `tipo_categoria` (
+`id_tipo_categoria` INT,
+`nome_tipo` VARCHAR(64),
+PRIMARY KEY (`id_tipo_categoria`)
+) CHARACTER SET latin1;
+CREATE TABLE `categoria` (
+`id_categoria` INT,
+`nome_categoria` VARCHAR(64),
+`id_tipo_categoria` INT,
+PRIMARY KEY (`id_categoria`)
+) CHARACTER SET latin1;
+CREATE TABLE `artista` (
+`id_artista` INT,
+`descricao` VARCHAR(64),
+`id_usuario` INT,
+`rede_social` VARCHAR(64),
+PRIMARY KEY (`id_artista`)
+) CHARACTER SET latin1;
+CREATE TABLE `grupo` (
+`id_grupo` INT,
+`nome_grupo` VARCHAR(64),
+`tag_grupo` VARCHAR(64),
+`descricao_grupo` VARCHAR(64),
+PRIMARY KEY (`id_grupo`)
+) CHARACTER SET latin1;
+CREATE TABLE `forma_pagamento` (
+`id_forma_Pag` INT,
+`nome` VARCHAR(64),
+PRIMARY KEY (`id_forma_Pag`)
+) CHARACTER SET latin1;
+CREATE TABLE `doacao` (
+`id_doacao` INT,
+`valor` DECIMAL(10,2),
+`id_artista` INT,
+`id_usuario` INT,
+`id_forma_pag` INT,
+PRIMARY KEY (`id_doacao`)
+) CHARACTER SET latin1;
+CREATE TABLE `publicacao` (
+`id_publicacao` INT,
+`thumb` VARCHAR(64),
+`conteudo` VARCHAR(64),
+`conteudo_sensi` VARCHAR(64),
+`descricao` VARCHAR(64),
+`visualizacao` INT,
+`id_artista` INT,
+PRIMARY KEY (`id_publicacao`)
+) CHARACTER SET latin1;
+CREATE TABLE `feedback` (
+`id_feedback` INT,
+`titulo` VARCHAR(64),
+`comentario` VARCHAR(64),
+`curtida` VARCHAR(64),
+`id_usuario` INT,
+`id_publicacao` INT,
+PRIMARY KEY (`id_feedback`)
+) CHARACTER SET latin1;
+CREATE TABLE `recompensa` (
+`id_recompensa` INT,
+`nome` VARCHAR(64),
+`descricao` VARCHAR(64),
+`emblema` VARCHAR(64),
+PRIMARY KEY (`id_recompensa`)
+) CHARACTER SET latin1;
+CREATE TABLE `grupo_artista` (
+`id_grupo` INT,
+`id_artista` INT,
+PRIMARY KEY (`id_grupo`, `id_artista`)
+) CHARACTER SET latin1;
+CREATE TABLE `artista_Categoria` (
+`id_artista` INT,
+`id_categoria` INT,
+PRIMARY KEY (`id_artista`, `id_categoria`)
+) CHARACTER SET latin1;
+CREATE TABLE `publicacao_categoria` (
+`id_publicacao` INT,
+`id_categoria` INT,
+PRIMARY KEY (`id_publicacao`, `id_categoria`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario_recompensa` (
+`id_recompensa` INT,
+`id_usuario` INT,
+PRIMARY KEY (`id_recompensa`, `id_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `formaPag_artista` (
+`id_forma_Pag` INT,
+`id_artista` INT,
+PRIMARY KEY (`id_forma_Pag`, `id_artista`)
+) CHARACTER SET latin1;
+CREATE TABLE `seguidores` (
+`id_artista` INT,
+`id_usuario` INT,
+PRIMARY KEY (`id_artista`, `id_usuario`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_289930_DB_proxima_estacao_8') AS relationships;
+relationships
+Database: db_289930_DB_proxima_estacao_8
+
+Table Connections:
+------------------
+[Implied]  artista.id_usuario -> usuario.id_usuario
+[Implied]  artista_Categoria.id_artista -> artista.id_artista
+[Implied]  artista_Categoria.id_categoria -> categoria.id_categoria
+[Implied]  categoria.id_tipo_categoria -> tipo_categoria.id_tipo_categoria
+[Implied]  doacao.id_artista -> artista.id_artista
+[Implied]  doacao.id_forma_pag -> forma_pagamento.id_forma_Pag
+[Implied]  doacao.id_usuario -> usuario.id_usuario
+[Implied]  feedback.id_publicacao -> publicacao.id_publicacao
+[Implied]  feedback.id_usuario -> usuario.id_usuario
+[Implied]  formaPag_artista.id_artista -> artista.id_artista
+[Implied]  formaPag_artista.id_forma_Pag -> forma_pagamento.id_forma_Pag
+[Implied]  grupo_artista.id_artista -> artista.id_artista
+[Implied]  grupo_artista.id_grupo -> grupo.id_grupo
+[Implied]  publicacao.id_artista -> artista.id_artista
+[Implied]  publicacao_categoria.id_categoria -> categoria.id_categoria
+[Implied]  publicacao_categoria.id_publicacao -> publicacao.id_publicacao
+[Implied]  seguidores.id_artista -> artista.id_artista
+[Implied]  seguidores.id_usuario -> usuario.id_usuario
+[Implied]  usuario.id_status -> status.id_status
+[Implied]  usuario_recompensa.id_recompensa -> recompensa.id_recompensa
+[Implied]  usuario_recompensa.id_usuario -> usuario.id_usuario
+
+DROP DATABASE `db_289930_DB_proxima_estacao_8`;
+UNINSTALL EXTENSION vsql_schematron;

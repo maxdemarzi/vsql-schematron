@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 030983_V1__Create_Initial_Tables
+#
+CREATE DATABASE `db_030983_V1_Create_Initial_Tables`;
+USE `db_030983_V1_Create_Initial_Tables`;
+CREATE TABLE `course` (
+`unique_id` INT,
+`uuid` VARCHAR(64),
+`name` VARCHAR(64),
+`semester_id` INT,
+PRIMARY KEY (`unique_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course_student` (
+`course_id` INT,
+`student_id` INT,
+PRIMARY KEY (`course_id`, `student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `assignment` (
+`unique_id` INT,
+`uuid` VARCHAR(64),
+`name` VARCHAR(64),
+`image_file_path` VARCHAR(64),
+`course_id` INT,
+`student_id` INT,
+`created_date_time` DATETIME,
+PRIMARY KEY (`unique_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_030983_V1_Create_Initial_Tables') AS relationships;
+relationships
+Database: db_030983_V1_Create_Initial_Tables
+
+Table Connections:
+------------------
+[Implied]  assignment.course_id -> course.unique_id
+[Implied]  course_student.course_id -> course.unique_id
+
+DROP DATABASE `db_030983_V1_Create_Initial_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

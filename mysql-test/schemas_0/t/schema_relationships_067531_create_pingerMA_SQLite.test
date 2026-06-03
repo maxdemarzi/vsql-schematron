@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 067531_create_pingerMA_SQLite
+--echo #
+CREATE DATABASE `db_067531_create_pingerMA_SQLite`;
+USE `db_067531_create_pingerMA_SQLite`;
+
+CREATE TABLE `host` (
+  `ip_name` VARCHAR(64),
+  `ip_number` VARCHAR(64),
+  `comments` VARCHAR(64),
+  PRIMARY KEY (`ip_name`, `ip_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `metaData` (
+  `metaID` INT,
+  `ip_name_src` VARCHAR(64),
+  `ip_name_dst` VARCHAR(64),
+  `transport` VARCHAR(64),
+  `packetSize` INT,
+  `count` INT,
+  `packetInterval` INT,
+  `deadline` INT,
+  `ttl` INT,
+  PRIMARY KEY (`metaID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `data` (
+  `metaID` INT,
+  `minRtt` DECIMAL(10,2),
+  `meanRtt` DECIMAL(10,2),
+  `medianRtt` DECIMAL(10,2),
+  `maxRtt` DECIMAL(10,2),
+  `timestamp` INT,
+  `minIpd` DECIMAL(10,2),
+  `meanIpd` DECIMAL(10,2),
+  `maxIpd` DECIMAL(10,2),
+  `duplicates` INT,
+  `outOfOrder` INT,
+  `clp` DECIMAL(10,2),
+  `iqrIpd` DECIMAL(10,2),
+  `lossPercent` DECIMAL(10,2),
+  `rtts` VARCHAR(64),
+  `seqNums` VARCHAR(64),
+  PRIMARY KEY (`metaID`, `timestamp`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_067531_create_pingerMA_SQLite') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_067531_create_pingerMA_SQLite') AS relationships;
+DROP DATABASE `db_067531_create_pingerMA_SQLite`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 108580_estoque_simplificado
+#
+CREATE DATABASE `db_108580_estoque_simplificado`;
+USE `db_108580_estoque_simplificado`;
+CREATE TABLE `clientes` (
+`cpf` VARCHAR(64),
+`nome` VARCHAR(64),
+`credito_liberado` VARCHAR(64),
+`data_nasc` DATETIME,
+`email` VARCHAR(64),
+PRIMARY KEY (`cpf`)
+) CHARACTER SET latin1;
+CREATE TABLE `produtos` (
+`produto` INT,
+`descricao` VARCHAR(64),
+`unidade` VARCHAR(64),
+`data_cadastro` DATETIME,
+PRIMARY KEY (`produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `estoque` (
+`codigo` INT,
+`quant_estoque` INT,
+`estoque_max` INT,
+`estoque_min` INT,
+`preco_venda` DECIMAL(10,2),
+`data_atualizacao` DATETIME,
+`produto` INT,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedidos` (
+`pedido` VARCHAR(64),
+`cliente` VARCHAR(64),
+`data_pedido` DATETIME,
+`data_confirmacao` DATETIME,
+PRIMARY KEY (`pedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido_itens` (
+`pedido` VARCHAR(64),
+`estoque` INT,
+`quantidade` INT,
+`preco_venda` DECIMAL(10,2),
+PRIMARY KEY (`pedido`, `estoque`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_108580_estoque_simplificado') AS relationships;
+relationships
+Database: db_108580_estoque_simplificado
+
+Table Connections:
+------------------
+[Implied]  estoque.produto -> produtos.produto
+[Implied]  pedido_itens.estoque -> estoque.codigo
+[Implied]  pedido_itens.pedido -> pedidos.pedido
+[Implied]  pedidos.cliente -> clientes.cpf
+
+DROP DATABASE `db_108580_estoque_simplificado`;
+UNINSTALL EXTENSION vsql_schematron;

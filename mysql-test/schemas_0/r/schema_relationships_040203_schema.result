@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 040203_schema
+#
+CREATE DATABASE `db_040203_schema`;
+USE `db_040203_schema`;
+CREATE TABLE `account` (
+`id` INT,
+`created_at` INT,
+`last_modified` INT,
+`account_number` VARCHAR(64),
+`default_account` VARCHAR(64),
+`user_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+`id` INT,
+`created_at` INT,
+`last_modified` INT,
+`address_type` INT,
+`city` VARCHAR(64),
+`country` VARCHAR(64),
+`state` VARCHAR(64),
+`street1` VARCHAR(64),
+`street2` VARCHAR(64),
+`zip_code` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `credit_card` (
+`id` INT,
+`created_at` INT,
+`last_modified` INT,
+`number` VARCHAR(64),
+`type` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`id` INT,
+`created_at` INT,
+`last_modified` INT,
+`email` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`account_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_addresses` (
+`account_id` INT,
+`addresses_id` INT,
+PRIMARY KEY (`account_id`, `addresses_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_credit_cards` (
+`account_id` INT,
+`credit_cards_id` INT,
+PRIMARY KEY (`account_id`, `credit_cards_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_040203_schema') AS relationships;
+relationships
+Database: db_040203_schema
+
+Table Connections:
+------------------
+[Implied]  account_addresses.account_id -> account.id
+[Implied]  account_addresses.addresses_id -> address.id
+[Implied]  account_credit_cards.account_id -> account.id
+[Implied]  account_credit_cards.credit_cards_id -> credit_card.id
+[Implied]  customer.account_id -> account.id
+
+DROP DATABASE `db_040203_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 363603_VideoCoursePlatformTableStatements
+#
+CREATE DATABASE `db_363603_VideoCoursePlatformTableStatements`;
+USE `db_363603_VideoCoursePlatformTableStatements`;
+CREATE TABLE `User` (
+`User_Id` INT,
+`Username` VARCHAR(64),
+`Password` VARCHAR(64),
+`First_Name` VARCHAR(64),
+`Last_Name` VARCHAR(64),
+`Email` VARCHAR(64),
+`Sign_Up_Date` VARCHAR(64),
+PRIMARY KEY (`User_Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Role` (
+`Role_Id` INT,
+`Role_Name` VARCHAR(64),
+`Creation_Date` VARCHAR(64),
+PRIMARY KEY (`Role_Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User_Role` (
+`User_Id` INT,
+`Role_Id` INT,
+`Assignment_Date` VARCHAR(64),
+PRIMARY KEY (`User_Id`, `Role_Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Course` (
+`Course_Id` INT,
+`Course_Name` VARCHAR(64),
+`Creation_Date` VARCHAR(64),
+`Active` INT,
+PRIMARY KEY (`Course_Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Enrollment` (
+`Course_Id` INT,
+`User_Id` INT,
+`Enrollment_Date` VARCHAR(64),
+PRIMARY KEY (`Course_Id`, `User_Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Unit` (
+`Unit_Id` INT,
+`Unit_Name` VARCHAR(64),
+`Unit_Number` INT,
+`Creation_Date` VARCHAR(64),
+`Course_Id` INT,
+PRIMARY KEY (`Unit_Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Lesson` (
+`Lesson_Id` INT,
+`Lesson_Name` VARCHAR(64),
+`Lesson_Video` VARCHAR(64),
+`Lesson_Number` INT,
+`CREATION_Date` VARCHAR(64),
+`Unit_Id` INT,
+PRIMARY KEY (`Lesson_Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_363603_VideoCoursePlatformTableStatements') AS relationships;
+relationships
+Database: db_363603_VideoCoursePlatformTableStatements
+
+Table Connections:
+------------------
+[Implied]  Enrollment.Course_Id -> Course.Course_Id
+[Implied]  Enrollment.User_Id -> User.User_Id
+[Implied]  Lesson.Unit_Id -> Unit.Unit_Id
+[Implied]  Unit.Course_Id -> Course.Course_Id
+[Implied]  User_Role.Role_Id -> Role.Role_Id
+[Implied]  User_Role.User_Id -> User.User_Id
+
+DROP DATABASE `db_363603_VideoCoursePlatformTableStatements`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 104598_create_tables
+#
+CREATE DATABASE `db_104598_create_tables`;
+USE `db_104598_create_tables`;
+CREATE TABLE `address` (
+`id` INT,
+`postalcode` VARCHAR(64),
+`housenumber` VARCHAR(64),
+`streetname` VARCHAR(64),
+`city` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `location` (
+`id` INT,
+`uuid` VARCHAR(64),
+`address_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `heatpump` (
+`id` INT,
+`brand` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `installation` (
+`id` INT,
+`ean_energy` VARCHAR(64),
+`ean_gas` VARCHAR(64),
+`serial_energymeter` VARCHAR(64),
+`heatpump_id` INT,
+`location_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `authorization` (
+`id` INT,
+`name` VARCHAR(64),
+`api_access` VARCHAR(64),
+`influx_access` VARCHAR(64),
+`admin` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mandate` (
+`id` INT,
+`name` VARCHAR(64),
+`location_details` VARCHAR(64),
+`personal_details` VARCHAR(64),
+`itho` VARCHAR(64),
+`smartdodos` VARCHAR(64),
+`zeversolar` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mandate_location` (
+`mandate_id` INT,
+`location_id` INT,
+PRIMARY KEY (`mandate_id`, `location_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`email` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`active` VARCHAR(64),
+`authorization_id` INT,
+`mandate_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_104598_create_tables') AS relationships;
+relationships
+Database: db_104598_create_tables
+
+Table Connections:
+------------------
+[Implied]  installation.heatpump_id -> heatpump.id
+[Implied]  installation.location_id -> location.id
+[Implied]  location.address_id -> address.id
+[Implied]  mandate_location.location_id -> location.id
+[Implied]  mandate_location.mandate_id -> mandate.id
+[Implied]  user.authorization_id -> authorization.id
+[Implied]  user.mandate_id -> mandate.id
+
+DROP DATABASE `db_104598_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

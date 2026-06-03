@@ -1,0 +1,100 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 488911_create_wetr
+#
+CREATE DATABASE `db_488911_create_wetr`;
+USE `db_488911_create_wetr`;
+CREATE TABLE `country` (
+`countryId` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`countryId`)
+) CHARACTER SET latin1;
+CREATE TABLE `province` (
+`provinceId` INT,
+`name` VARCHAR(64),
+`countryId` INT,
+PRIMARY KEY (`provinceId`)
+) CHARACTER SET latin1;
+CREATE TABLE `district` (
+`districtId` INT,
+`name` VARCHAR(64),
+`provinceId` INT,
+PRIMARY KEY (`districtId`)
+) CHARACTER SET latin1;
+CREATE TABLE `community` (
+`communityId` INT,
+`name` VARCHAR(64),
+`districtId` INT,
+PRIMARY KEY (`communityId`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+`addressId` INT,
+`location` VARCHAR(64),
+`zip` VARCHAR(64),
+`communityId` INT,
+PRIMARY KEY (`addressId`)
+) CHARACTER SET latin1;
+CREATE TABLE `stationType` (
+`stationTypeId` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`stationTypeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `station` (
+`stationId` INT,
+`name` VARCHAR(64),
+`longitude` DECIMAL(10,2),
+`latitude` DECIMAL(10,2),
+`stationTypeId` INT,
+`addressId` INT,
+`userId` INT,
+PRIMARY KEY (`stationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `unit` (
+`unitId` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`unitId`)
+) CHARACTER SET latin1;
+CREATE TABLE `measurementType` (
+`measurementTypeId` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`measurementTypeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `measurement` (
+`measurementId` INT,
+`value` DECIMAL(10,2),
+`timestamp` DATETIME,
+`stationId` INT,
+`unitId` INT,
+`measurementTypeId` INT,
+PRIMARY KEY (`measurementId`, `stationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `permission` (
+`permissionId` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`permissionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `hasPermission` (
+`permissionId` INT,
+`userId` INT,
+PRIMARY KEY (`permissionId`, `userId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_488911_create_wetr') AS relationships;
+relationships
+Database: db_488911_create_wetr
+
+Table Connections:
+------------------
+[Implied]  address.communityId -> community.communityId
+[Implied]  community.districtId -> district.districtId
+[Implied]  district.provinceId -> province.provinceId
+[Implied]  hasPermission.permissionId -> permission.permissionId
+[Implied]  measurement.measurementTypeId -> measurementType.measurementTypeId
+[Implied]  measurement.stationId -> station.stationId
+[Implied]  measurement.unitId -> unit.unitId
+[Implied]  province.countryId -> country.countryId
+[Implied]  station.addressId -> address.addressId
+[Implied]  station.stationTypeId -> stationType.stationTypeId
+
+DROP DATABASE `db_488911_create_wetr`;
+UNINSTALL EXTENSION vsql_schematron;

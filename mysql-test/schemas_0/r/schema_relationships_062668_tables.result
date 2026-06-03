@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 062668_tables
+#
+CREATE DATABASE `db_062668_tables`;
+USE `db_062668_tables`;
+CREATE TABLE `category` (
+`name` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `article` (
+`id` INT,
+`title` VARCHAR(64),
+`author` VARCHAR(64),
+`published` DATETIME,
+`edited` DATETIME,
+`image` VARCHAR(64),
+`caption` VARCHAR(64),
+`lead` VARCHAR(64),
+`text` VARCHAR(64),
+`category` VARCHAR(64),
+`priority` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`nickname` VARCHAR(64),
+`text` VARCHAR(64),
+`published` DATETIME,
+`articleId` INT,
+PRIMARY KEY (`nickname`, `text`)
+) CHARACTER SET latin1;
+CREATE TABLE `rating` (
+`id` INT,
+`value` INT,
+`articleId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_062668_tables') AS relationships;
+relationships
+Database: db_062668_tables
+
+Table Connections:
+------------------
+[Implied]  article.category -> category.name
+[Implied]  comment.articleId -> article.id
+[Implied]  rating.articleId -> article.id
+
+DROP DATABASE `db_062668_tables`;
+UNINSTALL EXTENSION vsql_schematron;

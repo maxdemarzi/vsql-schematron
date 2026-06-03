@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 170170_database_setup
+--echo #
+CREATE DATABASE `db_170170_database_setup`;
+USE `db_170170_database_setup`;
+
+CREATE TABLE `Rectangle` (
+  `RectID` INT,
+  `X` DECIMAL(10,2),
+  `Y` DECIMAL(10,2),
+  `Width` DECIMAL(10,2),
+  `Height` DECIMAL(10,2),
+  `Angle` DECIMAL(10,2),
+  `RoomID` INT,
+  PRIMARY KEY (`RectID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Room` (
+  `RoomID` INT,
+  `Name` VARCHAR(64),
+  `Width` DECIMAL(10,2),
+  `Height` DECIMAL(10,2),
+  `DateUsed` DATETIME,
+  PRIMARY KEY (`RoomID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Robot` (
+  `RobotID` INT,
+  `Name` VARCHAR(64),
+  `NumberOfReadings` INT,
+  `DistanceSensorFuzziness` DECIMAL(10,2),
+  `AngleSensorFuzziness` DECIMAL(10,2),
+  `DistanceMovedFuzziness` DECIMAL(10,2),
+  `AngleRotatedFuzziness` DECIMAL(10,2),
+  `DateUsed` DATETIME,
+  PRIMARY KEY (`RobotID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Scenario` (
+  `ScenarioID` INT,
+  `Name` VARCHAR(64),
+  `RoomID` INT,
+  `RobotID` INT,
+  `SquareSize` INT,
+  `CartographerGrid` VARCHAR(64),
+  `RobotPosX` DECIMAL(10,2),
+  `RobotPosY` DECIMAL(10,2),
+  `RobotAngle` DECIMAL(10,2),
+  `DateUsed` DATETIME,
+  PRIMARY KEY (`ScenarioID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_170170_database_setup') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_170170_database_setup') AS relationships;
+DROP DATABASE `db_170170_database_setup`;
+UNINSTALL EXTENSION vsql_schematron;

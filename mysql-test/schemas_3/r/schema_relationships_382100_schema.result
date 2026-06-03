@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 382100_schema
+#
+CREATE DATABASE `db_382100_schema`;
+USE `db_382100_schema`;
+CREATE TABLE `polls` (
+`uid` VARCHAR(64),
+`title` VARCHAR(64),
+`message` VARCHAR(64),
+`end_date` DATETIME,
+`owner` VARCHAR(64),
+PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `choices` (
+`id` INT,
+`poll` VARCHAR(64),
+`text` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `ballots` (
+`voter` VARCHAR(64),
+`poll` VARCHAR(64),
+`choice` INT,
+`grade` INT,
+PRIMARY KEY (`voter`, `poll`, `choice`)
+) CHARACTER SET latin1;
+CREATE TABLE `results` (
+`poll` VARCHAR(64),
+`choice` INT,
+`rank` VARCHAR(64),
+`grade` VARCHAR(64),
+`percentages` VARCHAR(64),
+`ballots` INT,
+PRIMARY KEY (`poll`, `choice`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_382100_schema') AS relationships;
+relationships
+Database: db_382100_schema
+
+Table Connections:
+------------------
+[Implied]  ballots.choice -> choices.id
+[Implied]  ballots.poll -> polls.uid
+[Implied]  choices.poll -> polls.uid
+[Implied]  results.choice -> choices.id
+[Implied]  results.poll -> polls.uid
+
+DROP DATABASE `db_382100_schema`;
+UNINSTALL EXTENSION vsql_schematron;

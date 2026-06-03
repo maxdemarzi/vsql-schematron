@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 447361_HeadFirstSQL%20-%20my_contacts
+--echo #
+CREATE DATABASE `db_447361_HeadFirstSQL_20_20my_contacts`;
+USE `db_447361_HeadFirstSQL_20_20my_contacts`;
+
+CREATE TABLE `my_contacts` (
+  `contact_id` INT,
+  `last_name` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `email` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `birthday` DATETIME,
+  `prof_id` INT,
+  `zip_code` INT,
+  `status_id` INT,
+  PRIMARY KEY (`contact_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contact_interest` (
+  `contact_id` INT,
+  `interest_id` INT,
+  PRIMARY KEY (`contact_id`, `interest_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `interests` (
+  `interest_id` INT,
+  `interest` VARCHAR(64),
+  PRIMARY KEY (`interest_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contact_seeking` (
+  `contact_id` INT,
+  `seeking_id` INT,
+  PRIMARY KEY (`contact_id`, `seeking_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `seeking` (
+  `seeking_id` INT,
+  `seeking` VARCHAR(64),
+  PRIMARY KEY (`seeking_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `profession` (
+  `profession_id` INT,
+  `profession` VARCHAR(64),
+  PRIMARY KEY (`profession_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `zip_code` (
+  `zip_code` INT,
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  PRIMARY KEY (`zip_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `_status` (
+  `status_id` INT,
+  `_status` VARCHAR(64),
+  PRIMARY KEY (`status_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_447361_HeadFirstSQL_20_20my_contacts') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_447361_HeadFirstSQL_20_20my_contacts') AS relationships;
+DROP DATABASE `db_447361_HeadFirstSQL_20_20my_contacts`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 038373_PostgreSQLIdentity
+--echo #
+CREATE DATABASE `db_038373_PostgreSQLIdentity`;
+USE `db_038373_PostgreSQLIdentity`;
+
+CREATE TABLE `AspNetRoles` (
+  `Id` VARCHAR(64),
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AspNetUsers` (
+  `Id` VARCHAR(64),
+  `UserName` VARCHAR(64),
+  `PasswordHash` VARCHAR(64),
+  `SecurityStamp` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `EmailConfirmed` VARCHAR(64),
+  `PhoneNumber` VARCHAR(64),
+  `PhoneNumberConfirmed` VARCHAR(64),
+  `TwoFactorEnabled` VARCHAR(64),
+  `LockoutEndDateUtc` DATETIME,
+  `LockoutEnabled` VARCHAR(64),
+  `AccessFailedCount` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AspNetUserClaims` (
+  `Id` INT,
+  `ClaimType` VARCHAR(64),
+  `ClaimValue` VARCHAR(64),
+  `UserId` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AspNetUserLogins` (
+  `UserId` VARCHAR(64),
+  `LoginProvider` VARCHAR(64),
+  `ProviderKey` VARCHAR(64),
+  PRIMARY KEY (`UserId`, `LoginProvider`, `ProviderKey`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AspNetUserRoles` (
+  `UserId` VARCHAR(64),
+  `RoleId` VARCHAR(64),
+  PRIMARY KEY (`UserId`, `RoleId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_038373_PostgreSQLIdentity') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_038373_PostgreSQLIdentity') AS relationships;
+DROP DATABASE `db_038373_PostgreSQLIdentity`;
+UNINSTALL EXTENSION vsql_schematron;

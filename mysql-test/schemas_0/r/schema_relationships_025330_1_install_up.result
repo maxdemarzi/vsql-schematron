@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 025330_1_install.up
+#
+CREATE DATABASE `db_025330_1_install_up`;
+USE `db_025330_1_install_up`;
+CREATE TABLE `carts` (
+`id` INT,
+`status` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cart_products` (
+`cart_id` INT,
+`product_id` INT,
+`quantity` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`cart_id`, `product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`user_id` INT,
+`cart_id` INT,
+`address` VARCHAR(64),
+`status` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_025330_1_install_up') AS relationships;
+relationships
+Database: db_025330_1_install_up
+
+Table Connections:
+------------------
+[Implied]  cart_products.cart_id -> carts.id
+[Implied]  orders.cart_id -> carts.id
+
+DROP DATABASE `db_025330_1_install_up`;
+UNINSTALL EXTENSION vsql_schematron;

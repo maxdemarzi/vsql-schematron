@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 #include <unordered_set>
+#include <unordered_map>
 
 /**
  * Converts a string to lowercase.
@@ -21,91 +22,98 @@ std::string to_lower(std::string s) {
  */
 std::string expandAbbreviation(const std::string& word) {
     std::string w = to_lower(word);
-    auto check = [](const std::string& s) -> std::string {
-        if (s == "dept") return "department";
-        if (s == "cust") return "customer";
-        if (s == "emp") return "employee";
-        if (s == "mgr") return "manager";
-        if (s == "org") return "organization";
-        if (s == "src") return "source";
-        if (s == "dest") return "destination";
-        if (s == "addr") return "address";
-        if (s == "desc") return "description";
-        if (s == "prod") return "product";
-        if (s == "cat") return "category";
-        if (s == "msg") return "message";
-        if (s == "pos") return "position";
-        if (s == "usr") return "user";
-        if (s == "grp") return "group";
-        if (s == "auth") return "authority";
-        if (s == "info") return "information";
-        if (s == "spec") return "specification";
-        if (s == "dev") return "development";
-        if (s == "pkg") return "package";
-        if (s == "txn") return "transaction";
-        if (s == "tx") return "transaction";
-        if (s == "doc") return "document";
-        if (s == "ref") return "reference";
-        if (s == "rel") return "relationship";
-        if (s == "std") return "student";
-        if (s == "sch") return "school";
-        if (s == "loc") return "location";
-        if (s == "lang") return "language";
-        if (s == "qty") return "quantity";
-        if (s == "amt") return "amount";
-        if (s == "val") return "value";
-        if (s == "num") return "number";
-        if (s == "no") return "number";
-        if (s == "pct") return "percent";
-        if (s == "dt") return "date";
-        if (s == "cd") return "code";
-        if (s == "cl") return "client";
-        if (s == "cli") return "client";
-        if (s == "srv") return "server";
-        if (s == "app") return "application";
-        if (s == "cfg") return "configuration";
-        if (s == "ctx") return "context";
-        if (s == "db") return "database";
-        if (s == "dir") return "directory";
-        if (s == "env") return "environment";
-        if (s == "err") return "error";
-        if (s == "fun") return "function";
-        if (s == "gen") return "generator";
-        if (s == "hdr") return "header";
-        if (s == "impl") return "implementation";
-        if (s == "lib") return "library";
-        if (s == "log") return "logical";
-        if (s == "max") return "maximum";
-        if (s == "min") return "minimum";
-        if (s == "opt") return "option";
-        if (s == "param") return "parameter";
-        if (s == "prop") return "property";
-        if (s == "req") return "request";
-        if (s == "res") return "resource";
-        if (s == "resp") return "response";
-        if (s == "stat") return "status";
-        if (s == "sys") return "system";
-        if (s == "tmp") return "temporary";
-        if (s == "temp") return "temporary";
-        if (s == "util") return "utility";
-        if (s == "ver") return "version";
-        if (s == "vol") return "volume";
-        if (s == "yr") return "year";
-        if (s == "mth") return "month";
-        if (s == "wk") return "week";
-        if (s == "hr") return "hour";
-        if (s == "sec") return "second";
-        if (s == "ms") return "millisecond";
-        if (s == "int") return "intersection";
-        if (s == "nm") return "name";
-        if (s == "st") return "status";
-        if (s == "nb") return "number";
-        if (s == "flg") return "flag";
-        if (s == "fk") return "key";
-        if (s == "pk") return "key";
-        if (s == "crsreq") return "course_request";
-        if (s == "corr") return "correlation";
-        if (s == "corrset") return "correlation_set";
+    static const std::unordered_map<std::string, std::string> ABBR_MAP = {
+        {"dept", "department"},
+        {"cust", "customer"},
+        {"emp", "employee"},
+        {"mgr", "manager"},
+        {"org", "organization"},
+        {"src", "source"},
+        {"dest", "destination"},
+        {"addr", "address"},
+        {"desc", "description"},
+        {"prod", "product"},
+        {"cat", "category"},
+        {"msg", "message"},
+        {"pos", "position"},
+        {"usr", "user"},
+        {"grp", "group"},
+        {"auth", "authority"},
+        {"info", "information"},
+        {"spec", "specification"},
+        {"dev", "development"},
+        {"pkg", "package"},
+        {"txn", "transaction"},
+        {"tx", "transaction"},
+        {"doc", "document"},
+        {"ref", "reference"},
+        {"rel", "relationship"},
+        {"std", "student"},
+        {"sch", "school"},
+        {"loc", "location"},
+        {"lang", "language"},
+        {"qty", "quantity"},
+        {"amt", "amount"},
+        {"val", "value"},
+        {"num", "number"},
+        {"no", "number"},
+        {"pct", "percent"},
+        {"dt", "date"},
+        {"cd", "code"},
+        {"cl", "client"},
+        {"cli", "client"},
+        {"srv", "server"},
+        {"app", "application"},
+        {"cfg", "configuration"},
+        {"ctx", "context"},
+        {"db", "database"},
+        {"dir", "directory"},
+        {"env", "environment"},
+        {"err", "error"},
+        {"fun", "function"},
+        {"gen", "generator"},
+        {"hdr", "header"},
+        {"impl", "implementation"},
+        {"lib", "library"},
+        {"log", "logical"},
+        {"max", "maximum"},
+        {"min", "minimum"},
+        {"opt", "option"},
+        {"param", "parameter"},
+        {"prop", "property"},
+        {"req", "request"},
+        {"res", "resource"},
+        {"resp", "response"},
+        {"stat", "status"},
+        {"sys", "system"},
+        {"tmp", "temporary"},
+        {"temp", "temporary"},
+        {"util", "utility"},
+        {"ver", "version"},
+        {"vol", "volume"},
+        {"yr", "year"},
+        {"mth", "month"},
+        {"wk", "week"},
+        {"hr", "hour"},
+        {"sec", "second"},
+        {"ms", "millisecond"},
+        {"int", "intersection"},
+        {"nm", "name"},
+        {"st", "status"},
+        {"nb", "number"},
+        {"flg", "flag"},
+        {"fk", "key"},
+        {"pk", "key"},
+        {"crsreq", "course_request"},
+        {"corr", "correlation"},
+        {"corrset", "correlation_set"}
+    };
+
+    auto check = [&](const std::string& s) -> std::string {
+        auto it = ABBR_MAP.find(s);
+        if (it != ABBR_MAP.end()) {
+            return it->second;
+        }
         return "";
     };
     std::string exp = check(w);

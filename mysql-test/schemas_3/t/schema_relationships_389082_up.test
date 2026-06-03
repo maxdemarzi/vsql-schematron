@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 389082_up
+--echo #
+CREATE DATABASE `db_389082_up`;
+USE `db_389082_up`;
+
+CREATE TABLE `wallets` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `accounts` (
+  `wallet_id` VARCHAR(64),
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`wallet_id`, `id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `positions` (
+  `wallet_id` VARCHAR(64),
+  `account_id` VARCHAR(64),
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `units` VARCHAR(64),
+  `price` VARCHAR(64),
+  `value` VARCHAR(64),
+  PRIMARY KEY (`wallet_id`, `account_id`, `id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `transactions` (
+  `wallet_id` VARCHAR(64),
+  `account_id` VARCHAR(64),
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `time` VARCHAR(64),
+  `amount` VARCHAR(64),
+  PRIMARY KEY (`wallet_id`, `account_id`, `id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_389082_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_389082_up') AS relationships;
+DROP DATABASE `db_389082_up`;
+UNINSTALL EXTENSION vsql_schematron;

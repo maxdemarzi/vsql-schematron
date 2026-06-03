@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 151910_tables
+#
+CREATE DATABASE `db_151910_tables`;
+USE `db_151910_tables`;
+CREATE TABLE `adminDetails` (
+`name` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `album` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `artist` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`about` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `song` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`album_id` VARCHAR(64),
+`genre` VARCHAR(64),
+`play_count` INT,
+`song_num` INT,
+`wav` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `song_artist` (
+`song_id` VARCHAR(64),
+`artist_id` VARCHAR(64),
+PRIMARY KEY (`song_id`, `artist_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `album_artist` (
+`album_id` VARCHAR(64),
+`artist_id` VARCHAR(64),
+PRIMARY KEY (`album_id`, `artist_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `history` (
+`user_id` VARCHAR(64),
+`song_id` VARCHAR(64),
+`last_played` DATETIME,
+PRIMARY KEY (`user_id`, `song_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_151910_tables') AS relationships;
+relationships
+Database: db_151910_tables
+
+Table Connections:
+------------------
+[Implied]  album_artist.album_id -> album.id
+[Implied]  album_artist.artist_id -> artist.id
+[Implied]  history.song_id -> song.id
+[Implied]  song.album_id -> album.id
+[Implied]  song_artist.artist_id -> artist.id
+[Implied]  song_artist.song_id -> song.id
+
+DROP DATABASE `db_151910_tables`;
+UNINSTALL EXTENSION vsql_schematron;

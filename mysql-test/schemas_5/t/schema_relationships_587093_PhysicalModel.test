@@ -1,0 +1,160 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 587093_PhysicalModel
+--echo #
+CREATE DATABASE `db_587093_PhysicalModel`;
+USE `db_587093_PhysicalModel`;
+
+CREATE TABLE `Hospitals` (
+  `Hospital_ID` VARCHAR(64),
+  `Hospital_Name` VARCHAR(64),
+  `Hospital_Address` VARCHAR(64),
+  `Phone` VARCHAR(64),
+  PRIMARY KEY (`Hospital_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Departments` (
+  `Department_ID` VARCHAR(64),
+  `Department_Name` VARCHAR(64),
+  `Service_Name` VARCHAR(64),
+  `Hospital_ID` VARCHAR(64),
+  PRIMARY KEY (`Department_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Staff` (
+  `Staff_ID` VARCHAR(64),
+  `Staff_Name` VARCHAR(64),
+  `Staff_Contact` VARCHAR(64),
+  `Staff_Email` VARCHAR(64),
+  `Department_ID` VARCHAR(64),
+  PRIMARY KEY (`Staff_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Bed` (
+  `Bed_ID` VARCHAR(64),
+  `Bed_No` VARCHAR(64),
+  PRIMARY KEY (`Bed_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Medication` (
+  `Medication_ID` DECIMAL(10,2),
+  `Medication_Name` VARCHAR(64),
+  `Medication_Brand` VARCHAR(64),
+  `Medication_Description` VARCHAR(64),
+  PRIMARY KEY (`Medication_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Patient` (
+  `Patient_ID` DECIMAL(10,2),
+  `Patient_Name` VARCHAR(64),
+  `Patient_Gender` VARCHAR(64),
+  `Patient_Birth_Date` DATETIME,
+  `Patient_Phone` VARCHAR(64),
+  `Patient_Address` VARCHAR(64),
+  `Patient_Type` VARCHAR(64),
+  PRIMARY KEY (`Patient_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Out_Patient` (
+  `Patient_ID` DECIMAL(10,2),
+  `Checkback_Date` DATETIME,
+  PRIMARY KEY (`Patient_ID`, `Checkback_Date`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Resident_Patient` (
+  `Patient_ID` DECIMAL(10,2),
+  `Date_Discharged` DATETIME,
+  PRIMARY KEY (`Patient_ID`, `Date_Discharged`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Physician` (
+  `Physician_ID` DECIMAL(10,2),
+  `Physician_Name` VARCHAR(64),
+  `Physician_Contact` VARCHAR(64),
+  `Physician_Email` VARCHAR(64),
+  `Department_ID` VARCHAR(64),
+  PRIMARY KEY (`Physician_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Admissions` (
+  `Admission_ID` DECIMAL(10,2),
+  `Patient_ID` DECIMAL(10,2),
+  `Admission_Date` DATETIME,
+  `Discharge_Date` DATETIME,
+  `Bed_ID` VARCHAR(64),
+  `Department_ID` VARCHAR(64),
+  PRIMARY KEY (`Admission_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Appointment` (
+  `Appointment_ID` DECIMAL(10,2),
+  `Patient_ID` DECIMAL(10,2),
+  `Physician_ID` DECIMAL(10,2),
+  `Start_DT` DATETIME,
+  `End_DT` DATETIME,
+  `Room_ID` DECIMAL(10,2),
+  PRIMARY KEY (`Appointment_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Patient_Medication` (
+  `Patient_Medication_ID` DECIMAL(10,2),
+  `Patient_ID` DECIMAL(10,2),
+  `Physician_ID` DECIMAL(10,2),
+  `Medication_ID` DECIMAL(10,2),
+  `Patient_Prescription` VARCHAR(64),
+  `Does` VARCHAR(64),
+  PRIMARY KEY (`Patient_Medication_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Lab_Work` (
+  `Lab_ID` VARCHAR(64),
+  `Test_Type` VARCHAR(64),
+  `Physician_ID` DECIMAL(10,2),
+  `Patient_ID` DECIMAL(10,2),
+  `Lab_Date` DATETIME,
+  `Lab_Result` VARCHAR(64),
+  `Result_Date` DATETIME,
+  PRIMARY KEY (`Lab_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Patient_Treatment` (
+  `Treatment_ID` DECIMAL(10,2),
+  `Patient_ID` DECIMAL(10,2),
+  `Physician_ID` DECIMAL(10,2),
+  `Lab_ID` VARCHAR(64),
+  `Treatment_Date` DATETIME,
+  `Treatment_Time` DATETIME,
+  `Treatment_Results` VARCHAR(64),
+  PRIMARY KEY (`Treatment_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Payments` (
+  `Payment_ID` DECIMAL(10,2),
+  `Payment_Date` DATETIME,
+  `Payment_Details` VARCHAR(64),
+  `Patient_ID` DECIMAL(10,2),
+  `Payment_Type` VARCHAR(64),
+  `Payment_Amount` DECIMAL(10,2),
+  PRIMARY KEY (`Payment_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_587093_PhysicalModel') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_587093_PhysicalModel') AS relationships;
+DROP DATABASE `db_587093_PhysicalModel`;
+UNINSTALL EXTENSION vsql_schematron;

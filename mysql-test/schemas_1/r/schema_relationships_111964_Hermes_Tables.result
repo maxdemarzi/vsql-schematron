@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 111964_Hermes_Tables
+#
+CREATE DATABASE `db_111964_Hermes_Tables`;
+USE `db_111964_Hermes_Tables`;
+CREATE TABLE `hermes_result` (
+`id` VARCHAR(64),
+`date` DATETIME,
+`dir` VARCHAR(64),
+`error` VARCHAR(64),
+`stackTrace` VARCHAR(64),
+`status` VARCHAR(64),
+`versionId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hermes_step` (
+`id` VARCHAR(64),
+`idx` INT,
+`name` VARCHAR(64),
+`status` VARCHAR(64),
+`stderr` VARCHAR(64),
+`stdout` VARCHAR(64),
+`hermesBuild_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hermes_build` (
+`id` VARCHAR(64),
+`hermesResult_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `filter_status` (
+`id` VARCHAR(64),
+`filtername` VARCHAR(64),
+`activate` VARCHAR(64),
+`versionid` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_111964_Hermes_Tables') AS relationships;
+relationships
+Database: db_111964_Hermes_Tables
+
+Table Connections:
+------------------
+[Implied]  hermes_build.hermesResult_id -> hermes_result.id
+[Implied]  hermes_step.hermesBuild_id -> hermes_build.id
+
+DROP DATABASE `db_111964_Hermes_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

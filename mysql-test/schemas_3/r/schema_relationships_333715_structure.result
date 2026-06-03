@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 333715_structure
+#
+CREATE DATABASE `db_333715_structure`;
+USE `db_333715_structure`;
+CREATE TABLE `Role` (
+`roleId` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`roleId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Account` (
+`accountId` INT,
+`login` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`accountId`)
+) CHARACTER SET latin1;
+CREATE TABLE `AccountRole` (
+`accountId` INT,
+`roleId` INT,
+PRIMARY KEY (`accountId`, `roleId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Country` (
+`countryId` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`countryId`)
+) CHARACTER SET latin1;
+CREATE TABLE `City` (
+`cityId` INT,
+`name` VARCHAR(64),
+`countryId` INT,
+PRIMARY KEY (`cityId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`sessionId` INT,
+`accountId` INT,
+`token` VARCHAR(64),
+`ip` VARCHAR(64),
+`data` VARCHAR(64),
+PRIMARY KEY (`sessionId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_333715_structure') AS relationships;
+relationships
+Database: db_333715_structure
+
+Table Connections:
+------------------
+[Implied]  AccountRole.accountId -> Account.accountId
+[Implied]  AccountRole.roleId -> Role.roleId
+[Implied]  City.countryId -> Country.countryId
+[Implied]  Session.accountId -> Account.accountId
+
+DROP DATABASE `db_333715_structure`;
+UNINSTALL EXTENSION vsql_schematron;

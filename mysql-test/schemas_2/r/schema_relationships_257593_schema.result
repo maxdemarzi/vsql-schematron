@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 257593_schema
+#
+CREATE DATABASE `db_257593_schema`;
+USE `db_257593_schema`;
+CREATE TABLE `Actions` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Subjects` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TimeTable` (
+`action` INT,
+`subject` INT,
+`duration` INT,
+PRIMARY KEY (`action`, `subject`)
+) CHARACTER SET latin1;
+CREATE TABLE `History` (
+`started` VARCHAR(64),
+`ended` VARCHAR(64),
+`action` INT,
+`subject` INT,
+PRIMARY KEY (`started`)
+) CHARACTER SET latin1;
+CREATE TABLE `Meta` (
+`key` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_257593_schema') AS relationships;
+relationships
+Database: db_257593_schema
+
+Table Connections:
+------------------
+[Implied]  History.action -> Actions.id
+[Implied]  History.subject -> Subjects.id
+[Implied]  TimeTable.action -> Actions.id
+[Implied]  TimeTable.subject -> Subjects.id
+
+DROP DATABASE `db_257593_schema`;
+UNINSTALL EXTENSION vsql_schematron;

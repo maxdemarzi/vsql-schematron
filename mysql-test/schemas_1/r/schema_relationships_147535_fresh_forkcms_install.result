@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 147535_fresh-forkcms-install
+#
+CREATE DATABASE `db_147535_fresh_forkcms_install`;
+USE `db_147535_fresh_forkcms_install`;
+CREATE TABLE `content_blocks` (
+`revision_id` INT,
+`id` INT,
+`user_id` INT,
+`extra_id` INT,
+`template` VARCHAR(64),
+`language` VARCHAR(64),
+`title` VARCHAR(64),
+`text` VARCHAR(64),
+`hidden` INT,
+`status` VARCHAR(64),
+`created_on` DATETIME,
+`edited_on` DATETIME,
+PRIMARY KEY (`revision_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `MediaGroup` (
+`id` VARCHAR(64),
+`type` VARCHAR(64),
+`editedOn` DATETIME,
+`numberOfConnectedItems` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `MediaGroupMediaItem` (
+`id` VARCHAR(64),
+`createdOn` DATETIME,
+`sequence` INT,
+`mediaGroupId` VARCHAR(64),
+`mediaItemId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `MediaItem` (
+`id` VARCHAR(64),
+`userId` INT,
+`storageType` VARCHAR(64),
+`type` VARCHAR(64),
+`mime` VARCHAR(64),
+`shardingFolderName` VARCHAR(64),
+`url` VARCHAR(64),
+`title` VARCHAR(64),
+`size` INT,
+`width` INT,
+`height` INT,
+`aspectRatio` DECIMAL(10,2),
+`createdOn` DATETIME,
+`editedOn` DATETIME,
+`mediaFolderId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_groups` (
+`group_id` INT,
+`user_id` INT,
+PRIMARY KEY (`group_id`, `user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_147535_fresh_forkcms_install') AS relationships;
+relationships
+Database: db_147535_fresh_forkcms_install
+
+Table Connections:
+------------------
+[Implied]  MediaGroupMediaItem.mediaGroupId -> MediaGroup.id
+[Implied]  MediaGroupMediaItem.mediaItemId -> MediaItem.id
+
+DROP DATABASE `db_147535_fresh_forkcms_install`;
+UNINSTALL EXTENSION vsql_schematron;

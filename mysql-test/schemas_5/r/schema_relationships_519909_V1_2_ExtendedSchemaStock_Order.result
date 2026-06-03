@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 519909_V1_2__ExtendedSchemaStock_Order
+#
+CREATE DATABASE `db_519909_V1_2_ExtendedSchemaStock_Order`;
+USE `db_519909_V1_2_ExtendedSchemaStock_Order`;
+CREATE TABLE `Address` (
+`AddressId` INT,
+`Country` VARCHAR(64),
+`City` VARCHAR(64),
+`County` VARCHAR(64),
+`Street` VARCHAR(64),
+PRIMARY KEY (`AddressId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Location` (
+`LocationId` INT,
+`Name` VARCHAR(64),
+`AddressId` INT,
+PRIMARY KEY (`LocationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Stock` (
+`ProductId` INT,
+`LocationId` INT,
+`Quantity` INT,
+PRIMARY KEY (`ProductId`, `LocationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer` (
+`CustomerId` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`UserName` VARCHAR(64),
+`PasswordHash` VARCHAR(64),
+`EmailAddress` VARCHAR(64),
+PRIMARY KEY (`CustomerId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Order` (
+`OrderId` INT,
+`LocationId` INT,
+`CustomerId` INT,
+`CreatedAt` DATETIME,
+`AddressId` INT,
+PRIMARY KEY (`OrderId`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderDetail` (
+`orderId` INT,
+`productId` INT,
+`quantity` INT,
+PRIMARY KEY (`orderId`, `productId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Revenue` (
+`RevenueId` INT,
+`LocationId` INT,
+`Date` DATETIME,
+`Sum` DECIMAL(10,2),
+PRIMARY KEY (`RevenueId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_519909_V1_2_ExtendedSchemaStock_Order') AS relationships;
+relationships
+Database: db_519909_V1_2_ExtendedSchemaStock_Order
+
+Table Connections:
+------------------
+[Implied]  Location.AddressId -> Address.AddressId
+[Implied]  Order.AddressId -> Address.AddressId
+[Implied]  Order.CustomerId -> Customer.CustomerId
+[Implied]  Order.LocationId -> Location.LocationId
+[Implied]  OrderDetail.orderId -> Order.OrderId
+[Implied]  Revenue.LocationId -> Location.LocationId
+[Implied]  Stock.LocationId -> Location.LocationId
+
+DROP DATABASE `db_519909_V1_2_ExtendedSchemaStock_Order`;
+UNINSTALL EXTENSION vsql_schematron;

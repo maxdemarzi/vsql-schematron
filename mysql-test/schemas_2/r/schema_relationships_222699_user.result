@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 222699_user
+#
+CREATE DATABASE `db_222699_user`;
+USE `db_222699_user`;
+CREATE TABLE `user` (
+`id` VARCHAR(64),
+`local_id` VARCHAR(64),
+`display_name` VARCHAR(64),
+`username` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `location_user_assignment` (
+`location_id` VARCHAR(64),
+`user_id` VARCHAR(64),
+PRIMARY KEY (`location_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group` (
+`id` VARCHAR(64),
+`local_id` VARCHAR(64),
+`display_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group_user_assignment` (
+`group_id` VARCHAR(64),
+`user_id` VARCHAR(64),
+PRIMARY KEY (`group_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `location_group_assignment` (
+`location_id` VARCHAR(64),
+`group_id` VARCHAR(64),
+PRIMARY KEY (`location_id`, `group_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_222699_user') AS relationships;
+relationships
+Database: db_222699_user
+
+Table Connections:
+------------------
+[Implied]  group_user_assignment.group_id -> group.id
+[Implied]  group_user_assignment.user_id -> user.id
+[Implied]  location_group_assignment.group_id -> group.id
+[Implied]  location_user_assignment.user_id -> user.id
+
+DROP DATABASE `db_222699_user`;
+UNINSTALL EXTENSION vsql_schematron;

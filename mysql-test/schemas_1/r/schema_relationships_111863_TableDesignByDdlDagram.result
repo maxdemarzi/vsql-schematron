@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 111863_TableDesignByDdlDagram
+#
+CREATE DATABASE `db_111863_TableDesignByDdlDagram`;
+USE `db_111863_TableDesignByDdlDagram`;
+CREATE TABLE `towns` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `addresses` (
+`id` INT,
+`name` VARCHAR(64),
+`town_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stores` (
+`id` INT,
+`name` VARCHAR(64),
+`rating` DECIMAL(10,2),
+`has_parking` INT,
+`address_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`id` INT,
+`first_name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`salary` DECIMAL(10,2),
+`hire_date` DATETIME,
+`manager_id` INT,
+`store_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pictures` (
+`id` INT,
+`url` VARCHAR(64),
+`added_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`name` VARCHAR(64),
+`best_before` DATETIME,
+`price` DECIMAL(10,2),
+`description` VARCHAR(64),
+`category_id` INT,
+`picture_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products_stores` (
+`product_id` INT,
+`store_id` INT,
+PRIMARY KEY (`product_id`, `store_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_111863_TableDesignByDdlDagram') AS relationships;
+relationships
+Database: db_111863_TableDesignByDdlDagram
+
+Table Connections:
+------------------
+[Implied]  addresses.town_id -> towns.id
+[Implied]  employees.manager_id -> employees.id
+[Implied]  employees.store_id -> stores.id
+[Implied]  products.category_id -> categories.id
+[Implied]  products.picture_id -> pictures.id
+[Implied]  products_stores.product_id -> products.id
+[Implied]  products_stores.store_id -> stores.id
+[Implied]  stores.address_id -> addresses.id
+
+DROP DATABASE `db_111863_TableDesignByDdlDagram`;
+UNINSTALL EXTENSION vsql_schematron;

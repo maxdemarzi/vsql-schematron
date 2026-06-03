@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 556140_RevolutBank_scripts
+#
+CREATE DATABASE `db_556140_RevolutBank_scripts`;
+USE `db_556140_RevolutBank_scripts`;
+CREATE TABLE `Banks` (
+`BankID` INT,
+`BankIdentifierCode` VARCHAR(64),
+`BankName` VARCHAR(64),
+`BankBranchName` VARCHAR(64),
+`Rating` VARCHAR(64),
+`AssetsAmount` VARCHAR(64),
+PRIMARY KEY (`BankID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Currencies` (
+`CurrencyID` INT,
+`Name` VARCHAR(64),
+`IsCBDC` VARCHAR(64),
+`Descriptions` VARCHAR(64),
+PRIMARY KEY (`CurrencyID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customers` (
+`CustomerID` INT,
+`NationalIdentityNumber` VARCHAR(64),
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`Address` VARCHAR(64),
+PRIMARY KEY (`CustomerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BankAccountTypes` (
+`BankAccountTypeID` INT,
+`Name` VARCHAR(64),
+`Descriptions` VARCHAR(64),
+`Limit` VARCHAR(64),
+`Rate` DECIMAL(10,2),
+PRIMARY KEY (`BankAccountTypeID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cards` (
+`CardID` INT,
+`CardNumber` VARCHAR(64),
+`PINCode` VARCHAR(64),
+`CVV` VARCHAR(64),
+`Limit` VARCHAR(64),
+`ValidationDate` DATETIME,
+`CardType` VARCHAR(64),
+PRIMARY KEY (`CardID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CardsTwoBankAccounts` (
+`CardID` INT,
+`BankAccountID` INT,
+PRIMARY KEY (`CardID`, `BankAccountID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Transactions` (
+`TransactionID` INT,
+`SenderBankAccountID` INT,
+`ReceiverBankAccountID` INT,
+`Amount` VARCHAR(64),
+`CreatedOn` DATETIME,
+`CurrencyID` INT,
+PRIMARY KEY (`TransactionID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BankAccounts` (
+`BankAccountID` INT,
+`Balance` VARCHAR(64),
+`IsActive` VARCHAR(64),
+`CardID` INT,
+`BankAccountTypeID` INT,
+`BankID` INT,
+`CustomerID` INT,
+PRIMARY KEY (`BankAccountID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_556140_RevolutBank_scripts') AS relationships;
+relationships
+Database: db_556140_RevolutBank_scripts
+
+Table Connections:
+------------------
+[Implied]  BankAccounts.BankAccountTypeID -> BankAccountTypes.BankAccountTypeID
+[Implied]  BankAccounts.BankID -> Banks.BankID
+[Implied]  BankAccounts.CardID -> Cards.CardID
+[Implied]  BankAccounts.CustomerID -> Customers.CustomerID
+[Implied]  CardsTwoBankAccounts.BankAccountID -> BankAccounts.BankAccountID
+[Implied]  CardsTwoBankAccounts.CardID -> Cards.CardID
+[Implied]  Transactions.CurrencyID -> Currencies.CurrencyID
+[Implied]  Transactions.ReceiverBankAccountID -> BankAccounts.BankAccountID
+[Implied]  Transactions.SenderBankAccountID -> BankAccounts.BankAccountID
+
+DROP DATABASE `db_556140_RevolutBank_scripts`;
+UNINSTALL EXTENSION vsql_schematron;

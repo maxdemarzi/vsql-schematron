@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 045051_Aula05
+#
+CREATE DATABASE `db_045051_Aula05`;
+USE `db_045051_Aula05`;
+CREATE TABLE `tblestados` (
+`estid` INT,
+`estsigla` VARCHAR(64),
+PRIMARY KEY (`estid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblcursos` (
+`curid` INT,
+`curnome` VARCHAR(64),
+PRIMARY KEY (`curid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblalunos` (
+`aluid` INT,
+`alunome` VARCHAR(64),
+`alunomesocial` VARCHAR(64),
+`alucpf` DECIMAL(10,2),
+`alurg` VARCHAR(64),
+`curid` INT,
+`estid` INT,
+PRIMARY KEY (`aluid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblfaculdades` (
+`facid` INT,
+`facnome` VARCHAR(64),
+PRIMARY KEY (`facid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblcursosfaculdades` (
+`curid` INT,
+`facid` INT,
+PRIMARY KEY (`curid`, `facid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbldisciplinas` (
+`disid` INT,
+`disnome` VARCHAR(64),
+PRIMARY KEY (`disid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbldisciplinascurso` (
+`disid` INT,
+`curid` INT,
+PRIMARY KEY (`disid`, `curid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_045051_Aula05') AS relationships;
+relationships
+Database: db_045051_Aula05
+
+Table Connections:
+------------------
+[Implied]  tblalunos.curid -> tblcursos.curid
+[Implied]  tblalunos.estid -> tblestados.estid
+[Implied]  tblcursosfaculdades.curid -> tblcursos.curid
+[Implied]  tblcursosfaculdades.facid -> tblfaculdades.facid
+[Implied]  tbldisciplinascurso.curid -> tblcursos.curid
+[Implied]  tbldisciplinascurso.disid -> tbldisciplinas.disid
+
+DROP DATABASE `db_045051_Aula05`;
+UNINSTALL EXTENSION vsql_schematron;

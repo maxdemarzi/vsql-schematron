@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 170170_database_setup
+#
+CREATE DATABASE `db_170170_database_setup`;
+USE `db_170170_database_setup`;
+CREATE TABLE `Rectangle` (
+`RectID` INT,
+`X` DECIMAL(10,2),
+`Y` DECIMAL(10,2),
+`Width` DECIMAL(10,2),
+`Height` DECIMAL(10,2),
+`Angle` DECIMAL(10,2),
+`RoomID` INT,
+PRIMARY KEY (`RectID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Room` (
+`RoomID` INT,
+`Name` VARCHAR(64),
+`Width` DECIMAL(10,2),
+`Height` DECIMAL(10,2),
+`DateUsed` DATETIME,
+PRIMARY KEY (`RoomID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Robot` (
+`RobotID` INT,
+`Name` VARCHAR(64),
+`NumberOfReadings` INT,
+`DistanceSensorFuzziness` DECIMAL(10,2),
+`AngleSensorFuzziness` DECIMAL(10,2),
+`DistanceMovedFuzziness` DECIMAL(10,2),
+`AngleRotatedFuzziness` DECIMAL(10,2),
+`DateUsed` DATETIME,
+PRIMARY KEY (`RobotID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Scenario` (
+`ScenarioID` INT,
+`Name` VARCHAR(64),
+`RoomID` INT,
+`RobotID` INT,
+`SquareSize` INT,
+`CartographerGrid` VARCHAR(64),
+`RobotPosX` DECIMAL(10,2),
+`RobotPosY` DECIMAL(10,2),
+`RobotAngle` DECIMAL(10,2),
+`DateUsed` DATETIME,
+PRIMARY KEY (`ScenarioID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_170170_database_setup') AS relationships;
+relationships
+Database: db_170170_database_setup
+
+Table Connections:
+------------------
+[Implied]  Rectangle.RoomID -> Room.RoomID
+[Implied]  Scenario.RobotAngle -> Rectangle.RectID
+[Implied]  Scenario.RobotAngle -> Robot.RobotID
+[Implied]  Scenario.RobotID -> Robot.RobotID
+[Implied]  Scenario.RobotPosX -> Robot.RobotID
+[Implied]  Scenario.RobotPosY -> Robot.RobotID
+[Implied]  Scenario.RoomID -> Room.RoomID
+
+DROP DATABASE `db_170170_database_setup`;
+UNINSTALL EXTENSION vsql_schematron;

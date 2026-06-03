@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 086337_psinit
+#
+CREATE DATABASE `db_086337_psinit`;
+USE `db_086337_psinit`;
+CREATE TABLE `acl` (
+`actor` VARCHAR(64),
+`ouid` VARCHAR(64),
+`permissions` INT,
+PRIMARY KEY (`actor`, `ouid`)
+) CHARACTER SET latin1;
+CREATE TABLE `authority` (
+`id` INT,
+`authority` VARCHAR(64),
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `changelog` (
+`actor` VARCHAR(64),
+`objectclass` VARCHAR(64),
+`objectid` VARCHAR(64),
+`time` DATETIME,
+`type` VARCHAR(64),
+`attr_updates` VARCHAR(64),
+PRIMARY KEY (`actor`, `objectclass`, `objectid`, `time`, `type`)
+) CHARACTER SET latin1;
+CREATE TABLE `not_read` (
+`guid` VARCHAR(64),
+PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_authority` (
+`user_id` INT,
+`authority_id` INT,
+PRIMARY KEY (`user_id`, `authority_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_property` (
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+`user_id` INT,
+PRIMARY KEY (`name`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`account_expired` VARCHAR(64),
+`account_locked` VARCHAR(64),
+`enabled` VARCHAR(64),
+`password` VARCHAR(64),
+`password_expired` VARCHAR(64),
+`username` VARCHAR(64),
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_086337_psinit') AS relationships;
+relationships
+Database: db_086337_psinit
+
+Table Connections:
+------------------
+[Implied]  user_authority.authority_id -> authority.id
+[Implied]  user_authority.user_id -> users.id
+[Implied]  user_property.user_id -> users.id
+
+DROP DATABASE `db_086337_psinit`;
+UNINSTALL EXTENSION vsql_schematron;

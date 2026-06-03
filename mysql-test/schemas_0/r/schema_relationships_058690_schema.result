@@ -1,0 +1,32 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 058690_schema
+#
+CREATE DATABASE `db_058690_schema`;
+USE `db_058690_schema`;
+CREATE TABLE `Ingredient` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Taco_Ingredients` (
+`taco_id` INT,
+`ingredients_id` VARCHAR(64),
+PRIMARY KEY (`taco_id`, `ingredients_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Taco_Order_Tacos` (
+`taco_order_id` INT,
+`taco_id` INT,
+PRIMARY KEY (`taco_order_id`, `taco_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_058690_schema') AS relationships;
+relationships
+Database: db_058690_schema
+
+Table Connections:
+------------------
+[Implied]  Taco_Ingredients.ingredients_id -> Ingredient.id
+
+DROP DATABASE `db_058690_schema`;
+UNINSTALL EXTENSION vsql_schematron;

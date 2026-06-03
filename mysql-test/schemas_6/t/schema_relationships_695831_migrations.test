@@ -1,0 +1,139 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 695831_migrations
+--echo #
+CREATE DATABASE `db_695831_migrations`;
+USE `db_695831_migrations`;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password_hash` VARCHAR(64),
+  `admin` VARCHAR(64),
+  `registered_at` DATETIME,
+  `confirmed_at` DATETIME,
+  `password_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_keys` (
+  `user_id` INT,
+  `purpose` VARCHAR(64),
+  `key_hash` VARCHAR(64),
+  `expires_at` DATETIME,
+  PRIMARY KEY (`user_id`, `purpose`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `emails` (
+  `id` INT,
+  `email_to` VARCHAR(64),
+  `template_name` VARCHAR(64),
+  `data` VARCHAR(64),
+  `queued_at` DATETIME,
+  `sent_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `countries` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `emoji` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `songs` (
+  `id` INT,
+  `artist` VARCHAR(64),
+  `title` VARCHAR(64),
+  `album` VARCHAR(64),
+  `image` VARCHAR(64),
+  `country_id` INT,
+  `summary_markdown` VARCHAR(64),
+  `summary_html` VARCHAR(64),
+  `full_markdown` VARCHAR(64),
+  `full_html` VARCHAR(64),
+  `author_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `released_at` VARCHAR(64),
+  `published_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tags` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `song_tags` (
+  `tag_id` INT,
+  `song_id` INT,
+  PRIMARY KEY (`tag_id`, `song_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comments` (
+  `id` INT,
+  `song_id` INT,
+  `author_id` INT,
+  `parent_id` INT,
+  `comment_bbcode` VARCHAR(64),
+  `comment_html` VARCHAR(64),
+  `created_at` DATETIME,
+  `approved_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `links` (
+  `id` INT,
+  `song_id` INT,
+  `identifier` VARCHAR(64),
+  `class` VARCHAR(64),
+  `url` VARCHAR(64),
+  `description` VARCHAR(64),
+  `priority` INT,
+  `extras` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `content` (
+  `name` VARCHAR(64),
+  `title` VARCHAR(64),
+  `markdown` VARCHAR(64),
+  `html` VARCHAR(64),
+  `author_id` INT,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comment_edits` (
+  `id` INT,
+  `comment_id` INT,
+  `reason` VARCHAR(64),
+  `editor_id` INT,
+  `edited_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_695831_migrations') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_695831_migrations') AS relationships;
+DROP DATABASE `db_695831_migrations`;
+UNINSTALL EXTENSION vsql_schematron;

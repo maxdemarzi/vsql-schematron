@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 109495_V1__Initial
+--echo #
+CREATE DATABASE `db_109495_V1_Initial`;
+USE `db_109495_V1_Initial`;
+
+CREATE TABLE `VIZO_ROLES` (
+  `ID` INT,
+  `DESCRIPTION` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `VIZO_USERS` (
+  `ID` INT,
+  `PASSWORD` VARCHAR(64),
+  `USERNAME` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `VIZO_USER_ROLES` (
+  `USER_ID` INT,
+  `ROLE_ID` INT,
+  PRIMARY KEY (`USER_ID`, `ROLE_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `VIZO_DATASOURCES` (
+  `ID` INT,
+  `NAME` VARCHAR(64),
+  `CONNECTION_DETAILS` VARCHAR(64),
+  `TYPE` VARCHAR(64),
+  `IS_ACTIVE` VARCHAR(64),
+  `IS_CONNECTED` VARCHAR(64),
+  `QUERIES` INT,
+  `CREATED_ON` DATETIME,
+  `USER_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_109495_V1_Initial') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_109495_V1_Initial') AS relationships;
+DROP DATABASE `db_109495_V1_Initial`;
+UNINSTALL EXTENSION vsql_schematron;

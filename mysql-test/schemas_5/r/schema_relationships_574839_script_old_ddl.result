@@ -1,0 +1,139 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 574839_script_old.ddl
+#
+CREATE DATABASE `db_574839_script_old_ddl`;
+USE `db_574839_script_old_ddl`;
+CREATE TABLE `Portion` (
+`PreparationDate` DATETIME,
+`Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Supplement` (
+`Name` VARCHAR(64),
+`Mass` DECIMAL(10,2),
+`Manual` VARCHAR(64),
+`FoodComposition` VARCHAR(64),
+`ExpirationDate` DATETIME,
+`Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Allergens` (
+`Id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Decoration` (
+`Manufacturer` VARCHAR(64),
+`Name` VARCHAR(64),
+`Color` VARCHAR(64),
+`Mass` DECIMAL(10,2),
+`Description` VARCHAR(64),
+`Material` VARCHAR(64),
+`Type` INT,
+`Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Equipment` (
+`Manufacturer` VARCHAR(64),
+`Name` VARCHAR(64),
+`Type` INT,
+`Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Food` (
+`Name` VARCHAR(64),
+`Mass` DECIMAL(10,2),
+`Calories` DECIMAL(10,2),
+`Carbs` DECIMAL(10,2),
+`Proten` DECIMAL(10,2),
+`Fat` DECIMAL(10,2),
+`PrepManual` VARCHAR(64),
+`ExpirationDate` DATETIME,
+`Allergen` INT,
+`Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Supplement_part_of_portion` (
+`Fk_portion` INT,
+`Fk_supplement` INT,
+PRIMARY KEY (`Fk_portion`, `Fk_supplement`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`BirthDate` DATETIME,
+`RegistrationDate` DATETIME,
+`Email` VARCHAR(64),
+`Password` VARCHAR(64),
+`Code` VARCHAR(64),
+`Type` INT,
+`Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Aquarium_inside_has_decoration` (
+`Fk_decoration` INT,
+`Fk_aquarium` INT,
+PRIMARY KEY (`Fk_decoration`, `Fk_aquarium`)
+) CHARACTER SET latin1;
+CREATE TABLE `Equipment_put_in_aquarium` (
+`Fk_aquarium` INT,
+`Fk_equipment` INT,
+PRIMARY KEY (`Fk_aquarium`, `Fk_equipment`)
+) CHARACTER SET latin1;
+CREATE TABLE `Fish` (
+`Species` VARCHAR(64),
+`Mass` DECIMAL(10,2),
+`Size` DECIMAL(10,2),
+`Origin` VARCHAR(64),
+`ArrivalDate` DATETIME,
+`LifeExpectancy` INT,
+`Description` VARCHAR(64),
+`Gender` INT,
+`Id` INT,
+`Fk_Aquarium` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Food_mixed_in_portion` (
+`Fk_portion` INT,
+`Fk_food` INT,
+PRIMARY KEY (`Fk_portion`, `Fk_food`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tasks` (
+`Name` VARCHAR(64),
+`Duration` DECIMAL(10,2),
+`StartTime` DATETIME,
+`Description` VARCHAR(64),
+`State` INT,
+`Id` INT,
+`Fk_Aquarium` INT,
+`Fk_User` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Parameters` (
+`Name` VARCHAR(64),
+`Value` VARCHAR(64),
+`Type` INT,
+`Id` INT,
+`Fk_Fish` INT,
+`Fk_Aquarium` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_574839_script_old_ddl') AS relationships;
+relationships
+Database: db_574839_script_old_ddl
+
+Table Connections:
+------------------
+[Implied]  Aquarium_inside_has_decoration.Fk_decoration -> Decoration.Id
+[Implied]  Equipment_put_in_aquarium.Fk_equipment -> Equipment.Id
+[Implied]  Food.Allergen -> Allergens.Id
+[Implied]  Food_mixed_in_portion.Fk_food -> Food.Id
+[Implied]  Food_mixed_in_portion.Fk_portion -> Portion.Id
+[Implied]  Parameters.Fk_Fish -> Fish.Id
+[Implied]  Supplement_part_of_portion.Fk_portion -> Portion.Id
+[Implied]  Supplement_part_of_portion.Fk_supplement -> Supplement.Id
+[Implied]  Tasks.Fk_User -> User.Id
+
+DROP DATABASE `db_574839_script_old_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

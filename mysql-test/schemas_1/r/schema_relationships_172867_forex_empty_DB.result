@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 172867_forex_empty_DB
+#
+CREATE DATABASE `db_172867_forex_empty_DB`;
+USE `db_172867_forex_empty_DB`;
+CREATE TABLE `changer` (
+`id_changer` INT,
+`id_member` INT,
+`id_broker` INT,
+`jenis_transaksi` INT,
+`nilai` INT,
+`nilai_tukar` INT,
+`no_akun_trading` VARCHAR(64),
+`nama_akun_trading` VARCHAR(64),
+`nama_bank` VARCHAR(64),
+`no_rek` VARCHAR(64),
+`nama_rek` VARCHAR(64),
+`notes` VARCHAR(64),
+`timestamp` DATETIME,
+`approved` INT,
+`approve_time` DATETIME,
+PRIMARY KEY (`id_changer`)
+) CHARACTER SET latin1;
+CREATE TABLE `config` (
+`config_name` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`config_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `log` (
+`id_log` INT,
+`id_member` INT,
+`action_text` VARCHAR(64),
+`query` VARCHAR(64),
+`time_created` DATETIME,
+PRIMARY KEY (`id_log`)
+) CHARACTER SET latin1;
+CREATE TABLE `member_broker` (
+`id_member` INT,
+`id_broker` INT,
+`link_ib` VARCHAR(64),
+`link_client` VARCHAR(64),
+`broker_username` VARCHAR(64),
+`real_account` VARCHAR(64),
+PRIMARY KEY (`id_member`, `id_broker`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`id_message` INT,
+`id_member_from` INT,
+`message` VARCHAR(64),
+`id_member_to` INT,
+`send_time` DATETIME,
+`delete_from` INT,
+`delete_to` INT,
+PRIMARY KEY (`id_message`)
+) CHARACTER SET latin1;
+CREATE TABLE `news` (
+`id_news` INT,
+`id_member` INT,
+`text` VARCHAR(64),
+`date_created` DATETIME,
+`delete` INT,
+PRIMARY KEY (`id_news`)
+) CHARACTER SET latin1;
+CREATE TABLE `wall_comment` (
+`id_comment` INT,
+`id_wall_post` INT,
+`id_member` INT,
+`timestamp` DATETIME,
+`content` VARCHAR(64),
+`deleted` INT,
+PRIMARY KEY (`id_comment`)
+) CHARACTER SET latin1;
+CREATE TABLE `wall_post` (
+`id_wall_post` INT,
+`id_member` INT,
+`timestamp` DATETIME,
+`content` VARCHAR(64),
+`deleted` INT,
+PRIMARY KEY (`id_wall_post`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_172867_forex_empty_DB') AS relationships;
+relationships
+Database: db_172867_forex_empty_DB
+
+Table Connections:
+------------------
+[Implied]  wall_comment.id_wall_post -> wall_post.id_wall_post
+
+DROP DATABASE `db_172867_forex_empty_DB`;
+UNINSTALL EXTENSION vsql_schematron;

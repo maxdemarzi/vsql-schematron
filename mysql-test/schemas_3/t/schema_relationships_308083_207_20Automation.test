@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 308083_207%20Automation
+--echo #
+CREATE DATABASE `db_308083_207_20Automation`;
+USE `db_308083_207_20Automation`;
+
+CREATE TABLE `task` (
+  `uniqueid` DECIMAL(10,2),
+  `name` VARCHAR(64),
+  `session_id` DECIMAL(10,2),
+  `script_id` DECIMAL(10,2),
+  `owner_id` DECIMAL(10,2),
+  `email` VARCHAR(64),
+  `input_file` VARCHAR(64),
+  PRIMARY KEY (`uniqueid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `task_parameter` (
+  `task_id` DECIMAL(10,2),
+  `name` VARCHAR(64),
+  `value` VARCHAR(64),
+  PRIMARY KEY (`task_id`, `name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `task_execution` (
+  `uniqueid` DECIMAL(10,2),
+  `task_id` DECIMAL(10,2),
+  `exec_date` DECIMAL(10,2),
+  `exec_period` DECIMAL(10,2),
+  `status` DECIMAL(10,2),
+  `created_date` DATETIME,
+  `scheduled_date` DATETIME,
+  `queued_date` DATETIME,
+  `started_date` DATETIME,
+  `finished_date` DATETIME,
+  `log_file` VARCHAR(64),
+  `output_file` VARCHAR(64),
+  `output_name` VARCHAR(64),
+  `output_content` VARCHAR(64),
+  `status_message` VARCHAR(64),
+  PRIMARY KEY (`uniqueid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_308083_207_20Automation') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_308083_207_20Automation') AS relationships;
+DROP DATABASE `db_308083_207_20Automation`;
+UNINSTALL EXTENSION vsql_schematron;

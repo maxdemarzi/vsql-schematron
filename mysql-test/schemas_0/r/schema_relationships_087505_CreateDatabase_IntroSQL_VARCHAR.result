@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 087505_CreateDatabase_IntroSQL_VARCHAR
+#
+CREATE DATABASE `db_087505_CreateDatabase_IntroSQL_VARCHAR`;
+USE `db_087505_CreateDatabase_IntroSQL_VARCHAR`;
+CREATE TABLE `Students` (
+`StudentID` INT,
+`GPA` DECIMAL(10,2),
+PRIMARY KEY (`StudentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Professors` (
+`ProfID` INT,
+`Rank` VARCHAR(64),
+PRIMARY KEY (`ProfID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Courses` (
+`CourseID` INT,
+`Title` VARCHAR(64),
+`MaxSize` INT,
+PRIMARY KEY (`CourseID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CurrentlyEnrolled` (
+`CourseID` INT,
+`StudentID` INT,
+`Grade` DECIMAL(10,2),
+PRIMARY KEY (`CourseID`, `StudentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CurrentlyTeaching` (
+`CourseID` INT,
+`ProfID` INT,
+`Section` INT,
+PRIMARY KEY (`CourseID`, `ProfID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_087505_CreateDatabase_IntroSQL_VARCHAR') AS relationships;
+relationships
+Database: db_087505_CreateDatabase_IntroSQL_VARCHAR
+
+Table Connections:
+------------------
+[Implied]  CurrentlyEnrolled.CourseID -> Courses.CourseID
+[Implied]  CurrentlyEnrolled.StudentID -> Students.StudentID
+[Implied]  CurrentlyTeaching.CourseID -> Courses.CourseID
+[Implied]  CurrentlyTeaching.ProfID -> Professors.ProfID
+
+DROP DATABASE `db_087505_CreateDatabase_IntroSQL_VARCHAR`;
+UNINSTALL EXTENSION vsql_schematron;

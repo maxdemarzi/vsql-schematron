@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 189009_script_consultorio_clinico
+--echo #
+CREATE DATABASE `db_189009_script_consultorio_clinico`;
+USE `db_189009_script_consultorio_clinico`;
+
+CREATE TABLE `Medico` (
+  `Cod_medico` INT,
+  `Nome_medico` VARCHAR(64),
+  `Desc_especialidade` VARCHAR(64),
+  PRIMARY KEY (`Cod_medico`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Exame` (
+  `Cod_exame` INT,
+  `Paciente_Cod_paciente` INT,
+  `Desc_exame` VARCHAR(64),
+  `Nome_medico` VARCHAR(64),
+  PRIMARY KEY (`Cod_exame`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Paciente_has_Medico` (
+  `Paciente_Cod_paciente` INT,
+  `Medico_Cod_medico` INT,
+  PRIMARY KEY (`Paciente_Cod_paciente`, `Medico_Cod_medico`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_189009_script_consultorio_clinico') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_189009_script_consultorio_clinico') AS relationships;
+DROP DATABASE `db_189009_script_consultorio_clinico`;
+UNINSTALL EXTENSION vsql_schematron;

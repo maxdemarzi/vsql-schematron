@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 418479_spotify
+#
+CREATE DATABASE `db_418479_spotify`;
+USE `db_418479_spotify`;
+CREATE TABLE `album` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`album_type` VARCHAR(64),
+`release_date` DATETIME,
+`genres` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `album_track` (
+`album_id` VARCHAR(64),
+`track_id` VARCHAR(64),
+PRIMARY KEY (`album_id`, `track_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `artist` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `playlist` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `playlist_track` (
+`playlist_id` VARCHAR(64),
+`track_id` VARCHAR(64),
+`added_at` DATETIME,
+`added_by` VARCHAR(64),
+PRIMARY KEY (`playlist_id`, `track_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `track` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `track_artist` (
+`track_id` VARCHAR(64),
+`artist_id` VARCHAR(64),
+PRIMARY KEY (`track_id`, `artist_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_418479_spotify') AS relationships;
+relationships
+Database: db_418479_spotify
+
+Table Connections:
+------------------
+[Implied]  album_track.album_id -> album.id
+[Implied]  album_track.track_id -> track.id
+[Implied]  playlist_track.playlist_id -> playlist.id
+[Implied]  playlist_track.track_id -> track.id
+[Implied]  track_artist.artist_id -> artist.id
+[Implied]  track_artist.track_id -> track.id
+
+DROP DATABASE `db_418479_spotify`;
+UNINSTALL EXTENSION vsql_schematron;

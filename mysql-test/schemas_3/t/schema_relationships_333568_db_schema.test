@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 333568_db_schema
+--echo #
+CREATE DATABASE `db_333568_db_schema`;
+USE `db_333568_db_schema`;
+
+CREATE TABLE `ARTICLE` (
+  `pmc_id` INT,
+  `title` VARCHAR(64),
+  `doi` VARCHAR(64),
+  PRIMARY KEY (`pmc_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TRAIT_TABLE` (
+  `tab_id` INT,
+  `tab_lb` VARCHAR(64),
+  `pmc_id` INT,
+  PRIMARY KEY (`tab_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ABBREVIATION` (
+  `abbrev` VARCHAR(64),
+  `expansion` VARCHAR(64),
+  `pmc_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `COLUMN_ENTRY` (
+  `col_id` INT,
+  `tab_id` INT,
+  `header` VARCHAR(64),
+  `type` VARCHAR(64),
+  `annot` VARCHAR(64),
+  PRIMARY KEY (`col_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CELL_ENTRY` (
+  `row_id` INT,
+  `col_id` INT,
+  `value` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `QTL` (
+  `tab_id` INT,
+  `row_id` INT,
+  `trait_in_article` VARCHAR(64),
+  `trait_in_onto` VARCHAR(64),
+  `trait_uri` VARCHAR(64),
+  `chromosome` VARCHAR(64),
+  `marker` VARCHAR(64),
+  `marker_uri` VARCHAR(64),
+  `gene` VARCHAR(64),
+  `gene_uri` VARCHAR(64),
+  PRIMARY KEY (`tab_id`, `row_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_333568_db_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_333568_db_schema') AS relationships;
+DROP DATABASE `db_333568_db_schema`;
+UNINSTALL EXTENSION vsql_schematron;

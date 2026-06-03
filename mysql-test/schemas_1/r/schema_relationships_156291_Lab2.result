@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 156291_Lab2
+#
+CREATE DATABASE `db_156291_Lab2`;
+USE `db_156291_Lab2`;
+CREATE TABLE `Student_details` (
+`StudentID` INT,
+`Student_Name` VARCHAR(64),
+PRIMARY KEY (`StudentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Student_address` (
+`StudentID` INT,
+`Street` VARCHAR(64),
+`State` VARCHAR(64),
+`ZipCode` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `School` (
+`PriorSchoolId` INT,
+`PriorSchoolAddr` VARCHAR(64),
+PRIMARY KEY (`PriorSchoolId`)
+) CHARACTER SET latin1;
+CREATE TABLE `School_history` (
+`StudentID` INT,
+`PriorSchoolId` INT,
+`GPA` DECIMAL(10,2),
+PRIMARY KEY (`StudentID`, `PriorSchoolId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Application` (
+`App_No` INT,
+`App_Year` INT,
+`StudentID` INT,
+PRIMARY KEY (`App_No`, `App_Year`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reference` (
+`App_No` INT,
+`App_Year` INT,
+`ReferenceName` VARCHAR(64),
+`RefInstitution` VARCHAR(64),
+`ReferenceStatement` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_156291_Lab2') AS relationships;
+relationships
+Database: db_156291_Lab2
+
+Table Connections:
+------------------
+[Implied]  Application.StudentID -> Student_details.StudentID
+[Implied]  School_history.PriorSchoolId -> School.PriorSchoolId
+[Implied]  School_history.StudentID -> Student_details.StudentID
+[Implied]  Student_address.StudentID -> Student_details.StudentID
+
+DROP DATABASE `db_156291_Lab2`;
+UNINSTALL EXTENSION vsql_schematron;

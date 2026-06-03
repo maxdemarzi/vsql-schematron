@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 119093_create-h2
+--echo #
+CREATE DATABASE `db_119093_create_h2`;
+USE `db_119093_create_h2`;
+
+CREATE TABLE `signal_queue` (
+  `seq_num` INT,
+  `cls` VARCHAR(64),
+  `id` VARCHAR(64),
+  `event_cls` VARCHAR(64),
+  `event_bytes` VARCHAR(64),
+  PRIMARY KEY (`seq_num`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entity` (
+  `cls` VARCHAR(64),
+  `id` VARCHAR(64),
+  `state` VARCHAR(64),
+  `bytes` VARCHAR(64),
+  PRIMARY KEY (`cls`, `id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entity_property` (
+  `cls` VARCHAR(64),
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `value` VARCHAR(64),
+  PRIMARY KEY (`cls`, `id`, `name`, `value`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entity_prop_range_int` (
+  `cls` VARCHAR(64),
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `value` VARCHAR(64),
+  `range_name` VARCHAR(64),
+  `range_value` INT,
+  PRIMARY KEY (`cls`, `id`, `name`, `value`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `signal_store` (
+  `seq_num` INT,
+  `cls` VARCHAR(64),
+  `id` VARCHAR(64),
+  `event_cls` VARCHAR(64),
+  `event_bytes` VARCHAR(64),
+  PRIMARY KEY (`seq_num`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_119093_create_h2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_119093_create_h2') AS relationships;
+DROP DATABASE `db_119093_create_h2`;
+UNINSTALL EXTENSION vsql_schematron;

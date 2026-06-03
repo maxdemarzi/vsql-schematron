@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 257926_Dump20210709
+#
+CREATE DATABASE `db_257926_Dump20210709`;
+USE `db_257926_Dump20210709`;
+CREATE TABLE `agendamedicamento` (
+`idAgendamento` INT,
+`frequencia` INT,
+`dataInicio` DATETIME,
+`dataTermino` DATETIME,
+`intervalo` INT,
+`idPessoa` INT,
+`idAnimal` INT,
+`idMedicamento` INT,
+`idConsulta` INT,
+`dosagem` VARCHAR(64),
+PRIMARY KEY (`idAgendamento`)
+) CHARACTER SET latin1;
+CREATE TABLE `aplicamedicamento` (
+`idAplicaMedicamento` INT,
+`dosagem` VARCHAR(64),
+`dataAplicacao` DATETIME,
+`horario` DATETIME,
+`idPessoa` INT,
+`idAnimal` INT,
+`idMedicamento` INT,
+`observacoes` VARCHAR(64),
+PRIMARY KEY (`idAplicaMedicamento`)
+) CHARACTER SET latin1;
+CREATE TABLE `medicamento` (
+`idMedicamento` INT,
+`nome` VARCHAR(64),
+`isVacina` INT,
+`idEspecieAnimal` INT,
+PRIMARY KEY (`idMedicamento`)
+) CHARACTER SET latin1;
+CREATE TABLE `pessoaorganizacao` (
+`idPessoa` INT,
+`idOrganizacao` INT,
+PRIMARY KEY (`idPessoa`, `idOrganizacao`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_257926_Dump20210709') AS relationships;
+relationships
+Database: db_257926_Dump20210709
+
+Table Connections:
+------------------
+[Implied]  agendamedicamento.idMedicamento -> medicamento.idMedicamento
+[Implied]  aplicamedicamento.idMedicamento -> medicamento.idMedicamento
+
+DROP DATABASE `db_257926_Dump20210709`;
+UNINSTALL EXTENSION vsql_schematron;

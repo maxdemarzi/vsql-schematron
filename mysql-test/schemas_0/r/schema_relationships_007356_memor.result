@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 007356_memor
+#
+CREATE DATABASE `db_007356_memor`;
+USE `db_007356_memor`;
+CREATE TABLE `views` (
+`viewid` VARCHAR(64),
+`viewname` VARCHAR(64),
+`grouping_catid` VARCHAR(64),
+`ordering_catid` VARCHAR(64),
+`asc_desc` INT,
+PRIMARY KEY (`viewid`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`itemid` VARCHAR(64),
+`note` VARCHAR(64),
+`text` VARCHAR(64),
+PRIMARY KEY (`itemid`)
+) CHARACTER SET latin1;
+CREATE TABLE `cats` (
+`catid` VARCHAR(64),
+`parent` VARCHAR(64),
+`catname` VARCHAR(64),
+`mut_excl_children` INT,
+`action` VARCHAR(64),
+PRIMARY KEY (`catid`)
+) CHARACTER SET latin1;
+CREATE TABLE `view_selection` (
+`viewid` VARCHAR(64),
+`catid` VARCHAR(64),
+`negated` INT,
+PRIMARY KEY (`viewid`, `catid`)
+) CHARACTER SET latin1;
+CREATE TABLE `view_columns` (
+`viewid` VARCHAR(64),
+`catid` VARCHAR(64),
+`column_ordinal` INT,
+PRIMARY KEY (`viewid`, `catid`)
+) CHARACTER SET latin1;
+CREATE TABLE `item_cats` (
+`itemid` VARCHAR(64),
+`catid` VARCHAR(64),
+`strvalue` VARCHAR(64),
+`numvalue` DECIMAL(10,2),
+`source` VARCHAR(64),
+PRIMARY KEY (`itemid`, `catid`)
+) CHARACTER SET latin1;
+CREATE TABLE `cat_rules` (
+`catid` VARCHAR(64),
+`source_catid` VARCHAR(64),
+`negated` INT,
+`relop` VARCHAR(64),
+`strvalue` VARCHAR(64),
+`numvalue` DECIMAL(10,2),
+PRIMARY KEY (`catid`, `source_catid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_007356_memor') AS relationships;
+relationships
+Database: db_007356_memor
+
+Table Connections:
+------------------
+[Implied]  cat_rules.catid -> cats.catid
+[Implied]  cat_rules.source_catid -> cats.catid
+[Implied]  cats.parent -> cats.catid
+[Implied]  item_cats.catid -> cats.catid
+[Implied]  item_cats.itemid -> items.itemid
+[Implied]  view_columns.catid -> cats.catid
+[Implied]  view_columns.viewid -> views.viewid
+[Implied]  view_selection.catid -> cats.catid
+[Implied]  view_selection.viewid -> views.viewid
+[Implied]  views.grouping_catid -> cats.catid
+[Implied]  views.ordering_catid -> cats.catid
+
+DROP DATABASE `db_007356_memor`;
+UNINSTALL EXTENSION vsql_schematron;

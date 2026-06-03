@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 071317_201709261418__Create_Schema
+#
+CREATE DATABASE `db_071317_201709261418_Create_Schema`;
+USE `db_071317_201709261418_Create_Schema`;
+CREATE TABLE `recipe` (
+`id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`directions` VARCHAR(64),
+`prep_time` INT,
+`cook_time` INT,
+`yield` INT,
+`public` INT,
+`created_at` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rating` (
+`id` INT,
+`score` INT,
+`recipe` INT,
+`created_at` INT,
+`modified_at` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ingredient` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipe_has_ingredient` (
+`recipe` INT,
+`ingredient` INT,
+PRIMARY KEY (`recipe`, `ingredient`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_071317_201709261418_Create_Schema') AS relationships;
+relationships
+Database: db_071317_201709261418_Create_Schema
+
+Table Connections:
+------------------
+[Implied]  rating.recipe -> recipe.id
+[Implied]  recipe_has_ingredient.ingredient -> ingredient.id
+[Implied]  recipe_has_ingredient.recipe -> recipe.id
+
+DROP DATABASE `db_071317_201709261418_Create_Schema`;
+UNINSTALL EXTENSION vsql_schematron;

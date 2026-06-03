@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 013865_cc_schema
+#
+CREATE DATABASE `db_013865_cc_schema`;
+USE `db_013865_cc_schema`;
+CREATE TABLE `users` (
+`user_id` VARCHAR(64),
+`subject` VARCHAR(64),
+`consent_given` VARCHAR(64),
+`delete_requested` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`event_id` VARCHAR(64),
+`event_name` VARCHAR(64),
+`point_value` INT,
+`location` VARCHAR(64),
+`start_time` DATETIME,
+`end_time` DATETIME,
+`description` VARCHAR(64),
+PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_event` (
+`usr` VARCHAR(64),
+`event` VARCHAR(64),
+PRIMARY KEY (`usr`, `event`)
+) CHARACTER SET latin1;
+CREATE TABLE `transactions` (
+`transaction_id` VARCHAR(64),
+`usr` VARCHAR(64),
+`transaction_name` VARCHAR(64),
+`amount` DECIMAL(10,2),
+`category` VARCHAR(64),
+`points_earned` DECIMAL(10,2),
+`processed` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`transaction_id`, `usr`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_013865_cc_schema') AS relationships;
+relationships
+Database: db_013865_cc_schema
+
+Table Connections:
+------------------
+[Implied]  transactions.usr -> users.user_id
+[Implied]  user_event.event -> events.event_id
+[Implied]  user_event.usr -> users.user_id
+
+DROP DATABASE `db_013865_cc_schema`;
+UNINSTALL EXTENSION vsql_schematron;

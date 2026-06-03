@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 338606_create_script
+#
+CREATE DATABASE `db_338606_create_script`;
+USE `db_338606_create_script`;
+CREATE TABLE `IMAGES` (
+`ID` INT,
+`NAME` VARCHAR(64),
+`URL` VARCHAR(64),
+`USER_ID` VARCHAR(64),
+`LIKES` INT,
+`CREATE_TIME` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `COMMENTS` (
+`ID` INT,
+`IMAGE_ID` INT,
+`USER_ID` VARCHAR(64),
+`CREATE_TIME` DATETIME,
+`TEXT` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `LIKES` (
+`IMAGE_ID` INT,
+`USER_ID` VARCHAR(64),
+`CREATE_TIME` DATETIME,
+PRIMARY KEY (`IMAGE_ID`, `USER_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `USERS` (
+`NICKNAME` VARCHAR(64),
+`EMAIL` VARCHAR(64),
+`PASSWORD` VARCHAR(64),
+`NAME` VARCHAR(64),
+`LANGUAGE` VARCHAR(64),
+`LAST_ACTIVITY_TIME` DATETIME,
+`POSTS` INT,
+PRIMARY KEY (`NICKNAME`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_338606_create_script') AS relationships;
+relationships
+Database: db_338606_create_script
+
+Table Connections:
+------------------
+[Implied]  COMMENTS.IMAGE_ID -> IMAGES.ID
+[Implied]  LIKES.IMAGE_ID -> IMAGES.ID
+
+DROP DATABASE `db_338606_create_script`;
+UNINSTALL EXTENSION vsql_schematron;

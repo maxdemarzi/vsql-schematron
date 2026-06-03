@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 310176_V201909131400__basics
+--echo #
+CREATE DATABASE `db_310176_V201909131400_basics`;
+USE `db_310176_V201909131400_basics`;
+
+CREATE TABLE `boards` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `owner` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sprints` (
+  `id` INT,
+  `board_id` INT,
+  `name` VARCHAR(64),
+  `capacity` INT,
+  `ordinal` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tickets` (
+  `id` INT,
+  `home_board_id` INT,
+  `board_id` INT,
+  `description` VARCHAR(64),
+  `weight` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `solutions` (
+  `board_id` INT,
+  `ticket_id` INT,
+  `sprint_id` INT,
+  PRIMARY KEY (`board_id`, `ticket_id`, `sprint_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ticket_deps` (
+  `from_ticket_id` INT,
+  `to_ticket_id` INT,
+  PRIMARY KEY (`from_ticket_id`, `to_ticket_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ticket_pins` (
+  `ticket_id` INT,
+  `sprint_id` INT,
+  PRIMARY KEY (`ticket_id`, `sprint_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_310176_V201909131400_basics') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_310176_V201909131400_basics') AS relationships;
+DROP DATABASE `db_310176_V201909131400_basics`;
+UNINSTALL EXTENSION vsql_schematron;

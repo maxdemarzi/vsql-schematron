@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 588769_gsb
+#
+CREATE DATABASE `db_588769_gsb`;
+USE `db_588769_gsb`;
+CREATE TABLE `Forfait` (
+`id` VARCHAR(64),
+`libelle` VARCHAR(64),
+`montant` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Etat` (
+`id` VARCHAR(64),
+`libelle` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Visiteur` (
+`id` INT,
+`nom` VARCHAR(64),
+`prenom` VARCHAR(64),
+`adresse` VARCHAR(64),
+`cp` VARCHAR(64),
+`ville` VARCHAR(64),
+`dateEmbauche` DATETIME,
+`login` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `historiquePassword` (
+`idVisiteur` INT,
+`pwd` VARCHAR(64),
+`updated_date` DATETIME,
+PRIMARY KEY (`idVisiteur`, `pwd`)
+) CHARACTER SET latin1;
+CREATE TABLE `FicheFrais` (
+`id` INT,
+`idVisiteur` INT,
+`mois` INT,
+`annee` INT,
+`nbJustificatifs` INT,
+`montantValide` DECIMAL(10,2),
+`dateModif` DATETIME,
+`idEtat` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LigneFraisForfait` (
+`idFicheFrais` INT,
+`idForfait` VARCHAR(64),
+`quantite` INT,
+PRIMARY KEY (`idFicheFrais`, `idForfait`)
+) CHARACTER SET latin1;
+CREATE TABLE `LigneFraisHorsForfait` (
+`idFraisHF` INT,
+`idFicheFrais` INT,
+`dteFraisHF` DATETIME,
+`libFraisHF` VARCHAR(64),
+`quantite` INT,
+`montant` DECIMAL(10,2),
+PRIMARY KEY (`idFraisHF`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_588769_gsb') AS relationships;
+relationships
+Database: db_588769_gsb
+
+Table Connections:
+------------------
+[Implied]  FicheFrais.idEtat -> Etat.id
+[Implied]  FicheFrais.idVisiteur -> Visiteur.id
+[Implied]  LigneFraisForfait.idFicheFrais -> FicheFrais.id
+[Implied]  LigneFraisForfait.idForfait -> Forfait.id
+[Implied]  LigneFraisHorsForfait.idFicheFrais -> FicheFrais.id
+[Implied]  historiquePassword.idVisiteur -> Visiteur.id
+
+DROP DATABASE `db_588769_gsb`;
+UNINSTALL EXTENSION vsql_schematron;

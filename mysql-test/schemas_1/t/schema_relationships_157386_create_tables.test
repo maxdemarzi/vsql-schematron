@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 157386_create_tables
+--echo #
+CREATE DATABASE `db_157386_create_tables`;
+USE `db_157386_create_tables`;
+
+CREATE TABLE `Student` (
+  `regno` VARCHAR(64),
+  `sname` VARCHAR(64),
+  `major` VARCHAR(64),
+  `bdate` DATETIME,
+  PRIMARY KEY (`regno`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Course` (
+  `courseno` INT,
+  `cname` VARCHAR(64),
+  `dept` VARCHAR(64),
+  PRIMARY KEY (`courseno`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Enroll` (
+  `regno` VARCHAR(64),
+  `courseno` INT,
+  `sem` INT,
+  `marks` INT,
+  PRIMARY KEY (`regno`, `courseno`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Text` (
+  `bookisbn` INT,
+  `booktitle` VARCHAR(64),
+  `publisher` VARCHAR(64),
+  `author` VARCHAR(64),
+  PRIMARY KEY (`bookisbn`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Book_Adoption` (
+  `courseno` INT,
+  `sem` INT,
+  `bookisbn` INT,
+  PRIMARY KEY (`courseno`, `bookisbn`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_157386_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_157386_create_tables') AS relationships;
+DROP DATABASE `db_157386_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,106 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 524742_tms_srm
+--echo #
+CREATE DATABASE `db_524742_tms_srm`;
+USE `db_524742_tms_srm`;
+
+CREATE TABLE `TMS_bank` (
+  `bank_code` VARCHAR(64),
+  `branch_code` VARCHAR(64),
+  `account_number` VARCHAR(64),
+  `userkey` INT,
+  `bank` VARCHAR(64),
+  `branch` VARCHAR(64),
+  `account_type` VARCHAR(64),
+  `account_holder` VARCHAR(64),
+  `item_code` VARCHAR(64),
+  `create_date` DATETIME,
+  `modify_date` DATETIME,
+  PRIMARY KEY (`bank_code`, `branch_code`, `account_number`, `userkey`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TMS_receipt_template` (
+  `id` INT,
+  `userkey` INT,
+  `title` VARCHAR(64),
+  `line` INT,
+  `priority` INT,
+  `pdf_mapper` VARCHAR(64),
+  `mail_template` VARCHAR(64),
+  `create_date` DATETIME,
+  `modify_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TMS_receipt_to` (
+  `id` VARCHAR(64),
+  `userkey` INT,
+  `aliasto` INT,
+  `company` VARCHAR(64),
+  `fullname` VARCHAR(64),
+  `fullname_rubi` VARCHAR(64),
+  `zipcode` VARCHAR(64),
+  `address1` VARCHAR(64),
+  `address2` VARCHAR(64),
+  `email` VARCHAR(64),
+  `division` VARCHAR(64),
+  `modified_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TMS_receipt_detail` (
+  `issue_date` DATETIME,
+  `receipt_number` INT,
+  `userkey` INT,
+  `templatekey` INT,
+  `draft` VARCHAR(64),
+  `page_number` INT,
+  `line_number` INT,
+  `content` VARCHAR(64),
+  `price` INT,
+  `quantity` INT,
+  `tax_rate` DECIMAL(10,2),
+  `unit` VARCHAR(64),
+  PRIMARY KEY (`issue_date`, `receipt_number`, `userkey`, `templatekey`, `draft`, `page_number`, `line_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TMS_receipt_note` (
+  `issue_date` DATETIME,
+  `receipt_number` INT,
+  `userkey` INT,
+  `templatekey` INT,
+  `draft` VARCHAR(64),
+  `page_number` INT,
+  `content` VARCHAR(64),
+  PRIMARY KEY (`issue_date`, `receipt_number`, `userkey`, `templatekey`, `draft`, `page_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TMS_tax_rates` (
+  `effective_date` DATETIME,
+  `area_code` VARCHAR(64),
+  `tax_rate` DECIMAL(10,2),
+  `reduced_tax_rate` DECIMAL(10,2),
+  PRIMARY KEY (`effective_date`, `area_code`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_524742_tms_srm') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_524742_tms_srm') AS relationships;
+DROP DATABASE `db_524742_tms_srm`;
+UNINSTALL EXTENSION vsql_schematron;

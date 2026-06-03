@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 473256_Treinamento%202
+#
+CREATE DATABASE `db_473256_Treinamento_202`;
+USE `db_473256_Treinamento_202`;
+CREATE TABLE `disciplina` (
+`CodDisc` INT,
+`NomeD` VARCHAR(64),
+`Carga_H` INT,
+PRIMARY KEY (`CodDisc`)
+) CHARACTER SET latin1;
+CREATE TABLE `Prof` (
+`CodProf` INT,
+`NomeP` VARCHAR(64),
+`Cargo` VARCHAR(64),
+`Salario` DECIMAL(10,2),
+PRIMARY KEY (`CodProf`)
+) CHARACTER SET latin1;
+CREATE TABLE `Depto` (
+`CodDepto` INT,
+`NomeDepto` VARCHAR(64),
+PRIMARY KEY (`CodDepto`)
+) CHARACTER SET latin1;
+CREATE TABLE `Aluno` (
+`Mat` INT,
+`NomeA` VARCHAR(64),
+`Curso` VARCHAR(64),
+`Turma` VARCHAR(64),
+`CodDepto` INT,
+`Data_Nasc` DATETIME,
+PRIMARY KEY (`Mat`)
+) CHARACTER SET latin1;
+CREATE TABLE `Prof_Disc` (
+`CodProf` INT,
+`CodDisc` INT,
+`CodDepto` INT,
+PRIMARY KEY (`CodProf`, `CodDisc`)
+) CHARACTER SET latin1;
+CREATE TABLE `Aluno_Paga` (
+`Mat` INT,
+`CodDisc` INT,
+`CodProf` INT,
+`Data` DATETIME,
+PRIMARY KEY (`Mat`, `CodDisc`, `CodProf`, `Data`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_473256_Treinamento_202') AS relationships;
+relationships
+Database: db_473256_Treinamento_202
+
+Table Connections:
+------------------
+[Implied]  Aluno.CodDepto -> Depto.CodDepto
+[Implied]  Aluno_Paga.CodDisc -> disciplina.CodDisc
+[Implied]  Aluno_Paga.CodProf -> Prof.CodProf
+[Implied]  Aluno_Paga.Mat -> Aluno.Mat
+[Implied]  Prof_Disc.CodDepto -> Depto.CodDepto
+[Implied]  Prof_Disc.CodDisc -> disciplina.CodDisc
+[Implied]  Prof_Disc.CodProf -> Prof.CodProf
+
+DROP DATABASE `db_473256_Treinamento_202`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 287153_dump
+#
+CREATE DATABASE `db_287153_dump`;
+USE `db_287153_dump`;
+CREATE TABLE `hibernate_sequence` (
+`next_val` INT
+) CHARACTER SET latin1;
+CREATE TABLE `mood_entry` (
+`id` INT,
+`creation_time` DATETIME,
+`description` VARCHAR(64),
+`mood` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mood_entry_tags` (
+`mood_entry_id` INT,
+`tags_id` INT,
+PRIMARY KEY (`mood_entry_id`, `tags_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`id` INT,
+`keyword` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_287153_dump') AS relationships;
+relationships
+Database: db_287153_dump
+
+Table Connections:
+------------------
+[Implied]  mood_entry_tags.mood_entry_id -> mood_entry.id
+[Implied]  mood_entry_tags.tags_id -> tag.id
+
+DROP DATABASE `db_287153_dump`;
+UNINSTALL EXTENSION vsql_schematron;

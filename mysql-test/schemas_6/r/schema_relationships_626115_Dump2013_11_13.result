@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 626115_Dump2013-11-13
+#
+CREATE DATABASE `db_626115_Dump2013_11_13`;
+USE `db_626115_Dump2013_11_13`;
+CREATE TABLE `answers` (
+`id` INT,
+`text` VARCHAR(64),
+`question_id` INT,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `api_keys` (
+`id` INT,
+`api_key` VARCHAR(64),
+`blocked` INT,
+`valid_until` DATETIME,
+`current_monthly_requests` INT,
+`max_monthly_requests` INT,
+`created` DATETIME,
+`user_id` INT,
+`app_name` VARCHAR(64),
+`app_link` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `api_settings` (
+`id` INT,
+`max_requests` INT,
+`valid_for` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`name` VARCHAR(64),
+`visible` INT,
+`description` VARCHAR(64),
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questions` (
+`id` INT,
+`public` INT,
+`name` VARCHAR(64),
+`blocked` INT,
+`stack_id` INT,
+`category_id` INT,
+`rating` DECIMAL(10,2),
+`created` DATETIME,
+`rating_count` INT,
+`rating_sum` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ratings` (
+`id` INT,
+`user_id` INT,
+`question_id` INT,
+`rating_value` INT,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stacks` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`user_id` INT,
+`created` DATETIME,
+`public` INT,
+`publickey` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `trash_mail_providers` (
+`id` INT,
+`address` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`is_admin` INT,
+`blocked` INT,
+`created` DATETIME,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_626115_Dump2013_11_13') AS relationships;
+relationships
+Database: db_626115_Dump2013_11_13
+
+Table Connections:
+------------------
+[Implied]  answers.question_id -> questions.id
+[Implied]  api_keys.user_id -> users.id
+[Implied]  questions.category_id -> categories.id
+[Implied]  questions.rating -> ratings.id
+[Implied]  questions.stack_id -> stacks.id
+[Implied]  ratings.question_id -> questions.id
+[Implied]  ratings.user_id -> users.id
+[Implied]  stacks.user_id -> users.id
+
+DROP DATABASE `db_626115_Dump2013_11_13`;
+UNINSTALL EXTENSION vsql_schematron;

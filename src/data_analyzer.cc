@@ -32,15 +32,17 @@ bool areTypesCompatible(const std::string& t1, const std::string& t2) {
 }
 
 bool isSystemColumn(const std::string& col_name) {
-    std::string s = to_lower(col_name);
-    return s == "rowguid" || s == "row_guid" ||
-           s == "_partneruuid" || s == "partneruuid" || s == "partner_uuid" ||
-           s == "_revision" || s == "revision" || s == "revision_number" ||
-           s == "modifieddate" || s == "modified_date" || s == "modifeddate" ||
-           s == "_last_updated_on" || s == "last_updated_on" ||
-           s == "_created_on" || s == "created_on" ||
-           s == "createddate" || s == "created_date" ||
-           s == "updateddate" || s == "updated_date";
+    static const std::unordered_set<std::string> SYSTEM_COLUMNS = {
+        "rowguid", "row_guid", "_partneruuid", "partneruuid", "partner_uuid",
+        "_revision", "revision", "revision_number", "modifieddate", "modified_date", "modifeddate",
+        "_last_updated_on", "last_updated_on", "_created_on", "created_on",
+        "createddate", "created_date", "updateddate", "updated_date",
+        "created_by", "createdby", "creation_date", "creationdate", "creation_time", "creationtime",
+        "last_update_by", "last_updated_by", "lastupdateby", "lastupdatedby",
+        "last_update_date", "lastupdatedate", "last_update_time", "lastupdatetime",
+        "updated_by", "updatedby"
+    };
+    return SYSTEM_COLUMNS.count(to_lower(col_name)) > 0;
 }
 
 // Returns true if the column data type is suitable for data relationship profiling.
@@ -51,16 +53,10 @@ bool isProfileableType(const std::string& type, const std::string& col_name) {
         return false;
     }
     std::string s = to_lower(type);
-    
-    // Skip temporal types (rarely represent valid relational connections)
-    if (s == "date" || s == "datetime" || s == "timestamp" || s == "time") {
-        return false;
-    }
-    
-    // Skip complex and binary types
-    return s != "json" && 
-           s != "blob" && s != "tinyblob" && s != "mediumblob" && s != "longblob" &&
-           s != "geometry";
+    static const std::unordered_set<std::string> NON_PROFILEABLE = {
+        "date", "datetime", "timestamp", "time", "json", "blob", "tinyblob", "mediumblob", "longblob", "geometry"
+    };
+    return NON_PROFILEABLE.count(s) == 0;
 }
 
 std::vector<std::string> getTableNames(const std::string& db_name, vsql::preview_sql_query::Session& session) {

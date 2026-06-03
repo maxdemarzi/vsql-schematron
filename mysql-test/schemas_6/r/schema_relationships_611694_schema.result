@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 611694_schema
+#
+CREATE DATABASE `db_611694_schema`;
+USE `db_611694_schema`;
+CREATE TABLE `servers` (
+`serverid` VARCHAR(64),
+`transactionsid` VARCHAR(64),
+`logid` VARCHAR(64),
+`alertsid` VARCHAR(64),
+`logembed` VARCHAR(64),
+PRIMARY KEY (`serverid`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`serverid` VARCHAR(64),
+`userid` VARCHAR(64),
+`emoji` VARCHAR(64),
+`status` INT,
+PRIMARY KEY (`serverid`, `userid`)
+) CHARACTER SET latin1;
+CREATE TABLE `reminders` (
+`serverid` VARCHAR(64),
+`message` VARCHAR(64),
+`time` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `shoppinglists` (
+`serverid` VARCHAR(64),
+`item` VARCHAR(64),
+`ownerid` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_611694_schema') AS relationships;
+relationships
+Database: db_611694_schema
+
+Table Connections:
+------------------
+[Implied]  reminders.serverid -> servers.serverid
+[Implied]  shoppinglists.serverid -> servers.serverid
+[Implied]  users.serverid -> servers.serverid
+
+DROP DATABASE `db_611694_schema`;
+UNINSTALL EXTENSION vsql_schematron;

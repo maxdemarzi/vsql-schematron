@@ -5,6 +5,7 @@
 #include <sstream>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <set>
 
 namespace {
@@ -121,7 +122,16 @@ bool typeMatches(const std::string& t1, const std::string& t2) {
                t.find("real") != std::string::npos ||
                t.find("identity") != std::string::npos;
     };
+    auto isFloat = [](const std::string& t) {
+        return t.find("double") != std::string::npos ||
+               t.find("float") != std::string::npos ||
+               t.find("real") != std::string::npos;
+    };
     
+    if (isNumeric(s1) && isNumeric(s2)) {
+        if (isFloat(s1) != isFloat(s2)) return false;
+        return true;
+    }
     auto isString = [](const std::string& t) {
         return t.find("char") != std::string::npos ||
                t.find("text") != std::string::npos ||
@@ -129,7 +139,6 @@ bool typeMatches(const std::string& t1, const std::string& t2) {
                t.find("uuid") != std::string::npos;
     };
     
-    if (isNumeric(s1) && isNumeric(s2)) return true;
     if (isString(s1) && isString(s2)) return true;
     
     return false;
@@ -145,8 +154,10 @@ bool typeMatches(const std::string& t1, const std::string& t2) {
  */
 bool isSystemDatabase(const std::string& db) {
     std::string name = to_lower(db);
-    return name == "information_schema" || name == "performance_schema" ||
-           name == "mysql" || name == "sys";
+    static const std::unordered_set<std::string> SYSTEM_DBS = {
+        "information_schema", "performance_schema", "mysql", "sys"
+    };
+    return SYSTEM_DBS.count(name) > 0;
 }
 
 /**

@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 033864_bank
+#
+CREATE DATABASE `db_033864_bank`;
+USE `db_033864_bank`;
+CREATE TABLE `customer` (
+`customer_name` VARCHAR(64),
+`customer_street` VARCHAR(64),
+`customer_city` VARCHAR(64),
+PRIMARY KEY (`customer_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `branch` (
+`branch_name` VARCHAR(64),
+`branch_city` VARCHAR(64),
+`assets` DECIMAL(10,2),
+PRIMARY KEY (`branch_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `account` (
+`account_number` VARCHAR(64),
+`branch_name` VARCHAR(64),
+`balance` DECIMAL(10,2),
+PRIMARY KEY (`account_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `depositor` (
+`customer_name` VARCHAR(64),
+`account_number` VARCHAR(64),
+PRIMARY KEY (`customer_name`, `account_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `loan` (
+`loan_number` VARCHAR(64),
+`branch_name` VARCHAR(64),
+`amount` DECIMAL(10,2),
+PRIMARY KEY (`loan_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `borrower` (
+`customer_name` VARCHAR(64),
+`loan_number` VARCHAR(64),
+PRIMARY KEY (`customer_name`, `loan_number`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_033864_bank') AS relationships;
+relationships
+Database: db_033864_bank
+
+Table Connections:
+------------------
+[Implied]  account.branch_name -> branch.branch_name
+[Implied]  borrower.customer_name -> customer.customer_name
+[Implied]  borrower.loan_number -> loan.loan_number
+[Implied]  depositor.account_number -> account.account_number
+[Implied]  depositor.customer_name -> customer.customer_name
+[Implied]  loan.branch_name -> branch.branch_name
+
+DROP DATABASE `db_033864_bank`;
+UNINSTALL EXTENSION vsql_schematron;

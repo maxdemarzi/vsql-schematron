@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 637894_schema
+#
+CREATE DATABASE `db_637894_schema`;
+USE `db_637894_schema`;
+CREATE TABLE `animals` (
+`id` INT,
+`name` VARCHAR(64),
+`date_of_birth` DATETIME,
+`escape_attempts` INT,
+`neutered` VARCHAR(64),
+`weight_kg` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vets` (
+`id` INT,
+`name` VARCHAR(64),
+`age` INT,
+`date_of_graduation` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `specializations` (
+`species_id` INT,
+`vets_id` INT,
+PRIMARY KEY (`species_id`, `vets_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `visits` (
+`animals_id` INT,
+`vets_id` INT,
+`date_of_visit` DATETIME,
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_637894_schema') AS relationships;
+relationships
+Database: db_637894_schema
+
+Table Connections:
+------------------
+[Implied]  specializations.vets_id -> vets.id
+[Implied]  visits.animals_id -> animals.id
+[Implied]  visits.vets_id -> vets.id
+
+DROP DATABASE `db_637894_schema`;
+UNINSTALL EXTENSION vsql_schematron;

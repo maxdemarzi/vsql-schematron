@@ -1,0 +1,124 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 025032_Old-Commands-Dont-delete
+#
+CREATE DATABASE `db_025032_Old_Commands_Dont_delete`;
+USE `db_025032_Old_Commands_Dont_delete`;
+CREATE TABLE `UserAccount` (
+`UserID` INT,
+`Pass` VARCHAR(64),
+`FName` VARCHAR(64),
+`LName` VARCHAR(64),
+`Email` VARCHAR(64),
+`City` VARCHAR(64),
+`Province` VARCHAR(64),
+`Country` VARCHAR(64),
+PRIMARY KEY (`UserID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profile` (
+`ageRange` VARCHAR(64),
+`yearBorn` DECIMAL(10,2),
+`gender` VARCHAR(64),
+`occupation` VARCHAR(64),
+`device` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `Topics` (
+`TopicID` INT,
+`Description` VARCHAR(64),
+PRIMARY KEY (`TopicID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Movie` (
+`MovieID` INT,
+`Name` VARCHAR(64),
+`Length` INT,
+`released` DATETIME,
+`description` VARCHAR(64),
+PRIMARY KEY (`MovieID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Watches` (
+`MovieID` INT,
+`UserID` INT,
+`time` DATETIME,
+`Repeats` INT,
+`rating` INT,
+PRIMARY KEY (`MovieID`, `UserID`)
+) CHARACTER SET latin1;
+CREATE TABLE `MovieTopics` (
+`TopicID` INT,
+`MovieID` INT,
+`langauge` VARCHAR(64),
+`subtitles` VARCHAR(64),
+`country` VARCHAR(64),
+PRIMARY KEY (`TopicID`, `MovieID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Actor` (
+`ActorID` INT,
+`lname` VARCHAR(64),
+`fname` VARCHAR(64),
+`dateBirth` DATETIME,
+PRIMARY KEY (`ActorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Role` (
+`RoleID` INT,
+`roleName` VARCHAR(64),
+`ActorID` INT,
+PRIMARY KEY (`RoleID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Director` (
+`DirectorID` INT,
+`lname` VARCHAR(64),
+`fname` VARCHAR(64),
+`country` VARCHAR(64),
+PRIMARY KEY (`DirectorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Directs` (
+`DirectorID` INT,
+`MovieID` INT,
+PRIMARY KEY (`MovieID`, `DirectorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Studio` (
+`StudioID` INT,
+`name` VARCHAR(64),
+`country` VARCHAR(64),
+PRIMARY KEY (`StudioID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sponsors` (
+`StudioID` INT,
+`MovieID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Actor_Movie` (
+`ActorID` INT,
+`MovieID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Director_Movie` (
+`DirectorID` INT,
+`MovieID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `User_Movie` (
+`UserID` INT,
+`MovieID` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_025032_Old_Commands_Dont_delete') AS relationships;
+relationships
+Database: db_025032_Old_Commands_Dont_delete
+
+Table Connections:
+------------------
+[Implied]  Actor_Movie.ActorID -> Actor.ActorID
+[Implied]  Actor_Movie.MovieID -> Movie.MovieID
+[Implied]  Director_Movie.DirectorID -> Director.DirectorID
+[Implied]  Director_Movie.MovieID -> Movie.MovieID
+[Implied]  Directs.DirectorID -> Director.DirectorID
+[Implied]  Directs.MovieID -> Movie.MovieID
+[Implied]  MovieTopics.MovieID -> Movie.MovieID
+[Implied]  MovieTopics.TopicID -> Topics.TopicID
+[Implied]  Role.ActorID -> Actor.ActorID
+[Implied]  Sponsors.MovieID -> Movie.MovieID
+[Implied]  Sponsors.StudioID -> Studio.StudioID
+[Implied]  User_Movie.MovieID -> Movie.MovieID
+[Implied]  User_Movie.UserID -> UserAccount.UserID
+[Implied]  Watches.MovieID -> Movie.MovieID
+[Implied]  Watches.UserID -> UserAccount.UserID
+
+DROP DATABASE `db_025032_Old_Commands_Dont_delete`;
+UNINSTALL EXTENSION vsql_schematron;

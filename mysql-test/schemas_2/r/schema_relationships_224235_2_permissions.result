@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 224235_2_permissions
+#
+CREATE DATABASE `db_224235_2_permissions`;
+USE `db_224235_2_permissions`;
+CREATE TABLE `groups` (
+`GID` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`GID`)
+) CHARACTER SET latin1;
+CREATE TABLE `permissions` (
+`PID` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`PID`)
+) CHARACTER SET latin1;
+CREATE TABLE `group_permissions` (
+`GID` INT,
+`PID` INT,
+PRIMARY KEY (`GID`, `PID`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_groups` (
+`UID` INT,
+`GID` INT,
+PRIMARY KEY (`UID`, `GID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_224235_2_permissions') AS relationships;
+relationships
+Database: db_224235_2_permissions
+
+Table Connections:
+------------------
+[Implied]  group_permissions.GID -> groups.GID
+[Implied]  group_permissions.PID -> permissions.PID
+[Implied]  user_groups.GID -> groups.GID
+
+DROP DATABASE `db_224235_2_permissions`;
+UNINSTALL EXTENSION vsql_schematron;

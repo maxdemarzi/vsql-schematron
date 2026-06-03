@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 319715_mysql
+#
+CREATE DATABASE `db_319715_mysql`;
+USE `db_319715_mysql`;
+CREATE TABLE `aluno` (
+`aluno_id` INT,
+`telegram_code` VARCHAR(64),
+`nome` VARCHAR(64),
+`usuario_siga` VARCHAR(64),
+`senha_siga` VARCHAR(64),
+`ultima_atualizacao` DATETIME,
+`ativo` INT,
+PRIMARY KEY (`aluno_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `materia` (
+`materia_id` INT,
+`nome` VARCHAR(64),
+PRIMARY KEY (`materia_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `aula` (
+`aula_id` INT,
+`materia_id` INT,
+`dia_semana` INT,
+`quantidade` INT,
+PRIMARY KEY (`aula_id`, `materia_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `matricula` (
+`matricula_id` INT,
+`aluno_id` INT,
+`materia_id` INT,
+PRIMARY KEY (`matricula_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `falta` (
+`falta_id` INT,
+`matricula_id` INT,
+`data_falta` DATETIME,
+`quantidade` INT,
+PRIMARY KEY (`falta_id`, `matricula_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nota` (
+`nota_id` INT,
+`matricula_id` INT,
+`nota` DECIMAL(10,2),
+PRIMARY KEY (`nota_id`, `matricula_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_319715_mysql') AS relationships;
+relationships
+Database: db_319715_mysql
+
+Table Connections:
+------------------
+[Implied]  aula.materia_id -> materia.materia_id
+[Implied]  falta.matricula_id -> matricula.matricula_id
+[Implied]  matricula.aluno_id -> aluno.aluno_id
+[Implied]  matricula.materia_id -> materia.materia_id
+[Implied]  nota.matricula_id -> matricula.matricula_id
+
+DROP DATABASE `db_319715_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

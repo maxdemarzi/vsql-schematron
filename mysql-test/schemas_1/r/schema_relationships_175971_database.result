@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 175971_database
+#
+CREATE DATABASE `db_175971_database`;
+USE `db_175971_database`;
+CREATE TABLE `object_types` (
+`object_type_id` INT,
+`parent_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`object_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `attribute_types` (
+`attr_type_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`attr_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `attributes` (
+`attr_id` INT,
+`attr_type_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`attr_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `object_type_attributes` (
+`object_type_id` INT,
+`attr_id` INT,
+PRIMARY KEY (`object_type_id`, `attr_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `objects` (
+`object_id` INT,
+`parent_id` INT,
+`object_type_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`object_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `values` (
+`object_id` INT,
+`attr_id` INT,
+`value` VARCHAR(64),
+PRIMARY KEY (`object_id`, `attr_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_175971_database') AS relationships;
+relationships
+Database: db_175971_database
+
+Table Connections:
+------------------
+[Implied]  attributes.attr_type_id -> attribute_types.attr_type_id
+[Implied]  object_type_attributes.attr_id -> attributes.attr_id
+[Implied]  object_type_attributes.object_type_id -> object_types.object_type_id
+[Implied]  object_types.parent_id -> object_types.object_type_id
+[Implied]  objects.object_type_id -> object_types.object_type_id
+[Implied]  objects.parent_id -> objects.object_id
+[Implied]  values.attr_id -> attributes.attr_id
+[Implied]  values.object_id -> objects.object_id
+
+DROP DATABASE `db_175971_database`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,114 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 628393_db
+--echo #
+CREATE DATABASE `db_628393_db`;
+USE `db_628393_db`;
+
+CREATE TABLE `PATIENT` (
+  `id` INT,
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  `dob` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `phoneNo` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `avatar` VARCHAR(64),
+  `createdDate` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DOCTOR` (
+  `id` INT,
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `qualification` VARCHAR(64),
+  `phoneNo` VARCHAR(64),
+  `specialization` VARCHAR(64),
+  `email` VARCHAR(64),
+  `avatar` VARCHAR(64),
+  `intro` VARCHAR(64),
+  `createdDate` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DOCTOR_AVAILABILITY` (
+  `id` INT,
+  `doctorId` INT,
+  `daysOfWeek` VARCHAR(64),
+  `startTime` VARCHAR(64),
+  `endTime` VARCHAR(64),
+  `isAvailable` INT,
+  `reasonOfUnavailability` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PATIENT_REVIEW` (
+  `patientId` INT,
+  `doctorId` INT,
+  `overallRatings` INT,
+  `review` VARCHAR(64),
+  `reviewDate` DATETIME,
+  PRIMARY KEY (`patientId`, `doctorId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `APPOINTMENT` (
+  `id` INT,
+  `patientId` INT,
+  `doctorId` INT,
+  `appointmentStatus` VARCHAR(64),
+  `createdDate` VARCHAR(64),
+  `startTime` VARCHAR(64),
+  `endTime` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MEDICAL_HISTORY` (
+  `id` INT,
+  `fileName` VARCHAR(64),
+  `path` VARCHAR(64),
+  `appointmentId` INT,
+  `patientId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ADMIN` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `createdDate` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ADMIN_SETTINGS` (
+  `name` VARCHAR(64),
+  `adminId` INT,
+  `type` VARCHAR(64),
+  `valueInt` INT,
+  `valueStr` VARCHAR(64),
+  `lastModified` VARCHAR(64),
+  PRIMARY KEY (`name`, `adminId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_628393_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_628393_db') AS relationships;
+DROP DATABASE `db_628393_db`;
+UNINSTALL EXTENSION vsql_schematron;

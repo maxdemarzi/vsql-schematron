@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 433033_oracle
+#
+CREATE DATABASE `db_433033_oracle`;
+USE `db_433033_oracle`;
+CREATE TABLE `db_log` (
+`eventDate` DATETIME,
+`level` VARCHAR(64),
+`logger` VARCHAR(64),
+`message` VARCHAR(64),
+`exception` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `logging_event` (
+`sequence_number` DECIMAL(10,2),
+`timestamp` DECIMAL(10,2),
+`rendered_message` VARCHAR(64),
+`logger_name` VARCHAR(64),
+`level_string` VARCHAR(64),
+`ndc` VARCHAR(64),
+`thread_name` VARCHAR(64),
+`reference_flag` INT,
+`caller_filename` VARCHAR(64),
+`caller_class` VARCHAR(64),
+`caller_method` VARCHAR(64),
+`caller_line` VARCHAR(64),
+`event_id` DECIMAL(10,2),
+PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `logging_event_property` (
+`event_id` DECIMAL(10,2),
+`mapped_key` VARCHAR(64),
+`mapped_value` VARCHAR(64),
+PRIMARY KEY (`event_id`, `mapped_key`)
+) CHARACTER SET latin1;
+CREATE TABLE `logging_event_exception` (
+`event_id` DECIMAL(10,2),
+`i` INT,
+`trace_line` VARCHAR(64),
+PRIMARY KEY (`event_id`, `i`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_433033_oracle') AS relationships;
+relationships
+Database: db_433033_oracle
+
+Table Connections:
+------------------
+[Implied]  logging_event_exception.event_id -> logging_event.event_id
+[Implied]  logging_event_property.event_id -> logging_event.event_id
+
+DROP DATABASE `db_433033_oracle`;
+UNINSTALL EXTENSION vsql_schematron;

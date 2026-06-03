@@ -12,7 +12,12 @@ bool isSystemColumn(const std::string& col_name);
 bool isStatisticColumn(const std::string& col_name);
 bool isSelfReferentialPrefix(const std::string& prefix);
 
-std::vector<std::string> getEffectivePKs(const std::string& tbl_name, const TableInfo& info);
+std::vector<std::string> getEffectivePKs(
+    const std::string& tbl_name,
+    const TableInfo& info,
+    const std::vector<std::string>& table_names = {},
+    const std::unordered_map<std::string, TableInfo>& tables_info = {}
+);
 std::string detectSharedTablePrefix(const std::vector<std::string>& table_names);
 bool isSequenceOrSystemTable(const std::string& tbl_name);
 bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b);

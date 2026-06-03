@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 164376_dropDDL
+#
+CREATE DATABASE `db_164376_dropDDL`;
+USE `db_164376_dropDDL`;
+CREATE TABLE `profile` (
+`id` INT,
+`alias` VARCHAR(64),
+`parisType` INT,
+`lookingFor` INT,
+`birthday` DATETIME,
+`starSign` INT,
+`height` INT,
+`weight` INT,
+`bodyType` INT,
+`eyeColor` INT,
+`hairColor` INT,
+`hairLength` INT,
+`ethnicity` INT,
+`maritalStatus` INT,
+`education` INT,
+`occupation` VARCHAR(64),
+`countryId` INT,
+`regionId` INT,
+`cityId` INT,
+`sport` INT,
+`party` INT,
+`smoking` INT,
+`drinking` INT,
+`albumId` INT,
+`mainPhotoId` INT,
+`description` VARCHAR(64),
+`seen` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `album` (
+`ownerId` INT,
+`selfId` INT,
+`creationTS` DATETIME,
+`name` VARCHAR(64),
+`privacy` INT,
+`photoCount` INT,
+`lastPhotoTS` DATETIME,
+`mainPhotoId` INT,
+PRIMARY KEY (`ownerId`, `selfId`)
+) CHARACTER SET latin1;
+CREATE TABLE `photo` (
+`ownerId` INT,
+`parentId` INT,
+`selfId` INT,
+`creationTS` DATETIME,
+`name` VARCHAR(64),
+`width` INT,
+`height` INT,
+PRIMARY KEY (`ownerId`, `parentId`, `selfId`)
+) CHARACTER SET latin1;
+CREATE TABLE `conversation` (
+`id` INT,
+`creationTS` DATETIME,
+`lastMessageTS` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`conversationId` INT,
+`creationTS` DATETIME,
+`ownerId` INT,
+`content` VARCHAR(64),
+PRIMARY KEY (`conversationId`, `creationTS`, `ownerId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_164376_dropDDL') AS relationships;
+relationships
+Database: db_164376_dropDDL
+
+Table Connections:
+------------------
+[Implied]  message.conversationId -> conversation.id
+
+DROP DATABASE `db_164376_dropDDL`;
+UNINSTALL EXTENSION vsql_schematron;

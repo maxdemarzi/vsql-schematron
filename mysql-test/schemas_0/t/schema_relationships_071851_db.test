@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 071851_db
+--echo #
+CREATE DATABASE `db_071851_db`;
+USE `db_071851_db`;
+
+CREATE TABLE `oauth_state` (
+  `state` VARCHAR(64),
+  `keybase_username` VARCHAR(64),
+  `account_nickname` VARCHAR(64),
+  `keybase_conv_id` VARCHAR(64),
+  `is_complete` VARCHAR(64),
+  PRIMARY KEY (`state`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `account` (
+  `keybase_username` VARCHAR(64),
+  `account_nickname` VARCHAR(64),
+  `ctime` DATETIME,
+  `mtime` DATETIME,
+  `access_token` VARCHAR(64),
+  `token_type` VARCHAR(64),
+  `refresh_token` VARCHAR(64),
+  `expiry` DATETIME,
+  PRIMARY KEY (`keybase_username`, `account_nickname`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subscription` (
+  `keybase_username` VARCHAR(64),
+  `account_nickname` VARCHAR(64),
+  `calendar_id` VARCHAR(64),
+  `keybase_conv_id` VARCHAR(64),
+  `minutes_before` INT,
+  `type` VARCHAR(64),
+  PRIMARY KEY (`keybase_username`, `account_nickname`, `calendar_id`, `keybase_conv_id`, `minutes_before`, `type`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `daily_schedule_subscription` (
+  `keybase_username` VARCHAR(64),
+  `account_nickname` VARCHAR(64),
+  `calendar_id` VARCHAR(64),
+  `keybase_conv_id` VARCHAR(64),
+  `timezone` VARCHAR(64),
+  `days_to_send` VARCHAR(64),
+  `schedule_to_send` VARCHAR(64),
+  `notification_time` DATETIME,
+  PRIMARY KEY (`keybase_username`, `account_nickname`, `calendar_id`, `keybase_conv_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_071851_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_071851_db') AS relationships;
+DROP DATABASE `db_071851_db`;
+UNINSTALL EXTENSION vsql_schematron;

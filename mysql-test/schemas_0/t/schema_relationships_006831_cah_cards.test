@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 006831_cah_cards
+--echo #
+CREATE DATABASE `db_006831_cah_cards`;
+USE `db_006831_cah_cards`;
+
+CREATE TABLE `black_cards` (
+  `id` INT,
+  `draw` INT,
+  `pick` INT,
+  `text` VARCHAR(64),
+  `watermark` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `card_set` (
+  `id` INT,
+  `active` VARCHAR(64),
+  `base_deck` VARCHAR(64),
+  `description` VARCHAR(64),
+  `name` VARCHAR(64),
+  `weight` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `card_set_black_card` (
+  `card_set_id` INT,
+  `black_card_id` INT,
+  PRIMARY KEY (`card_set_id`, `black_card_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `card_set_white_card` (
+  `card_set_id` INT,
+  `white_card_id` INT,
+  PRIMARY KEY (`card_set_id`, `white_card_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `white_cards` (
+  `id` INT,
+  `text` VARCHAR(64),
+  `watermark` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_006831_cah_cards') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_006831_cah_cards') AS relationships;
+DROP DATABASE `db_006831_cah_cards`;
+UNINSTALL EXTENSION vsql_schematron;

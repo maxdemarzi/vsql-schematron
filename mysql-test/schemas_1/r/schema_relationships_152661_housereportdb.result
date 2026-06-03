@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 152661_housereportdb
+#
+CREATE DATABASE `db_152661_housereportdb`;
+USE `db_152661_housereportdb`;
+CREATE TABLE `address` (
+`id` INT,
+`street` VARCHAR(64),
+`street2` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`postal_code` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `property_type` (
+`id` INT,
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `listing` (
+`id` INT,
+`price` DECIMAL(10,2),
+`square_feet` INT,
+`bed_number` INT,
+`bath_number` INT,
+`property_crime_rate` DECIMAL(10,2),
+`violent_crime_rate` DECIMAL(10,2),
+`hoa_monthly_rate` DECIMAL(10,2),
+`created_on` DATETIME,
+`year_built` INT,
+`lot_size_sqft` INT,
+`property_tax` DECIMAL(10,2),
+`parking_type` VARCHAR(64),
+`accuracy_rating` INT,
+`address_id` INT,
+`user_id` INT,
+`property_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`id` INT,
+`event_type` VARCHAR(64),
+`event_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `favorite` (
+`listing_id` INT,
+`user_id` INT,
+PRIMARY KEY (`listing_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`id` INT,
+`comment` VARCHAR(64),
+`comment_date` DATETIME,
+`user_id` INT,
+`listing_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `listing_event` (
+`listing_id` INT,
+`event_id` INT,
+PRIMARY KEY (`listing_id`, `event_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rating` (
+`user_id` INT,
+`rating` INT,
+`listing_id` INT,
+PRIMARY KEY (`user_id`, `listing_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_152661_housereportdb') AS relationships;
+relationships
+Database: db_152661_housereportdb
+
+Table Connections:
+------------------
+[Implied]  comment.listing_id -> listing.id
+[Implied]  favorite.listing_id -> listing.id
+[Implied]  listing.address_id -> address.id
+[Implied]  listing.property_id -> property_type.id
+[Implied]  listing_event.event_id -> event.id
+[Implied]  listing_event.listing_id -> listing.id
+[Implied]  rating.listing_id -> listing.id
+
+DROP DATABASE `db_152661_housereportdb`;
+UNINSTALL EXTENSION vsql_schematron;

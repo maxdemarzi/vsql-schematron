@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 453718_V_1__create_cnv
+#
+CREATE DATABASE `db_453718_V_1_create_cnv`;
+USE `db_453718_V_1_create_cnv`;
+CREATE TABLE `cnv_schema_version` (
+`version_key` VARCHAR(64),
+`version_value` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `cnv_document` (
+`id` INT,
+`oid` INT,
+`ver_from_instant` DATETIME,
+`ver_to_instant` DATETIME,
+`corr_from_instant` DATETIME,
+`corr_to_instant` DATETIME,
+`name` VARCHAR(64),
+`main_type` VARCHAR(64),
+`sub_type` VARCHAR(64),
+`actual_type` VARCHAR(64),
+`packed_data` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cnv_idkey` (
+`id` INT,
+`key_scheme` VARCHAR(64),
+`key_value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cnv_doc2idkey` (
+`doc_id` INT,
+`idkey_id` INT,
+PRIMARY KEY (`doc_id`, `idkey_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cnv_attr` (
+`id` INT,
+`attr_key` VARCHAR(64),
+`attr_value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cnv_doc2attr` (
+`doc_id` INT,
+`attr_id` INT,
+PRIMARY KEY (`doc_id`, `attr_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cnv_prop` (
+`id` INT,
+`prop_key` VARCHAR(64),
+`prop_value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cnv_doc2prop` (
+`doc_id` INT,
+`prop_id` INT,
+PRIMARY KEY (`doc_id`, `prop_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_453718_V_1_create_cnv') AS relationships;
+relationships
+Database: db_453718_V_1_create_cnv
+
+Table Connections:
+------------------
+[Implied]  cnv_doc2attr.attr_id -> cnv_attr.id
+[Implied]  cnv_doc2attr.doc_id -> cnv_document.id
+[Implied]  cnv_doc2idkey.doc_id -> cnv_document.id
+[Implied]  cnv_doc2idkey.idkey_id -> cnv_idkey.id
+[Implied]  cnv_doc2prop.doc_id -> cnv_document.id
+[Implied]  cnv_doc2prop.prop_id -> cnv_prop.id
+[Implied]  cnv_document.oid -> cnv_document.id
+
+DROP DATABASE `db_453718_V_1_create_cnv`;
+UNINSTALL EXTENSION vsql_schematron;

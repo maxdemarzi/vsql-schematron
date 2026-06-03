@@ -1,0 +1,114 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 608978_tables
+--echo #
+CREATE DATABASE `db_608978_tables`;
+USE `db_608978_tables`;
+
+CREATE TABLE `myresume` (
+  `r_id` INT,
+  `r_date` DATETIME,
+  PRIMARY KEY (`r_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `education` (
+  `e_id` INT,
+  `date_from` DATETIME,
+  `date_to` DATETIME,
+  `school_name` VARCHAR(64),
+  `program` VARCHAR(64),
+  `location` VARCHAR(64),
+  `r_id` INT,
+  PRIMARY KEY (`e_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `courses` (
+  `course_code` VARCHAR(64),
+  `couse_title` VARCHAR(64),
+  `e_id` INT,
+  PRIMARY KEY (`course_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `skills_major` (
+  `sm_name` VARCHAR(64),
+  PRIMARY KEY (`sm_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `skills` (
+  `s_name` VARCHAR(64),
+  `sm_name` VARCHAR(64),
+  PRIMARY KEY (`s_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `work_exp` (
+  `w_id` INT,
+  `date_from` DATETIME,
+  `date_to` DATETIME,
+  `company_name` VARCHAR(64),
+  `title` VARCHAR(64),
+  `location` VARCHAR(64),
+  `r_id` INT,
+  PRIMARY KEY (`w_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `work_desc` (
+  `wd_id` INT,
+  `description` VARCHAR(64),
+  `w_id` INT,
+  PRIMARY KEY (`wd_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `work_skill` (
+  `w_id` INT,
+  `s_name` VARCHAR(64),
+  PRIMARY KEY (`w_id`, `s_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `projects` (
+  `p_id` INT,
+  `p_name` VARCHAR(64),
+  `p_date` DATETIME,
+  `r_id` INT,
+  PRIMARY KEY (`p_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `project_desc` (
+  `pd_id` INT,
+  `description` VARCHAR(64),
+  `p_id` INT,
+  PRIMARY KEY (`pd_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `project_skill` (
+  `p_id` INT,
+  `s_name` VARCHAR(64),
+  PRIMARY KEY (`p_id`, `s_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hobbies` (
+  `h_id` INT,
+  `description` VARCHAR(64),
+  `r_id` INT,
+  PRIMARY KEY (`h_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_608978_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_608978_tables') AS relationships;
+DROP DATABASE `db_608978_tables`;
+UNINSTALL EXTENSION vsql_schematron;

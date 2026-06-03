@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 240259_initialize_mysql
+--echo #
+CREATE DATABASE `db_240259_initialize_mysql`;
+USE `db_240259_initialize_mysql`;
+
+CREATE TABLE `properties` (
+  `id` VARCHAR(64),
+  `value` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vulnerability` (
+  `id` INT,
+  `cve` VARCHAR(64),
+  `description` VARCHAR(64),
+  `cwe` VARCHAR(64),
+  `cvssScore` DECIMAL(10,2),
+  `cvssAccessVector` VARCHAR(64),
+  `cvssAccessComplexity` VARCHAR(64),
+  `cvssAuthentication` VARCHAR(64),
+  `cvssConfidentialityImpact` VARCHAR(64),
+  `cvssIntegrityImpact` VARCHAR(64),
+  `cvssAvailabilityImpact` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reference` (
+  `cveid` INT,
+  `name` VARCHAR(64),
+  `url` VARCHAR(64),
+  `source` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cpeEntry` (
+  `id` INT,
+  `cpe` VARCHAR(64),
+  `vendor` VARCHAR(64),
+  `product` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `software` (
+  `cveid` INT,
+  `cpeEntryId` INT,
+  `previousVersion` VARCHAR(64),
+  PRIMARY KEY (`cveid`, `cpeEntryId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_240259_initialize_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_240259_initialize_mysql') AS relationships;
+DROP DATABASE `db_240259_initialize_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

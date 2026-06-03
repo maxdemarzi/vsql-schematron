@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 493232_university
+#
+CREATE DATABASE `db_493232_university`;
+USE `db_493232_university`;
+CREATE TABLE `majors` (
+`major_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`major_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `students` (
+`student_id` INT,
+`student_number` VARCHAR(64),
+`student_name` VARCHAR(64),
+`major_id` INT,
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payments` (
+`payment_id` INT,
+`payment_date` DATETIME,
+`payment_amount` DECIMAL(10,2),
+`student_id` INT,
+PRIMARY KEY (`payment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subjects` (
+`subject_id` INT,
+`subject_name` VARCHAR(64),
+PRIMARY KEY (`subject_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `agenda` (
+`student_id` INT,
+`subject_id` INT,
+PRIMARY KEY (`student_id`, `subject_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_493232_university') AS relationships;
+relationships
+Database: db_493232_university
+
+Table Connections:
+------------------
+[Implied]  agenda.student_id -> students.student_id
+[Implied]  agenda.subject_id -> subjects.subject_id
+[Implied]  payments.student_id -> students.student_id
+[Implied]  students.major_id -> majors.major_id
+
+DROP DATABASE `db_493232_university`;
+UNINSTALL EXTENSION vsql_schematron;

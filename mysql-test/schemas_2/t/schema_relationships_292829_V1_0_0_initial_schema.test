@@ -1,0 +1,117 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 292829_V1_0_0__initial_schema
+--echo #
+CREATE DATABASE `db_292829_V1_0_0_initial_schema`;
+USE `db_292829_V1_0_0_initial_schema`;
+
+CREATE TABLE `analysis` (
+  `id` VARCHAR(64),
+  `realm` VARCHAR(64),
+  `sequence_id` INT,
+  `description` VARCHAR(64),
+  `image_url` VARCHAR(64),
+  `is_template` VARCHAR(64),
+  `last_updated` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `impact` (
+  `id` VARCHAR(64),
+  `realm` VARCHAR(64),
+  `sequence_id` INT,
+  `description` VARCHAR(64),
+  `merit` DECIMAL(10,2),
+  `analysis_id` VARCHAR(64),
+  `stakeholder_id` VARCHAR(64),
+  `value_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `parent_child_counter` (
+  `id` INT,
+  `child_class` VARCHAR(64),
+  `counter` INT,
+  `parent_class` VARCHAR(64),
+  `parent_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `requirement` (
+  `id` VARCHAR(64),
+  `realm` VARCHAR(64),
+  `sequence_id` INT,
+  `description` VARCHAR(64),
+  `analysis_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `requirement_delta` (
+  `id` VARCHAR(64),
+  `realm` VARCHAR(64),
+  `overwrite_merit` DECIMAL(10,2),
+  `impact_id` VARCHAR(64),
+  `requirement_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `requirement_variants` (
+  `requirement_id` VARCHAR(64),
+  `variants_id` VARCHAR(64),
+  PRIMARY KEY (`requirement_id`, `variants_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stakeholder` (
+  `id` VARCHAR(64),
+  `realm` VARCHAR(64),
+  `sequence_id` INT,
+  `level` VARCHAR(64),
+  `name` VARCHAR(64),
+  `priority` VARCHAR(64),
+  `analysis_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `value` (
+  `id` VARCHAR(64),
+  `realm` VARCHAR(64),
+  `archived` VARCHAR(64),
+  `description` VARCHAR(64),
+  `name` VARCHAR(64),
+  `type` INT,
+  `analysis_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `variant` (
+  `id` VARCHAR(64),
+  `realm` VARCHAR(64),
+  `sequence_id` INT,
+  `archived` VARCHAR(64),
+  `description` VARCHAR(64),
+  `name` VARCHAR(64),
+  `analysis_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_292829_V1_0_0_initial_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_292829_V1_0_0_initial_schema') AS relationships;
+DROP DATABASE `db_292829_V1_0_0_initial_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 407169_1
+#
+CREATE DATABASE `db_407169_1`;
+USE `db_407169_1`;
+CREATE TABLE `users` (
+`Id` INT,
+`GitHubUser` VARCHAR(64),
+`GitHubToken` VARCHAR(64),
+`Name` VARCHAR(64),
+`Email` VARCHAR(64),
+`Role` VARCHAR(64),
+`Status` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `projects` (
+`Id` INT,
+`GitHubRepo` VARCHAR(64),
+`TogglProject` VARCHAR(64),
+`Name` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user2project` (
+`UserId` INT,
+`ProjectId` INT,
+`Role` VARCHAR(64),
+`Status` VARCHAR(64),
+PRIMARY KEY (`UserId`, `ProjectId`)
+) CHARACTER SET latin1;
+CREATE TABLE `issues` (
+`Id` INT,
+`ProjectId` INT,
+`GitHubIssueId` INT,
+`Title` VARCHAR(64),
+`Estimate` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_407169_1') AS relationships;
+relationships
+Database: db_407169_1
+
+Table Connections:
+------------------
+[Implied]  issues.ProjectId -> projects.Id
+[Implied]  user2project.ProjectId -> projects.Id
+[Implied]  user2project.UserId -> users.Id
+
+DROP DATABASE `db_407169_1`;
+UNINSTALL EXTENSION vsql_schematron;

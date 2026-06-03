@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 231673_init
+--echo #
+CREATE DATABASE `db_231673_init`;
+USE `db_231673_init`;
+
+CREATE TABLE `GENERI` (
+  `Nome` VARCHAR(64),
+  `CodGenere` INT,
+  PRIMARY KEY (`CodGenere`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUTORI` (
+  `Nome` VARCHAR(64),
+  `CodAutore` INT,
+  PRIMARY KEY (`CodAutore`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ALUM` (
+  `Durata` DATETIME,
+  `Titolo` VARCHAR(64),
+  `Copertina` VARCHAR(64),
+  `DataPub` DATETIME,
+  `CodAlbum` INT,
+  PRIMARY KEY (`CodAlbum`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MUSICISTI` (
+  `Nome` VARCHAR(64),
+  `DataInizioCar` DATETIME,
+  `DataFineCar` DATETIME,
+  `Biografia` VARCHAR(64),
+  `type` VARCHAR(64),
+  `Direttore` VARCHAR(64),
+  `CodMusicista` INT,
+  PRIMARY KEY (`CodMusicista`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BRANI` (
+  `Titolo` VARCHAR(64),
+  `Durata` DATETIME,
+  `CodBrano` INT,
+  `CodMusicista` INT,
+  `CodGenere` INT,
+  PRIMARY KEY (`CodBrano`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SCRIVONO` (
+  `CodAutore` INT,
+  `CodBrano` INT,
+  PRIMARY KEY (`CodAutore`, `CodBrano`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CONTENGONO` (
+  `CodAlbum` INT,
+  `CodBrano` INT,
+  PRIMARY KEY (`CodAlbum`, `CodBrano`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_231673_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_231673_init') AS relationships;
+DROP DATABASE `db_231673_init`;
+UNINSTALL EXTENSION vsql_schematron;

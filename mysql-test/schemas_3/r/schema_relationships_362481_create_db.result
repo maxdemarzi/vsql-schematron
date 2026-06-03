@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 362481_create-db
+#
+CREATE DATABASE `db_362481_create_db`;
+USE `db_362481_create_db`;
+CREATE TABLE `report` (
+`report_id` INT,
+`test_id` INT,
+`test_number` INT,
+`test_name` VARCHAR(64),
+`test_script` VARCHAR(64),
+`test_host` VARCHAR(64),
+`test_host_role` VARCHAR(64),
+`test_result` VARCHAR(64),
+`test_result_message` VARCHAR(64),
+`location` VARCHAR(64),
+`aggregated` VARCHAR(64),
+`test_date` DATETIME,
+`test_description` VARCHAR(64),
+`test_comments` VARCHAR(64),
+`valid` VARCHAR(64),
+`retired` VARCHAR(64),
+`retired_date` DATETIME,
+PRIMARY KEY (`report_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sut_node_info` (
+`sut_node_id` INT,
+`sut_node_name` VARCHAR(64),
+`sut_node_os_name` VARCHAR(64),
+`sut_node_os_arch` VARCHAR(64),
+`sut_node_os_version` VARCHAR(64),
+`sut_node_os_other` VARCHAR(64),
+`sut_node_hw_name` VARCHAR(64),
+`sut_node_hw_model` VARCHAR(64),
+`sut_node_hw_cpu` VARCHAR(64),
+`sut_node_hw_cpu_count` INT,
+`sut_node_hw_ram` INT,
+`sut_node_hw_disk_type` VARCHAR(64),
+`sut_node_hw_other` VARCHAR(64),
+PRIMARY KEY (`sut_node_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `test_sut_node_link` (
+`test_id` INT,
+`sut_node_id` INT,
+PRIMARY KEY (`test_id`, `sut_node_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_362481_create_db') AS relationships;
+relationships
+Database: db_362481_create_db
+
+Table Connections:
+------------------
+[Implied]  test_sut_node_link.sut_node_id -> sut_node_info.sut_node_id
+
+DROP DATABASE `db_362481_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

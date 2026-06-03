@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 531697_user
+#
+CREATE DATABASE `db_531697_user`;
+USE `db_531697_user`;
+CREATE TABLE `user` (
+`id` INT,
+`name` VARCHAR(64),
+`password2` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `userSession` (
+`sessionCode` VARCHAR(64),
+`userId` INT,
+`ip` VARCHAR(64),
+`userAgent` VARCHAR(64),
+`platform` VARCHAR(64),
+`appVersion` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`sessionCode`)
+) CHARACTER SET latin1;
+CREATE TABLE `chatRoomUser` (
+`userId` INT,
+`chatId` INT,
+`createdAt` DATETIME,
+PRIMARY KEY (`userId`, `chatId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_531697_user') AS relationships;
+relationships
+Database: db_531697_user
+
+Table Connections:
+------------------
+[Implied]  chatRoomUser.userId -> user.id
+[Implied]  userSession.userId -> user.id
+
+DROP DATABASE `db_531697_user`;
+UNINSTALL EXTENSION vsql_schematron;

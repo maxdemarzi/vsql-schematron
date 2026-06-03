@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 254258_createdb
+#
+CREATE DATABASE `db_254258_createdb`;
+USE `db_254258_createdb`;
+CREATE TABLE `Yelp_User` (
+`user_id` VARCHAR(64),
+`name` VARCHAR(64),
+`yelping_since` DATETIME,
+`review_count` INT,
+`friend_count` INT,
+`avg_stars` DECIMAL(10,2),
+`vote_count` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Business` (
+`bid` VARCHAR(64),
+`if_open` DECIMAL(10,2),
+`city` VARCHAR(64),
+`b_state` VARCHAR(64),
+`review_count` INT,
+`bname` VARCHAR(64),
+`stars` DECIMAL(10,2),
+PRIMARY KEY (`bid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Category` (
+`bid` VARCHAR(64),
+`catg` VARCHAR(64),
+PRIMARY KEY (`bid`, `catg`)
+) CHARACTER SET latin1;
+CREATE TABLE `Subcategory` (
+`bid` VARCHAR(64),
+`subcatg` VARCHAR(64),
+PRIMARY KEY (`bid`, `subcatg`)
+) CHARACTER SET latin1;
+CREATE TABLE `Attribute` (
+`bid` VARCHAR(64),
+`attribute` VARCHAR(64),
+PRIMARY KEY (`bid`, `attribute`)
+) CHARACTER SET latin1;
+CREATE TABLE `Review` (
+`rid` VARCHAR(64),
+`user_id` VARCHAR(64),
+`bid` VARCHAR(64),
+`useful_vote_count` INT,
+`stars` DECIMAL(10,2),
+`rdate` DATETIME,
+`content` VARCHAR(64),
+PRIMARY KEY (`rid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_254258_createdb') AS relationships;
+relationships
+Database: db_254258_createdb
+
+Table Connections:
+------------------
+[Implied]  Attribute.bid -> Business.bid
+[Implied]  Category.bid -> Business.bid
+[Implied]  Review.bid -> Business.bid
+[Implied]  Review.user_id -> Yelp_User.user_id
+[Implied]  Subcategory.bid -> Business.bid
+
+DROP DATABASE `db_254258_createdb`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 034704_1
+#
+CREATE DATABASE `db_034704_1`;
+USE `db_034704_1`;
+CREATE TABLE `product` (
+`id` INT,
+`ean` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`picture` VARCHAR(64),
+`path_local_picture` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `url_entity` (
+`url_entity_number` INT,
+`url` VARCHAR(64),
+PRIMARY KEY (`url_entity_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `url_entity_web_search` (
+`url_entity_url_entity_number` INT,
+`web_search_id` INT,
+PRIMARY KEY (`url_entity_url_entity_number`, `web_search_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `web_search` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `web_search_url_entity` (
+`web_search_id` INT,
+`url_entity_url_entity_number` INT,
+PRIMARY KEY (`web_search_id`, `url_entity_url_entity_number`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_034704_1') AS relationships;
+relationships
+Database: db_034704_1
+
+Table Connections:
+------------------
+[Implied]  url_entity_web_search.url_entity_url_entity_number -> url_entity.url_entity_number
+[Implied]  url_entity_web_search.web_search_id -> web_search.id
+[Implied]  web_search_url_entity.url_entity_url_entity_number -> url_entity.url_entity_number
+[Implied]  web_search_url_entity.web_search_id -> web_search.id
+
+DROP DATABASE `db_034704_1`;
+UNINSTALL EXTENSION vsql_schematron;

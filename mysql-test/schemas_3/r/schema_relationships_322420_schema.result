@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 322420_schema
+#
+CREATE DATABASE `db_322420_schema`;
+USE `db_322420_schema`;
+CREATE TABLE `offers` (
+`id` INT,
+`owner_id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`creation_timestamp` DATETIME,
+`is_archived` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`name` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `offers_tags` (
+`offer_id` INT,
+`tag_name` VARCHAR(64),
+PRIMARY KEY (`offer_id`, `tag_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `tiers` (
+`id` INT,
+`offer_id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`price` DECIMAL(10,2),
+`delivery_time` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `thumbnails` (
+`id` INT,
+`offer_id` INT,
+`url` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_322420_schema') AS relationships;
+relationships
+Database: db_322420_schema
+
+Table Connections:
+------------------
+[Implied]  offers_tags.offer_id -> offers.id
+[Implied]  offers_tags.tag_name -> tags.name
+[Implied]  thumbnails.offer_id -> offers.id
+[Implied]  tiers.offer_id -> offers.id
+
+DROP DATABASE `db_322420_schema`;
+UNINSTALL EXTENSION vsql_schematron;

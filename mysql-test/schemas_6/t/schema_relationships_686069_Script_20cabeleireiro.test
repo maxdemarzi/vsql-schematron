@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 686069_Script%20cabeleireiro
+--echo #
+CREATE DATABASE `db_686069_Script_20cabeleireiro`;
+USE `db_686069_Script_20cabeleireiro`;
+
+CREATE TABLE `tbl_login` (
+  `id_login` INT,
+  `usuario` VARCHAR(64),
+  `senha` VARCHAR(64),
+  `acesso_adm` VARCHAR(64),
+  `estatus` VARCHAR(64),
+  PRIMARY KEY (`id_login`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_funcionario` (
+  `id_funcionario` INT,
+  `nome_funcionario` VARCHAR(64),
+  `cpf_funcionario` VARCHAR(64),
+  `email_funcionario` VARCHAR(64),
+  `telefone_funcionario` VARCHAR(64),
+  `FK_id_login` INT,
+  `estatus` VARCHAR(64),
+  PRIMARY KEY (`id_funcionario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_servico` (
+  `id_servico` INT,
+  `nome_servico` VARCHAR(64),
+  `preco_servico` DECIMAL(10,2),
+  `descricao_servico` VARCHAR(64),
+  `estatus` VARCHAR(64),
+  PRIMARY KEY (`id_servico`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_cliente` (
+  `id_cliente` INT,
+  `nome_cliente` VARCHAR(64),
+  `cpf_cliente` VARCHAR(64),
+  `dt_nasc_cliente` DATETIME,
+  `email_cliente` VARCHAR(64),
+  `telefone_cliente` VARCHAR(64),
+  `FK_id_login` INT,
+  `estatus` VARCHAR(64),
+  PRIMARY KEY (`id_cliente`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_produto` (
+  `id_produto` INT,
+  `nome_produto` VARCHAR(64),
+  `valor_produto` DECIMAL(10,2),
+  `validade_produto` DATETIME,
+  `estatus` VARCHAR(64),
+  PRIMARY KEY (`id_produto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_agendamento` (
+  `id_agendamento` INT,
+  `data_agendamento` DATETIME,
+  `horario_agendamento` DATETIME,
+  `FK_id_cliente` INT,
+  `estatus` VARCHAR(64),
+  PRIMARY KEY (`id_agendamento`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_venda` (
+  `id_venda` INT,
+  `total_venda` DECIMAL(10,2),
+  `FK_id_agendamento` INT,
+  `estatus` VARCHAR(64),
+  PRIMARY KEY (`id_venda`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `funcionario_servico` (
+  `FK_id_servico` INT,
+  `FK_id_funcionario` INT,
+  PRIMARY KEY (`FK_id_servico`, `FK_id_funcionario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `servico_agendamento` (
+  `FK_id_servico` INT,
+  `FK_id_agendamento` INT,
+  PRIMARY KEY (`FK_id_servico`, `FK_id_agendamento`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `venda_produto` (
+  `FK_id_venda` INT,
+  `FK_id_produto` INT,
+  PRIMARY KEY (`FK_id_venda`, `FK_id_produto`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_686069_Script_20cabeleireiro') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_686069_Script_20cabeleireiro') AS relationships;
+DROP DATABASE `db_686069_Script_20cabeleireiro`;
+UNINSTALL EXTENSION vsql_schematron;

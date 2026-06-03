@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 267736_CreateInitialDB
+--echo #
+CREATE DATABASE `db_267736_CreateInitialDB`;
+USE `db_267736_CreateInitialDB`;
+
+CREATE TABLE `YoloNets` (
+  `Id` INT,
+  `Title` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `ObjFilePath` VARCHAR(64),
+  `YoloFilePath` VARCHAR(64),
+  `WeightFolderPath` VARCHAR(64),
+  `DataFolderPath` VARCHAR(64),
+  `TargetResolution` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AnnotationCollectionAnnotationClasses` (
+  `AnnotationCollection_Id` INT,
+  `AnnotationClass_Id` INT,
+  PRIMARY KEY (`AnnotationCollection_Id`, `AnnotationClass_Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ClassMaps` (
+  `AnnotationClassId` INT,
+  `MappedId` INT,
+  `YoloNet_Id` INT,
+  PRIMARY KEY (`AnnotationClassId`, `MappedId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `YoloNetAnnotationCollections` (
+  `YoloNet_Id` INT,
+  `AnnotationCollection_Id` INT,
+  PRIMARY KEY (`YoloNet_Id`, `AnnotationCollection_Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `__MigrationHistory` (
+  `MigrationId` VARCHAR(64),
+  `ContextKey` VARCHAR(64),
+  `Model` VARCHAR(64),
+  `ProductVersion` VARCHAR(64),
+  PRIMARY KEY (`MigrationId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_267736_CreateInitialDB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_267736_CreateInitialDB') AS relationships;
+DROP DATABASE `db_267736_CreateInitialDB`;
+UNINSTALL EXTENSION vsql_schematron;

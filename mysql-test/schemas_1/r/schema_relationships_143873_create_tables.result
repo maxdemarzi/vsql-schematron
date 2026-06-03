@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 143873_create_tables
+#
+CREATE DATABASE `db_143873_create_tables`;
+USE `db_143873_create_tables`;
+CREATE TABLE `organization` (
+`org_id` INT,
+`org_name` VARCHAR(64),
+`phone` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`org_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`user_id` INT,
+`org_id` INT,
+`email` VARCHAR(64),
+`privileges` INT,
+`user_name` VARCHAR(64),
+`password` VARCHAR(64),
+`address` VARCHAR(64),
+`phone` VARCHAR(64),
+`image` VARCHAR(64),
+`reg_date` DATETIME,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_event` (
+`user_id` INT,
+`event_id` INT,
+`job_position` VARCHAR(64),
+`accepted` INT,
+PRIMARY KEY (`user_id`, `event_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ticket` (
+`ticket_id` INT,
+`event_id` INT,
+`ticket_type` VARCHAR(64),
+`amount` INT,
+`description` VARCHAR(64),
+`price` INT,
+`amount_sold` INT,
+PRIMARY KEY (`ticket_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_143873_create_tables') AS relationships;
+relationships
+Database: db_143873_create_tables
+
+Table Connections:
+------------------
+[Implied]  user.org_id -> organization.org_id
+[Implied]  user_event.user_id -> user.user_id
+
+DROP DATABASE `db_143873_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

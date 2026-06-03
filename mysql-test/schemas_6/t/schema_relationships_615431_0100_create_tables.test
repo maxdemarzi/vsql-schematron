@@ -1,0 +1,176 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 615431_0100_create_tables
+--echo #
+CREATE DATABASE `db_615431_0100_create_tables`;
+USE `db_615431_0100_create_tables`;
+
+CREATE TABLE `ABC_BLOB_DATA` (
+  `bdt_id` INT,
+  `cmp_id` INT,
+  `bdt_inserted` DATETIME,
+  `bdt_crc32` INT,
+  `bdt_size` INT,
+  `bdt_mime_type` VARCHAR(64),
+  `bdt_data` VARCHAR(64),
+  PRIMARY KEY (`bdt_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_CONFIG_CLASS` (
+  `ccl_id` INT,
+  `ccl_type` VARCHAR(64),
+  `ccl_class` VARCHAR(64),
+  PRIMARY KEY (`ccl_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_CONFIG_VALUE` (
+  `cmp_id` INT,
+  `cfg_id` INT,
+  `cfg_value` VARCHAR(64),
+  PRIMARY KEY (`cmp_id`, `cfg_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_PROFILE` (
+  `pro_id` INT,
+  `cmp_id` INT,
+  `pro_flags` INT,
+  `pro_rol_ids` VARCHAR(64),
+  PRIMARY KEY (`pro_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_FLAG` (
+  `rfl_id` INT,
+  `rfl_flag` INT,
+  `rfl_name` VARCHAR(64),
+  `rfl_function` VARCHAR(64),
+  PRIMARY KEY (`rfl_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_MODULE` (
+  `mdl_id` INT,
+  `wrd_id` INT,
+  PRIMARY KEY (`mdl_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_FUNCTIONALITY` (
+  `fun_id` INT,
+  `mdl_id` INT,
+  `wrd_id` INT,
+  PRIMARY KEY (`fun_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_MENU` (
+  `mnu_id` INT,
+  `wrd_id` INT,
+  `pag_id` INT,
+  `mnu_level` INT,
+  `mnu_group` INT,
+  `mnu_weight` INT,
+  `mnu_link` VARCHAR(64),
+  PRIMARY KEY (`mnu_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_MODULE_COMPANY` (
+  `cmp_id` INT,
+  `mdl_id` INT,
+  PRIMARY KEY (`cmp_id`, `mdl_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_PAG_FUN` (
+  `pag_id` INT,
+  `fun_id` INT,
+  PRIMARY KEY (`fun_id`, `pag_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_PAGE_COMPANY` (
+  `pag_id` INT,
+  `cmp_id` INT,
+  `pag_class` VARCHAR(64),
+  PRIMARY KEY (`pag_id`, `cmp_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_PRO_PAG` (
+  `pag_id` INT,
+  `pro_id` INT,
+  PRIMARY KEY (`pro_id`, `pag_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_PRO_ROL` (
+  `cmp_id` INT,
+  `pro_id` INT,
+  `rol_id` INT,
+  PRIMARY KEY (`pro_id`, `rol_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_ROL_FLG` (
+  `rfl_id` INT,
+  `rol_id` INT,
+  PRIMARY KEY (`rfl_id`, `rol_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_ROL_FUN` (
+  `cmp_id` INT,
+  `fun_id` INT,
+  `rol_id` INT,
+  PRIMARY KEY (`rol_id`, `fun_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUT_USR_ROL` (
+  `cmp_id` INT,
+  `usr_id` INT,
+  `rol_id` INT,
+  `aur_date_start` DATETIME,
+  `aur_date_stop` DATETIME,
+  PRIMARY KEY (`usr_id`, `rol_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BBL_WORD_TEXT` (
+  `wrd_id` INT,
+  `lan_id` INT,
+  `wdt_text` VARCHAR(64),
+  `wdt_modified` DATETIME,
+  PRIMARY KEY (`wrd_id`, `lan_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BBL_WORD_TRANSLATE_HISTORY` (
+  `wrd_id` INT,
+  `lan_id` INT,
+  `usr_id` INT,
+  `wth_datetime` DATETIME,
+  `wth_text` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LOG_EVENT` (
+  `lev_id` INT,
+  `cmp_id` INT,
+  `let_id` INT,
+  `lgr_id` INT,
+  `ses_id` INT,
+  `usr_id` INT,
+  `lev_datetime` DATETIME,
+  `lev_ip` INT,
+  `lev_arg1` VARCHAR(64),
+  `lev_arg2` VARCHAR(64),
+  PRIMARY KEY (`lev_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_615431_0100_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_615431_0100_create_tables') AS relationships;
+DROP DATABASE `db_615431_0100_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

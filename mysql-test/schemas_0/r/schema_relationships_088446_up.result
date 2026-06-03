@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 088446_up
+#
+CREATE DATABASE `db_088446_up`;
+USE `db_088446_up`;
+CREATE TABLE `book` (
+`isbn` VARCHAR(64),
+`title` VARCHAR(64),
+`author` VARCHAR(64),
+`thumbnail` VARCHAR(64),
+`thumbnail_small` VARCHAR(64),
+PRIMARY KEY (`isbn`)
+) CHARACTER SET latin1;
+CREATE TABLE `owned_books` (
+`isbn` VARCHAR(64),
+`user_id` INT,
+PRIMARY KEY (`isbn`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_sessions` (
+`session_id` VARCHAR(64),
+`user_id` INT,
+PRIMARY KEY (`session_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_088446_up') AS relationships;
+relationships
+Database: db_088446_up
+
+Table Connections:
+------------------
+[Implied]  owned_books.isbn -> book.isbn
+[Implied]  owned_books.user_id -> user.id
+[Implied]  user_sessions.user_id -> user.id
+
+DROP DATABASE `db_088446_up`;
+UNINSTALL EXTENSION vsql_schematron;

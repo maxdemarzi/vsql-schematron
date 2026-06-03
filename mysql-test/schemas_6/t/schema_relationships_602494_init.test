@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 602494_init
+--echo #
+CREATE DATABASE `db_602494_init`;
+USE `db_602494_init`;
+
+CREATE TABLE `data` (
+  `data_id` INT,
+  `label` INT,
+  PRIMARY KEY (`data_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `attr` (
+  `data_id` INT,
+  `attr_id` INT,
+  `val` DECIMAL(10,2),
+  PRIMARY KEY (`data_id`, `attr_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `model` (
+  `attr_id` DECIMAL(10,2),
+  `val` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_602494_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_602494_init') AS relationships;
+DROP DATABASE `db_602494_init`;
+UNINSTALL EXTENSION vsql_schematron;

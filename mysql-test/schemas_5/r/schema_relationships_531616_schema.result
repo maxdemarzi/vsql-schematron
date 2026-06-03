@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 531616_schema
+#
+CREATE DATABASE `db_531616_schema`;
+USE `db_531616_schema`;
+CREATE TABLE `Domains` (
+`Id` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ARecords` (
+`DomainId` INT,
+`Name` VARCHAR(64),
+`IpAddress` VARCHAR(64),
+`DynamicFQDN` VARCHAR(64),
+PRIMARY KEY (`DomainId`, `Name`, `IpAddress`, `DynamicFQDN`)
+) CHARACTER SET latin1;
+CREATE TABLE `CNameRecords` (
+`DomainId` INT,
+`Name` VARCHAR(64),
+`CanonicalName` VARCHAR(64),
+PRIMARY KEY (`DomainId`, `Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `DKIMRecords` (
+`DomainId` INT,
+`Name` VARCHAR(64),
+`Value` VARCHAR(64),
+PRIMARY KEY (`DomainId`, `Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `DMARCRecords` (
+`DomainId` INT,
+`Name` VARCHAR(64),
+`Value` VARCHAR(64),
+PRIMARY KEY (`DomainId`, `Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `MxRecords` (
+`DomainId` INT,
+`Name` VARCHAR(64),
+`Value` VARCHAR(64),
+`Priority` INT,
+PRIMARY KEY (`DomainId`, `Name`, `Value`)
+) CHARACTER SET latin1;
+CREATE TABLE `NsRecords` (
+`DomainId` INT,
+`Name` VARCHAR(64),
+`Value` VARCHAR(64),
+`SortOrder` INT,
+PRIMARY KEY (`DomainId`, `Name`, `Value`)
+) CHARACTER SET latin1;
+CREATE TABLE `SPFRecords` (
+`DomainId` INT,
+`Name` VARCHAR(64),
+`Value` VARCHAR(64),
+PRIMARY KEY (`DomainId`, `Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `SRVRecords` (
+`DomainId` INT,
+`Service` VARCHAR(64),
+`Protocol` VARCHAR(64),
+`Priority` INT,
+`Weight` INT,
+`Port` INT,
+`Target` VARCHAR(64),
+PRIMARY KEY (`DomainId`, `Service`, `Protocol`, `Port`, `Target`)
+) CHARACTER SET latin1;
+CREATE TABLE `TXTRecords` (
+`DomainId` INT,
+`Name` VARCHAR(64),
+`Value` VARCHAR(64),
+PRIMARY KEY (`DomainId`, `Name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_531616_schema') AS relationships;
+relationships
+Database: db_531616_schema
+
+Table Connections:
+------------------
+[Implied]  ARecords.DomainId -> Domains.Id
+[Implied]  CNameRecords.DomainId -> Domains.Id
+[Implied]  DKIMRecords.DomainId -> Domains.Id
+[Implied]  DMARCRecords.DomainId -> Domains.Id
+[Implied]  MxRecords.DomainId -> Domains.Id
+[Implied]  NsRecords.DomainId -> Domains.Id
+[Implied]  SPFRecords.DomainId -> Domains.Id
+[Implied]  SRVRecords.DomainId -> Domains.Id
+[Implied]  TXTRecords.DomainId -> Domains.Id
+
+DROP DATABASE `db_531616_schema`;
+UNINSTALL EXTENSION vsql_schematron;

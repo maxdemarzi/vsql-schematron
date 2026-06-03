@@ -1,0 +1,85 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 007356_memor
+--echo #
+CREATE DATABASE `db_007356_memor`;
+USE `db_007356_memor`;
+
+CREATE TABLE `views` (
+  `viewid` VARCHAR(64),
+  `viewname` VARCHAR(64),
+  `grouping_catid` VARCHAR(64),
+  `ordering_catid` VARCHAR(64),
+  `asc_desc` INT,
+  PRIMARY KEY (`viewid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `items` (
+  `itemid` VARCHAR(64),
+  `note` VARCHAR(64),
+  `text` VARCHAR(64),
+  PRIMARY KEY (`itemid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cats` (
+  `catid` VARCHAR(64),
+  `parent` VARCHAR(64),
+  `catname` VARCHAR(64),
+  `mut_excl_children` INT,
+  `action` VARCHAR(64),
+  PRIMARY KEY (`catid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `view_selection` (
+  `viewid` VARCHAR(64),
+  `catid` VARCHAR(64),
+  `negated` INT,
+  PRIMARY KEY (`viewid`, `catid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `view_columns` (
+  `viewid` VARCHAR(64),
+  `catid` VARCHAR(64),
+  `column_ordinal` INT,
+  PRIMARY KEY (`viewid`, `catid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `item_cats` (
+  `itemid` VARCHAR(64),
+  `catid` VARCHAR(64),
+  `strvalue` VARCHAR(64),
+  `numvalue` DECIMAL(10,2),
+  `source` VARCHAR(64),
+  PRIMARY KEY (`itemid`, `catid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cat_rules` (
+  `catid` VARCHAR(64),
+  `source_catid` VARCHAR(64),
+  `negated` INT,
+  `relop` VARCHAR(64),
+  `strvalue` VARCHAR(64),
+  `numvalue` DECIMAL(10,2),
+  PRIMARY KEY (`catid`, `source_catid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_007356_memor') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_007356_memor') AS relationships;
+DROP DATABASE `db_007356_memor`;
+UNINSTALL EXTENSION vsql_schematron;

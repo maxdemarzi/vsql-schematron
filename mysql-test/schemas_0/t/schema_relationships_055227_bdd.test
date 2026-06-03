@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 055227_bdd
+--echo #
+CREATE DATABASE `db_055227_bdd`;
+USE `db_055227_bdd`;
+
+CREATE TABLE `Medecin` (
+  `id_medecin` INT,
+  `civilite` VARCHAR(64),
+  `nom` VARCHAR(64),
+  `prenom` VARCHAR(64),
+  PRIMARY KEY (`id_medecin`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Patient` (
+  `id_patient` INT,
+  `id_medecin` INT,
+  `civilite` VARCHAR(64),
+  `nom` VARCHAR(64),
+  `prenom` VARCHAR(64),
+  `adresse` VARCHAR(64),
+  `date_naissance` DATETIME,
+  `num_secu` VARCHAR(64),
+  PRIMARY KEY (`id_patient`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Consultation` (
+  `id_medecin` INT,
+  `id_patient` INT,
+  `date_debut` DATETIME,
+  `date_fin` DATETIME,
+  PRIMARY KEY (`id_medecin`, `id_patient`, `date_debut`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_055227_bdd') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_055227_bdd') AS relationships;
+DROP DATABASE `db_055227_bdd`;
+UNINSTALL EXTENSION vsql_schematron;

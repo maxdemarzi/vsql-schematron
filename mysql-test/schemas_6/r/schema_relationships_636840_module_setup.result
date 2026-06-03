@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 636840_module_setup
+#
+CREATE DATABASE `db_636840_module_setup`;
+USE `db_636840_module_setup`;
+CREATE TABLE `oauth2_idp_persons` (
+`person_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email_address` VARCHAR(64),
+`cell_number` VARCHAR(64),
+`phone_number` VARCHAR(64),
+PRIMARY KEY (`person_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `oauth2_idp_users` (
+`user_id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`person_id` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `oauth2_clients` (
+`client_id` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`grant_types` VARCHAR(64),
+`token_iv` VARCHAR(64),
+`token_key` VARCHAR(64),
+`revoked` VARCHAR(64),
+PRIMARY KEY (`client_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `oauth2_client_returnurls` (
+`url_id` INT,
+`client_id` VARCHAR(64),
+`return_url` VARCHAR(64),
+PRIMARY KEY (`url_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `oauth2_scopes` (
+`scope_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`scope_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `oauth2_client_scopes` (
+`client_id` VARCHAR(64),
+`scope_id` INT,
+PRIMARY KEY (`client_id`, `scope_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_636840_module_setup') AS relationships;
+relationships
+Database: db_636840_module_setup
+
+Table Connections:
+------------------
+[Implied]  oauth2_client_returnurls.client_id -> oauth2_clients.client_id
+[Implied]  oauth2_client_scopes.client_id -> oauth2_clients.client_id
+[Implied]  oauth2_client_scopes.scope_id -> oauth2_scopes.scope_id
+[Implied]  oauth2_idp_users.person_id -> oauth2_idp_persons.person_id
+
+DROP DATABASE `db_636840_module_setup`;
+UNINSTALL EXTENSION vsql_schematron;

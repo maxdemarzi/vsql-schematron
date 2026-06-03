@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 407654_db-script
+--echo #
+CREATE DATABASE `db_407654_db_script`;
+USE `db_407654_db_script`;
+
+CREATE TABLE `user_roles` (
+  `user_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `polls` (
+  `id` INT,
+  `question` VARCHAR(64),
+  `expiration_date_time` DATETIME,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `created_by` INT,
+  `updated_by` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `choices` (
+  `id` INT,
+  `text` VARCHAR(64),
+  `poll_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `votes` (
+  `id` INT,
+  `user_id` INT,
+  `poll_id` INT,
+  `choice_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vehicle` (
+  `id` INT,
+  `registrationNumber` VARCHAR(64),
+  `vehicleNumber` VARCHAR(64),
+  `vehicleType` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rides` (
+  `id` INT,
+  `sourceLat` DECIMAL(10,2),
+  `sourceLong` DECIMAL(10,2),
+  `destinationLat` DECIMAL(10,2),
+  `destinationLong` DECIMAL(10,2),
+  `fair` DECIMAL(10,2),
+  `distanceInKM` DECIMAL(10,2),
+  `rating` DECIMAL(10,2),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `driver` (
+  `id` INT,
+  `user_id` INT,
+  `ride_id` INT,
+  `vehicle_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_407654_db_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_407654_db_script') AS relationships;
+DROP DATABASE `db_407654_db_script`;
+UNINSTALL EXTENSION vsql_schematron;

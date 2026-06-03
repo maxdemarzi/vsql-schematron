@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 591035_bootstrap
+#
+CREATE DATABASE `db_591035_bootstrap`;
+USE `db_591035_bootstrap`;
+CREATE TABLE `pipelines` (
+`remote` VARCHAR(64),
+`ref` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`remote`, `name`)
+) CHARACTER SET latin1;
+CREATE TABLE `runs` (
+`count` INT,
+`start_time` DATETIME,
+`end_time` DATETIME,
+`success` VARCHAR(64),
+`pipeline_remote` VARCHAR(64),
+`pipeline_name` VARCHAR(64),
+PRIMARY KEY (`pipeline_remote`, `pipeline_name`, `count`)
+) CHARACTER SET latin1;
+CREATE TABLE `steps` (
+`id` INT,
+`name` VARCHAR(64),
+`start_time` DATETIME,
+`end_time` DATETIME,
+`success` VARCHAR(64),
+`pipeline_remote` VARCHAR(64),
+`pipeline_name` VARCHAR(64),
+`run_count` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks` (
+`id` INT,
+`name` VARCHAR(64),
+`start_time` DATETIME,
+`end_time` DATETIME,
+`success` VARCHAR(64),
+`step_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_591035_bootstrap') AS relationships;
+relationships
+Database: db_591035_bootstrap
+
+Table Connections:
+------------------
+[Implied]  tasks.step_id -> steps.id
+
+DROP DATABASE `db_591035_bootstrap`;
+UNINSTALL EXTENSION vsql_schematron;

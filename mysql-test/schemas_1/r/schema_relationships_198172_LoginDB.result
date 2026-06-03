@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 198172_LoginDB
+#
+CREATE DATABASE `db_198172_LoginDB`;
+USE `db_198172_LoginDB`;
+CREATE TABLE `Customers` (
+`customer_id` INT,
+`customer_name` VARCHAR(64),
+`customer_address` VARCHAR(64),
+`telephone` VARCHAR(64),
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cashiers` (
+`cashier_id` INT,
+`cashier_name` VARCHAR(64),
+`user_name` VARCHAR(64),
+`user_pass` VARCHAR(64),
+`telephone` VARCHAR(64),
+PRIMARY KEY (`cashier_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Colors` (
+`color_id` INT,
+`color_name` VARCHAR(64),
+PRIMARY KEY (`color_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sizes` (
+`size_id` INT,
+`size_name` VARCHAR(64),
+PRIMARY KEY (`size_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Items` (
+`item_id` INT,
+`item_name` VARCHAR(64),
+`item_description` VARCHAR(64),
+`item_price` DECIMAL(10,2),
+PRIMARY KEY (`item_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ItemDetails` (
+`item_id` INT,
+`color_id` INT,
+`size_id` INT,
+`quantity` INT,
+PRIMARY KEY (`item_id`, `color_id`, `size_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Invoices` (
+`invoice_no` INT,
+`cashier_id` INT,
+`customer_id` INT,
+`invoice_date` DATETIME,
+PRIMARY KEY (`invoice_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `InvoiceDetails` (
+`invoice_no` INT,
+`item_id` INT,
+`item_price` DECIMAL(10,2),
+PRIMARY KEY (`invoice_no`, `item_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_198172_LoginDB') AS relationships;
+relationships
+Database: db_198172_LoginDB
+
+Table Connections:
+------------------
+[Implied]  InvoiceDetails.invoice_no -> Invoices.invoice_no
+[Implied]  InvoiceDetails.item_id -> Items.item_id
+[Implied]  Invoices.cashier_id -> Cashiers.cashier_id
+[Implied]  Invoices.customer_id -> Customers.customer_id
+[Implied]  ItemDetails.color_id -> Colors.color_id
+[Implied]  ItemDetails.item_id -> Items.item_id
+[Implied]  ItemDetails.size_id -> Sizes.size_id
+
+DROP DATABASE `db_198172_LoginDB`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 300810_schema
+#
+CREATE DATABASE `db_300810_schema`;
+USE `db_300810_schema`;
+CREATE TABLE `departments` (
+`dept_no` VARCHAR(64),
+`dept_name` VARCHAR(64),
+PRIMARY KEY (`dept_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`emp_no` INT,
+`birth_date` DATETIME,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`gender` VARCHAR(64),
+`hire_date` DATETIME,
+PRIMARY KEY (`emp_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `dept_managers` (
+`dept_no` VARCHAR(64),
+`emp_no` INT,
+`from_date` DATETIME,
+`to_date` DATETIME,
+PRIMARY KEY (`dept_no`, `emp_no`, `from_date`)
+) CHARACTER SET latin1;
+CREATE TABLE `dept_employees` (
+`emp_no` INT,
+`dept_no` VARCHAR(64),
+`from_date` DATETIME,
+`to_date` DATETIME,
+PRIMARY KEY (`emp_no`, `dept_no`, `from_date`)
+) CHARACTER SET latin1;
+CREATE TABLE `salaries` (
+`emp_no` INT,
+`salary` INT,
+`from_date` DATETIME,
+`to_date` DATETIME,
+PRIMARY KEY (`emp_no`, `salary`, `from_date`)
+) CHARACTER SET latin1;
+CREATE TABLE `titles` (
+`emp_no` INT,
+`title` VARCHAR(64),
+`from_date` DATETIME,
+`to_date` DATETIME,
+PRIMARY KEY (`emp_no`, `title`, `from_date`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_300810_schema') AS relationships;
+relationships
+Database: db_300810_schema
+
+Table Connections:
+------------------
+[Implied]  dept_employees.dept_no -> departments.dept_no
+[Implied]  dept_employees.emp_no -> employees.emp_no
+[Implied]  dept_managers.dept_no -> departments.dept_no
+[Implied]  dept_managers.emp_no -> employees.emp_no
+[Implied]  salaries.emp_no -> employees.emp_no
+[Implied]  titles.emp_no -> employees.emp_no
+
+DROP DATABASE `db_300810_schema`;
+UNINSTALL EXTENSION vsql_schematron;

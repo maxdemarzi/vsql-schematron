@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 543134_travis
+#
+CREATE DATABASE `db_543134_travis`;
+USE `db_543134_travis`;
+CREATE TABLE `avviso` (
+`idAvviso` INT,
+`data` DATETIME,
+`ora` DATETIME,
+`emailCoordinatore` VARCHAR(64),
+`avviso` VARCHAR(64),
+`documentoPath` VARCHAR(64),
+PRIMARY KEY (`idAvviso`)
+) CHARACTER SET latin1;
+CREATE TABLE `coordinatore` (
+`emailCoordinatore` VARCHAR(64),
+`password` VARCHAR(64),
+`nome` VARCHAR(64),
+`cognome` VARCHAR(64),
+`codiceFiscale` VARCHAR(64),
+`via` VARCHAR(64),
+`ruolo` VARCHAR(64),
+`recapito` VARCHAR(64),
+`bio` VARCHAR(64),
+`facolta` VARCHAR(64),
+`imgProfiloPath` VARCHAR(64),
+`passToken` VARCHAR(64),
+PRIMARY KEY (`emailCoordinatore`)
+) CHARACTER SET latin1;
+CREATE TABLE `documento` (
+`idDocumento` INT,
+`titolo` VARCHAR(64),
+`contenutoPath` VARCHAR(64),
+`idTimeline` INT,
+`dataUpload` DATETIME,
+`emailCoordinatore` VARCHAR(64),
+PRIMARY KEY (`idDocumento`)
+) CHARACTER SET latin1;
+CREATE TABLE `studente` (
+`emailStudente` VARCHAR(64),
+`password` VARCHAR(64),
+`nome` VARCHAR(64),
+`cognome` VARCHAR(64),
+`codiceFiscale` VARCHAR(64),
+`via` VARCHAR(64),
+`recapito` VARCHAR(64),
+`facolta` VARCHAR(64),
+`matricola` VARCHAR(64),
+`status` VARCHAR(64),
+`bio` VARCHAR(64),
+`imgProfiloPath` VARCHAR(64),
+`passToken` VARCHAR(64),
+`rating` INT,
+PRIMARY KEY (`emailStudente`)
+) CHARACTER SET latin1;
+CREATE TABLE `votazione` (
+`idTimeline` INT,
+`emailStudente` VARCHAR(64),
+`nomeEsame` VARCHAR(64),
+`votoIta` INT,
+`esameEstero` VARCHAR(64),
+`votoEstero` VARCHAR(64),
+PRIMARY KEY (`idTimeline`, `nomeEsame`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_543134_travis') AS relationships;
+relationships
+Database: db_543134_travis
+
+Table Connections:
+------------------
+[Implied]  avviso.emailCoordinatore -> coordinatore.emailCoordinatore
+[Implied]  documento.emailCoordinatore -> coordinatore.emailCoordinatore
+[Implied]  votazione.emailStudente -> studente.emailStudente
+
+DROP DATABASE `db_543134_travis`;
+UNINSTALL EXTENSION vsql_schematron;

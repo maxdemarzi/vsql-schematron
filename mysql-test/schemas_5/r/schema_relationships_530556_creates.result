@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 530556_creates
+#
+CREATE DATABASE `db_530556_creates`;
+USE `db_530556_creates`;
+CREATE TABLE `tb_user` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_canary` (
+`id` INT,
+`name` VARCHAR(64),
+`lat` DECIMAL(10,2),
+`lng` DECIMAL(10,2),
+`security_token` INT,
+`nh3` DECIMAL(10,2),
+`co2` DECIMAL(10,2),
+`co` DECIMAL(10,2),
+`temperature` DECIMAL(10,2),
+`humidity` DECIMAL(10,2),
+`owner_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_user_canary` (
+`user_id` INT,
+`canary_id` INT,
+PRIMARY KEY (`user_id`, `canary_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_daily_reading` (
+`id` INT,
+`nh3` DECIMAL(10,2),
+`co2` DECIMAL(10,2),
+`co` DECIMAL(10,2),
+`temperature` DECIMAL(10,2),
+`humity` DECIMAL(10,2),
+`created_at` DATETIME,
+`canary_id` INT,
+`readings` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_530556_creates') AS relationships;
+relationships
+Database: db_530556_creates
+
+Table Connections:
+------------------
+[Implied]  tb_canary.owner_id -> tb_user.id
+[Implied]  tb_daily_reading.canary_id -> tb_canary.id
+[Implied]  tb_user_canary.canary_id -> tb_canary.id
+[Implied]  tb_user_canary.user_id -> tb_user.id
+
+DROP DATABASE `db_530556_creates`;
+UNINSTALL EXTENSION vsql_schematron;

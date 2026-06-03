@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 025534_150101051
+#
+CREATE DATABASE `db_025534_150101051`;
+USE `db_025534_150101051`;
+CREATE TABLE `Department` (
+`department_id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`department_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Slot` (
+`letter` VARCHAR(64),
+`day` VARCHAR(64),
+`start_time` DATETIME,
+`end_time` DATETIME,
+PRIMARY KEY (`letter`, `day`)
+) CHARACTER SET latin1;
+CREATE TABLE `Room` (
+`room_no` VARCHAR(64),
+`location` VARCHAR(64),
+PRIMARY KEY (`room_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `ScheduledIn` (
+`course_id` VARCHAR(64),
+`division` VARCHAR(64),
+`department_id` VARCHAR(64),
+`letter` VARCHAR(64),
+`day` VARCHAR(64),
+`room_no` VARCHAR(64),
+PRIMARY KEY (`course_id`, `division`, `department_id`, `letter`, `day`, `room_no`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_025534_150101051') AS relationships;
+relationships
+Database: db_025534_150101051
+
+Table Connections:
+------------------
+[Implied]  ScheduledIn.department_id -> Department.department_id
+[Implied]  ScheduledIn.room_no -> Room.room_no
+
+DROP DATABASE `db_025534_150101051`;
+UNINSTALL EXTENSION vsql_schematron;

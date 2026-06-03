@@ -1,0 +1,102 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 259287_schema
+--echo #
+CREATE DATABASE `db_259287_schema`;
+USE `db_259287_schema`;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `user_uuid` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `enabled` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `authority` (
+  `user_id` INT,
+  `authority` VARCHAR(64),
+  PRIMARY KEY (`user_id`, `authority`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `country` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `city` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `country_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `city_comment` (
+  `id` INT,
+  `city_id` INT,
+  `user_id` INT,
+  `description` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `airport` (
+  `airport_id` INT,
+  `name` VARCHAR(64),
+  `city_id` INT,
+  `country_id` INT,
+  `city` VARCHAR(64),
+  `country` VARCHAR(64),
+  `iata` VARCHAR(64),
+  `icao` VARCHAR(64),
+  `latitude` DECIMAL(10,2),
+  `longitude` DECIMAL(10,2),
+  `altitude` INT,
+  `timezone` DECIMAL(10,2),
+  `dst` VARCHAR(64),
+  `tz` VARCHAR(64),
+  `type` VARCHAR(64),
+  `data_source` VARCHAR(64),
+  PRIMARY KEY (`airport_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `route` (
+  `airline_code` VARCHAR(64),
+  `airline_id` INT,
+  `source_airport` VARCHAR(64),
+  `source_airport_id` INT,
+  `destination_airport` VARCHAR(64),
+  `destination_airport_id` INT,
+  `code_share` VARCHAR(64),
+  `stops` INT,
+  `equipment` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  PRIMARY KEY (`source_airport`, `destination_airport`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_259287_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_259287_schema') AS relationships;
+DROP DATABASE `db_259287_schema`;
+UNINSTALL EXTENSION vsql_schematron;

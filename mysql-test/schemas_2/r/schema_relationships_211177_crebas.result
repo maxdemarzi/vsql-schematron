@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 211177_crebas
+#
+CREATE DATABASE `db_211177_crebas`;
+USE `db_211177_crebas`;
+CREATE TABLE `Bar` (
+`chainName` VARCHAR(64),
+`chainID` INT,
+`beer_brand_name` VARCHAR(64),
+`beer_produce_factory_name` VARCHAR(64),
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`form` VARCHAR(64),
+`capacity` INT,
+`cardID` INT,
+`Dri_cardID` INT,
+`countyName` VARCHAR(64),
+`streetName` VARCHAR(64),
+`apartmentNumber` INT,
+`price` INT,
+PRIMARY KEY (`chainName`, `chainID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Beer` (
+`beer_brand_name` VARCHAR(64),
+`beer_produce_factory_name` VARCHAR(64),
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`form` VARCHAR(64),
+`capacity` INT,
+`cardID` INT,
+`Dri_cardID` INT,
+PRIMARY KEY (`beer_brand_name`, `beer_produce_factory_name`, `name`, `type`, `form`, `capacity`)
+) CHARACTER SET latin1;
+CREATE TABLE `Drinker` (
+`cardID` INT,
+`group_id` INT,
+`beer_brand_name` VARCHAR(64),
+`beer_produce_factory_name` VARCHAR(64),
+`Bee_name` VARCHAR(64),
+`type` VARCHAR(64),
+`form` VARCHAR(64),
+`capacity` INT,
+`chainName` VARCHAR(64),
+`chainID` INT,
+`name` VARCHAR(64),
+`age` INT,
+`sex` INT,
+PRIMARY KEY (`cardID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Group` (
+`group_id` INT,
+PRIMARY KEY (`group_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Location` (
+`zip` INT,
+`street_number` INT,
+`apt_number` INT,
+`chainName` VARCHAR(64),
+`chainID` INT,
+`cardID` INT,
+`state` VARCHAR(64),
+`city` VARCHAR(64),
+`street_name` VARCHAR(64),
+`apt_name` VARCHAR(64),
+PRIMARY KEY (`zip`, `street_number`, `apt_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `Manufacturer` (
+`beer_brand_name` VARCHAR(64),
+`beer_produce_factory_name` VARCHAR(64),
+PRIMARY KEY (`beer_brand_name`, `beer_produce_factory_name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_211177_crebas') AS relationships;
+relationships
+Database: db_211177_crebas
+
+Table Connections:
+------------------
+[Implied]  Bar.Dri_cardID -> Drinker.cardID
+[Implied]  Bar.cardID -> Drinker.cardID
+[Implied]  Beer.Dri_cardID -> Drinker.cardID
+[Implied]  Beer.cardID -> Drinker.cardID
+[Implied]  Drinker.group_id -> Group.group_id
+[Implied]  Location.cardID -> Drinker.cardID
+
+DROP DATABASE `db_211177_crebas`;
+UNINSTALL EXTENSION vsql_schematron;

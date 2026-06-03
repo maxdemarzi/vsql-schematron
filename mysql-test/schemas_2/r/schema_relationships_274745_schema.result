@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 274745_schema
+#
+CREATE DATABASE `db_274745_schema`;
+USE `db_274745_schema`;
+CREATE TABLE `exams` (
+`id` INT,
+`description` VARCHAR(64),
+`name` VARCHAR(64),
+`start_time` DATETIME,
+`end_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questions` (
+`exam_id` INT,
+`problem_id` INT,
+`question_order` INT,
+`quota` INT,
+`score` INT,
+PRIMARY KEY (`exam_id`, `problem_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `examinees` (
+`exam_id` INT,
+`student_id` INT,
+PRIMARY KEY (`exam_id`, `student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answers` (
+`number` INT,
+`exam_id` INT,
+`problem_id` INT,
+`student_id` INT,
+`submission_id` VARCHAR(64),
+`answer_time` DATETIME,
+PRIMARY KEY (`number`, `exam_id`, `problem_id`, `student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `best_records` (
+`exam_id` INT,
+`problem_id` INT,
+`student_id` INT,
+`submission_id` VARCHAR(64),
+`maximum_memory_usage` INT,
+`maximum_runtime` INT,
+`grade` INT,
+`max_grade` INT,
+`status` VARCHAR(64),
+`submission_time` DATETIME,
+PRIMARY KEY (`exam_id`, `problem_id`, `student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `homework` (
+`id` INT,
+`name` VARCHAR(64),
+`problem_ids` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `study_groups` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `membership` (
+`group_id` INT,
+`member_id` INT,
+PRIMARY KEY (`group_id`, `member_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_274745_schema') AS relationships;
+relationships
+Database: db_274745_schema
+
+Table Connections:
+------------------
+[Implied]  answers.exam_id -> exams.id
+[Implied]  best_records.exam_id -> exams.id
+[Implied]  examinees.exam_id -> exams.id
+[Implied]  membership.group_id -> study_groups.id
+[Implied]  questions.exam_id -> exams.id
+
+DROP DATABASE `db_274745_schema`;
+UNINSTALL EXTENSION vsql_schematron;

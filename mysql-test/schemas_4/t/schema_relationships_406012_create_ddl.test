@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 406012_create.ddl
+--echo #
+CREATE DATABASE `db_406012_create_ddl`;
+USE `db_406012_create_ddl`;
+
+CREATE TABLE `repo_snapshots` (
+  `workspace_id` VARCHAR(64),
+  `id` VARCHAR(64),
+  `provider_id` VARCHAR(64),
+  `owner` VARCHAR(64),
+  `name` VARCHAR(64),
+  `url` VARCHAR(64),
+  `branch` VARCHAR(64),
+  `commit_sha` VARCHAR(64),
+  `timestamp` DATETIME,
+  `query` VARCHAR(64),
+  PRIMARY KEY (`workspace_id`, `id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `fingerprints` (
+  `workspace_id` VARCHAR(64),
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `feature_name` VARCHAR(64),
+  `sha` VARCHAR(64),
+  `data` VARCHAR(64),
+  `display_name` VARCHAR(64),
+  `display_value` VARCHAR(64),
+  PRIMARY KEY (`workspace_id`, `id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `repo_fingerprints` (
+  `workspace_id` VARCHAR(64),
+  `repo_snapshot_id` VARCHAR(64),
+  `fingerprint_id` VARCHAR(64),
+  `path` VARCHAR(64),
+  PRIMARY KEY (`repo_snapshot_id`, `fingerprint_id`, `workspace_id`, `path`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `fingerprint_analytics` (
+  `name` VARCHAR(64),
+  `feature_name` VARCHAR(64),
+  `workspace_id` VARCHAR(64),
+  `count` DECIMAL(10,2),
+  `entropy` DECIMAL(10,2),
+  `variants` DECIMAL(10,2),
+  `compliance` DECIMAL(10,2),
+  PRIMARY KEY (`name`, `feature_name`, `workspace_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_406012_create_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_406012_create_ddl') AS relationships;
+DROP DATABASE `db_406012_create_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 457669_create_database_deck
+--echo #
+CREATE DATABASE `db_457669_create_database_deck`;
+USE `db_457669_create_database_deck`;
+
+CREATE TABLE `Server` (
+  `id` INT,
+  `claim_interval` INT,
+  `time_to_claim` INT,
+  `rolls_per_hour` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Member` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MemberInformation` (
+  `id_server` INT,
+  `id_member` INT,
+  `last_claim` VARCHAR(64),
+  `nb_rolls` INT,
+  `last_roll` VARCHAR(64),
+  `max_wish` INT,
+  PRIMARY KEY (`id_server`, `id_member`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Deck` (
+  `id_server` INT,
+  `id_idol` INT,
+  `id_member` INT,
+  `current_image` INT,
+  PRIMARY KEY (`id_server`, `id_idol`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Wishlist` (
+  `id_server` INT,
+  `id_idol` INT,
+  `id_member` INT,
+  PRIMARY KEY (`id_server`, `id_idol`, `id_member`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_457669_create_database_deck') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_457669_create_database_deck') AS relationships;
+DROP DATABASE `db_457669_create_database_deck`;
+UNINSTALL EXTENSION vsql_schematron;

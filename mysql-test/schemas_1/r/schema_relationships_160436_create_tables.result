@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 160436_create_tables
+#
+CREATE DATABASE `db_160436_create_tables`;
+USE `db_160436_create_tables`;
+CREATE TABLE `YEAR` (
+`id_year` INT,
+PRIMARY KEY (`id_year`)
+) CHARACTER SET latin1;
+CREATE TABLE `profesor` (
+`id_prof` INT,
+`nombre` VARCHAR(64),
+`apellidos` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`id_prof`)
+) CHARACTER SET latin1;
+CREATE TABLE `asignatura` (
+`id_asig` INT,
+`id_prof` INT,
+`nombre` VARCHAR(64),
+PRIMARY KEY (`id_asig`)
+) CHARACTER SET latin1;
+CREATE TABLE `cursadoEn` (
+`id_asig` INT,
+`id_year` INT,
+PRIMARY KEY (`id_asig`, `id_year`)
+) CHARACTER SET latin1;
+CREATE TABLE `examen` (
+`id_exam` INT,
+`id_asig` INT,
+`revision` VARCHAR(64),
+`titulo` VARCHAR(64),
+`fecha` DATETIME,
+`nota` DECIMAL(10,2),
+PRIMARY KEY (`id_exam`)
+) CHARACTER SET latin1;
+CREATE TABLE `actividad` (
+`id_act` INT,
+`id_asig` INT,
+`comentarios` VARCHAR(64),
+`titulo` VARCHAR(64),
+`fecha_limite` DATETIME,
+`fecha_entrega` DATETIME,
+`nota` DECIMAL(10,2),
+PRIMARY KEY (`id_act`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_160436_create_tables') AS relationships;
+relationships
+Database: db_160436_create_tables
+
+Table Connections:
+------------------
+[Implied]  actividad.id_asig -> asignatura.id_asig
+[Implied]  asignatura.id_prof -> profesor.id_prof
+[Implied]  cursadoEn.id_asig -> asignatura.id_asig
+[Implied]  cursadoEn.id_year -> YEAR.id_year
+[Implied]  examen.id_asig -> asignatura.id_asig
+
+DROP DATABASE `db_160436_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

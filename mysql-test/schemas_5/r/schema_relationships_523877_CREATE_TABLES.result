@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 523877_CREATE_TABLES
+#
+CREATE DATABASE `db_523877_CREATE_TABLES`;
+USE `db_523877_CREATE_TABLES`;
+CREATE TABLE `users` (
+`id` INT,
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`is_approved` INT,
+`points` INT,
+`group_number` INT,
+`is_archived` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `summerhouses` (
+`id` INT,
+`title` VARCHAR(64),
+`address` VARCHAR(64),
+`price` INT,
+`description` VARCHAR(64),
+`capacity` INT,
+`date_from` DATETIME,
+`date_to` DATETIME,
+`is_archived` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reservations` (
+`id` INT,
+`date_from` DATETIME,
+`date_to` DATETIME,
+`user_id` INT,
+`summerhouse_id` INT,
+`is_approved` INT,
+`is_archived` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `services` (
+`id` INT,
+`title` VARCHAR(64),
+`price` INT,
+`description` VARCHAR(64),
+`is_archived` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `summerhouse_services` (
+`service_id` INT,
+`summerhouse_id` INT,
+PRIMARY KEY (`service_id`, `summerhouse_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_523877_CREATE_TABLES') AS relationships;
+relationships
+Database: db_523877_CREATE_TABLES
+
+Table Connections:
+------------------
+[Implied]  reservations.summerhouse_id -> summerhouses.id
+[Implied]  reservations.user_id -> users.id
+[Implied]  summerhouse_services.service_id -> services.id
+[Implied]  summerhouse_services.summerhouse_id -> summerhouses.id
+
+DROP DATABASE `db_523877_CREATE_TABLES`;
+UNINSTALL EXTENSION vsql_schematron;

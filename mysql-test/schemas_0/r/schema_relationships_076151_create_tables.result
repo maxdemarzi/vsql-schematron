@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 076151_create_tables
+#
+CREATE DATABASE `db_076151_create_tables`;
+USE `db_076151_create_tables`;
+CREATE TABLE `plane_type` (
+`identifier` INT,
+`year` DECIMAL(10,2),
+`model` VARCHAR(64),
+`brand` VARCHAR(64),
+`rows` DECIMAL(10,2),
+`columns` DECIMAL(10,2),
+PRIMARY KEY (`identifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `route` (
+`identifier` INT,
+`origin` VARCHAR(64),
+`destination` VARCHAR(64),
+`duration` DATETIME,
+`price` DECIMAL(10,2),
+PRIMARY KEY (`identifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `plane` (
+`identifier` INT,
+`name` VARCHAR(64),
+`type` INT,
+PRIMARY KEY (`identifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `schedule` (
+`identifier` INT,
+`route` INT,
+`departure_time` DATETIME,
+`weekday` DECIMAL(10,2),
+`discount` DECIMAL(10,2),
+PRIMARY KEY (`identifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `flight` (
+`identifier` INT,
+`plane` INT,
+`outbound_date` DATETIME,
+`outbound_schedule` INT,
+`inbound_date` DATETIME,
+`inbound_schedule` INT,
+PRIMARY KEY (`identifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `purchase` (
+`identifier` INT,
+`ticket_number` DECIMAL(10,2),
+`timestamp` DATETIME,
+`flight` INT,
+`user` VARCHAR(64),
+PRIMARY KEY (`identifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `ticket` (
+`identifier` INT,
+`purchase` INT,
+`row` DECIMAL(10,2),
+`column` DECIMAL(10,2),
+PRIMARY KEY (`identifier`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_076151_create_tables') AS relationships;
+relationships
+Database: db_076151_create_tables
+
+Table Connections:
+------------------
+[Implied]  flight.inbound_schedule -> schedule.identifier
+[Implied]  flight.outbound_schedule -> schedule.identifier
+[Implied]  flight.plane -> plane.identifier
+[Implied]  purchase.flight -> flight.identifier
+[Implied]  schedule.route -> route.identifier
+[Implied]  ticket.purchase -> purchase.identifier
+
+DROP DATABASE `db_076151_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

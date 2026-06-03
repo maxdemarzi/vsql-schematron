@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 031991_V1.13.0__NOTIF-150_behavior_groups_phase1
+#
+CREATE DATABASE `db_031991_V1_13_0_NOTIF_150_behavior_groups_phase1`;
+USE `db_031991_V1_13_0_NOTIF_150_behavior_groups_phase1`;
+CREATE TABLE `behavior_group` (
+`id` VARCHAR(64),
+`account_id` VARCHAR(64),
+`name` VARCHAR(64),
+`display_name` VARCHAR(64),
+`bundle_id` VARCHAR(64),
+`default_behavior` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_type_behavior` (
+`event_type_id` VARCHAR(64),
+`behavior_group_id` VARCHAR(64),
+`created` DATETIME,
+PRIMARY KEY (`event_type_id`, `behavior_group_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `behavior_group_action` (
+`behavior_group_id` VARCHAR(64),
+`endpoint_id` VARCHAR(64),
+`created` DATETIME,
+PRIMARY KEY (`behavior_group_id`, `endpoint_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_031991_V1_13_0_NOTIF_150_behavior_groups_phase1') AS relationships;
+relationships
+Database: db_031991_V1_13_0_NOTIF_150_behavior_groups_phase1
+
+Table Connections:
+------------------
+[Implied]  behavior_group_action.behavior_group_id -> behavior_group.id
+[Implied]  event_type_behavior.behavior_group_id -> behavior_group.id
+
+DROP DATABASE `db_031991_V1_13_0_NOTIF_150_behavior_groups_phase1`;
+UNINSTALL EXTENSION vsql_schematron;

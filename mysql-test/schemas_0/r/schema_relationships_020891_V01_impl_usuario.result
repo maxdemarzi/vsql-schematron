@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 020891_V01__impl_usuario
+#
+CREATE DATABASE `db_020891_V01_impl_usuario`;
+USE `db_020891_V01_impl_usuario`;
+CREATE TABLE `tb_grupo` (
+`id_grupo` INT,
+`ds_nome` VARCHAR(64),
+`ds_descricao` VARCHAR(64),
+PRIMARY KEY (`id_grupo`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_permissao` (
+`id_permissao` INT,
+`ds_permissao` VARCHAR(64),
+`ds_descricao` VARCHAR(64),
+PRIMARY KEY (`id_permissao`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_usuario` (
+`id_usuario` INT,
+`ds_nome` VARCHAR(64),
+`ds_login` VARCHAR(64),
+`ds_senha` VARCHAR(64),
+`fl_ativo` VARCHAR(64),
+PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_usuario_x_grupo` (
+`id_usuario` INT,
+`id_grupo` INT,
+PRIMARY KEY (`id_usuario`, `id_grupo`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_permissao_x_grupo` (
+`id_permissao` INT,
+`id_grupo` INT,
+PRIMARY KEY (`id_permissao`, `id_grupo`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_020891_V01_impl_usuario') AS relationships;
+relationships
+Database: db_020891_V01_impl_usuario
+
+Table Connections:
+------------------
+[Implied]  tb_permissao_x_grupo.id_grupo -> tb_grupo.id_grupo
+[Implied]  tb_permissao_x_grupo.id_permissao -> tb_permissao.id_permissao
+[Implied]  tb_usuario_x_grupo.id_grupo -> tb_grupo.id_grupo
+[Implied]  tb_usuario_x_grupo.id_usuario -> tb_usuario.id_usuario
+
+DROP DATABASE `db_020891_V01_impl_usuario`;
+UNINSTALL EXTENSION vsql_schematron;

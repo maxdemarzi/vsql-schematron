@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 452621_m_uom
+#
+CREATE DATABASE `db_452621_m_uom`;
+USE `db_452621_m_uom`;
+CREATE TABLE `m_uom` (
+`uom_id` INT,
+`uom_name` VARCHAR(64),
+`uom_code` VARCHAR(64),
+PRIMARY KEY (`uom_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `m_uom_conversion` (
+`conversion_id` INT,
+`conversion_name` VARCHAR(64),
+`uom_basic_id` INT,
+PRIMARY KEY (`conversion_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `m_uom_conversion_tree` (
+`conversion_id` INT,
+`uom_source_id` INT,
+`uom_target_id` INT,
+`conversion_amount` INT,
+PRIMARY KEY (`conversion_id`, `uom_source_id`, `uom_target_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_452621_m_uom') AS relationships;
+relationships
+Database: db_452621_m_uom
+
+Table Connections:
+------------------
+[Implied]  m_uom_conversion.uom_basic_id -> m_uom.uom_id
+[Implied]  m_uom_conversion_tree.conversion_id -> m_uom_conversion.conversion_id
+[Implied]  m_uom_conversion_tree.uom_source_id -> m_uom.uom_id
+[Implied]  m_uom_conversion_tree.uom_target_id -> m_uom.uom_id
+
+DROP DATABASE `db_452621_m_uom`;
+UNINSTALL EXTENSION vsql_schematron;

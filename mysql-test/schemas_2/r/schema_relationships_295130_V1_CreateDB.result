@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 295130_V1__CreateDB
+#
+CREATE DATABASE `db_295130_V1_CreateDB`;
+USE `db_295130_V1_CreateDB`;
+CREATE TABLE `client` (
+`id` INT,
+`login` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `client_roles` (
+`client_id` INT,
+`roles` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `repeatable_task` (
+`id` INT,
+`description` VARCHAR(64),
+`end_date` DATETIME,
+`name` VARCHAR(64),
+`period_mode` INT,
+`priority` INT,
+`start_date` DATETIME,
+`client_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `task` (
+`id` INT,
+`date` DATETIME,
+`description` VARCHAR(64),
+`name` VARCHAR(64),
+`priority` INT,
+`progress` INT,
+`client_id` INT,
+`repeatable_task_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_295130_V1_CreateDB') AS relationships;
+relationships
+Database: db_295130_V1_CreateDB
+
+Table Connections:
+------------------
+[Implied]  client_roles.client_id -> client.id
+[Implied]  repeatable_task.client_id -> client.id
+[Implied]  task.client_id -> client.id
+[Implied]  task.repeatable_task_id -> repeatable_task.id
+
+DROP DATABASE `db_295130_V1_CreateDB`;
+UNINSTALL EXTENSION vsql_schematron;

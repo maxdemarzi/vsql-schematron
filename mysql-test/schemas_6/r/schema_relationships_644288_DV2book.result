@@ -1,0 +1,160 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 644288_DV2book
+#
+CREATE DATABASE `db_644288_DV2book`;
+USE `db_644288_DV2book`;
+CREATE TABLE `AirlineHUB` (
+`AirlineHID` INT,
+`AirlineID` INT,
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+PRIMARY KEY (`AirlineHID`)
+) CHARACTER SET latin1;
+CREATE TABLE `AirlineSAT` (
+`AirlineHID` INT,
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+`FlightCode` INT,
+PRIMARY KEY (`AirlineHID`, `LoadTime`)
+) CHARACTER SET latin1;
+CREATE TABLE `AirplaneHUB` (
+`AirplaneHID` INT,
+`TailNumber` VARCHAR(64),
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+PRIMARY KEY (`AirplaneHID`)
+) CHARACTER SET latin1;
+CREATE TABLE `AirplanePartLINK` (
+`AirplanePartHID` INT,
+`AirplaneHID` INT,
+`PartHID` INT,
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+PRIMARY KEY (`AirplanePartHID`)
+) CHARACTER SET latin1;
+CREATE TABLE `AirportHUB` (
+`AirportHID` INT,
+`AirportName` VARCHAR(64),
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+PRIMARY KEY (`AirportHID`)
+) CHARACTER SET latin1;
+CREATE TABLE `AirportSAT` (
+`AirportHID` INT,
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+`TelephoneNumber` VARCHAR(64),
+`Latitude` DECIMAL(10,2),
+`Longitude` DECIMAL(10,2),
+`RunwayElevation` DECIMAL(10,2),
+`RunwayLength` DECIMAL(10,2),
+`WebsiteURL` VARCHAR(64),
+PRIMARY KEY (`AirportHID`, `LoadTime`)
+) CHARACTER SET latin1;
+CREATE TABLE `AssignedAirplaneLINK` (
+`AssignedAirplaneHID` INT,
+`AirplaneHID` INT,
+`ConnectionHID` INT,
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+PRIMARY KEY (`AssignedAirplaneHID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BookingLINK` (
+`BookingHID` INT,
+`PassengerHID` INT,
+`SalesAgentHID` INT,
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+PRIMARY KEY (`BookingHID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ConnectionHUB` (
+`ConnectionHID` INT,
+`AirlineID` INT,
+`OriginAirportName` VARCHAR(64),
+`DestinationAirportName` VARCHAR(64),
+`FlightNumber` VARCHAR(64),
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+PRIMARY KEY (`ConnectionHID`)
+) CHARACTER SET latin1;
+CREATE TABLE `FixedBaseOperatorLINK` (
+`FixedBaseOperatorHID` INT,
+`AirlineHID` INT,
+`AirportHID` INT,
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+PRIMARY KEY (`FixedBaseOperatorHID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PartHUB` (
+`PartHID` INT,
+`PartID` INT,
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+PRIMARY KEY (`PartHID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PartSAT` (
+`PartHID` INT,
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+`ManufacturerID` INT,
+PRIMARY KEY (`PartHID`, `LoadTime`)
+) CHARACTER SET latin1;
+CREATE TABLE `PassengerHUB` (
+`PassengerHID` INT,
+`PassengerID` INT,
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+PRIMARY KEY (`PassengerHID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PassengerSAT` (
+`PassengerHID` INT,
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+`BirthDate` DATETIME,
+PRIMARY KEY (`PassengerHID`, `LoadTime`)
+) CHARACTER SET latin1;
+CREATE TABLE `PassengerNameSAT` (
+`PassengerHID` INT,
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+`Name` VARCHAR(64),
+PRIMARY KEY (`PassengerHID`, `LoadTime`)
+) CHARACTER SET latin1;
+CREATE TABLE `PreferredDishSAT` (
+`PassengerHID` INT,
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+`PreferredDish` VARCHAR(64),
+PRIMARY KEY (`PassengerHID`, `LoadTime`)
+) CHARACTER SET latin1;
+CREATE TABLE `SalesAgentHUB` (
+`SalesAgentHID` INT,
+`SalesAgentName` VARCHAR(64),
+`LoadTime` DATETIME,
+`RecordSource` VARCHAR(64),
+PRIMARY KEY (`SalesAgentHID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_644288_DV2book') AS relationships;
+relationships
+Database: db_644288_DV2book
+
+Table Connections:
+------------------
+[Implied]  AirlineSAT.AirlineHID -> AirlineHUB.AirlineHID
+[Implied]  AirplanePartLINK.AirplaneHID -> AirplaneHUB.AirplaneHID
+[Implied]  AirplanePartLINK.PartHID -> PartHUB.PartHID
+[Implied]  AirportSAT.AirportHID -> AirportHUB.AirportHID
+[Implied]  AssignedAirplaneLINK.AirplaneHID -> AirplaneHUB.AirplaneHID
+[Implied]  AssignedAirplaneLINK.ConnectionHID -> ConnectionHUB.ConnectionHID
+[Implied]  BookingLINK.PassengerHID -> PassengerHUB.PassengerHID
+[Implied]  BookingLINK.SalesAgentHID -> SalesAgentHUB.SalesAgentHID
+[Implied]  FixedBaseOperatorLINK.AirlineHID -> AirlineHUB.AirlineHID
+[Implied]  FixedBaseOperatorLINK.AirportHID -> AirportHUB.AirportHID
+[Implied]  PartSAT.PartHID -> PartHUB.PartHID
+[Implied]  PassengerNameSAT.PassengerHID -> PassengerHUB.PassengerHID
+[Implied]  PassengerSAT.PassengerHID -> PassengerHUB.PassengerHID
+[Implied]  PreferredDishSAT.PassengerHID -> PassengerHUB.PassengerHID
+
+DROP DATABASE `db_644288_DV2book`;
+UNINSTALL EXTENSION vsql_schematron;

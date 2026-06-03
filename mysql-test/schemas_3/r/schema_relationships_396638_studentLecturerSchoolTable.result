@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 396638_studentLecturerSchoolTable
+#
+CREATE DATABASE `db_396638_studentLecturerSchoolTable`;
+USE `db_396638_studentLecturerSchoolTable`;
+CREATE TABLE `Student` (
+`StudentID` INT,
+`StudentName` VARCHAR(64),
+PRIMARY KEY (`StudentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Course` (
+`CourseID` VARCHAR(64),
+`CourseName` VARCHAR(64),
+PRIMARY KEY (`CourseID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tutorial` (
+`TutorialID` INT,
+`CourseID` VARCHAR(64),
+PRIMARY KEY (`TutorialID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Lecturer` (
+`LecturerID` INT,
+`LecturerName` VARCHAR(64),
+PRIMARY KEY (`LecturerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `IsQualified` (
+`LecturerID` INT,
+`CourseID` VARCHAR(64),
+`DateQualified` VARCHAR(64),
+PRIMARY KEY (`LecturerID`, `CourseID`)
+) CHARACTER SET latin1;
+CREATE TABLE `IsRegistered` (
+`StudentID` INT,
+`TutorialID` INT,
+`Semester` VARCHAR(64),
+PRIMARY KEY (`StudentID`, `TutorialID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_396638_studentLecturerSchoolTable') AS relationships;
+relationships
+Database: db_396638_studentLecturerSchoolTable
+
+Table Connections:
+------------------
+[Implied]  IsQualified.CourseID -> Course.CourseID
+[Implied]  IsQualified.LecturerID -> Lecturer.LecturerID
+[Implied]  IsRegistered.StudentID -> Student.StudentID
+[Implied]  IsRegistered.TutorialID -> Tutorial.TutorialID
+[Implied]  Tutorial.CourseID -> Course.CourseID
+
+DROP DATABASE `db_396638_studentLecturerSchoolTable`;
+UNINSTALL EXTENSION vsql_schematron;

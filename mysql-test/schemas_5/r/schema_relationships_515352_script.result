@@ -1,0 +1,195 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 515352_script
+#
+CREATE DATABASE `db_515352_script`;
+USE `db_515352_script`;
+CREATE TABLE `category` (
+`id` INT,
+`parentId` INT,
+`title` VARCHAR(64),
+`metaTitle` VARCHAR(64),
+`slug` VARCHAR(64),
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`firstName` VARCHAR(64),
+`middleName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`mobile` VARCHAR(64),
+`email` VARCHAR(64),
+`passwordHash` VARCHAR(64),
+`admin` INT,
+`vendor` INT,
+`registeredAt` DATETIME,
+`lastLogin` DATETIME,
+`intro` VARCHAR(64),
+`profile` VARCHAR(64),
+`gender` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cart` (
+`id` INT,
+`userId` INT,
+`sessionId` VARCHAR(64),
+`token` VARCHAR(64),
+`status` INT,
+`firstName` VARCHAR(64),
+`middleName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`mobile` VARCHAR(64),
+`email` VARCHAR(64),
+`line1` VARCHAR(64),
+`line2` VARCHAR(64),
+`city` VARCHAR(64),
+`province` VARCHAR(64),
+`country` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+`id` INT,
+`userId` INT,
+`sessionId` VARCHAR(64),
+`token` VARCHAR(64),
+`status` INT,
+`subTotal` DECIMAL(10,2),
+`itemDiscount` DECIMAL(10,2),
+`tax` DECIMAL(10,2),
+`shipping` DECIMAL(10,2),
+`total` DECIMAL(10,2),
+`promo` VARCHAR(64),
+`discount` DECIMAL(10,2),
+`grandTotal` DECIMAL(10,2),
+`firstName` VARCHAR(64),
+`middleName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`mobile` VARCHAR(64),
+`email` VARCHAR(64),
+`line1` VARCHAR(64),
+`line2` VARCHAR(64),
+`city` VARCHAR(64),
+`province` VARCHAR(64),
+`country` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`id` INT,
+`userId` INT,
+`title` VARCHAR(64),
+`metaTitle` VARCHAR(64),
+`slug` VARCHAR(64),
+`summary` VARCHAR(64),
+`type` INT,
+`sku` VARCHAR(64),
+`price` DECIMAL(10,2),
+`discount` DECIMAL(10,2),
+`quantity` INT,
+`shop` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`publishedAt` DATETIME,
+`startsAt` DATETIME,
+`endsAt` DATETIME,
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cart_item` (
+`id` INT,
+`productId` INT,
+`cartId` INT,
+`sku` VARCHAR(64),
+`price` DECIMAL(10,2),
+`discount` DECIMAL(10,2),
+`quantity` INT,
+`active` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_item` (
+`id` INT,
+`productId` INT,
+`orderId` INT,
+`sku` VARCHAR(64),
+`price` DECIMAL(10,2),
+`discount` DECIMAL(10,2),
+`quantity` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_category` (
+`productId` INT,
+`categoryId` INT,
+PRIMARY KEY (`productId`, `categoryId`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_meta` (
+`id` INT,
+`productId` INT,
+`key` VARCHAR(64),
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_review` (
+`id` INT,
+`productId` INT,
+`parentId` INT,
+`title` VARCHAR(64),
+`rating` INT,
+`published` INT,
+`createdAt` DATETIME,
+`publishedAt` DATETIME,
+`content` VARCHAR(64),
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction` (
+`id` INT,
+`userId` INT,
+`orderId` INT,
+`code` VARCHAR(64),
+`type` INT,
+`mode` INT,
+`status` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_515352_script') AS relationships;
+relationships
+Database: db_515352_script
+
+Table Connections:
+------------------
+[Implied]  cart.userId -> user.id
+[Implied]  cart_item.cartId -> cart.id
+[Implied]  cart_item.productId -> product.id
+[Implied]  category.parentId -> category.id
+[Implied]  order.itemDiscount -> cart_item.id
+[Implied]  order.itemDiscount -> order_item.id
+[Implied]  order.userId -> user.id
+[Implied]  order_item.orderId -> order.id
+[Implied]  order_item.productId -> product.id
+[Implied]  product.userId -> user.id
+[Implied]  product_category.categoryId -> category.id
+[Implied]  product_category.productId -> product.id
+[Implied]  product_meta.productId -> product.id
+[Implied]  product_review.parentId -> product_review.id
+[Implied]  product_review.productId -> product.id
+[Implied]  product_review.userId -> user.id
+[Implied]  transaction.orderId -> order.id
+[Implied]  transaction.userId -> user.id
+
+DROP DATABASE `db_515352_script`;
+UNINSTALL EXTENSION vsql_schematron;

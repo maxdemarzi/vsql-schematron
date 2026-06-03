@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 538025_V1_0_0__Initial
+#
+CREATE DATABASE `db_538025_V1_0_0_Initial`;
+USE `db_538025_V1_0_0_Initial`;
+CREATE TABLE `email_confirmation` (
+`id` INT,
+`email` VARCHAR(64),
+`hash` VARCHAR(64),
+`created_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `credentials` (
+`id` INT,
+`email` VARCHAR(64),
+`hashed_password` VARCHAR(64),
+`email_confirmed` VARCHAR(64),
+`email_confirmation_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `credential_roles` (
+`credential_id` INT,
+`role_id` INT,
+PRIMARY KEY (`credential_id`, `role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `volunteer` (
+`id` INT,
+`credential_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_538025_V1_0_0_Initial') AS relationships;
+relationships
+Database: db_538025_V1_0_0_Initial
+
+Table Connections:
+------------------
+[Implied]  credential_roles.credential_id -> credentials.id
+[Implied]  credential_roles.role_id -> roles.id
+[Implied]  credentials.email_confirmation_id -> email_confirmation.id
+[Implied]  volunteer.credential_id -> credentials.id
+
+DROP DATABASE `db_538025_V1_0_0_Initial`;
+UNINSTALL EXTENSION vsql_schematron;

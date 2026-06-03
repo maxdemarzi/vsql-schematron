@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 181423_create_db
+#
+CREATE DATABASE `db_181423_create_db`;
+USE `db_181423_create_db`;
+CREATE TABLE `lab_techs` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `labs` (
+`id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `plots` (
+`lab_id` VARCHAR(64),
+`plot` INT,
+`current_seed_sample` VARCHAR(64),
+PRIMARY KEY (`lab_id`, `plot`)
+) CHARACTER SET latin1;
+CREATE TABLE `lab_checks` (
+`date` DATETIME,
+`time` DATETIME,
+`lab_id` VARCHAR(64),
+`lab_tech_id` INT,
+PRIMARY KEY (`date`, `time`, `lab_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `plot_checks` (
+`date` DATETIME,
+`time` DATETIME,
+`lab_id` VARCHAR(64),
+`plot` INT,
+`seed_sample` VARCHAR(64),
+`humidity` DECIMAL(10,2),
+`light` DECIMAL(10,2),
+`temperature` DECIMAL(10,2),
+`equipment_fault` VARCHAR(64),
+`blossoms` INT,
+`plants` INT,
+`fruit` INT,
+`max_height` DECIMAL(10,2),
+`min_height` DECIMAL(10,2),
+`median_height` DECIMAL(10,2),
+`notes` VARCHAR(64),
+PRIMARY KEY (`date`, `time`, `lab_id`, `plot`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_181423_create_db') AS relationships;
+relationships
+Database: db_181423_create_db
+
+Table Connections:
+------------------
+[Implied]  lab_checks.lab_id -> labs.id
+[Implied]  lab_checks.lab_tech_id -> lab_techs.id
+[Implied]  plot_checks.lab_id -> labs.id
+[Implied]  plots.lab_id -> labs.id
+
+DROP DATABASE `db_181423_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

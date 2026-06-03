@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 567654_EP3_9790930_MODULE_ACCESS_DDL
+#
+CREATE DATABASE `db_567654_EP3_9790930_MODULE_ACCESS_DDL`;
+USE `db_567654_EP3_9790930_MODULE_ACCESS_DDL`;
+CREATE TABLE `users` (
+`us_id` INT,
+`us_email` VARCHAR(64),
+`us_password` VARCHAR(64),
+PRIMARY KEY (`us_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `b01_PERFIL` (
+`tipo` VARCHAR(64),
+PRIMARY KEY (`tipo`)
+) CHARACTER SET latin1;
+CREATE TABLE `b02_SERVICO` (
+`nome` VARCHAR(64),
+PRIMARY KEY (`nome`)
+) CHARACTER SET latin1;
+CREATE TABLE `b03_PF_SE` (
+`pf_tipo` VARCHAR(64),
+`se_nome` VARCHAR(64),
+PRIMARY KEY (`se_nome`, `pf_tipo`)
+) CHARACTER SET latin1;
+CREATE TABLE `b04_US_PF` (
+`us_id` INT,
+`pf_tipo` VARCHAR(64),
+PRIMARY KEY (`us_id`, `pf_tipo`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_567654_EP3_9790930_MODULE_ACCESS_DDL') AS relationships;
+relationships
+Database: db_567654_EP3_9790930_MODULE_ACCESS_DDL
+
+Table Connections:
+------------------
+[Implied]  b03_PF_SE.pf_tipo -> b01_PERFIL.tipo
+[Implied]  b03_PF_SE.se_nome -> b02_SERVICO.nome
+[Implied]  b04_US_PF.pf_tipo -> b01_PERFIL.tipo
+[Implied]  b04_US_PF.us_id -> users.us_id
+
+DROP DATABASE `db_567654_EP3_9790930_MODULE_ACCESS_DDL`;
+UNINSTALL EXTENSION vsql_schematron;

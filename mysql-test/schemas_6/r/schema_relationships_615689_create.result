@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 615689_create
+#
+CREATE DATABASE `db_615689_create`;
+USE `db_615689_create`;
+CREATE TABLE `publishers` (
+`publisher_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`publisher_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `authors` (
+`author_id` INT,
+`first_name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+PRIMARY KEY (`author_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books` (
+`book_id` INT,
+`title` VARCHAR(64),
+`total_pages` INT,
+`rating` DECIMAL(10,2),
+`isbn` VARCHAR(64),
+`published_date` DATETIME,
+`publisher_id` INT,
+PRIMARY KEY (`book_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book_authors` (
+`book_id` INT,
+`author_id` INT,
+PRIMARY KEY (`book_id`, `author_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `genres` (
+`genre_id` INT,
+`genre` VARCHAR(64),
+`parent_id` INT,
+PRIMARY KEY (`genre_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book_genres` (
+`book_id` INT,
+`genre_id` INT,
+PRIMARY KEY (`book_id`, `genre_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_615689_create') AS relationships;
+relationships
+Database: db_615689_create
+
+Table Connections:
+------------------
+[Implied]  book_authors.author_id -> authors.author_id
+[Implied]  book_authors.book_id -> books.book_id
+[Implied]  book_genres.book_id -> books.book_id
+[Implied]  book_genres.genre_id -> genres.genre_id
+[Implied]  books.publisher_id -> publishers.publisher_id
+[Implied]  genres.parent_id -> genres.genre_id
+
+DROP DATABASE `db_615689_create`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,100 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 683199_initialize_mysql
+#
+CREATE DATABASE `db_683199_initialize_mysql`;
+USE `db_683199_initialize_mysql`;
+CREATE TABLE `vulnerability` (
+`id` INT,
+`cve` VARCHAR(64),
+`description` VARCHAR(64),
+`v2Severity` VARCHAR(64),
+`v2ExploitabilityScore` DECIMAL(10,2),
+`v2ImpactScore` DECIMAL(10,2),
+`v2AcInsufInfo` VARCHAR(64),
+`v2ObtainAllPrivilege` VARCHAR(64),
+`v2ObtainUserPrivilege` VARCHAR(64),
+`v2ObtainOtherPrivilege` VARCHAR(64),
+`v2UserInteractionRequired` VARCHAR(64),
+`v2Score` DECIMAL(10,2),
+`v2AccessVector` VARCHAR(64),
+`v2AccessComplexity` VARCHAR(64),
+`v2Authentication` VARCHAR(64),
+`v2ConfidentialityImpact` VARCHAR(64),
+`v2IntegrityImpact` VARCHAR(64),
+`v2AvailabilityImpact` VARCHAR(64),
+`v2Version` VARCHAR(64),
+`v3ExploitabilityScore` DECIMAL(10,2),
+`v3ImpactScore` DECIMAL(10,2),
+`v3AttackVector` VARCHAR(64),
+`v3AttackComplexity` VARCHAR(64),
+`v3PrivilegesRequired` VARCHAR(64),
+`v3UserInteraction` VARCHAR(64),
+`v3Scope` VARCHAR(64),
+`v3ConfidentialityImpact` VARCHAR(64),
+`v3IntegrityImpact` VARCHAR(64),
+`v3AvailabilityImpact` VARCHAR(64),
+`v3BaseScore` DECIMAL(10,2),
+`v3BaseSeverity` VARCHAR(64),
+`v3Version` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reference` (
+`cveid` INT,
+`name` VARCHAR(64),
+`url` VARCHAR(64),
+`source` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `cpeEntry` (
+`id` INT,
+`part` VARCHAR(64),
+`vendor` VARCHAR(64),
+`product` VARCHAR(64),
+`version` VARCHAR(64),
+`update_version` VARCHAR(64),
+`edition` VARCHAR(64),
+`lang` VARCHAR(64),
+`sw_edition` VARCHAR(64),
+`target_sw` VARCHAR(64),
+`target_hw` VARCHAR(64),
+`other` VARCHAR(64),
+`ecosystem` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `software` (
+`cveid` INT,
+`cpeEntryId` INT,
+`versionEndExcluding` VARCHAR(64),
+`versionEndIncluding` VARCHAR(64),
+`versionStartExcluding` VARCHAR(64),
+`versionStartIncluding` VARCHAR(64),
+`vulnerable` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `cweEntry` (
+`cveid` INT,
+`cwe` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `cpeEcosystemCache` (
+`vendor` VARCHAR(64),
+`product` VARCHAR(64),
+`ecosystem` VARCHAR(64),
+PRIMARY KEY (`vendor`, `product`)
+) CHARACTER SET latin1;
+CREATE TABLE `properties` (
+`id` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_683199_initialize_mysql') AS relationships;
+relationships
+Database: db_683199_initialize_mysql
+
+Table Connections:
+------------------
+[Implied]  cweEntry.cveid -> vulnerability.id
+[Implied]  reference.cveid -> vulnerability.id
+[Implied]  software.cpeEntryId -> cpeEntry.id
+[Implied]  software.cveid -> vulnerability.id
+
+DROP DATABASE `db_683199_initialize_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

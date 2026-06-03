@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 191220_dbcreate
+--echo #
+CREATE DATABASE `db_191220_dbcreate`;
+USE `db_191220_dbcreate`;
+
+CREATE TABLE `APPLICANT` (
+  `anumber` DECIMAL(10,2),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `dob` DATETIME,
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `phone` DECIMAL(10,2),
+  `fax` DECIMAL(10,2),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`anumber`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EMPLOYER` (
+  `ename` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `phone` DECIMAL(10,2),
+  `fax` DECIMAL(10,2),
+  `email` VARCHAR(64),
+  `web` VARCHAR(64),
+  PRIMARY KEY (`ename`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EMPLBY` (
+  `anumber` DECIMAL(10,2),
+  `ename` VARCHAR(64),
+  `fromdate` DATETIME,
+  `todate` DATETIME,
+  PRIMARY KEY (`anumber`, `ename`, `fromdate`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `POSITION` (
+  `pnumber` DECIMAL(10,2),
+  `title` VARCHAR(64),
+  `salary` DECIMAL(10,2),
+  `extras` VARCHAR(64),
+  `bonus` DECIMAL(10,2),
+  `specification` VARCHAR(64),
+  `ename` VARCHAR(64),
+  PRIMARY KEY (`pnumber`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SPOSSESSED` (
+  `anumber` DECIMAL(10,2),
+  `sname` VARCHAR(64),
+  `slevel` DECIMAL(10,2),
+  PRIMARY KEY (`anumber`, `sname`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SNEEDED` (
+  `pnumber` DECIMAL(10,2),
+  `sname` VARCHAR(64),
+  `slevel` DECIMAL(10,2),
+  PRIMARY KEY (`pnumber`, `sname`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `APPLIES` (
+  `anumber` DECIMAL(10,2),
+  `pnumber` DECIMAL(10,2),
+  `appdate` DATETIME,
+  PRIMARY KEY (`anumber`, `pnumber`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_191220_dbcreate') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_191220_dbcreate') AS relationships;
+DROP DATABASE `db_191220_dbcreate`;
+UNINSTALL EXTENSION vsql_schematron;

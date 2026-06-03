@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 638738_signal_dashboard
+--echo #
+CREATE DATABASE `db_638738_signal_dashboard`;
+USE `db_638738_signal_dashboard`;
+
+CREATE TABLE `dashboard_signal` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `source` VARCHAR(64),
+  `covidcast_signal` VARCHAR(64),
+  `enabled` VARCHAR(64),
+  `latest_coverage_update` DATETIME,
+  `latest_status_update` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dashboard_signal_status` (
+  `signal_id` INT,
+  `date` DATETIME,
+  `latest_issue` DATETIME,
+  `latest_time_value` DATETIME,
+  PRIMARY KEY (`signal_id`, `date`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dashboard_signal_coverage` (
+  `signal_id` INT,
+  `date` DATETIME,
+  `geo_type` VARCHAR(64),
+  `count` INT,
+  PRIMARY KEY (`signal_id`, `date`, `geo_type`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_638738_signal_dashboard') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_638738_signal_dashboard') AS relationships;
+DROP DATABASE `db_638738_signal_dashboard`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 588769_gsb
+--echo #
+CREATE DATABASE `db_588769_gsb`;
+USE `db_588769_gsb`;
+
+CREATE TABLE `Forfait` (
+  `id` VARCHAR(64),
+  `libelle` VARCHAR(64),
+  `montant` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Etat` (
+  `id` VARCHAR(64),
+  `libelle` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Visiteur` (
+  `id` INT,
+  `nom` VARCHAR(64),
+  `prenom` VARCHAR(64),
+  `adresse` VARCHAR(64),
+  `cp` VARCHAR(64),
+  `ville` VARCHAR(64),
+  `dateEmbauche` DATETIME,
+  `login` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `historiquePassword` (
+  `idVisiteur` INT,
+  `pwd` VARCHAR(64),
+  `updated_date` DATETIME,
+  PRIMARY KEY (`idVisiteur`, `pwd`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FicheFrais` (
+  `id` INT,
+  `idVisiteur` INT,
+  `mois` INT,
+  `annee` INT,
+  `nbJustificatifs` INT,
+  `montantValide` DECIMAL(10,2),
+  `dateModif` DATETIME,
+  `idEtat` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LigneFraisForfait` (
+  `idFicheFrais` INT,
+  `idForfait` VARCHAR(64),
+  `quantite` INT,
+  PRIMARY KEY (`idFicheFrais`, `idForfait`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LigneFraisHorsForfait` (
+  `idFraisHF` INT,
+  `idFicheFrais` INT,
+  `dteFraisHF` DATETIME,
+  `libFraisHF` VARCHAR(64),
+  `quantite` INT,
+  `montant` DECIMAL(10,2),
+  PRIMARY KEY (`idFraisHF`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_588769_gsb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_588769_gsb') AS relationships;
+DROP DATABASE `db_588769_gsb`;
+UNINSTALL EXTENSION vsql_schematron;

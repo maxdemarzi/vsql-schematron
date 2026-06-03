@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 218951_jemstone
+--echo #
+CREATE DATABASE `db_218951_jemstone`;
+USE `db_218951_jemstone`;
+
+CREATE TABLE `User` (
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `role` VARCHAR(64),
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Doctor` (
+  `did` INT,
+  `initial` VARCHAR(64),
+  `surname` VARCHAR(64),
+  `roomNo` VARCHAR(64),
+  `phoneNo` VARCHAR(64),
+  `background` VARCHAR(64),
+  `username` VARCHAR(64),
+  PRIMARY KEY (`did`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Patient` (
+  `pid` INT,
+  `forename` VARCHAR(64),
+  `surname` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `dob` DATETIME,
+  `phoneNo` INT,
+  `did` INT,
+  `username` VARCHAR(64),
+  PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Message` (
+  `msgid` INT,
+  `date` DATETIME,
+  `time` DATETIME,
+  `msgHead` VARCHAR(64),
+  `msgBody` VARCHAR(64),
+  `username` VARCHAR(64),
+  PRIMARY KEY (`msgid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Booking` (
+  `did` INT,
+  `pid` INT,
+  `date` DATETIME,
+  `time` DATETIME,
+  PRIMARY KEY (`did`, `date`, `time`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Activity` (
+  `actid` INT,
+  `username` VARCHAR(64),
+  `actCode` INT,
+  `details` VARCHAR(64),
+  `date` DATETIME,
+  `time` DATETIME,
+  `did` INT,
+  `pid` INT,
+  PRIMARY KEY (`actid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_218951_jemstone') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_218951_jemstone') AS relationships;
+DROP DATABASE `db_218951_jemstone`;
+UNINSTALL EXTENSION vsql_schematron;

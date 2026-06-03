@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 306692_db_remplie
+--echo #
+CREATE DATABASE `db_306692_db_remplie`;
+USE `db_306692_db_remplie`;
+
+CREATE TABLE `artcomments` (
+  `id` INT,
+  `pseudo` VARCHAR(64),
+  `content` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `articles_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `articles` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `image` VARCHAR(64),
+  `resume` VARCHAR(64),
+  `created_at` VARCHAR(64),
+  `updated_at` VARCHAR(64),
+  `categorie_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `articles_has_tags` (
+  `article_id` INT,
+  `tag_id` INT,
+  PRIMARY KEY (`article_id`, `tag_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `works_has_categories` (
+  `work_id` INT,
+  `categorie_id` INT,
+  PRIMARY KEY (`work_id`, `categorie_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `works_has_tags` (
+  `work_id` INT,
+  `tag_id` INT,
+  PRIMARY KEY (`work_id`, `tag_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_306692_db_remplie') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_306692_db_remplie') AS relationships;
+DROP DATABASE `db_306692_db_remplie`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 611225_script
+#
+CREATE DATABASE `db_611225_script`;
+USE `db_611225_script`;
+CREATE TABLE `post` (
+`id` INT,
+`titulo` VARCHAR(64),
+`conteudo` VARCHAR(64),
+`data_pub` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `arquivo` (
+`id` INT,
+`post_id` INT,
+`nome` VARCHAR(64),
+`descr` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`id` INT,
+`nome` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_tag` (
+`post_id` INT,
+`tag_id` INT,
+PRIMARY KEY (`post_id`, `tag_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_611225_script') AS relationships;
+relationships
+Database: db_611225_script
+
+Table Connections:
+------------------
+[Implied]  arquivo.post_id -> post.id
+[Implied]  post_tag.post_id -> post.id
+[Implied]  post_tag.tag_id -> tag.id
+
+DROP DATABASE `db_611225_script`;
+UNINSTALL EXTENSION vsql_schematron;

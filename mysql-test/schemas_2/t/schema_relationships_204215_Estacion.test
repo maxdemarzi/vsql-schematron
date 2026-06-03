@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 204215_Estacion
+--echo #
+CREATE DATABASE `db_204215_Estacion`;
+USE `db_204215_Estacion`;
+
+CREATE TABLE `ALERT` (
+  `ID` INT,
+  `DESCRIPTION` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ALERT_EVENTS` (
+  `ALERT_ID` INT,
+  `STATION_ID` INT,
+  `SENSORTYPE_ID` INT,
+  `ACTIVE` INT,
+  PRIMARY KEY (`ALERT_ID`, `STATION_ID`, `SENSORTYPE_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `STATION_SENSORTYPE` (
+  `STATION_ID` INT,
+  `SENSORTYPE_ID` INT,
+  PRIMARY KEY (`STATION_ID`, `SENSORTYPE_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_204215_Estacion') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_204215_Estacion') AS relationships;
+DROP DATABASE `db_204215_Estacion`;
+UNINSTALL EXTENSION vsql_schematron;

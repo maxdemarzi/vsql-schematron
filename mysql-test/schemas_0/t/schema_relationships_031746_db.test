@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 031746_db
+--echo #
+CREATE DATABASE `db_031746_db`;
+USE `db_031746_db`;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `login` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `video` (
+  `id` VARCHAR(64),
+  `title` VARCHAR(64),
+  `pub_date` DATETIME,
+  `description` VARCHAR(64),
+  `thumbnail` VARCHAR(64),
+  `player` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `search_history` (
+  `id` INT,
+  `query` VARCHAR(64),
+  `time` DATETIME,
+  `id_user` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_likes` (
+  `id_user` INT,
+  `id_video` VARCHAR(64),
+  PRIMARY KEY (`id_user`, `id_video`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_031746_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_031746_db') AS relationships;
+DROP DATABASE `db_031746_db`;
+UNINSTALL EXTENSION vsql_schematron;

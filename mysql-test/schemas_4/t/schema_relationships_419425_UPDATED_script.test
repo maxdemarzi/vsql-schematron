@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 419425_UPDATED_script
+--echo #
+CREATE DATABASE `db_419425_UPDATED_script`;
+USE `db_419425_UPDATED_script`;
+
+CREATE TABLE `Users` (
+  `code` INT,
+  `stars` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Employee_Users` (
+  `empId` INT,
+  `userId` INT,
+  PRIMARY KEY (`empId`, `userId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Jobs` (
+  `jobId` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`jobId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Users_Have_Jobs` (
+  `userId` INT,
+  `jobId` INT,
+  PRIMARY KEY (`userId`, `jobId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SubJobs` (
+  `subJobId` INT,
+  `jobId` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `imgLink` VARCHAR(64),
+  `orderNumber` INT,
+  PRIMARY KEY (`subJobId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_419425_UPDATED_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_419425_UPDATED_script') AS relationships;
+DROP DATABASE `db_419425_UPDATED_script`;
+UNINSTALL EXTENSION vsql_schematron;

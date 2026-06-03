@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 422836_er
+--echo #
+CREATE DATABASE `db_422836_er`;
+USE `db_422836_er`;
+
+CREATE TABLE `Agent` (
+  `IDAgent` INT,
+  `Name` VARCHAR(64),
+  `Surname` VARCHAR(64),
+  `Office` VARCHAR(64),
+  `Address` VARCHAR(64),
+  `City` VARCHAR(64),
+  `Phone` INT,
+  PRIMARY KEY (`IDAgent`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Customer` (
+  `IDCust` INT,
+  `Name` VARCHAR(64),
+  `Surname` VARCHAR(64),
+  `Budget` INT,
+  `Address` VARCHAR(64),
+  `City` VARCHAR(64),
+  `Phone` INT,
+  PRIMARY KEY (`IDCust`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Owner` (
+  `Name` VARCHAR(64),
+  `IDOwner` INT,
+  `Surname` VARCHAR(64),
+  `Address` VARCHAR(64),
+  `City` VARCHAR(64),
+  `Phone` INT,
+  PRIMARY KEY (`IDOwner`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Estate` (
+  `IDEstate` INT,
+  `Category` VARCHAR(64),
+  `Area` VARCHAR(64),
+  `City` VARCHAR(64),
+  `Province` VARCHAR(64),
+  `Rooms` INT,
+  `Bedrooms` INT,
+  `Garage` VARCHAR(64),
+  `Meters` INT,
+  `IDOwner` INT,
+  PRIMARY KEY (`IDEstate`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Rent` (
+  `RentDate` DATETIME,
+  `RentPrice` DECIMAL(10,2),
+  `RentStatus` VARCHAR(64),
+  `RentTime` DATETIME,
+  `IDAgent` INT,
+  `IDCust` INT,
+  `IDEstate` INT,
+  PRIMARY KEY (`IDAgent`, `IDCust`, `IDEstate`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Sale` (
+  `SaleDate` DATETIME,
+  `AgreedSalePrice` DECIMAL(10,2),
+  `SaleStatus` VARCHAR(64),
+  `IDCust` INT,
+  `IDAgent` INT,
+  `IDEstate` INT,
+  PRIMARY KEY (`IDAgent`, `IDCust`, `IDEstate`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Visit` (
+  `VisitDate` DATETIME,
+  `VisitDuration` INT,
+  `IDCust` INT,
+  `IDAgent` INT,
+  `IDEstate` INT,
+  PRIMARY KEY (`IDCust`, `IDAgent`, `IDEstate`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Agenda` (
+  `ClientName` VARCHAR(64),
+  `AgendaDate` DATETIME,
+  `AgendaHour` INT,
+  `IDAgent` INT,
+  `IDEstate` INT,
+  PRIMARY KEY (`AgendaDate`, `AgendaHour`, `IDAgent`, `IDEstate`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_422836_er') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_422836_er') AS relationships;
+DROP DATABASE `db_422836_er`;
+UNINSTALL EXTENSION vsql_schematron;

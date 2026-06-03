@@ -21,5 +21,6 @@ std::string stripAcronymPrefix(const std::string& col, const std::string& tbl);
 
 bool isGenericTableSuffix(const std::string& suffix);
 bool isGenericIdentifier(const std::string& s);
+bool isGenericAttribute(const std::string& s);
 
 #endif // NAME_MATCHING_H

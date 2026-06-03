@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 635330_script
+#
+CREATE DATABASE `db_635330_script`;
+USE `db_635330_script`;
+CREATE TABLE `aula` (
+`id_aula` INT,
+`nome_aula` VARCHAR(64),
+`desc_aula` VARCHAR(64),
+`inicio_aula` DATETIME,
+`termino_aula` DATETIME,
+`carga_horaria` INT,
+PRIMARY KEY (`id_aula`)
+) CHARACTER SET latin1;
+CREATE TABLE `aula_ocorrencia` (
+`id_ocorrencia` INT,
+`id_aula` INT,
+`inicio_ocorrencia` DATETIME,
+PRIMARY KEY (`id_ocorrencia`)
+) CHARACTER SET latin1;
+CREATE TABLE `sala` (
+`id_sala` INT,
+`desc_sala` VARCHAR(64),
+`andar_sala` INT,
+PRIMARY KEY (`id_sala`)
+) CHARACTER SET latin1;
+CREATE TABLE `aula_sala` (
+`id_aula` INT,
+`id_sala` INT,
+PRIMARY KEY (`id_aula`, `id_sala`)
+) CHARACTER SET latin1;
+CREATE TABLE `professor` (
+`id_prof` INT,
+`nome_prof` VARCHAR(64),
+PRIMARY KEY (`id_prof`)
+) CHARACTER SET latin1;
+CREATE TABLE `aula_prof` (
+`id_prof` INT,
+`id_aula` INT,
+PRIMARY KEY (`id_prof`, `id_aula`)
+) CHARACTER SET latin1;
+CREATE TABLE `turma` (
+`id_turma` INT,
+`desc_turma` VARCHAR(64),
+PRIMARY KEY (`id_turma`)
+) CHARACTER SET latin1;
+CREATE TABLE `aula_turma` (
+`id_aula` INT,
+`id_turma` INT,
+PRIMARY KEY (`id_aula`, `id_turma`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_635330_script') AS relationships;
+relationships
+Database: db_635330_script
+
+Table Connections:
+------------------
+[Implied]  aula_ocorrencia.id_aula -> aula.id_aula
+[Implied]  aula_prof.id_aula -> aula.id_aula
+[Implied]  aula_prof.id_prof -> professor.id_prof
+[Implied]  aula_sala.id_aula -> aula.id_aula
+[Implied]  aula_sala.id_sala -> sala.id_sala
+[Implied]  aula_turma.id_aula -> aula.id_aula
+[Implied]  aula_turma.id_turma -> turma.id_turma
+
+DROP DATABASE `db_635330_script`;
+UNINSTALL EXTENSION vsql_schematron;

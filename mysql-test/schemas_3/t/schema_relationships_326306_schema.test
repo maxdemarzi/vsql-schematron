@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 326306_schema
+--echo #
+CREATE DATABASE `db_326306_schema`;
+USE `db_326306_schema`;
+
+CREATE TABLE `range` (
+  `rid` INT,
+  `P` INT,
+  `D` INT,
+  `m_start` INT,
+  `m_inc` INT,
+  `sieve_length` INT,
+  `max_prime` INT,
+  `min_merit` DECIMAL(10,2),
+  `num_m` INT,
+  `num_processed` INT,
+  `finalized` INT,
+  `time_sieve` DECIMAL(10,2),
+  `time_stats` DECIMAL(10,2),
+  `time_tests` DECIMAL(10,2),
+  PRIMARY KEY (`rid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `range_stats` (
+  `rid` INT,
+  `gap` INT,
+  `prob_combined` DECIMAL(10,2),
+  `prob_low_side` DECIMAL(10,2),
+  `prob_high_side` DECIMAL(10,2),
+  PRIMARY KEY (`rid`, `gap`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `m_stats` (
+  `rid` INT,
+  `P` INT,
+  `D` INT,
+  `m` INT,
+  `next_p` INT,
+  `prev_p` INT,
+  `merit` DECIMAL(10,2),
+  `prob_record` DECIMAL(10,2),
+  `prob_missing` DECIMAL(10,2),
+  `prob_merit` DECIMAL(10,2),
+  `e_gap_next` DECIMAL(10,2),
+  `e_gap_prev` DECIMAL(10,2),
+  `prp_next` INT,
+  `prp_prev` INT,
+  `test_time` DECIMAL(10,2),
+  PRIMARY KEY (`P`, `D`, `m`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `result` (
+  `P` INT,
+  `D` INT,
+  `m` INT,
+  `next_p` INT,
+  `prev_p` INT,
+  `merit` DECIMAL(10,2),
+  PRIMARY KEY (`P`, `D`, `m`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_326306_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_326306_schema') AS relationships;
+DROP DATABASE `db_326306_schema`;
+UNINSTALL EXTENSION vsql_schematron;

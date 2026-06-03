@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 412073_Script_oracle4
+--echo #
+CREATE DATABASE `db_412073_Script_oracle4`;
+USE `db_412073_Script_oracle4`;
+
+CREATE TABLE `IDIOMA` (
+  `ABREVIACION_ID` VARCHAR(64),
+  `DESCRIPCION_ID` VARCHAR(64),
+  PRIMARY KEY (`ABREVIACION_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PETICION` (
+  `CODIGO_PE` INT,
+  `ABREVIACION_ID` VARCHAR(64),
+  `IDI_ABREVIACION_ID` VARCHAR(64),
+  `CORREO_US` VARCHAR(64),
+  `DESCRIPCION_PE` VARCHAR(64),
+  `TIPO_PE` VARCHAR(64),
+  `FECHA_EMISION_PE` DATETIME,
+  `ESTADO_PE` VARCHAR(64),
+  PRIMARY KEY (`CODIGO_PE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `REVISOR` (
+  `CORREO_RE` VARCHAR(64),
+  `NOMBRE_RE` VARCHAR(64),
+  `PASSWORD_RE` VARCHAR(64),
+  `FECHA_NACIMIENTO_RE` DATETIME,
+  `EXPERIENCIA` VARCHAR(64),
+  PRIMARY KEY (`CORREO_RE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SABE` (
+  `CORREO_US` VARCHAR(64),
+  `ABREVIACION_ID` VARCHAR(64),
+  PRIMARY KEY (`CORREO_US`, `ABREVIACION_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SABE_REVISOR` (
+  `CORREO_RE` VARCHAR(64),
+  `ABREVIACION_ID` VARCHAR(64),
+  PRIMARY KEY (`CORREO_RE`, `ABREVIACION_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USUARIO` (
+  `CORREO_US` VARCHAR(64),
+  `NOMBRE_US` VARCHAR(64),
+  `PASSWORD_US` VARCHAR(64),
+  `FECHA_NACIMIENTO_US` DATETIME,
+  PRIMARY KEY (`CORREO_US`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_412073_Script_oracle4') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_412073_Script_oracle4') AS relationships;
+DROP DATABASE `db_412073_Script_oracle4`;
+UNINSTALL EXTENSION vsql_schematron;

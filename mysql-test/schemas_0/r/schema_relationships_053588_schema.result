@@ -1,0 +1,121 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 053588_schema
+#
+CREATE DATABASE `db_053588_schema`;
+USE `db_053588_schema`;
+CREATE TABLE `Enrollment` (
+`ID_fa` INT,
+`ID_professional` INT,
+`status` VARCHAR(64),
+`timeEn` DATETIME,
+`category` VARCHAR(64),
+PRIMARY KEY (`ID_fa`, `ID_professional`)
+) CHARACTER SET latin1;
+CREATE TABLE `FormativeAction` (
+`ID_fa` INT,
+`nameFa` VARCHAR(64),
+`totalPlaces` INT,
+`objectives` VARCHAR(64),
+`mainContent` VARCHAR(64),
+`status` VARCHAR(64),
+`enrollmentStart` DATETIME,
+`enrollmentEnd` DATETIME,
+PRIMARY KEY (`ID_fa`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`ID_session` INT,
+`ID_fa` INT,
+`location` VARCHAR(64),
+`duration` DECIMAL(10,2),
+`sessionStart` DATETIME,
+PRIMARY KEY (`ID_session`)
+) CHARACTER SET latin1;
+CREATE TABLE `Invoice` (
+`ID_invoice` INT,
+`amount` DECIMAL(10,2),
+`dateIn` DATETIME,
+`sender` VARCHAR(64),
+`receiver` VARCHAR(64),
+`address` VARCHAR(64),
+`fiscalNumber` VARCHAR(64),
+`ID_fa` INT,
+`ID_professional` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`ID_invoice`)
+) CHARACTER SET latin1;
+CREATE TABLE `Payment` (
+`ID_payment` INT,
+`amount` DECIMAL(10,2),
+`datePay` DATETIME,
+`confirmed` VARCHAR(64),
+`cash` VARCHAR(64),
+`ID_invoice` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`ID_payment`)
+) CHARACTER SET latin1;
+CREATE TABLE `Teacher` (
+`ID_teacher` INT,
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`phone` VARCHAR(64),
+`email` VARCHAR(64),
+`fiscalNumber` VARCHAR(64),
+PRIMARY KEY (`ID_teacher`)
+) CHARACTER SET latin1;
+CREATE TABLE `InvoiceTeacher` (
+`ID_invoice` VARCHAR(64),
+`amount` DECIMAL(10,2),
+`dateIn` DATETIME,
+`sender` VARCHAR(64),
+`receiver` VARCHAR(64),
+`address` VARCHAR(64),
+`fiscalNumber` VARCHAR(64),
+`ID_fa` INT,
+`ID_teacher` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`ID_invoice`)
+) CHARACTER SET latin1;
+CREATE TABLE `PaymentTeacher` (
+`ID_payment` INT,
+`amount` DECIMAL(10,2),
+`datePay` DATETIME,
+`confirmed` VARCHAR(64),
+`ID_invoice` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`ID_payment`)
+) CHARACTER SET latin1;
+CREATE TABLE `Professional` (
+`ID_professional` INT,
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`phone` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`ID_professional`)
+) CHARACTER SET latin1;
+CREATE TABLE `TeacherTeaches` (
+`ID_teacher` INT,
+`ID_fa` INT,
+`remuneration` DECIMAL(10,2),
+PRIMARY KEY (`ID_teacher`, `ID_fa`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_053588_schema') AS relationships;
+relationships
+Database: db_053588_schema
+
+Table Connections:
+------------------
+[Implied]  Enrollment.ID_fa -> FormativeAction.ID_fa
+[Implied]  Enrollment.ID_professional -> Professional.ID_professional
+[Implied]  Invoice.ID_fa -> FormativeAction.ID_fa
+[Implied]  Invoice.ID_professional -> Professional.ID_professional
+[Implied]  InvoiceTeacher.ID_fa -> FormativeAction.ID_fa
+[Implied]  InvoiceTeacher.ID_teacher -> Teacher.ID_teacher
+[Implied]  Payment.ID_invoice -> Invoice.ID_invoice
+[Implied]  PaymentTeacher.ID_invoice -> InvoiceTeacher.ID_invoice
+[Implied]  Session.ID_fa -> FormativeAction.ID_fa
+[Implied]  TeacherTeaches.ID_fa -> FormativeAction.ID_fa
+[Implied]  TeacherTeaches.ID_teacher -> Teacher.ID_teacher
+
+DROP DATABASE `db_053588_schema`;
+UNINSTALL EXTENSION vsql_schematron;

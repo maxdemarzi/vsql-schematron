@@ -1,0 +1,129 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 224741_initial_schema
+#
+CREATE DATABASE `db_224741_initial_schema`;
+USE `db_224741_initial_schema`;
+CREATE TABLE `Assignments` (
+`periods` VARCHAR(64),
+`offering_id` INT,
+`registration_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`offering_id`, `registration_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Badges` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`notes` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Events` (
+`id` INT,
+`year` INT,
+`semester` VARCHAR(64),
+`date` DATETIME,
+`registration_open` DATETIME,
+`registration_close` DATETIME,
+`price` DECIMAL(10,2),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Offerings` (
+`id` INT,
+`duration` INT,
+`periods` VARCHAR(64),
+`price` DECIMAL(10,2),
+`event_id` INT,
+`badge_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Preferences` (
+`rank` INT,
+`offering_id` INT,
+`registration_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`offering_id`, `registration_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Purchasables` (
+`id` INT,
+`item` VARCHAR(64),
+`description` VARCHAR(64),
+`price` DECIMAL(10,2),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`event_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Purchases` (
+`purchasable_id` INT,
+`registration_id` INT,
+`size` VARCHAR(64),
+`quantity` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `Registrations` (
+`id` INT,
+`event_id` INT,
+`scout_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Scouts` (
+`id` INT,
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`birthday` DATETIME,
+`troop` INT,
+`notes` VARCHAR(64),
+`emergency_name` VARCHAR(64),
+`emergency_relation` VARCHAR(64),
+`emergency_phone` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`reset_password_token` VARCHAR(64),
+`reset_token_expires` DATETIME,
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`role` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_224741_initial_schema') AS relationships;
+relationships
+Database: db_224741_initial_schema
+
+Table Connections:
+------------------
+[Implied]  Assignments.offering_id -> Offerings.id
+[Implied]  Assignments.registration_id -> Registrations.id
+[Implied]  Offerings.badge_id -> Badges.id
+[Implied]  Offerings.event_id -> Events.id
+[Implied]  Preferences.offering_id -> Offerings.id
+[Implied]  Preferences.registration_id -> Registrations.id
+[Implied]  Purchasables.event_id -> Events.id
+[Implied]  Purchases.purchasable_id -> Purchasables.id
+[Implied]  Purchases.registration_id -> Registrations.id
+[Implied]  Registrations.event_id -> Events.id
+[Implied]  Registrations.scout_id -> Scouts.id
+[Implied]  Scouts.user_id -> Users.id
+
+DROP DATABASE `db_224741_initial_schema`;
+UNINSTALL EXTENSION vsql_schematron;

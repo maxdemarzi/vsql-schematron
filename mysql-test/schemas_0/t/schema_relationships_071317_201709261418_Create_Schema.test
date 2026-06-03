@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 071317_201709261418__Create_Schema
+--echo #
+CREATE DATABASE `db_071317_201709261418_Create_Schema`;
+USE `db_071317_201709261418_Create_Schema`;
+
+CREATE TABLE `recipe` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `directions` VARCHAR(64),
+  `prep_time` INT,
+  `cook_time` INT,
+  `yield` INT,
+  `public` INT,
+  `created_at` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rating` (
+  `id` INT,
+  `score` INT,
+  `recipe` INT,
+  `created_at` INT,
+  `modified_at` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ingredient` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recipe_has_ingredient` (
+  `recipe` INT,
+  `ingredient` INT,
+  PRIMARY KEY (`recipe`, `ingredient`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_071317_201709261418_Create_Schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_071317_201709261418_Create_Schema') AS relationships;
+DROP DATABASE `db_071317_201709261418_Create_Schema`;
+UNINSTALL EXTENSION vsql_schematron;

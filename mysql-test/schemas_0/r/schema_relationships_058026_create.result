@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 058026_create
+#
+CREATE DATABASE `db_058026_create`;
+USE `db_058026_create`;
+CREATE TABLE `orders` (
+`id` INT,
+`order_date` DATETIME,
+`order_sent` DATETIME,
+`postal_code` VARCHAR(64),
+`street` VARCHAR(64),
+`number` VARCHAR(64),
+`city` VARCHAR(64),
+`country` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `toppings` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sizes` (
+`id` INT,
+`radius` INT,
+`base_price` DECIMAL(10,2),
+`topping_price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pizzas` (
+`id` INT,
+`size_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pizza_topping` (
+`pizza_id` INT,
+`topping_id` INT,
+`amount` INT,
+PRIMARY KEY (`pizza_id`, `topping_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pizza_order` (
+`order_id` INT,
+`pizza_id` INT,
+PRIMARY KEY (`order_id`, `pizza_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_058026_create') AS relationships;
+relationships
+Database: db_058026_create
+
+Table Connections:
+------------------
+[Implied]  pizza_order.order_id -> orders.id
+[Implied]  pizza_order.pizza_id -> pizzas.id
+[Implied]  pizza_topping.pizza_id -> pizzas.id
+[Implied]  pizza_topping.topping_id -> toppings.id
+[Implied]  pizzas.size_id -> sizes.id
+
+DROP DATABASE `db_058026_create`;
+UNINSTALL EXTENSION vsql_schematron;

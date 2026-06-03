@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 494102_estrutura
+#
+CREATE DATABASE `db_494102_estrutura`;
+USE `db_494102_estrutura`;
+CREATE TABLE `clientes` (
+`codCli` INT,
+`nome` VARCHAR(64),
+`endereco` VARCHAR(64),
+`estado` VARCHAR(64),
+PRIMARY KEY (`codCli`)
+) CHARACTER SET latin1;
+CREATE TABLE `pneus` (
+`codPneu` INT,
+`descricao` VARCHAR(64),
+`medidas` VARCHAR(64),
+`preco` DECIMAL(10,2),
+`ativo` VARCHAR(64),
+PRIMARY KEY (`codPneu`)
+) CHARACTER SET latin1;
+CREATE TABLE `notaFiscal` (
+`numero` VARCHAR(64),
+`serie` VARCHAR(64),
+`codCli` INT,
+`data` DATETIME,
+`cancelada` VARCHAR(64),
+PRIMARY KEY (`numero`, `serie`)
+) CHARACTER SET latin1;
+CREATE TABLE `itens` (
+`numero` VARCHAR(64),
+`serie` VARCHAR(64),
+`item` INT,
+`codPneu` INT,
+`qtde` INT,
+`preco` DECIMAL(10,2),
+PRIMARY KEY (`item`, `numero`, `serie`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_494102_estrutura') AS relationships;
+relationships
+Database: db_494102_estrutura
+
+Table Connections:
+------------------
+[Implied]  itens.codPneu -> pneus.codPneu
+[Implied]  notaFiscal.codCli -> clientes.codCli
+
+DROP DATABASE `db_494102_estrutura`;
+UNINSTALL EXTENSION vsql_schematron;

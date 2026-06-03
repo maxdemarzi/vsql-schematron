@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 000795_V002__init
+#
+CREATE DATABASE `db_000795_V002_init`;
+USE `db_000795_V002_init`;
+CREATE TABLE `contents` (
+`sha224` VARCHAR(64),
+`contents` VARCHAR(64),
+PRIMARY KEY (`sha224`)
+) CHARACTER SET latin1;
+CREATE TABLE `types` (
+`id` INT,
+`name` VARCHAR(64),
+`mimetype` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `files` (
+`id` VARCHAR(64),
+`type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `versions` (
+`id` VARCHAR(64),
+`file_id` VARCHAR(64),
+`contents_sha` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `documents` (
+`id` VARCHAR(64),
+`external_id` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `documents_files` (
+`document_id` VARCHAR(64),
+`file_id` VARCHAR(64),
+PRIMARY KEY (`document_id`, `file_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `documents_metadata` (
+`document_id` VARCHAR(64),
+`key` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`document_id`, `key`)
+) CHARACTER SET latin1;
+CREATE TABLE `files_metadata` (
+`file_id` VARCHAR(64),
+`key` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`file_id`, `key`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_000795_V002_init') AS relationships;
+relationships
+Database: db_000795_V002_init
+
+Table Connections:
+------------------
+[Implied]  documents_files.document_id -> documents.id
+[Implied]  documents_files.file_id -> files.id
+[Implied]  documents_metadata.document_id -> documents.id
+[Implied]  files.type_id -> types.id
+[Implied]  files_metadata.file_id -> files.id
+[Implied]  versions.contents_sha -> contents.sha224
+[Implied]  versions.file_id -> files.id
+
+DROP DATABASE `db_000795_V002_init`;
+UNINSTALL EXTENSION vsql_schematron;

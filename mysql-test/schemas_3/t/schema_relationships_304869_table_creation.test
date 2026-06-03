@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 304869_table_creation
+--echo #
+CREATE DATABASE `db_304869_table_creation`;
+USE `db_304869_table_creation`;
+
+CREATE TABLE `actor` (
+  `id` INT,
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `wikia` VARCHAR(64),
+  `imdb` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mst3k_character` (
+  `id` INT,
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `type` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genre` (
+  `id` INT,
+  `genre_name` VARCHAR(64),
+  `subgenre_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `movie` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `director_fname` VARCHAR(64),
+  `director_lname` VARCHAR(64),
+  `year` INT,
+  `synopsis` VARCHAR(64),
+  `genre_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `episode` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `episode_number` INT,
+  `season_number` INT,
+  `release_date` DATETIME,
+  `movie_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `actor_episode` (
+  `actor_id` INT,
+  `episode_id` INT,
+  PRIMARY KEY (`actor_id`, `episode_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `actor_character` (
+  `actor_id` INT,
+  `character_id` INT,
+  PRIMARY KEY (`actor_id`, `character_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `character_episode` (
+  `character_id` INT,
+  `episode_id` INT,
+  PRIMARY KEY (`character_id`, `episode_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_304869_table_creation') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_304869_table_creation') AS relationships;
+DROP DATABASE `db_304869_table_creation`;
+UNINSTALL EXTENSION vsql_schematron;

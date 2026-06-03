@@ -1,0 +1,143 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 477279_createTables
+#
+CREATE DATABASE `db_477279_createTables`;
+USE `db_477279_createTables`;
+CREATE TABLE `USERS` (
+`uuid` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`phone` VARCHAR(64),
+`address` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`country` VARCHAR(64),
+`birth_date` DATETIME,
+`signup_date` DATETIME,
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `PASSWORDS` (
+`hashed_user` VARCHAR(64),
+`hashed_password` VARCHAR(64),
+PRIMARY KEY (`hashed_user`)
+) CHARACTER SET latin1;
+CREATE TABLE `COMPANIES` (
+`uuid` VARCHAR(64),
+`long_name` VARCHAR(64),
+`sector` VARCHAR(64),
+`industry` VARCHAR(64),
+`address` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`country` VARCHAR(64),
+`phone` VARCHAR(64),
+`website` VARCHAR(64),
+`logo_url` VARCHAR(64),
+`long_business_summary` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `STOCKS` (
+`company_uuid` VARCHAR(64),
+`ticker` VARCHAR(64),
+`suffix` VARCHAR(64),
+`currency` VARCHAR(64),
+`regular_market_price` DECIMAL(10,2),
+`regular_market_volume` INT,
+`regular_market_open` DECIMAL(10,2),
+`regular_market_previous_close` DECIMAL(10,2),
+`regular_market_day_high` DECIMAL(10,2),
+`regular_market_day_low` DECIMAL(10,2),
+`52_week_high` DECIMAL(10,2),
+`52_week_low` DECIMAL(10,2),
+`200_day_average` DECIMAL(10,2),
+`ask` DECIMAL(10,2),
+`ask_size` INT,
+`bid` DECIMAL(10,2),
+`bid_size` INT,
+`market_cap` INT,
+`dividend_yield` DECIMAL(10,2),
+`held_percent_institutions` DECIMAL(10,2),
+`held_percent_insiders` DECIMAL(10,2),
+PRIMARY KEY (`ticker`, `suffix`)
+) CHARACTER SET latin1;
+CREATE TABLE `WATCH` (
+`user_uuid` VARCHAR(64),
+`stock_ticker` VARCHAR(64),
+`stock_suffix` VARCHAR(64),
+`watch_price` DECIMAL(10,2),
+PRIMARY KEY (`user_uuid`, `stock_ticker`, `stock_suffix`)
+) CHARACTER SET latin1;
+CREATE TABLE `PORTFOLIOS` (
+`uuid` VARCHAR(64),
+`user_uuid` VARCHAR(64),
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`currency` VARCHAR(64),
+`market_value` DECIMAL(10,2),
+`invested_amount` DECIMAL(10,2),
+`cash_amount` DECIMAL(10,2),
+`frozen_amount` DECIMAL(10,2),
+`all_time_gains` DECIMAL(10,2),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `TRANSACTIONS` (
+`id` INT,
+`portfolio_uuid` VARCHAR(64),
+`creation_time` DATETIME,
+`value` DECIMAL(10,2),
+`bank_account` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `POSITIONS` (
+`portfolio_uuid` VARCHAR(64),
+`stock_ticker` VARCHAR(64),
+`stock_suffix` VARCHAR(64),
+`nb_shares` INT,
+`avg_price` DECIMAL(10,2),
+PRIMARY KEY (`portfolio_uuid`, `stock_ticker`, `stock_suffix`)
+) CHARACTER SET latin1;
+CREATE TABLE `PENDING_ORDERS` (
+`uuid` VARCHAR(64),
+`portfolio_uuid` VARCHAR(64),
+`stock_ticker` VARCHAR(64),
+`stock_suffix` VARCHAR(64),
+`nb_shares` INT,
+`limit_price` DECIMAL(10,2),
+`filled_price` DECIMAL(10,2),
+`placed_time` DATETIME,
+`expiration_time` DATETIME,
+`type` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `CLOSED_ORDERS` (
+`uuid` VARCHAR(64),
+`portfolio_uuid` VARCHAR(64),
+`stock_ticker` VARCHAR(64),
+`stock_suffix` VARCHAR(64),
+`nb_shares` INT,
+`limit_price` DECIMAL(10,2),
+`filled_price` DECIMAL(10,2),
+`placed_time` DATETIME,
+`expiration_time` DATETIME,
+`type` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_477279_createTables') AS relationships;
+relationships
+Database: db_477279_createTables
+
+Table Connections:
+------------------
+[Implied]  CLOSED_ORDERS.portfolio_uuid -> PORTFOLIOS.uuid
+[Implied]  PENDING_ORDERS.portfolio_uuid -> PORTFOLIOS.uuid
+[Implied]  PORTFOLIOS.user_uuid -> USERS.uuid
+[Implied]  POSITIONS.portfolio_uuid -> PORTFOLIOS.uuid
+[Implied]  STOCKS.company_uuid -> COMPANIES.uuid
+[Implied]  TRANSACTIONS.portfolio_uuid -> PORTFOLIOS.uuid
+[Implied]  WATCH.user_uuid -> USERS.uuid
+
+DROP DATABASE `db_477279_createTables`;
+UNINSTALL EXTENSION vsql_schematron;

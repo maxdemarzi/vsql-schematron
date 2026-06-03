@@ -1,0 +1,99 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 639535_db-setup
+#
+CREATE DATABASE `db_639535_db_setup`;
+USE `db_639535_db_setup`;
+CREATE TABLE `role` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `car` (
+`id` VARCHAR(64),
+`brand` VARCHAR(64),
+`model` VARCHAR(64),
+`fuel` VARCHAR(64),
+`vin` VARCHAR(64),
+`owner` VARCHAR(64),
+`mot` DATETIME,
+`wheel` VARCHAR(64),
+`status` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fleet` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fleet_pool` (
+`fleet_id` INT,
+`car_id` VARCHAR(64),
+PRIMARY KEY (`fleet_id`, `car_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fleet_user` (
+`fleet_id` INT,
+`user_id` VARCHAR(64),
+PRIMARY KEY (`fleet_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `journey` (
+`id` INT,
+`car_id` VARCHAR(64),
+`time_start` DATETIME,
+`time_end` DATETIME,
+`address_id_start` INT,
+`address_id_end` INT,
+`reason` VARCHAR(64),
+`visited` VARCHAR(64),
+`km_start` INT,
+`km_business` INT,
+`km_commute` INT,
+`km_private` INT,
+`km_end` INT,
+`bill_id` INT,
+`user_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bill` (
+`id` INT,
+`liter` DECIMAL(10,2),
+`amount` DECIMAL(10,2),
+`liter_avg` DECIMAL(10,2),
+`amount_other` DECIMAL(10,2),
+`picture` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+`id` INT,
+`name` VARCHAR(64),
+`group` VARCHAR(64),
+`street` VARCHAR(64),
+`number` VARCHAR(64),
+`zipcode` VARCHAR(64),
+`city` VARCHAR(64),
+`user_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `log` (
+`timestamp` DATETIME,
+`user_id` VARCHAR(64),
+`info` VARCHAR(64),
+PRIMARY KEY (`timestamp`, `user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_639535_db_setup') AS relationships;
+relationships
+Database: db_639535_db_setup
+
+Table Connections:
+------------------
+[Implied]  fleet_pool.car_id -> car.id
+[Implied]  fleet_pool.fleet_id -> fleet.id
+[Implied]  fleet_user.fleet_id -> fleet.id
+[Implied]  journey.address_id_end -> address.id
+[Implied]  journey.address_id_start -> address.id
+[Implied]  journey.bill_id -> bill.id
+[Implied]  journey.car_id -> car.id
+
+DROP DATABASE `db_639535_db_setup`;
+UNINSTALL EXTENSION vsql_schematron;

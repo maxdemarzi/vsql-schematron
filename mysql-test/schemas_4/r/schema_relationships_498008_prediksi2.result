@@ -1,0 +1,152 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 498008_prediksi2
+#
+CREATE DATABASE `db_498008_prediksi2`;
+USE `db_498008_prediksi2`;
+CREATE TABLE `admin` (
+`id_admin` INT,
+`id_user` INT,
+`nama_admin` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`alamat_admin` VARCHAR(64),
+`no_hp` INT
+) CHARACTER SET latin1;
+CREATE TABLE `akurasi` (
+`id_akurasi` INT,
+`akurasi_training` DECIMAL(10,2),
+`akurasi_testing` DECIMAL(10,2),
+PRIMARY KEY (`id_akurasi`)
+) CHARACTER SET latin1;
+CREATE TABLE `datasiswa` (
+`id_datasiswa` INT,
+`nisn` INT,
+`nama_siswa` VARCHAR(64),
+`ttl` VARCHAR(64),
+`jenkel` VARCHAR(64),
+`agama` VARCHAR(64),
+`alamat` VARCHAR(64),
+PRIMARY KEY (`id_datasiswa`)
+) CHARACTER SET latin1;
+CREATE TABLE `datatesting` (
+`id_datatesting` INT,
+`nama_siswa` VARCHAR(64),
+`jenkel` VARCHAR(64),
+`pengetahuan` DECIMAL(10,2),
+`ketrampilan` DECIMAL(10,2),
+`spiritual` VARCHAR(64),
+`sosial` VARCHAR(64),
+`predikat_asli` VARCHAR(64),
+PRIMARY KEY (`id_datatesting`)
+) CHARACTER SET latin1;
+CREATE TABLE `datatrining` (
+`id_datatrining` INT,
+`nama_siswa` VARCHAR(64),
+`jenkel` VARCHAR(64),
+`pengetahuan` DECIMAL(10,2),
+`ketrampilan` DECIMAL(10,2),
+`spiritual` VARCHAR(64),
+`sosial` VARCHAR(64),
+`predikat_asli` VARCHAR(64),
+PRIMARY KEY (`id_datatrining`)
+) CHARACTER SET latin1;
+CREATE TABLE `dentitas_gauss` (
+`id_gauss` INT,
+`nama_siswa` VARCHAR(64),
+`pengetahuan` INT,
+`pengetahuan_sb` DECIMAL(10,2),
+`pengetahuan_b` DECIMAL(10,2),
+`ketrampilan` INT,
+`ketrampilan_sb` DECIMAL(10,2),
+`ketrampilan_b` DECIMAL(10,2),
+PRIMARY KEY (`id_gauss`)
+) CHARACTER SET latin1;
+CREATE TABLE `guru` (
+`id_guru` INT,
+`id_user` INT,
+`nik` INT,
+`nama_guru` VARCHAR(64),
+`email_guru` VARCHAR(64),
+`jabatan` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `hasil` (
+`id_hasil` INT,
+`nama_siswa` VARCHAR(64),
+`jenkel` VARCHAR(64),
+`pengetahuan` INT,
+`ketrampilan` INT,
+`spiritual` VARCHAR(64),
+`sosial` VARCHAR(64),
+`predikat_asli` VARCHAR(64),
+`predikat_hasil` VARCHAR(64),
+`nilai_sangatbaik` DECIMAL(10,2),
+`nilai_baik` DECIMAL(10,2),
+PRIMARY KEY (`id_hasil`)
+) CHARACTER SET latin1;
+CREATE TABLE `kriteria` (
+`id_kriteria` INT,
+`kode_kriteria` VARCHAR(64),
+`nama_kriteria` VARCHAR(64),
+PRIMARY KEY (`id_kriteria`)
+) CHARACTER SET latin1;
+CREATE TABLE `model` (
+`id_model` INT,
+`probabilitas_kelas_sb` DECIMAL(10,2),
+`probabilitas_kelas_b` DECIMAL(10,2),
+`jenkel_lsb` DECIMAL(10,2),
+`jenkel_lb` DECIMAL(10,2),
+`jenkel_psb` DECIMAL(10,2),
+`jenkel_pb` DECIMAL(10,2),
+`mean_pengetahuan_sb` DECIMAL(10,2),
+`mean_pengetahuan_b` DECIMAL(10,2),
+`mean_keterampilan_sb` DECIMAL(10,2),
+`mean_keterampilan_b` DECIMAL(10,2),
+`stdev_pengetahuan_sb` DECIMAL(10,2),
+`stdev_pengetahuan_b` DECIMAL(10,2),
+`stdev_keterampilan_sb` DECIMAL(10,2),
+`stdev_keterampilan_b` DECIMAL(10,2),
+`spiritual_asb` DECIMAL(10,2),
+`spiritual_ab` DECIMAL(10,2),
+`spiritual_bsb` DECIMAL(10,2),
+`spiritual_bb` DECIMAL(10,2),
+`sosial_asb` DECIMAL(10,2),
+`sosial_ab` DECIMAL(10,2),
+`sosial_bsb` DECIMAL(10,2),
+`sosial_bb` DECIMAL(10,2),
+PRIMARY KEY (`id_model`)
+) CHARACTER SET latin1;
+CREATE TABLE `uji_akurasi` (
+`id_uji` INT,
+`nama_siswa` VARCHAR(64),
+`jenkel` VARCHAR(64),
+`pengetahuan` INT,
+`ketrampilan` INT,
+`spiritual` VARCHAR(64),
+`sosial` VARCHAR(64),
+`predikat_asli` VARCHAR(64),
+`predikat_hasil` VARCHAR(64),
+PRIMARY KEY (`id_uji`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id_user` INT,
+`nama` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`level` VARCHAR(64),
+PRIMARY KEY (`id_user`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_498008_prediksi2') AS relationships;
+relationships
+Database: db_498008_prediksi2
+
+Table Connections:
+------------------
+[Implied]  admin.id_user -> user.id_user
+[Implied]  akurasi.akurasi_testing -> datatesting.id_datatesting
+[Implied]  akurasi.akurasi_testing -> uji_akurasi.id_uji
+[Implied]  akurasi.akurasi_training -> uji_akurasi.id_uji
+[Implied]  guru.id_user -> user.id_user
+
+DROP DATABASE `db_498008_prediksi2`;
+UNINSTALL EXTENSION vsql_schematron;

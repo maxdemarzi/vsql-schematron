@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 535138_vswitch
+#
+CREATE DATABASE `db_535138_vswitch`;
+USE `db_535138_vswitch`;
+CREATE TABLE `virtual_switch` (
+`id` INT,
+`name` VARCHAR(64),
+`comments` VARCHAR(64),
+`creation_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vswitch_cluster` (
+`virtual_switch_id` INT,
+`cluster_id` INT,
+PRIMARY KEY (`virtual_switch_id`, `cluster_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vswitch_host` (
+`virtual_switch_id` INT,
+`host_id` INT,
+PRIMARY KEY (`virtual_switch_id`, `host_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vswitch_pg` (
+`virtual_switch_id` INT,
+`port_group_id` INT,
+PRIMARY KEY (`virtual_switch_id`, `port_group_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_535138_vswitch') AS relationships;
+relationships
+Database: db_535138_vswitch
+
+Table Connections:
+------------------
+[Implied]  vswitch_cluster.virtual_switch_id -> virtual_switch.id
+[Implied]  vswitch_host.virtual_switch_id -> virtual_switch.id
+[Implied]  vswitch_pg.virtual_switch_id -> virtual_switch.id
+
+DROP DATABASE `db_535138_vswitch`;
+UNINSTALL EXTENSION vsql_schematron;

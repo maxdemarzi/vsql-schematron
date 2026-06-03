@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 613893_initTickets
+#
+CREATE DATABASE `db_613893_initTickets`;
+USE `db_613893_initTickets`;
+CREATE TABLE `clients` (
+`id` VARCHAR(64),
+`secret` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_codes` (
+`auth_code` VARCHAR(64),
+`expires_at` INT,
+`client_id` VARCHAR(64),
+`user_id` INT,
+PRIMARY KEY (`client_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tokens` (
+`is_admin` VARCHAR(64),
+`expires_at` INT,
+`client_id` VARCHAR(64),
+`user_id` INT,
+PRIMARY KEY (`client_id`, `user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_613893_initTickets') AS relationships;
+relationships
+Database: db_613893_initTickets
+
+Table Connections:
+------------------
+[Implied]  auth_codes.client_id -> clients.id
+[Implied]  tokens.client_id -> clients.id
+
+DROP DATABASE `db_613893_initTickets`;
+UNINSTALL EXTENSION vsql_schematron;

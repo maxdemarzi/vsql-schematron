@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 616758_TestData
+#
+CREATE DATABASE `db_616758_TestData`;
+USE `db_616758_TestData`;
+CREATE TABLE `Publisher` (
+`Id` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Author` (
+`Id` INT,
+`Name` VARCHAR(64),
+`Sex` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reader` (
+`Id` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comment` (
+`Id` INT,
+`ReaderId` INT,
+`BookId` INT,
+`Content` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `WriteBook` (
+`AuthorId` INT,
+`BookId` INT,
+PRIMARY KEY (`AuthorId`, `BookId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_616758_TestData') AS relationships;
+relationships
+Database: db_616758_TestData
+
+Table Connections:
+------------------
+[Implied]  Comment.ReaderId -> Reader.Id
+[Implied]  WriteBook.AuthorId -> Author.Id
+
+DROP DATABASE `db_616758_TestData`;
+UNINSTALL EXTENSION vsql_schematron;

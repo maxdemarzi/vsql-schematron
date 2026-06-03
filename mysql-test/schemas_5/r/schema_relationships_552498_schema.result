@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 552498_schema
+#
+CREATE DATABASE `db_552498_schema`;
+USE `db_552498_schema`;
+CREATE TABLE `set` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`image` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `card` (
+`id` VARCHAR(64),
+`set_id` VARCHAR(64),
+`number` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`image` VARCHAR(64),
+`rarity` VARCHAR(64),
+`language` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `price` (
+`card_id` VARCHAR(64),
+`timestamp` DATETIME,
+`price` DECIMAL(10,2),
+PRIMARY KEY (`card_id`, `timestamp`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_card` (
+`user_id` INT,
+`card_id` VARCHAR(64),
+`quality` INT,
+`start_price` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_552498_schema') AS relationships;
+relationships
+Database: db_552498_schema
+
+Table Connections:
+------------------
+[Implied]  card.set_id -> set.id
+[Implied]  price.card_id -> card.id
+[Implied]  user_card.card_id -> card.id
+
+DROP DATABASE `db_552498_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,166 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 030300_hospital
+--echo #
+CREATE DATABASE `db_030300_hospital`;
+USE `db_030300_hospital`;
+
+CREATE TABLE `admin` (
+  `ID` VARCHAR(64),
+  `title` VARCHAR(64),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `dob` DATETIME,
+  `tel` VARCHAR(64),
+  `nic` VARCHAR(64),
+  `address` VARCHAR(64),
+  `email` VARCHAR(64),
+  `pwd` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `diagnosis` (
+  `UPIN` VARCHAR(64),
+  `date` DATETIME,
+  `bmi` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `doctor` (
+  `ID` VARCHAR(64),
+  `title` VARCHAR(64),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `dob` DATETIME,
+  `tel` VARCHAR(64),
+  `nic` VARCHAR(64),
+  `address` VARCHAR(64),
+  `mlicense` VARCHAR(64),
+  `speciality` VARCHAR(64),
+  `email` VARCHAR(64),
+  `pwd` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `patients` (
+  `UPIN` VARCHAR(64),
+  `title` VARCHAR(64),
+  `fName` VARCHAR(64),
+  `lName` VARCHAR(64),
+  `Gender` VARCHAR(64),
+  `DOB` DATETIME,
+  `Address` VARCHAR(64),
+  `tele` INT,
+  `email` VARCHAR(64),
+  PRIMARY KEY (`UPIN`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pharmacist` (
+  `ID` VARCHAR(64),
+  `title` VARCHAR(64),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `dob` DATETIME,
+  `tel` VARCHAR(64),
+  `nic` VARCHAR(64),
+  `address` VARCHAR(64),
+  `email` VARCHAR(64),
+  `pwd` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pharmacy` (
+  `ID` VARCHAR(64),
+  `Name` VARCHAR(64),
+  `type` VARCHAR(64),
+  `dosage` VARCHAR(64),
+  `uprice` DECIMAL(10,2),
+  `availability` INT,
+  `category` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `prescription` (
+  `UPIN` VARCHAR(64),
+  `date` DATETIME,
+  `DR` VARCHAR(64),
+  `n1` VARCHAR(64),
+  `t1` VARCHAR(64),
+  `d1` VARCHAR(64),
+  `q1` VARCHAR(64),
+  `n2` VARCHAR(64),
+  `t2` VARCHAR(64),
+  `d2` VARCHAR(64),
+  `q2` VARCHAR(64),
+  `n3` VARCHAR(64),
+  `t3` VARCHAR(64),
+  `d3` VARCHAR(64),
+  `q3` VARCHAR(64),
+  `n4` VARCHAR(64),
+  `t4` VARCHAR(64),
+  `d4` VARCHAR(64),
+  `q4` VARCHAR(64),
+  `n5` VARCHAR(64),
+  `t5` VARCHAR(64),
+  `d5` VARCHAR(64),
+  `q5` VARCHAR(64),
+  `n6` VARCHAR(64),
+  `t6` VARCHAR(64),
+  `d6` VARCHAR(64),
+  `q6` VARCHAR(64),
+  `n7` VARCHAR(64),
+  `t7` VARCHAR(64),
+  `d7` VARCHAR(64),
+  `q7` VARCHAR(64),
+  `n8` VARCHAR(64),
+  `t8` VARCHAR(64),
+  `d8` VARCHAR(64),
+  `q8` VARCHAR(64),
+  `n9` VARCHAR(64),
+  `t9` VARCHAR(64),
+  `d9` VARCHAR(64),
+  `q9` VARCHAR(64),
+  `n10` VARCHAR(64),
+  `t10` VARCHAR(64),
+  `d10` VARCHAR(64),
+  `q10` VARCHAR(64),
+  PRIMARY KEY (`UPIN`, `date`, `DR`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reg` (
+  `ID` VARCHAR(64),
+  `title` VARCHAR(64),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `dob` DATETIME,
+  `tel` VARCHAR(64),
+  `nic` VARCHAR(64),
+  `address` VARCHAR(64),
+  `email` VARCHAR(64),
+  `pwd` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_030300_hospital') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_030300_hospital') AS relationships;
+DROP DATABASE `db_030300_hospital`;
+UNINSTALL EXTENSION vsql_schematron;

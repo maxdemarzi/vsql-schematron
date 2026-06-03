@@ -1,0 +1,116 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 488000_dumpSiCAEDados
+#
+CREATE DATABASE `db_488000_dumpSiCAEDados`;
+USE `db_488000_dumpSiCAEDados`;
+CREATE TABLE `alunoaula` (
+`idAula` INT,
+`estaPresente` INT,
+`idAluno` INT,
+PRIMARY KEY (`idAula`, `idAluno`)
+) CHARACTER SET latin1;
+CREATE TABLE `alunopessoaresponsavel` (
+`idPessoa` INT,
+`parentesco` VARCHAR(64),
+`idAluno` INT,
+PRIMARY KEY (`idPessoa`, `idAluno`)
+) CHARACTER SET latin1;
+CREATE TABLE `aspnetroleclaims` (
+`Id` INT,
+`RoleId` VARCHAR(64),
+`ClaimType` VARCHAR(64),
+`ClaimValue` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `aspnetroles` (
+`Id` VARCHAR(64),
+`Name` VARCHAR(64),
+`NormalizedName` VARCHAR(64),
+`ConcurrencyStamp` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `aspnetuserclaims` (
+`Id` INT,
+`UserId` VARCHAR(64),
+`ClaimType` VARCHAR(64),
+`ClaimValue` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `aspnetuserlogins` (
+`LoginProvider` VARCHAR(64),
+`ProviderKey` VARCHAR(64),
+`ProviderDisplayName` VARCHAR(64),
+`UserId` VARCHAR(64),
+PRIMARY KEY (`LoginProvider`, `ProviderKey`)
+) CHARACTER SET latin1;
+CREATE TABLE `aspnetusers` (
+`Id` VARCHAR(64),
+`UserName` VARCHAR(64),
+`NormalizedUserName` VARCHAR(64),
+`Email` VARCHAR(64),
+`NormalizedEmail` VARCHAR(64),
+`EmailConfirmed` VARCHAR(64),
+`PasswordHash` VARCHAR(64),
+`SecurityStamp` VARCHAR(64),
+`ConcurrencyStamp` VARCHAR(64),
+`PhoneNumber` VARCHAR(64),
+`PhoneNumberConfirmed` VARCHAR(64),
+`TwoFactorEnabled` VARCHAR(64),
+`LockoutEnd` DATETIME,
+`LockoutEnabled` VARCHAR(64),
+`AccessFailedCount` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `aula` (
+`idAula` INT,
+`Conteudo` VARCHAR(64),
+`data` DATETIME,
+`idProfessorTurmaDisciplina` INT,
+PRIMARY KEY (`idAula`)
+) CHARACTER SET latin1;
+CREATE TABLE `avaliacao` (
+`idAvaliacao` INT,
+`peso` INT,
+`idProfessorTurmaDisciplina` INT,
+`nota` DECIMAL(10,2),
+`idAluno` INT,
+PRIMARY KEY (`idAvaliacao`)
+) CHARACTER SET latin1;
+CREATE TABLE `cidade` (
+`codIBGE` INT,
+PRIMARY KEY (`codIBGE`)
+) CHARACTER SET latin1;
+CREATE TABLE `diahoraprofessorturmadisciplina` (
+`idProfessorTurmaDisciplina` INT,
+`idDiaHora` INT,
+PRIMARY KEY (`idProfessorTurmaDisciplina`, `idDiaHora`)
+) CHARACTER SET latin1;
+CREATE TABLE `turma` (
+`idTurma` INT,
+`nomeTurma` VARCHAR(64),
+`turno` VARCHAR(64),
+`anoDaTurma` INT,
+`isActive` INT,
+`Escola_idEscola` INT,
+PRIMARY KEY (`idTurma`)
+) CHARACTER SET latin1;
+CREATE TABLE `turma_aluno` (
+`idTurma` INT,
+`idAluno` INT,
+PRIMARY KEY (`idTurma`, `idAluno`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_488000_dumpSiCAEDados') AS relationships;
+relationships
+Database: db_488000_dumpSiCAEDados
+
+Table Connections:
+------------------
+[Implied]  alunoaula.idAula -> aula.idAula
+[Implied]  aspnetroleclaims.RoleId -> aspnetroles.Id
+[Implied]  aspnetuserclaims.UserId -> aspnetusers.Id
+[Implied]  aspnetuserlogins.UserId -> aspnetusers.Id
+[Implied]  turma_aluno.idTurma -> turma.idTurma
+
+DROP DATABASE `db_488000_dumpSiCAEDados`;
+UNINSTALL EXTENSION vsql_schematron;

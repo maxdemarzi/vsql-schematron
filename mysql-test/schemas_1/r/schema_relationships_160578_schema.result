@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 160578_schema
+#
+CREATE DATABASE `db_160578_schema`;
+USE `db_160578_schema`;
+CREATE TABLE `mailing_lists` (
+`id` INT,
+`title` VARCHAR(64),
+`email` VARCHAR(64),
+`enabled` VARCHAR(64),
+`language` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`list_id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`enabled` VARCHAR(64),
+PRIMARY KEY (`list_id`, `email`)
+) CHARACTER SET latin1;
+CREATE TABLE `subscriptions` (
+`uuid` VARCHAR(64),
+`list_id` INT,
+`email` VARCHAR(64),
+`timestamp` DATETIME,
+`request` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_160578_schema') AS relationships;
+relationships
+Database: db_160578_schema
+
+Table Connections:
+------------------
+[Implied]  subscriptions.list_id -> mailing_lists.id
+[Implied]  users.list_id -> mailing_lists.id
+
+DROP DATABASE `db_160578_schema`;
+UNINSTALL EXTENSION vsql_schematron;

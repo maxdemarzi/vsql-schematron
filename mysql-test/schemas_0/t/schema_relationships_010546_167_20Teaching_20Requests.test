@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 010546_167%20Teaching%20Requests
+--echo #
+CREATE DATABASE `db_010546_167_20Teaching_20Requests`;
+USE `db_010546_167_20Teaching_20Requests`;
+
+CREATE TABLE `teaching_request` (
+  `uniqueid` DECIMAL(10,2),
+  `offering_id` DECIMAL(10,2),
+  `nbr_instructors` DECIMAL(10,2),
+  `teaching_load` DECIMAL(10,2),
+  `same_course_pref` DECIMAL(10,2),
+  `same_common_pref` DECIMAL(10,2),
+  `responsibility_id` DECIMAL(10,2),
+  `assign_coordinator` DECIMAL(10,2),
+  PRIMARY KEY (`uniqueid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `teachreq_class` (
+  `uniqueid` DECIMAL(10,2),
+  `percent_share` DECIMAL(10,2),
+  `is_lead` DECIMAL(10,2),
+  `can_overlap` DECIMAL(10,2),
+  `request_id` DECIMAL(10,2),
+  `class_id` DECIMAL(10,2),
+  `assign_instructor` DECIMAL(10,2),
+  `common` DECIMAL(10,2),
+  PRIMARY KEY (`uniqueid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `teachreq_instructor` (
+  `request_id` DECIMAL(10,2),
+  `instructor_id` DECIMAL(10,2),
+  PRIMARY KEY (`request_id`, `instructor_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_010546_167_20Teaching_20Requests') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_010546_167_20Teaching_20Requests') AS relationships;
+DROP DATABASE `db_010546_167_20Teaching_20Requests`;
+UNINSTALL EXTENSION vsql_schematron;

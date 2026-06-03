@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 147057_Rest_DB
+#
+CREATE DATABASE `db_147057_Rest_DB`;
+USE `db_147057_Rest_DB`;
+CREATE TABLE `city` (
+`id_city` INT,
+`name_city` VARCHAR(64),
+PRIMARY KEY (`id_city`)
+) CHARACTER SET latin1;
+CREATE TABLE `theater` (
+`id_theater` INT,
+`id_city` INT,
+`name_theater` VARCHAR(64),
+PRIMARY KEY (`id_theater`)
+) CHARACTER SET latin1;
+CREATE TABLE `manager` (
+`id_manager` INT,
+`id_theater` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id_manager`)
+) CHARACTER SET latin1;
+CREATE TABLE `movie` (
+`id_movie` INT,
+`title` VARCHAR(64),
+`duration` VARCHAR(64),
+`min_age` INT,
+`director` VARCHAR(64),
+PRIMARY KEY (`id_movie`)
+) CHARACTER SET latin1;
+CREATE TABLE `movie_display` (
+`id_movie` INT,
+`id_theater` INT,
+`lang` VARCHAR(64),
+`start_date` DATETIME,
+`end_date` DATETIME,
+PRIMARY KEY (`id_movie`, `id_theater`)
+) CHARACTER SET latin1;
+CREATE TABLE `schedule` (
+`id_schedule` INT,
+`id_movie` INT,
+`id_theater` INT,
+`time_day` DATETIME,
+`day_of_week` INT,
+PRIMARY KEY (`id_schedule`)
+) CHARACTER SET latin1;
+CREATE TABLE `actor` (
+`id_actor` INT,
+`name_actor` VARCHAR(64),
+PRIMARY KEY (`id_actor`)
+) CHARACTER SET latin1;
+CREATE TABLE `actors_playing` (
+`id_actor` INT,
+`id_movie` INT,
+PRIMARY KEY (`id_movie`, `id_actor`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_147057_Rest_DB') AS relationships;
+relationships
+Database: db_147057_Rest_DB
+
+Table Connections:
+------------------
+[Implied]  actors_playing.id_actor -> actor.id_actor
+[Implied]  actors_playing.id_movie -> movie.id_movie
+[Implied]  manager.id_theater -> theater.id_theater
+[Implied]  movie_display.id_movie -> movie.id_movie
+[Implied]  movie_display.id_theater -> theater.id_theater
+[Implied]  schedule.id_movie -> movie.id_movie
+[Implied]  schedule.id_theater -> theater.id_theater
+[Implied]  theater.id_city -> city.id_city
+
+DROP DATABASE `db_147057_Rest_DB`;
+UNINSTALL EXTENSION vsql_schematron;

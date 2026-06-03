@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 274138_V000.0002__Accounts
+--echo #
+CREATE DATABASE `db_274138_V000_0002_Accounts`;
+USE `db_274138_V000_0002_Accounts`;
+
+CREATE TABLE `Accounts` (
+  `OrganizationId` VARCHAR(64),
+  `AccountId` INT,
+  `Name` VARCHAR(64),
+  `CreatedOn` DATETIME,
+  PRIMARY KEY (`OrganizationId`, `AccountId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BankAccounts` (
+  `OrganizationId` VARCHAR(64),
+  `BankAccountId` INT,
+  `BankCounterpartyId` INT,
+  `ReferenceId` VARCHAR(64),
+  PRIMARY KEY (`OrganizationId`, `BankAccountId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DebtAccounts` (
+  `OrganizationId` VARCHAR(64),
+  `AccountId` INT,
+  `CounterpartyId` INT,
+  PRIMARY KEY (`OrganizationId`, `AccountId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_274138_V000_0002_Accounts') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_274138_V000_0002_Accounts') AS relationships;
+DROP DATABASE `db_274138_V000_0002_Accounts`;
+UNINSTALL EXTENSION vsql_schematron;

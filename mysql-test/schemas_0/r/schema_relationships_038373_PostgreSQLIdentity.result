@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 038373_PostgreSQLIdentity
+#
+CREATE DATABASE `db_038373_PostgreSQLIdentity`;
+USE `db_038373_PostgreSQLIdentity`;
+CREATE TABLE `AspNetRoles` (
+`Id` VARCHAR(64),
+`Name` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `AspNetUsers` (
+`Id` VARCHAR(64),
+`UserName` VARCHAR(64),
+`PasswordHash` VARCHAR(64),
+`SecurityStamp` VARCHAR(64),
+`Email` VARCHAR(64),
+`EmailConfirmed` VARCHAR(64),
+`PhoneNumber` VARCHAR(64),
+`PhoneNumberConfirmed` VARCHAR(64),
+`TwoFactorEnabled` VARCHAR(64),
+`LockoutEndDateUtc` DATETIME,
+`LockoutEnabled` VARCHAR(64),
+`AccessFailedCount` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `AspNetUserClaims` (
+`Id` INT,
+`ClaimType` VARCHAR(64),
+`ClaimValue` VARCHAR(64),
+`UserId` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `AspNetUserLogins` (
+`UserId` VARCHAR(64),
+`LoginProvider` VARCHAR(64),
+`ProviderKey` VARCHAR(64),
+PRIMARY KEY (`UserId`, `LoginProvider`, `ProviderKey`)
+) CHARACTER SET latin1;
+CREATE TABLE `AspNetUserRoles` (
+`UserId` VARCHAR(64),
+`RoleId` VARCHAR(64),
+PRIMARY KEY (`UserId`, `RoleId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_038373_PostgreSQLIdentity') AS relationships;
+relationships
+Database: db_038373_PostgreSQLIdentity
+
+Table Connections:
+------------------
+[Implied]  AspNetUserClaims.UserId -> AspNetUsers.Id
+[Implied]  AspNetUserLogins.UserId -> AspNetUsers.Id
+[Implied]  AspNetUserRoles.RoleId -> AspNetRoles.Id
+[Implied]  AspNetUserRoles.UserId -> AspNetUsers.Id
+
+DROP DATABASE `db_038373_PostgreSQLIdentity`;
+UNINSTALL EXTENSION vsql_schematron;

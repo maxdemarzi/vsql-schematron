@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 031746_db
+#
+CREATE DATABASE `db_031746_db`;
+USE `db_031746_db`;
+CREATE TABLE `user` (
+`id` INT,
+`login` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `video` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`pub_date` DATETIME,
+`description` VARCHAR(64),
+`thumbnail` VARCHAR(64),
+`player` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `search_history` (
+`id` INT,
+`query` VARCHAR(64),
+`time` DATETIME,
+`id_user` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_likes` (
+`id_user` INT,
+`id_video` VARCHAR(64),
+PRIMARY KEY (`id_user`, `id_video`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_031746_db') AS relationships;
+relationships
+Database: db_031746_db
+
+Table Connections:
+------------------
+[Implied]  search_history.id_user -> user.id
+[Implied]  user_likes.id_user -> user.id
+[Implied]  user_likes.id_video -> video.id
+
+DROP DATABASE `db_031746_db`;
+UNINSTALL EXTENSION vsql_schematron;

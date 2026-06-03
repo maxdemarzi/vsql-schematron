@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 566890_schema-postressql
+--echo #
+CREATE DATABASE `db_566890_schema_postressql`;
+USE `db_566890_schema_postressql`;
+
+CREATE TABLE `GROUPS` (
+  `ID` DECIMAL(10,2),
+  `NAME` VARCHAR(64),
+  `IDENT` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GROUP_RIGHTS` (
+  `GROUP_ID` DECIMAL(10,2),
+  `RIGHT_ID` DECIMAL(10,2),
+  PRIMARY KEY (`GROUP_ID`, `RIGHT_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RIGHTS` (
+  `ID` DECIMAL(10,2),
+  `NAME` VARCHAR(64),
+  `IDENT` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ROLES` (
+  `ID` DECIMAL(10,2),
+  `NAME` VARCHAR(64),
+  `IDENT` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ROLE_GROUPS` (
+  `ROLE_ID` DECIMAL(10,2),
+  `GROUP_ID` DECIMAL(10,2),
+  PRIMARY KEY (`ROLE_ID`, `GROUP_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USERS` (
+  `ID` DECIMAL(10,2),
+  `NAME` VARCHAR(64),
+  `PASSWORD` VARCHAR(64),
+  `SALT` VARCHAR(64),
+  `EMAIL` VARCHAR(64),
+  `ENABLED` DECIMAL(10,2),
+  `DT_CREATE` DATETIME,
+  `DT_UPDATE` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USER_ACCOUNTS` (
+  `ID` DECIMAL(10,2),
+  `LAST_NAME` VARCHAR(64),
+  `FIRST_NAME` VARCHAR(64),
+  `MIDDLE_NAME` VARCHAR(64),
+  `LOCKED` DECIMAL(10,2),
+  `ACCOUNT_EXPIRED` DECIMAL(10,2),
+  `CREDENTIAL_EXPIRED` DECIMAL(10,2),
+  `DT_CREATE` DATETIME,
+  `DT_UPDATE` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USER_ROLES` (
+  `USER_ID` DECIMAL(10,2),
+  `ROLE_ID` DECIMAL(10,2),
+  PRIMARY KEY (`USER_ID`, `ROLE_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_566890_schema_postressql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_566890_schema_postressql') AS relationships;
+DROP DATABASE `db_566890_schema_postressql`;
+UNINSTALL EXTENSION vsql_schematron;

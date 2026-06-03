@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 566187_schema
+#
+CREATE DATABASE `db_566187_schema`;
+USE `db_566187_schema`;
+CREATE TABLE `bangumix_user` (
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `bangumix_anime` (
+`anime_name` VARCHAR(64),
+`director_name` VARCHAR(64),
+`synopsis` VARCHAR(64),
+PRIMARY KEY (`anime_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `bangumix_anime_comment` (
+`comment_id` INT,
+`anime_name` VARCHAR(64),
+`username` VARCHAR(64),
+`comment_content` VARCHAR(64),
+`comment_timestamp` DATETIME,
+PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bangumix_anime_point` (
+`anime_name` VARCHAR(64),
+`username` VARCHAR(64),
+`point` INT,
+PRIMARY KEY (`anime_name`, `username`)
+) CHARACTER SET latin1;
+CREATE TABLE `bangumix_anime_tag` (
+`anime_name` VARCHAR(64),
+`username` VARCHAR(64),
+`tag_content` VARCHAR(64),
+PRIMARY KEY (`anime_name`, `username`, `tag_content`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_566187_schema') AS relationships;
+relationships
+Database: db_566187_schema
+
+Table Connections:
+------------------
+[Implied]  bangumix_anime_comment.anime_name -> bangumix_anime.anime_name
+[Implied]  bangumix_anime_comment.username -> bangumix_user.username
+[Implied]  bangumix_anime_point.anime_name -> bangumix_anime.anime_name
+[Implied]  bangumix_anime_point.username -> bangumix_user.username
+[Implied]  bangumix_anime_tag.anime_name -> bangumix_anime.anime_name
+[Implied]  bangumix_anime_tag.username -> bangumix_user.username
+
+DROP DATABASE `db_566187_schema`;
+UNINSTALL EXTENSION vsql_schematron;

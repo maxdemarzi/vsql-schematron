@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 161151_example_multivalued_hierarchy_map
+--echo #
+CREATE DATABASE `db_161151_example_multivalued_hierarchy_map`;
+USE `db_161151_example_multivalued_hierarchy_map`;
+
+CREATE TABLE `EMPLOYEE` (
+  `employee_id` INT,
+  `employee_name` VARCHAR(64),
+  PRIMARY KEY (`employee_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EMPLOYEE_EMPLOYEE` (
+  `employee_id` INT,
+  `manager_id` INT,
+  `role_type` VARCHAR(64),
+  `FTE` DECIMAL(10,2),
+  PRIMARY KEY (`employee_id`, `manager_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_161151_example_multivalued_hierarchy_map') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_161151_example_multivalued_hierarchy_map') AS relationships;
+DROP DATABASE `db_161151_example_multivalued_hierarchy_map`;
+UNINSTALL EXTENSION vsql_schematron;

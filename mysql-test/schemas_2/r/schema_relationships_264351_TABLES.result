@@ -1,0 +1,101 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 264351_TABLES
+#
+CREATE DATABASE `db_264351_TABLES`;
+USE `db_264351_TABLES`;
+CREATE TABLE `Department` (
+`Dep_ID` DECIMAL(10,2),
+`Dep_Name` VARCHAR(64),
+`Dep_ContactNumber` VARCHAR(64),
+PRIMARY KEY (`Dep_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Shift` (
+`Shift_ID` DECIMAL(10,2),
+`Shift_Description` VARCHAR(64),
+`Shift_Start` DATETIME,
+`Shift_End` DATETIME,
+PRIMARY KEY (`Shift_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Mine` (
+`Mine_ID` DECIMAL(10,2),
+`Mine_Name` VARCHAR(64),
+`Location` VARCHAR(64),
+`Contact_Num` VARCHAR(64),
+`Coal_Quantity` DECIMAL(10,2),
+PRIMARY KEY (`Mine_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Qualification_Detail` (
+`Qual_ID` DECIMAL(10,2),
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`Qual_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Destination` (
+`Dest_ID` DECIMAL(10,2),
+`Dest_Name` VARCHAR(64),
+`Dest_Location` VARCHAR(64),
+PRIMARY KEY (`Dest_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employee` (
+`Emp_ID` DECIMAL(10,2),
+`Dep_ID` DECIMAL(10,2),
+`Shift_ID` DECIMAL(10,2),
+`Mine_ID` DECIMAL(10,2),
+`Salary` DECIMAL(10,2),
+`Emp_FirstName` VARCHAR(64),
+`Emp_LastName` VARCHAR(64),
+`Emp_ContactNumber` VARCHAR(64),
+`Emp_Address` VARCHAR(64),
+`Emp_Email` VARCHAR(64),
+`Job_Description` VARCHAR(64),
+PRIMARY KEY (`Emp_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Export` (
+`Export_ID` DECIMAL(10,2),
+`Quantity` DECIMAL(10,2),
+`Transporter` VARCHAR(64),
+`Transporter_Stat` VARCHAR(64),
+`Ship_Date` DATETIME,
+`Arrival_Date` DATETIME,
+`Sales_Price` DECIMAL(10,2),
+`Export_Cost` DECIMAL(10,2),
+`Dest_ID` DECIMAL(10,2),
+`Mine_ID` DECIMAL(10,2),
+PRIMARY KEY (`Export_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Manager` (
+`Manager_ID` DECIMAL(10,2),
+`Emp_ID` DECIMAL(10,2),
+PRIMARY KEY (`Manager_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Qualification` (
+`Qual_ID` DECIMAL(10,2),
+`Emp_ID` DECIMAL(10,2),
+`Qualification_Num` VARCHAR(64),
+PRIMARY KEY (`Qual_ID`, `Emp_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Salary_History` (
+`Emp_ID` DECIMAL(10,2),
+`Sal_Date` DATETIME,
+`Amount` DECIMAL(10,2),
+PRIMARY KEY (`Emp_ID`, `Sal_Date`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_264351_TABLES') AS relationships;
+relationships
+Database: db_264351_TABLES
+
+Table Connections:
+------------------
+[Implied]  Employee.Dep_ID -> Department.Dep_ID
+[Implied]  Employee.Mine_ID -> Mine.Mine_ID
+[Implied]  Employee.Shift_ID -> Shift.Shift_ID
+[Implied]  Export.Dest_ID -> Destination.Dest_ID
+[Implied]  Export.Mine_ID -> Mine.Mine_ID
+[Implied]  Manager.Emp_ID -> Employee.Emp_ID
+[Implied]  Qualification.Emp_ID -> Employee.Emp_ID
+[Implied]  Qualification.Qual_ID -> Qualification_Detail.Qual_ID
+[Implied]  Salary_History.Emp_ID -> Employee.Emp_ID
+
+DROP DATABASE `db_264351_TABLES`;
+UNINSTALL EXTENSION vsql_schematron;

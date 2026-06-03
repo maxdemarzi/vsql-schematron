@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 287434_migrations
+#
+CREATE DATABASE `db_287434_migrations`;
+USE `db_287434_migrations`;
+CREATE TABLE `env` (
+`envId` INT,
+`envName` VARCHAR(64),
+`envDesc` VARCHAR(64),
+`remoteType` INT,
+`remoteId` INT,
+`status` VARCHAR(64),
+`config` VARCHAR(64),
+`deployedBy` VARCHAR(64),
+`deployedOn` DATETIME,
+`deployedUntil` DATETIME,
+`deployedNotes` VARCHAR(64),
+`deployedBranch` VARCHAR(64),
+`deployedJobId` INT,
+`host` VARCHAR(64),
+`updatePath` VARCHAR(64),
+PRIMARY KEY (`envId`)
+) CHARACTER SET latin1;
+CREATE TABLE `machine` (
+`machineId` INT,
+`envId` INT,
+`machineName` VARCHAR(64),
+`machineDesc` VARCHAR(64),
+`remoteId` INT,
+`intIP` VARCHAR(64),
+`extIP` VARCHAR(64),
+`role` VARCHAR(64),
+`installNotes` VARCHAR(64),
+`registryNotes` VARCHAR(64),
+PRIMARY KEY (`machineId`)
+) CHARACTER SET latin1;
+CREATE TABLE `region` (
+`regionId` INT,
+`regionName` VARCHAR(64),
+`regionDesc` VARCHAR(64),
+PRIMARY KEY (`regionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `regionenv` (
+`regionId` INT,
+`envId` INT,
+PRIMARY KEY (`regionId`, `envId`)
+) CHARACTER SET latin1;
+CREATE TABLE `config` (
+`configId` INT,
+`configName` VARCHAR(64),
+`data` VARCHAR(64),
+`launchKey` VARCHAR(64),
+`roles` VARCHAR(64),
+`envId` INT,
+PRIMARY KEY (`configId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_287434_migrations') AS relationships;
+relationships
+Database: db_287434_migrations
+
+Table Connections:
+------------------
+[Implied]  config.envId -> env.envId
+[Implied]  machine.envId -> env.envId
+[Implied]  regionenv.envId -> env.envId
+[Implied]  regionenv.regionId -> region.regionId
+
+DROP DATABASE `db_287434_migrations`;
+UNINSTALL EXTENSION vsql_schematron;

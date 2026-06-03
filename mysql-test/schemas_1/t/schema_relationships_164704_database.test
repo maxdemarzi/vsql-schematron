@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 164704_database
+--echo #
+CREATE DATABASE `db_164704_database`;
+USE `db_164704_database`;
+
+CREATE TABLE `Department` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Course` (
+  `id` INT,
+  `capacity` INT,
+  `code` VARCHAR(64),
+  `prerequisite` VARCHAR(64),
+  `hour` INT,
+  `credit` INT,
+  `name` VARCHAR(64),
+  `department_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `People` (
+  `id` INT,
+  `uid` INT,
+  `name` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `department_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Role` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PeopleRole` (
+  `people_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`people_id`, `role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Class` (
+  `id` INT,
+  `semester` VARCHAR(64),
+  `name` VARCHAR(64),
+  `list` VARCHAR(64),
+  `course_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CoursePeople` (
+  `course_id` INT,
+  `people_id` INT,
+  PRIMARY KEY (`course_id`, `people_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ClassPeople` (
+  `class_id` INT,
+  `people_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`class_id`, `people_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_164704_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_164704_database') AS relationships;
+DROP DATABASE `db_164704_database`;
+UNINSTALL EXTENSION vsql_schematron;

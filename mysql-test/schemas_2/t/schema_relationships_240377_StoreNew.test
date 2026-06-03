@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 240377_StoreNew
+--echo #
+CREATE DATABASE `db_240377_StoreNew`;
+USE `db_240377_StoreNew`;
+
+CREATE TABLE `messages` (
+  `msg_id` INT,
+  `channel_id` INT,
+  `label` VARCHAR(64),
+  `msg_body` VARCHAR(64),
+  PRIMARY KEY (`msg_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `prereqs` (
+  `role_id1` INT,
+  `role_id2` INT,
+  PRIMARY KEY (`role_id1`, `role_id2`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contradicts` (
+  `role_id1` INT,
+  `role_id2` INT,
+  PRIMARY KEY (`role_id1`, `role_id2`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `removes` (
+  `role_id1` INT,
+  `role_id2` INT,
+  PRIMARY KEY (`role_id1`, `role_id2`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reamojis` (
+  `msg_id` INT,
+  `emoji` VARCHAR(64),
+  `role_id` INT,
+  PRIMARY KEY (`msg_id`, `role_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_240377_StoreNew') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_240377_StoreNew') AS relationships;
+DROP DATABASE `db_240377_StoreNew`;
+UNINSTALL EXTENSION vsql_schematron;

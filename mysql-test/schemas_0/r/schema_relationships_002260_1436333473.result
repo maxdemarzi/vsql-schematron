@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 002260_1436333473
+#
+CREATE DATABASE `db_002260_1436333473`;
+USE `db_002260_1436333473`;
+CREATE TABLE `field` (
+`id` INT,
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`value` VARCHAR(64),
+`label` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `option` (
+`id` INT,
+`option` VARCHAR(64),
+`field_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `collection` (
+`id` INT,
+`name` VARCHAR(64),
+`label` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `collection_field` (
+`collection_id` INT,
+`field_id` INT,
+`id` INT,
+PRIMARY KEY (`id`, `collection_id`, `field_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_002260_1436333473') AS relationships;
+relationships
+Database: db_002260_1436333473
+
+Table Connections:
+------------------
+[Implied]  collection_field.collection_id -> collection.id
+[Implied]  collection_field.field_id -> field.id
+[Implied]  option.field_id -> field.id
+
+DROP DATABASE `db_002260_1436333473`;
+UNINSTALL EXTENSION vsql_schematron;

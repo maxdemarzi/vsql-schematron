@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 399074_database1.2
+--echo #
+CREATE DATABASE `db_399074_database1_2`;
+USE `db_399074_database1_2`;
+
+CREATE TABLE `administradores` (
+  `id` INT,
+  `nombre` VARCHAR(64),
+  `apellido` VARCHAR(64),
+  `correo` VARCHAR(64),
+  `password` VARCHAR(64),
+  `status` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `distribuidores` (
+  `id` INT,
+  `nombre` VARCHAR(64),
+  `apellido` VARCHAR(64),
+  `celular` VARCHAR(64),
+  `edad` VARCHAR(64),
+  `correo` VARCHAR(64),
+  `password` VARCHAR(64),
+  `licencia` VARCHAR(64),
+  `status` INT,
+  `idadministrador` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `incidencias` (
+  `id` INT,
+  `titulo` VARCHAR(64),
+  `fecha` DATETIME,
+  `mensaje` VARCHAR(64),
+  `iddistribuidor` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `clientes` (
+  `id` INT,
+  `nombreempresa` VARCHAR(64),
+  `propietario` VARCHAR(64),
+  `ubicacion` VARCHAR(64),
+  `telefono` VARCHAR(64),
+  `celular` VARCHAR(64),
+  `status` INT,
+  `iddistribuidor` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `productos` (
+  `id` INT,
+  `descripcion` VARCHAR(64),
+  `precioBase` DECIMAL(10,2),
+  `precioVenta` DECIMAL(10,2),
+  `status` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ventas` (
+  `id` INT,
+  `pagada` INT,
+  `vendida` INT,
+  `cambios` INT,
+  `consigna` INT,
+  `consignaanterior` INT,
+  `status` INT,
+  `iddistribuidor` INT,
+  `idproducto` INT,
+  `idcliente` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_399074_database1_2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_399074_database1_2') AS relationships;
+DROP DATABASE `db_399074_database1_2`;
+UNINSTALL EXTENSION vsql_schematron;

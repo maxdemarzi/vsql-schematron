@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 351327_db_agmstore-31052019
+--echo #
+CREATE DATABASE `db_351327_db_agmstore_31052019`;
+USE `db_351327_db_agmstore_31052019`;
+
+CREATE TABLE `kabupaten` (
+  `id_kab` VARCHAR(64),
+  `id_prov` VARCHAR(64),
+  `nama` VARCHAR(64),
+  `id_jenis` INT,
+  PRIMARY KEY (`id_kab`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kecamatan` (
+  `id_kec` VARCHAR(64),
+  `id_kab` VARCHAR(64),
+  `nama` VARCHAR(64),
+  PRIMARY KEY (`id_kec`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `provinsi` (
+  `id_prov` VARCHAR(64),
+  `nama` VARCHAR(64),
+  PRIMARY KEY (`id_prov`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tm_category` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `status` INT,
+  `deleted` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tm_cover` (
+  `id` INT,
+  `slide` VARCHAR(64),
+  `created_at` DATETIME,
+  `update_at` DATETIME,
+  `cover` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tm_forgot_pass` (
+  `id` INT,
+  `id_userLogin` INT,
+  `uniqueCode` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tm_status_order` (
+  `id` INT,
+  `class` VARCHAR(64),
+  `status` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tr_stock` (
+  `id` INT,
+  `id_prod_size` INT,
+  `id_store` INT,
+  `invoice` VARCHAR(64),
+  `quantity` INT,
+  `update_stock` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_351327_db_agmstore_31052019') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_351327_db_agmstore_31052019') AS relationships;
+DROP DATABASE `db_351327_db_agmstore_31052019`;
+UNINSTALL EXTENSION vsql_schematron;

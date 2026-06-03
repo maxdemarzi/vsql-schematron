@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 347323_C14337041
+#
+CREATE DATABASE `db_347323_C14337041`;
+USE `db_347323_C14337041`;
+CREATE TABLE `GAMES` (
+`Game_ID` DECIMAL(10,2),
+`G_Name` VARCHAR(64),
+`G_Description` VARCHAR(64),
+`G_ReleaseDate` DATETIME,
+`G_Stock` DECIMAL(10,2),
+`G_CostPrice` DECIMAL(10,2),
+`G_SalesPrice` DECIMAL(10,2),
+`Supplier_ID` DECIMAL(10,2),
+`Age_ID` DECIMAL(10,2),
+`Platform_ID` DECIMAL(10,2),
+PRIMARY KEY (`Game_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SUPPLIER` (
+`Supplier_ID` DECIMAL(10,2),
+`S_Name` VARCHAR(64),
+`S_Email` VARCHAR(64),
+`S_Phone` DECIMAL(10,2),
+PRIMARY KEY (`Supplier_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SALES_REPRESENTATIVE` (
+`SalesRep_ID` DECIMAL(10,2),
+`Supplier_ID` DECIMAL(10,2),
+`SalesRepName` VARCHAR(64),
+PRIMARY KEY (`SalesRep_ID`, `Supplier_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PLATFORM` (
+`Platform_ID` DECIMAL(10,2),
+`OS_Type` VARCHAR(64),
+`Graphics_Card` VARCHAR(64),
+`Speed_Of_Process` VARCHAR(64),
+`DiscSpace` VARCHAR(64),
+`CD_RomSpeed` VARCHAR(64),
+PRIMARY KEY (`Platform_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ORDERS` (
+`Order_No` DECIMAL(10,2),
+`Supplier_ID` DECIMAL(10,2),
+`SupplierName` VARCHAR(64),
+`OrderDate` DATETIME,
+`DeliveryDate` DATETIME,
+PRIMARY KEY (`Order_No`)
+) CHARACTER SET latin1;
+CREATE TABLE `ITEMS_PER_ORDER` (
+`Order_No` DECIMAL(10,2),
+`Game_ID` DECIMAL(10,2),
+`Quantity` DECIMAL(10,2),
+PRIMARY KEY (`Order_No`, `Game_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `AGE_GROUP` (
+`Age_ID` DECIMAL(10,2),
+`AgeClass` VARCHAR(64),
+`SkillSet` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`Age_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `REVIEWS` (
+`Game_ID` DECIMAL(10,2),
+`Reviewer_ID` DECIMAL(10,2),
+`Review` VARCHAR(64),
+`ReviewDate` DATETIME,
+`R_User` VARCHAR(64),
+PRIMARY KEY (`Game_ID`, `Reviewer_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `REVIEWER` (
+`Reviewer_ID` DECIMAL(10,2),
+`R_Pass` VARCHAR(64),
+`R_Email` VARCHAR(64),
+PRIMARY KEY (`Reviewer_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_347323_C14337041') AS relationships;
+relationships
+Database: db_347323_C14337041
+
+Table Connections:
+------------------
+[Implied]  GAMES.Age_ID -> AGE_GROUP.Age_ID
+[Implied]  GAMES.Platform_ID -> PLATFORM.Platform_ID
+[Implied]  GAMES.Supplier_ID -> SUPPLIER.Supplier_ID
+[Implied]  ITEMS_PER_ORDER.Game_ID -> GAMES.Game_ID
+[Implied]  ITEMS_PER_ORDER.Order_No -> ORDERS.Order_No
+[Implied]  ORDERS.Supplier_ID -> SUPPLIER.Supplier_ID
+[Implied]  REVIEWS.Game_ID -> GAMES.Game_ID
+[Implied]  REVIEWS.Reviewer_ID -> REVIEWER.Reviewer_ID
+[Implied]  SALES_REPRESENTATIVE.Supplier_ID -> SUPPLIER.Supplier_ID
+
+DROP DATABASE `db_347323_C14337041`;
+UNINSTALL EXTENSION vsql_schematron;

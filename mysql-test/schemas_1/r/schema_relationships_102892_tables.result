@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 102892_tables
+#
+CREATE DATABASE `db_102892_tables`;
+USE `db_102892_tables`;
+CREATE TABLE `blog_posts` (
+`post_id` INT,
+`content` VARCHAR(64),
+`title` VARCHAR(64),
+`slug` VARCHAR(64),
+`created_dt` DATETIME,
+PRIMARY KEY (`post_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `blog_tags` (
+`tag_id` INT,
+`descr` VARCHAR(64),
+PRIMARY KEY (`tag_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `blog_post_tags` (
+`post_id` INT,
+`tag_id` INT,
+PRIMARY KEY (`post_id`, `tag_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `blog_comments` (
+`comment_id` INT,
+`post_id` INT,
+`user_name` VARCHAR(64),
+`user_email` VARCHAR(64),
+`comment` VARCHAR(64),
+PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_102892_tables') AS relationships;
+relationships
+Database: db_102892_tables
+
+Table Connections:
+------------------
+[Implied]  blog_comments.post_id -> blog_posts.post_id
+[Implied]  blog_post_tags.post_id -> blog_posts.post_id
+[Implied]  blog_post_tags.tag_id -> blog_tags.tag_id
+
+DROP DATABASE `db_102892_tables`;
+UNINSTALL EXTENSION vsql_schematron;

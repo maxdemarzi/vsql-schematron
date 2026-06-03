@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 219094_create_database
+#
+CREATE DATABASE `db_219094_create_database`;
+USE `db_219094_create_database`;
+CREATE TABLE `movie` (
+`ID` INT,
+`title` VARCHAR(64),
+`year` VARCHAR(64),
+`rating` DECIMAL(10,2),
+`description` VARCHAR(64),
+`vote_count` INT,
+`running_time_minutes` INT,
+`gross_millions` DECIMAL(10,2),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `person` (
+`ID` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `movie_people` (
+`movieID` INT,
+`personID` INT,
+`profession` VARCHAR(64),
+PRIMARY KEY (`movieID`, `personID`, `profession`)
+) CHARACTER SET latin1;
+CREATE TABLE `genre` (
+`ID` INT,
+`genre_name` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `movie_genre` (
+`movieID` INT,
+`genreID` INT,
+PRIMARY KEY (`movieID`, `genreID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_219094_create_database') AS relationships;
+relationships
+Database: db_219094_create_database
+
+Table Connections:
+------------------
+[Implied]  movie_genre.genreID -> genre.ID
+[Implied]  movie_genre.movieID -> movie.ID
+[Implied]  movie_people.movieID -> movie.ID
+[Implied]  movie_people.personID -> person.ID
+
+DROP DATABASE `db_219094_create_database`;
+UNINSTALL EXTENSION vsql_schematron;

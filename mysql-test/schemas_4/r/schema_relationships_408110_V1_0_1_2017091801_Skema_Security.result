@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 408110_V1.0.1.2017091801__Skema_Security
+#
+CREATE DATABASE `db_408110_V1_0_1_2017091801_Skema_Security`;
+USE `db_408110_V1_0_1_2017091801_Skema_Security`;
+CREATE TABLE `s_permission` (
+`id` VARCHAR(64),
+`permission_label` VARCHAR(64),
+`permission_value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `s_role` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `s_role_permission` (
+`id_role` VARCHAR(64),
+`id_permission` VARCHAR(64),
+PRIMARY KEY (`id_role`, `id_permission`)
+) CHARACTER SET latin1;
+CREATE TABLE `s_user` (
+`id` VARCHAR(64),
+`username` VARCHAR(64),
+`active` VARCHAR(64),
+`id_role` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `s_user_password` (
+`id` VARCHAR(64),
+`id_user` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_408110_V1_0_1_2017091801_Skema_Security') AS relationships;
+relationships
+Database: db_408110_V1_0_1_2017091801_Skema_Security
+
+Table Connections:
+------------------
+[Implied]  s_role_permission.id_permission -> s_permission.id
+[Implied]  s_role_permission.id_role -> s_role.id
+[Implied]  s_user.id_role -> s_role.id
+[Implied]  s_user_password.id_user -> s_user.id
+
+DROP DATABASE `db_408110_V1_0_1_2017091801_Skema_Security`;
+UNINSTALL EXTENSION vsql_schematron;

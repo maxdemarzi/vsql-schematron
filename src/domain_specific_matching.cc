@@ -60,7 +60,10 @@ bool matchDomainSpecificKeys(
 
     bool relationship_found = false;
     std::string col_lower = to_lower(col_a);
-    if (col_lower == "asin" || col_lower == "upc" || col_lower == "ean" || col_lower == "isbn" || col_lower == "isbn-13") {
+    static const std::unordered_set<std::string> DOMAIN_KEYS = {
+        "asin", "upc", "ean", "isbn", "isbn-13"
+    };
+    if (DOMAIN_KEYS.count(col_lower) > 0) {
         for (const auto& tbl_b : table_names) {
             if (tbl_a == tbl_b) continue;
             if (to_lower(tbl_b) == "product_catalog" || to_lower(tbl_b) == "product" || to_lower(tbl_b) == "products") {
@@ -133,6 +136,31 @@ bool matchDomainSpecificKeys(
                     const auto& info_b = it_b->second;
                     for (const auto& col_b_pair : info_b.column_types) {
                         if (to_lower(col_b_pair.first) == "deal_id") {
+                            if (typeMatches(type_a, col_b_pair.second)) {
+                                Relationship rel;
+                                rel.from_table = tbl_a;
+                                rel.from_column = col_a;
+                                rel.to_table = tbl_b;
+                                rel.to_column = col_b_pair.first;
+                                rel.is_explicit = false;
+                                relationships.insert(rel);
+                                relationship_found = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else if (col_lower == "pay_offset_fixing_id" || col_lower == "receive_offset_fixing_id" || col_lower == "offset_fixing_id") {
+        for (const auto& tbl_b : table_names) {
+            if (tbl_a == tbl_b) continue;
+            std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+            if (clean_tbl == "frequency" || clean_tbl == "frequencies") {
+                auto it_b = tables_info.find(tbl_b);
+                if (it_b != tables_info.end()) {
+                    const auto& info_b = it_b->second;
+                    for (const auto& col_b_pair : info_b.column_types) {
+                        if (to_lower(col_b_pair.first) == "id") {
                             if (typeMatches(type_a, col_b_pair.second)) {
                                 Relationship rel;
                                 rel.from_table = tbl_a;

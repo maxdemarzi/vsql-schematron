@@ -1,0 +1,100 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 509124_Dump
+#
+CREATE DATABASE `db_509124_Dump`;
+USE `db_509124_Dump`;
+CREATE TABLE `AGENCY` (
+`EmailID` VARCHAR(64),
+`AgencyID` VARCHAR(64),
+PRIMARY KEY (`AgencyID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BELONGS_TO` (
+`ProductID` VARCHAR(64),
+`CategoryID` VARCHAR(64),
+PRIMARY KEY (`ProductID`, `CategoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CART` (
+`CustomerID` VARCHAR(64),
+`ProductID` VARCHAR(64),
+`Product_type` VARCHAR(64),
+PRIMARY KEY (`CustomerID`, `ProductID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CATEGORY` (
+`CategoryID` VARCHAR(64),
+PRIMARY KEY (`CategoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CUSTOMER_DETAILS` (
+`CustomerID` VARCHAR(64),
+`EmailID` VARCHAR(64),
+`Date_of_joining` DATETIME,
+PRIMARY KEY (`CustomerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `DELIVERY` (
+`TrackID` VARCHAR(64),
+`Delivery_time` DATETIME,
+`AgencyID` VARCHAR(64),
+PRIMARY KEY (`TrackID`)
+) CHARACTER SET latin1;
+CREATE TABLE `FALLS_UNDER` (
+`SuperCategoryID` VARCHAR(64),
+`SubCategoryID` VARCHAR(64),
+PRIMARY KEY (`SuperCategoryID`, `SubCategoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ORDERS` (
+`TrackID` VARCHAR(64),
+`Bill_number` INT,
+`CustomerID` VARCHAR(64),
+PRIMARY KEY (`TrackID`, `Bill_number`, `CustomerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PAYMENT_MODE` (
+`Company` VARCHAR(64),
+`Mode` VARCHAR(64),
+PRIMARY KEY (`Company`, `Mode`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRODUCTS` (
+`ProductID` VARCHAR(64),
+`Price` DECIMAL(10,2),
+`Product_name` VARCHAR(64),
+`Brand` VARCHAR(64),
+PRIMARY KEY (`ProductID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SELLS` (
+`ProductID` VARCHAR(64),
+`SupplierID` VARCHAR(64),
+PRIMARY KEY (`ProductID`, `SupplierID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SUPPLIER` (
+`SupplierID` VARCHAR(64),
+`EmailID` VARCHAR(64),
+PRIMARY KEY (`SupplierID`)
+) CHARACTER SET latin1;
+CREATE TABLE `WARRANTY` (
+`Bill_num` INT,
+`ProductId` VARCHAR(64),
+`Purchase_num` INT,
+`Applicable` INT,
+`Warranty_period` INT,
+PRIMARY KEY (`Bill_num`, `ProductId`, `Purchase_num`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_509124_Dump') AS relationships;
+relationships
+Database: db_509124_Dump
+
+Table Connections:
+------------------
+[Implied]  BELONGS_TO.CategoryID -> CATEGORY.CategoryID
+[Implied]  BELONGS_TO.ProductID -> PRODUCTS.ProductID
+[Implied]  CART.CustomerID -> CUSTOMER_DETAILS.CustomerID
+[Implied]  CART.ProductID -> PRODUCTS.ProductID
+[Implied]  DELIVERY.AgencyID -> AGENCY.AgencyID
+[Implied]  FALLS_UNDER.SubCategoryID -> CATEGORY.CategoryID
+[Implied]  FALLS_UNDER.SuperCategoryID -> CATEGORY.CategoryID
+[Implied]  ORDERS.CustomerID -> CUSTOMER_DETAILS.CustomerID
+[Implied]  ORDERS.TrackID -> DELIVERY.TrackID
+[Implied]  SELLS.ProductID -> PRODUCTS.ProductID
+[Implied]  SELLS.SupplierID -> SUPPLIER.SupplierID
+[Implied]  WARRANTY.ProductId -> PRODUCTS.ProductID
+
+DROP DATABASE `db_509124_Dump`;
+UNINSTALL EXTENSION vsql_schematron;

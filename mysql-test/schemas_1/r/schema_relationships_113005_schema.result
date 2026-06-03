@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 113005_schema
+#
+CREATE DATABASE `db_113005_schema`;
+USE `db_113005_schema`;
+CREATE TABLE `Role` (
+`id` INT,
+`code` VARCHAR(64),
+`label` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Account` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`enabled` VARCHAR(64),
+`credentialsexpired` VARCHAR(64),
+`expired` VARCHAR(64),
+`locked` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profile` (
+`id` INT,
+`account_id` INT,
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`email` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`picture_link` VARCHAR(64),
+`date_of_registration` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_role` (
+`account_id` INT,
+`role_id` INT,
+PRIMARY KEY (`account_id`, `role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Category` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Service` (
+`id` INT,
+`name` VARCHAR(64),
+`category_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rating` (
+`id` INT,
+`comment` VARCHAR(64),
+`customer_name` VARCHAR(64),
+`time_of_rating` DATETIME,
+`rating` INT,
+`deal_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_113005_schema') AS relationships;
+relationships
+Database: db_113005_schema
+
+Table Connections:
+------------------
+[Implied]  Profile.account_id -> Account.id
+[Implied]  Service.category_id -> Category.id
+[Implied]  account_role.account_id -> Account.id
+[Implied]  account_role.role_id -> Role.id
+
+DROP DATABASE `db_113005_schema`;
+UNINSTALL EXTENSION vsql_schematron;

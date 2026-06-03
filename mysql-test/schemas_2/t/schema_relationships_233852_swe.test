@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 233852_swe
+--echo #
+CREATE DATABASE `db_233852_swe`;
+USE `db_233852_swe`;
+
+CREATE TABLE `EMPLOYEE` (
+  `employee_id` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `mid_initial` VARCHAR(64),
+  `job_title` VARCHAR(64),
+  `mobile_number` INT,
+  `email` VARCHAR(64),
+  `is_manager` VARCHAR(64),
+  `is_admin` VARCHAR(64),
+  PRIMARY KEY (`employee_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ADDRESS` (
+  `employee_id` VARCHAR(64),
+  `zip` INT,
+  `street` VARCHAR(64),
+  `city` VARCHAR(64),
+  `a_state` VARCHAR(64),
+  PRIMARY KEY (`employee_id`, `zip`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SHIFT_RECORD` (
+  `shift_id` VARCHAR(64),
+  `job_title_required` VARCHAR(64),
+  `employee_id` VARCHAR(64),
+  `shift_date` DATETIME,
+  `start_time` DATETIME,
+  `end_time` DATETIME,
+  PRIMARY KEY (`shift_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_233852_swe') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_233852_swe') AS relationships;
+DROP DATABASE `db_233852_swe`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 601671_1429523571
+#
+CREATE DATABASE `db_601671_1429523571`;
+USE `db_601671_1429523571`;
+CREATE TABLE `tasks` (
+`id` VARCHAR(64),
+`data` VARCHAR(64),
+`queue` VARCHAR(64),
+`retry_queue` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `executions` (
+`task_id` VARCHAR(64),
+`execution_id` INT,
+`queued_at` INT,
+`started_at` INT,
+`finished_at` INT,
+`failed_count` INT,
+`reaped_count` INT,
+`success` VARCHAR(64),
+`error` VARCHAR(64),
+PRIMARY KEY (`task_id`, `execution_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `task_tags` (
+`id` VARCHAR(64),
+`task_id` VARCHAR(64),
+PRIMARY KEY (`id`, `task_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_601671_1429523571') AS relationships;
+relationships
+Database: db_601671_1429523571
+
+Table Connections:
+------------------
+[Implied]  executions.task_id -> tasks.id
+[Implied]  task_tags.task_id -> tasks.id
+
+DROP DATABASE `db_601671_1429523571`;
+UNINSTALL EXTENSION vsql_schematron;

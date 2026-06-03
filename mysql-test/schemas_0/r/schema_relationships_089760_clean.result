@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 089760_clean
+#
+CREATE DATABASE `db_089760_clean`;
+USE `db_089760_clean`;
+CREATE TABLE `zv_accounts` (
+`id` INT,
+`organization_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `zv_credentials` (
+`id` INT,
+`account_id` INT,
+`section_id` INT,
+`name` VARCHAR(64),
+`username` VARCHAR(64),
+`value` VARCHAR(64),
+`description` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `zv_organizations` (
+`id` INT,
+`name` VARCHAR(64),
+`display_name` VARCHAR(64),
+`description` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `zv_sections` (
+`id` INT,
+`account_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `zv_tags` (
+`id` INT,
+`name` VARCHAR(64),
+`encrypted` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `zv_tag_accounts` (
+`tag_id` INT,
+`account_id` INT,
+PRIMARY KEY (`tag_id`, `account_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `zv_tag_credentials` (
+`tag_id` INT,
+`credential_id` INT,
+PRIMARY KEY (`tag_id`, `credential_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `zv_tag_sections` (
+`tag_id` INT,
+`section_id` INT,
+PRIMARY KEY (`tag_id`, `section_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_089760_clean') AS relationships;
+relationships
+Database: db_089760_clean
+
+Table Connections:
+------------------
+[Implied]  zv_accounts.organization_id -> zv_organizations.id
+[Implied]  zv_credentials.account_id -> zv_accounts.id
+[Implied]  zv_credentials.section_id -> zv_sections.id
+[Implied]  zv_sections.account_id -> zv_accounts.id
+[Implied]  zv_tag_accounts.account_id -> zv_accounts.id
+[Implied]  zv_tag_accounts.tag_id -> zv_tags.id
+[Implied]  zv_tag_credentials.credential_id -> zv_credentials.id
+[Implied]  zv_tag_credentials.tag_id -> zv_tags.id
+[Implied]  zv_tag_sections.section_id -> zv_sections.id
+[Implied]  zv_tag_sections.tag_id -> zv_tags.id
+
+DROP DATABASE `db_089760_clean`;
+UNINSTALL EXTENSION vsql_schematron;

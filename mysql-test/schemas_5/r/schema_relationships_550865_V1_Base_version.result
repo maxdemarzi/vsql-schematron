@@ -1,0 +1,85 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 550865_V1__Base_version
+#
+CREATE DATABASE `db_550865_V1_Base_version`;
+USE `db_550865_V1_Base_version`;
+CREATE TABLE `Users` (
+`UserId` INT,
+`LoginId` VARCHAR(64),
+`LastAccessed` DATETIME,
+PRIMARY KEY (`UserId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Departments` (
+`DepartmentId` INT,
+`DepartmentName` VARCHAR(64),
+`DepartmentCode` VARCHAR(64),
+`DepartmentNumber` VARCHAR(64),
+PRIMARY KEY (`DepartmentId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users_has_Departments` (
+`Users_UserId` INT,
+`Departments_DepartmentId` INT,
+PRIMARY KEY (`Users_UserId`, `Departments_DepartmentId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Programs` (
+`ProgramId` INT,
+`Name` VARCHAR(64),
+`Departments_DepartmentId` INT,
+PRIMARY KEY (`ProgramId`)
+) CHARACTER SET latin1;
+CREATE TABLE `CourseOfferings` (
+`CourseOfferingId` INT,
+`Title` VARCHAR(64),
+`SubjectCode` VARCHAR(64),
+`CourseNumber` VARCHAR(64),
+`UnitsLow` DECIMAL(10,2),
+`UnitsHigh` DECIMAL(10,2),
+`ScheduleId` INT,
+`TermCode` INT,
+PRIMARY KEY (`CourseOfferingId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sections` (
+`SectionId` INT,
+`Seats` INT,
+`Crn` VARCHAR(64),
+`SequenceNumber` VARCHAR(64),
+`CourseOfferings_CourseOfferingId` INT,
+PRIMARY KEY (`SectionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Instructors` (
+`InstructorId` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`Email` VARCHAR(64),
+`LoginId` VARCHAR(64),
+`EmployeeId` VARCHAR(64),
+PRIMARY KEY (`InstructorId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Instructors_has_Sections` (
+`Instructors_InstructorId` INT,
+`Sections_SectionId` INT,
+PRIMARY KEY (`Instructors_InstructorId`, `Sections_SectionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `CourseOfferings_has_Programs` (
+`CourseOfferings_CourseOfferingId` INT,
+`Programs_ProgramId` INT,
+PRIMARY KEY (`CourseOfferings_CourseOfferingId`, `Programs_ProgramId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_550865_V1_Base_version') AS relationships;
+relationships
+Database: db_550865_V1_Base_version
+
+Table Connections:
+------------------
+[Implied]  CourseOfferings_has_Programs.CourseOfferings_CourseOfferingId -> CourseOfferings.CourseOfferingId
+[Implied]  CourseOfferings_has_Programs.Programs_ProgramId -> Programs.ProgramId
+[Implied]  Instructors_has_Sections.Instructors_InstructorId -> Instructors.InstructorId
+[Implied]  Instructors_has_Sections.Sections_SectionId -> Sections.SectionId
+[Implied]  Programs.Departments_DepartmentId -> Departments.DepartmentId
+[Implied]  Sections.CourseOfferings_CourseOfferingId -> CourseOfferings.CourseOfferingId
+[Implied]  Users_has_Departments.Departments_DepartmentId -> Departments.DepartmentId
+[Implied]  Users_has_Departments.Users_UserId -> Users.UserId
+
+DROP DATABASE `db_550865_V1_Base_version`;
+UNINSTALL EXTENSION vsql_schematron;

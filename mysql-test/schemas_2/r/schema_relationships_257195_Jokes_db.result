@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 257195_Jokes_db
+#
+CREATE DATABASE `db_257195_Jokes_db`;
+USE `db_257195_Jokes_db`;
+CREATE TABLE `Users` (
+`userId` INT,
+`username` VARCHAR(64),
+`upass` VARCHAR(64),
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Jokes` (
+`jokeId` VARCHAR(64),
+`joke` VARCHAR(64),
+`total_rate_value` INT,
+`num_of_ratings` INT,
+`AvgRating` DECIMAL(10,2),
+PRIMARY KEY (`jokeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comments` (
+`commentId` INT,
+`userId` INT,
+`jokeId` VARCHAR(64),
+`comment` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`commentId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rating` (
+`rateId` INT,
+`jokeId` VARCHAR(64),
+`userId` INT,
+`rate` INT,
+PRIMARY KEY (`rateId`, `jokeId`, `userId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_257195_Jokes_db') AS relationships;
+relationships
+Database: db_257195_Jokes_db
+
+Table Connections:
+------------------
+[Implied]  Comments.jokeId -> Jokes.jokeId
+[Implied]  Comments.userId -> Users.userId
+[Implied]  Rating.jokeId -> Jokes.jokeId
+[Implied]  Rating.userId -> Users.userId
+
+DROP DATABASE `db_257195_Jokes_db`;
+UNINSTALL EXTENSION vsql_schematron;

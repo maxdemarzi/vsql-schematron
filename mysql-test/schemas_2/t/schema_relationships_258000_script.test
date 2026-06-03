@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 258000_script
+--echo #
+CREATE DATABASE `db_258000_script`;
+USE `db_258000_script`;
+
+CREATE TABLE `thuonghieu` (
+  `idthuonghieu` VARCHAR(64),
+  `tenthuonghieu` VARCHAR(64),
+  `logo` VARCHAR(64),
+  PRIMARY KEY (`idthuonghieu`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `khachhang` (
+  `taikhoan` VARCHAR(64),
+  `matkhau` VARCHAR(64),
+  `hokh` VARCHAR(64),
+  `tenkh` VARCHAR(64),
+  `gioitinh` VARCHAR(64),
+  `sdt` VARCHAR(64),
+  `diachi` VARCHAR(64),
+  `anhdaidien` VARCHAR(64),
+  PRIMARY KEY (`taikhoan`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hanghoa` (
+  `idthuonghieu` VARCHAR(64),
+  `idhanghoa` VARCHAR(64),
+  `tenhanghoa` VARCHAR(64),
+  `phai` VARCHAR(64),
+  `gia` DECIMAL(10,2),
+  `soluong` INT,
+  `image` VARCHAR(64),
+  PRIMARY KEY (`idhanghoa`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `thongtinsanpham` (
+  `idhanghoa` VARCHAR(64),
+  `kieumay` VARCHAR(64),
+  `nguongoc` VARCHAR(64),
+  `chatlieuvo` VARCHAR(64),
+  `kichco` VARCHAR(64),
+  `chatlieuday` VARCHAR(64),
+  `chatlieukinh` VARCHAR(64),
+  `baohiem` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `donhang` (
+  `id` INT,
+  `taikhoan` VARCHAR(64),
+  `tonggiatri` DECIMAL(10,2),
+  `trangthai` VARCHAR(64),
+  `chuthich` VARCHAR(64),
+  `id_diachi` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chitietdonhang` (
+  `iddonhang` INT,
+  `idhanghoa` VARCHAR(64),
+  `soluong` INT,
+  `thanhtien` DECIMAL(10,2),
+  PRIMARY KEY (`iddonhang`, `idhanghoa`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `giohang` (
+  `id` INT,
+  `idkhachhang` VARCHAR(64),
+  `tonggiatri` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chitietgiohang` (
+  `idgiohang` INT,
+  `idhanghoa` VARCHAR(64),
+  `soluong` INT,
+  `thanhtien` DECIMAL(10,2),
+  PRIMARY KEY (`idgiohang`, `idhanghoa`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `diachi` (
+  `id_diachi` INT,
+  `tendiachi` VARCHAR(64),
+  PRIMARY KEY (`id_diachi`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_258000_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_258000_script') AS relationships;
+DROP DATABASE `db_258000_script`;
+UNINSTALL EXTENSION vsql_schematron;

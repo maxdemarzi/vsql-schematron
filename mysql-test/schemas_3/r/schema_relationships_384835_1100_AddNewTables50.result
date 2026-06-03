@@ -1,0 +1,261 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 384835_1100-AddNewTables50
+#
+CREATE DATABASE `db_384835_1100_AddNewTables50`;
+USE `db_384835_1100_AddNewTables50`;
+CREATE TABLE `edfi.EducationOrganizationIndicator` (
+`EducationOrganizationId` INT,
+`IndicatorDescriptorId` INT,
+`DesignatedBy` VARCHAR(64),
+`IndicatorValue` VARCHAR(64),
+`IndicatorLevelDescriptorId` INT,
+`IndicatorGroupDescriptorId` INT,
+`CreateDate` DATETIME,
+PRIMARY KEY (`EducationOrganizationId`, `IndicatorDescriptorId`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.EducationOrganizationIndicatorPeriod` (
+`BeginDate` DATETIME,
+`EducationOrganizationId` INT,
+`IndicatorDescriptorId` INT,
+`EndDate` DATETIME,
+`CreateDate` DATETIME,
+PRIMARY KEY (`BeginDate`, `EducationOrganizationId`, `IndicatorDescriptorId`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.Person` (
+`PersonId` VARCHAR(64),
+`SourceSystemDescriptorId` INT,
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`PersonId`, `SourceSystemDescriptorId`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.Survey` (
+`Namespace` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`EducationOrganizationId` INT,
+`SurveyTitle` VARCHAR(64),
+`SessionName` VARCHAR(64),
+`SchoolYear` INT,
+`SchoolId` INT,
+`SurveyCategoryDescriptorId` INT,
+`NumberAdministered` INT,
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`Namespace`, `SurveyIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveySection` (
+`Namespace` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`SurveySectionTitle` VARCHAR(64),
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`Namespace`, `SurveyIdentifier`, `SurveySectionTitle`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveyCourseAssociation` (
+`CourseCode` VARCHAR(64),
+`EducationOrganizationId` INT,
+`Namespace` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`CourseCode`, `EducationOrganizationId`, `Namespace`, `SurveyIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveyProgramAssociation` (
+`EducationOrganizationId` INT,
+`Namespace` VARCHAR(64),
+`ProgramName` VARCHAR(64),
+`ProgramTypeDescriptorId` INT,
+`SurveyIdentifier` VARCHAR(64),
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`EducationOrganizationId`, `Namespace`, `ProgramName`, `ProgramTypeDescriptorId`, `SurveyIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveyQuestion` (
+`Namespace` VARCHAR(64),
+`QuestionCode` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`QuestionFormDescriptorId` INT,
+`QuestionText` VARCHAR(64),
+`SurveySectionTitle` VARCHAR(64),
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`Namespace`, `QuestionCode`, `SurveyIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveyQuestionMatrix` (
+`MatrixElement` VARCHAR(64),
+`Namespace` VARCHAR(64),
+`QuestionCode` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`MinRawScore` INT,
+`MaxRawScore` INT,
+`CreateDate` DATETIME,
+PRIMARY KEY (`MatrixElement`, `Namespace`, `QuestionCode`, `SurveyIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveyResponse` (
+`Namespace` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`SurveyResponseIdentifier` VARCHAR(64),
+`ResponseDate` DATETIME,
+`ResponseTime` INT,
+`ElectronicMailAddress` VARCHAR(64),
+`FullName` VARCHAR(64),
+`Location` VARCHAR(64),
+`StudentUSI` INT,
+`ParentUSI` INT,
+`StaffUSI` INT,
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`Namespace`, `SurveyIdentifier`, `SurveyResponseIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveyQuestionResponse` (
+`Namespace` VARCHAR(64),
+`QuestionCode` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`SurveyResponseIdentifier` VARCHAR(64),
+`NoResponse` VARCHAR(64),
+`Comment` VARCHAR(64),
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`Namespace`, `QuestionCode`, `SurveyIdentifier`, `SurveyResponseIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveyQuestionResponseChoice` (
+`Namespace` VARCHAR(64),
+`QuestionCode` VARCHAR(64),
+`SortOrder` INT,
+`SurveyIdentifier` VARCHAR(64),
+`NumericValue` INT,
+`TextValue` VARCHAR(64),
+`CreateDate` DATETIME,
+PRIMARY KEY (`Namespace`, `QuestionCode`, `SortOrder`, `SurveyIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveyQuestionResponseSurveyQuestionMatrixElementResponse` (
+`MatrixElement` VARCHAR(64),
+`Namespace` VARCHAR(64),
+`QuestionCode` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`SurveyResponseIdentifier` VARCHAR(64),
+`NumericResponse` INT,
+`TextResponse` VARCHAR(64),
+`NoResponse` VARCHAR(64),
+`MinNumericResponse` INT,
+`MaxNumericResponse` INT,
+`CreateDate` DATETIME,
+PRIMARY KEY (`MatrixElement`, `Namespace`, `QuestionCode`, `SurveyIdentifier`, `SurveyResponseIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveyQuestionResponseValue` (
+`Namespace` VARCHAR(64),
+`QuestionCode` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`SurveyQuestionResponseValueIdentifier` INT,
+`SurveyResponseIdentifier` VARCHAR(64),
+`NumericResponse` INT,
+`TextResponse` VARCHAR(64),
+`CreateDate` DATETIME,
+PRIMARY KEY (`Namespace`, `QuestionCode`, `SurveyIdentifier`, `SurveyQuestionResponseValueIdentifier`, `SurveyResponseIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveyResponseEducationOrganizationTargetAssociation` (
+`EducationOrganizationId` INT,
+`Namespace` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`SurveyResponseIdentifier` VARCHAR(64),
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`EducationOrganizationId`, `Namespace`, `SurveyIdentifier`, `SurveyResponseIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveyResponseStaffTargetAssociation` (
+`Namespace` VARCHAR(64),
+`StaffUSI` INT,
+`SurveyIdentifier` VARCHAR(64),
+`SurveyResponseIdentifier` VARCHAR(64),
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`Namespace`, `StaffUSI`, `SurveyIdentifier`, `SurveyResponseIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveyResponseSurveyLevel` (
+`Namespace` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`SurveyLevelDescriptorId` INT,
+`SurveyResponseIdentifier` VARCHAR(64),
+`CreateDate` DATETIME,
+PRIMARY KEY (`Namespace`, `SurveyIdentifier`, `SurveyLevelDescriptorId`, `SurveyResponseIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveySectionAssociation` (
+`LocalCourseCode` VARCHAR(64),
+`Namespace` VARCHAR(64),
+`SchoolId` INT,
+`SchoolYear` INT,
+`SectionIdentifier` VARCHAR(64),
+`SessionName` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`LocalCourseCode`, `Namespace`, `SchoolId`, `SchoolYear`, `SectionIdentifier`, `SessionName`, `SurveyIdentifier`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveySectionResponse` (
+`Namespace` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`SurveyResponseIdentifier` VARCHAR(64),
+`SurveySectionTitle` VARCHAR(64),
+`SectionRating` DECIMAL(10,2),
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`Namespace`, `SurveyIdentifier`, `SurveyResponseIdentifier`, `SurveySectionTitle`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveySectionResponseEducationOrganizationTargetAssociation` (
+`EducationOrganizationId` INT,
+`Namespace` VARCHAR(64),
+`SurveyIdentifier` VARCHAR(64),
+`SurveyResponseIdentifier` VARCHAR(64),
+`SurveySectionTitle` VARCHAR(64),
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`EducationOrganizationId`, `Namespace`, `SurveyIdentifier`, `SurveyResponseIdentifier`, `SurveySectionTitle`)
+) CHARACTER SET latin1;
+CREATE TABLE `edfi.SurveySectionResponseStaffTargetAssociation` (
+`Namespace` VARCHAR(64),
+`StaffUSI` INT,
+`SurveyIdentifier` VARCHAR(64),
+`SurveyResponseIdentifier` VARCHAR(64),
+`SurveySectionTitle` VARCHAR(64),
+`Discriminator` VARCHAR(64),
+`CreateDate` DATETIME,
+`LastModifiedDate` DATETIME,
+`Id` VARCHAR(64),
+PRIMARY KEY (`Namespace`, `StaffUSI`, `SurveyIdentifier`, `SurveyResponseIdentifier`, `SurveySectionTitle`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_384835_1100_AddNewTables50') AS relationships;
+relationships
+Database: db_384835_1100_AddNewTables50
+
+Table Connections:
+------------------
+(No relationships found)
+
+DROP DATABASE `db_384835_1100_AddNewTables50`;
+UNINSTALL EXTENSION vsql_schematron;

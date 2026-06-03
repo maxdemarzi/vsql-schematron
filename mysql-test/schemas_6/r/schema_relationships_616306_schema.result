@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 616306_schema
+#
+CREATE DATABASE `db_616306_schema`;
+USE `db_616306_schema`;
+CREATE TABLE `USER` (
+`ID` INT,
+`FIRST_NAME` VARCHAR(64),
+`LAST_NAME` VARCHAR(64),
+`EMAIL` VARCHAR(64),
+`PASSWORD` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRIVILEGE` (
+`ID` INT,
+`NAME` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ROLE` (
+`ID` INT,
+`NAME` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ROLE_PRIVILEGE` (
+`ROLE_ID` INT,
+`PRIVILEGE_ID` INT,
+PRIMARY KEY (`ROLE_ID`, `PRIVILEGE_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER_ROLE` (
+`USER_ID` INT,
+`ROLE_ID` INT,
+PRIMARY KEY (`USER_ID`, `ROLE_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_616306_schema') AS relationships;
+relationships
+Database: db_616306_schema
+
+Table Connections:
+------------------
+[Implied]  ROLE_PRIVILEGE.PRIVILEGE_ID -> PRIVILEGE.ID
+[Implied]  ROLE_PRIVILEGE.ROLE_ID -> ROLE.ID
+[Implied]  USER_ROLE.ROLE_ID -> ROLE.ID
+[Implied]  USER_ROLE.USER_ID -> USER.ID
+
+DROP DATABASE `db_616306_schema`;
+UNINSTALL EXTENSION vsql_schematron;

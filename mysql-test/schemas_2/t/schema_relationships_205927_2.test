@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 205927_2
+--echo #
+CREATE DATABASE `db_205927_2`;
+USE `db_205927_2`;
+
+CREATE TABLE `ACTIVITY` (
+  `ID` VARCHAR(64),
+  `PROVIDER_ID` VARCHAR(64),
+  `TYPE` VARCHAR(64),
+  `TITLE` VARCHAR(64),
+  `TEXT` VARCHAR(64),
+  `REPLACED_BY_ID` VARCHAR(64),
+  `GENERATED_AT` DATETIME,
+  `CREATED_AT` DATETIME,
+  `SHOULD_NOTIFY` DECIMAL(10,2),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACTIVITY_TAG` (
+  `ACTIVITY_ID` VARCHAR(64),
+  `ID` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `VALUE` VARCHAR(64),
+  `CREATED_AT` DATETIME,
+  PRIMARY KEY (`ACTIVITY_ID`, `ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACTIVITY_RECIPIENT` (
+  `ACTIVITY_ID` VARCHAR(64),
+  `USERCODE` VARCHAR(64),
+  `CREATED_AT` DATETIME,
+  `SENT_AT` DATETIME,
+  `SEEN_AT` DATETIME,
+  `DISMISSED_AT` DATETIME,
+  PRIMARY KEY (`ACTIVITY_ID`, `USERCODE`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_205927_2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_205927_2') AS relationships;
+DROP DATABASE `db_205927_2`;
+UNINSTALL EXTENSION vsql_schematron;

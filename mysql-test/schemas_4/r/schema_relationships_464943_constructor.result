@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 464943_constructor
+#
+CREATE DATABASE `db_464943_constructor`;
+USE `db_464943_constructor`;
+CREATE TABLE `Students` (
+`PIN` INT,
+`Name` VARCHAR(64),
+`Address` VARCHAR(64),
+PRIMARY KEY (`PIN`)
+) CHARACTER SET latin1;
+CREATE TABLE `Courses` (
+`Name` VARCHAR(64),
+`Year` INT,
+`Semester` VARCHAR(64),
+`Teacher` VARCHAR(64),
+PRIMARY KEY (`Name`, `Year`, `Semester`)
+) CHARACTER SET latin1;
+CREATE TABLE `Registrations` (
+`PIN` INT,
+`CourseName` VARCHAR(64),
+`CourseYear` INT,
+`CourseSemester` VARCHAR(64),
+`Grade` DECIMAL(10,2),
+PRIMARY KEY (`PIN`, `CourseName`, `CourseYear`, `CourseSemester`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_464943_constructor') AS relationships;
+relationships
+Database: db_464943_constructor
+
+Table Connections:
+------------------
+[Implied]  Registrations.PIN -> Students.PIN
+
+DROP DATABASE `db_464943_constructor`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 523877_CREATE_TABLES
+--echo #
+CREATE DATABASE `db_523877_CREATE_TABLES`;
+USE `db_523877_CREATE_TABLES`;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `firstname` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `is_approved` INT,
+  `points` INT,
+  `group_number` INT,
+  `is_archived` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `summerhouses` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `address` VARCHAR(64),
+  `price` INT,
+  `description` VARCHAR(64),
+  `capacity` INT,
+  `date_from` DATETIME,
+  `date_to` DATETIME,
+  `is_archived` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reservations` (
+  `id` INT,
+  `date_from` DATETIME,
+  `date_to` DATETIME,
+  `user_id` INT,
+  `summerhouse_id` INT,
+  `is_approved` INT,
+  `is_archived` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `services` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `price` INT,
+  `description` VARCHAR(64),
+  `is_archived` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `summerhouse_services` (
+  `service_id` INT,
+  `summerhouse_id` INT,
+  PRIMARY KEY (`service_id`, `summerhouse_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_523877_CREATE_TABLES') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_523877_CREATE_TABLES') AS relationships;
+DROP DATABASE `db_523877_CREATE_TABLES`;
+UNINSTALL EXTENSION vsql_schematron;

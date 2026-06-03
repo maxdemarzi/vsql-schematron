@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 061400_query
+#
+CREATE DATABASE `db_061400_query`;
+USE `db_061400_query`;
+CREATE TABLE `t_user` (
+`iuser` INT,
+`email` VARCHAR(64),
+`provider` VARCHAR(64),
+`pw` VARCHAR(64),
+`nm` VARCHAR(64),
+`nick` VARCHAR(64),
+`tel` VARCHAR(64),
+`authCd` VARCHAR(64),
+`profileImg` VARCHAR(64),
+`regdt` DATETIME,
+PRIMARY KEY (`iuser`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_board` (
+`iboard` INT,
+`provider` VARCHAR(64),
+`iuser` INT,
+`title` VARCHAR(64),
+`ctnt` VARCHAR(64),
+`regdt` DATETIME,
+`delYN` VARCHAR(64),
+PRIMARY KEY (`iboard`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_cmt` (
+`icmt` INT,
+`iuser` INT,
+`iboard` INT,
+`cmt` VARCHAR(64),
+`regdt` DATETIME,
+PRIMARY KEY (`icmt`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_board_img` (
+`iboardimg` INT,
+`iboard` INT,
+`img` VARCHAR(64),
+PRIMARY KEY (`iboardimg`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_board_fav` (
+`iuser` INT,
+`iboard` INT,
+`regdt` DATETIME,
+PRIMARY KEY (`iuser`, `iboard`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_user_profile` (
+`iprofile` INT,
+`iuser` INT,
+`profileImg` VARCHAR(64),
+`regdt` DATETIME,
+PRIMARY KEY (`iprofile`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_061400_query') AS relationships;
+relationships
+Database: db_061400_query
+
+Table Connections:
+------------------
+[Implied]  t_board.iuser -> t_user.iuser
+[Implied]  t_board_fav.iboard -> t_board.iboard
+[Implied]  t_board_fav.iuser -> t_user.iuser
+[Implied]  t_board_img.iboard -> t_board.iboard
+[Implied]  t_cmt.iboard -> t_board.iboard
+[Implied]  t_cmt.iuser -> t_user.iuser
+[Implied]  t_user_profile.iuser -> t_user.iuser
+
+DROP DATABASE `db_061400_query`;
+UNINSTALL EXTENSION vsql_schematron;

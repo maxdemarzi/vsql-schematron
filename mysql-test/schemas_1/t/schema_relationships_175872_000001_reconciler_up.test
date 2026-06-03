@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 175872_000001_reconciler.up
+--echo #
+CREATE DATABASE `db_175872_000001_reconciler_up`;
+USE `db_175872_000001_reconciler_up`;
+
+CREATE TABLE `config_keys` (
+  `version` INT,
+  `key` VARCHAR(64),
+  `data_type` VARCHAR(64),
+  `encrypted` VARCHAR(64),
+  `username` VARCHAR(64),
+  `trigger` VARCHAR(64),
+  `validator` VARCHAR(64),
+  `created` DATETIME,
+  PRIMARY KEY (`key`, `version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `config_values` (
+  `version` INT,
+  `key` VARCHAR(64),
+  `key_version` INT,
+  `bucket` VARCHAR(64),
+  `data_type` VARCHAR(64),
+  `value` VARCHAR(64),
+  `username` VARCHAR(64),
+  `created` DATETIME,
+  PRIMARY KEY (`bucket`, `key`, `version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `config_cache` (
+  `id` INT,
+  `label` VARCHAR(64),
+  `cluster` VARCHAR(64),
+  `data` VARCHAR(64),
+  `checksum` VARCHAR(64),
+  `created` DATETIME,
+  PRIMARY KEY (`label`, `cluster`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `config_cachedeps` (
+  `id` INT,
+  `bucket` VARCHAR(64),
+  `key` VARCHAR(64),
+  `label` VARCHAR(64),
+  `cluster` VARCHAR(64),
+  `cache_id` INT,
+  `created` DATETIME,
+  PRIMARY KEY (`bucket`, `key`, `label`, `cluster`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `inventory_clusters` (
+  `version` INT,
+  `cluster` VARCHAR(64),
+  `runtime` VARCHAR(64),
+  `metadata` VARCHAR(64),
+  `kubeconfig` VARCHAR(64),
+  `contract` INT,
+  `deleted` VARCHAR(64),
+  `created` DATETIME,
+  PRIMARY KEY (`cluster`, `version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `inventory_cluster_configs` (
+  `version` INT,
+  `cluster` VARCHAR(64),
+  `cluster_version` INT,
+  `kyma_version` VARCHAR(64),
+  `kyma_profile` VARCHAR(64),
+  `components` VARCHAR(64),
+  `administrators` VARCHAR(64),
+  `contract` INT,
+  `deleted` VARCHAR(64),
+  `created` DATETIME,
+  PRIMARY KEY (`cluster`, `cluster_version`, `version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `inventory_cluster_config_statuses` (
+  `id` INT,
+  `cluster` VARCHAR(64),
+  `cluster_version` INT,
+  `config_version` INT,
+  `status` VARCHAR(64),
+  `created` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_175872_000001_reconciler_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_175872_000001_reconciler_up') AS relationships;
+DROP DATABASE `db_175872_000001_reconciler_up`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 548257_db
+#
+CREATE DATABASE `db_548257_db`;
+USE `db_548257_db`;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`name` VARCHAR(64),
+`company` VARCHAR(64),
+`phone` VARCHAR(64),
+`created_at` DATETIME,
+`is_active` VARCHAR(64),
+`is_admin` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subjects` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `quizzes` (
+`id` INT,
+`name` VARCHAR(64),
+`is_active` VARCHAR(64),
+`subject_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questions` (
+`id` INT,
+`body` VARCHAR(64),
+`is_active` VARCHAR(64),
+`order` INT,
+`quiz_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answers` (
+`id` INT,
+`body` VARCHAR(64),
+`is_active` VARCHAR(64),
+`is_correct` VARCHAR(64),
+`order` INT,
+`question_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `records` (
+`id` INT,
+`quiz_id` INT,
+`user_id` INT,
+`score` INT,
+`started_at` DATETIME,
+`finished_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_answers` (
+`user_id` INT,
+`record_id` INT,
+`question_id` INT,
+`answer_id` INT,
+PRIMARY KEY (`user_id`, `record_id`, `question_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_548257_db') AS relationships;
+relationships
+Database: db_548257_db
+
+Table Connections:
+------------------
+[Implied]  answers.question_id -> questions.id
+[Implied]  questions.quiz_id -> quizzes.id
+[Implied]  quizzes.subject_id -> subjects.id
+[Implied]  records.quiz_id -> quizzes.id
+[Implied]  records.user_id -> users.id
+[Implied]  users_answers.answer_id -> answers.id
+[Implied]  users_answers.question_id -> questions.id
+[Implied]  users_answers.record_id -> records.id
+[Implied]  users_answers.user_id -> users.id
+
+DROP DATABASE `db_548257_db`;
+UNINSTALL EXTENSION vsql_schematron;

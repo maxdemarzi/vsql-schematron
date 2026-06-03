@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 240377_StoreNew
+#
+CREATE DATABASE `db_240377_StoreNew`;
+USE `db_240377_StoreNew`;
+CREATE TABLE `messages` (
+`msg_id` INT,
+`channel_id` INT,
+`label` VARCHAR(64),
+`msg_body` VARCHAR(64),
+PRIMARY KEY (`msg_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `prereqs` (
+`role_id1` INT,
+`role_id2` INT,
+PRIMARY KEY (`role_id1`, `role_id2`)
+) CHARACTER SET latin1;
+CREATE TABLE `contradicts` (
+`role_id1` INT,
+`role_id2` INT,
+PRIMARY KEY (`role_id1`, `role_id2`)
+) CHARACTER SET latin1;
+CREATE TABLE `removes` (
+`role_id1` INT,
+`role_id2` INT,
+PRIMARY KEY (`role_id1`, `role_id2`)
+) CHARACTER SET latin1;
+CREATE TABLE `reamojis` (
+`msg_id` INT,
+`emoji` VARCHAR(64),
+`role_id` INT,
+PRIMARY KEY (`msg_id`, `role_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_240377_StoreNew') AS relationships;
+relationships
+Database: db_240377_StoreNew
+
+Table Connections:
+------------------
+[Implied]  reamojis.msg_id -> messages.msg_id
+
+DROP DATABASE `db_240377_StoreNew`;
+UNINSTALL EXTENSION vsql_schematron;

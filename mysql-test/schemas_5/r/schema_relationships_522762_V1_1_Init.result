@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 522762_V1.1__Init
+#
+CREATE DATABASE `db_522762_V1_1_Init`;
+USE `db_522762_V1_1_Init`;
+CREATE TABLE `__EFMigrationsHistory` (
+`MigrationId` VARCHAR(64),
+`ProductVersion` VARCHAR(64),
+PRIMARY KEY (`MigrationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Roles` (
+`Id` VARCHAR(64),
+`Name` VARCHAR(64),
+`NormalizedName` VARCHAR(64),
+`ConcurrencyStamp` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+`Id` VARCHAR(64),
+`UserName` VARCHAR(64),
+`NormalizedUserName` VARCHAR(64),
+`Email` VARCHAR(64),
+`NormalizedEmail` VARCHAR(64),
+`EmailConfirmed` VARCHAR(64),
+`PasswordHash` VARCHAR(64),
+`SecurityStamp` VARCHAR(64),
+`ConcurrencyStamp` VARCHAR(64),
+`PhoneNumber` VARCHAR(64),
+`PhoneNumberConfirmed` VARCHAR(64),
+`TwoFactorEnabled` VARCHAR(64),
+`LockoutEnd` DATETIME,
+`LockoutEnabled` VARCHAR(64),
+`AccessFailedCount` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RoleClaims` (
+`Id` INT,
+`RoleId` VARCHAR(64),
+`ClaimType` VARCHAR(64),
+`ClaimValue` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserClaims` (
+`Id` INT,
+`UserId` VARCHAR(64),
+`ClaimType` VARCHAR(64),
+`ClaimValue` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserLogins` (
+`LoginProvider` VARCHAR(64),
+`ProviderKey` VARCHAR(64),
+`ProviderDisplayName` VARCHAR(64),
+`UserId` VARCHAR(64),
+PRIMARY KEY (`LoginProvider`, `ProviderKey`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserRoles` (
+`UserId` VARCHAR(64),
+`RoleId` VARCHAR(64),
+PRIMARY KEY (`UserId`, `RoleId`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserTokens` (
+`UserId` VARCHAR(64),
+`LoginProvider` VARCHAR(64),
+`Name` VARCHAR(64),
+`Value` VARCHAR(64),
+PRIMARY KEY (`UserId`, `LoginProvider`, `Name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_522762_V1_1_Init') AS relationships;
+relationships
+Database: db_522762_V1_1_Init
+
+Table Connections:
+------------------
+[Implied]  RoleClaims.RoleId -> Roles.Id
+[Implied]  UserClaims.UserId -> Users.Id
+[Implied]  UserLogins.UserId -> Users.Id
+[Implied]  UserRoles.RoleId -> Roles.Id
+[Implied]  UserRoles.UserId -> Users.Id
+[Implied]  UserTokens.UserId -> Users.Id
+
+DROP DATABASE `db_522762_V1_1_Init`;
+UNINSTALL EXTENSION vsql_schematron;

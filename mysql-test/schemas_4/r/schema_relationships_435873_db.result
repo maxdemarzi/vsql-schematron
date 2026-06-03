@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 435873_db
+#
+CREATE DATABASE `db_435873_db`;
+USE `db_435873_db`;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`name` VARCHAR(64),
+`role` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`id` INT,
+`name` VARCHAR(64),
+`price_usd` DECIMAL(10,2),
+`description` VARCHAR(64),
+`category_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`status` VARCHAR(64),
+`created_at` DATETIME,
+`delivered_at` DATETIME,
+`cacelled_at` DATETIME,
+`opened_at` DATETIME,
+`accepted_at` DATETIME,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders_items` (
+`order_id` INT,
+`item_id` INT,
+PRIMARY KEY (`order_id`, `item_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `spots` (
+`id` INT,
+`label` VARCHAR(64),
+`is_free` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `spots_users` (
+`spot_id` INT,
+`user_id` INT,
+PRIMARY KEY (`spot_id`, `user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_435873_db') AS relationships;
+relationships
+Database: db_435873_db
+
+Table Connections:
+------------------
+[Implied]  items.category_id -> categories.id
+[Implied]  orders.user_id -> users.id
+[Implied]  orders_items.item_id -> items.id
+[Implied]  orders_items.order_id -> orders.id
+[Implied]  spots_users.spot_id -> spots.id
+[Implied]  spots_users.user_id -> users.id
+
+DROP DATABASE `db_435873_db`;
+UNINSTALL EXTENSION vsql_schematron;

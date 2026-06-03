@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 584936_V1.0.0.1__Skema_Awal
+--echo #
+CREATE DATABASE `db_584936_V1_0_0_1_Skema_Awal`;
+USE `db_584936_V1_0_0_1_Skema_Awal`;
+
+CREATE TABLE `materi` (
+  `id` VARCHAR(64),
+  `kode` VARCHAR(64),
+  `nama` VARCHAR(64),
+  `durasi` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `institusi` (
+  `id` VARCHAR(64),
+  `kode` VARCHAR(64),
+  `nama` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `peserta` (
+  `id` VARCHAR(64),
+  `id_institusi` VARCHAR(64),
+  `nama` VARCHAR(64),
+  `email` VARCHAR(64),
+  `no_hp` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kelas` (
+  `id` VARCHAR(64),
+  `kode` VARCHAR(64),
+  `nama` VARCHAR(64),
+  `tanggal_mulai` DATETIME,
+  `tanggal_selesai` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kelas_detail_materi` (
+  `id_kelas` VARCHAR(64),
+  `id_materi` VARCHAR(64),
+  PRIMARY KEY (`id_kelas`, `id_materi`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kelas_detail_peserta` (
+  `id_kelas` VARCHAR(64),
+  `id_peserta` VARCHAR(64),
+  PRIMARY KEY (`id_kelas`, `id_peserta`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_584936_V1_0_0_1_Skema_Awal') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_584936_V1_0_0_1_Skema_Awal') AS relationships;
+DROP DATABASE `db_584936_V1_0_0_1_Skema_Awal`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 445368_all
+--echo #
+CREATE DATABASE `db_445368_all`;
+USE `db_445368_all`;
+
+CREATE TABLE `USERS` (
+  `ID` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `PASSWORD` VARCHAR(64),
+  `EMAIL` VARCHAR(64),
+  `PERMISSION_SCOPE` INT,
+  `LAST_EDITED` DATETIME,
+  `CREATED_ON` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SHORTCUTS` (
+  `SHORTCUT_ID` VARCHAR(64),
+  `USER_ID` VARCHAR(64),
+  `LINK` VARCHAR(64),
+  `PICTURE_URL` VARCHAR(64),
+  PRIMARY KEY (`SHORTCUT_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUTH` (
+  `KEY_NO` VARCHAR(64),
+  `USER_ID` VARCHAR(64),
+  `PERMISSIONS` INT,
+  `UNTIL_DATE` DATETIME,
+  PRIMARY KEY (`KEY_NO`, `USER_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_445368_all') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_445368_all') AS relationships;
+DROP DATABASE `db_445368_all`;
+UNINSTALL EXTENSION vsql_schematron;

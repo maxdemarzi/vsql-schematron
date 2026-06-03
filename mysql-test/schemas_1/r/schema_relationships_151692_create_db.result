@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 151692_create-db
+#
+CREATE DATABASE `db_151692_create_db`;
+USE `db_151692_create_db`;
+CREATE TABLE `users` (
+`UserId` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`Username` VARCHAR(64),
+`Password` VARCHAR(64),
+`EmailAddress` VARCHAR(64),
+PRIMARY KEY (`UserId`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipes` (
+`RecipeId` INT,
+`Title` VARCHAR(64),
+`Description` VARCHAR(64),
+`PrepTime` DATETIME,
+`CookTime` DATETIME,
+`Instructions` VARCHAR(64),
+`Ingredients` VARCHAR(64),
+`Image` VARCHAR(64),
+`UserId` INT,
+PRIMARY KEY (`RecipeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_favorites` (
+`UserId` INT,
+`RecipeId` INT,
+PRIMARY KEY (`UserId`, `RecipeId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_151692_create_db') AS relationships;
+relationships
+Database: db_151692_create_db
+
+Table Connections:
+------------------
+[Implied]  recipes.UserId -> users.UserId
+[Implied]  user_favorites.RecipeId -> recipes.RecipeId
+[Implied]  user_favorites.UserId -> users.UserId
+
+DROP DATABASE `db_151692_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 444215_init
+#
+CREATE DATABASE `db_444215_init`;
+USE `db_444215_init`;
+CREATE TABLE `exercises` (
+`exercise_name` VARCHAR(64),
+`exercise_link` VARCHAR(64),
+PRIMARY KEY (`exercise_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `exercise_aliases` (
+`exercise_alias` VARCHAR(64),
+`exercise_name` VARCHAR(64),
+PRIMARY KEY (`exercise_alias`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`user_id` INT,
+`user_name` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_reps` (
+`user_id` INT,
+`exercise_name` VARCHAR(64),
+`reps` INT,
+PRIMARY KEY (`user_id`, `exercise_name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_444215_init') AS relationships;
+relationships
+Database: db_444215_init
+
+Table Connections:
+------------------
+[Implied]  exercise_aliases.exercise_name -> exercises.exercise_name
+[Implied]  user_reps.exercise_name -> exercises.exercise_name
+[Implied]  user_reps.user_id -> users.user_id
+
+DROP DATABASE `db_444215_init`;
+UNINSTALL EXTENSION vsql_schematron;

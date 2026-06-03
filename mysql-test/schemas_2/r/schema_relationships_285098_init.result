@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 285098_init
+#
+CREATE DATABASE `db_285098_init`;
+USE `db_285098_init`;
+CREATE TABLE `location` (
+`uuid` VARCHAR(64),
+`order_id` VARCHAR(64),
+`x` DECIMAL(10,2),
+`y` DECIMAL(10,2),
+`time` DATETIME,
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_include` (
+`dish_id` VARCHAR(64),
+`order_id` VARCHAR(64),
+`amount` INT,
+`attribute` VARCHAR(64),
+PRIMARY KEY (`dish_id`, `order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`order_id` VARCHAR(64),
+`username` VARCHAR(64),
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `score` (
+`use_username` VARCHAR(64),
+`username` VARCHAR(64),
+`score` DECIMAL(10,2),
+`comment` VARCHAR(64),
+`img` VARCHAR(64),
+`type` INT,
+PRIMARY KEY (`use_username`, `username`)
+) CHARACTER SET latin1;
+CREATE TABLE `score_dish` (
+`username` VARCHAR(64),
+`dish_id` VARCHAR(64),
+`grade` DECIMAL(10,2),
+`comment` VARCHAR(64),
+`img` VARCHAR(64),
+PRIMARY KEY (`username`, `dish_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `store` (
+`store_id` VARCHAR(64),
+`username` VARCHAR(64),
+`address` VARCHAR(64),
+`s_phone` VARCHAR(64),
+PRIMARY KEY (`store_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`username` VARCHAR(64),
+`role` VARCHAR(64),
+`phone` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_orders` (
+`username` VARCHAR(64),
+`order_id` VARCHAR(64),
+`state` VARCHAR(64),
+`receiver` VARCHAR(64),
+`receiver_address` VARCHAR(64),
+`r_phone` VARCHAR(64),
+PRIMARY KEY (`username`, `order_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_285098_init') AS relationships;
+relationships
+Database: db_285098_init
+
+Table Connections:
+------------------
+[Implied]  location.order_id -> orders.order_id
+[Implied]  order_include.order_id -> orders.order_id
+[Implied]  orders.username -> user.username
+[Implied]  score.use_username -> user.username
+[Implied]  score.username -> user.username
+[Implied]  score_dish.username -> user.username
+[Implied]  store.username -> user.username
+[Implied]  user_orders.order_id -> orders.order_id
+[Implied]  user_orders.username -> user.username
+
+DROP DATABASE `db_285098_init`;
+UNINSTALL EXTENSION vsql_schematron;

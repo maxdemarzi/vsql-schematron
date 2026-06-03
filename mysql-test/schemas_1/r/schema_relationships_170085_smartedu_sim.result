@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 170085_smartedu_sim
+#
+CREATE DATABASE `db_170085_smartedu_sim`;
+USE `db_170085_smartedu_sim`;
+CREATE TABLE `students` (
+`fiscalCode` VARCHAR(64),
+`badgeNumber` VARCHAR(64),
+`courseOfStudy` VARCHAR(64),
+`legalDuration` INT,
+`status` INT,
+`registrationDate` DATETIME,
+`codStudyPlan` INT,
+PRIMARY KEY (`fiscalCode`)
+) CHARACTER SET latin1;
+CREATE TABLE `studyPlans` (
+`idPlan` INT,
+`codStudent` VARCHAR(64),
+PRIMARY KEY (`idPlan`)
+) CHARACTER SET latin1;
+CREATE TABLE `assPlanSubj` (
+`codPlan` INT,
+`codSubject` VARCHAR(64),
+PRIMARY KEY (`codPlan`, `codSubject`)
+) CHARACTER SET latin1;
+CREATE TABLE `exams` (
+`idExam` INT,
+`vote` INT,
+`sustainedDate` DATETIME,
+`codStudent` VARCHAR(64),
+`codSubject` VARCHAR(64),
+PRIMARY KEY (`idExam`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_170085_smartedu_sim') AS relationships;
+relationships
+Database: db_170085_smartedu_sim
+
+Table Connections:
+------------------
+[Implied]  assPlanSubj.codPlan -> studyPlans.idPlan
+[Implied]  exams.codStudent -> students.fiscalCode
+[Implied]  students.codStudyPlan -> studyPlans.idPlan
+[Implied]  studyPlans.codStudent -> students.fiscalCode
+
+DROP DATABASE `db_170085_smartedu_sim`;
+UNINSTALL EXTENSION vsql_schematron;

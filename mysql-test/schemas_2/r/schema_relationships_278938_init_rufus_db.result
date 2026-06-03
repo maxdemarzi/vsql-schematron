@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 278938_init_rufus_db
+#
+CREATE DATABASE `db_278938_init_rufus_db`;
+USE `db_278938_init_rufus_db`;
+CREATE TABLE `rufususer` (
+`userid` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+CREATE TABLE `articles` (
+`userid` INT,
+`title` VARCHAR(64),
+`date` DATETIME,
+`description` VARCHAR(64),
+`url` VARCHAR(64),
+`channeltitle` VARCHAR(64),
+`channelurl` VARCHAR(64),
+`authors` VARCHAR(64),
+PRIMARY KEY (`userid`, `url`)
+) CHARACTER SET latin1;
+CREATE TABLE `sources` (
+`userid` INT,
+`source` VARCHAR(64),
+`frontpage` VARCHAR(64),
+`tags` VARCHAR(64),
+PRIMARY KEY (`userid`, `source`)
+) CHARACTER SET latin1;
+CREATE TABLE `publicsources` (
+`source` VARCHAR(64),
+`frontpage` VARCHAR(64),
+`tags` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_278938_init_rufus_db') AS relationships;
+relationships
+Database: db_278938_init_rufus_db
+
+Table Connections:
+------------------
+[Implied]  articles.userid -> rufususer.userid
+[Implied]  sources.userid -> rufususer.userid
+
+DROP DATABASE `db_278938_init_rufus_db`;
+UNINSTALL EXTENSION vsql_schematron;

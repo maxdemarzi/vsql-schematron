@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 594700_takeout
+--echo #
+CREATE DATABASE `db_594700_takeout`;
+USE `db_594700_takeout`;
+
+CREATE TABLE `location` (
+  `uuid` VARCHAR(64),
+  `order_id` VARCHAR(64),
+  `x` DECIMAL(10,2),
+  `y` DECIMAL(10,2),
+  `time` DATETIME,
+  PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_include` (
+  `dish_id` VARCHAR(64),
+  `order_id` VARCHAR(64),
+  `amount` INT,
+  `attribute` VARCHAR(64),
+  PRIMARY KEY (`dish_id`, `order_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `order_id` VARCHAR(64),
+  `username` VARCHAR(64),
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `score` (
+  `use_username` VARCHAR(64),
+  `username` VARCHAR(64),
+  `score` DECIMAL(10,2),
+  `comment` VARCHAR(64),
+  `img` VARCHAR(64),
+  `type` INT,
+  PRIMARY KEY (`use_username`, `username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `score_dish` (
+  `username` VARCHAR(64),
+  `dish_id` VARCHAR(64),
+  `grade` DECIMAL(10,2),
+  `comment` VARCHAR(64),
+  `img` VARCHAR(64),
+  PRIMARY KEY (`username`, `dish_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `store` (
+  `store_id` VARCHAR(64),
+  `username` VARCHAR(64),
+  `address` VARCHAR(64),
+  `s_phone` VARCHAR(64),
+  PRIMARY KEY (`store_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `username` VARCHAR(64),
+  `store_id` VARCHAR(64),
+  `use_username` VARCHAR(64),
+  `role` VARCHAR(64),
+  `phone` VARCHAR(64),
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_orders` (
+  `username` VARCHAR(64),
+  `order_id` VARCHAR(64),
+  `state` VARCHAR(64),
+  `reciever` VARCHAR(64),
+  `recieve_address` VARCHAR(64),
+  `r_phone` VARCHAR(64),
+  PRIMARY KEY (`username`, `order_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_594700_takeout') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_594700_takeout') AS relationships;
+DROP DATABASE `db_594700_takeout`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 247883_schema
+--echo #
+CREATE DATABASE `db_247883_schema`;
+USE `db_247883_schema`;
+
+CREATE TABLE `t_role` (
+  `id` INT,
+  `role_name` VARCHAR(64),
+  `remark` VARCHAR(64),
+  `ordinal` INT,
+  `permission_string` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_manager_role_relation` (
+  `manager_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`manager_id`, `role_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_247883_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_247883_schema') AS relationships;
+DROP DATABASE `db_247883_schema`;
+UNINSTALL EXTENSION vsql_schematron;

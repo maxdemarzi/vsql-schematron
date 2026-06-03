@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 218026_seguros
+#
+CREATE DATABASE `db_218026_seguros`;
+USE `db_218026_seguros`;
+CREATE TABLE `acidente` (
+`numero_ocorrencia` INT,
+`data` DATETIME,
+`local` VARCHAR(64),
+PRIMARY KEY (`numero_ocorrencia`)
+) CHARACTER SET latin1;
+CREATE TABLE `carro` (
+`modelo` VARCHAR(64),
+`ano` INT,
+`placa` VARCHAR(64),
+PRIMARY KEY (`placa`)
+) CHARACTER SET latin1;
+CREATE TABLE `participou` (
+`id_motorista` INT,
+`placa` VARCHAR(64),
+`numero_ocorrencia` INT,
+`valor_dano` DECIMAL(10,2),
+PRIMARY KEY (`id_motorista`, `placa`, `numero_ocorrencia`)
+) CHARACTER SET latin1;
+CREATE TABLE `pertence` (
+`id_motorista` INT,
+`placa` VARCHAR(64),
+PRIMARY KEY (`id_motorista`, `placa`)
+) CHARACTER SET latin1;
+CREATE TABLE `pessoa` (
+`id_motorista` INT,
+`nome` VARCHAR(64),
+`endereco` VARCHAR(64),
+PRIMARY KEY (`id_motorista`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_218026_seguros') AS relationships;
+relationships
+Database: db_218026_seguros
+
+Table Connections:
+------------------
+[Implied]  participou.id_motorista -> pessoa.id_motorista
+[Implied]  participou.numero_ocorrencia -> acidente.numero_ocorrencia
+[Implied]  participou.placa -> carro.placa
+[Implied]  pertence.id_motorista -> pessoa.id_motorista
+[Implied]  pertence.placa -> carro.placa
+
+DROP DATABASE `db_218026_seguros`;
+UNINSTALL EXTENSION vsql_schematron;

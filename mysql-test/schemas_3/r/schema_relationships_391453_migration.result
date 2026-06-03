@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 391453_migration
+#
+CREATE DATABASE `db_391453_migration`;
+USE `db_391453_migration`;
+CREATE TABLE `users` (
+`id` VARCHAR(64),
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `task_lists` (
+`id` VARCHAR(64),
+`user_id` VARCHAR(64),
+`name` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks` (
+`id` VARCHAR(64),
+`user_id` VARCHAR(64),
+`task_list_id` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`scheduled_to` DATETIME,
+`progress` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_391453_migration') AS relationships;
+relationships
+Database: db_391453_migration
+
+Table Connections:
+------------------
+[Implied]  task_lists.user_id -> users.id
+[Implied]  tasks.task_list_id -> task_lists.id
+[Implied]  tasks.user_id -> users.id
+
+DROP DATABASE `db_391453_migration`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 110504_V001__Create_AuthN_AuthZ
+--echo #
+CREATE DATABASE `db_110504_V001_Create_AuthN_AuthZ`;
+USE `db_110504_V001_Create_AuthN_AuthZ`;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `enabled` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `role_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_roles` (
+  `user_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `privileges` (
+  `privilege_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`privilege_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles_privs` (
+  `role_id` INT,
+  `privilege_id` INT,
+  PRIMARY KEY (`role_id`, `privilege_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_110504_V001_Create_AuthN_AuthZ') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_110504_V001_Create_AuthN_AuthZ') AS relationships;
+DROP DATABASE `db_110504_V001_Create_AuthN_AuthZ`;
+UNINSTALL EXTENSION vsql_schematron;

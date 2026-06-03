@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 325805_schema
+--echo #
+CREATE DATABASE `db_325805_schema`;
+USE `db_325805_schema`;
+
+CREATE TABLE `polls` (
+  `poll_id` INT,
+  `date` DATETIME,
+  `pollster` VARCHAR(64),
+  `sample_size` INT,
+  `margin_of_error` VARCHAR(64),
+  `demographic` VARCHAR(64),
+  `country` VARCHAR(64),
+  `crosstabs_entered` VARCHAR(64),
+  `crosstabs_not_entered` VARCHAR(64),
+  `is_complete` VARCHAR(64),
+  `if_incomplete_emailed` VARCHAR(64),
+  `Link` VARCHAR(64),
+  `Notes` VARCHAR(64),
+  PRIMARY KEY (`poll_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pollsters` (
+  `pollster` VARCHAR(64),
+  `538_rating` VARCHAR(64),
+  PRIMARY KEY (`pollster`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `questions` (
+  `question_id` INT,
+  `question_text` VARCHAR(64),
+  `response_scale` VARCHAR(64),
+  PRIMARY KEY (`question_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `regions` (
+  `region` VARCHAR(64),
+  `macro_region` VARCHAR(64),
+  `Population` INT,
+  PRIMARY KEY (`region`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `response_favorability` (
+  `response` VARCHAR(64),
+  `favorability` INT,
+  PRIMARY KEY (`response`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `responses` (
+  `poll_id` INT,
+  `question_id` INT,
+  `response` VARCHAR(64),
+  `xtab1_var` VARCHAR(64),
+  `xtab1_val` VARCHAR(64),
+  `xtab2_var` VARCHAR(64),
+  `xtab2_val` VARCHAR(64),
+  `percentage` DECIMAL(10,2),
+  `notes` VARCHAR(64),
+  PRIMARY KEY (`poll_id`, `question_id`, `response`, `xtab1_var`, `xtab1_val`, `xtab2_var`, `xtab2_val`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_325805_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_325805_schema') AS relationships;
+DROP DATABASE `db_325805_schema`;
+UNINSTALL EXTENSION vsql_schematron;

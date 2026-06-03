@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 390920_carpool
+--echo #
+CREATE DATABASE `db_390920_carpool`;
+USE `db_390920_carpool`;
+
+CREATE TABLE `cp_accounts` (
+  `device` VARCHAR(64),
+  `profile_unit` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `has_drivers_license` INT,
+  `payout_address` VARCHAR(64),
+  `vehicle` VARCHAR(64),
+  PRIMARY KEY (`device`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cp_rides` (
+  `ride_id` INT,
+  `device` VARCHAR(64),
+  `pickup_address` VARCHAR(64),
+  `pickup_lat` DECIMAL(10,2),
+  `pickup_lng` DECIMAL(10,2),
+  `dropoff_address` VARCHAR(64),
+  `dropoff_lat` DECIMAL(10,2),
+  `dropoff_lng` DECIMAL(10,2),
+  `departure` DATETIME,
+  `seats` INT,
+  `price_per_seat` INT,
+  `checkin_code` VARCHAR(64),
+  `status` VARCHAR(64),
+  `arrival_date` DATETIME,
+  `arrival_lat` DECIMAL(10,2),
+  `arrival_lng` DECIMAL(10,2),
+  `arrival_accuracy` DECIMAL(10,2),
+  `completion_score` DECIMAL(10,2),
+  `oracle_value` VARCHAR(64),
+  `oracle_unit` VARCHAR(64),
+  PRIMARY KEY (`ride_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cp_reservations` (
+  `ride_id` INT,
+  `device` VARCHAR(64),
+  `status` VARCHAR(64),
+  `reservation_date` DATETIME,
+  `contract_address` VARCHAR(64),
+  `payment_status` VARCHAR(64),
+  `payment_unit` VARCHAR(64),
+  `checkin_date` DATETIME,
+  `arrival_date` DATETIME,
+  `arrival_lat` DECIMAL(10,2),
+  `arrival_lng` DECIMAL(10,2),
+  `arrival_accuracy` DECIMAL(10,2),
+  `completion_score` DECIMAL(10,2),
+  `payout_unit` VARCHAR(64),
+  `refund_unit` VARCHAR(64),
+  PRIMARY KEY (`ride_id`, `device`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_390920_carpool') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_390920_carpool') AS relationships;
+DROP DATABASE `db_390920_carpool`;
+UNINSTALL EXTENSION vsql_schematron;

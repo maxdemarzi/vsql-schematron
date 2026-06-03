@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 407654_db-script
+#
+CREATE DATABASE `db_407654_db_script`;
+USE `db_407654_db_script`;
+CREATE TABLE `user_roles` (
+`user_id` INT,
+`role_id` INT,
+PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `polls` (
+`id` INT,
+`question` VARCHAR(64),
+`expiration_date_time` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`created_by` INT,
+`updated_by` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `choices` (
+`id` INT,
+`text` VARCHAR(64),
+`poll_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `votes` (
+`id` INT,
+`user_id` INT,
+`poll_id` INT,
+`choice_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vehicle` (
+`id` INT,
+`registrationNumber` VARCHAR(64),
+`vehicleNumber` VARCHAR(64),
+`vehicleType` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rides` (
+`id` INT,
+`sourceLat` DECIMAL(10,2),
+`sourceLong` DECIMAL(10,2),
+`destinationLat` DECIMAL(10,2),
+`destinationLong` DECIMAL(10,2),
+`fair` DECIMAL(10,2),
+`distanceInKM` DECIMAL(10,2),
+`rating` DECIMAL(10,2),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `driver` (
+`id` INT,
+`user_id` INT,
+`ride_id` INT,
+`vehicle_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_407654_db_script') AS relationships;
+relationships
+Database: db_407654_db_script
+
+Table Connections:
+------------------
+[Implied]  choices.poll_id -> polls.id
+[Implied]  driver.ride_id -> rides.id
+[Implied]  driver.vehicle_id -> vehicle.id
+[Implied]  votes.choice_id -> choices.id
+[Implied]  votes.poll_id -> polls.id
+
+DROP DATABASE `db_407654_db_script`;
+UNINSTALL EXTENSION vsql_schematron;

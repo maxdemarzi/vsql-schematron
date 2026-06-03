@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 312811_000001_create_movie_table.up
+#
+CREATE DATABASE `db_312811_000001_create_movie_table_up`;
+USE `db_312811_000001_create_movie_table_up`;
+CREATE TABLE `directors` (
+`director_id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+PRIMARY KEY (`director_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movies` (
+`movie_id` VARCHAR(64),
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`director_id` VARCHAR(64),
+`rank` VARCHAR(64),
+`year` VARCHAR(64),
+`run_time` VARCHAR(64),
+`vote` VARCHAR(64),
+`rating` VARCHAR(64),
+`revenue` VARCHAR(64),
+`meta_score` VARCHAR(64),
+PRIMARY KEY (`movie_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `actors` (
+`actor_id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+PRIMARY KEY (`actor_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `generes` (
+`genere_id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`genere_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movie_actors` (
+`actor_actor_id` VARCHAR(64),
+`movie_movie_id` VARCHAR(64),
+PRIMARY KEY (`actor_actor_id`, `movie_movie_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movie_generes` (
+`genere_genere_id` VARCHAR(64),
+`movie_movie_id` VARCHAR(64),
+PRIMARY KEY (`genere_genere_id`, `movie_movie_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_312811_000001_create_movie_table_up') AS relationships;
+relationships
+Database: db_312811_000001_create_movie_table_up
+
+Table Connections:
+------------------
+[Implied]  movie_actors.actor_actor_id -> actors.actor_id
+[Implied]  movie_actors.movie_movie_id -> movies.movie_id
+[Implied]  movie_generes.genere_genere_id -> generes.genere_id
+[Implied]  movie_generes.movie_movie_id -> movies.movie_id
+[Implied]  movies.director_id -> directors.director_id
+
+DROP DATABASE `db_312811_000001_create_movie_table_up`;
+UNINSTALL EXTENSION vsql_schematron;

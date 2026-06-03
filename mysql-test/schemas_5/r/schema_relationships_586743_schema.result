@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 586743_schema
+#
+CREATE DATABASE `db_586743_schema`;
+USE `db_586743_schema`;
+CREATE TABLE `users` (
+`userId` INT,
+`forename` VARCHAR(64),
+`surname` VARCHAR(64),
+`kentId` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`salt` VARCHAR(64),
+`stripeCustomerId` VARCHAR(64),
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `trips` (
+`tripId` INT,
+`tripName` VARCHAR(64),
+`tripDesc` VARCHAR(64),
+`stripeProductId` VARCHAR(64),
+PRIMARY KEY (`tripId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tripApplicants` (
+`tripId` INT,
+`userId` INT,
+`status` VARCHAR(64),
+`paid` DECIMAL(10,2),
+PRIMARY KEY (`tripId`, `userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `resetTokens` (
+`tokenId` VARCHAR(64),
+`email` VARCHAR(64),
+`expirationDate` DATETIME,
+`state` VARCHAR(64),
+PRIMARY KEY (`tokenId`, `email`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_586743_schema') AS relationships;
+relationships
+Database: db_586743_schema
+
+Table Connections:
+------------------
+[Implied]  tripApplicants.tripId -> trips.tripId
+[Implied]  tripApplicants.userId -> users.userId
+
+DROP DATABASE `db_586743_schema`;
+UNINSTALL EXTENSION vsql_schematron;

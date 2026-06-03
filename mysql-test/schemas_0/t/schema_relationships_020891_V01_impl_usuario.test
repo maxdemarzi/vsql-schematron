@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 020891_V01__impl_usuario
+--echo #
+CREATE DATABASE `db_020891_V01_impl_usuario`;
+USE `db_020891_V01_impl_usuario`;
+
+CREATE TABLE `tb_grupo` (
+  `id_grupo` INT,
+  `ds_nome` VARCHAR(64),
+  `ds_descricao` VARCHAR(64),
+  PRIMARY KEY (`id_grupo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_permissao` (
+  `id_permissao` INT,
+  `ds_permissao` VARCHAR(64),
+  `ds_descricao` VARCHAR(64),
+  PRIMARY KEY (`id_permissao`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_usuario` (
+  `id_usuario` INT,
+  `ds_nome` VARCHAR(64),
+  `ds_login` VARCHAR(64),
+  `ds_senha` VARCHAR(64),
+  `fl_ativo` VARCHAR(64),
+  PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_usuario_x_grupo` (
+  `id_usuario` INT,
+  `id_grupo` INT,
+  PRIMARY KEY (`id_usuario`, `id_grupo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_permissao_x_grupo` (
+  `id_permissao` INT,
+  `id_grupo` INT,
+  PRIMARY KEY (`id_permissao`, `id_grupo`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_020891_V01_impl_usuario') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_020891_V01_impl_usuario') AS relationships;
+DROP DATABASE `db_020891_V01_impl_usuario`;
+UNINSTALL EXTENSION vsql_schematron;

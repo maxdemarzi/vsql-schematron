@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 403500_schema
+#
+CREATE DATABASE `db_403500_schema`;
+USE `db_403500_schema`;
+CREATE TABLE `alembic_version` (
+`version_num` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `bank_account` (
+`id` INT,
+`user_id` INT,
+`account_name` VARCHAR(64),
+`is_personal` INT,
+`is_primary` INT,
+`bank_name` VARCHAR(64),
+`number` VARCHAR(64),
+`sort_code` VARCHAR(64),
+`show_on_invoice` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `forgot_password` (
+`id` INT,
+`user_id` INT,
+`unique_key` VARCHAR(64),
+`expires_at` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `gocardless_payment` (
+`id` INT,
+`user_id` INT,
+`payment_id` INT,
+`invoice_id` INT,
+`amount` DECIMAL(10,2),
+`reference` VARCHAR(64),
+`state` VARCHAR(64),
+`resource_id` VARCHAR(64),
+`resource_uri` VARCHAR(64),
+`error_message` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subscription` (
+`id` INT,
+`user_id` INT,
+`plan_id` INT,
+`start_date` DATETIME,
+`end_date` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction` (
+`id` INT,
+`user_id` INT,
+`subscription_id` INT,
+`success` INT,
+`amount` DECIMAL(10,2),
+`charge_id` VARCHAR(64),
+`charge` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_group` (
+`user_id` INT,
+`group_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`user_id`, `group_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vat_registration` (
+`id` INT,
+`user_id` INT,
+`status` VARCHAR(64),
+`number` VARCHAR(64),
+`registration_date` DATETIME,
+`de_registration_date` DATETIME,
+`first_return_date` DATETIME,
+`scheme_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_403500_schema') AS relationships;
+relationships
+Database: db_403500_schema
+
+Table Connections:
+------------------
+[Implied]  transaction.subscription_id -> subscription.id
+
+DROP DATABASE `db_403500_schema`;
+UNINSTALL EXTENSION vsql_schematron;

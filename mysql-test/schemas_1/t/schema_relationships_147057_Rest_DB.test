@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 147057_Rest_DB
+--echo #
+CREATE DATABASE `db_147057_Rest_DB`;
+USE `db_147057_Rest_DB`;
+
+CREATE TABLE `city` (
+  `id_city` INT,
+  `name_city` VARCHAR(64),
+  PRIMARY KEY (`id_city`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `theater` (
+  `id_theater` INT,
+  `id_city` INT,
+  `name_theater` VARCHAR(64),
+  PRIMARY KEY (`id_theater`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `manager` (
+  `id_manager` INT,
+  `id_theater` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id_manager`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `movie` (
+  `id_movie` INT,
+  `title` VARCHAR(64),
+  `duration` VARCHAR(64),
+  `min_age` INT,
+  `director` VARCHAR(64),
+  PRIMARY KEY (`id_movie`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `movie_display` (
+  `id_movie` INT,
+  `id_theater` INT,
+  `lang` VARCHAR(64),
+  `start_date` DATETIME,
+  `end_date` DATETIME,
+  PRIMARY KEY (`id_movie`, `id_theater`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schedule` (
+  `id_schedule` INT,
+  `id_movie` INT,
+  `id_theater` INT,
+  `time_day` DATETIME,
+  `day_of_week` INT,
+  PRIMARY KEY (`id_schedule`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `actor` (
+  `id_actor` INT,
+  `name_actor` VARCHAR(64),
+  PRIMARY KEY (`id_actor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `actors_playing` (
+  `id_actor` INT,
+  `id_movie` INT,
+  PRIMARY KEY (`id_movie`, `id_actor`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_147057_Rest_DB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_147057_Rest_DB') AS relationships;
+DROP DATABASE `db_147057_Rest_DB`;
+UNINSTALL EXTENSION vsql_schematron;

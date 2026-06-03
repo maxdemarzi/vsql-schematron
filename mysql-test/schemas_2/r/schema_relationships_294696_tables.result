@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 294696_tables
+#
+CREATE DATABASE `db_294696_tables`;
+USE `db_294696_tables`;
+CREATE TABLE `projet` (
+`id_projet` INT,
+`nom` VARCHAR(64),
+`description` VARCHAR(64),
+`ref_chef` INT,
+PRIMARY KEY (`id_projet`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`id_message` INT,
+`texte` VARCHAR(64),
+`date_` DATETIME,
+`ref_utilisateur` INT,
+`ref_projet` INT,
+PRIMARY KEY (`id_message`)
+) CHARACTER SET latin1;
+CREATE TABLE `associe` (
+`ref_utilisateur` INT,
+`ref_projet` INT,
+PRIMARY KEY (`ref_utilisateur`, `ref_projet`)
+) CHARACTER SET latin1;
+CREATE TABLE `feedback` (
+`id_feedback` INT,
+`type` VARCHAR(64),
+`message` VARCHAR(64),
+`taux_de_couverture` INT,
+`ref_projet` INT,
+PRIMARY KEY (`id_feedback`)
+) CHARACTER SET latin1;
+CREATE TABLE `conseil` (
+`id_conseil` INT,
+`texte` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`id_conseil`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_294696_tables') AS relationships;
+relationships
+Database: db_294696_tables
+
+Table Connections:
+------------------
+[Implied]  associe.ref_projet -> projet.id_projet
+[Implied]  feedback.ref_projet -> projet.id_projet
+[Implied]  message.ref_projet -> projet.id_projet
+
+DROP DATABASE `db_294696_tables`;
+UNINSTALL EXTENSION vsql_schematron;

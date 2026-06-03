@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 515334_EzProject.tables
+#
+CREATE DATABASE `db_515334_EzProject_tables`;
+USE `db_515334_EzProject_tables`;
+CREATE TABLE `_readme` (
+`project` VARCHAR(64),
+`location` VARCHAR(64),
+PRIMARY KEY (`project`)
+) CHARACTER SET latin1;
+CREATE TABLE `ezp_component` (
+`vendor` VARCHAR(64),
+`package` VARCHAR(64),
+`handle` VARCHAR(64),
+`devtype` VARCHAR(64),
+`difficulty` INT,
+`required_by` DATETIME,
+`developer` VARCHAR(64),
+`progress_pct` INT,
+`notes` VARCHAR(64),
+PRIMARY KEY (`vendor`, `package`, `handle`)
+) CHARACTER SET latin1;
+CREATE TABLE `ezp_developer` (
+`developer` VARCHAR(64),
+PRIMARY KEY (`developer`)
+) CHARACTER SET latin1;
+CREATE TABLE `ezp_devtype` (
+`devtype` VARCHAR(64),
+`notes` VARCHAR(64),
+`skills` VARCHAR(64),
+PRIMARY KEY (`devtype`)
+) CHARACTER SET latin1;
+CREATE TABLE `ezp_difficulty` (
+`difficulty` INT,
+`notes` VARCHAR(64),
+PRIMARY KEY (`difficulty`)
+) CHARACTER SET latin1;
+CREATE TABLE `ezp_estimate` (
+`devtype` VARCHAR(64),
+`difficulty` INT,
+`hours` INT,
+PRIMARY KEY (`devtype`, `difficulty`)
+) CHARACTER SET latin1;
+CREATE TABLE `ezp_package` (
+`vendor` VARCHAR(64),
+`package` VARCHAR(64),
+`notes` VARCHAR(64),
+PRIMARY KEY (`vendor`, `package`)
+) CHARACTER SET latin1;
+CREATE TABLE `ezp_project` (
+`project` VARCHAR(64),
+`projtype` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`project`)
+) CHARACTER SET latin1;
+CREATE TABLE `ezp_projtype` (
+`projtype` VARCHAR(64),
+`notes` VARCHAR(64),
+PRIMARY KEY (`projtype`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_515334_EzProject_tables') AS relationships;
+relationships
+Database: db_515334_EzProject_tables
+
+Table Connections:
+------------------
+[Implied]  ezp_component.developer -> ezp_developer.developer
+[Implied]  ezp_component.devtype -> ezp_devtype.devtype
+[Implied]  ezp_component.difficulty -> ezp_difficulty.difficulty
+[Implied]  ezp_estimate.devtype -> ezp_devtype.devtype
+[Implied]  ezp_estimate.difficulty -> ezp_difficulty.difficulty
+[Implied]  ezp_project.projtype -> ezp_projtype.projtype
+
+DROP DATABASE `db_515334_EzProject_tables`;
+UNINSTALL EXTENSION vsql_schematron;

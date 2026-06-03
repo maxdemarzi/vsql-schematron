@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 151602_db-scripts
+--echo #
+CREATE DATABASE `db_151602_db_scripts`;
+USE `db_151602_db_scripts`;
+
+CREATE TABLE `user` (
+  `id_user` INT,
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `nombre` VARCHAR(64),
+  `apellidos` VARCHAR(64),
+  `direccion` VARCHAR(64),
+  `admin` VARCHAR(64),
+  `remember_token` VARCHAR(64),
+  PRIMARY KEY (`id_user`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categoria` (
+  `id_categoria` INT,
+  `nombre_categoria` VARCHAR(64),
+  `descripcion_categoria` VARCHAR(64),
+  PRIMARY KEY (`id_categoria`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `producto` (
+  `id_producto` INT,
+  `nombre_producto` VARCHAR(64),
+  `descripcion` VARCHAR(64),
+  `precio` DECIMAL(10,2),
+  `stock` INT,
+  `imagen` VARCHAR(64),
+  `categoria_id_categoria` INT,
+  PRIMARY KEY (`id_producto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pedido` (
+  `id_pedido` INT,
+  `comprado` VARCHAR(64),
+  `fecha` VARCHAR(64),
+  `user_id_user` INT,
+  PRIMARY KEY (`id_pedido`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `detalle_pedido` (
+  `pedido_id_pedido` INT,
+  `producto_id_producto` INT,
+  `cantidad` INT,
+  `devuelto` VARCHAR(64),
+  PRIMARY KEY (`pedido_id_pedido`, `producto_id_producto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `valoracion` (
+  `comentario` VARCHAR(64),
+  `puntuacion` INT,
+  `user_id_user` INT,
+  `producto_id_producto` INT,
+  PRIMARY KEY (`user_id_user`, `producto_id_producto`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_151602_db_scripts') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_151602_db_scripts') AS relationships;
+DROP DATABASE `db_151602_db_scripts`;
+UNINSTALL EXTENSION vsql_schematron;

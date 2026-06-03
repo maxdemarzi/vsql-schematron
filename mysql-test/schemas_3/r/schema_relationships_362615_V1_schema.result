@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 362615_V1__schema
+#
+CREATE DATABASE `db_362615_V1_schema`;
+USE `db_362615_V1_schema`;
+CREATE TABLE `user_roles` (
+`user_id` INT,
+`role_id` INT,
+PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `polls` (
+`id` INT,
+`question` VARCHAR(64),
+`expiration_date_time` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`created_by` INT,
+`updated_by` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `choices` (
+`id` INT,
+`text` VARCHAR(64),
+`poll_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `votes` (
+`id` INT,
+`user_id` INT,
+`poll_id` INT,
+`choice_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transactions` (
+`user_id` INT,
+`station_id` INT,
+`vehicle_id` INT,
+`trans_id` INT,
+`startTime` VARCHAR(64),
+`endTime` VARCHAR(64),
+`totalTime` VARCHAR(64),
+PRIMARY KEY (`trans_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `documents` (
+`id` INT,
+`user_id` INT,
+`file_ref` VARCHAR(64),
+`country_name` VARCHAR(64),
+`file_name` VARCHAR(64),
+`document_type` VARCHAR(64),
+`upload_dir` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_362615_V1_schema') AS relationships;
+relationships
+Database: db_362615_V1_schema
+
+Table Connections:
+------------------
+[Implied]  choices.poll_id -> polls.id
+[Implied]  votes.choice_id -> choices.id
+[Implied]  votes.poll_id -> polls.id
+
+DROP DATABASE `db_362615_V1_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 051482_upgrade-pre-0.9.10
+#
+CREATE DATABASE `db_051482_upgrade_pre_0_9_10`;
+USE `db_051482_upgrade_pre_0_9_10`;
+CREATE TABLE `guacamole_sharing_profile` (
+`sharing_profile_id` INT,
+`sharing_profile_name` VARCHAR(64),
+`primary_connection_id` INT,
+PRIMARY KEY (`sharing_profile_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `guacamole_sharing_profile_parameter` (
+`sharing_profile_id` INT,
+`parameter_name` VARCHAR(64),
+`parameter_value` VARCHAR(64),
+PRIMARY KEY (`sharing_profile_id`, `parameter_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `guacamole_sharing_profile_permission` (
+`user_id` INT,
+`sharing_profile_id` INT,
+`permission` VARCHAR(64),
+PRIMARY KEY (`user_id`, `sharing_profile_id`, `permission`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_051482_upgrade_pre_0_9_10') AS relationships;
+relationships
+Database: db_051482_upgrade_pre_0_9_10
+
+Table Connections:
+------------------
+[Implied]  guacamole_sharing_profile_parameter.sharing_profile_id -> guacamole_sharing_profile.sharing_profile_id
+[Implied]  guacamole_sharing_profile_permission.sharing_profile_id -> guacamole_sharing_profile.sharing_profile_id
+
+DROP DATABASE `db_051482_upgrade_pre_0_9_10`;
+UNINSTALL EXTENSION vsql_schematron;

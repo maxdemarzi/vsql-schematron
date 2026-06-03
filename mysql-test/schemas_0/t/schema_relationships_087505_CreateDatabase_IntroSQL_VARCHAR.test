@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 087505_CreateDatabase_IntroSQL_VARCHAR
+--echo #
+CREATE DATABASE `db_087505_CreateDatabase_IntroSQL_VARCHAR`;
+USE `db_087505_CreateDatabase_IntroSQL_VARCHAR`;
+
+CREATE TABLE `Students` (
+  `StudentID` INT,
+  `GPA` DECIMAL(10,2),
+  PRIMARY KEY (`StudentID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Professors` (
+  `ProfID` INT,
+  `Rank` VARCHAR(64),
+  PRIMARY KEY (`ProfID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Courses` (
+  `CourseID` INT,
+  `Title` VARCHAR(64),
+  `MaxSize` INT,
+  PRIMARY KEY (`CourseID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CurrentlyEnrolled` (
+  `CourseID` INT,
+  `StudentID` INT,
+  `Grade` DECIMAL(10,2),
+  PRIMARY KEY (`CourseID`, `StudentID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CurrentlyTeaching` (
+  `CourseID` INT,
+  `ProfID` INT,
+  `Section` INT,
+  PRIMARY KEY (`CourseID`, `ProfID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_087505_CreateDatabase_IntroSQL_VARCHAR') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_087505_CreateDatabase_IntroSQL_VARCHAR') AS relationships;
+DROP DATABASE `db_087505_CreateDatabase_IntroSQL_VARCHAR`;
+UNINSTALL EXTENSION vsql_schematron;

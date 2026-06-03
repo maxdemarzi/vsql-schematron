@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 198172_LoginDB
+--echo #
+CREATE DATABASE `db_198172_LoginDB`;
+USE `db_198172_LoginDB`;
+
+CREATE TABLE `Customers` (
+  `customer_id` INT,
+  `customer_name` VARCHAR(64),
+  `customer_address` VARCHAR(64),
+  `telephone` VARCHAR(64),
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Cashiers` (
+  `cashier_id` INT,
+  `cashier_name` VARCHAR(64),
+  `user_name` VARCHAR(64),
+  `user_pass` VARCHAR(64),
+  `telephone` VARCHAR(64),
+  PRIMARY KEY (`cashier_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Colors` (
+  `color_id` INT,
+  `color_name` VARCHAR(64),
+  PRIMARY KEY (`color_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Sizes` (
+  `size_id` INT,
+  `size_name` VARCHAR(64),
+  PRIMARY KEY (`size_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Items` (
+  `item_id` INT,
+  `item_name` VARCHAR(64),
+  `item_description` VARCHAR(64),
+  `item_price` DECIMAL(10,2),
+  PRIMARY KEY (`item_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ItemDetails` (
+  `item_id` INT,
+  `color_id` INT,
+  `size_id` INT,
+  `quantity` INT,
+  PRIMARY KEY (`item_id`, `color_id`, `size_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Invoices` (
+  `invoice_no` INT,
+  `cashier_id` INT,
+  `customer_id` INT,
+  `invoice_date` DATETIME,
+  PRIMARY KEY (`invoice_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `InvoiceDetails` (
+  `invoice_no` INT,
+  `item_id` INT,
+  `item_price` DECIMAL(10,2),
+  PRIMARY KEY (`invoice_no`, `item_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_198172_LoginDB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_198172_LoginDB') AS relationships;
+DROP DATABASE `db_198172_LoginDB`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 388817_beer_aniket
+#
+CREATE DATABASE `db_388817_beer_aniket`;
+USE `db_388817_beer_aniket`;
+CREATE TABLE `Brewers` (
+`id` INT,
+`name` VARCHAR(64),
+`country` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Beers` (
+`id` INT,
+`name` VARCHAR(64),
+`brewer` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bars` (
+`id` INT,
+`name` VARCHAR(64),
+`addr` VARCHAR(64),
+`license` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Drinkers` (
+`id` INT,
+`name` VARCHAR(64),
+`addr` VARCHAR(64),
+`phone` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sells` (
+`bar` INT,
+`beer` INT,
+`price` DECIMAL(10,2),
+PRIMARY KEY (`bar`, `beer`)
+) CHARACTER SET latin1;
+CREATE TABLE `Likes` (
+`drinker` INT,
+`beer` INT,
+PRIMARY KEY (`drinker`, `beer`)
+) CHARACTER SET latin1;
+CREATE TABLE `Frequents` (
+`drinker` INT,
+`bar` INT,
+PRIMARY KEY (`drinker`, `bar`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_388817_beer_aniket') AS relationships;
+relationships
+Database: db_388817_beer_aniket
+
+Table Connections:
+------------------
+[Implied]  Beers.brewer -> Brewers.id
+[Implied]  Frequents.bar -> Bars.id
+[Implied]  Frequents.drinker -> Drinkers.id
+[Implied]  Likes.beer -> Beers.id
+[Implied]  Likes.drinker -> Drinkers.id
+[Implied]  Sells.bar -> Bars.id
+[Implied]  Sells.beer -> Beers.id
+
+DROP DATABASE `db_388817_beer_aniket`;
+UNINSTALL EXTENSION vsql_schematron;

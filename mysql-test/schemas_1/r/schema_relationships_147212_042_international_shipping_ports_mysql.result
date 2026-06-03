@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 147212_042_international_shipping_ports.mysql
+#
+CREATE DATABASE `db_147212_042_international_shipping_ports_mysql`;
+USE `db_147212_042_international_shipping_ports_mysql`;
+CREATE TABLE `fv_ports` (
+`fv_port_id` INT,
+`fv_port_code` VARCHAR(64),
+`fv_port_name` VARCHAR(64),
+`fv_port_country` VARCHAR(64),
+`maidenhead` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+PRIMARY KEY (`fv_port_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fv_transits` (
+`fv_transit_id` INT,
+`from_port` INT,
+`to_port` INT,
+`ship_mode` INT,
+`transit_time` DECIMAL(10,2),
+`transit_uom` VARCHAR(64),
+PRIMARY KEY (`fv_transit_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fv_entity_transits` (
+`fv_transit_id` INT,
+`fv_port_id` INT,
+`entity_id` INT,
+`ship_mode` INT,
+`transit_time` DECIMAL(10,2),
+`transit_uom` VARCHAR(64),
+PRIMARY KEY (`fv_transit_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_147212_042_international_shipping_ports_mysql') AS relationships;
+relationships
+Database: db_147212_042_international_shipping_ports_mysql
+
+Table Connections:
+------------------
+[Implied]  fv_entity_transits.fv_port_id -> fv_ports.fv_port_id
+[Implied]  fv_transits.from_port -> fv_ports.fv_port_id
+[Implied]  fv_transits.to_port -> fv_ports.fv_port_id
+
+DROP DATABASE `db_147212_042_international_shipping_ports_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

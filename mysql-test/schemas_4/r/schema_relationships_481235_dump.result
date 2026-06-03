@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 481235_dump
+#
+CREATE DATABASE `db_481235_dump`;
+USE `db_481235_dump`;
+CREATE TABLE `company` (
+`idcompany` INT,
+`name` VARCHAR(64),
+`company_office_code` VARCHAR(64),
+PRIMARY KEY (`idcompany`)
+) CHARACTER SET latin1;
+CREATE TABLE `cycles_employee` (
+`idemployee1` INT,
+`idemployee2` VARCHAR(64),
+`name` VARCHAR(64),
+`team_id1` INT,
+`team_id2` VARCHAR(64),
+PRIMARY KEY (`idemployee1`, `idemployee2`)
+) CHARACTER SET latin1;
+CREATE TABLE `cycles_product` (
+`idproduct` INT,
+`name` VARCHAR(64),
+`owner_id1` INT,
+`owner_id2` VARCHAR(64),
+PRIMARY KEY (`idproduct`)
+) CHARACTER SET latin1;
+CREATE TABLE `cycles_team` (
+`idteam1` INT,
+`idteam2` VARCHAR(64),
+`name` VARCHAR(64),
+`product_id` INT,
+PRIMARY KEY (`idteam1`, `idteam2`)
+) CHARACTER SET latin1;
+CREATE TABLE `persone_has_car` (
+`persone_idpersone` INT,
+`car_idcar` INT,
+PRIMARY KEY (`persone_idpersone`, `car_idcar`)
+) CHARACTER SET latin1;
+CREATE TABLE `persone_has_house` (
+`persone_idpersone` INT,
+`house_idhouse` INT,
+PRIMARY KEY (`persone_idpersone`, `house_idhouse`)
+) CHARACTER SET latin1;
+CREATE TABLE `ucycles_department` (
+`iddepartment` INT,
+`name` VARCHAR(64),
+`head_employee_no` VARCHAR(64),
+PRIMARY KEY (`iddepartment`)
+) CHARACTER SET latin1;
+CREATE TABLE `ucycles_software` (
+`idsoftware` INT,
+`name` VARCHAR(64),
+`department_id` INT,
+PRIMARY KEY (`idsoftware`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_481235_dump') AS relationships;
+relationships
+Database: db_481235_dump
+
+Table Connections:
+------------------
+[Implied]  cycles_team.product_id -> cycles_product.idproduct
+[Implied]  ucycles_software.department_id -> ucycles_department.iddepartment
+
+DROP DATABASE `db_481235_dump`;
+UNINSTALL EXTENSION vsql_schematron;

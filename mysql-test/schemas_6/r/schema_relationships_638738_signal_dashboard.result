@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 638738_signal_dashboard
+#
+CREATE DATABASE `db_638738_signal_dashboard`;
+USE `db_638738_signal_dashboard`;
+CREATE TABLE `dashboard_signal` (
+`id` INT,
+`name` VARCHAR(64),
+`source` VARCHAR(64),
+`covidcast_signal` VARCHAR(64),
+`enabled` VARCHAR(64),
+`latest_coverage_update` DATETIME,
+`latest_status_update` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dashboard_signal_status` (
+`signal_id` INT,
+`date` DATETIME,
+`latest_issue` DATETIME,
+`latest_time_value` DATETIME,
+PRIMARY KEY (`signal_id`, `date`)
+) CHARACTER SET latin1;
+CREATE TABLE `dashboard_signal_coverage` (
+`signal_id` INT,
+`date` DATETIME,
+`geo_type` VARCHAR(64),
+`count` INT,
+PRIMARY KEY (`signal_id`, `date`, `geo_type`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_638738_signal_dashboard') AS relationships;
+relationships
+Database: db_638738_signal_dashboard
+
+Table Connections:
+------------------
+[Implied]  dashboard_signal_coverage.signal_id -> dashboard_signal.id
+[Implied]  dashboard_signal_status.signal_id -> dashboard_signal.id
+
+DROP DATABASE `db_638738_signal_dashboard`;
+UNINSTALL EXTENSION vsql_schematron;

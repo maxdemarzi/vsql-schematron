@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 521447_db-setup
+--echo #
+CREATE DATABASE `db_521447_db_setup`;
+USE `db_521447_db_setup`;
+
+CREATE TABLE `Protokoll` (
+  `Zeitstempel` DATETIME,
+  `Nutzer_Id` INT,
+  `Protokolltyp_Id` INT,
+  `Info` VARCHAR(64),
+  PRIMARY KEY (`Zeitstempel`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Schueler` (
+  `Id` INT,
+  `Klasse_Id` INT,
+  `Betrieb_Id` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Raum` (
+  `Id` INT,
+  `Gebaeude` VARCHAR(64),
+  `Etage` VARCHAR(64),
+  `Raum` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Stundenplan_KLASSE_ID` (
+  `Tag` VARCHAR(64),
+  `Stunde` INT,
+  `Fach_Id` INT,
+  `Lehrer_Id` INT,
+  `Raum_Id` INT,
+  PRIMARY KEY (`Tag`, `Stunde`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Klassenbuch_KLASSE_ID_Woche` (
+  `Block_Nr` INT,
+  `Wochen_Nr` INT,
+  `Datum_Von` DATETIME,
+  `Datum_Bis` DATETIME,
+  `KW` INT,
+  `Signiert_KL_Id` INT,
+  `Signiert_SL_Id` INT,
+  `Fehlzeiten_Best_Id` INT,
+  PRIMARY KEY (`Block_Nr`, `Wochen_Nr`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Klassenbuch_KLASSE_ID_Tag` (
+  `Datum` DATETIME,
+  `Stunde` INT,
+  `Fach_Id_Soll` INT,
+  `Fach_Id_Ist` INT,
+  `Lehrer_Id` INT,
+  `Thema` VARCHAR(64),
+  `Hausaufgabe` VARCHAR(64),
+  `Best_Lehrer_Id` INT,
+  PRIMARY KEY (`Datum`, `Stunde`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Klassenbuch_KLASSE_ID_Fehlzeit` (
+  `Datum` DATETIME,
+  `Stunde` INT,
+  `Schueler_Id` INT,
+  `Fehlzeit_Typ_Id` INT,
+  `Infotext` VARCHAR(64),
+  PRIMARY KEY (`Datum`, `Stunde`, `Schueler_Id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_521447_db_setup') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_521447_db_setup') AS relationships;
+DROP DATABASE `db_521447_db_setup`;
+UNINSTALL EXTENSION vsql_schematron;

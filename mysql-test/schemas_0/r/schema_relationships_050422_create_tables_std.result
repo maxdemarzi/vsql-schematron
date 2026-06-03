@@ -1,0 +1,36 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 050422_create-tables-std
+#
+CREATE DATABASE `db_050422_create_tables_std`;
+USE `db_050422_create_tables_std`;
+CREATE TABLE `match` (
+`paysl` VARCHAR(64),
+`paysv` VARCHAR(64),
+`butsl` INT,
+`butsv` INT,
+`type` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`paysl`, `paysv`, `type`)
+) CHARACTER SET latin1;
+CREATE TABLE `pays` (
+`nom` VARCHAR(64),
+`groupe` VARCHAR(64),
+PRIMARY KEY (`nom`)
+) CHARACTER SET latin1;
+CREATE TABLE `typematch` (
+`type` VARCHAR(64),
+PRIMARY KEY (`type`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_050422_create_tables_std') AS relationships;
+relationships
+Database: db_050422_create_tables_std
+
+Table Connections:
+------------------
+[Implied]  match.paysl -> pays.nom
+[Implied]  match.paysv -> pays.nom
+[Implied]  match.type -> typematch.type
+
+DROP DATABASE `db_050422_create_tables_std`;
+UNINSTALL EXTENSION vsql_schematron;

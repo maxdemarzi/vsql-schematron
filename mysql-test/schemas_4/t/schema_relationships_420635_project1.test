@@ -1,0 +1,121 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 420635_project1
+--echo #
+CREATE DATABASE `db_420635_project1`;
+USE `db_420635_project1`;
+
+CREATE TABLE `Customers` (
+  `customer_id` INT,
+  `customer_name` VARCHAR(64),
+  `phonenumber` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `birth_date` DATETIME,
+  `email` VARCHAR(64),
+  `password_customer` VARCHAR(64),
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Delivery_addresses` (
+  `address_id` INT,
+  `name_customer` VARCHAR(64),
+  `phonenumber` VARCHAR(64),
+  `city` VARCHAR(64),
+  `district` VARCHAR(64),
+  `address` VARCHAR(64),
+  `address_status` VARCHAR(64),
+  `address_default` VARCHAR(64),
+  `customer_id` INT,
+  PRIMARY KEY (`address_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Payment_methods` (
+  `payment_method_id` INT,
+  `payment_method_name` VARCHAR(64),
+  PRIMARY KEY (`payment_method_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Shipping_units` (
+  `shipping_unit_id` INT,
+  `shipping_unit_name` VARCHAR(64),
+  `shippingFee` DECIMAL(10,2),
+  `shipping_date` VARCHAR(64),
+  PRIMARY KEY (`shipping_unit_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Orders` (
+  `order_id` INT,
+  `date_time` DATETIME,
+  `payment_method_id` INT,
+  `shipping_unit_id` INT,
+  `address_id` INT,
+  `order_status` VARCHAR(64),
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Publishing_Companies` (
+  `publishing_company_id` INT,
+  `publishing_company_name` VARCHAR(64),
+  PRIMARY KEY (`publishing_company_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Categories` (
+  `category_id` INT,
+  `category_name` VARCHAR(64),
+  PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Books` (
+  `book_id` INT,
+  `publishing_company_id` INT,
+  `title` VARCHAR(64),
+  `author` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `detail` VARCHAR(64),
+  `quantity` INT,
+  `isbn` VARCHAR(64),
+  PRIMARY KEY (`book_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Categories_Books` (
+  `book_id` INT,
+  `category_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `Orders_Books` (
+  `book_id` INT,
+  `order_id` INT,
+  `quantity` INT,
+  `price` DECIMAL(10,2),
+  `sale` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Sales_off` (
+  `sale_id` INT,
+  `book_id` INT,
+  `sale` DECIMAL(10,2),
+  `start_time` DATETIME,
+  `end_time` DATETIME,
+  PRIMARY KEY (`sale_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_420635_project1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_420635_project1') AS relationships;
+DROP DATABASE `db_420635_project1`;
+UNINSTALL EXTENSION vsql_schematron;

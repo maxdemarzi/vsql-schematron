@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 489500_V1__Init_Tables
+#
+CREATE DATABASE `db_489500_V1_Init_Tables`;
+USE `db_489500_V1_Init_Tables`;
+CREATE TABLE `student` (
+`unique_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`school_id` VARCHAR(64),
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`unique_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`unique_id` INT,
+`name` VARCHAR(64),
+`semester` VARCHAR(64),
+`department` VARCHAR(64),
+`course_number` VARCHAR(64),
+`section_number` VARCHAR(64),
+PRIMARY KEY (`unique_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course_student` (
+`course_id` INT,
+`student_id` INT,
+PRIMARY KEY (`course_id`, `student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `assignment` (
+`unique_id` INT,
+`name` VARCHAR(64),
+`image_file_path` VARCHAR(64),
+`course_id` INT,
+PRIMARY KEY (`unique_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `QRCodeMapping` (
+`uuid` VARCHAR(64),
+`sequence_number` INT,
+`assignment_id` INT,
+`student_id` INT,
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_489500_V1_Init_Tables') AS relationships;
+relationships
+Database: db_489500_V1_Init_Tables
+
+Table Connections:
+------------------
+[Implied]  QRCodeMapping.assignment_id -> assignment.unique_id
+[Implied]  QRCodeMapping.student_id -> student.unique_id
+[Implied]  assignment.course_id -> course.unique_id
+[Implied]  course_student.course_id -> course.unique_id
+[Implied]  course_student.student_id -> student.unique_id
+
+DROP DATABASE `db_489500_V1_Init_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

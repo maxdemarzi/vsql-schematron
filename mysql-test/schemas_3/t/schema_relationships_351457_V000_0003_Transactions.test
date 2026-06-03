@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 351457_V000.0003__Transactions
+--echo #
+CREATE DATABASE `db_351457_V000_0003_Transactions`;
+USE `db_351457_V000_0003_Transactions`;
+
+CREATE TABLE `Transactions` (
+  `OrganizationId` VARCHAR(64),
+  `AccountId` INT,
+  `TransactionId` INT,
+  `TransactionDate` DATETIME,
+  `Description` VARCHAR(64),
+  `Amount` DECIMAL(10,2),
+  `CreatedOn` DATETIME,
+  PRIMARY KEY (`OrganizationId`, `AccountId`, `TransactionId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BankTransactions` (
+  `OrganizationId` VARCHAR(64),
+  `BankAccountId` INT,
+  `BankTransactionId` INT,
+  `ReferenceId` VARCHAR(64),
+  PRIMARY KEY (`OrganizationId`, `BankAccountId`, `BankTransactionId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_351457_V000_0003_Transactions') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_351457_V000_0003_Transactions') AS relationships;
+DROP DATABASE `db_351457_V000_0003_Transactions`;
+UNINSTALL EXTENSION vsql_schematron;

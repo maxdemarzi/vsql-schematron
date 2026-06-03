@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 152055_01-initial
+#
+CREATE DATABASE `db_152055_01_initial`;
+USE `db_152055_01_initial`;
+CREATE TABLE `user` (
+`uuid` VARCHAR(64),
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`password_hash` VARCHAR(64),
+`phone` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`user` VARCHAR(64),
+`role` VARCHAR(64),
+PRIMARY KEY (`user`, `role`)
+) CHARACTER SET latin1;
+CREATE TABLE `instance` (
+`uuid` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_otp` (
+`id` INT,
+`user` VARCHAR(64),
+`password` VARCHAR(64),
+`created` DATETIME,
+`deactivated` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `user_instance` (
+`user` VARCHAR(64),
+`instance_id` VARCHAR(64),
+PRIMARY KEY (`user`, `instance_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `token` (
+`id` INT,
+`token` VARCHAR(64),
+`user` VARCHAR(64),
+`created` DATETIME,
+`expires` DATETIME,
+`last_use` DATETIME,
+`deactivated` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `password_reset_token` (
+`id` INT,
+`token` VARCHAR(64),
+`user` VARCHAR(64),
+`created` DATETIME,
+`expires` DATETIME,
+`used` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_152055_01_initial') AS relationships;
+relationships
+Database: db_152055_01_initial
+
+Table Connections:
+------------------
+[Implied]  password_reset_token.user -> user.uuid
+[Implied]  token.user -> user.uuid
+[Implied]  user_instance.instance_id -> instance.uuid
+[Implied]  user_instance.user -> user.uuid
+[Implied]  user_otp.user -> user.uuid
+[Implied]  user_role.user -> user.uuid
+
+DROP DATABASE `db_152055_01_initial`;
+UNINSTALL EXTENSION vsql_schematron;

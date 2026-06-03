@@ -1,4 +1,5 @@
 #include "schema_analyzer_helpers.h"
+#include "domain_specific_matching.h"
 #include <cctype>
 #include <algorithm>
 #include <sstream>
@@ -9,23 +10,27 @@
  * Returns true if the SQL data type represents a date/time format.
  */
 bool isTemporalType(const std::string& type) {
-    std::string s = to_lower(type);
-    return s == "date" || s == "datetime" || s == "timestamp" || s == "time";
+    static const std::unordered_set<std::string> TEMPORAL_TYPES = {
+        "date", "datetime", "timestamp", "time"
+    };
+    return TEMPORAL_TYPES.count(to_lower(type)) > 0;
 }
 
 /**
  * Returns true if the column represents technical metadata/auditing fields (like rowguid).
  */
 bool isSystemColumn(const std::string& col_name) {
-    std::string s = to_lower(col_name);
-    return s == "rowguid" || s == "row_guid" ||
-           s == "_partneruuid" || s == "partneruuid" || s == "partner_uuid" ||
-           s == "_revision" || s == "revision" || s == "revision_number" ||
-           s == "modifieddate" || s == "modified_date" || s == "modifeddate" ||
-           s == "_last_updated_on" || s == "last_updated_on" ||
-           s == "_created_on" || s == "created_on" ||
-           s == "createddate" || s == "created_date" ||
-           s == "updateddate" || s == "updated_date";
+    static const std::unordered_set<std::string> SYSTEM_COLUMNS = {
+        "rowguid", "row_guid", "_partneruuid", "partneruuid", "partner_uuid",
+        "_revision", "revision", "revision_number", "modifieddate", "modified_date", "modifeddate",
+        "_last_updated_on", "last_updated_on", "_created_on", "created_on",
+        "createddate", "created_date", "updateddate", "updated_date",
+        "created_by", "createdby", "creation_date", "creationdate", "creation_time", "creationtime",
+        "last_update_by", "last_updated_by", "lastupdateby", "lastupdatedby",
+        "last_update_date", "lastupdatedate", "last_update_time", "lastupdatetime",
+        "updated_by", "updatedby"
+    };
+    return SYSTEM_COLUMNS.count(to_lower(col_name)) > 0;
 }
 
 /**
@@ -34,25 +39,39 @@ bool isSystemColumn(const std::string& col_name) {
  */
 bool isStatisticColumn(const std::string& col_name) {
     std::string s = to_lower(col_name);
-    if (s == "num" || s == "count" || s == "cnt" || s == "qty" || s == "quantity" || s == "total" || s == "sum" || s == "avg" || s == "min" || s == "max" || s == "pct" || s == "percent" || s == "percentage") return true;
-    if (s.rfind("num_", 0) == 0 || s.rfind("number_", 0) == 0 || s.rfind("count_", 0) == 0 || s.rfind("cnt_", 0) == 0 || s.rfind("total_", 0) == 0 || s.rfind("tot_", 0) == 0 || s.rfind("sum_", 0) == 0 || s.rfind("avg_", 0) == 0 || s.rfind("min_", 0) == 0 || s.rfind("max_", 0) == 0 || s.rfind("qty_", 0) == 0 || s.rfind("quantity_", 0) == 0) return true;
-    if (s.length() > 6 && (s.rfind("_count") == s.length() - 6 || s.rfind("_total") == s.length() - 6)) return true;
-    if (s.length() > 4 && (s.rfind("_cnt") == s.length() - 4 || s.rfind("_qty") == s.length() - 4 || s.rfind("_sum") == s.length() - 4 || s.rfind("_avg") == s.length() - 4 || s.rfind("_min") == s.length() - 4 || s.rfind("_max") == s.length() - 4 || s.rfind("_pct") == s.length() - 4)) return true;
-    if (s.length() > 9 && s.rfind("_quantity") == s.length() - 9) return true;
-    if (s.length() > 8 && s.rfind("_percent") == s.length() - 8) return true;
-    if (s.length() > 11 && s.rfind("_percentage") == s.length() - 11) return true;
     
     // If it ends with key/id suffix, it's not a simple statistic/count
-    if (s.length() > 3 && (s.rfind("_id") == s.length() - 3 || s.rfind("_cd") == s.length() - 3)) return false;
-    if (s.length() > 4 && (s.rfind("_key") == s.length() - 4 || s.rfind("_uid") == s.length() - 4)) return false;
-    if (s.length() > 5) {
-        std::vector<std::string> suffixes = {"_uuid", "_guid", "_code"};
-        for (const auto& sfx : suffixes) {
-            if (s.rfind(sfx) == s.length() - sfx.length()) {
-                return false;
-            }
-        }
+    size_t last_sep = s.find_last_of("_ ");
+    if (last_sep != std::string::npos && last_sep < s.length() - 1) {
+        std::string suffix = s.substr(last_sep + 1);
+        static const std::unordered_set<std::string> ID_SUFFIXES = {
+            "id", "cd", "key", "uid", "uuid", "guid", "code"
+        };
+        if (ID_SUFFIXES.count(suffix) > 0) return false;
     }
+    
+    static const std::unordered_set<std::string> STAT_NAMES = {
+        "num", "count", "cnt", "qty", "quantity", "total", "sum", "avg", "min", "max", "pct", "percent", "percentage"
+    };
+    if (STAT_NAMES.count(s) > 0) return true;
+    
+    size_t first_sep = s.find_first_of("_ ");
+    if (first_sep != std::string::npos && first_sep > 0) {
+        std::string prefix = s.substr(0, first_sep);
+        static const std::unordered_set<std::string> STAT_PREFIXES = {
+            "num", "number", "count", "cnt", "total", "tot", "sum", "avg", "min", "max", "qty", "quantity"
+        };
+        if (STAT_PREFIXES.count(prefix) > 0) return true;
+    }
+    
+    if (last_sep != std::string::npos && last_sep < s.length() - 1) {
+        std::string suffix = s.substr(last_sep + 1);
+        static const std::unordered_set<std::string> STAT_SUFFIXES = {
+            "count", "total", "cnt", "qty", "sum", "avg", "min", "max", "pct", "quantity", "percent", "percentage"
+        };
+        if (STAT_SUFFIXES.count(suffix) > 0) return true;
+    }
+    
     return false;
 }
 
@@ -61,7 +80,7 @@ bool isStatisticColumn(const std::string& col_name) {
  */
 bool isSelfReferentialPrefix(const std::string& prefix) {
     std::string p = to_lower(prefix);
-    std::vector<std::string> self_ref_words = {
+    static const std::unordered_set<std::string> SELF_REF_WORDS = {
         "parent", "child", "prev", "previous", "next", "successor", "predecessor",
         "left", "right", "root", "manager", "mgr", "supervisor", "reports", "report",
         "master", "maternal", "paternal", "mother", "father", "spouse", "husband",
@@ -73,10 +92,8 @@ bool isSelfReferentialPrefix(const std::string& prefix) {
     while (start < p.length()) {
         size_t end = p.find('_', start);
         std::string part = (end == std::string::npos) ? p.substr(start) : p.substr(start, end - start);
-        for (const auto& word : self_ref_words) {
-            if (part == word) {
-                return true;
-            }
+        if (SELF_REF_WORDS.count(part) > 0) {
+            return true;
         }
         if (end == std::string::npos) break;
         start = end + 1;
@@ -87,13 +104,118 @@ bool isSelfReferentialPrefix(const std::string& prefix) {
 /**
  * Infers primary key columns for a table if they are not explicitly declared.
  */
-std::vector<std::string> getEffectivePKs(const std::string& tbl_name, const TableInfo& info) {
+std::vector<std::string> getEffectivePKs(
+    const std::string& tbl_name,
+    const TableInfo& info,
+    const std::vector<std::string>& table_names,
+    const std::unordered_map<std::string, TableInfo>& tables_info
+) {
     if (!info.pk_columns.empty()) {
         return info.pk_columns;
     }
-    std::vector<std::string> pks;
+    
+    auto isIdLikeColumn = [](const std::string& col) {
+        std::string c = to_lower(col);
+        static const std::unordered_set<std::string> ID_LIKE_COLUMNS = {
+            "id", "uuid", "guid", "uid", "key", "code"
+        };
+        if (ID_LIKE_COLUMNS.count(c) > 0) return true;
+        
+        std::vector<std::string> suffixes = {"id", "uuid", "guid", "uid", "key", "code", "number", "num", "no"};
+        for (const auto& sfx : suffixes) {
+            if (c.length() > sfx.length() && c.rfind(sfx) == c.length() - sfx.length()) {
+                char prev_char = col[col.length() - sfx.length() - 1];
+                char boundary_char = col[col.length() - sfx.length()];
+                if (prev_char == '_' || std::isupper(boundary_char)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
+    std::vector<std::string> generic_pks;
+    int id_like_count = 0;
+    int non_sys_col_count = 0;
+    for (const auto& col_pair : info.column_types) {
+        std::string col_lower = to_lower(col_pair.first);
+        static const std::unordered_set<std::string> EXACT_ID_COLUMNS = {
+            "id", "uuid", "guid", "uid"
+        };
+        if (EXACT_ID_COLUMNS.count(col_lower) > 0) {
+            generic_pks.push_back(col_pair.first);
+        }
+        if (isIdLikeColumn(col_pair.first)) {
+            id_like_count++;
+        }
+        if (!isTemporalType(col_pair.second) && !isSystemColumn(col_pair.first) && !isStatisticColumn(col_pair.first)) {
+            non_sys_col_count++;
+        }
+    }
+    
+    if (!generic_pks.empty()) {
+        return generic_pks;
+    }
+    
     std::string tbl_clean = stripTablePrefix(tbl_name);
     std::string tbl_lower = to_lower(tbl_name);
+    std::string tbl_sing = singularize(tbl_clean);
+    std::string tbl_sing_lower = singularize(tbl_lower);
+
+    bool has_table_specific_id = false;
+    static const std::unordered_set<std::string> ID_SUFXS = {"id", "number", "code", "key"};
+    if (!isPersonRole(tbl_sing_lower)) {
+        for (const auto& col_pair : info.column_types) {
+            std::string col_lower = to_lower(col_pair.first);
+            for (const auto& sfx : ID_SUFXS) {
+                if (col_lower == tbl_clean + "_" + sfx || col_lower == tbl_clean + sfx ||
+                    col_lower == tbl_lower + "_" + sfx || col_lower == tbl_lower + sfx ||
+                    col_lower == tbl_sing + "_" + sfx || col_lower == tbl_sing + sfx ||
+                    col_lower == tbl_sing_lower + "_" + sfx || col_lower == tbl_sing_lower + sfx) {
+                    
+                    // This is a candidate for a table-specific ID.
+                    // However, check if it matches a different table in the schema.
+                    // We strip the suffix to get the entity prefix (e.g. "department" from "department_id")
+                    std::string entity = col_lower.substr(0, col_lower.length() - sfx.length());
+                    if (!entity.empty() && entity.back() == '_') entity.pop_back();
+
+                    bool matches_other_table = false;
+                    for (const auto& other_tbl : table_names) {
+                        if (other_tbl != tbl_name) {
+                            auto it_other = tables_info.find(other_tbl);
+                            if (it_other != tables_info.end()) {
+                                // If other_tbl has this column in its primary keys, and other_tbl is not a subtype of tbl_name
+                                const auto& other_pks = it_other->second.pk_columns;
+                                bool is_pk_in_other = false;
+                                for (const auto& pk_oth : other_pks) {
+                                    if (to_lower(pk_oth) == col_lower) {
+                                        is_pk_in_other = true;
+                                        break;
+                                    }
+                                }
+                                if (is_pk_in_other && !isSubtypeTable(other_tbl, tbl_name)) {
+                                    matches_other_table = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!matches_other_table) {
+                        has_table_specific_id = true;
+                        break;
+                    }
+                }
+            }
+            if (has_table_specific_id) break;
+        }
+    }
+
+    if (id_like_count > 1 && non_sys_col_count <= 4 && !has_table_specific_id) {
+        return {}; // Multiple ID-like columns and no generic ID PK -> junction/relationship table
+    }
+
+    std::vector<std::string> pks;
     
     // Split tbl_clean by underscore to find the last word
     std::vector<std::string> words;
@@ -104,21 +226,37 @@ std::vector<std::string> getEffectivePKs(const std::string& tbl_name, const Tabl
     }
     std::string last_word = words.empty() ? "" : words.back();
     
-    std::vector<std::string> pk_prefixes = {"id", "code", "cod", "cd", "no", "num", "number", "key", "nro", "nra", "nr"};
-    std::vector<std::string> pk_suffixes = {"id", "code", "cod", "cd", "no", "num", "number", "key"};
+    std::vector<std::string> id_prefixes = {"id", "code", "cod", "cd", "no", "num", "number", "key", "nro", "nra", "nr"};
+    std::vector<std::string> id_suffixes = {"id", "code", "cod", "cd", "no", "num", "number", "key"};
     
+    // Pass 1: Look for ID-like columns
     for (const auto& col_pair : info.column_types) {
         std::string col_lower = to_lower(col_pair.first);
+        std::string type_lower = to_lower(col_pair.second);
         
-        if (col_lower == "id" || col_lower == "uuid" || col_lower == "guid" || col_lower == "uid") {
+        static const std::unordered_set<std::string> EXACT_ID_COLUMNS = {
+            "id", "uuid", "guid", "uid"
+        };
+        if (EXACT_ID_COLUMNS.count(col_lower) > 0) {
             pks.push_back(col_pair.first);
             continue;
         }
         
+        // Skip large object types, JSON, and geometry for other primary keys
+        if (type_lower.find("text") != std::string::npos ||
+            type_lower.find("blob") != std::string::npos ||
+            type_lower.find("clob") != std::string::npos ||
+            type_lower.find("json") != std::string::npos ||
+            type_lower.find("geometry") != std::string::npos) {
+            continue;
+        }
+        
         bool is_pk = false;
-        for (const auto& sfx : pk_suffixes) {
+        for (const auto& sfx : id_suffixes) {
             if (col_lower == tbl_clean + "_" + sfx || col_lower == tbl_clean + sfx ||
-                col_lower == tbl_lower + "_" + sfx || col_lower == tbl_lower + sfx) {
+                col_lower == tbl_lower + "_" + sfx || col_lower == tbl_lower + sfx ||
+                col_lower == tbl_sing + "_" + sfx || col_lower == tbl_sing + sfx ||
+                col_lower == tbl_sing_lower + "_" + sfx || col_lower == tbl_sing_lower + sfx) {
                 is_pk = true;
                 break;
             }
@@ -128,9 +266,11 @@ std::vector<std::string> getEffectivePKs(const std::string& tbl_name, const Tabl
             continue;
         }
         
-        for (const auto& pfx : pk_prefixes) {
+        for (const auto& pfx : id_prefixes) {
             if (col_lower == pfx + "_" + tbl_clean || col_lower == pfx + tbl_clean ||
-                col_lower == pfx + "_" + tbl_lower || col_lower == pfx + tbl_lower) {
+                col_lower == pfx + "_" + tbl_lower || col_lower == pfx + tbl_lower ||
+                col_lower == pfx + "_" + tbl_sing || col_lower == pfx + tbl_sing ||
+                col_lower == pfx + "_" + tbl_sing_lower || col_lower == pfx + tbl_sing_lower) {
                 is_pk = true;
                 break;
             }
@@ -141,7 +281,7 @@ std::vector<std::string> getEffectivePKs(const std::string& tbl_name, const Tabl
         }
         
         if (words.size() >= 2 && !last_word.empty()) {
-            for (const auto& sfx : pk_suffixes) {
+            for (const auto& sfx : id_suffixes) {
                 if (col_lower == last_word + "_" + sfx || col_lower == last_word + sfx) {
                     is_pk = true;
                     break;
@@ -153,6 +293,61 @@ std::vector<std::string> getEffectivePKs(const std::string& tbl_name, const Tabl
             }
         }
     }
+    
+    if (pks.empty() && id_like_count > 1) {
+        return {};
+    }
+    
+    // Pass 2: If no ID-like columns were found, look for name-like columns
+    if (pks.empty() && info.column_types.size() <= 3) {
+        for (const auto& col_pair : info.column_types) {
+            std::string col_lower = to_lower(col_pair.first);
+            std::string type_lower = to_lower(col_pair.second);
+            
+            if (type_lower.find("text") != std::string::npos ||
+                type_lower.find("blob") != std::string::npos ||
+                type_lower.find("clob") != std::string::npos ||
+                type_lower.find("json") != std::string::npos ||
+                type_lower.find("geometry") != std::string::npos) {
+                continue;
+            }
+            
+            if (col_lower == "name") {
+                pks.push_back(col_pair.first);
+                continue;
+            }
+            
+            bool is_pk = false;
+            if (col_lower == tbl_clean + "_name" || col_lower == tbl_clean + "name" ||
+                col_lower == tbl_lower + "_name" || col_lower == tbl_lower + "name" ||
+                col_lower == tbl_sing + "_name" || col_lower == tbl_sing + "name" ||
+                col_lower == tbl_sing_lower + "_name" || col_lower == tbl_sing_lower + "name") {
+                is_pk = true;
+            }
+            if (is_pk) {
+                pks.push_back(col_pair.first);
+                continue;
+            }
+            
+            if (col_lower == "name_" + tbl_clean || col_lower == "name" + tbl_clean ||
+                col_lower == "name_" + tbl_lower || col_lower == "name" + tbl_lower ||
+                col_lower == "name_" + tbl_sing || col_lower == "name" + tbl_sing ||
+                col_lower == "name_" + tbl_sing_lower || col_lower == "name" + tbl_sing_lower) {
+                is_pk = true;
+            }
+            if (is_pk) {
+                pks.push_back(col_pair.first);
+                continue;
+            }
+            
+            if (words.size() >= 2 && !last_word.empty()) {
+                if (col_lower == last_word + "_name" || col_lower == last_word + "name") {
+                    pks.push_back(col_pair.first);
+                }
+            }
+        }
+    }
+    
     return pks;
 }
 
@@ -238,6 +433,13 @@ bool isSequenceOrSystemTable(const std::string& tbl_name) {
         return true;
     }
     if (tbl.length() > 9 && tbl.rfind("_sequence") == tbl.length() - 9) {
+        return true;
+    }
+    static const std::unordered_set<std::string> SYSTEM_TABLES = {
+        "sequelizemeta", "flyway_schema_history", "schema_version",
+        "alembic_version", "databasechangelog", "databasechangeloglock"
+    };
+    if (SYSTEM_TABLES.count(tbl) > 0) {
         return true;
     }
     if (tbl.rfind("tmp_", 0) == 0 || tbl.rfind("temp_", 0) == 0 ||

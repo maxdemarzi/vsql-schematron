@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 154410_create_tables
+#
+CREATE DATABASE `db_154410_create_tables`;
+USE `db_154410_create_tables`;
+CREATE TABLE `Branch` (
+`branchname` VARCHAR(64),
+`branchcity` VARCHAR(64),
+`assets` DECIMAL(10,2),
+PRIMARY KEY (`branchname`)
+) CHARACTER SET latin1;
+CREATE TABLE `BankAccount` (
+`accno` INT,
+`branchname` VARCHAR(64),
+`balance` DECIMAL(10,2),
+PRIMARY KEY (`accno`)
+) CHARACTER SET latin1;
+CREATE TABLE `BankCustomer` (
+`customername` VARCHAR(64),
+`customerstreet` VARCHAR(64),
+`customercity` VARCHAR(64),
+PRIMARY KEY (`customername`)
+) CHARACTER SET latin1;
+CREATE TABLE `Depositer` (
+`customername` VARCHAR(64),
+`accno` INT,
+PRIMARY KEY (`customername`, `accno`)
+) CHARACTER SET latin1;
+CREATE TABLE `Loan` (
+`loannumber` INT,
+`branchname` VARCHAR(64),
+`amount` DECIMAL(10,2),
+PRIMARY KEY (`loannumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `Borrower` (
+`customername` VARCHAR(64),
+`loannumber` INT,
+PRIMARY KEY (`customername`, `loannumber`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_154410_create_tables') AS relationships;
+relationships
+Database: db_154410_create_tables
+
+Table Connections:
+------------------
+[Implied]  BankAccount.branchname -> Branch.branchname
+[Implied]  Borrower.customername -> BankCustomer.customername
+[Implied]  Borrower.loannumber -> Loan.loannumber
+[Implied]  Depositer.accno -> BankAccount.accno
+[Implied]  Depositer.customername -> BankCustomer.customername
+[Implied]  Loan.branchname -> Branch.branchname
+
+DROP DATABASE `db_154410_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

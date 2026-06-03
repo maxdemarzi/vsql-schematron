@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 453903_schema
+#
+CREATE DATABASE `db_453903_schema`;
+USE `db_453903_schema`;
+CREATE TABLE `LOGGING_EVENT` (
+`timestmp` INT,
+`formatted_message` VARCHAR(64),
+`logger_name` VARCHAR(64),
+`level_string` VARCHAR(64),
+`thread_name` VARCHAR(64),
+`reference_flag` INT,
+`arg0` VARCHAR(64),
+`arg1` VARCHAR(64),
+`arg2` VARCHAR(64),
+`arg3` VARCHAR(64),
+`caller_filename` VARCHAR(64),
+`caller_class` VARCHAR(64),
+`caller_method` VARCHAR(64),
+`caller_line` VARCHAR(64),
+`event_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `LOGGING_EVENT_PROPERTY` (
+`event_id` INT,
+`mapped_key` VARCHAR(64),
+`mapped_value` VARCHAR(64),
+PRIMARY KEY (`event_id`, `mapped_key`)
+) CHARACTER SET latin1;
+CREATE TABLE `LOGGING_EVENT_EXCEPTION` (
+`event_id` INT,
+`i` INT,
+`trace_line` VARCHAR(64),
+PRIMARY KEY (`event_id`, `i`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_453903_schema') AS relationships;
+relationships
+Database: db_453903_schema
+
+Table Connections:
+------------------
+[Implied]  LOGGING_EVENT_EXCEPTION.event_id -> LOGGING_EVENT.event_id
+[Implied]  LOGGING_EVENT_PROPERTY.event_id -> LOGGING_EVENT.event_id
+
+DROP DATABASE `db_453903_schema`;
+UNINSTALL EXTENSION vsql_schematron;

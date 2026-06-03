@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 358327_setup_database
+#
+CREATE DATABASE `db_358327_setup_database`;
+USE `db_358327_setup_database`;
+CREATE TABLE `movies` (
+`id` INT,
+`release` INT,
+`title` VARCHAR(64),
+`winner` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `producers` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `studios` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movie_producers` (
+`id_movie` INT,
+`id_producer` INT,
+PRIMARY KEY (`id_movie`, `id_producer`)
+) CHARACTER SET latin1;
+CREATE TABLE `movie_studios` (
+`id_movie` INT,
+`id_studio` INT,
+PRIMARY KEY (`id_movie`, `id_studio`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_358327_setup_database') AS relationships;
+relationships
+Database: db_358327_setup_database
+
+Table Connections:
+------------------
+[Implied]  movie_producers.id_movie -> movies.id
+[Implied]  movie_producers.id_producer -> producers.id
+[Implied]  movie_studios.id_movie -> movies.id
+[Implied]  movie_studios.id_studio -> studios.id
+
+DROP DATABASE `db_358327_setup_database`;
+UNINSTALL EXTENSION vsql_schematron;

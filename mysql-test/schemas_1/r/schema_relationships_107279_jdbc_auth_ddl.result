@@ -1,0 +1,32 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 107279_jdbc-auth-ddl
+#
+CREATE DATABASE `db_107279_jdbc_auth_ddl`;
+USE `db_107279_jdbc_auth_ddl`;
+CREATE TABLE `user` (
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`password_salt` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_roles` (
+`username` VARCHAR(64),
+`role` VARCHAR(64),
+PRIMARY KEY (`username`, `role`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles_perms` (
+`role` VARCHAR(64),
+`perm` VARCHAR(64),
+PRIMARY KEY (`role`, `perm`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_107279_jdbc_auth_ddl') AS relationships;
+relationships
+Database: db_107279_jdbc_auth_ddl
+
+Table Connections:
+------------------
+[Implied]  user_roles.username -> user.username
+
+DROP DATABASE `db_107279_jdbc_auth_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

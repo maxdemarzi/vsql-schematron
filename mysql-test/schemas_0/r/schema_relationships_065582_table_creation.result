@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 065582_table_creation
+#
+CREATE DATABASE `db_065582_table_creation`;
+USE `db_065582_table_creation`;
+CREATE TABLE `Accommodation` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`location` VARCHAR(64),
+`price` INT,
+`rooms` INT,
+`rating` DECIMAL(10,2),
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rating` (
+`userId` VARCHAR(64),
+`accoId` VARCHAR(64),
+`rating` INT,
+PRIMARY KEY (`accoId`, `userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Recommendation` (
+`userId` VARCHAR(64),
+`accoId` VARCHAR(64),
+`prediction` DECIMAL(10,2),
+PRIMARY KEY (`userId`, `accoId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_065582_table_creation') AS relationships;
+relationships
+Database: db_065582_table_creation
+
+Table Connections:
+------------------
+[Implied]  Rating.accoId -> Accommodation.id
+[Implied]  Recommendation.accoId -> Accommodation.id
+
+DROP DATABASE `db_065582_table_creation`;
+UNINSTALL EXTENSION vsql_schematron;

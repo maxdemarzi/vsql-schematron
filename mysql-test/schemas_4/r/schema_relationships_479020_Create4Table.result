@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 479020_Create4Table
+#
+CREATE DATABASE `db_479020_Create4Table`;
+USE `db_479020_Create4Table`;
+CREATE TABLE `loginTable` (
+`UserId` VARCHAR(64),
+`Pswd` VARCHAR(64),
+`authority` VARCHAR(64),
+PRIMARY KEY (`UserId`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookTable` (
+`ISBN` VARCHAR(64),
+`BookName` VARCHAR(64),
+`Publisher` VARCHAR(64),
+`Author` VARCHAR(64),
+`CollectionNum` INT,
+`CanBorrowNum` INT,
+`CanBorrow` VARCHAR(64),
+PRIMARY KEY (`ISBN`)
+) CHARACTER SET latin1;
+CREATE TABLE `readerTable` (
+`ReaderId` VARCHAR(64),
+`ReaderName` VARCHAR(64),
+`Sex` VARCHAR(64),
+`JobTitle` VARCHAR(64),
+`CanBorrowNum` INT,
+`BorrowedNum` INT,
+`Department` VARCHAR(64),
+`PhoneNumber` VARCHAR(64),
+PRIMARY KEY (`ReaderId`)
+) CHARACTER SET latin1;
+CREATE TABLE `borrowTable` (
+`ReaderId` VARCHAR(64),
+`ISBN` VARCHAR(64),
+`BorrowedDate` VARCHAR(64),
+`BorrowPeriod` INT,
+`ReturnDate` VARCHAR(64),
+`Fine` INT,
+PRIMARY KEY (`ReaderId`, `ISBN`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_479020_Create4Table') AS relationships;
+relationships
+Database: db_479020_Create4Table
+
+Table Connections:
+------------------
+[Implied]  borrowTable.ISBN -> bookTable.ISBN
+[Implied]  borrowTable.ReaderId -> readerTable.ReaderId
+
+DROP DATABASE `db_479020_Create4Table`;
+UNINSTALL EXTENSION vsql_schematron;

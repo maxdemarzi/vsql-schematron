@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 253404_creates
+#
+CREATE DATABASE `db_253404_creates`;
+USE `db_253404_creates`;
+CREATE TABLE `department` (
+`dcode` VARCHAR(64),
+`building` VARCHAR(64),
+`room` INT,
+PRIMARY KEY (`dcode`)
+) CHARACTER SET latin1;
+CREATE TABLE `major` (
+`mid` INT,
+`mname` VARCHAR(64),
+`dcode` VARCHAR(64),
+PRIMARY KEY (`mid`)
+) CHARACTER SET latin1;
+CREATE TABLE `faculty` (
+`fid` INT,
+`fname` VARCHAR(64),
+`dcode` VARCHAR(64),
+PRIMARY KEY (`fid`)
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`sid` INT,
+`sname` VARCHAR(64),
+`mid` INT,
+`fid` INT,
+PRIMARY KEY (`sid`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`cnum` VARCHAR(64),
+`cname` VARCHAR(64),
+`semester` VARCHAR(64),
+`year` INT,
+`credits` INT,
+`fid` INT,
+PRIMARY KEY (`cnum`, `semester`, `year`)
+) CHARACTER SET latin1;
+CREATE TABLE `enroll` (
+`cnum` VARCHAR(64),
+`semester` VARCHAR(64),
+`year` INT,
+`sid` INT,
+`grade` VARCHAR(64),
+PRIMARY KEY (`cnum`, `semester`, `year`, `sid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_253404_creates') AS relationships;
+relationships
+Database: db_253404_creates
+
+Table Connections:
+------------------
+[Implied]  course.fid -> faculty.fid
+[Implied]  enroll.sid -> student.sid
+[Implied]  faculty.dcode -> department.dcode
+[Implied]  major.dcode -> department.dcode
+[Implied]  student.fid -> faculty.fid
+[Implied]  student.mid -> major.mid
+
+DROP DATABASE `db_253404_creates`;
+UNINSTALL EXTENSION vsql_schematron;

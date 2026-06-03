@@ -1,10 +1,24 @@
 #include "implied_relationships.h"
 #include "domain_specific_matching.h"
 #include "schema_analyzer_helpers.h"
+#include "string_helpers.h"
 #include <algorithm>
 #include <cctype>
+#include <unordered_set>
 
 namespace {
+
+bool isDescriptiveAttribute(const std::string& s) {
+    std::string l = to_lower(s);
+    static const std::unordered_set<std::string> DESCRIPTIVE_WORDS = {
+        "name", "image", "img", "desc", "description", "info", "title", "text",
+        "type", "status", "price", "cost", "value", "val", "qty", "quantity",
+        "count", "num", "number", "url", "path", "file", "email", "phone",
+        "mobile", "address", "date", "time", "datetime", "timestamp",
+        "rate", "amount", "amt", "size", "scale", "weight", "oid"
+    };
+    return DESCRIPTIVE_WORDS.count(l) > 0;
+}
 
 /**
  * Pass 1: Identifies non-subtype implied foreign key relationships.
@@ -27,6 +41,10 @@ void findPass1ImpliedRelationships(
     const std::set<std::pair<std::string, std::string>>& explicit_mapped_cols,
     const std::unordered_map<std::string, std::vector<std::string>>& effective_pks,
     std::set<Relationship>& relationships) {
+
+    auto same_expanded_word = [](const std::string& x, const std::string& y) -> bool {
+        return to_lower(expandAllAbbreviations(x)) == to_lower(expandAllAbbreviations(y));
+    };
 
     // Iterate through every table (Table A) in the schema
     for (const auto& tbl_a : table_names) {
@@ -158,7 +176,7 @@ void findPass1ImpliedRelationships(
                 auto it_b = effective_pks.find(tbl_b);
                 if (it_b == effective_pks.end()) continue;
                 const auto& pks_b = it_b->second;
-                if (pks_b.empty()) continue;
+                if (pks_b.size() != 1) continue;
 
                 auto it_b_info = tables_info.find(tbl_b);
                 if (it_b_info == tables_info.end()) continue;
@@ -171,7 +189,7 @@ void findPass1ImpliedRelationships(
                     // Heuristic: Self-referencing role match
                     // Example: employees.manager_id -> employees.id
                     std::vector<std::string> self_ref_words = {
-                        "parent", "child", "prev", "previous", "next", "successor", "predecessor", "manager", "mgr", "reports", "report"
+                        "parent", "child", "prev", "previous", "next", "successor", "predecessor", "manager", "mgr", "reports", "report", "oid"
                     };
                     std::string col_a_lower = to_lower(col_a_clean);
                     bool is_self_ref_name = false;
@@ -183,6 +201,7 @@ void findPass1ImpliedRelationships(
                     }
                     if (is_self_ref_name) {
                         for (const auto& pk_b : pks_b) {
+                            if (to_lower(col_a_clean) == to_lower(pk_b)) continue;
                             auto it_b_col = info_b.column_types.find(pk_b);
                             if (it_b_col != info_b.column_types.end() && typeMatches(type_a, it_b_col->second)) {
                                 Relationship rel;
@@ -237,6 +256,17 @@ void findPass1ImpliedRelationships(
                     }
 
                     for (const auto& pk_b : pks_b) {
+                        std::string col_lower = to_lower(col_a);
+                        if (col_lower.rfind("pay_", 0) == 0 || col_lower.rfind("receive_", 0) == 0) {
+                            std::string clean_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
+                            if (clean_a == "swap" || clean_a == "swaps") {
+                                std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                                if (clean_b == "businessdayconvention" || clean_b == "daycount" || clean_b == "currency") {
+                                    continue;
+                                }
+                            }
+                        }
+
                         auto it_b_col = info_b.column_types.find(pk_b);
                         if (it_b_col == info_b.column_types.end() || !typesAreSemanticallyCompatible(col_a, type_a, it_b_col->second)) {
                             continue;
@@ -244,7 +274,7 @@ void findPass1ImpliedRelationships(
 
                         // Heuristic: Exact match (excluding generic "id")
                         // Example: orders.customer_code -> customers.customer_code
-                        if (to_lower(col_a_clean) == to_lower(pk_b) && !isGenericIdentifier(col_a_clean)) {
+                        if (to_lower(col_a_clean) == to_lower(pk_b) && !isGenericIdentifier(col_a_clean) && !isGenericAttribute(col_a_clean)) {
                             Relationship rel;
                             rel.from_table = tbl_a;
                             rel.from_column = col_a;
@@ -257,7 +287,27 @@ void findPass1ImpliedRelationships(
 
                         // Heuristic: Column name matches target table name
                         // Example: orders.customer -> customers.id
-                        if (matchTableName(col_a_clean, tbl_b, !col_has_exact_tbl_match)) {
+                        bool is_match = false;
+                        if (matchTableName(col_a_clean, tbl_b, false)) {
+                            is_match = true;
+                        } else if (!col_has_exact_tbl_match && matchTableName(col_a_clean, tbl_b, true)) {
+                            bool blocked = false;
+                            if (isDescriptiveAttribute(col_a_clean)) {
+                                blocked = true;
+                            }
+                            if (has_split) {
+                                if (isDescriptiveAttribute(prefix_a) && !same_expanded_word(prefix_a, pk_b) && !matchTableName(prefix_a, tbl_b, true) && !matchTableName(prefix_a, tbl_a, true)) {
+                                    blocked = true;
+                                }
+                                if (isDescriptiveAttribute(suffix_a) && !same_expanded_word(suffix_a, pk_b) && !matchTableName(suffix_a, tbl_b, true) && !matchTableName(suffix_a, tbl_a, true)) {
+                                    blocked = true;
+                                }
+                            }
+                            if (!blocked) {
+                                is_match = true;
+                            }
+                        }
+                        if (is_match) {
                             Relationship rel;
                             rel.from_table = tbl_a;
                             rel.from_column = col_a;
@@ -380,21 +430,27 @@ void findPass1ImpliedRelationships(
 
                             if (suffix_matches) {
                                 if (!prefix_is_ambiguous && (matchTableName(prefix_a, tbl_b, !prefix_has_exact) || isPersonMatch(prefix_a, tbl_b) || isLookupMatch(prefix_a, tbl_b, table_names))) {
-                                    suffix_match = true;
+                                    if (!(isDescriptiveAttribute(prefix_a) && !same_expanded_word(prefix_a, pk_b) && !matchTableName(prefix_a, tbl_b, true) && !matchTableName(prefix_a, tbl_a, true))) {
+                                        suffix_match = true;
+                                    }
                                 }
                             }
 
                             // Column suffix matches target table (e.g. orders.id_customer -> customers.id)
                             if (!suffix_match) {
                                 if (!suffix_is_ambiguous && matchTableName(suffix_a, tbl_b, !suffix_has_exact)) {
-                                    suffix_match = true;
+                                    if (!(isDescriptiveAttribute(prefix_a) && !same_expanded_word(prefix_a, pk_b) && !matchTableName(prefix_a, tbl_b, true) && !matchTableName(prefix_a, tbl_a, true))) {
+                                        suffix_match = true;
+                                    }
                                 }
                             }
 
                             // Suffix match on last word
                             if (!suffix_match) {
                                 if (matchLastWord(prefix_a, tbl_b)) {
-                                    suffix_match = true;
+                                    if (!(isDescriptiveAttribute(suffix_a) && !same_expanded_word(suffix_a, pk_b) && !matchTableName(suffix_a, tbl_b, true) && !matchTableName(suffix_a, tbl_a, true))) {
+                                        suffix_match = true;
+                                    }
                                 }
                             }
                         }
@@ -420,7 +476,7 @@ void findPass1ImpliedRelationships(
 
                         // Heuristic: Non-ID PK suffix match
                         // Example: orders.main_customer_code -> customers.customer_code
-                        if (to_lower(pk_b) != "id") {
+                        if (to_lower(pk_b) != "id" && !isGenericIdentifier(pk_b) && !isGenericAttribute(pk_b)) {
                             if (col_a_clean.length() > pk_b.length()) {
                                 std::string col_lower = to_lower(col_a_clean);
                                 std::string pk_lower = to_lower(pk_b);
@@ -487,7 +543,10 @@ void findPass1_5ImpliedRelationships(
             
             auto is_key_column = [](const std::string& name) -> bool {
                 std::string n = to_lower(name);
-                if (n == "id" || n == "uuid" || n == "guid" || n == "uid" || n == "key" || n == "code") return true;
+                static const std::unordered_set<std::string> DIRECT_KEYS = {
+                    "id", "uuid", "guid", "uid", "key", "code"
+                };
+                if (DIRECT_KEYS.count(n) > 0) return true;
                 if (n.length() > 3 && (n.rfind("_id") == n.length() - 3 || n.rfind("_key") == n.length() - 4 || n.rfind("_uid") == n.length() - 4)) return true;
                 if (n.length() > 5 && (n.rfind("_code") == n.length() - 5 || n.rfind("_uuid") == n.length() - 5 || n.rfind("_guid") == n.length() - 5)) return true;
                 return false;
@@ -597,6 +656,12 @@ void findPass2ImpliedRelationships(
     const std::unordered_map<std::string, std::vector<std::string>>& effective_pks,
     std::set<Relationship>& relationships) {
 
+    // Precompute parent tables from Pass 1 relationships for fast sibling check
+    std::unordered_map<std::string, std::unordered_set<std::string>> parent_tables;
+    for (const auto& rel : relationships) {
+        parent_tables[rel.from_table].insert(rel.to_table);
+    }
+
     // Find all subtype relationships (only if no relationship between tbl_a and tbl_b via other columns already exists)
     for (const auto& tbl_a : table_names) {
         auto it_a = tables_info.find(tbl_a);
@@ -628,7 +693,7 @@ void findPass2ImpliedRelationships(
                 const auto& info_b = it_b_info->second;
 
                 const auto& pks_b = effective_pks.at(tbl_b);
-                if (pks_b.empty()) continue;
+                if (pks_b.size() != 1) continue;
 
                 for (const auto& pk_b : pks_b) {
                     auto it_b_col = info_b.column_types.find(pk_b);
@@ -678,7 +743,20 @@ void findPass2ImpliedRelationships(
                                     }
                                 }
                                 if (col_name_matches) {
-                                    is_subtype = true;
+                                    bool are_siblings = false;
+                                    auto it_pa = parent_tables.find(tbl_a);
+                                    auto it_pb = parent_tables.find(tbl_b);
+                                    if (it_pa != parent_tables.end() && it_pb != parent_tables.end()) {
+                                        for (const auto& p_a : it_pa->second) {
+                                            if (p_a != tbl_b && it_pb->second.count(p_a) > 0) {
+                                                are_siblings = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (!are_siblings) {
+                                        is_subtype = true;
+                                    }
                                 }
                             } else {
                                 std::string clean_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
@@ -725,7 +803,7 @@ void findImpliedRelationships(
     for (const auto& tbl : table_names) {
         auto it = tables_info.find(tbl);
         if (it != tables_info.end()) {
-            effective_pks[tbl] = getEffectivePKs(tbl, it->second);
+            effective_pks[tbl] = getEffectivePKs(tbl, it->second, table_names, tables_info);
         }
     }
 

@@ -1,0 +1,101 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 279758_load
+--echo #
+CREATE DATABASE `db_279758_load`;
+USE `db_279758_load`;
+
+CREATE TABLE `stations` (
+  `Xcoordinate` DECIMAL(10,2),
+  `Ycoordinate` DECIMAL(10,2),
+  `state` VARCHAR(64),
+  `code` VARCHAR(64),
+  `name` VARCHAR(64),
+  `zone` VARCHAR(64),
+  `address` VARCHAR(64),
+  PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trains` (
+  `third_ac` INT,
+  `arrival` DATETIME,
+  `from_station_code` VARCHAR(64),
+  `name` VARCHAR(64),
+  `zone` VARCHAR(64),
+  `chair_car` INT,
+  `first_class` INT,
+  `duration_m` INT,
+  `sleeper` INT,
+  `from_station_name` VARCHAR(64),
+  `number` VARCHAR(64),
+  `departure` DATETIME,
+  `return_train` VARCHAR(64),
+  `to_station_code` VARCHAR(64),
+  `second_ac` INT,
+  `classes` VARCHAR(64),
+  `to_station_name` VARCHAR(64),
+  `duration_h` INT,
+  `type` VARCHAR(64),
+  `first_ac` INT,
+  `distance` INT,
+  PRIMARY KEY (`number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schedules` (
+  `arrival` DATETIME,
+  `day` INT,
+  `train_name` VARCHAR(64),
+  `station_name` VARCHAR(64),
+  `station_code` VARCHAR(64),
+  `id` INT,
+  `train_number` VARCHAR(64),
+  `departure` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `coach` (
+  `coach_name` VARCHAR(64),
+  `class` VARCHAR(64),
+  `total_seats` INT,
+  `coach_type` VARCHAR(64),
+  PRIMARY KEY (`coach_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PNR` (
+  `PNR_no` VARCHAR(64),
+  `train_number` VARCHAR(64),
+  `date` DATETIME,
+  `coach_no` VARCHAR(64),
+  `seat_no` INT,
+  `birth_type` VARCHAR(64),
+  `name` VARCHAR(64),
+  `age` INT,
+  `gender` VARCHAR(64),
+  `mobile` VARCHAR(64),
+  `email` VARCHAR(64),
+  `src` VARCHAR(64),
+  `dest` VARCHAR(64),
+  `delete` INT,
+  PRIMARY KEY (`train_number`, `date`, `coach_no`, `seat_no`, `delete`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_279758_load') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_279758_load') AS relationships;
+DROP DATABASE `db_279758_load`;
+UNINSTALL EXTENSION vsql_schematron;

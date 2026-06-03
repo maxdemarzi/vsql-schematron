@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 407169_1
+--echo #
+CREATE DATABASE `db_407169_1`;
+USE `db_407169_1`;
+
+CREATE TABLE `users` (
+  `Id` INT,
+  `GitHubUser` VARCHAR(64),
+  `GitHubToken` VARCHAR(64),
+  `Name` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `Role` VARCHAR(64),
+  `Status` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `projects` (
+  `Id` INT,
+  `GitHubRepo` VARCHAR(64),
+  `TogglProject` VARCHAR(64),
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user2project` (
+  `UserId` INT,
+  `ProjectId` INT,
+  `Role` VARCHAR(64),
+  `Status` VARCHAR(64),
+  PRIMARY KEY (`UserId`, `ProjectId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `issues` (
+  `Id` INT,
+  `ProjectId` INT,
+  `GitHubIssueId` INT,
+  `Title` VARCHAR(64),
+  `Estimate` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_407169_1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_407169_1') AS relationships;
+DROP DATABASE `db_407169_1`;
+UNINSTALL EXTENSION vsql_schematron;

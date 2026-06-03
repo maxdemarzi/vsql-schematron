@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 145835_V1__init
+#
+CREATE DATABASE `db_145835_V1_init`;
+USE `db_145835_V1_init`;
+CREATE TABLE `role` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_account` (
+`id` INT,
+`name` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`idrole` INT,
+`deleted` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `permission` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`deleted` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_permission` (
+`idrole` INT,
+`idpermission` INT,
+PRIMARY KEY (`idrole`, `idpermission`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_145835_V1_init') AS relationships;
+relationships
+Database: db_145835_V1_init
+
+Table Connections:
+------------------
+[Implied]  role_permission.idpermission -> permission.id
+[Implied]  role_permission.idrole -> role.id
+[Implied]  user_account.idrole -> role.id
+
+DROP DATABASE `db_145835_V1_init`;
+UNINSTALL EXTENSION vsql_schematron;

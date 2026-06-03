@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 567654_EP3_9790930_MODULE_ACCESS_DDL
+--echo #
+CREATE DATABASE `db_567654_EP3_9790930_MODULE_ACCESS_DDL`;
+USE `db_567654_EP3_9790930_MODULE_ACCESS_DDL`;
+
+CREATE TABLE `users` (
+  `us_id` INT,
+  `us_email` VARCHAR(64),
+  `us_password` VARCHAR(64),
+  PRIMARY KEY (`us_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `b01_PERFIL` (
+  `tipo` VARCHAR(64),
+  PRIMARY KEY (`tipo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `b02_SERVICO` (
+  `nome` VARCHAR(64),
+  PRIMARY KEY (`nome`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `b03_PF_SE` (
+  `pf_tipo` VARCHAR(64),
+  `se_nome` VARCHAR(64),
+  PRIMARY KEY (`se_nome`, `pf_tipo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `b04_US_PF` (
+  `us_id` INT,
+  `pf_tipo` VARCHAR(64),
+  PRIMARY KEY (`us_id`, `pf_tipo`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_567654_EP3_9790930_MODULE_ACCESS_DDL') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_567654_EP3_9790930_MODULE_ACCESS_DDL') AS relationships;
+DROP DATABASE `db_567654_EP3_9790930_MODULE_ACCESS_DDL`;
+UNINSTALL EXTENSION vsql_schematron;

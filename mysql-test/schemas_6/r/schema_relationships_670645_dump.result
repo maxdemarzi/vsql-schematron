@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 670645_dump
+#
+CREATE DATABASE `db_670645_dump`;
+USE `db_670645_dump`;
+CREATE TABLE `branch` (
+`department` VARCHAR(64),
+`course` VARCHAR(64),
+`year` INT,
+`strength` INT,
+PRIMARY KEY (`department`, `course`, `year`)
+) CHARACTER SET latin1;
+CREATE TABLE `hostel` (
+`name` VARCHAR(64),
+`capacity` INT,
+`head_warden` VARCHAR(64),
+`head_warden_email` VARCHAR(64),
+`head_warden_passwd` VARCHAR(64),
+`gender` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `resides_in` (
+`hostel_name` VARCHAR(64),
+`department` VARCHAR(64),
+`course` VARCHAR(64),
+`year` INT,
+`strength` INT,
+`range_start` INT,
+`range_end` INT,
+`seater` INT,
+PRIMARY KEY (`hostel_name`, `department`, `course`, `year`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_670645_dump') AS relationships;
+relationships
+Database: db_670645_dump
+
+Table Connections:
+------------------
+[Implied]  resides_in.hostel_name -> hostel.name
+
+DROP DATABASE `db_670645_dump`;
+UNINSTALL EXTENSION vsql_schematron;

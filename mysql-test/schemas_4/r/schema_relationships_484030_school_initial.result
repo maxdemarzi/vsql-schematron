@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 484030_school_initial
+#
+CREATE DATABASE `db_484030_school_initial`;
+USE `db_484030_school_initial`;
+CREATE TABLE `aluno` (
+`id_aluno` INT,
+`tx_nome` VARCHAR(64),
+`tx_sexo` VARCHAR(64),
+`dt_nascimento` DATETIME,
+PRIMARY KEY (`id_aluno`)
+) CHARACTER SET latin1;
+CREATE TABLE `cursa` (
+`id_aluno` INT,
+`id_disciplina` INT,
+`id_ano` INT,
+`in_semestre` INT,
+`in_faltas` INT,
+`nm_nota1` DECIMAL(10,2),
+`nm_nota2` DECIMAL(10,2),
+`nm_nota3` DECIMAL(10,2),
+`bl_aprovado` VARCHAR(64),
+PRIMARY KEY (`id_aluno`, `id_disciplina`, `id_ano`, `in_semestre`)
+) CHARACTER SET latin1;
+CREATE TABLE `curso` (
+`id_curso` INT,
+`id_instituicao` INT,
+`id_tipo_curso` INT,
+`tx_descricao` VARCHAR(64),
+PRIMARY KEY (`id_curso`)
+) CHARACTER SET latin1;
+CREATE TABLE `disciplina` (
+`id_disciplina` INT,
+`id_curso` INT,
+`id_tipo_disciplina` INT,
+`tx_sigla` VARCHAR(64),
+`tx_descricao` VARCHAR(64),
+`in_periodo` INT,
+`in_carga_horaria` INT,
+PRIMARY KEY (`id_disciplina`)
+) CHARACTER SET latin1;
+CREATE TABLE `instituicao` (
+`id_instituicao` INT,
+`tx_sigla` VARCHAR(64),
+`tx_descricao` VARCHAR(64),
+PRIMARY KEY (`id_instituicao`)
+) CHARACTER SET latin1;
+CREATE TABLE `leciona` (
+`id_disciplina` INT,
+`id_professor` INT,
+PRIMARY KEY (`id_disciplina`, `id_professor`)
+) CHARACTER SET latin1;
+CREATE TABLE `professor` (
+`id_professor` INT,
+`id_titulo` INT,
+`tx_nome` VARCHAR(64),
+`tx_sexo` VARCHAR(64),
+`tx_estado_civil` VARCHAR(64),
+`dt_nascimento` DATETIME,
+`tx_telefone` VARCHAR(64),
+PRIMARY KEY (`id_professor`)
+) CHARACTER SET latin1;
+CREATE TABLE `tipo_curso` (
+`id_tipo_curso` INT,
+`tx_descricao` VARCHAR(64),
+PRIMARY KEY (`id_tipo_curso`)
+) CHARACTER SET latin1;
+CREATE TABLE `tipo_disciplina` (
+`id_tipo_disciplina` INT,
+`tx_descricao` VARCHAR(64),
+PRIMARY KEY (`id_tipo_disciplina`)
+) CHARACTER SET latin1;
+CREATE TABLE `titulo` (
+`id_titulo` INT,
+`tx_descricao` VARCHAR(64),
+PRIMARY KEY (`id_titulo`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_484030_school_initial') AS relationships;
+relationships
+Database: db_484030_school_initial
+
+Table Connections:
+------------------
+[Implied]  cursa.id_aluno -> aluno.id_aluno
+[Implied]  cursa.id_disciplina -> disciplina.id_disciplina
+[Implied]  curso.id_instituicao -> instituicao.id_instituicao
+[Implied]  curso.id_tipo_curso -> tipo_curso.id_tipo_curso
+[Implied]  disciplina.id_curso -> curso.id_curso
+[Implied]  disciplina.id_tipo_disciplina -> tipo_disciplina.id_tipo_disciplina
+[Implied]  leciona.id_disciplina -> disciplina.id_disciplina
+[Implied]  leciona.id_professor -> professor.id_professor
+[Implied]  professor.id_titulo -> titulo.id_titulo
+
+DROP DATABASE `db_484030_school_initial`;
+UNINSTALL EXTENSION vsql_schematron;

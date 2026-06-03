@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 231794_otracker_create_table
+--echo #
+CREATE DATABASE `db_231794_otracker_create_table`;
+USE `db_231794_otracker_create_table`;
+
+CREATE TABLE `agent_offer` (
+  `agent_id` INT,
+  `offer_id` INT,
+  PRIMARY KEY (`agent_id`, `offer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `agents` (
+  `id` INT,
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `photo_url` VARCHAR(64),
+  `phone_number` VARCHAR(64),
+  `brokerage` VARCHAR(64),
+  `designations` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `events` (
+  `id` INT,
+  `offer_id` INT,
+  `description` VARCHAR(64),
+  `status` VARCHAR(64),
+  `status_code` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `offer_viewer` (
+  `offer_id` INT,
+  `viewer_id` INT,
+  PRIMARY KEY (`offer_id`, `viewer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `offers` (
+  `id` INT,
+  `link` VARCHAR(64),
+  `address` VARCHAR(64),
+  `mls_number` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sessions` (
+  `id` VARCHAR(64),
+  `agent_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `viewers` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `phone_number` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_231794_otracker_create_table') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_231794_otracker_create_table') AS relationships;
+DROP DATABASE `db_231794_otracker_create_table`;
+UNINSTALL EXTENSION vsql_schematron;

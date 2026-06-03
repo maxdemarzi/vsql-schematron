@@ -1,0 +1,124 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 225551_orderdb_sql.ddl
+#
+CREATE DATABASE `db_225551_orderdb_sql_ddl`;
+USE `db_225551_orderdb_sql_ddl`;
+CREATE TABLE `customer` (
+`customerId` INT,
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`email` VARCHAR(64),
+`phonenum` VARCHAR(64),
+`address` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`postalCode` VARCHAR(64),
+`country` VARCHAR(64),
+`userid` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`customerId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tokens` (
+`tokenId` INT,
+`userid` VARCHAR(64),
+`token` VARCHAR(64),
+PRIMARY KEY (`tokenId`)
+) CHARACTER SET latin1;
+CREATE TABLE `paymentmethod` (
+`paymentMethodId` INT,
+`paymentType` VARCHAR(64),
+`paymentNumber` VARCHAR(64),
+`paymentExpiryDate` DATETIME,
+`customerId` INT,
+PRIMARY KEY (`paymentMethodId`)
+) CHARACTER SET latin1;
+CREATE TABLE `ordersummary` (
+`orderId` INT,
+`orderDate` DATETIME,
+`totalAmount` DECIMAL(10,2),
+`shiptoAddress` VARCHAR(64),
+`shiptoCity` VARCHAR(64),
+`shiptoState` VARCHAR(64),
+`shiptoPostalCode` VARCHAR(64),
+`shiptoCountry` VARCHAR(64),
+`customerId` INT,
+PRIMARY KEY (`orderId`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`categoryId` INT,
+`categoryName` VARCHAR(64),
+PRIMARY KEY (`categoryId`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`productId` INT,
+`productName` VARCHAR(64),
+`productPrice` DECIMAL(10,2),
+`productImageURL` VARCHAR(64),
+`productDesc` VARCHAR(64),
+`categoryId` INT,
+PRIMARY KEY (`productId`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderproduct` (
+`orderId` INT,
+`productId` INT,
+`quantity` INT,
+`price` DECIMAL(10,2),
+PRIMARY KEY (`orderId`, `productId`)
+) CHARACTER SET latin1;
+CREATE TABLE `incart` (
+`orderId` INT,
+`productId` INT,
+`quantity` INT,
+`price` DECIMAL(10,2),
+PRIMARY KEY (`orderId`, `productId`)
+) CHARACTER SET latin1;
+CREATE TABLE `warehouse` (
+`warehouseId` INT,
+`warehouseName` VARCHAR(64),
+PRIMARY KEY (`warehouseId`)
+) CHARACTER SET latin1;
+CREATE TABLE `shipment` (
+`shipmentId` INT,
+`shipmentDate` DATETIME,
+`shipmentDesc` VARCHAR(64),
+`warehouseId` INT,
+PRIMARY KEY (`shipmentId`)
+) CHARACTER SET latin1;
+CREATE TABLE `productinventory` (
+`productId` INT,
+`warehouseId` INT,
+`quantity` INT,
+`price` DECIMAL(10,2),
+PRIMARY KEY (`productId`, `warehouseId`)
+) CHARACTER SET latin1;
+CREATE TABLE `review` (
+`reviewId` INT,
+`reviewRating` INT,
+`reviewDate` DATETIME,
+`customerId` INT,
+`productId` INT,
+`reviewComment` VARCHAR(64),
+PRIMARY KEY (`reviewId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_225551_orderdb_sql_ddl') AS relationships;
+relationships
+Database: db_225551_orderdb_sql_ddl
+
+Table Connections:
+------------------
+[Implied]  incart.orderId -> ordersummary.orderId
+[Implied]  incart.productId -> product.productId
+[Implied]  orderproduct.orderId -> ordersummary.orderId
+[Implied]  orderproduct.productId -> product.productId
+[Implied]  ordersummary.customerId -> customer.customerId
+[Implied]  paymentmethod.customerId -> customer.customerId
+[Implied]  product.categoryId -> category.categoryId
+[Implied]  productinventory.productId -> product.productId
+[Implied]  productinventory.warehouseId -> warehouse.warehouseId
+[Implied]  review.customerId -> customer.customerId
+[Implied]  review.productId -> product.productId
+[Implied]  shipment.warehouseId -> warehouse.warehouseId
+
+DROP DATABASE `db_225551_orderdb_sql_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

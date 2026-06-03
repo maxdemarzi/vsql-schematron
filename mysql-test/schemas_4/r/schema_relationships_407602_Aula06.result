@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 407602_Aula06
+#
+CREATE DATABASE `db_407602_Aula06`;
+USE `db_407602_Aula06`;
+CREATE TABLE `tblfaculdades` (
+`facid` INT,
+`facnome` VARCHAR(64),
+`facsigla` VARCHAR(64),
+PRIMARY KEY (`facid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblcursos` (
+`curid` INT,
+`curnome` VARCHAR(64),
+`cursigla` VARCHAR(64),
+`curarea` VARCHAR(64),
+PRIMARY KEY (`curid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblcursosfaculdades` (
+`curid` INT,
+`facid` INT,
+PRIMARY KEY (`curid`, `facid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblprofissoes` (
+`profid` INT,
+`profnome` VARCHAR(64),
+PRIMARY KEY (`profid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tblalunos` (
+`aluid` INT,
+`alura` VARCHAR(64),
+`alunome` VARCHAR(64),
+`alucpf` DECIMAL(10,2),
+`aludatanascimento` DATETIME,
+`alupeso` DECIMAL(10,2),
+`profid` INT,
+`curid` INT,
+PRIMARY KEY (`aluid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_407602_Aula06') AS relationships;
+relationships
+Database: db_407602_Aula06
+
+Table Connections:
+------------------
+[Implied]  tblalunos.curid -> tblcursos.curid
+[Implied]  tblalunos.profid -> tblprofissoes.profid
+[Implied]  tblcursosfaculdades.curid -> tblcursos.curid
+[Implied]  tblcursosfaculdades.facid -> tblfaculdades.facid
+
+DROP DATABASE `db_407602_Aula06`;
+UNINSTALL EXTENSION vsql_schematron;

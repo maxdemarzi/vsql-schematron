@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 177546_instagram_clone
+#
+CREATE DATABASE `db_177546_instagram_clone`;
+USE `db_177546_instagram_clone`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `photos` (
+`id` INT,
+`image_url` VARCHAR(64),
+`user_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`comment_text` VARCHAR(64),
+`user_id` INT,
+`photo_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `likes` (
+`user_id` INT,
+`photo_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`user_id`, `photo_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` INT,
+`tag_name` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `taggins` (
+`photo_id` INT,
+`tag_id` INT,
+PRIMARY KEY (`photo_id`, `tag_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_177546_instagram_clone') AS relationships;
+relationships
+Database: db_177546_instagram_clone
+
+Table Connections:
+------------------
+[Implied]  comments.photo_id -> photos.id
+[Implied]  comments.user_id -> users.id
+[Implied]  likes.photo_id -> photos.id
+[Implied]  likes.user_id -> users.id
+[Implied]  photos.user_id -> users.id
+[Implied]  taggins.photo_id -> photos.id
+[Implied]  taggins.tag_id -> tags.id
+
+DROP DATABASE `db_177546_instagram_clone`;
+UNINSTALL EXTENSION vsql_schematron;

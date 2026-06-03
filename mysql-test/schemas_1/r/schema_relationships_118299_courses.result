@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 118299_courses
+#
+CREATE DATABASE `db_118299_courses`;
+USE `db_118299_courses`;
+CREATE TABLE `instructors` (
+`instructor_id` INT,
+`instructor` VARCHAR(64),
+PRIMARY KEY (`instructor_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `grades_types` (
+`grades_type_id` INT,
+`grades_type` VARCHAR(64),
+PRIMARY KEY (`grades_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sections` (
+`course_id` INT,
+`section_number` INT,
+`instructor_id` INT,
+`grades_type_id` INT,
+`times` VARCHAR(64),
+`locations` VARCHAR(64),
+PRIMARY KEY (`course_id`, `section_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `planner_courses` (
+`user_id` INT,
+`course_id` INT,
+`planner_year` INT,
+PRIMARY KEY (`user_id`, `course_id`, `planner_year`)
+) CHARACTER SET latin1;
+CREATE TABLE `planner_placeholders` (
+`placeholder_id` INT,
+`user_id` INT,
+`planner_year` INT,
+`term` INT,
+`course_name` VARCHAR(64),
+`course_units` DECIMAL(10,2),
+PRIMARY KEY (`placeholder_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `scheduler_sections` (
+`user_id` INT,
+`course_id` INT,
+`section_number` INT,
+`notes` VARCHAR(64),
+PRIMARY KEY (`user_id`, `course_id`, `section_number`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_118299_courses') AS relationships;
+relationships
+Database: db_118299_courses
+
+Table Connections:
+------------------
+[Implied]  sections.grades_type_id -> grades_types.grades_type_id
+[Implied]  sections.instructor_id -> instructors.instructor_id
+
+DROP DATABASE `db_118299_courses`;
+UNINSTALL EXTENSION vsql_schematron;

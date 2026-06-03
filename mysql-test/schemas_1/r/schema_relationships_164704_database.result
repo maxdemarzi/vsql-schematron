@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 164704_database
+#
+CREATE DATABASE `db_164704_database`;
+USE `db_164704_database`;
+CREATE TABLE `Department` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Course` (
+`id` INT,
+`capacity` INT,
+`code` VARCHAR(64),
+`prerequisite` VARCHAR(64),
+`hour` INT,
+`credit` INT,
+`name` VARCHAR(64),
+`department_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `People` (
+`id` INT,
+`uid` INT,
+`name` VARCHAR(64),
+`gender` VARCHAR(64),
+`department_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Role` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PeopleRole` (
+`people_id` INT,
+`role_id` INT,
+PRIMARY KEY (`people_id`, `role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Class` (
+`id` INT,
+`semester` VARCHAR(64),
+`name` VARCHAR(64),
+`list` VARCHAR(64),
+`course_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CoursePeople` (
+`course_id` INT,
+`people_id` INT,
+PRIMARY KEY (`course_id`, `people_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ClassPeople` (
+`class_id` INT,
+`people_id` INT,
+`role_id` INT,
+PRIMARY KEY (`class_id`, `people_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_164704_database') AS relationships;
+relationships
+Database: db_164704_database
+
+Table Connections:
+------------------
+[Implied]  Class.course_id -> Course.id
+[Implied]  ClassPeople.class_id -> Class.id
+[Implied]  ClassPeople.people_id -> People.id
+[Implied]  ClassPeople.role_id -> Role.id
+[Implied]  Course.department_id -> Department.id
+[Implied]  CoursePeople.course_id -> Course.id
+[Implied]  CoursePeople.people_id -> People.id
+[Implied]  People.department_id -> Department.id
+[Implied]  PeopleRole.people_id -> People.id
+[Implied]  PeopleRole.role_id -> Role.id
+
+DROP DATABASE `db_164704_database`;
+UNINSTALL EXTENSION vsql_schematron;

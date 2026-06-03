@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 546509_SlackerHackers_postgres_create
+#
+CREATE DATABASE `db_546509_SlackerHackers_postgres_create`;
+USE `db_546509_SlackerHackers_postgres_create`;
+CREATE TABLE `mentors` (
+`id` INT,
+`slackUserId` VARCHAR(64),
+`defaultLocationId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `trainees` (
+`id` INT,
+`slackUserId` VARCHAR(64),
+`classId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `locations` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `classes` (
+`id` INT,
+`locationId` INT,
+`name` VARCHAR(64),
+`startDate` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `thresholds` (
+`id` INT,
+`mentorId` INT,
+`classId` INT,
+`postsWeight` INT,
+`callsCountWeight` INT,
+`callsTimeWeight` INT,
+`threshold` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`slackUserId` VARCHAR(64),
+`slackChannelId` VARCHAR(64),
+`timestamp` DATETIME,
+`isReply` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_546509_SlackerHackers_postgres_create') AS relationships;
+relationships
+Database: db_546509_SlackerHackers_postgres_create
+
+Table Connections:
+------------------
+[Implied]  classes.locationId -> locations.id
+[Implied]  mentors.defaultLocationId -> locations.id
+[Implied]  thresholds.classId -> classes.id
+[Implied]  thresholds.mentorId -> mentors.id
+[Implied]  trainees.classId -> classes.id
+
+DROP DATABASE `db_546509_SlackerHackers_postgres_create`;
+UNINSTALL EXTENSION vsql_schematron;

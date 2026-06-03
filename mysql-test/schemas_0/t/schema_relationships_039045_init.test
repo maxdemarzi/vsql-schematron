@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 039045_init
+--echo #
+CREATE DATABASE `db_039045_init`;
+USE `db_039045_init`;
+
+CREATE TABLE `trains` (
+  `train_number` VARCHAR(64),
+  `train_name` VARCHAR(64),
+  `source` VARCHAR(64),
+  `destination` VARCHAR(64),
+  `source_departure_time` DATETIME,
+  `journey_duration` INT,
+  `sleeper_ticket_fare` DECIMAL(10,2),
+  `ac_ticket_fare` DECIMAL(10,2),
+  PRIMARY KEY (`train_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `coaches` (
+  `coach_id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `composition_table` VARCHAR(64),
+  `seats_count` INT,
+  PRIMARY KEY (`coach_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `train_instance` (
+  `train_number` VARCHAR(64),
+  `journey_date` DATETIME,
+  `booking_start_time` DATETIME,
+  `booking_end_time` DATETIME,
+  `number_of_ac_coaches` INT,
+  `number_of_sleeper_coaches` INT,
+  `ac_coach_id` INT,
+  `sleeper_coach_id` INT,
+  `train_table_name` VARCHAR(64),
+  `available_ac_tickets` INT,
+  `available_sleeper_tickets` INT,
+  PRIMARY KEY (`train_number`, `journey_date`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tickets` (
+  `pnr_number` VARCHAR(64),
+  `ticket_fare` DECIMAL(10,2),
+  `train_number` VARCHAR(64),
+  `journey_date` DATETIME,
+  `username` VARCHAR(64),
+  `transaction_number` VARCHAR(64),
+  `time_of_booking` DATETIME,
+  `refund_amount` DECIMAL(10,2),
+  PRIMARY KEY (`pnr_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cancelled_berths` (
+  `seat_number` INT,
+  `coach_number` VARCHAR(64),
+  `pnr_number` VARCHAR(64),
+  `passenger_name` VARCHAR(64),
+  `passenger_age` INT,
+  `passenger_gender` VARCHAR(64),
+  `cancellation_timestamp` DATETIME,
+  PRIMARY KEY (`seat_number`, `coach_number`, `pnr_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `password` VARCHAR(64),
+  `is_admin` VARCHAR(64),
+  `current_token` VARCHAR(64),
+  `create_timestamp` DATETIME,
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_039045_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_039045_init') AS relationships;
+DROP DATABASE `db_039045_init`;
+UNINSTALL EXTENSION vsql_schematron;

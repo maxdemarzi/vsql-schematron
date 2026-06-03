@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 442380_ScriptV4
+--echo #
+CREATE DATABASE `db_442380_ScriptV4`;
+USE `db_442380_ScriptV4`;
+
+CREATE TABLE `leilao` (
+  `leilao_id` INT,
+  `data_inicio` DATETIME,
+  `data_fim` DATETIME,
+  `preco_minimo` DECIMAL(10,2),
+  `is_canceled` VARCHAR(64),
+  `pessoa_user_id` INT,
+  `artigo_codigo` VARCHAR(64),
+  PRIMARY KEY (`leilao_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pessoa` (
+  `user_id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  `data_ultimo_acesso` DATETIME,
+  `token` VARCHAR(64),
+  `validade_token` DATETIME,
+  `is_admin` VARCHAR(64),
+  `is_banido` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `licitacao` (
+  `data` DATETIME,
+  `valor` DECIMAL(10,2),
+  `is_valido` VARCHAR(64),
+  `pessoa_user_id` INT,
+  `leilao_leilao_id` INT,
+  PRIMARY KEY (`data`, `pessoa_user_id`, `leilao_leilao_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_442380_ScriptV4') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_442380_ScriptV4') AS relationships;
+DROP DATABASE `db_442380_ScriptV4`;
+UNINSTALL EXTENSION vsql_schematron;

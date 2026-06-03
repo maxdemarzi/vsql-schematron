@@ -1,0 +1,126 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 566976_dbfaculdades
+--echo #
+CREATE DATABASE `db_566976_dbfaculdades`;
+USE `db_566976_dbfaculdades`;
+
+CREATE TABLE `tblfaculdades` (
+  `facid` INT,
+  `facnome` VARCHAR(64),
+  `facsigla` VARCHAR(64),
+  PRIMARY KEY (`facid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblcursos` (
+  `curid` INT,
+  `curnome` VARCHAR(64),
+  `facid` INT,
+  PRIMARY KEY (`curid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbldisciplinas` (
+  `discid` INT,
+  `discnome` VARCHAR(64),
+  PRIMARY KEY (`discid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbldisciplinascursos` (
+  `discid` INT,
+  `curid` INT,
+  PRIMARY KEY (`discid`, `curid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblestados` (
+  `estid` INT,
+  `estnome` VARCHAR(64),
+  `estsigla` VARCHAR(64),
+  PRIMARY KEY (`estid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblcidades` (
+  `cidid` INT,
+  `cidnome` VARCHAR(64),
+  `estid` INT,
+  PRIMARY KEY (`cidid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblbairros` (
+  `bairroid` INT,
+  `bairronome` VARCHAR(64),
+  `cidid` INT,
+  PRIMARY KEY (`bairroid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblceps` (
+  `cepid` INT,
+  `cepnum` INT,
+  `estid` INT,
+  `cidid` INT,
+  `bairroid` INT,
+  PRIMARY KEY (`cepid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblprofissoes` (
+  `profid` INT,
+  `profnome` VARCHAR(64),
+  PRIMARY KEY (`profid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblalunos` (
+  `aluid` INT,
+  `alura` VARCHAR(64),
+  `alunome` VARCHAR(64),
+  `alucpf` DECIMAL(10,2),
+  `alurg` VARCHAR(64),
+  `aludtnasc` DATETIME,
+  `alulogr` VARCHAR(64),
+  `cepid` INT,
+  `profid` INT,
+  `facid` INT,
+  `curid` INT,
+  PRIMARY KEY (`aluid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbldisciplinasalunos` (
+  `discid` INT,
+  `aluid` INT,
+  PRIMARY KEY (`discid`, `aluid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblnotasdisciplinas` (
+  `discid` INT,
+  `aluid` INT,
+  `nota1` DECIMAL(10,2),
+  `nota2` DECIMAL(10,2),
+  `notafinal` DECIMAL(10,2),
+  PRIMARY KEY (`discid`, `aluid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblboletos` (
+  `bolid` INT,
+  `bolvalor` DECIMAL(10,2),
+  `aluid` INT,
+  PRIMARY KEY (`bolid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_566976_dbfaculdades') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_566976_dbfaculdades') AS relationships;
+DROP DATABASE `db_566976_dbfaculdades`;
+UNINSTALL EXTENSION vsql_schematron;

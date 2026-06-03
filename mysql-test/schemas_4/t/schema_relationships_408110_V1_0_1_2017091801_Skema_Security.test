@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 408110_V1.0.1.2017091801__Skema_Security
+--echo #
+CREATE DATABASE `db_408110_V1_0_1_2017091801_Skema_Security`;
+USE `db_408110_V1_0_1_2017091801_Skema_Security`;
+
+CREATE TABLE `s_permission` (
+  `id` VARCHAR(64),
+  `permission_label` VARCHAR(64),
+  `permission_value` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `s_role` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `s_role_permission` (
+  `id_role` VARCHAR(64),
+  `id_permission` VARCHAR(64),
+  PRIMARY KEY (`id_role`, `id_permission`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `s_user` (
+  `id` VARCHAR(64),
+  `username` VARCHAR(64),
+  `active` VARCHAR(64),
+  `id_role` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `s_user_password` (
+  `id` VARCHAR(64),
+  `id_user` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_408110_V1_0_1_2017091801_Skema_Security') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_408110_V1_0_1_2017091801_Skema_Security') AS relationships;
+DROP DATABASE `db_408110_V1_0_1_2017091801_Skema_Security`;
+UNINSTALL EXTENSION vsql_schematron;

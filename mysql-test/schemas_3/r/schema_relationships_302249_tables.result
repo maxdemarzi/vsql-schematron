@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 302249_tables
+#
+CREATE DATABASE `db_302249_tables`;
+USE `db_302249_tables`;
+CREATE TABLE `author` (
+`author_id` INT,
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`birthDate` DATETIME,
+`sex` VARCHAR(64),
+PRIMARY KEY (`author_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books` (
+`book_id` INT,
+`title` VARCHAR(64),
+`author_id` INT,
+PRIMARY KEY (`book_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book_editions` (
+`edition_id` INT,
+`book_id` INT,
+`edition_label` VARCHAR(64),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`edition_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `awards` (
+`award_id` INT,
+`name` VARCHAR(64),
+`organisation` VARCHAR(64),
+PRIMARY KEY (`award_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book_awards` (
+`award_id` INT,
+`book_id` INT,
+PRIMARY KEY (`award_id`, `book_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_302249_tables') AS relationships;
+relationships
+Database: db_302249_tables
+
+Table Connections:
+------------------
+[Implied]  book_awards.award_id -> awards.award_id
+[Implied]  book_awards.book_id -> books.book_id
+[Implied]  book_editions.book_id -> books.book_id
+[Implied]  books.author_id -> author.author_id
+
+DROP DATABASE `db_302249_tables`;
+UNINSTALL EXTENSION vsql_schematron;

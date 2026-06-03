@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 257195_Jokes_db
+--echo #
+CREATE DATABASE `db_257195_Jokes_db`;
+USE `db_257195_Jokes_db`;
+
+CREATE TABLE `Users` (
+  `userId` INT,
+  `username` VARCHAR(64),
+  `upass` VARCHAR(64),
+  PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Jokes` (
+  `jokeId` VARCHAR(64),
+  `joke` VARCHAR(64),
+  `total_rate_value` INT,
+  `num_of_ratings` INT,
+  `AvgRating` DECIMAL(10,2),
+  PRIMARY KEY (`jokeId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Comments` (
+  `commentId` INT,
+  `userId` INT,
+  `jokeId` VARCHAR(64),
+  `comment` VARCHAR(64),
+  `date` DATETIME,
+  PRIMARY KEY (`commentId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Rating` (
+  `rateId` INT,
+  `jokeId` VARCHAR(64),
+  `userId` INT,
+  `rate` INT,
+  PRIMARY KEY (`rateId`, `jokeId`, `userId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_257195_Jokes_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_257195_Jokes_db') AS relationships;
+DROP DATABASE `db_257195_Jokes_db`;
+UNINSTALL EXTENSION vsql_schematron;

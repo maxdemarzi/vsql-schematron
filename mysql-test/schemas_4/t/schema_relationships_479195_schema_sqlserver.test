@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 479195_schema-sqlserver
+--echo #
+CREATE DATABASE `db_479195_schema_sqlserver`;
+USE `db_479195_schema_sqlserver`;
+
+CREATE TABLE `togglr.key_names` (
+  `APP_ID` INT,
+  `KEY_NAME` VARCHAR(64),
+  PRIMARY KEY (`APP_ID`, `KEY_NAME`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `togglr.configs` (
+  `APP_ID` INT,
+  `FEATURE_ID` INT,
+  `KEY_NAME` VARCHAR(64),
+  `CONFIG_VALUE` VARCHAR(64),
+  PRIMARY KEY (`APP_ID`, `FEATURE_ID`, `KEY_NAME`, `CONFIG_VALUE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `togglr.admins` (
+  `ID` VARCHAR(64),
+  `APP_ID` INT,
+  PRIMARY KEY (`ID`, `APP_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `togglr.super_admins` (
+  `ID` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `togglr.jwt_secret` (
+  `JWT_SECRET_KEY` INT,
+  `JWT_SECRET_64` VARCHAR(64),
+  PRIMARY KEY (`JWT_SECRET_KEY`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_479195_schema_sqlserver') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_479195_schema_sqlserver') AS relationships;
+DROP DATABASE `db_479195_schema_sqlserver`;
+UNINSTALL EXTENSION vsql_schematron;

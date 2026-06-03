@@ -1,0 +1,101 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 556140_RevolutBank_scripts
+--echo #
+CREATE DATABASE `db_556140_RevolutBank_scripts`;
+USE `db_556140_RevolutBank_scripts`;
+
+CREATE TABLE `Banks` (
+  `BankID` INT,
+  `BankIdentifierCode` VARCHAR(64),
+  `BankName` VARCHAR(64),
+  `BankBranchName` VARCHAR(64),
+  `Rating` VARCHAR(64),
+  `AssetsAmount` VARCHAR(64),
+  PRIMARY KEY (`BankID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Currencies` (
+  `CurrencyID` INT,
+  `Name` VARCHAR(64),
+  `IsCBDC` VARCHAR(64),
+  `Descriptions` VARCHAR(64),
+  PRIMARY KEY (`CurrencyID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Customers` (
+  `CustomerID` INT,
+  `NationalIdentityNumber` VARCHAR(64),
+  `FirstName` VARCHAR(64),
+  `LastName` VARCHAR(64),
+  `Address` VARCHAR(64),
+  PRIMARY KEY (`CustomerID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BankAccountTypes` (
+  `BankAccountTypeID` INT,
+  `Name` VARCHAR(64),
+  `Descriptions` VARCHAR(64),
+  `Limit` VARCHAR(64),
+  `Rate` DECIMAL(10,2),
+  PRIMARY KEY (`BankAccountTypeID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Cards` (
+  `CardID` INT,
+  `CardNumber` VARCHAR(64),
+  `PINCode` VARCHAR(64),
+  `CVV` VARCHAR(64),
+  `Limit` VARCHAR(64),
+  `ValidationDate` DATETIME,
+  `CardType` VARCHAR(64),
+  PRIMARY KEY (`CardID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CardsTwoBankAccounts` (
+  `CardID` INT,
+  `BankAccountID` INT,
+  PRIMARY KEY (`CardID`, `BankAccountID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Transactions` (
+  `TransactionID` INT,
+  `SenderBankAccountID` INT,
+  `ReceiverBankAccountID` INT,
+  `Amount` VARCHAR(64),
+  `CreatedOn` DATETIME,
+  `CurrencyID` INT,
+  PRIMARY KEY (`TransactionID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BankAccounts` (
+  `BankAccountID` INT,
+  `Balance` VARCHAR(64),
+  `IsActive` VARCHAR(64),
+  `CardID` INT,
+  `BankAccountTypeID` INT,
+  `BankID` INT,
+  `CustomerID` INT,
+  PRIMARY KEY (`BankAccountID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_556140_RevolutBank_scripts') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_556140_RevolutBank_scripts') AS relationships;
+DROP DATABASE `db_556140_RevolutBank_scripts`;
+UNINSTALL EXTENSION vsql_schematron;

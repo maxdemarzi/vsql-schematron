@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 374197_sql.ddl
+#
+CREATE DATABASE `db_374197_sql_ddl`;
+USE `db_374197_sql_ddl`;
+CREATE TABLE `accesstable` (
+`startdate` DATETIME,
+`enddate` DATETIME,
+`usertable_userid` DECIMAL(10,2),
+`doortable_doorid` DECIMAL(10,2),
+PRIMARY KEY (`usertable_userid`, `doortable_doorid`)
+) CHARACTER SET latin1;
+CREATE TABLE `doortable` (
+`doorid` DECIMAL(10,2),
+`name` VARCHAR(64),
+`ip` VARCHAR(64),
+PRIMARY KEY (`doorid`)
+) CHARACTER SET latin1;
+CREATE TABLE `finger` (
+`finger` VARCHAR(64),
+`user_id` DECIMAL(10,2),
+`binfile` VARCHAR(64),
+PRIMARY KEY (`finger`)
+) CHARACTER SET latin1;
+CREATE TABLE `logaccesstable` (
+`time` DATETIME,
+`usertable_userid` DECIMAL(10,2),
+`doortable_doorid` DECIMAL(10,2),
+PRIMARY KEY (`usertable_userid`, `doortable_doorid`)
+) CHARACTER SET latin1;
+CREATE TABLE `usertable` (
+`userid` DECIMAL(10,2),
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`email` VARCHAR(64),
+`role` VARCHAR(64),
+PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_374197_sql_ddl') AS relationships;
+relationships
+Database: db_374197_sql_ddl
+
+Table Connections:
+------------------
+[Implied]  accesstable.doortable_doorid -> doortable.doorid
+[Implied]  accesstable.usertable_userid -> usertable.userid
+[Implied]  finger.user_id -> usertable.userid
+[Implied]  logaccesstable.doortable_doorid -> doortable.doorid
+[Implied]  logaccesstable.usertable_userid -> usertable.userid
+
+DROP DATABASE `db_374197_sql_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

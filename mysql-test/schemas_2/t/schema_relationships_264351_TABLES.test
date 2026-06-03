@@ -1,0 +1,114 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 264351_TABLES
+--echo #
+CREATE DATABASE `db_264351_TABLES`;
+USE `db_264351_TABLES`;
+
+CREATE TABLE `Department` (
+  `Dep_ID` DECIMAL(10,2),
+  `Dep_Name` VARCHAR(64),
+  `Dep_ContactNumber` VARCHAR(64),
+  PRIMARY KEY (`Dep_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Shift` (
+  `Shift_ID` DECIMAL(10,2),
+  `Shift_Description` VARCHAR(64),
+  `Shift_Start` DATETIME,
+  `Shift_End` DATETIME,
+  PRIMARY KEY (`Shift_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Mine` (
+  `Mine_ID` DECIMAL(10,2),
+  `Mine_Name` VARCHAR(64),
+  `Location` VARCHAR(64),
+  `Contact_Num` VARCHAR(64),
+  `Coal_Quantity` DECIMAL(10,2),
+  PRIMARY KEY (`Mine_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Qualification_Detail` (
+  `Qual_ID` DECIMAL(10,2),
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  PRIMARY KEY (`Qual_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Destination` (
+  `Dest_ID` DECIMAL(10,2),
+  `Dest_Name` VARCHAR(64),
+  `Dest_Location` VARCHAR(64),
+  PRIMARY KEY (`Dest_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Employee` (
+  `Emp_ID` DECIMAL(10,2),
+  `Dep_ID` DECIMAL(10,2),
+  `Shift_ID` DECIMAL(10,2),
+  `Mine_ID` DECIMAL(10,2),
+  `Salary` DECIMAL(10,2),
+  `Emp_FirstName` VARCHAR(64),
+  `Emp_LastName` VARCHAR(64),
+  `Emp_ContactNumber` VARCHAR(64),
+  `Emp_Address` VARCHAR(64),
+  `Emp_Email` VARCHAR(64),
+  `Job_Description` VARCHAR(64),
+  PRIMARY KEY (`Emp_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Export` (
+  `Export_ID` DECIMAL(10,2),
+  `Quantity` DECIMAL(10,2),
+  `Transporter` VARCHAR(64),
+  `Transporter_Stat` VARCHAR(64),
+  `Ship_Date` DATETIME,
+  `Arrival_Date` DATETIME,
+  `Sales_Price` DECIMAL(10,2),
+  `Export_Cost` DECIMAL(10,2),
+  `Dest_ID` DECIMAL(10,2),
+  `Mine_ID` DECIMAL(10,2),
+  PRIMARY KEY (`Export_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Manager` (
+  `Manager_ID` DECIMAL(10,2),
+  `Emp_ID` DECIMAL(10,2),
+  PRIMARY KEY (`Manager_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Qualification` (
+  `Qual_ID` DECIMAL(10,2),
+  `Emp_ID` DECIMAL(10,2),
+  `Qualification_Num` VARCHAR(64),
+  PRIMARY KEY (`Qual_ID`, `Emp_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Salary_History` (
+  `Emp_ID` DECIMAL(10,2),
+  `Sal_Date` DATETIME,
+  `Amount` DECIMAL(10,2),
+  PRIMARY KEY (`Emp_ID`, `Sal_Date`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_264351_TABLES') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_264351_TABLES') AS relationships;
+DROP DATABASE `db_264351_TABLES`;
+UNINSTALL EXTENSION vsql_schematron;

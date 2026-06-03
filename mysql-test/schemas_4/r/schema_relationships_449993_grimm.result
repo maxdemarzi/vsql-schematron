@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 449993_grimm
+#
+CREATE DATABASE `db_449993_grimm`;
+USE `db_449993_grimm`;
+CREATE TABLE `activity` (
+`id` INT,
+`title` VARCHAR(64),
+`start_time` DATETIME,
+`location` VARCHAR(64),
+`end_time` DATETIME,
+`content` VARCHAR(64),
+`notice` VARCHAR(64),
+`others` VARCHAR(64),
+`admin_raiser` INT,
+`user_raiser` VARCHAR(64),
+`approver` INT,
+`assignee` VARCHAR(64),
+`published` INT,
+`tag_ids` VARCHAR(64),
+`volunteer_capacity` INT,
+`vision_impaired_capacity` INT,
+`volunteer_job_title` VARCHAR(64),
+`volunteer_job_content` VARCHAR(64),
+`activity_fee` INT,
+`sign_in_radius` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pickup_pair` (
+`activity_id` INT,
+`offer` VARCHAR(64),
+`need` VARCHAR(64),
+`time` DATETIME,
+`location` VARCHAR(64),
+PRIMARY KEY (`offer`, `need`)
+) CHARACTER SET latin1;
+CREATE TABLE `activity_participant` (
+`activity_id` INT,
+`participant_openid` VARCHAR(64),
+`interested` INT,
+`share` INT,
+`thumbs_up` INT,
+`certificated` INT,
+`certificate_date` DATETIME,
+`paper_certificate` INT,
+PRIMARY KEY (`activity_id`, `participant_openid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_449993_grimm') AS relationships;
+relationships
+Database: db_449993_grimm
+
+Table Connections:
+------------------
+[Implied]  activity_participant.activity_id -> activity.id
+[Implied]  pickup_pair.activity_id -> activity.id
+
+DROP DATABASE `db_449993_grimm`;
+UNINSTALL EXTENSION vsql_schematron;

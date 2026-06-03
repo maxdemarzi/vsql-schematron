@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 644774_2014-05-30-001-basic-structure
+#
+CREATE DATABASE `db_644774_2014_05_30_001_basic_structure`;
+USE `db_644774_2014_05_30_001_basic_structure`;
+CREATE TABLE `comments` (
+`id` INT,
+`post_id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`content` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`title` VARCHAR(64),
+`content` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts_x_tags` (
+`post_id` INT,
+`tag_id` INT,
+PRIMARY KEY (`post_id`, `tag_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_644774_2014_05_30_001_basic_structure') AS relationships;
+relationships
+Database: db_644774_2014_05_30_001_basic_structure
+
+Table Connections:
+------------------
+[Implied]  comments.post_id -> posts.id
+[Implied]  posts_x_tags.post_id -> posts.id
+[Implied]  posts_x_tags.tag_id -> tags.id
+
+DROP DATABASE `db_644774_2014_05_30_001_basic_structure`;
+UNINSTALL EXTENSION vsql_schematron;

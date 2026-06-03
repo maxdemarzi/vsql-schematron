@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 170085_smartedu_sim
+--echo #
+CREATE DATABASE `db_170085_smartedu_sim`;
+USE `db_170085_smartedu_sim`;
+
+CREATE TABLE `students` (
+  `fiscalCode` VARCHAR(64),
+  `badgeNumber` VARCHAR(64),
+  `courseOfStudy` VARCHAR(64),
+  `legalDuration` INT,
+  `status` INT,
+  `registrationDate` DATETIME,
+  `codStudyPlan` INT,
+  PRIMARY KEY (`fiscalCode`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `studyPlans` (
+  `idPlan` INT,
+  `codStudent` VARCHAR(64),
+  PRIMARY KEY (`idPlan`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `assPlanSubj` (
+  `codPlan` INT,
+  `codSubject` VARCHAR(64),
+  PRIMARY KEY (`codPlan`, `codSubject`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `exams` (
+  `idExam` INT,
+  `vote` INT,
+  `sustainedDate` DATETIME,
+  `codStudent` VARCHAR(64),
+  `codSubject` VARCHAR(64),
+  PRIMARY KEY (`idExam`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_170085_smartedu_sim') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_170085_smartedu_sim') AS relationships;
+DROP DATABASE `db_170085_smartedu_sim`;
+UNINSTALL EXTENSION vsql_schematron;

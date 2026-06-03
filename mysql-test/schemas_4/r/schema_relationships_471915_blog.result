@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 471915_blog
+#
+CREATE DATABASE `db_471915_blog`;
+USE `db_471915_blog`;
+CREATE TABLE `category` (
+`id` INT,
+`parentId` INT,
+`title` VARCHAR(64),
+`metaTitle` VARCHAR(64),
+`slug` VARCHAR(64),
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_category` (
+`postId` INT,
+`categoryId` INT,
+PRIMARY KEY (`postId`, `categoryId`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_comment` (
+`id` INT,
+`postId` INT,
+`parentId` INT,
+`title` VARCHAR(64),
+`published` INT,
+`createdAt` DATETIME,
+`publishedAt` DATETIME,
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_tag` (
+`postId` INT,
+`tagId` INT,
+PRIMARY KEY (`postId`, `tagId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`id` INT,
+`title` VARCHAR(64),
+`metaTitle` VARCHAR(64),
+`slug` VARCHAR(64),
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_471915_blog') AS relationships;
+relationships
+Database: db_471915_blog
+
+Table Connections:
+------------------
+[Implied]  category.parentId -> category.id
+[Implied]  post_category.categoryId -> category.id
+[Implied]  post_comment.parentId -> post_comment.id
+[Implied]  post_tag.tagId -> tag.id
+
+DROP DATABASE `db_471915_blog`;
+UNINSTALL EXTENSION vsql_schematron;

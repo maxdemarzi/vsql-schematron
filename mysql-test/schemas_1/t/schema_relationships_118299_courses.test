@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 118299_courses
+--echo #
+CREATE DATABASE `db_118299_courses`;
+USE `db_118299_courses`;
+
+CREATE TABLE `instructors` (
+  `instructor_id` INT,
+  `instructor` VARCHAR(64),
+  PRIMARY KEY (`instructor_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `grades_types` (
+  `grades_type_id` INT,
+  `grades_type` VARCHAR(64),
+  PRIMARY KEY (`grades_type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sections` (
+  `course_id` INT,
+  `section_number` INT,
+  `instructor_id` INT,
+  `grades_type_id` INT,
+  `times` VARCHAR(64),
+  `locations` VARCHAR(64),
+  PRIMARY KEY (`course_id`, `section_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `planner_courses` (
+  `user_id` INT,
+  `course_id` INT,
+  `planner_year` INT,
+  PRIMARY KEY (`user_id`, `course_id`, `planner_year`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `planner_placeholders` (
+  `placeholder_id` INT,
+  `user_id` INT,
+  `planner_year` INT,
+  `term` INT,
+  `course_name` VARCHAR(64),
+  `course_units` DECIMAL(10,2),
+  PRIMARY KEY (`placeholder_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `scheduler_sections` (
+  `user_id` INT,
+  `course_id` INT,
+  `section_number` INT,
+  `notes` VARCHAR(64),
+  PRIMARY KEY (`user_id`, `course_id`, `section_number`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_118299_courses') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_118299_courses') AS relationships;
+DROP DATABASE `db_118299_courses`;
+UNINSTALL EXTENSION vsql_schematron;

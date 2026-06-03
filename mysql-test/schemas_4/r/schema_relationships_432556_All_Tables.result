@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 432556_All_Tables
+#
+CREATE DATABASE `db_432556_All_Tables`;
+USE `db_432556_All_Tables`;
+CREATE TABLE `beers` (
+`id` INT,
+`brewery_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`image` VARCHAR(64),
+`abv` DECIMAL(10,2),
+`beer_type` INT,
+`gluten_free` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `breweries` (
+`id` INT,
+`name` VARCHAR(64),
+`address1` VARCHAR(64),
+`address2` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`zip_code` VARCHAR(64),
+`country` VARCHAR(64),
+`longitude` DECIMAL(10,2),
+`latitude` DECIMAL(10,2),
+`phone` VARCHAR(64),
+`website` VARCHAR(64),
+`history` VARCHAR(64),
+`image` VARCHAR(64),
+`food_id` INT,
+`active` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reviews` (
+`id` INT,
+`review_type` INT,
+`target_id` INT,
+`user_id` INT,
+`review_title` VARCHAR(64),
+`review_body` VARCHAR(64),
+`review_caps` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `operation_hours` (
+`brewery_id` INT,
+`day` INT,
+`open` DATETIME,
+`close` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `beer_type` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `food` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `review_type` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `favorite_breweries` (
+`user_id` INT,
+`brewery_id` INT,
+PRIMARY KEY (`user_id`, `brewery_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_432556_All_Tables') AS relationships;
+relationships
+Database: db_432556_All_Tables
+
+Table Connections:
+------------------
+[Implied]  beers.beer_type -> beer_type.id
+[Implied]  beers.brewery_id -> breweries.id
+[Implied]  breweries.food_id -> food.id
+[Implied]  favorite_breweries.brewery_id -> breweries.id
+[Implied]  operation_hours.brewery_id -> breweries.id
+[Implied]  reviews.review_type -> review_type.id
+
+DROP DATABASE `db_432556_All_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 293492_lmsite_bgm
+--echo #
+CREATE DATABASE `db_293492_lmsite_bgm`;
+USE `db_293492_lmsite_bgm`;
+
+CREATE TABLE `logging_event` (
+  `timestmp` INT,
+  `formatted_message` VARCHAR(64),
+  `logger_name` VARCHAR(64),
+  `level_string` VARCHAR(64),
+  `thread_name` VARCHAR(64),
+  `reference_flag` INT,
+  `arg0` VARCHAR(64),
+  `arg1` VARCHAR(64),
+  `arg2` VARCHAR(64),
+  `arg3` VARCHAR(64),
+  `caller_filename` VARCHAR(64),
+  `caller_class` VARCHAR(64),
+  `caller_method` VARCHAR(64),
+  `caller_line` VARCHAR(64),
+  `event_id` INT,
+  PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `logging_event_exception` (
+  `event_id` INT,
+  `i` INT,
+  `trace_line` VARCHAR(64),
+  PRIMARY KEY (`event_id`, `i`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `logging_event_property` (
+  `event_id` INT,
+  `mapped_key` VARCHAR(64),
+  `mapped_value` VARCHAR(64),
+  PRIMARY KEY (`event_id`, `mapped_key`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_293492_lmsite_bgm') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_293492_lmsite_bgm') AS relationships;
+DROP DATABASE `db_293492_lmsite_bgm`;
+UNINSTALL EXTENSION vsql_schematron;

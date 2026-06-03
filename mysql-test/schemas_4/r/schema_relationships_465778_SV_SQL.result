@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 465778_SV_SQL
+#
+CREATE DATABASE `db_465778_SV_SQL`;
+USE `db_465778_SV_SQL`;
+CREATE TABLE `Applications` (
+`Code_Application` VARCHAR(64),
+`LIBELLE` VARCHAR(64),
+`TYPE` VARCHAR(64),
+PRIMARY KEY (`Code_Application`)
+) CHARACTER SET latin1;
+CREATE TABLE `Correspondant` (
+`Id_RH` VARCHAR(64),
+`NOM` VARCHAR(64),
+`PRENOM` VARCHAR(64),
+`FONCTION` VARCHAR(64),
+`EMAIL` VARCHAR(64),
+`TELEPHONE` INT,
+`ROLE` VARCHAR(64),
+PRIMARY KEY (`Id_RH`)
+) CHARACTER SET latin1;
+CREATE TABLE `Autoriser` (
+`Code_Application` VARCHAR(64),
+`ID` INT,
+PRIMARY KEY (`Code_Application`, `ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Appartenir` (
+`Id_RH` VARCHAR(64),
+`Code_Application` VARCHAR(64),
+PRIMARY KEY (`Id_RH`, `Code_Application`)
+) CHARACTER SET latin1;
+CREATE TABLE `CONVERTIR` (
+`Id` INT,
+`Id_SV_SUIVI` INT,
+`id_SV_Statistiques` INT,
+PRIMARY KEY (`Id`, `Id_SV_SUIVI`, `id_SV_Statistiques`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_465778_SV_SQL') AS relationships;
+relationships
+Database: db_465778_SV_SQL
+
+Table Connections:
+------------------
+[Implied]  Appartenir.Code_Application -> Applications.Code_Application
+[Implied]  Appartenir.Id_RH -> Correspondant.Id_RH
+[Implied]  Autoriser.Code_Application -> Applications.Code_Application
+
+DROP DATABASE `db_465778_SV_SQL`;
+UNINSTALL EXTENSION vsql_schematron;

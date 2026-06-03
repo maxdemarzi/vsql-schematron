@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 575737_15_log.up
+#
+CREATE DATABASE `db_575737_15_log_up`;
+USE `db_575737_15_log_up`;
+CREATE TABLE `log_events` (
+`id` INT,
+`user_id` INT,
+`add_datetime` DATETIME,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `log_events_articles` (
+`log_event_id` INT,
+`article_id` INT,
+PRIMARY KEY (`log_event_id`, `article_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `log_events_item` (
+`log_event_id` INT,
+`item_id` INT,
+PRIMARY KEY (`log_event_id`, `item_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `log_events_pictures` (
+`log_event_id` INT,
+`picture_id` INT,
+PRIMARY KEY (`log_event_id`, `picture_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `log_events_user` (
+`log_event_id` INT,
+`user_id` INT,
+PRIMARY KEY (`log_event_id`, `user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_575737_15_log_up') AS relationships;
+relationships
+Database: db_575737_15_log_up
+
+Table Connections:
+------------------
+[Implied]  log_events_articles.log_event_id -> log_events.id
+[Implied]  log_events_item.log_event_id -> log_events.id
+[Implied]  log_events_pictures.log_event_id -> log_events.id
+[Implied]  log_events_user.log_event_id -> log_events.id
+
+DROP DATABASE `db_575737_15_log_up`;
+UNINSTALL EXTENSION vsql_schematron;

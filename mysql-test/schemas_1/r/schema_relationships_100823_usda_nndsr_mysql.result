@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 100823_usda_nndsr_mysql
+#
+CREATE DATABASE `db_100823_usda_nndsr_mysql`;
+USE `db_100823_usda_nndsr_mysql`;
+CREATE TABLE `FOOTNOTE` (
+`NDB_No` VARCHAR(64),
+`Footnt_No` VARCHAR(64),
+`Footnt_Typ` VARCHAR(64),
+`Nutr_No` VARCHAR(64),
+`Footnt_Txt` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `FD_GROUP` (
+`FdGrp_Cd` VARCHAR(64),
+`FdGrp_Desc` VARCHAR(64),
+PRIMARY KEY (`FdGrp_Cd`)
+) CHARACTER SET latin1;
+CREATE TABLE `LANGUAL` (
+`NDB_No` VARCHAR(64),
+`Factor_Code` VARCHAR(64),
+PRIMARY KEY (`NDB_No`, `Factor_Code`)
+) CHARACTER SET latin1;
+CREATE TABLE `LANGDESC` (
+`Factor_Code` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`Factor_Code`)
+) CHARACTER SET latin1;
+CREATE TABLE `NUTR_DEF` (
+`Nutr_No` VARCHAR(64),
+`Units` VARCHAR(64),
+`Tagname` VARCHAR(64),
+`NutrDesc` VARCHAR(64),
+`Num_Dec` VARCHAR(64),
+`SR_Order` INT,
+PRIMARY KEY (`Nutr_No`)
+) CHARACTER SET latin1;
+CREATE TABLE `SRC_CD` (
+`Src_Cd` VARCHAR(64),
+`SrcCd_Desc` VARCHAR(64),
+PRIMARY KEY (`Src_Cd`)
+) CHARACTER SET latin1;
+CREATE TABLE `DERIV_CD` (
+`Deriv_Cd` VARCHAR(64),
+`Deriv_Desc` VARCHAR(64),
+PRIMARY KEY (`Deriv_Cd`)
+) CHARACTER SET latin1;
+CREATE TABLE `DATA_SRC` (
+`DataSrc_ID` VARCHAR(64),
+`Authors` VARCHAR(64),
+`Title` VARCHAR(64),
+`Year` VARCHAR(64),
+`Journal` VARCHAR(64),
+`Vol_City` VARCHAR(64),
+`Issue_State` VARCHAR(64),
+`Start_Page` VARCHAR(64),
+`End_Page` VARCHAR(64),
+PRIMARY KEY (`DataSrc_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `DATSRCLN` (
+`NDB_No` VARCHAR(64),
+`Nutr_No` VARCHAR(64),
+`DataSrc_ID` VARCHAR(64),
+PRIMARY KEY (`NDB_No`, `Nutr_No`, `DataSrc_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_100823_usda_nndsr_mysql') AS relationships;
+relationships
+Database: db_100823_usda_nndsr_mysql
+
+Table Connections:
+------------------
+[Implied]  DATSRCLN.DataSrc_ID -> DATA_SRC.DataSrc_ID
+[Implied]  DATSRCLN.Nutr_No -> NUTR_DEF.Nutr_No
+[Implied]  FOOTNOTE.Nutr_No -> NUTR_DEF.Nutr_No
+[Implied]  LANGUAL.Factor_Code -> LANGDESC.Factor_Code
+
+DROP DATABASE `db_100823_usda_nndsr_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

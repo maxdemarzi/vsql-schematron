@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 469180_crebas
+#
+CREATE DATABASE `db_469180_crebas`;
+USE `db_469180_crebas`;
+CREATE TABLE `author` (
+`author_id` VARCHAR(64),
+`author_name` VARCHAR(64),
+`author_sex` VARCHAR(64),
+`author_location` VARCHAR(64),
+`author_tel` VARCHAR(64),
+PRIMARY KEY (`author_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book` (
+`book_id` DECIMAL(10,2),
+`pub_id` VARCHAR(64),
+`book_list_id` INT,
+`book_name` VARCHAR(64),
+`book_isbn` VARCHAR(64),
+`book_price` DECIMAL(10,2),
+PRIMARY KEY (`book_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book_list` (
+`book_list_id` DECIMAL(10,2),
+`book_list_name` VARCHAR(64),
+`book_list_type` VARCHAR(64),
+PRIMARY KEY (`book_list_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `borrow_return_record` (
+`borrow_return_id` DECIMAL(10,2),
+`book_id` INT,
+`borrower_id` VARCHAR(64),
+`borrow_return_type` VARCHAR(64),
+`borrow_return_time` DATETIME,
+PRIMARY KEY (`borrow_return_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `borrower` (
+`borrower_id` VARCHAR(64),
+`borrower_name` VARCHAR(64),
+`borrower_location` VARCHAR(64),
+`borrower_tel` VARCHAR(64),
+PRIMARY KEY (`borrower_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+`book_id` INT,
+`borrower_id` VARCHAR(64),
+`return_deadline` DATETIME,
+PRIMARY KEY (`book_id`, `borrower_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `publishing` (
+`pub_id` VARCHAR(64),
+`pub_name` VARCHAR(64),
+`pub_location` VARCHAR(64),
+`pub_tel` VARCHAR(64),
+PRIMARY KEY (`pub_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `write` (
+`book_id` INT,
+`author_id` VARCHAR(64),
+`×÷Õß´ÎÐò` VARCHAR(64),
+PRIMARY KEY (`book_id`, `author_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_469180_crebas') AS relationships;
+relationships
+Database: db_469180_crebas
+
+Table Connections:
+------------------
+[Implied]  book.book_list_id -> book_list.book_list_id
+[Implied]  book.pub_id -> publishing.pub_id
+[Implied]  borrow_return_record.book_id -> book.book_id
+[Implied]  borrow_return_record.borrower_id -> borrower.borrower_id
+[Implied]  order.book_id -> book.book_id
+[Implied]  order.borrower_id -> borrower.borrower_id
+[Implied]  write.author_id -> author.author_id
+[Implied]  write.book_id -> book.book_id
+
+DROP DATABASE `db_469180_crebas`;
+UNINSTALL EXTENSION vsql_schematron;

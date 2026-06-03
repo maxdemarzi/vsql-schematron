@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 262537_schema
+#
+CREATE DATABASE `db_262537_schema`;
+USE `db_262537_schema`;
+CREATE TABLE `Movies` (
+`title` VARCHAR(64),
+`releaseYear` INT,
+PRIMARY KEY (`title`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cinemas` (
+`name` VARCHAR(64),
+`city` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Spectators` (
+`name` VARCHAR(64),
+`birthYear` INT,
+`city` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Opinions` (
+`spectator` VARCHAR(64),
+`movie` VARCHAR(64),
+`stars` INT,
+PRIMARY KEY (`spectator`, `movie`)
+) CHARACTER SET latin1;
+CREATE TABLE `Frequents` (
+`spectator` VARCHAR(64),
+`cinema` VARCHAR(64),
+PRIMARY KEY (`spectator`, `cinema`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_262537_schema') AS relationships;
+relationships
+Database: db_262537_schema
+
+Table Connections:
+------------------
+[Implied]  Frequents.cinema -> Cinemas.name
+[Implied]  Frequents.spectator -> Spectators.name
+[Implied]  Opinions.movie -> Movies.title
+[Implied]  Opinions.spectator -> Spectators.name
+
+DROP DATABASE `db_262537_schema`;
+UNINSTALL EXTENSION vsql_schematron;

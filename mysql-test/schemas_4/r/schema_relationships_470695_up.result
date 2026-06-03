@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 470695_up
+#
+CREATE DATABASE `db_470695_up`;
+USE `db_470695_up`;
+CREATE TABLE `posts` (
+`id` INT,
+`user_id` INT,
+`title` VARCHAR(64),
+`body` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`post_id` INT,
+`text` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `followings` (
+`user_id` INT,
+`post_id` INT,
+`email_notifications` VARCHAR(64),
+PRIMARY KEY (`user_id`, `post_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `likes` (
+`comment_id` INT,
+`user_id` INT,
+PRIMARY KEY (`comment_id`, `user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_470695_up') AS relationships;
+relationships
+Database: db_470695_up
+
+Table Connections:
+------------------
+[Implied]  comments.post_id -> posts.id
+[Implied]  followings.post_id -> posts.id
+[Implied]  likes.comment_id -> comments.id
+
+DROP DATABASE `db_470695_up`;
+UNINSTALL EXTENSION vsql_schematron;

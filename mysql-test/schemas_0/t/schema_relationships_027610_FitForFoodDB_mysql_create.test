@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 027610_FitForFoodDB_mysql_create
+--echo #
+CREATE DATABASE `db_027610_FitForFoodDB_mysql_create`;
+USE `db_027610_FitForFoodDB_mysql_create`;
+
+CREATE TABLE `Usuario` (
+  `ID` INT,
+  `Correo` VARCHAR(64),
+  `Contraseña` VARCHAR(64),
+  `Fecha_Creacion` DATETIME,
+  `Fecha_Ultimo_InitSesion` DATETIME,
+  `Código_Sesion` VARCHAR(64),
+  `Fecha_UltiCambio_Contraseña` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Calorias` (
+  `ID_Registro` INT,
+  `ID_Usuario` INT,
+  `Cal_Diarias` DECIMAL(10,2),
+  `Objetivo` VARCHAR(64),
+  `Registro_Calorias` VARCHAR(64),
+  `Fecha_PrimerRegistro` DATETIME,
+  `Prom_Calorias_Consumidas` DECIMAL(10,2),
+  PRIMARY KEY (`ID_Registro`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Consumo_Agua` (
+  `ID_Registro` INT,
+  `ID_Usuario` INT,
+  `Consumo_Diario` DECIMAL(10,2),
+  `Registro_Consumo` VARCHAR(64),
+  `Fecha_PrimerRegistro` DATETIME,
+  `Prom_Consumo` DECIMAL(10,2),
+  PRIMARY KEY (`ID_Registro`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Ejercicio` (
+  `ID_Registro` INT,
+  `ID_Usuario` INT,
+  `Num_Dias_Semana_Proyectados` INT,
+  `Registro_Ejercicio` VARCHAR(64),
+  `Fecha_PrimerRegistro` DATETIME,
+  `Prom_Ejercicio_Semana` DECIMAL(10,2),
+  PRIMARY KEY (`ID_Registro`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Usuario_Premium` (
+  `ID_Membresia` INT,
+  `ID_Usuario` INT,
+  `Fecha_Suscripcion` DATETIME,
+  `Fecha_Renovacion` DATETIME,
+  `Historico` VARCHAR(64),
+  `Estado` VARCHAR(64),
+  PRIMARY KEY (`ID_Membresia`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Pago` (
+  `ID_Pago` INT,
+  `ID_Usuario` INT,
+  `Monto` DECIMAL(10,2),
+  `Fecha` DATETIME,
+  `Medio_Pago` VARCHAR(64),
+  `Estado` VARCHAR(64),
+  PRIMARY KEY (`ID_Pago`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Alimento` (
+  `ID` INT,
+  `Nombre` VARCHAR(64),
+  `Tipo` VARCHAR(64),
+  `Calorias` DECIMAL(10,2),
+  `Objetivo_Cal_Relacionado` VARCHAR(64),
+  `Grado_Recomendacion` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Notificaciones` (
+  `ID` INT,
+  `ID_Usuario` INT,
+  `Configuracion` VARCHAR(64),
+  `Num_Notificaciones_Config` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_027610_FitForFoodDB_mysql_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_027610_FitForFoodDB_mysql_create') AS relationships;
+DROP DATABASE `db_027610_FitForFoodDB_mysql_create`;
+UNINSTALL EXTENSION vsql_schematron;

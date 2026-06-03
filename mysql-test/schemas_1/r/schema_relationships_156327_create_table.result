@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 156327_create-table
+#
+CREATE DATABASE `db_156327_create_table`;
+USE `db_156327_create_table`;
+CREATE TABLE `context` (
+`id` INT,
+`last_updated` DATETIME,
+`explanation` VARCHAR(64),
+`name` VARCHAR(64),
+`parent_name` VARCHAR(64),
+`parent_path` VARCHAR(64),
+`parent_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `paragraph` (
+`id` INT,
+`last_updated` DATETIME,
+`remarks` VARCHAR(64),
+`text` VARCHAR(64),
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `term` (
+`id` INT,
+`last_updated` DATETIME,
+`explanation` VARCHAR(64),
+`name` VARCHAR(64),
+`reading` VARCHAR(64),
+`translation` VARCHAR(64),
+`context_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `word` (
+`id` INT,
+`last_updated` DATETIME,
+`abbreviation` VARCHAR(64),
+`conversion` VARCHAR(64),
+`notation` VARCHAR(64),
+`note` VARCHAR(64),
+`reading` VARCHAR(64),
+`context_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `term_paragraph` (
+`paragraph_id` INT,
+`term_id` INT,
+PRIMARY KEY (`paragraph_id`, `term_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `term_word` (
+`word_id` INT,
+`term_id` INT,
+PRIMARY KEY (`word_id`, `term_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_156327_create_table') AS relationships;
+relationships
+Database: db_156327_create_table
+
+Table Connections:
+------------------
+[Implied]  context.parent_id -> context.id
+[Implied]  term.context_id -> context.id
+[Implied]  term_paragraph.paragraph_id -> paragraph.id
+[Implied]  term_paragraph.term_id -> term.id
+[Implied]  term_word.term_id -> term.id
+[Implied]  term_word.word_id -> word.id
+[Implied]  word.context_id -> context.id
+
+DROP DATABASE `db_156327_create_table`;
+UNINSTALL EXTENSION vsql_schematron;

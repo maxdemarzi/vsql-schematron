@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 377269_init
+#
+CREATE DATABASE `db_377269_init`;
+USE `db_377269_init`;
+CREATE TABLE `sensor` (
+`id` INT,
+`name` VARCHAR(64),
+`manufacturer` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `location` (
+`id` INT,
+`sensor_id` INT,
+`altitude` DECIMAL(10,2),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`indoor` VARCHAR(64),
+`country` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sensordatavalues` (
+`id` INT,
+`sensor_id` INT,
+`value` DECIMAL(10,2),
+`value_type` VARCHAR(64),
+`date` DATETIME,
+`time` DATETIME,
+PRIMARY KEY (`id`, `sensor_id`, `value`, `value_type`, `date`, `time`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_377269_init') AS relationships;
+relationships
+Database: db_377269_init
+
+Table Connections:
+------------------
+[Implied]  location.sensor_id -> sensor.id
+[Implied]  sensordatavalues.sensor_id -> sensor.id
+
+DROP DATABASE `db_377269_init`;
+UNINSTALL EXTENSION vsql_schematron;

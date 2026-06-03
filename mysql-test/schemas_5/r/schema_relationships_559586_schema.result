@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 559586_schema
+#
+CREATE DATABASE `db_559586_schema`;
+USE `db_559586_schema`;
+CREATE TABLE `persona` (
+`id` INT,
+`nombres` VARCHAR(64),
+`apellidos` VARCHAR(64),
+`cel` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `estudiante` (
+`id` INT,
+`persona_id` INT,
+`correo` VARCHAR(64),
+`edad` INT,
+`sexo` VARCHAR(64),
+`univ` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `instructor` (
+`id` INT,
+`persona_id` INT,
+`fb` VARCHAR(64),
+`ci` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `modulo` (
+`id` INT,
+`nombre` VARCHAR(64),
+`dsc` VARCHAR(64),
+`dia` VARCHAR(64),
+`ini` DATETIME,
+`fin` DATETIME,
+`whatsapp` VARCHAR(64),
+`requisitos` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `instructor_modulo` (
+`instructor_id` INT,
+`modulo_id` INT,
+PRIMARY KEY (`instructor_id`, `modulo_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `estudiante_modulo` (
+`estudiante_id` INT,
+`modulo_id` INT,
+`qrurl` VARCHAR(64),
+PRIMARY KEY (`estudiante_id`, `modulo_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `asistencia` (
+`id` INT,
+`estudiante_id` INT,
+`modulo_id` INT,
+`fecha` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_559586_schema') AS relationships;
+relationships
+Database: db_559586_schema
+
+Table Connections:
+------------------
+[Implied]  asistencia.estudiante_id -> estudiante.id
+[Implied]  asistencia.modulo_id -> modulo.id
+[Implied]  estudiante.persona_id -> persona.id
+[Implied]  estudiante_modulo.estudiante_id -> estudiante.id
+[Implied]  estudiante_modulo.modulo_id -> modulo.id
+[Implied]  instructor.persona_id -> persona.id
+[Implied]  instructor_modulo.instructor_id -> instructor.id
+[Implied]  instructor_modulo.modulo_id -> modulo.id
+
+DROP DATABASE `db_559586_schema`;
+UNINSTALL EXTENSION vsql_schematron;

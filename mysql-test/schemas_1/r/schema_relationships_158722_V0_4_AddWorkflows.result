@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 158722_V0.4__AddWorkflows
+#
+CREATE DATABASE `db_158722_V0_4_AddWorkflows`;
+USE `db_158722_V0_4_AddWorkflows`;
+CREATE TABLE `workflows` (
+`Id` INT,
+`Uri` VARCHAR(64),
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `organization_unit_workflows` (
+`OrganizationUnitId` INT,
+`WorkflowId` INT,
+PRIMARY KEY (`OrganizationUnitId`, `WorkflowId`)
+) CHARACTER SET latin1;
+CREATE TABLE `workflow_steps` (
+`Id` INT,
+`WorkflowId` INT,
+`Uri` VARCHAR(64),
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+`Order` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_158722_V0_4_AddWorkflows') AS relationships;
+relationships
+Database: db_158722_V0_4_AddWorkflows
+
+Table Connections:
+------------------
+[Implied]  organization_unit_workflows.WorkflowId -> workflows.Id
+[Implied]  workflow_steps.WorkflowId -> workflows.Id
+
+DROP DATABASE `db_158722_V0_4_AddWorkflows`;
+UNINSTALL EXTENSION vsql_schematron;

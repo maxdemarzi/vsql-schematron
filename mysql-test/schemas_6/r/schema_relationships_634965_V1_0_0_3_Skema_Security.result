@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 634965_V1.0.0.3__Skema_Security
+#
+CREATE DATABASE `db_634965_V1_0_0_3_Skema_Security`;
+USE `db_634965_V1_0_0_3_Skema_Security`;
+CREATE TABLE `s_user` (
+`id` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`enabled` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `s_group` (
+`id` VARCHAR(64),
+`nama` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `s_permission` (
+`id` VARCHAR(64),
+`nama` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `s_user_group` (
+`id_user` VARCHAR(64),
+`id_group` VARCHAR(64),
+PRIMARY KEY (`id_user`, `id_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `s_group_permission` (
+`id_group` VARCHAR(64),
+`id_permission` VARCHAR(64),
+PRIMARY KEY (`id_group`, `id_permission`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_634965_V1_0_0_3_Skema_Security') AS relationships;
+relationships
+Database: db_634965_V1_0_0_3_Skema_Security
+
+Table Connections:
+------------------
+[Implied]  s_group_permission.id_group -> s_group.id
+[Implied]  s_group_permission.id_permission -> s_permission.id
+[Implied]  s_user_group.id_group -> s_group.id
+[Implied]  s_user_group.id_user -> s_user.id
+
+DROP DATABASE `db_634965_V1_0_0_3_Skema_Security`;
+UNINSTALL EXTENSION vsql_schematron;
