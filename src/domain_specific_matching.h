@@ -16,4 +16,11 @@ bool matchDomainSpecificKeys(
     std::set<Relationship>& relationships
 );
 
+bool isPersonTable(const std::string& tbl);
+bool isPersonRole(const std::string& role);
+bool isPersonMatch(const std::string& prefix_a, const std::string& tbl_b);
+bool isLookupMatch(const std::string& prefix_a, const std::string& tbl_b, const std::vector<std::string>& table_names);
+bool matchLastWord(const std::string& prefix_a, const std::string& tbl_b);
+bool isGenericPkFkMatch(const std::string& col_a, const std::string& col_b, const std::vector<std::string>& pks_b);
+
 #endif // DOMAIN_SPECIFIC_MATCHING_H

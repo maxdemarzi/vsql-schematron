@@ -37,11 +37,4 @@ std::string getTableAcronym(const std::string& tbl);
 std::string stripAcronymPrefix(const std::string& col, const std::string& tbl);
 bool isGenericIdentifier(const std::string& s);
 
-bool isPersonMatch(const std::string& prefix_a, const std::string& tbl_b);
-bool isPersonTable(const std::string& tbl);
-bool isPersonRole(const std::string& role);
-bool isLookupMatch(const std::string& prefix_a, const std::string& tbl_b, const std::vector<std::string>& table_names);
-bool matchLastWord(const std::string& prefix_a, const std::string& tbl_b);
-bool isGenericPkFkMatch(const std::string& col_a, const std::string& col_b, const std::vector<std::string>& pks_b);
-
 #endif // SCHEMA_ANALYZER_HELPERS_H

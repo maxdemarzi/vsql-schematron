@@ -1,16 +1,55 @@
 #include "domain_specific_matching.h"
+#include "schema_analyzer_helpers.h"
 #include <cctype>
 #include <algorithm>
+#include <sstream>
+#include <unordered_set>
+#include <vector>
 
 namespace {
 
-std::string to_lower(std::string s) {
-    for (char &c : s) c = std::tolower(c);
-    return s;
-}
+const std::unordered_set<std::string> PERSON_TABLE_SYNONYMS = {
+    "user", "users", "app_user", "app_users", "employee", "employees", "staff", 
+    "member", "members", "person", "people", "contact", "contacts", "passenger", 
+    "passengers", "customer", "customers", "client", "clients", "student", "students", 
+    "teacher", "teachers", "entity", "entities", "party", "parties", "player", "players",
+    "proponent", "proponents", "proprietor", "proprietors", "investigator", "investigators"
+};
+
+const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
+    "user", "employee", "staff", "member", "person", "officer", "agent", "manager", 
+    "supervisor", "operator", "contact", "author", "creator", "updater", "editor", 
+    "owner", "handler", "assignee", "commenter", "accessor", "passenger", "customer", 
+    "client", "visitor", "guest", "host", "student", "teacher", "driver", "worker", 
+    "admin", "assistant", "delegate", "representative", "rep", "appellant", "defendant", 
+    "plaintiff", "vendor", "supplier", "provider", "partner", "merchant", "buyer", 
+    "seller", "tenant", "landlord", "holder", "borrower", "lender", "debtor", "creditor", 
+    "shipper", "carrier", "objector", "proponent", "proprietor", "advisor", "from", "to",
+    "sender", "receiver", "recipient", "profile", "investigator", "invitee", "inviter",
+    "judge", "prosecutor", "offender", "complainant", "police", "witness", "attorney",
+    "counsel", "lawyer", "defense_att", "oid"
+};
+
+const std::unordered_set<std::string> LOOKUP_TABLE_SYNONYMS = {
+    "lookup", "lookups", "code_lookup", "reference", "references", "dictionary", 
+    "dictionaries", "codelist", "enum_value", "enum_values", "lookup_value", "lookup_values"
+};
+
+const std::unordered_set<std::string> GENERIC_PK_FK_PREFIXES = {
+    "id", "key", "pk", "fk", "ref", "cod", "code", "cd", "no", "num", "nro", "nra", "nr", "number"
+};
 
 } // namespace
 
+/**
+ * Matches specialized domain keys for datasets like Amazon Vendor Central.
+ * Identifies columns like 'asin', 'upc', 'ean', 'isbn', 'campaign_name', or 'deal_id'
+ * and links them to their catalog/summary tables.
+ *
+ * Examples:
+ *   sponsored_products_ads.campaign_name -> ads_sponsored_products_campaigns_vc.campaign_name
+ *   order_details.asin -> product_catalog.asin
+ */
 bool matchDomainSpecificKeys(
     const std::string& tbl_a,
     const std::string& col_a,
@@ -111,4 +150,147 @@ bool matchDomainSpecificKeys(
         }
     }
     return relationship_found;
+}
+
+/**
+ * Checks if a table matches person/user/employee entity synonyms.
+ *
+ * Examples:
+ *   isPersonTable("user") -> true
+ *   isPersonTable("employee") -> true
+ *   isPersonTable("orders") -> false
+ */
+bool isPersonTable(const std::string& tbl) {
+    return PERSON_TABLE_SYNONYMS.count(tbl);
+}
+
+/**
+ * Checks if a role word/suffix represents a person role.
+ *
+ * Examples:
+ *   isPersonRole("manager") -> true
+ *   isPersonRole("updater") -> true
+ *   isPersonRole("status") -> false
+ */
+bool isPersonRole(const std::string& role) {
+    return PERSON_ROLE_SYNONYMS.count(role);
+}
+
+/**
+ * Evaluates if a column prefix matches a person/user role and the target table is a person table.
+ *
+ * Example:
+ *   Given prefix_a = "created_by", tbl_b = "users" (where users is a person table, and "by" / "creator" matches role):
+ *   Returns true (suggesting created_by -> users.id).
+ */
+bool isPersonMatch(const std::string& prefix_a, const std::string& tbl_b) {
+    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+    if (PERSON_TABLE_SYNONYMS.count(clean_tbl)) {
+        std::vector<std::string> prefix_words;
+        std::string word;
+        std::istringstream tokenStream(to_lower(prefix_a));
+        while (std::getline(tokenStream, word, '_')) {
+            if (!word.empty()) prefix_words.push_back(word);
+        }
+        std::string last_word = prefix_words.empty() ? "" : prefix_words.back();
+        if (PERSON_ROLE_SYNONYMS.count(last_word)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Returns true if target table B is a lookup/reference table and prefix A matches another table name,
+ * avoiding matching when the prefix is just a prefix of B itself.
+ */
+bool isLookupMatch(const std::string& prefix_a, const std::string& tbl_b, const std::vector<std::string>& table_names) {
+    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+    if (LOOKUP_TABLE_SYNONYMS.count(clean_tbl)) {
+        for (const auto& tbl : table_names) {
+            if (tbl != tbl_b && matchTableName(prefix_a, tbl)) {
+                std::string clean_tbl_other = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
+                std::string p_lower = to_lower(prefix_a);
+                if (p_lower.find(clean_tbl_other) == 0 && clean_tbl_other != p_lower) {
+                    continue;
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Matches columns by their tokenized last word.
+ *
+ * Example:
+ *   Given prefix_a = "shipping_address", tbl_b = "addresses":
+ *   Tokenizes prefix_a into {"shipping", "address"} and tbl_b into {"addresses"} (singularized address).
+ *   Since last word "address" matches "address", it returns true.
+ */
+bool matchLastWord(const std::string& prefix_a, const std::string& tbl_b) {
+    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+    
+    std::vector<std::string> tbl_words;
+    std::string word;
+    std::istringstream tokenStreamT(clean_tbl);
+    while (std::getline(tokenStreamT, word, '_')) {
+        if (!word.empty()) tbl_words.push_back(word);
+    }
+    
+    std::vector<std::string> prefix_words;
+    std::istringstream tokenStreamP(to_lower(prefix_a));
+    while (std::getline(tokenStreamP, word, '_')) {
+        if (!word.empty()) prefix_words.push_back(word);
+    }
+    
+    if (!tbl_words.empty() && !prefix_words.empty()) {
+        if (tbl_words.back() == prefix_words.back() && tbl_words.back().length() >= 3) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Suggests matching when column names use common generic prefix combinations (such as ref, id, key, pk, fk).
+ *
+ * Example:
+ *   Given col_a = "customer_fk", col_b = "customer_pk" (where suffix "fk" and "pk" match, and prefixes are generic):
+ *   Returns true.
+ */
+bool isGenericPkFkMatch(const std::string& col_a, const std::string& col_b, const std::vector<std::string>& pks_b) {
+    bool found_pk = false;
+    for (const auto& pk : pks_b) {
+        if (col_b == pk) { found_pk = true; break; }
+    }
+    if (!found_pk) return false;
+    
+    std::string prefix_a, suffix_a;
+    std::string prefix_b, suffix_b;
+    if (splitColumnName(col_a, prefix_a, suffix_a) && splitColumnName(col_b, prefix_b, suffix_b)) {
+        if (to_lower(suffix_a) == to_lower(suffix_b)) {
+            std::vector<std::string> pfx_words_a;
+            std::string word;
+            std::istringstream tokenStreamA(to_lower(prefix_a));
+            while (std::getline(tokenStreamA, word, '_')) {
+                if (!word.empty()) pfx_words_a.push_back(word);
+            }
+            
+            std::vector<std::string> pfx_words_b;
+            std::istringstream tokenStreamB(to_lower(prefix_b));
+            while (std::getline(tokenStreamB, word, '_')) {
+                if (!word.empty()) pfx_words_b.push_back(word);
+            }
+            
+            if (!pfx_words_a.empty() && !pfx_words_b.empty()) {
+                if (GENERIC_PK_FK_PREFIXES.count(pfx_words_a.back()) && GENERIC_PK_FK_PREFIXES.count(pfx_words_b.back())) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }

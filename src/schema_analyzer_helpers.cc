@@ -11,19 +11,34 @@ thread_local std::string g_dynamic_prefix = "";
 
 } // namespace
 
+/**
+ * Sets the dynamic table prefix used for filtering prefix-like parts of table names.
+ */
 void setDynamicPrefix(const std::string& prefix) {
     g_dynamic_prefix = prefix;
 }
 
+/**
+ * Clears the dynamic table prefix.
+ */
 void clearDynamicPrefix() {
     g_dynamic_prefix = "";
 }
 
+/**
+ * Converts a string to lowercase.
+ */
 std::string to_lower(std::string s) {
     for (char &c : s) c = std::tolower(c);
     return s;
 }
 
+/**
+ * Strips any schema/database prefix from a table name.
+ *
+ * Example:
+ *   stripSchemaPrefix("sales.orders") -> "orders"
+ */
 std::string stripSchemaPrefix(const std::string& name) {
     size_t dot = name.find_last_of('.');
     if (dot != std::string::npos) {
@@ -32,6 +47,14 @@ std::string stripSchemaPrefix(const std::string& name) {
     return name;
 }
 
+/**
+ * Strips common technical prefixes from a table name, including tbl_, ref_,
+ * and the configured dynamic prefix.
+ *
+ * Examples:
+ *   stripTablePrefix("tbl_orders") -> "orders"
+ *   stripTablePrefix("ref_customer") -> "customer"
+ */
 std::string stripTablePrefix(const std::string& name) {
     std::string n = to_lower(name);
     if (!g_dynamic_prefix.empty()) {
@@ -60,6 +83,13 @@ std::string stripTablePrefix(const std::string& name) {
     return n;
 }
 
+/**
+ * Expands technical abbreviations to their full English words.
+ *
+ * Examples:
+ *   expandAbbreviation("dept") -> "department"
+ *   expandAbbreviation("qty") -> "quantity"
+ */
 std::string expandAbbreviation(const std::string& word) {
     std::string w = to_lower(word);
     auto check = [](const std::string& s) -> std::string {
@@ -162,6 +192,12 @@ std::string expandAbbreviation(const std::string& word) {
     return w;
 }
 
+/**
+ * Expands all technical abbreviations in a tokenized string.
+ *
+ * Example:
+ *   expandAllAbbreviations("dept_mgr") -> "department_manager"
+ */
 std::string expandAllAbbreviations(const std::string& s) {
     std::string result;
     std::string token;
@@ -177,6 +213,12 @@ std::string expandAllAbbreviations(const std::string& s) {
     return result;
 }
 
+/**
+ * Strips common role prefixes (like first_, secondary_, parent_, from_) from column names.
+ *
+ * Example:
+ *   stripRolePrefix("parent_company_id") -> "company_id"
+ */
 std::string stripRolePrefix(const std::string& name) {
     std::string n = to_lower(name);
     std::vector<std::string> roles = {
@@ -201,6 +243,13 @@ std::string stripRolePrefix(const std::string& name) {
     return n;
 }
 
+/**
+ * Plural-to-singular converter for matching table names.
+ *
+ * Examples:
+ *   singularize("categories") -> "category"
+ *   singularize("orders") -> "order"
+ */
 std::string singularize(const std::string& w) {
     if (w.length() > 3 && w.rfind("ies") == w.length() - 3) {
         return w.substr(0, w.length() - 3) + "y";
@@ -229,6 +278,9 @@ std::string singularize(const std::string& w) {
     return w;
 }
 
+/**
+ * Returns true if the suffix is a generic table descriptor (such as metadata, log, ref).
+ */
 bool isGenericTableSuffix(const std::string& suffix) {
     static const std::unordered_set<std::string> SUFFIXES = {
         "session", "sessions", "profile", "profiles", "info", "infos", "detail", "details",
@@ -243,6 +295,9 @@ bool isGenericTableSuffix(const std::string& suffix) {
     return SUFFIXES.count(to_lower(suffix));
 }
 
+/**
+ * Returns true if the given string is a common technical abbreviation of 2 chars.
+ */
 bool isKnown2CharAbbreviation(const std::string& s) {
     static const std::unordered_set<std::string> ABBR = {
         "tx", "dt", "cd", "cl", "db", "yr", "wk", "hr", "ms", "nm", "st", "nb", "fk", "pk", "no"
@@ -250,6 +305,10 @@ bool isKnown2CharAbbreviation(const std::string& s) {
     return ABBR.count(s);
 }
 
+/**
+ * Compares two cleaned table names, handling pluralization, abbreviation expansion,
+ * and optional substring matches.
+ */
 bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow_substring) {
     std::string pl = to_lower(p);
     std::string tl = to_lower(t);
@@ -363,6 +422,9 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
     return false;
 }
 
+/**
+ * Multi-level comparison helper to check if a column's prefix matches a target table name.
+ */
 bool matchTableName(const std::string& col_prefix, const std::string& tbl_name, bool allow_substring) {
     std::string prefix = to_lower(col_prefix);
     std::string tbl = stripSchemaPrefix(to_lower(tbl_name));
@@ -384,11 +446,17 @@ bool matchTableName(const std::string& col_prefix, const std::string& tbl_name, 
     return false;
 }
 
+/**
+ * Returns true if the SQL data type represents a date/time format.
+ */
 bool isTemporalType(const std::string& type) {
     std::string s = to_lower(type);
     return s == "date" || s == "datetime" || s == "timestamp" || s == "time";
 }
 
+/**
+ * Returns true if the column represents technical metadata/auditing fields (like rowguid).
+ */
 bool isSystemColumn(const std::string& col_name) {
     std::string s = to_lower(col_name);
     return s == "rowguid" || s == "row_guid" ||
@@ -401,6 +469,10 @@ bool isSystemColumn(const std::string& col_name) {
            s == "updateddate" || s == "updated_date";
 }
 
+/**
+ * Returns true if the column stores statistical counters, percentages, or sums
+ * to avoid linking them as foreign keys.
+ */
 bool isStatisticColumn(const std::string& col_name) {
     std::string s = to_lower(col_name);
     if (s == "num" || s == "count" || s == "cnt" || s == "qty" || s == "quantity" || s == "total" || s == "sum" || s == "avg" || s == "min" || s == "max" || s == "pct" || s == "percent" || s == "percentage") return true;
@@ -425,6 +497,9 @@ bool isStatisticColumn(const std::string& col_name) {
     return false;
 }
 
+/**
+ * Returns true if the prefix contains self-referential words like parent, child, prev, manager.
+ */
 bool isSelfReferentialPrefix(const std::string& prefix) {
     std::string p = to_lower(prefix);
     std::vector<std::string> self_ref_words = {
@@ -450,6 +525,13 @@ bool isSelfReferentialPrefix(const std::string& prefix) {
     return false;
 }
 
+/**
+ * Tokenizes snake_case or camelCase column names into prefix and suffix parts.
+ *
+ * Examples:
+ *   "customer_id" -> prefix: "customer", suffix: "id"
+ *   "customerId" -> prefix: "customer", suffix: "Id"
+ */
 bool splitColumnName(const std::string& col, std::string& prefix, std::string& suffix) {
     size_t underscore_pos = col.rfind('_');
     if (underscore_pos != std::string::npos && underscore_pos > 0 && underscore_pos < col.length() - 1) {
@@ -479,6 +561,9 @@ bool splitColumnName(const std::string& col, std::string& prefix, std::string& s
     return false;
 }
 
+/**
+ * Infers primary key columns for a table if they are not explicitly declared.
+ */
 std::vector<std::string> getEffectivePKs(const std::string& tbl_name, const TableInfo& info) {
     if (!info.pk_columns.empty()) {
         return info.pk_columns;
@@ -548,6 +633,12 @@ std::vector<std::string> getEffectivePKs(const std::string& tbl_name, const Tabl
     return pks;
 }
 
+/**
+ * Checks for middle identifier conventions in column names.
+ *
+ * Example:
+ *   "customer_id_seq" or "id_customer" -> returns true if target table B matches "customer".
+ */
 bool matchMiddleIdConvention(const std::string& col, const std::string& tbl_b, bool allow_substring) {
     std::string c = to_lower(col);
     size_t pos = c.find("_id_");
@@ -578,6 +669,13 @@ bool matchMiddleIdConvention(const std::string& col, const std::string& tbl_b, b
     return false;
 }
 
+/**
+ * Automatically detects any shared table prefix across all tables in a schema.
+ *
+ * Example:
+ *   Given {"ads_campaigns", "ads_clicks", "ads_adgroups"}:
+ *   Returns "ads".
+ */
 std::string detectSharedTablePrefix(const std::vector<std::string>& table_names) {
     if (table_names.size() < 2) {
         return "";
@@ -637,6 +735,9 @@ std::string detectSharedTablePrefix(const std::vector<std::string>& table_names)
     return best_prefix;
 }
 
+/**
+ * Returns true if the table is a system sequence, backup, or temporary table.
+ */
 bool isSequenceOrSystemTable(const std::string& tbl_name) {
     std::string tbl = to_lower(tbl_name);
     size_t dot = tbl.rfind('.');
@@ -659,6 +760,12 @@ bool isSequenceOrSystemTable(const std::string& tbl_name) {
     return false;
 }
 
+/**
+ * Checks if table A represents a subtype/subclass of table B.
+ *
+ * Example:
+ *   isSubtypeTable("customer_corporate", "customer") -> true
+ */
 bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
     std::string a = stripSchemaPrefix(to_lower(tbl_a));
     std::string b = stripSchemaPrefix(to_lower(tbl_b));
@@ -695,6 +802,12 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
     return false;
 }
 
+/**
+ * Computes table name acronyms.
+ *
+ * Example:
+ *   getTableAcronym("order_items") -> "oi"
+ */
 std::string getTableAcronym(const std::string& tbl) {
     std::string name = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
     std::vector<std::string> words;
@@ -713,6 +826,12 @@ std::string getTableAcronym(const std::string& tbl) {
     return "";
 }
 
+/**
+ * Strips the initials of a table name if it prefixes a column name.
+ *
+ * Example:
+ *   stripAcronymPrefix("oi_quantity", "order_items") -> "quantity"
+ */
 std::string stripAcronymPrefix(const std::string& col, const std::string& tbl) {
     std::string acronym = getTableAcronym(tbl);
     if (acronym.length() >= 2) {
@@ -724,143 +843,10 @@ std::string stripAcronymPrefix(const std::string& col, const std::string& tbl) {
     return col;
 }
 
+/**
+ * Returns true if string matches standard identifier keywords.
+ */
 bool isGenericIdentifier(const std::string& s) {
     std::string l = to_lower(s);
     return l == "id" || l == "uuid" || l == "guid" || l == "uid";
-}
-
-namespace {
-
-const std::unordered_set<std::string> PERSON_TABLE_SYNONYMS = {
-    "user", "users", "app_user", "app_users", "employee", "employees", "staff", 
-    "member", "members", "person", "people", "contact", "contacts", "passenger", 
-    "passengers", "customer", "customers", "client", "clients", "student", "students", 
-    "teacher", "teachers", "entity", "entities", "party", "parties", "player", "players",
-    "proponent", "proponents", "proprietor", "proprietors", "investigator", "investigators"
-};
-
-const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
-    "user", "employee", "staff", "member", "person", "officer", "agent", "manager", 
-    "supervisor", "operator", "contact", "author", "creator", "updater", "editor", 
-    "owner", "handler", "assignee", "commenter", "accessor", "passenger", "customer", 
-    "client", "visitor", "guest", "host", "student", "teacher", "driver", "worker", 
-    "admin", "assistant", "delegate", "representative", "rep", "appellant", "defendant", 
-    "plaintiff", "vendor", "supplier", "provider", "partner", "merchant", "buyer", 
-    "seller", "tenant", "landlord", "holder", "borrower", "lender", "debtor", "creditor", 
-    "shipper", "carrier", "objector", "proponent", "proprietor", "advisor", "from", "to",
-    "sender", "receiver", "recipient", "profile", "investigator", "invitee", "inviter",
-    "judge", "prosecutor", "offender", "complainant", "police", "witness", "attorney",
-    "counsel", "lawyer", "defense_att", "oid"
-};
-
-const std::unordered_set<std::string> LOOKUP_TABLE_SYNONYMS = {
-    "lookup", "lookups", "code_lookup", "reference", "references", "dictionary", 
-    "dictionaries", "codelist", "enum_value", "enum_values", "lookup_value", "lookup_values"
-};
-
-const std::unordered_set<std::string> GENERIC_PK_FK_PREFIXES = {
-    "id", "key", "pk", "fk", "ref", "cod", "code", "cd", "no", "num", "nro", "nra", "nr", "number"
-};
-
-} // namespace
-
-bool isPersonTable(const std::string& tbl) {
-    return PERSON_TABLE_SYNONYMS.count(tbl);
-}
-
-bool isPersonRole(const std::string& role) {
-    return PERSON_ROLE_SYNONYMS.count(role);
-}
-
-bool isPersonMatch(const std::string& prefix_a, const std::string& tbl_b) {
-    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
-    if (PERSON_TABLE_SYNONYMS.count(clean_tbl)) {
-        std::vector<std::string> prefix_words;
-        std::string word;
-        std::istringstream tokenStream(to_lower(prefix_a));
-        while (std::getline(tokenStream, word, '_')) {
-            if (!word.empty()) prefix_words.push_back(word);
-        }
-        std::string last_word = prefix_words.empty() ? "" : prefix_words.back();
-        if (PERSON_ROLE_SYNONYMS.count(last_word)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool isLookupMatch(const std::string& prefix_a, const std::string& tbl_b, const std::vector<std::string>& table_names) {
-    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
-    if (LOOKUP_TABLE_SYNONYMS.count(clean_tbl)) {
-        for (const auto& tbl : table_names) {
-            if (tbl != tbl_b && matchTableName(prefix_a, tbl)) {
-                std::string clean_tbl_other = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
-                std::string p_lower = to_lower(prefix_a);
-                if (p_lower.find(clean_tbl_other) == 0 && clean_tbl_other != p_lower) {
-                    continue;
-                }
-                return false;
-            }
-        }
-        return true;
-    }
-    return false;
-}
-
-bool matchLastWord(const std::string& prefix_a, const std::string& tbl_b) {
-    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
-    
-    std::vector<std::string> tbl_words;
-    std::string word;
-    std::istringstream tokenStreamT(clean_tbl);
-    while (std::getline(tokenStreamT, word, '_')) {
-        if (!word.empty()) tbl_words.push_back(word);
-    }
-    
-    std::vector<std::string> prefix_words;
-    std::istringstream tokenStreamP(to_lower(prefix_a));
-    while (std::getline(tokenStreamP, word, '_')) {
-        if (!word.empty()) prefix_words.push_back(word);
-    }
-    
-    if (!tbl_words.empty() && !prefix_words.empty()) {
-        if (tbl_words.back() == prefix_words.back() && tbl_words.back().length() >= 3) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool isGenericPkFkMatch(const std::string& col_a, const std::string& col_b, const std::vector<std::string>& pks_b) {
-    bool found_pk = false;
-    for (const auto& pk : pks_b) {
-        if (col_b == pk) { found_pk = true; break; }
-    }
-    if (!found_pk) return false;
-    
-    std::string prefix_a, suffix_a;
-    std::string prefix_b, suffix_b;
-    if (splitColumnName(col_a, prefix_a, suffix_a) && splitColumnName(col_b, prefix_b, suffix_b)) {
-        if (to_lower(suffix_a) == to_lower(suffix_b)) {
-            std::vector<std::string> pfx_words_a;
-            std::string word;
-            std::istringstream tokenStreamA(to_lower(prefix_a));
-            while (std::getline(tokenStreamA, word, '_')) {
-                if (!word.empty()) pfx_words_a.push_back(word);
-            }
-            
-            std::vector<std::string> pfx_words_b;
-            std::istringstream tokenStreamB(to_lower(prefix_b));
-            while (std::getline(tokenStreamB, word, '_')) {
-                if (!word.empty()) pfx_words_b.push_back(word);
-            }
-            
-            if (!pfx_words_a.empty() && !pfx_words_b.empty()) {
-                if (GENERIC_PK_FK_PREFIXES.count(pfx_words_a.back()) && GENERIC_PK_FK_PREFIXES.count(pfx_words_b.back())) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
 }
