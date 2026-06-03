@@ -33,7 +33,7 @@ log "VEB placed in $VEB_DIR"
 log "Running MTR tests..."
 cd "$VILLAGESQL_BUILD_DIR"
 perl ./mysql-test/mysql-test-run.pl \
-    --suite="$EXTENSION_DIR/mysql-test,$EXTENSION_DIR/mysql-test/spider,$EXTENSION_DIR/mysql-test/schemas" \
+    --suite="$EXTENSION_DIR/mysql-test,$EXTENSION_DIR/mysql-test/spider,$EXTENSION_DIR/mysql-test/schemas_0,$EXTENSION_DIR/mysql-test/schemas_1,$EXTENSION_DIR/mysql-test/schemas_2,$EXTENSION_DIR/mysql-test/schemas_3,$EXTENSION_DIR/mysql-test/schemas_4,$EXTENSION_DIR/mysql-test/schemas_5,$EXTENSION_DIR/mysql-test/schemas_6" \
     --parallel="$JOBS" \
     --nounit-tests \
     --mysqld=--veb-dir="$VEB_DIR" \

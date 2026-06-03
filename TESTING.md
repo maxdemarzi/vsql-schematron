@@ -28,21 +28,23 @@ export VILLAGESQL_BUILD_DIR=/home/maxdemarzi/build/villagesql
 ./local-ci.sh
 ```
 
-Alternatively, to run MTR directly from the VillageSQL build directory:
+Alternatively, to run MTR directly from the VillageSQL build directory, pass the paths of the main suite and all sub-suites (such as `spider` and `schemas_0` through `schemas_6`):
 ```bash
 cd /home/maxdemarzi/build/villagesql/mysql-test
-perl mysql-test-run.pl --suite=/home/maxdemarzi/vsql-schematron/mysql-test
+perl mysql-test-run.pl --suite=/home/maxdemarzi/vsql-schematron/mysql-test,/home/maxdemarzi/vsql-schematron/mysql-test/spider,/home/maxdemarzi/vsql-schematron/mysql-test/schemas_0,/home/maxdemarzi/vsql-schematron/mysql-test/schemas_1,/home/maxdemarzi/vsql-schematron/mysql-test/schemas_2,/home/maxdemarzi/vsql-schematron/mysql-test/schemas_3,/home/maxdemarzi/vsql-schematron/mysql-test/schemas_4,/home/maxdemarzi/vsql-schematron/mysql-test/schemas_5,/home/maxdemarzi/vsql-schematron/mysql-test/schemas_6
 ```
 
 ## Regenerating Test Results
 
-To record/regenerate test results:
+To record/regenerate test results for a specific test case, specify the suite and test name with `--record`:
 ```bash
-perl mysql-test-run.pl --suite=/home/maxdemarzi/vsql-schematron/mysql-test --record
+perl mysql-test-run.pl --suite=/home/maxdemarzi/vsql-schematron/mysql-test/schemas_0 <test_name> --record
 ```
 
-## Test Files
+## Test Suites & Folders
 
-| Test File | Description |
-|-----------|-------------|
-| `schematron_basic.test` | Tests the hello_world() function and basic install/uninstall flow |
+| Suite Directory | Description |
+|-----------------|-------------|
+| `mysql-test` | Contains basic integration tests (e.g. `schematron_basic.test` for basic install/uninstall and basic function tests) |
+| `mysql-test/spider` | Contains spider-related test cases |
+| `mysql-test/schemas_0` to `schemas_6` | Contains schema relationship test cases, partitioned into 7 directories to keep individual directories small |

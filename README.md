@@ -46,6 +46,8 @@ INSTALL EXTENSION vsql_schematron;
 
 This project uses **MTR (MySQL Test Runner)**, the standard integration and regression testing framework for VillageSQL and MySQL. MTR automates starting and stopping temporary database server instances, executing SQL test scripts (`.test` files), and comparing the live database outputs against pre-recorded expected results (`.result` files).
 
+The test suite includes basic integration tests, spider-specific tests, and thousands of schema validation tests organized across several subdirectories (`schemas_0` through `schemas_6`) to keep the repository structure clean and maintainable.
+
 Build and run the test suite using the local CI script:
 ```bash
 export VILLAGESQL_BUILD_DIR=/home/maxdemarzi/build/villagesql
