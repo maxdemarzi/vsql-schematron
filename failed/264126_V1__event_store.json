@@ -1,0 +1,161 @@
+{
+  "INFO": {
+    "URL": "https://github.com/luontola/cqrs-hotel/blob/5c9f358034a1fbbc4158166ca78ead92d939f89f/src/main/resources/db/migration/V1__event_store.sql?raw=true\n",
+    "LICENSE": "APACHE-2.0",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "stream": {
+      "COLUMNS": {
+        "stream_id": {
+          "TYPE": "Uuid",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "version": {
+          "TYPE": "INT4",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "stream_id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "event": {
+      "COLUMNS": {
+        "stream_id": {
+          "TYPE": "Uuid",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "version": {
+          "TYPE": "INT4",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "version > 0"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "data": {
+          "TYPE": "JSONB",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "metadata": {
+          "TYPE": "JSONB",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "stream_id",
+        "version"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "stream_id"
+          ],
+          "FOREIGN_TABLE": "stream",
+          "REFERRED_COLUMNS": [
+            "stream_id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "event_sequence": {
+      "COLUMNS": {
+        "position": {
+          "TYPE": "INT8",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "stream_id": {
+          "TYPE": "Uuid",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "version": {
+          "TYPE": "INT4",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "position"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "stream_id",
+            "version"
+          ],
+          "FOREIGN_TABLE": "event",
+          "REFERRED_COLUMNS": [
+            "stream_id",
+            "version"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    }
+  }
+}

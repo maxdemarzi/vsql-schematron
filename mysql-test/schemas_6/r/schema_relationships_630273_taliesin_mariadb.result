@@ -1,0 +1,142 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 630273_taliesin_mariadb
+#
+CREATE DATABASE `db_630273_taliesin_mariadb`;
+USE `db_630273_taliesin_mariadb`;
+CREATE TABLE `t_data_source` (
+`tds_id` INT,
+`tds_username` VARCHAR(255),
+`tds_name` VARCHAR(255),
+`tds_description` VARCHAR(255),
+`tds_path` VARCHAR(255),
+`tds_icon` VARCHAR(255),
+`tds_last_updated` DATETIME,
+`tds_refresh_status` INT,
+PRIMARY KEY (`tds_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_image_cover` (
+`tic_id` INT,
+`tds_id` INT,
+`tic_cover_original` VARCHAR(255),
+`tic_cover_thumbnail` VARCHAR(255),
+`tic_fingerprint` VARCHAR(255),
+PRIMARY KEY (`tic_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_folder` (
+`tf_id` INT,
+`tds_id` INT,
+`tf_name` VARCHAR(255),
+`tf_path` VARCHAR(255),
+`tf_parent_id` INT,
+`tf_refresh_status` INT,
+`tic_id` INT,
+PRIMARY KEY (`tf_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_media` (
+`tm_id` INT,
+`tds_id` INT,
+`tm_name` VARCHAR(255),
+`tm_path` VARCHAR(255),
+`tm_duration` INT,
+`tf_id` INT,
+`tm_type` VARCHAR(255),
+`tm_last_updated` DATETIME,
+`tm_refresh_status` INT,
+`tic_id` INT,
+PRIMARY KEY (`tm_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_meta_data` (
+`tmd_id` INT,
+`tm_id` INT,
+`tmd_key` VARCHAR(255),
+`tmd_value` VARCHAR(255),
+`tmd_internal` INT,
+PRIMARY KEY (`tmd_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_playlist` (
+`tpl_id` INT,
+`tpl_username` VARCHAR(255),
+`tpl_name` VARCHAR(255),
+`tpl_description` VARCHAR(255),
+`tic_id` INT,
+PRIMARY KEY (`tpl_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_playlist_element` (
+`tpe_id` INT,
+`tpl_id` INT,
+`tm_id` INT,
+PRIMARY KEY (`tpe_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_media_history` (
+`tmh_id` INT,
+`tmh_datestamp` DATETIME,
+`tmh_stream_name` VARCHAR(255),
+`tm_id` INT,
+`tpl_id` INT,
+PRIMARY KEY (`tmh_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_config` (
+`tc_id` INT,
+`tc_type` VARCHAR(255),
+`tc_value` VARCHAR(255),
+`tc_order` INT,
+PRIMARY KEY (`tc_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_category_info` (
+`tci_id` INT,
+`tds_id` INT,
+`tci_level` VARCHAR(255),
+`tci_category` VARCHAR(255),
+`tci_content` VARCHAR(255),
+`tic_id` INT,
+PRIMARY KEY (`tci_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_stream` (
+`ts_id` INT,
+`ts_username` VARCHAR(255),
+`ts_name` VARCHAR(255),
+`ts_display_name` VARCHAR(255),
+`tpl_id` INT,
+`ts_index` INT,
+`ts_webradio` INT,
+`ts_random` INT,
+`ts_format` VARCHAR(255),
+`ts_channels` INT,
+`ts_sample_rate` INT,
+`ts_bitrate` INT,
+PRIMARY KEY (`ts_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_stream_element` (
+`tse_id` INT,
+`ts_id` INT,
+`tm_id` INT,
+PRIMARY KEY (`tse_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_630273_taliesin_mariadb') AS relationships;
+relationships
+Database: db_630273_taliesin_mariadb
+
+Table Connections:
+------------------
+[Implied]  t_category_info.tds_id -> t_data_source.tds_id
+[Implied]  t_category_info.tic_id -> t_image_cover.tic_id
+[Implied]  t_folder.tds_id -> t_data_source.tds_id
+[Implied]  t_folder.tf_parent_id -> t_folder.tf_id
+[Implied]  t_folder.tic_id -> t_image_cover.tic_id
+[Implied]  t_image_cover.tds_id -> t_data_source.tds_id
+[Implied]  t_media.tds_id -> t_data_source.tds_id
+[Implied]  t_media.tf_id -> t_folder.tf_id
+[Implied]  t_media.tic_id -> t_image_cover.tic_id
+[Implied]  t_media_history.tm_id -> t_media.tm_id
+[Implied]  t_media_history.tpl_id -> t_playlist.tpl_id
+[Implied]  t_meta_data.tm_id -> t_media.tm_id
+[Implied]  t_playlist.tic_id -> t_image_cover.tic_id
+[Implied]  t_playlist_element.tm_id -> t_media.tm_id
+[Implied]  t_playlist_element.tpl_id -> t_playlist.tpl_id
+[Implied]  t_stream.tpl_id -> t_playlist.tpl_id
+[Implied]  t_stream_element.tm_id -> t_media.tm_id
+[Implied]  t_stream_element.ts_id -> t_stream.ts_id
+
+DROP DATABASE `db_630273_taliesin_mariadb`;
+UNINSTALL EXTENSION vsql_schematron;

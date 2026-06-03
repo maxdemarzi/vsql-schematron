@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 449570_V202103251810_user_and_authority_tables
+--echo #
+CREATE DATABASE `db_449570_V202103251810_user_and_authority_tables`;
+USE `db_449570_V202103251810_user_and_authority_tables`;
+
+CREATE TABLE `jhi_user` (
+  `id` VARCHAR(255),
+  `login` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `activated` VARCHAR(255),
+  `lang_key` VARCHAR(255),
+  `image_url` VARCHAR(255),
+  `created_by` VARCHAR(255),
+  `created_date` DATETIME,
+  `last_modified_by` VARCHAR(255),
+  `last_modified_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `jhi_authority` (
+  `name` VARCHAR(255),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `jhi_user_authority` (
+  `user_id` VARCHAR(255),
+  `authority_name` VARCHAR(255),
+  PRIMARY KEY (`user_id`, `authority_name`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_449570_V202103251810_user_and_authority_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_449570_V202103251810_user_and_authority_tables') AS relationships;
+DROP DATABASE `db_449570_V202103251810_user_and_authority_tables`;
+UNINSTALL EXTENSION vsql_schematron;

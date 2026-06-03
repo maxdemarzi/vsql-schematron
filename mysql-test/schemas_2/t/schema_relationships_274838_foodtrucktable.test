@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 274838_foodtrucktable
+--echo #
+CREATE DATABASE `db_274838_foodtrucktable`;
+USE `db_274838_foodtrucktable`;
+
+CREATE TABLE `profile` (
+  `profileId` VARCHAR(255),
+  `profileActivationToken` VARCHAR(255),
+  `profileEmail` VARCHAR(255),
+  `profileHash` VARCHAR(255),
+  `profileIsOwner` INT,
+  `profileName` VARCHAR(255),
+  PRIMARY KEY (`profileId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `foodTruck` (
+  `foodTruckId` VARCHAR(255),
+  `foodTruckProfileId` VARCHAR(255),
+  `foodTruckDescription` VARCHAR(255),
+  `foodTruckImageUrl` VARCHAR(255),
+  `foodTruckMenuUrl` VARCHAR(255),
+  `foodTruckName` VARCHAR(255),
+  `foodTruckPhoneNumber` VARCHAR(255),
+  PRIMARY KEY (`foodTruckId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `favorite` (
+  `favoriteFoodTruckId` VARCHAR(255),
+  `favoriteProfileId` VARCHAR(255),
+  `favoriteAddDate` DATETIME,
+  PRIMARY KEY (`favoriteProfileId`, `favoriteFoodTruckId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `social` (
+  `socialId` VARCHAR(255),
+  `socialFoodTruckId` VARCHAR(255),
+  `socialUrl` VARCHAR(255),
+  PRIMARY KEY (`socialId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `location` (
+  `locationId` VARCHAR(255),
+  `locationFoodtruckId` VARCHAR(255),
+  `locationEndTime` DATETIME,
+  `locationLatitude` DECIMAL(10,2),
+  `locationLongitude` DECIMAL(10,2),
+  `locationStartTime` DATETIME,
+  PRIMARY KEY (`locationId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_274838_foodtrucktable') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_274838_foodtrucktable') AS relationships;
+DROP DATABASE `db_274838_foodtrucktable`;
+UNINSTALL EXTENSION vsql_schematron;

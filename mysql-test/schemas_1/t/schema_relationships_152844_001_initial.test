@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 152844_001_initial
+--echo #
+CREATE DATABASE `db_152844_001_initial`;
+USE `db_152844_001_initial`;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `user_email` VARCHAR(255),
+  `user_username` VARCHAR(255),
+  `user_password` VARCHAR(255),
+  `user_salt` VARCHAR(255),
+  `user_bio` VARCHAR(255),
+  `user_image` VARCHAR(255),
+  `user_createdAt` DATETIME,
+  `user_updatedAt` DATETIME,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `follows` (
+  `fws_user_id` INT,
+  `fws_follows_user_id` INT,
+  `fws_createdAt` DATETIME,
+  `fws_updatedAt` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `articles` (
+  `article_id` INT,
+  `article_slug` VARCHAR(255),
+  `article_title` VARCHAR(255),
+  `article_description` VARCHAR(255),
+  `article_body` VARCHAR(255),
+  `article_createdAt` DATETIME,
+  `article_updatedAt` DATETIME,
+  `article_user_id` INT,
+  PRIMARY KEY (`article_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tags` (
+  `tag_id` INT,
+  `tag_text` VARCHAR(255),
+  `tag_createdAt` DATETIME,
+  `tag_updatedAt` DATETIME,
+  PRIMARY KEY (`tag_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tagged` (
+  `tgd_article_id` INT,
+  `tgd_tag_id` INT,
+  `tgd_createdAt` DATETIME,
+  `tgd_updatedAt` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `favorited` (
+  `favor_user_id` INT,
+  `favor_article_id` INT,
+  `favor_createdAt` DATETIME,
+  `favor_updatedAt` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `comments` (
+  `comment_id` INT,
+  `comment_uuid` VARCHAR(255),
+  `comment_body` VARCHAR(255),
+  `comment_createdAt` DATETIME,
+  `comment_updatedAt` DATETIME,
+  `comment_article_id` INT,
+  `comment_user_id` INT,
+  PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_152844_001_initial') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_152844_001_initial') AS relationships;
+DROP DATABASE `db_152844_001_initial`;
+UNINSTALL EXTENSION vsql_schematron;

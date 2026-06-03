@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 593665_01_create_booking_model
+--echo #
+CREATE DATABASE `db_593665_01_create_booking_model`;
+USE `db_593665_01_create_booking_model`;
+
+CREATE TABLE `auditorium` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `number_of_seats` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `seat` (
+  `id` INT,
+  `seat_number` INT,
+  `seat_type` VARCHAR(255),
+  `is_available` VARCHAR(255),
+  `auditorium_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `base_price` DECIMAL(10,2),
+  `rating` VARCHAR(255),
+  `ticket_price` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `movie_session` (
+  `id` INT,
+  `air_date` DATETIME,
+  `auditorium_id` INT,
+  `event_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `app_user` (
+  `id` INT,
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `phone_number` VARCHAR(255),
+  `birth_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ticket` (
+  `id` INT,
+  `date_time` DATETIME,
+  `user_id` INT,
+  `event_id` INT,
+  `seat_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_account` (
+  `id` INT,
+  `balance` DECIMAL(10,2),
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_593665_01_create_booking_model') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_593665_01_create_booking_model') AS relationships;
+DROP DATABASE `db_593665_01_create_booking_model`;
+UNINSTALL EXTENSION vsql_schematron;

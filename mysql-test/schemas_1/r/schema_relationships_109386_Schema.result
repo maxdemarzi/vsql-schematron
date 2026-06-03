@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 109386_Schema
+#
+CREATE DATABASE `db_109386_Schema`;
+USE `db_109386_Schema`;
+CREATE TABLE `Restaurant` (
+`id` INT,
+`start` DATETIME,
+`end` DATETIME,
+`address` VARCHAR(255),
+`rating` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RestaurantPoints` (
+`id` INT,
+`Restaurant.id` INT,
+`position_x` INT,
+`position_y` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Table` (
+`id` INT,
+`Restaurant.id` INT,
+`color` VARCHAR(255),
+`position_x` INT,
+`position_y` INT,
+`radius` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_109386_Schema') AS relationships;
+relationships
+Database: db_109386_Schema
+
+Table Connections:
+------------------
+[Implied]  RestaurantPoints.Restaurant.id -> Restaurant.id
+[Implied]  Table.Restaurant.id -> Restaurant.id
+
+DROP DATABASE `db_109386_Schema`;
+UNINSTALL EXTENSION vsql_schematron;

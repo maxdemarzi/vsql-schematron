@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 102241_V_46_create_exg
+#
+CREATE DATABASE `db_102241_V_46_create_exg`;
+USE `db_102241_V_46_create_exg`;
+CREATE TABLE `hol_schema_version` (
+`version_key` VARCHAR(255),
+`version_value` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `hol_holiday` (
+`id` DECIMAL(10,2),
+`oid` DECIMAL(10,2),
+`ver_from_instant` DATETIME,
+`ver_to_instant` DATETIME,
+`corr_from_instant` DATETIME,
+`corr_to_instant` DATETIME,
+`name` VARCHAR(255),
+`provider_scheme` VARCHAR(255),
+`provider_value` VARCHAR(255),
+`hol_type` VARCHAR(255),
+`region_scheme` VARCHAR(255),
+`region_value` VARCHAR(255),
+`exchange_scheme` VARCHAR(255),
+`exchange_value` VARCHAR(255),
+`custom_scheme` VARCHAR(255),
+`custom_value` VARCHAR(255),
+`currency_iso` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hol_date` (
+`holiday_id` DECIMAL(10,2),
+`hol_date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `exg_schema_version` (
+`version_key` VARCHAR(255),
+`version_value` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `exg_exchange` (
+`id` DECIMAL(10,2),
+`oid` DECIMAL(10,2),
+`ver_from_instant` DATETIME,
+`ver_to_instant` DATETIME,
+`corr_from_instant` DATETIME,
+`corr_to_instant` DATETIME,
+`name` VARCHAR(255),
+`time_zone` VARCHAR(255),
+`detail` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `exg_idkey` (
+`id` DECIMAL(10,2),
+`key_scheme` VARCHAR(255),
+`key_value` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `exg_exchange2idkey` (
+`exchange_id` DECIMAL(10,2),
+`idkey_id` DECIMAL(10,2),
+PRIMARY KEY (`exchange_id`, `idkey_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_102241_V_46_create_exg') AS relationships;
+relationships
+Database: db_102241_V_46_create_exg
+
+Table Connections:
+------------------
+[Implied]  exg_exchange2idkey.exchange_id -> exg_exchange.id
+[Implied]  exg_exchange2idkey.idkey_id -> exg_idkey.id
+[Implied]  hol_date.holiday_id -> hol_holiday.id
+
+DROP DATABASE `db_102241_V_46_create_exg`;
+UNINSTALL EXTENSION vsql_schematron;

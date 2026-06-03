@@ -1,0 +1,899 @@
+{
+  "INFO": {
+    "URL": "https://github.com/gw2auth/oauth2-server/blob/675d2256390dc16d4f9971facd27076eba2527f1/src/main/resources/db/migration/V1__Initial.sql?raw=true\n",
+    "LICENSE": "APACHE-2.0",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "accounts": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "BIGSERIAL",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "creation_time": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "account_federations": {
+      "COLUMNS": {
+        "issuer": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "id_at_issuer": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "account_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "issuer",
+        "id_at_issuer"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "account_id"
+          ],
+          "FOREIGN_TABLE": "accounts",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "gw2_api_tokens": {
+      "COLUMNS": {
+        "account_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "gw2_account_id": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "creation_time": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "gw2_api_token": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "gw2_api_permissions": {
+          "TYPE": "Array",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "display_name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "account_id",
+        "gw2_account_id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "account_id"
+          ],
+          "FOREIGN_TABLE": "accounts",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [
+        "LENGTH(display_name) > 0 AND LENGTH(display_name) <= 100"
+      ],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "gw2_account_verification_challenges": {
+      "COLUMNS": {
+        "account_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "gw2_account_id": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "challenge_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "state_class": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "state": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "gw2_api_token": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "started_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "timeout_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "account_id",
+        "gw2_account_id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "account_id"
+          ],
+          "FOREIGN_TABLE": "accounts",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "gw2_account_verifications": {
+      "COLUMNS": {
+        "gw2_account_id": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "account_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "gw2_account_id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "account_id"
+          ],
+          "FOREIGN_TABLE": "accounts",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "client_registrations": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "BIGSERIAL",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "account_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "creation_time": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "display_name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "client_id": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "client_secret": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "authorization_grant_types": {
+          "TYPE": "Array",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "redirect_uri": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "account_id"
+          ],
+          "FOREIGN_TABLE": "accounts",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [
+        "LENGTH(display_name) > 0 AND LENGTH(display_name) <= 100",
+        "LENGTH(redirect_uri) >= 8 AND LENGTH(redirect_uri) <= 1000"
+      ],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "client_authorizations": {
+      "COLUMNS": {
+        "account_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "client_registration_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "account_sub": {
+          "TYPE": "Uuid",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "authorized_scopes": {
+          "TYPE": "Array",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "account_id",
+        "client_registration_id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "account_id"
+          ],
+          "FOREIGN_TABLE": "accounts",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "client_registration_id"
+          ],
+          "FOREIGN_TABLE": "client_registrations",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "client_authorization_tokens": {
+      "COLUMNS": {
+        "account_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "client_registration_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "gw2_account_id": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "gw2_api_subtoken": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "expiration_time": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "account_id",
+        "client_registration_id",
+        "gw2_account_id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "account_id",
+            "client_registration_id"
+          ],
+          "FOREIGN_TABLE": "client_authorizations",
+          "REFERRED_COLUMNS": [
+            "account_id",
+            "client_registration_id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "account_id",
+            "gw2_account_id"
+          ],
+          "FOREIGN_TABLE": "gw2_api_tokens",
+          "REFERRED_COLUMNS": [
+            "account_id",
+            "gw2_account_id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "client_authorization_logs": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "BIGSERIAL",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "account_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "client_registration_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "timestamp": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "messages": {
+          "TYPE": "Array",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "account_id",
+            "client_registration_id"
+          ],
+          "FOREIGN_TABLE": "client_authorizations",
+          "REFERRED_COLUMNS": [
+            "account_id",
+            "client_registration_id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "oauth2_authorization": {
+      "COLUMNS": {
+        "account_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "client_registration_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "id": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "authorization_grant_type": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "attributes": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "state": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "authorization_code_value": {
+          "TYPE": "Bytea",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "authorization_code_issued_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "authorization_code_expires_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "authorization_code_metadata": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "access_token_value": {
+          "TYPE": "Bytea",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "access_token_issued_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "access_token_expires_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "access_token_metadata": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "access_token_type": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "access_token_scopes": {
+          "TYPE": "Array",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "refresh_token_value": {
+          "TYPE": "Bytea",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "refresh_token_issued_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "refresh_token_expires_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "refresh_token_metadata": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "account_id",
+        "client_registration_id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "account_id",
+            "client_registration_id"
+          ],
+          "FOREIGN_TABLE": "client_authorizations",
+          "REFERRED_COLUMNS": [
+            "account_id",
+            "client_registration_id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    }
+  }
+}

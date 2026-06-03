@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 081646_script_0_0_1
+--echo #
+CREATE DATABASE `db_081646_script_0_0_1`;
+USE `db_081646_script_0_0_1`;
+
+CREATE TABLE `tb_venda_mostruario` (
+  `vdm_id` INT,
+  `vdm_ven_id` INT,
+  `vdm_dtentrega` DATETIME,
+  `vdm_dtacerto` DATETIME,
+  `vdm_deletado` VARCHAR(255),
+  PRIMARY KEY (`vdm_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_venda_mostruario_itens` (
+  `vmi_id` INT,
+  `vmi_vdm_id` INT,
+  `vmi_pro_id` INT,
+  `vmi_qtde` INT,
+  `vmi_valor` DECIMAL(10,2),
+  `vmi_desconto` DECIMAL(10,2),
+  PRIMARY KEY (`vmi_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_venda_mostruario_itens_ret` (
+  `vmir_id` INT,
+  `vmir_vdm_id` INT,
+  `vmir_pro_id` INT,
+  `vmir_qtde` INT,
+  PRIMARY KEY (`vmir_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_081646_script_0_0_1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_081646_script_0_0_1') AS relationships;
+DROP DATABASE `db_081646_script_0_0_1`;
+UNINSTALL EXTENSION vsql_schematron;

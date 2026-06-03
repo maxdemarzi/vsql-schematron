@@ -1,0 +1,116 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 191810_users_h2_ddl
+#
+CREATE DATABASE `db_191810_users_h2_ddl`;
+USE `db_191810_users_h2_ddl`;
+CREATE TABLE `User` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`tenant` VARCHAR(255),
+`requestAt` INT,
+`failedNum` INT,
+`remoteAddr` VARCHAR(255),
+`revoked` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ApiKey` (
+`id` INT,
+`userId` INT,
+`accessKey` VARCHAR(255),
+`secretKey` VARCHAR(255),
+`revoked` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Group` (
+`id` INT,
+`api` VARCHAR(255),
+`tenant` VARCHAR(255),
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Role` (
+`id` INT,
+`api` VARCHAR(255),
+`tenant` VARCHAR(255),
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Permission` (
+`id` INT,
+`api` VARCHAR(255),
+`tenant` VARCHAR(255),
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserRole` (
+`id` INT,
+`userId` INT,
+`roleId` INT,
+`api` VARCHAR(255),
+`tenant` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserGroup` (
+`id` INT,
+`userId` INT,
+`groupId` INT,
+`api` VARCHAR(255),
+`tenant` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `GroupRole` (
+`id` INT,
+`groupId` INT,
+`roleId` INT,
+`api` VARCHAR(255),
+`tenant` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserPermission` (
+`id` INT,
+`userId` INT,
+`permissionId` INT,
+`api` VARCHAR(255),
+`tenant` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `GroupPermission` (
+`id` INT,
+`groupId` INT,
+`permissionId` INT,
+`api` VARCHAR(255),
+`tenant` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RolePermission` (
+`id` INT,
+`roleId` INT,
+`permissionId` INT,
+`api` VARCHAR(255),
+`tenant` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_191810_users_h2_ddl') AS relationships;
+relationships
+Database: db_191810_users_h2_ddl
+
+Table Connections:
+------------------
+[Implied]  ApiKey.userId -> User.id
+[Implied]  GroupPermission.groupId -> Group.id
+[Implied]  GroupPermission.permissionId -> Permission.id
+[Implied]  GroupRole.groupId -> Group.id
+[Implied]  GroupRole.roleId -> Role.id
+[Implied]  RolePermission.permissionId -> Permission.id
+[Implied]  RolePermission.roleId -> Role.id
+[Implied]  UserGroup.groupId -> Group.id
+[Implied]  UserGroup.userId -> User.id
+[Implied]  UserPermission.permissionId -> Permission.id
+[Implied]  UserPermission.userId -> User.id
+[Implied]  UserRole.roleId -> Role.id
+[Implied]  UserRole.userId -> User.id
+
+DROP DATABASE `db_191810_users_h2_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,899 @@
+{
+  "INFO": {
+    "URL": "https://github.com/millix/millix-node/blob/6e577ff289d8c6e4ce5b0d2ea0bde46e117db36c/scripts/initialize-millix-shard-sqlite3.sql?raw=true\n",
+    "LICENSE": "MIT",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "transaction": {
+      "COLUMNS": {
+        "transaction_id": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(transaction_id) <= 50"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "shard_id": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(shard_id) <= 50"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "transaction_date": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(transaction_date) <= 10 AND TYPEOF(transaction_date) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "node_id_origin": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(node_id_origin) <= 34"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "node_id_proxy": {
+          "TYPE": "Char",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(node_id_proxy) <= 34"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "version": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "0a0",
+          "CHECKS": [
+            "length(version) <= 4"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "payload_hash": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(payload_hash) <= 50"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "stable_date": {
+          "TYPE": "Int",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(stable_date) <= 10 AND (TYPEOF(stable_date) IN ('integer', 'null'))"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "is_stable": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "is_stable = 0 OR is_stable = 1"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "parent_date": {
+          "TYPE": "Int",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(parent_date) <= 10 AND TYPEOF(parent_date) IN ('integer', 'null')"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "is_parent": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "is_parent = 0 OR is_parent = 1"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "timeout_date": {
+          "TYPE": "Int",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(timeout_date) <= 10 AND TYPEOF(timeout_date) IN ('integer', 'null')"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "is_timeout": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "is_timeout = 0 OR is_timeout = 1"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "status": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(status) <= 3 AND TYPEOF(status) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "create_date": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(create_date) <= 10 AND TYPEOF(create_date) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "transaction_id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "transaction_parent": {
+      "COLUMNS": {
+        "transaction_id_child": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(transaction_id_child) <= 50"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "transaction_id_parent": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(transaction_id_parent) <= 50"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "shard_id": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(shard_id) <= 50"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "status": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(status) <= 3 AND TYPEOF(status) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "create_date": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(create_date) <= 10 AND TYPEOF(create_date) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "transaction_id_parent",
+        "transaction_id_child"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "transaction_id_child"
+          ],
+          "FOREIGN_TABLE": "transaction",
+          "REFERRED_COLUMNS": [
+            "transaction_id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "transaction_signature": {
+      "COLUMNS": {
+        "transaction_id": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(transaction_id) <= 50"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "shard_id": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(shard_id) <= 50"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "address_base": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(address_base) <= 34"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "signature": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(signature) <= 88"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "status": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(status) <= 3 AND TYPEOF(status) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "create_date": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(create_date) <= 10 AND TYPEOF(create_date) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "transaction_id",
+        "address_base"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "transaction_id"
+          ],
+          "FOREIGN_TABLE": "transaction",
+          "REFERRED_COLUMNS": [
+            "transaction_id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "transaction_input": {
+      "COLUMNS": {
+        "transaction_id": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(transaction_id) <= 50"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "shard_id": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(shard_id) <= 50"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "input_position": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(input_position) <= 3 AND TYPEOF(input_position) = 'integer'"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "output_transaction_id": {
+          "TYPE": "Char",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(output_transaction_id) <= 50"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "output_position": {
+          "TYPE": "TinyInt",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(output_position) <= 3 AND TYPEOF(output_position) IN ('integer', 'null')"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "output_shard_id": {
+          "TYPE": "Char",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(output_shard_id) <= 50"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "output_transaction_date": {
+          "TYPE": "Int",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(output_transaction_date) <= 10 AND TYPEOF(output_transaction_date) IN ('integer', 'null')"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "double_spend_date": {
+          "TYPE": "Int",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(double_spend_date) <= 10 AND TYPEOF(double_spend_date) IN ('integer', 'null')"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "is_double_spend": {
+          "TYPE": "TinyInt",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "is_double_spend = 0 OR is_double_spend = 1 OR is_double_spend IS NULL"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "address": {
+          "TYPE": "Char",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(address) <= 72"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "address_key_identifier": {
+          "TYPE": "Char",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(address_key_identifier) <= 34"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "status": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(status) <= 3 AND TYPEOF(status) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "create_date": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(create_date) <= 10 AND TYPEOF(create_date) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "transaction_id",
+        "input_position"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "transaction_id"
+          ],
+          "FOREIGN_TABLE": "transaction",
+          "REFERRED_COLUMNS": [
+            "transaction_id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "transaction_output": {
+      "COLUMNS": {
+        "transaction_id": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(transaction_id) <= 50"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "shard_id": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(shard_id) <= 50"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "output_position": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(output_position) <= 3 AND TYPEOF(output_position) = 'integer'"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "address": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(address) <= 72"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "address_key_identifier": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(address_key_identifier) <= 34"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "amount": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "TYPEOF(amount) IN ('integer', 'real')"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "stable_date": {
+          "TYPE": "Int",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(stable_date) <= 10 AND TYPEOF(stable_date) IN ('integer', 'null')"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "is_stable": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "is_stable = 0 OR is_stable = 1"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "spent_date": {
+          "TYPE": "Int",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(spent_date) <= 10 AND TYPEOF(spent_date) IN ('integer', 'null')"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "is_spent": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "is_spent = 0 OR is_spent = 1"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "double_spend_date": {
+          "TYPE": "Int",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(double_spend_date) <= 10 AND TYPEOF(double_spend_date) IN ('integer', 'null')"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "is_double_spend": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "is_double_spend = 0 OR is_double_spend = 1"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "status": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(status) <= 3 AND TYPEOF(status) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "create_date": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(create_date) <= 10 AND TYPEOF(create_date) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "transaction_id",
+        "output_position"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "transaction_id"
+          ],
+          "FOREIGN_TABLE": "transaction",
+          "REFERRED_COLUMNS": [
+            "transaction_id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "transaction_output_attribute": {
+      "COLUMNS": {
+        "transaction_id": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(transaction_id) <= 50"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "attribute_type_id": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(attribute_type_id) <= 20"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "shard_id": {
+          "TYPE": "Char",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(shard_id) <= 50"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "value": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "status": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(status) <= 3 AND TYPEOF(status) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "create_date": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(create_date) <= 10 AND TYPEOF(create_date) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "transaction_id",
+        "attribute_type_id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "transaction_id"
+          ],
+          "FOREIGN_TABLE": "transaction",
+          "REFERRED_COLUMNS": [
+            "transaction_id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "schema_information": {
+      "COLUMNS": {
+        "key": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "value": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "status": {
+          "TYPE": "TinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(status) <= 3 AND TYPEOF(status) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "create_date": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(create_date) <= 10 AND TYPEOF(create_date) = 'integer'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    }
+  }
+}

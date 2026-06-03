@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 148858_competition
+#
+CREATE DATABASE `db_148858_competition`;
+USE `db_148858_competition`;
+CREATE TABLE `STUDIO` (
+`Name` VARCHAR(255),
+`Phone` VARCHAR(255),
+`Address` VARCHAR(255),
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `TEACHER` (
+`TeacherID` VARCHAR(255),
+`LName` VARCHAR(255),
+`FName` VARCHAR(255),
+`Phone` VARCHAR(255),
+`StudioName` VARCHAR(255),
+PRIMARY KEY (`TeacherID`)
+) CHARACTER SET latin1;
+CREATE TABLE `COMPETITOR` (
+`CompetitorID` VARCHAR(255),
+`LName` VARCHAR(255),
+`FName` VARCHAR(255),
+`Age` INT,
+`Instrument` VARCHAR(255),
+`TeacherID` VARCHAR(255),
+PRIMARY KEY (`CompetitorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `COMPOSITION` (
+`MusicID` VARCHAR(255),
+`Title` VARCHAR(255),
+`Composer` VARCHAR(255),
+`Genre` VARCHAR(255),
+PRIMARY KEY (`MusicID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CATEGORY` (
+`CategoryID` VARCHAR(255),
+`Genre` VARCHAR(255),
+`AgeMin` INT,
+`AgeMax` INT,
+`CompDate` DATETIME,
+`CompTime` DATETIME,
+PRIMARY KEY (`CategoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PERFORMANCE` (
+`CompetitorID` VARCHAR(255),
+`CategoryID` VARCHAR(255),
+`MusicID` VARCHAR(255),
+`Score` INT,
+PRIMARY KEY (`CompetitorID`, `CategoryID`, `MusicID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_148858_competition') AS relationships;
+relationships
+Database: db_148858_competition
+
+Table Connections:
+------------------
+[Implied]  COMPETITOR.TeacherID -> TEACHER.TeacherID
+[Implied]  PERFORMANCE.CategoryID -> CATEGORY.CategoryID
+[Implied]  PERFORMANCE.CompetitorID -> COMPETITOR.CompetitorID
+[Implied]  PERFORMANCE.MusicID -> COMPOSITION.MusicID
+[Implied]  TEACHER.StudioName -> STUDIO.Name
+
+DROP DATABASE `db_148858_competition`;
+UNINSTALL EXTENSION vsql_schematron;

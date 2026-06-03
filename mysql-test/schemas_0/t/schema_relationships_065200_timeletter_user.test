@@ -1,0 +1,85 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 065200_timeletter_user
+--echo #
+CREATE DATABASE `db_065200_timeletter_user`;
+USE `db_065200_timeletter_user`;
+
+CREATE TABLE `user` (
+  `user_id` INT,
+  `email` VARCHAR(255),
+  `name` VARCHAR(255),
+  `profile` VARCHAR(255),
+  `password` VARCHAR(255),
+  `phone` VARCHAR(255),
+  `activated` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `club` (
+  `club_id` INT,
+  `club_name` VARCHAR(255),
+  `user_id` INT,
+  `club_profile` VARCHAR(255),
+  `club_desc` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `letter` (
+  `letter_id` INT,
+  `title` VARCHAR(255),
+  `url` VARCHAR(255),
+  `message` VARCHAR(255),
+  `open_date` DATETIME,
+  `latitude` DECIMAL(10,2),
+  `longitude` DECIMAL(10,2),
+  `is_private` INT,
+  `is_open` INT,
+  `alert` INT,
+  `user_id` INT,
+  `club_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `authority` (
+  `authority_name` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `club_has_member` (
+  `user_id` INT,
+  `club_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `letter_agree` (
+  `user_id` INT,
+  `letter_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_has_authority` (
+  `user_id` INT,
+  `authority_name` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `target` (
+  `letter_id` INT,
+  `phone_number` VARCHAR(255),
+  `target_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_065200_timeletter_user') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_065200_timeletter_user') AS relationships;
+DROP DATABASE `db_065200_timeletter_user`;
+UNINSTALL EXTENSION vsql_schematron;

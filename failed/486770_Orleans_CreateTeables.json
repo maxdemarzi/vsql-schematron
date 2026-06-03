@@ -1,0 +1,662 @@
+{
+  "INFO": {
+    "URL": "https://github.com/mitsbits/Borg/blob/35466c6ab6f55301cb80a505d952579410370e15/src/Framework/Borg.Framework.Actors.Silos/Data/Orleans_CreateTeables.sql?raw=true\n",
+    "LICENSE": "APACHE-2.0",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "OrleansQuery": {
+      "COLUMNS": {
+        "QueryKey": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "ReadFromStorageKey"
+          ],
+          "COMMENT": null
+        },
+        "QueryText": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "-- The application code will deserialize the relevant result. Not that the query optimizer\n    -- estimates the result of rows based on its knowledge on the index. It does not know there\n    -- will be only one row returned. Forcing the optimizer to process the first found row quickly\n    -- creates an estimate for a one-row result and makes a difference on multi-million row tables.\n    -- Also the optimizer is instructed to always use the same plan via index using the OPTIMIZE\n    -- FOR UNKNOWN flags. These hints are only available in SQL Server 2008 and later. They\n    -- should guarantee the execution time is robustly basically the same from query-to-query.\n    SELECT\n        PayloadBinary,\n        PayloadXml,\n        PayloadJson,\n        Version\n    FROM\n        Storage\n    WHERE\n        GrainIdHash = @GrainIdHash AND @GrainIdHash IS NOT NULL\n        AND GrainTypeHash = @GrainTypeHash AND @GrainTypeHash IS NOT NULL\n        AND (GrainIdN0 = @GrainIdN0 OR @GrainIdN0 IS NULL)\n\t\tAND (GrainIdN1 = @GrainIdN1 OR @GrainIdN1 IS NULL)\n        AND (GrainTypeString = @GrainTypeString OR @GrainTypeString IS NULL)\n\t\tAND ((@GrainIdExtensionString IS NOT NULL AND GrainIdExtensionString IS NOT NULL AND GrainIdExtensionString = @GrainIdExtensionString) OR @GrainIdExtensionString IS NULL AND GrainIdExtensionString IS NULL)\n\t\tAND ServiceId = @ServiceId AND @ServiceId IS NOT NULL\n        OPTION(FAST 1, OPTIMIZE FOR(@GrainIdHash UNKNOWN, @GrainTypeHash UNKNOWN));"
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "QueryKey"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "OrleansMembershipVersionTable": {
+      "COLUMNS": {
+        "DeploymentId": {
+          "TYPE": "Nvarchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Timestamp": {
+          "TYPE": "DATETIME2",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Version": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "DeploymentId"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "OrleansMembershipTable": {
+      "COLUMNS": {
+        "DeploymentId": {
+          "TYPE": "Nvarchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Address": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Port": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Generation": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "SiloName": {
+          "TYPE": "Nvarchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "HostName": {
+          "TYPE": "Nvarchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Status": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ProxyPort": {
+          "TYPE": "Int",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "SuspectTimes": {
+          "TYPE": "Varchar",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "StartTime": {
+          "TYPE": "DATETIME2",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "IAmAliveTime": {
+          "TYPE": "DATETIME2",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "DeploymentId",
+        "Address",
+        "Port",
+        "Generation"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "DeploymentId"
+          ],
+          "FOREIGN_TABLE": "OrleansMembershipVersionTable",
+          "REFERRED_COLUMNS": [
+            "DeploymentId"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "OrleansRemindersTable": {
+      "COLUMNS": {
+        "ServiceId": {
+          "TYPE": "Nvarchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "GrainId": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ReminderName": {
+          "TYPE": "Nvarchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "StartTime": {
+          "TYPE": "DATETIME2",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Period": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "GrainHash": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Version": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ServiceId",
+        "GrainId",
+        "ReminderName"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "OrleansClientMetricsTable": {
+      "COLUMNS": {
+        "DeploymentId": {
+          "TYPE": "Nvarchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ClientId": {
+          "TYPE": "Nvarchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Timestamp": {
+          "TYPE": "DATETIME2",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Address": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "HostName": {
+          "TYPE": "Nvarchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CpuUsage": {
+          "TYPE": "Float",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "MemoryUsage": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "SendQueueLength": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ReceiveQueueLength": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "SentMessages": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ReceivedMessages": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ConnectedGatewayCount": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "DeploymentId",
+        "ClientId"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "OrleansSiloMetricsTable": {
+      "COLUMNS": {
+        "DeploymentId": {
+          "TYPE": "Nvarchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "SiloId": {
+          "TYPE": "Nvarchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Timestamp": {
+          "TYPE": "DATETIME2",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Address": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Port": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "Generation": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "HostName": {
+          "TYPE": "Nvarchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "GatewayAddress": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "GatewayPort": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CpuUsage": {
+          "TYPE": "Float",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "MemoryUsage": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "SendQueueLength": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ReceiveQueueLength": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "SentMessages": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ReceivedMessages": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ActivationCount": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "RecentlyUsedActivationCount": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "RequestQueueLength": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "IsOverloaded": {
+          "TYPE": "BIT",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ClientCount": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "DeploymentId",
+        "SiloId"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "DeploymentId"
+          ],
+          "FOREIGN_TABLE": "OrleansMembershipVersionTable",
+          "REFERRED_COLUMNS": [
+            "DeploymentId"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    }
+  }
+}

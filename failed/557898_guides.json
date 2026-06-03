@@ -1,0 +1,371 @@
+{
+  "INFO": {
+    "URL": "https://github.com/misterhaan/track7.org/blob/d516858300a2d6bea148b447fe17d53009f52d1a/etc/db/guides.sql?raw=true\n",
+    "LICENSE": "MIT",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "guide_pages": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "guide": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "number": {
+          "TYPE": "UnsignedTinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": "page number, used for showing pages in the correct order"
+        },
+        "heading": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "display title for this page (may contain characters that aren\u2019t safe for html)"
+        },
+        "html": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "html format of page text, generated from markdown"
+        },
+        "markdown": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "editable version of page text"
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "number"
+        ],
+        [
+          "guide",
+          "number"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "guide_tags": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "used for both display and links"
+        },
+        "count": {
+          "TYPE": "SmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "how many published guides use this tag"
+        },
+        "lastused": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": "unix timestamp for the last time a guide was published or updated using this tag"
+        },
+        "description": {
+          "TYPE": "Text",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "lastused"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "guide_taglinks": {
+      "COLUMNS": {
+        "tag": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "guide": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": true,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "tag",
+        "guide"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "tag"
+          ],
+          "FOREIGN_TABLE": "guide_tags",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "guide"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "guide_comments": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "guide": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "guide this comment was posted to"
+        },
+        "posted": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": "unix timestamp when the comment was posted"
+        },
+        "user": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "user who posted this comment, or null to use custom name and contacturl"
+        },
+        "name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "name of anonymous commenter"
+        },
+        "contacturl": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "contact url for anonymous commenter"
+        },
+        "html": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "html format of comment text, generated from markdown"
+        },
+        "markdown": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "editable version of comment text"
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "posted"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "guide_votes": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "guide": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "guide this vote is for"
+        },
+        "voter": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "user who voted.  points to id but can\u2019t use foreign key due to needing a non-null unlinked option for unique index."
+        },
+        "ip": {
+          "TYPE": "UnsignedInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "ip address of anonymous voter.  use inet_aton() to store and inet_ntoa() to retrieve"
+        },
+        "vote": {
+          "TYPE": "UnsignedTinyInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "posted": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": "unix timestamp when the vote was cast"
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "posted"
+        ]
+      ],
+      "COMMENT": null
+    }
+  }
+}

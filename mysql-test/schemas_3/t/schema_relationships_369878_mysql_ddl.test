@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 369878_mysql_ddl
+--echo #
+CREATE DATABASE `db_369878_mysql_ddl`;
+USE `db_369878_mysql_ddl`;
+
+CREATE TABLE `ENCRYPTED_TRANSACTION` (
+  `ENCODED_PAYLOAD` VARCHAR(255),
+  `HASH` VARCHAR(255),
+  `TIMESTAMP` INT,
+  PRIMARY KEY (`HASH`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ENCRYPTED_RAW_TRANSACTION` (
+  `ENCRYPTED_KEY` VARCHAR(255),
+  `ENCRYPTED_PAYLOAD` VARCHAR(255),
+  `NONCE` VARCHAR(255),
+  `SENDER` VARCHAR(255),
+  `TIMESTAMP` INT,
+  `HASH` VARCHAR(255),
+  PRIMARY KEY (`HASH`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PRIVACY_GROUP` (
+  `ID` VARCHAR(255),
+  `LOOKUP_ID` VARCHAR(255),
+  `DATA` VARCHAR(255),
+  `TIMESTAMP` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ST_TRANSACTION` (
+  `ID` INT,
+  `HASH` VARCHAR(255),
+  `PAYLOAD` VARCHAR(255),
+  `PRIVACY_MODE` INT,
+  `TIMESTAMP` INT,
+  `VALIDATION_STAGE` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ST_AFFECTED_TRANSACTION` (
+  `ID` INT,
+  `AFFECTED_HASH` VARCHAR(255),
+  `TXN_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_369878_mysql_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_369878_mysql_ddl') AS relationships;
+DROP DATABASE `db_369878_mysql_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

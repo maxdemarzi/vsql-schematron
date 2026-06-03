@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 639366_canadian_nf_mysql
+--echo #
+CREATE DATABASE `db_639366_canadian_nf_mysql`;
+USE `db_639366_canadian_nf_mysql`;
+
+CREATE TABLE `FOOD_NAME` (
+  `FoodID` INT,
+  `FoodCode` INT,
+  `FoodGroupID` INT,
+  `FoodSourceID` INT,
+  `FoodDescription` VARCHAR(255),
+  `FoodDescriptionF` VARCHAR(255),
+  `FoodDateOfEntry` DATETIME,
+  `FoodDateOfPublication` DATETIME,
+  `CountryCode` INT,
+  `ScientificName` VARCHAR(255),
+  PRIMARY KEY (`FoodID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CONVERSION_FACTOR` (
+  `FoodID` INT,
+  `MeasureID` INT,
+  `ConversionFactorValue` INT,
+  `ConvFactorDateOfEntry` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `FOOD_GROUP` (
+  `FoodGroupID` INT,
+  `FoodGroupCode` INT,
+  `FoodGroupName` VARCHAR(255),
+  `FoodGroupNameF` VARCHAR(255),
+  PRIMARY KEY (`FoodGroupID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FOOD_SOURCE` (
+  `FoodSourceID` INT,
+  `FoodSourceCode` INT,
+  `FoodSourceDescription` VARCHAR(255),
+  `FoodSourceDescriptionF` VARCHAR(255),
+  PRIMARY KEY (`FoodSourceID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `NUTRIENT_NAME` (
+  `NutrientID` INT,
+  `NutrientCode` INT,
+  `NutrientSymbol` VARCHAR(255),
+  `NutrientUnit` VARCHAR(255),
+  `NutrientName` VARCHAR(255),
+  `NutrientNameF` VARCHAR(255),
+  `Tagname` VARCHAR(255),
+  `NutrientDecimals` INT,
+  PRIMARY KEY (`NutrientID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `NUTRIENT_SOURCE` (
+  `NutrientSourceID` INT,
+  `NutrientSourceCode` INT,
+  `NutrientSourceDescription` VARCHAR(255),
+  `NutrientSourceDescriptionF` VARCHAR(255),
+  PRIMARY KEY (`NutrientSourceID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MEASURE_NAME` (
+  `MeasureID` INT,
+  `MeasureName` VARCHAR(255),
+  `MeasureNameF` VARCHAR(255),
+  PRIMARY KEY (`MeasureID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `REFUSE_NAME` (
+  `RefuseID` INT,
+  `RefuseName` VARCHAR(255),
+  `RefuseNameF` VARCHAR(255),
+  PRIMARY KEY (`RefuseID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `YIELD_NAME` (
+  `YieldID` INT,
+  `YieldName` VARCHAR(255),
+  `YieldNameF` VARCHAR(255),
+  PRIMARY KEY (`YieldID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_639366_canadian_nf_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_639366_canadian_nf_mysql') AS relationships;
+DROP DATABASE `db_639366_canadian_nf_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

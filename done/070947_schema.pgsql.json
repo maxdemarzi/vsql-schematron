@@ -1,0 +1,205 @@
+{
+  "INFO": {
+    "URL": "https://github.com/ultimate-pms/fake-video-detector/blob/32d1535c2a5de8318b74f7af436e8d6df58b47db/libpuzzle/php/examples/similar/schema.pgsql.sql?raw=true\n",
+    "LICENSE": "APACHE-2.0",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "pictures": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "digest": {
+          "TYPE": "Character",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [
+        "(char_length(digest) = 32)"
+      ],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "sentpictures": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "url": {
+          "TYPE": "CharacterVarying",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "sender": {
+          "TYPE": "CharacterVarying",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "picture_id": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "picture_id"
+          ],
+          "FOREIGN_TABLE": "pictures",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [
+        "(CAST((url) AS TEXT) <> CAST('' AS TEXT))"
+      ],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "signatures": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "compressed_signature": {
+          "TYPE": "Bytea",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "picture_id": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "picture_id"
+          ],
+          "FOREIGN_TABLE": "pictures",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [
+        "(octet_length(compressed_signature) >= 182)"
+      ],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "words": {
+      "COLUMNS": {
+        "pos_and_word": {
+          "TYPE": "Bytea",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "signature_id": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "signature_id"
+          ],
+          "FOREIGN_TABLE": "signatures",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [
+        "(octet_length(pos_and_word) >= 2)"
+      ],
+      "INDEXES": [],
+      "COMMENT": null
+    }
+  }
+}

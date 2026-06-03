@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 060831_V20170101000000_example_models
+--echo #
+CREATE DATABASE `db_060831_V20170101000000_example_models`;
+USE `db_060831_V20170101000000_example_models`;
+
+CREATE TABLE `posts` (
+  `id` INT,
+  `content` VARCHAR(255),
+  `title` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comments` (
+  `id` INT,
+  `text` VARCHAR(255),
+  `post_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tags` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `posts_tags` (
+  `posts_id` INT,
+  `tags_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_060831_V20170101000000_example_models') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_060831_V20170101000000_example_models') AS relationships;
+DROP DATABASE `db_060831_V20170101000000_example_models`;
+UNINSTALL EXTENSION vsql_schematron;

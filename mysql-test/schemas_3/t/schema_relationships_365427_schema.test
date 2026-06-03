@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 365427_schema
+--echo #
+CREATE DATABASE `db_365427_schema`;
+USE `db_365427_schema`;
+
+CREATE TABLE `Contact` (
+  `contant_id` INT,
+  `phone_number` VARCHAR(255),
+  `e_mail` VARCHAR(255),
+  `pat_id` INT,
+  `doc_id` INT,
+  PRIMARY KEY (`contant_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Appointments` (
+  `appoi_id` INT,
+  `day` VARCHAR(255),
+  `time_from` VARCHAR(255),
+  `time_to` VARCHAR(255),
+  `pat_id` INT,
+  `doc_id` INT,
+  PRIMARY KEY (`appoi_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Patient` (
+  `patient_id` INT,
+  `patient_first_name` VARCHAR(255),
+  `patient_last_name` VARCHAR(255),
+  `gender` VARCHAR(255),
+  `date_of_birth` VARCHAR(255),
+  `patient_image` VARCHAR(255),
+  `patient_password` VARCHAR(255),
+  PRIMARY KEY (`patient_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Doctor` (
+  `doctor_id` INT,
+  `doctor_name` VARCHAR(255),
+  `doctor_speciailty` VARCHAR(255),
+  `doc_location` VARCHAR(255),
+  PRIMARY KEY (`doctor_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_365427_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_365427_schema') AS relationships;
+DROP DATABASE `db_365427_schema`;
+UNINSTALL EXTENSION vsql_schematron;

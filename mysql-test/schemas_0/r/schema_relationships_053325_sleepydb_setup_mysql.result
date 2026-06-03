@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 053325_sleepydb_setup_mysql
+#
+CREATE DATABASE `db_053325_sleepydb_setup_mysql`;
+USE `db_053325_sleepydb_setup_mysql`;
+CREATE TABLE `timezones` (
+`timezone_id` VARCHAR(255),
+`timezone_name` VARCHAR(255),
+`utc_offset` INT,
+`dst_offset` INT,
+PRIMARY KEY (`timezone_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `area_cache` (
+`area_id` INT,
+`area_name` VARCHAR(255),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`timezone_id` VARCHAR(255),
+PRIMARY KEY (`area_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `server_linked_channels` (
+`server_id` INT,
+`channel_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `sleep_tracker` (
+`user_id` INT,
+`area_id` INT,
+`server_id` INT,
+`bedtime_offset` INT,
+`aggressive_ping` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_053325_sleepydb_setup_mysql') AS relationships;
+relationships
+Database: db_053325_sleepydb_setup_mysql
+
+Table Connections:
+------------------
+[Implied]  area_cache.timezone_id -> timezones.timezone_id
+[Implied]  sleep_tracker.area_id -> area_cache.area_id
+[Implied]  sleep_tracker.server_id -> server_linked_channels.server_id
+
+DROP DATABASE `db_053325_sleepydb_setup_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

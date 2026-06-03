@@ -1,0 +1,328 @@
+{
+  "INFO": {
+    "URL": "https://github.com/misterhaan/track7.org/blob/d516858300a2d6bea148b447fe17d53009f52d1a/etc/db/blog.sql?raw=true\n",
+    "LICENSE": "MIT",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "blog_entries": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "url": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "unique portion of the url to this entry"
+        },
+        "status": {
+          "TYPE": "Enum",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "draft",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "posted": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": "unix timestamp when the entry was published or last time the draft was saved"
+        },
+        "title": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "display title"
+        },
+        "markdown": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "markdown version of content, for editing"
+        },
+        "content": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "status"
+        ],
+        [
+          "posted"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "blog_tags": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "used for both display and links"
+        },
+        "count": {
+          "TYPE": "SmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "how many published entries use this tag"
+        },
+        "lastused": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": "unix timestamp for the last time an entry was published using this tag"
+        },
+        "description": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "lastused"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "blog_entrytags": {
+      "COLUMNS": {
+        "tag": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "entry": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": true,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "tag",
+        "entry"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "tag"
+          ],
+          "FOREIGN_TABLE": "blog_tags",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "entry"
+          ],
+          "FOREIGN_TABLE": "blog_entries",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "entry"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "blog_comments": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "entry": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "entry this comment was posted to"
+        },
+        "posted": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": "unix timestamp when the comment was posted"
+        },
+        "user": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "user who posted this comment, or null to use custom name and contacturl"
+        },
+        "name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "name of anonymous commenter"
+        },
+        "contacturl": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "contact url for anonymous commenter"
+        },
+        "html": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "html format of comment text, generated from markdown"
+        },
+        "markdown": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "editable version of comment text"
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "entry"
+          ],
+          "FOREIGN_TABLE": "blog_entries",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "posted"
+        ]
+      ],
+      "COMMENT": null
+    }
+  }
+}

@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 517352_data_design
+--echo #
+CREATE DATABASE `db_517352_data_design`;
+USE `db_517352_data_design`;
+
+CREATE TABLE `user` (
+  `userId` VARCHAR(255),
+  `userActivationToken` VARCHAR(255),
+  `userEmail` VARCHAR(255),
+  `userHash` VARCHAR(255),
+  `userUsername` VARCHAR(255),
+  PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `property` (
+  `propertyId` VARCHAR(255),
+  `propertyCity` VARCHAR(255),
+  `propertyClass` VARCHAR(255),
+  `propertyLatitude` DECIMAL(10,2),
+  `propertyLongitude` DECIMAL(10,2),
+  `propertyStreetAddress` VARCHAR(255),
+  `propertyValue` DECIMAL(10,2),
+  PRIMARY KEY (`propertyId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `crime` (
+  `crimeId` VARCHAR(255),
+  `crimeAddress` VARCHAR(255),
+  `crimeDate` DATETIME,
+  `crimeLatitude` DECIMAL(10,2),
+  `crimeLongitude` DECIMAL(10,2),
+  `crimeType` VARCHAR(255),
+  PRIMARY KEY (`crimeId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `star` (
+  `starPropertyId` VARCHAR(255),
+  `starUserId` VARCHAR(255),
+  PRIMARY KEY (`starPropertyId`, `starUserId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_517352_data_design') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_517352_data_design') AS relationships;
+DROP DATABASE `db_517352_data_design`;
+UNINSTALL EXTENSION vsql_schematron;

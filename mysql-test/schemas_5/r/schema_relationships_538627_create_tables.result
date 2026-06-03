@@ -1,0 +1,127 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 538627_create_tables
+#
+CREATE DATABASE `db_538627_create_tables`;
+USE `db_538627_create_tables`;
+CREATE TABLE `company` (
+`id` INT,
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`cnpj` VARCHAR(255),
+`razao_social` VARCHAR(255),
+`street` VARCHAR(255),
+`number` INT,
+`neighborhood` VARCHAR(255),
+`city` VARCHAR(255),
+`postal_code` VARCHAR(255),
+`state` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`id` INT,
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`name` VARCHAR(255),
+`birthday` DATETIME,
+`street` VARCHAR(255),
+`number` INT,
+`neighborhood` VARCHAR(255),
+`city` VARCHAR(255),
+`postal_code` VARCHAR(255),
+`state` VARCHAR(255),
+`url_lattes` VARCHAR(255),
+`cpf` VARCHAR(255),
+`rg` VARCHAR(255),
+`birth_place` VARCHAR(255),
+`citizenship` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vacancy` (
+`id` INT,
+`company_id` INT,
+`name` VARCHAR(255),
+`scholarship` DECIMAL(10,2),
+`workload` INT,
+`description` VARCHAR(255),
+`street` VARCHAR(255),
+`number` INT,
+`neighborhood` VARCHAR(255),
+`city` VARCHAR(255),
+`postal_code` VARCHAR(255),
+`state` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_course` (
+`id` INT,
+`student_id` INT,
+`institution` VARCHAR(255),
+`name` VARCHAR(255),
+`reference_period` INT,
+`ingress_period` VARCHAR(255),
+`ingress_way` VARCHAR(255),
+`conclusion_year` VARCHAR(255),
+`IRA` DECIMAL(10,2),
+`shift` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_telephone` (
+`id` INT,
+`student_id` INT,
+`telephone_number` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_social` (
+`id` INT,
+`student_id` INT,
+`name` VARCHAR(255),
+`url_profile` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `requirement` (
+`id` INT,
+`requirement` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vacancy_requirement` (
+`vacancy_id` INT,
+`requirement_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `student_vacancy` (
+`student_id` INT,
+`vacancy_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `occupation_area` (
+`id` INT,
+`occupation_area` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_occupation_area` (
+`student_id` INT,
+`occupation_area_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `vacancy_occupation_area` (
+`vacancy_id` INT,
+`occupation_area_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_538627_create_tables') AS relationships;
+relationships
+Database: db_538627_create_tables
+
+Table Connections:
+------------------
+[Implied]  student_course.student_id -> student.id
+[Implied]  student_occupation_area.occupation_area_id -> occupation_area.id
+[Implied]  student_occupation_area.student_id -> student.id
+[Implied]  student_social.student_id -> student.id
+[Implied]  student_telephone.student_id -> student.id
+[Implied]  student_vacancy.student_id -> student.id
+[Implied]  student_vacancy.vacancy_id -> vacancy.id
+[Implied]  vacancy.company_id -> company.id
+[Implied]  vacancy_occupation_area.occupation_area_id -> occupation_area.id
+[Implied]  vacancy_occupation_area.vacancy_id -> vacancy.id
+[Implied]  vacancy_requirement.requirement_id -> requirement.id
+[Implied]  vacancy_requirement.vacancy_id -> vacancy.id
+
+DROP DATABASE `db_538627_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

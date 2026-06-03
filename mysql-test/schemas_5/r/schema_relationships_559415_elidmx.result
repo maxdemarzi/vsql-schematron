@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 559415_elidmx
+#
+CREATE DATABASE `db_559415_elidmx`;
+USE `db_559415_elidmx`;
+CREATE TABLE `categories` (
+`id` INT,
+`category` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `channels` (
+`cid` INT,
+`cname` VARCHAR(255),
+`cnumber` INT,
+`chancategoryid` INT,
+PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `scenes` (
+`sid` INT,
+`sname` VARCHAR(255),
+`scenecategoryid` INT,
+PRIMARY KEY (`sid`)
+) CHARACTER SET latin1;
+CREATE TABLE `scene_channels` (
+`id` INT,
+`sceneid` INT,
+`channelid` INT,
+`percent` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stacks` (
+`stid` INT,
+`stname` VARCHAR(255),
+`stackcategoryid` INT,
+PRIMARY KEY (`stid`)
+) CHARACTER SET latin1;
+CREATE TABLE `stack_scenes` (
+`id` INT,
+`stackid` INT,
+`sceneid` INT,
+`beats` INT,
+`stackorder` INT,
+`percent` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `settings` (
+`id` INT,
+`name` VARCHAR(255),
+`value` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_559415_elidmx') AS relationships;
+relationships
+Database: db_559415_elidmx
+
+Table Connections:
+------------------
+[Implied]  channels.chancategoryid -> categories.id
+[Implied]  scene_channels.channelid -> channels.cid
+[Implied]  scene_channels.sceneid -> scenes.sid
+[Implied]  scenes.scenecategoryid -> categories.id
+[Implied]  stack_scenes.sceneid -> scenes.sid
+[Implied]  stack_scenes.stackid -> stacks.stid
+[Implied]  stacks.stackcategoryid -> categories.id
+
+DROP DATABASE `db_559415_elidmx`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 403965_database
+#
+CREATE DATABASE `db_403965_database`;
+USE `db_403965_database`;
+CREATE TABLE `settings` (
+`video_path` VARCHAR(255),
+`episode_path` VARCHAR(255),
+`password` VARCHAR(255),
+`mediacenter_name` VARCHAR(255),
+`TMDB_grabbing` INT,
+`DarkMode` INT
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`tag_id` INT,
+`tag_name` VARCHAR(255),
+PRIMARY KEY (`tag_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tvshow` (
+`name` VARCHAR(255),
+`thumbnail` VARCHAR(255),
+`id` INT,
+`foldername` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tvshow_episodes` (
+`id` INT,
+`name` VARCHAR(255),
+`season` INT,
+`poster` VARCHAR(255),
+`tvshow_id` INT,
+`episode` INT,
+`filename` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `videos` (
+`movie_id` INT,
+`movie_name` VARCHAR(255),
+`movie_url` VARCHAR(255),
+`thumbnail` VARCHAR(255),
+`poster` VARCHAR(255),
+`likes` INT,
+`quality` INT,
+`length` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`movie_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `actors_videos` (
+`actor_id` INT,
+`video_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `video_tags` (
+`tag_id` INT,
+`video_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_403965_database') AS relationships;
+relationships
+Database: db_403965_database
+
+Table Connections:
+------------------
+[Implied]  actors_videos.video_id -> videos.movie_id
+[Implied]  tvshow_episodes.tvshow_id -> tvshow.id
+[Implied]  video_tags.tag_id -> tags.tag_id
+[Implied]  video_tags.video_id -> videos.movie_id
+
+DROP DATABASE `db_403965_database`;
+UNINSTALL EXTENSION vsql_schematron;

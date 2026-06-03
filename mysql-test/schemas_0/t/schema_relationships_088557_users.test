@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 088557_users
+--echo #
+CREATE DATABASE `db_088557_users`;
+USE `db_088557_users`;
+
+CREATE TABLE `messages` (
+  `id` INT,
+  `sender` INT,
+  `receiver` INT,
+  `message` VARCHAR(255),
+  `date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `register` (
+  `user_id` INT,
+  `user` VARCHAR(255),
+  `password` VARCHAR(255),
+  `information` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_data` (
+  `user_id` INT,
+  `new_messages` VARCHAR(255),
+  `score` INT,
+  `sgc_points` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `wk_ud` (
+  `user_id` INT,
+  `categories` VARCHAR(255),
+  `write_test` VARCHAR(255)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_088557_users') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_088557_users') AS relationships;
+DROP DATABASE `db_088557_users`;
+UNINSTALL EXTENSION vsql_schematron;

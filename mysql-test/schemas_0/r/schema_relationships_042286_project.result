@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 042286_project
+#
+CREATE DATABASE `db_042286_project`;
+USE `db_042286_project`;
+CREATE TABLE `profile` (
+`profileId` VARCHAR(255),
+`profileActivationToken` VARCHAR(255),
+`profileAtHandle` VARCHAR(255),
+`profileAvatarUrl` VARCHAR(255),
+`profileEmail` VARCHAR(255),
+`profileHash` VARCHAR(255),
+`profilePhone` VARCHAR(255),
+PRIMARY KEY (`profileId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tweet` (
+`tweetId` VARCHAR(255),
+`tweetProfileId` VARCHAR(255),
+`tweetContent` VARCHAR(255),
+`tweetDate` DATETIME,
+PRIMARY KEY (`tweetId`)
+) CHARACTER SET latin1;
+CREATE TABLE `image` (
+`imageId` VARCHAR(255),
+`imageTweetId` VARCHAR(255),
+`imageCloudinaryToken` VARCHAR(255),
+`imageUrl` VARCHAR(255),
+PRIMARY KEY (`imageId`)
+) CHARACTER SET latin1;
+CREATE TABLE `like` (
+`likeTweetId` VARCHAR(255),
+`likeProfileId` VARCHAR(255),
+`likeDate` DATETIME,
+PRIMARY KEY (`likeProfileId`, `likeTweetId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_042286_project') AS relationships;
+relationships
+Database: db_042286_project
+
+Table Connections:
+------------------
+[Implied]  image.imageTweetId -> tweet.tweetId
+[Implied]  like.likeProfileId -> profile.profileId
+[Implied]  like.likeTweetId -> tweet.tweetId
+[Implied]  tweet.tweetProfileId -> profile.profileId
+
+DROP DATABASE `db_042286_project`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 592943_database_create
+#
+CREATE DATABASE `db_592943_database_create`;
+USE `db_592943_database_create`;
+CREATE TABLE `mu_process` (
+`process_id` INT,
+`correlation_id` VARCHAR(255),
+`state` INT,
+`accept_failure` VARCHAR(255),
+`result` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`process_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mu_process_step` (
+`process_id` INT,
+`step_id` INT,
+`class_name` VARCHAR(255),
+`method_name` VARCHAR(255),
+`activity_params` VARCHAR(255),
+`orchestr_params` VARCHAR(255),
+`previous_state` VARCHAR(255),
+`compensate_if_failure` VARCHAR(255),
+`transaction_successful` VARCHAR(255),
+`retries` INT,
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`process_id`, `step_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_592943_database_create') AS relationships;
+relationships
+Database: db_592943_database_create
+
+Table Connections:
+------------------
+[Implied]  mu_process_step.process_id -> mu_process.process_id
+
+DROP DATABASE `db_592943_database_create`;
+UNINSTALL EXTENSION vsql_schematron;

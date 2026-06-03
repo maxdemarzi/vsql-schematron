@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 318290_schema
+#
+CREATE DATABASE `db_318290_schema`;
+USE `db_318290_schema`;
+CREATE TABLE `manufacturers` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `types` (
+`name` VARCHAR(255),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `models` (
+`id` INT,
+`name` VARCHAR(255),
+`manufacturer_id` INT,
+`type_name` VARCHAR(255),
+`year` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bikes` (
+`id` INT,
+`model_id` INT,
+`size` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bike_colors` (
+`bike_id` INT,
+`color` VARCHAR(255),
+PRIMARY KEY (`bike_id`, `color`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_318290_schema') AS relationships;
+relationships
+Database: db_318290_schema
+
+Table Connections:
+------------------
+[Implied]  bike_colors.bike_id -> bikes.id
+[Implied]  bikes.model_id -> models.id
+[Implied]  models.manufacturer_id -> manufacturers.id
+[Implied]  models.type_name -> types.name
+
+DROP DATABASE `db_318290_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 158352_schema
+#
+CREATE DATABASE `db_158352_schema`;
+USE `db_158352_schema`;
+CREATE TABLE `players` (
+`id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`birth_date` DATETIME,
+`weight` INT,
+`height` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `divisions` (
+`name` VARCHAR(255),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `teams` (
+`id` INT,
+`name` VARCHAR(255),
+`division` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roster` (
+`team_id` INT,
+`player_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_158352_schema') AS relationships;
+relationships
+Database: db_158352_schema
+
+Table Connections:
+------------------
+[Implied]  roster.player_id -> players.id
+[Implied]  roster.team_id -> teams.id
+[Implied]  teams.division -> divisions.name
+
+DROP DATABASE `db_158352_schema`;
+UNINSTALL EXTENSION vsql_schematron;

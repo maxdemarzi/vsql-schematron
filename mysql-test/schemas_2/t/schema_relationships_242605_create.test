@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 242605_create
+--echo #
+CREATE DATABASE `db_242605_create`;
+USE `db_242605_create`;
+
+CREATE TABLE `users` (
+  `usr_id` INT,
+  `usr_name` VARCHAR(255),
+  `usr_email` VARCHAR(255),
+  `usr_phone_number` VARCHAR(255),
+  `usr_password` VARCHAR(255),
+  `usr_street` VARCHAR(255),
+  `usr_city_id` INT,
+  `usr_active` VARCHAR(255),
+  PRIMARY KEY (`usr_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `adposts` (
+  `ad_id` INT,
+  `ad_title` VARCHAR(255),
+  `ad_description` VARCHAR(255),
+  `ad_subcategory_id` INT,
+  `ad_pub_date` DATETIME,
+  `ad_active` VARCHAR(255),
+  `ad_owner_id` INT,
+  PRIMARY KEY (`ad_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chats` (
+  `chat_id` INT,
+  `chat_ad_id` INT,
+  `chat_usr_id` INT,
+  `chat_active` VARCHAR(255),
+  `chat_date` DATETIME,
+  PRIMARY KEY (`chat_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `messages` (
+  `msg_id` INT,
+  `msg_text` VARCHAR(255),
+  `msg_time` DATETIME,
+  `msg_chat_id` INT,
+  `msg_sender_id` INT,
+  PRIMARY KEY (`msg_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wishlist` (
+  `wl_id` INT,
+  `wl_usr_id` INT,
+  `wl_ad_id` INT,
+  `wl_date` DATETIME,
+  `wl_active` VARCHAR(255),
+  PRIMARY KEY (`wl_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `cat_id` INT,
+  `cat_name` VARCHAR(255),
+  PRIMARY KEY (`cat_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subcategories` (
+  `subc_id` INT,
+  `subc_name` VARCHAR(255),
+  `subc_cat_id` INT,
+  PRIMARY KEY (`subc_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `districts` (
+  `dis_id` INT,
+  `dis_name` VARCHAR(255),
+  PRIMARY KEY (`dis_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cities` (
+  `city_id` INT,
+  `city_name` VARCHAR(255),
+  `city_dis_id` INT,
+  PRIMARY KEY (`city_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_242605_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_242605_create') AS relationships;
+DROP DATABASE `db_242605_create`;
+UNINSTALL EXTENSION vsql_schematron;

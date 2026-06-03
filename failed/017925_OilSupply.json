@@ -1,0 +1,513 @@
+{
+  "INFO": {
+    "URL": "https://github.com/cjheath/activefacts-compositions/blob/247b9230b6da984abf811c006c006c9b46b7e8c1/spec/sql/postgres/expected/OilSupply.sql?raw=true\n",
+    "LICENSE": "MIT",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "acceptable_substitution": {
+      "COLUMNS": {
+        "product_name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "alternate_product_name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "season": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "season = 'Autumn' OR season = 'Spring' OR season = 'Summer' OR season = 'Winter'"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "product_name",
+        "alternate_product_name",
+        "season"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "alternate_product_name"
+          ],
+          "FOREIGN_TABLE": "product",
+          "REFERRED_COLUMNS": [
+            "product_name"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "product_name"
+          ],
+          "FOREIGN_TABLE": "product",
+          "REFERRED_COLUMNS": [
+            "product_name"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "month": {
+      "COLUMNS": {
+        "month_nr": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [
+            "(month_nr >= 1 AND month_nr <= 12)"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "season": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "season = 'Autumn' OR season = 'Spring' OR season = 'Summer' OR season = 'Winter'"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "month_nr"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "product": {
+      "COLUMNS": {
+        "product_name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "product_name"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "production_forecast": {
+      "COLUMNS": {
+        "refinery_name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "supply_period_year_nr": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "supply_period_month_nr": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "(supply_period_month_nr >= 1 AND supply_period_month_nr <= 12)"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "product_name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "quantity": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "cost": {
+          "TYPE": "MONEY",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "refinery_name",
+        "supply_period_year_nr",
+        "supply_period_month_nr",
+        "product_name"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "product_name"
+          ],
+          "FOREIGN_TABLE": "product",
+          "REFERRED_COLUMNS": [
+            "product_name"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "refinery_name"
+          ],
+          "FOREIGN_TABLE": "refinery",
+          "REFERRED_COLUMNS": [
+            "refinery_name"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "supply_period_year_nr",
+            "supply_period_month_nr"
+          ],
+          "FOREIGN_TABLE": "supply_period",
+          "REFERRED_COLUMNS": [
+            "year_nr",
+            "month_nr"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "refinery": {
+      "COLUMNS": {
+        "refinery_name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "refinery_name"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "region": {
+      "COLUMNS": {
+        "region_name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "region_name"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "regional_demand": {
+      "COLUMNS": {
+        "region_name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "supply_period_year_nr": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "supply_period_month_nr": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "(supply_period_month_nr >= 1 AND supply_period_month_nr <= 12)"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "product_name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "quantity": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "region_name",
+        "supply_period_year_nr",
+        "supply_period_month_nr",
+        "product_name"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "product_name"
+          ],
+          "FOREIGN_TABLE": "product",
+          "REFERRED_COLUMNS": [
+            "product_name"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "region_name"
+          ],
+          "FOREIGN_TABLE": "region",
+          "REFERRED_COLUMNS": [
+            "region_name"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "supply_period_year_nr",
+            "supply_period_month_nr"
+          ],
+          "FOREIGN_TABLE": "supply_period",
+          "REFERRED_COLUMNS": [
+            "year_nr",
+            "month_nr"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "supply_period": {
+      "COLUMNS": {
+        "year_nr": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "month_nr": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "(month_nr >= 1 AND month_nr <= 12)"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "year_nr",
+        "month_nr"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "month_nr"
+          ],
+          "FOREIGN_TABLE": "month",
+          "REFERRED_COLUMNS": [
+            "month_nr"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "transport_route": {
+      "COLUMNS": {
+        "transport_mode": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "transport_mode = 'Rail' OR transport_mode = 'Road' OR transport_mode = 'Sea'"
+          ],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "refinery_name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "region_name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "cost": {
+          "TYPE": "MONEY",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "transport_mode",
+        "refinery_name",
+        "region_name"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "refinery_name"
+          ],
+          "FOREIGN_TABLE": "refinery",
+          "REFERRED_COLUMNS": [
+            "refinery_name"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "region_name"
+          ],
+          "FOREIGN_TABLE": "region",
+          "REFERRED_COLUMNS": [
+            "region_name"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    }
+  }
+}

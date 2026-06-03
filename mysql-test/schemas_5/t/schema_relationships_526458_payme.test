@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 526458_payme
+--echo #
+CREATE DATABASE `db_526458_payme`;
+USE `db_526458_payme`;
+
+CREATE TABLE `users` (
+  `userID` INT,
+  `name` VARCHAR(255),
+  `address` VARCHAR(255),
+  `phone_number` VARCHAR(255),
+  `email` VARCHAR(255),
+  `aadhar_number` VARCHAR(255),
+  `password` VARCHAR(255),
+  `date_of_birth` DATETIME,
+  `pincode` INT,
+  `gender` VARCHAR(255),
+  `pan_number` VARCHAR(255),
+  PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `accounts` (
+  `userID` INT,
+  `account_number` VARCHAR(255),
+  `balance` INT,
+  `pin` VARCHAR(255),
+  PRIMARY KEY (`account_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `transaction` (
+  `transactionID` VARCHAR(255),
+  `to_account_number` VARCHAR(255),
+  `from_account_number` VARCHAR(255),
+  `amount` INT,
+  `timestamp` DATETIME,
+  PRIMARY KEY (`transactionID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `admin` (
+  `name` VARCHAR(255),
+  `id` INT,
+  `password` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `report` (
+  `report_number` INT,
+  `title` VARCHAR(255),
+  `userID` INT,
+  `body` VARCHAR(255),
+  `solved` VARCHAR(255),
+  PRIMARY KEY (`report_number`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_526458_payme') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_526458_payme') AS relationships;
+DROP DATABASE `db_526458_payme`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 403965_database
+--echo #
+CREATE DATABASE `db_403965_database`;
+USE `db_403965_database`;
+
+CREATE TABLE `settings` (
+  `video_path` VARCHAR(255),
+  `episode_path` VARCHAR(255),
+  `password` VARCHAR(255),
+  `mediacenter_name` VARCHAR(255),
+  `TMDB_grabbing` INT,
+  `DarkMode` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tags` (
+  `tag_id` INT,
+  `tag_name` VARCHAR(255),
+  PRIMARY KEY (`tag_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tvshow` (
+  `name` VARCHAR(255),
+  `thumbnail` VARCHAR(255),
+  `id` INT,
+  `foldername` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tvshow_episodes` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `season` INT,
+  `poster` VARCHAR(255),
+  `tvshow_id` INT,
+  `episode` INT,
+  `filename` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `videos` (
+  `movie_id` INT,
+  `movie_name` VARCHAR(255),
+  `movie_url` VARCHAR(255),
+  `thumbnail` VARCHAR(255),
+  `poster` VARCHAR(255),
+  `likes` INT,
+  `quality` INT,
+  `length` INT,
+  `create_date` DATETIME,
+  PRIMARY KEY (`movie_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `actors_videos` (
+  `actor_id` INT,
+  `video_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `video_tags` (
+  `tag_id` INT,
+  `video_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_403965_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_403965_database') AS relationships;
+DROP DATABASE `db_403965_database`;
+UNINSTALL EXTENSION vsql_schematron;

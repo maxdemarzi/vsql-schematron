@@ -1,0 +1,2128 @@
+{
+  "INFO": {
+    "URL": "https://github.com/icco/analytics/blob/7409450af4abe6e97f3b5544cdbe7fb9e6c8c4cc/schema.pgsql?raw=true\n",
+    "LICENSE": "MIT",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "sites": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "serial",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "parent": {
+          "TYPE": "Integer",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "parent IS NULL OR parent > 0"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "code": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(code) >= 2 AND length(code) <= 50"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "link_domain": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [
+            "link_domain = '' OR (length(link_domain) >= 4 AND length(link_domain) <= 255)"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "cname": {
+          "TYPE": "Varchar",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "cname IS NULL OR (length(cname) >= 4 AND length(cname) <= 255)"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "plan": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "plan IN ('personal', 'personalplus', 'business', 'businessplus', 'child', 'custom')"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "stripe": {
+          "TYPE": "Varchar",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "settings": {
+          "TYPE": "JSON",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "received_data": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "state": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "a",
+          "CHECKS": [
+            "state IN ('a', 'd')"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "created_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "updated_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "users": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "serial",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "site": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "site > 0"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "email": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "length(email) > 5 AND length(email) <= 255"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "email_verified": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "password": {
+          "TYPE": "Bytea",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "role": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [
+            "role IN ('', 'a')"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "login_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "login_request": {
+          "TYPE": "Varchar",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "login_token": {
+          "TYPE": "Varchar",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "csrf_token": {
+          "TYPE": "Varchar",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "email_token": {
+          "TYPE": "Varchar",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "seen_updates_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "reset_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "created_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "updated_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "site"
+          ],
+          "FOREIGN_TABLE": "sites",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Restrict"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "hits": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "serial",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "site": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "site > 0"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "session": {
+          "TYPE": "Integer",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "path": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "title": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "event": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "bot": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ref": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ref_scheme": {
+          "TYPE": "Varchar",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "ref_scheme IN ('h', 'g', 'o', 'c')"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "browser": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "size": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "location": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "first_visit": {
+          "TYPE": "Integer",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "created_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "sessions": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "serial",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "site": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "site > 0"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "hash": {
+          "TYPE": "Bytea",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "created_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "last_seen": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "site"
+          ],
+          "FOREIGN_TABLE": "sites",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Restrict"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "session_paths": {
+      "COLUMNS": {
+        "session": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "path": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "session"
+          ],
+          "FOREIGN_TABLE": "sessions",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "session_salts": {
+      "COLUMNS": {
+        "previous": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "salt": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "created_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "hit_stats": {
+      "COLUMNS": {
+        "site": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "site > 0"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "day": {
+          "TYPE": "Date",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "path": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "title": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "stats": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "stats_unique": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "site"
+          ],
+          "FOREIGN_TABLE": "sites",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Restrict"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "hit_counts": {
+      "COLUMNS": {
+        "site": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [
+            "site > 0"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "path": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "title": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "event": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "hour": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "total": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "total_unique": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "ref_counts": {
+      "COLUMNS": {
+        "site": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [
+            "site > 0"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "path": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ref": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ref_scheme": {
+          "TYPE": "Varchar",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "hour": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "total": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "total_unique": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "browser_stats": {
+      "COLUMNS": {
+        "site": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "site > 0"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "day": {
+          "TYPE": "Date",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "browser": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "version": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "count": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "count_unique": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "site"
+          ],
+          "FOREIGN_TABLE": "sites",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Restrict"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "system_stats": {
+      "COLUMNS": {
+        "site": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "site > 0"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "day": {
+          "TYPE": "Date",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "system": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "version": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "count": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "count_unique": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "site"
+          ],
+          "FOREIGN_TABLE": "sites",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Restrict"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "location_stats": {
+      "COLUMNS": {
+        "site": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "site > 0"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "day": {
+          "TYPE": "Date",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "location": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "count": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "count_unique": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "site"
+          ],
+          "FOREIGN_TABLE": "sites",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Restrict"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "size_stats": {
+      "COLUMNS": {
+        "site": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [
+            "site > 0"
+          ],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "day": {
+          "TYPE": "Date",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "width": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "count": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "count_unique": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "site"
+          ],
+          "FOREIGN_TABLE": "sites",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Restrict"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "iso_3166_1": {
+      "COLUMNS": {
+        "name": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "(unknown)",
+            "<LOCATION>",
+            "<LOCATION>",
+            "United Arab Emirates",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<PERSON>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Netherlands Antilles",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Aruba",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Benin",
+            "<PERSON>",
+            "<LOCATION>",
+            "Brunei Darussalam",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Burma",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Congo",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Chile",
+            "<LOCATION>",
+            "China",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Cuba",
+            "<LOCATION>",
+            "Cura\u00e7ao",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Czechia",
+            "<LOCATION>",
+            "<PERSON>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Benin",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Egypt",
+            "<LOCATION>",
+            "<PERSON>",
+            "Spain",
+            "<LOCATION>",
+            "European Union",
+            "<LOCATION>",
+            "Eurozone",
+            "<LOCATION>",
+            "Fiji",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Gabon",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Ghana",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Guam",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Haiti",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "India",
+            "<LOCATION>",
+            "Iraq",
+            "Iran",
+            "<LOCATION>",
+            "Italy",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Japan",
+            "Kenya",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<PERSON>",
+            "<PERSON>",
+            "Saint Kitts and Nevis",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Libya",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<PERSON>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Mali",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Macao",
+            "<LOCATION>",
+            "<PERSON>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Malta",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Niger",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Nepal",
+            "Nauru",
+            "<LOCATION>",
+            "Niue",
+            "<LOCATION>",
+            "Oman",
+            "Escape code",
+            "<LOCATION>",
+            "Peru",
+            "<PERSON>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<PERSON>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Palau",
+            "<LOCATION>",
+            "Qatar",
+            "<LOCATION>",
+            "<LOCATION>",
+            "China",
+            "<PERSON>",
+            "Haiti",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Niger",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Sudan",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<PERSON>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Sao Tome and Principe",
+            "USSR",
+            "<LOCATION>",
+            "<PERSON>",
+            "<LOCATION>",
+            "<PERSON>",
+            "<PERSON>",
+            "<LOCATION>",
+            "Chad",
+            "<LOCATION>",
+            "Togo",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<PERSON>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Tonga",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<PERSON>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "United Nations",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Holy See",
+            "<PERSON>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Samoa",
+            "<PERSON>",
+            "Yemen",
+            "<PERSON>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "<LOCATION>",
+            "Zaire",
+            "<LOCATION>"
+          ],
+          "COMMENT": null
+        },
+        "alpha2": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "",
+            "AC",
+            "AD",
+            "AE",
+            "AF",
+            "AG",
+            "AI",
+            "AL",
+            "AM",
+            "AN",
+            "AO",
+            "AQ",
+            "AR",
+            "AS",
+            "AT",
+            "AU",
+            "AW",
+            "AX",
+            "AZ",
+            "BA",
+            "BB",
+            "BD",
+            "BE",
+            "BF",
+            "BG",
+            "BH",
+            "BI",
+            "BJ",
+            "BL",
+            "BM",
+            "BN",
+            "BO",
+            "BQ",
+            "BR",
+            "BS",
+            "BT",
+            "BU",
+            "BV",
+            "BW",
+            "BY",
+            "BZ",
+            "CA",
+            "CC",
+            "CD",
+            "CF",
+            "CG",
+            "CH",
+            "CI",
+            "CK",
+            "CL",
+            "CM",
+            "CN",
+            "CO",
+            "CP",
+            "CR",
+            "CS",
+            "CU",
+            "CV",
+            "CW",
+            "CX",
+            "CY",
+            "CZ",
+            "DE",
+            "DG",
+            "DJ",
+            "DK",
+            "DM",
+            "DO",
+            "DY",
+            "DZ",
+            "EA",
+            "EC",
+            "EE",
+            "EG",
+            "EH",
+            "ER",
+            "ES",
+            "ET",
+            "EU",
+            "EW",
+            "EZ",
+            "FI",
+            "FJ",
+            "FK",
+            "FL",
+            "FM",
+            "FO",
+            "FR",
+            "FX",
+            "GA",
+            "GB",
+            "GD",
+            "GE",
+            "GF",
+            "GG",
+            "GH",
+            "GI",
+            "GL",
+            "GM",
+            "GN",
+            "GP",
+            "GQ",
+            "GR",
+            "GS",
+            "GT",
+            "GU",
+            "GW",
+            "GY",
+            "HK",
+            "HM",
+            "HN",
+            "HR",
+            "HT",
+            "HU",
+            "IC",
+            "ID",
+            "IE",
+            "IL",
+            "IM",
+            "IN",
+            "IO",
+            "IQ",
+            "IR",
+            "IS",
+            "IT",
+            "JA",
+            "JE",
+            "JM",
+            "JO",
+            "JP",
+            "KE",
+            "KG",
+            "KH",
+            "KI",
+            "KM",
+            "KN",
+            "KP",
+            "KR",
+            "KW",
+            "KY",
+            "KZ",
+            "LA",
+            "LB",
+            "LC",
+            "LF",
+            "LI",
+            "LK",
+            "LR",
+            "LS",
+            "LT",
+            "LU",
+            "LV",
+            "LY",
+            "MA",
+            "MC",
+            "MD",
+            "ME",
+            "MF",
+            "MG",
+            "MH",
+            "MK",
+            "ML",
+            "MM",
+            "MN",
+            "MO",
+            "MP",
+            "MQ",
+            "MR",
+            "MS",
+            "MT",
+            "MU",
+            "MV",
+            "MW",
+            "MX",
+            "MY",
+            "MZ",
+            "NA",
+            "NC",
+            "NE",
+            "NF",
+            "NG",
+            "NI",
+            "NL",
+            "NO",
+            "NP",
+            "NR",
+            "NT",
+            "NU",
+            "NZ",
+            "OM",
+            "OO",
+            "PA",
+            "PE",
+            "PF",
+            "PG",
+            "PH",
+            "PI",
+            "PK",
+            "PL",
+            "PM",
+            "PN",
+            "PR",
+            "PS",
+            "PT",
+            "PW",
+            "PY",
+            "QA",
+            "RA",
+            "RB",
+            "RC",
+            "RE",
+            "RH",
+            "RI",
+            "RL",
+            "RM",
+            "RN",
+            "RO",
+            "RP",
+            "RS",
+            "RU",
+            "RW",
+            "SA",
+            "SB",
+            "SC",
+            "SD",
+            "SE",
+            "SF",
+            "SG",
+            "SH",
+            "SI",
+            "SJ",
+            "SK",
+            "SL",
+            "SM",
+            "SN",
+            "SO",
+            "SR",
+            "SS",
+            "ST",
+            "SU",
+            "SV",
+            "SX",
+            "SY",
+            "SZ",
+            "TA",
+            "TC",
+            "TD",
+            "TF",
+            "TG",
+            "TH",
+            "TJ",
+            "TK",
+            "TL",
+            "TM",
+            "TN",
+            "TO",
+            "TP",
+            "TR",
+            "TT",
+            "TV",
+            "TW",
+            "TZ",
+            "UA",
+            "UG",
+            "UK",
+            "UM",
+            "UN",
+            "US",
+            "UY",
+            "UZ",
+            "VA",
+            "VC",
+            "VE",
+            "VG",
+            "VI",
+            "VN",
+            "VU",
+            "WF",
+            "WG",
+            "WL",
+            "WS",
+            "WV",
+            "YE",
+            "YT",
+            "YU",
+            "YV",
+            "ZA",
+            "ZM",
+            "ZR",
+            "ZW"
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "updates": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "serial",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "subject": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "body": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "created_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "show_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "botlog_ips": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "serial",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "count": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ip": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ptr": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "info": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "hide": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "created_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "last_seen": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "botlog": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "serial",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ip": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "bot": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ua": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "headers": {
+          "TYPE": "jsonb",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "url": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "created_at": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "ip"
+          ],
+          "FOREIGN_TABLE": "botlog_ips",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "version": {
+      "COLUMNS": {
+        "name": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "2019-10-16-1-geoip",
+            "2019-11-08-1-refs",
+            "2019-11-08-2-location_stats",
+            "2019-12-10-1-plans",
+            "2019-12-10-2-count_ref",
+            "2019-12-15-1-personal-free",
+            "2019-12-15-2-old",
+            "2019-12-17-1-business",
+            "2019-12-19-1-updates",
+            "2019-12-20-1-dailystat",
+            "2019-12-31-1-blank-days",
+            "2020-01-02-1-bot",
+            "2020-01-07-1-title-domain",
+            "2020-01-13-1-update",
+            "2020-01-13-2-hit_stats_title",
+            "2020-01-18-1-sitename",
+            "2020-01-23-1-nformat",
+            "2020-01-23-2-retention",
+            "2020-01-24-1-rm-mobile",
+            "2020-01-24-2-domain",
+            "2020-01-26-1-sitecode",
+            "2020-01-27-1-ignore",
+            "2020-01-27-2-rm-count-ref",
+            "2020-02-02-1-tz",
+            "2020-02-06-1-hitsid",
+            "2020-02-19-1-personalplus",
+            "2020-02-19-2-outage",
+            "2020-02-24-1-ref_stats",
+            "2020-03-03-1-flag",
+            "2020-03-13-1-code-moved",
+            "2020-03-16-1-size_stats",
+            "2020-03-16-2-rm-old",
+            "2020-03-18-1-json_settings",
+            "2020-03-29-1-page_cost",
+            "2020-03-27-1-isbot",
+            "2020-03-24-1-sessions",
+            "2020-03-29-1-page_cost",
+            "2020-04-06-1-event",
+            "2020-04-16-1-pwauth",
+            "2020-04-20-1-hitsindex",
+            "2020-04-22-1-campaigns",
+            "2020-04-27-1-usage-flags",
+            "2020-05-13-1-unique-path",
+            "2020-05-17-1-rm-user-name",
+            "2020-05-16-1-os_stats",
+            "2020-05-18-1-domain-count",
+            "2020-05-21-1-ref-count",
+            "2020-05-23-1-botlog",
+            "2020-05-23-1-event",
+            "2020-05-23-1-index",
+            "2020-05-23-2-drop-ref-stats"
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    }
+  }
+}

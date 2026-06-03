@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 616292_project
+#
+CREATE DATABASE `db_616292_project`;
+USE `db_616292_project`;
+CREATE TABLE `profile` (
+`profileId` VARCHAR(255),
+`profileActivationToken` VARCHAR(255),
+`profileAvatarUrl` VARCHAR(255),
+`profileEmail` VARCHAR(255),
+`profileFirstName` VARCHAR(255),
+`profileHash` VARCHAR(255),
+`profileLastName` VARCHAR(255),
+`profileUsername` VARCHAR(255),
+PRIMARY KEY (`profileId`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`postId` VARCHAR(255),
+`postProfileId` VARCHAR(255),
+`postContent` VARCHAR(255),
+`postDate` DATETIME,
+`postImageUrl` VARCHAR(255),
+PRIMARY KEY (`postId`)
+) CHARACTER SET latin1;
+CREATE TABLE `transmission` (
+`transmissionId` VARCHAR(255),
+`transmissionProfileId` VARCHAR(255),
+`transmissionPostId` VARCHAR(255),
+`transmissionContent` VARCHAR(255),
+`transmissionDateTime` DATETIME,
+PRIMARY KEY (`transmissionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `like` (
+`likePostId` VARCHAR(255),
+`likeProfileId` VARCHAR(255),
+`likeDateTime` DATETIME,
+PRIMARY KEY (`likePostId`, `likeProfileId`)
+) CHARACTER SET latin1;
+CREATE TABLE `sighting` (
+`sightingId` VARCHAR(255),
+`sightingCity` VARCHAR(255),
+`sightingSummary` VARCHAR(255),
+`sightingLatitude` VARCHAR(255),
+`sightingLongitude` VARCHAR(255),
+`sightingDateTime` DATETIME,
+PRIMARY KEY (`sightingId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_616292_project') AS relationships;
+relationships
+Database: db_616292_project
+
+Table Connections:
+------------------
+[Implied]  like.likePostId -> post.postId
+[Implied]  like.likeProfileId -> profile.profileId
+[Implied]  post.postProfileId -> profile.profileId
+[Implied]  transmission.transmissionPostId -> post.postId
+[Implied]  transmission.transmissionProfileId -> profile.profileId
+
+DROP DATABASE `db_616292_project`;
+UNINSTALL EXTENSION vsql_schematron;

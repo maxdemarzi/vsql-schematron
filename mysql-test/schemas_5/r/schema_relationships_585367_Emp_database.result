@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 585367_Emp_database
+#
+CREATE DATABASE `db_585367_Emp_database`;
+USE `db_585367_Emp_database`;
+CREATE TABLE `salaries` (
+`emp_no` INT,
+`salary` INT
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`emp_no` INT,
+`emp_title_id` VARCHAR(255),
+`birth_date` DATETIME,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`sex` VARCHAR(255),
+`hire_date` DATETIME,
+PRIMARY KEY (`emp_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `dept_manager` (
+`dept_no` VARCHAR(255),
+`emp_no` INT
+) CHARACTER SET latin1;
+CREATE TABLE `dept_emp` (
+`emp_no` INT,
+`dept_no` VARCHAR(255)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_585367_Emp_database') AS relationships;
+relationships
+Database: db_585367_Emp_database
+
+Table Connections:
+------------------
+[Implied]  dept_emp.emp_no -> employees.emp_no
+[Implied]  dept_manager.emp_no -> employees.emp_no
+[Implied]  salaries.emp_no -> employees.emp_no
+
+DROP DATABASE `db_585367_Emp_database`;
+UNINSTALL EXTENSION vsql_schematron;

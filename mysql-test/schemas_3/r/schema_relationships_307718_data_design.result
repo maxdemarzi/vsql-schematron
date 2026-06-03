@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 307718_data_design
+#
+CREATE DATABASE `db_307718_data_design`;
+USE `db_307718_data_design`;
+CREATE TABLE `profile` (
+`profileId` INT,
+`profileActivationToken` VARCHAR(255),
+`profileEmail` VARCHAR(255),
+`profileHash` VARCHAR(255),
+`profilePhone` VARCHAR(255),
+`profileSalt` VARCHAR(255),
+PRIMARY KEY (`profileId`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`productId` INT,
+`productName` VARCHAR(255),
+`productPrice` DECIMAL(10,2),
+PRIMARY KEY (`productId`)
+) CHARACTER SET latin1;
+CREATE TABLE `favorite` (
+`favoriteProfileId` INT,
+`favoriteProductId` INT,
+`favoriteDate` DATETIME,
+PRIMARY KEY (`favoriteProfileId`, `favoriteProductId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_307718_data_design') AS relationships;
+relationships
+Database: db_307718_data_design
+
+Table Connections:
+------------------
+[Implied]  favorite.favoriteProductId -> product.productId
+[Implied]  favorite.favoriteProfileId -> profile.profileId
+
+DROP DATABASE `db_307718_data_design`;
+UNINSTALL EXTENSION vsql_schematron;

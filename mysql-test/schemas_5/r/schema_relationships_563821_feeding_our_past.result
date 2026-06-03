@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 563821_feeding_our_past
+#
+CREATE DATABASE `db_563821_feeding_our_past`;
+USE `db_563821_feeding_our_past`;
+CREATE TABLE `organization` (
+`organizationId` VARCHAR(255),
+`organizationActivationToken` VARCHAR(255),
+`organizationAddressCity` VARCHAR(255),
+`organizationAddressState` VARCHAR(255),
+`organizationAddressStreet` VARCHAR(255),
+`organizationAddressZip` VARCHAR(255),
+`organizationDonationAccepted` VARCHAR(255),
+`organizationEmail` VARCHAR(255),
+`organizationHash` VARCHAR(255),
+`organizationHoursOpen` VARCHAR(255),
+`organizationLatX` DECIMAL(10,2),
+`organizationLongY` DECIMAL(10,2),
+`organizationName` VARCHAR(255),
+`organizationPhone` VARCHAR(255),
+`organizationSalt` VARCHAR(255),
+`organizationUrl` VARCHAR(255),
+PRIMARY KEY (`organizationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `volunteer` (
+`volunteerId` VARCHAR(255),
+`volunteerActivationToken` VARCHAR(255),
+`volunteerAvailability` VARCHAR(255),
+`volunteerEmail` VARCHAR(255),
+`volunteerHash` VARCHAR(255),
+`volunteerName` VARCHAR(255),
+`volunteerPhone` VARCHAR(255),
+`volunteerSalt` VARCHAR(255),
+PRIMARY KEY (`volunteerId`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`postId` VARCHAR(255),
+`postOrganizationId` VARCHAR(255),
+`postContent` VARCHAR(255),
+`postEndDateTime` DATETIME,
+`postImageUrl` VARCHAR(255),
+`postStartDateTime` DATETIME,
+`postTitle` VARCHAR(255),
+PRIMARY KEY (`postId`)
+) CHARACTER SET latin1;
+CREATE TABLE `favorite` (
+`favoritePostId` VARCHAR(255),
+`favoriteVolunteerId` VARCHAR(255),
+PRIMARY KEY (`favoritePostId`, `favoriteVolunteerId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_563821_feeding_our_past') AS relationships;
+relationships
+Database: db_563821_feeding_our_past
+
+Table Connections:
+------------------
+[Implied]  favorite.favoritePostId -> post.postId
+[Implied]  favorite.favoriteVolunteerId -> volunteer.volunteerId
+[Implied]  post.postOrganizationId -> organization.organizationId
+
+DROP DATABASE `db_563821_feeding_our_past`;
+UNINSTALL EXTENSION vsql_schematron;

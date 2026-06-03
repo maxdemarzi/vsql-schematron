@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 553839_Insurance
+#
+CREATE DATABASE `db_553839_Insurance`;
+USE `db_553839_Insurance`;
+CREATE TABLE `PERSON` (
+`driver_id` VARCHAR(255),
+`name` VARCHAR(255),
+`address` VARCHAR(255),
+PRIMARY KEY (`driver_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CAR` (
+`reg_num` VARCHAR(255),
+`model` VARCHAR(255),
+`year` INT,
+PRIMARY KEY (`reg_num`)
+) CHARACTER SET latin1;
+CREATE TABLE `ACCIDENT` (
+`report_num` INT,
+`accident_date` DATETIME,
+`location` VARCHAR(255),
+PRIMARY KEY (`report_num`)
+) CHARACTER SET latin1;
+CREATE TABLE `OWNS` (
+`driver_id` VARCHAR(255),
+`reg_num` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `PARTICIPATED` (
+`driver_id` VARCHAR(255),
+`reg_num` VARCHAR(255),
+`report_num` INT,
+`damage_amount` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_553839_Insurance') AS relationships;
+relationships
+Database: db_553839_Insurance
+
+Table Connections:
+------------------
+[Implied]  OWNS.driver_id -> PERSON.driver_id
+[Implied]  OWNS.reg_num -> CAR.reg_num
+[Implied]  PARTICIPATED.driver_id -> PERSON.driver_id
+[Implied]  PARTICIPATED.reg_num -> CAR.reg_num
+[Implied]  PARTICIPATED.report_num -> ACCIDENT.report_num
+
+DROP DATABASE `db_553839_Insurance`;
+UNINSTALL EXTENSION vsql_schematron;

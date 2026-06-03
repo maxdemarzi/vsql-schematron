@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 663954_foodtrucktable
+#
+CREATE DATABASE `db_663954_foodtrucktable`;
+USE `db_663954_foodtrucktable`;
+CREATE TABLE `profile` (
+`profileId` VARCHAR(255),
+`profileActivationToken` VARCHAR(255),
+`profileEmail` VARCHAR(255),
+`profileHash` VARCHAR(255),
+`profileIsOwner` VARCHAR(255),
+`profileName` VARCHAR(255),
+PRIMARY KEY (`profileId`)
+) CHARACTER SET latin1;
+CREATE TABLE `foodTruck` (
+`foodTruckId` VARCHAR(255),
+`foodTruckProfileId` VARCHAR(255),
+`foodTruckDescription` VARCHAR(255),
+`foodTruckImageUrl` VARCHAR(255),
+`foodTruckMenuUrl` VARCHAR(255),
+`foodTruckName` VARCHAR(255),
+`foodTruckPhoneNumber` INT,
+PRIMARY KEY (`foodTruckId`)
+) CHARACTER SET latin1;
+CREATE TABLE `favorite` (
+`favoriteProfileId` VARCHAR(255),
+`favoriteFoodTruckId` VARCHAR(255),
+`favoriteAddDate` DATETIME,
+PRIMARY KEY (`favoriteProfileId`, `favoriteFoodTruckId`)
+) CHARACTER SET latin1;
+CREATE TABLE `social` (
+`socialId` VARCHAR(255),
+`socialFoodTruckId` VARCHAR(255),
+`socialUrrl` VARCHAR(255),
+PRIMARY KEY (`socialId`)
+) CHARACTER SET latin1;
+CREATE TABLE `location` (
+`locationId` VARCHAR(255),
+`locationFoodtruckId` VARCHAR(255),
+`locationEnd` DATETIME,
+`locationLatitude` DECIMAL(10,2),
+`locationLongitude` DECIMAL(10,2),
+`locationStart` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_663954_foodtrucktable') AS relationships;
+relationships
+Database: db_663954_foodtrucktable
+
+Table Connections:
+------------------
+[Implied]  favorite.favoriteFoodTruckId -> foodTruck.foodTruckId
+[Implied]  favorite.favoriteProfileId -> profile.profileId
+[Implied]  foodTruck.foodTruckProfileId -> profile.profileId
+[Implied]  location.locationFoodtruckId -> foodTruck.foodTruckId
+[Implied]  social.socialFoodTruckId -> foodTruck.foodTruckId
+
+DROP DATABASE `db_663954_foodtrucktable`;
+UNINSTALL EXTENSION vsql_schematron;

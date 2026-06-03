@@ -1,0 +1,383 @@
+{
+  "INFO": {
+    "URL": "https://github.com/hyperledger/transact/blob/6f19f76a14b9658023faf9d6580292ad5c94df42/libtransact/src/state/merkle/sql/migration/postgres/migrations/2021-09-09-121000-initialize-tables/up.sql?raw=true\n",
+    "LICENSE": "APACHE-2.0",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "merkle_radix_tree": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "BIGSERIAL",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "name": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "default"
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "merkle_radix_leaf": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "BIGSERIAL",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "tree_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "address": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "data": {
+          "TYPE": "Bytea",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "tree_id"
+          ],
+          "FOREIGN_TABLE": "merkle_radix_tree",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "merkle_radix_tree_node": {
+      "COLUMNS": {
+        "hash": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "tree_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "leaf_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "children": {
+          "TYPE": "Array",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "hash",
+        "tree_id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "tree_id"
+          ],
+          "FOREIGN_TABLE": "merkle_radix_tree",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "leaf_id"
+          ],
+          "FOREIGN_TABLE": "merkle_radix_leaf",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "merkle_radix_change_log_addition": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "BIGSERIAL",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "tree_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "state_root": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "parent_state_root": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "addition": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "state_root",
+            "tree_id"
+          ],
+          "FOREIGN_TABLE": "merkle_radix_tree_node",
+          "REFERRED_COLUMNS": [
+            "hash",
+            "tree_id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "parent_state_root",
+            "tree_id"
+          ],
+          "FOREIGN_TABLE": "merkle_radix_tree_node",
+          "REFERRED_COLUMNS": [
+            "hash",
+            "tree_id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "addition",
+            "tree_id"
+          ],
+          "FOREIGN_TABLE": "merkle_radix_tree_node",
+          "REFERRED_COLUMNS": [
+            "hash",
+            "tree_id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "merkle_radix_change_log_deletion": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "BIGSERIAL",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "tree_id": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "successor_state_root": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "state_root": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "deletion": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "successor_state_root",
+            "tree_id"
+          ],
+          "FOREIGN_TABLE": "merkle_radix_tree_node",
+          "REFERRED_COLUMNS": [
+            "hash",
+            "tree_id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "state_root",
+            "tree_id"
+          ],
+          "FOREIGN_TABLE": "merkle_radix_tree_node",
+          "REFERRED_COLUMNS": [
+            "hash",
+            "tree_id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "deletion",
+            "tree_id"
+          ],
+          "FOREIGN_TABLE": "merkle_radix_tree_node",
+          "REFERRED_COLUMNS": [
+            "hash",
+            "tree_id"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    }
+  }
+}

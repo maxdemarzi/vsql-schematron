@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 035241_db
+#
+CREATE DATABASE `db_035241_db`;
+USE `db_035241_db`;
+CREATE TABLE `roles` (
+`uid` INT,
+`title` VARCHAR(255),
+PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`uid` INT,
+`role` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `flashcards` (
+`uid` INT,
+`gloss` VARCHAR(255),
+`definition` VARCHAR(255),
+`video` VARCHAR(255),
+PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+`uid` INT,
+`name` VARCHAR(255),
+`owner_uid` INT,
+PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `in_group` (
+`uid` INT,
+`group_uid` INT,
+`flashcard_uid` INT,
+PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `accuracy` (
+`uid` INT,
+`user_uid` INT,
+`flashcard_uid` INT,
+`correct` INT,
+`total` INT,
+PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_035241_db') AS relationships;
+relationships
+Database: db_035241_db
+
+Table Connections:
+------------------
+[Implied]  accuracy.flashcard_uid -> flashcards.uid
+[Implied]  accuracy.user_uid -> users.uid
+[Implied]  groups.owner_uid -> users.uid
+[Implied]  in_group.flashcard_uid -> flashcards.uid
+[Implied]  in_group.group_uid -> groups.uid
+[Implied]  users.role -> roles.uid
+
+DROP DATABASE `db_035241_db`;
+UNINSTALL EXTENSION vsql_schematron;

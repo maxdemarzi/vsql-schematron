@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 296682_initdbtableschema
+--echo #
+CREATE DATABASE `db_296682_initdbtableschema`;
+USE `db_296682_initdbtableschema`;
+
+CREATE TABLE `routes` (
+  `routeid` INT,
+  `fromPort` VARCHAR(255),
+  `toPort` VARCHAR(255),
+  `routeStr` VARCHAR(255),
+  PRIMARY KEY (`routeid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `flightPrices` (
+  `_id` INT,
+  `routeid` INT,
+  `carrier` VARCHAR(255),
+  `depTime` INT,
+  `arrTime` INT,
+  `price` DECIMAL(10,2),
+  `layovers` INT,
+  PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `flightlegs` (
+  `_id` INT,
+  `priceID` INT,
+  `airline` VARCHAR(255),
+  `flightno` VARCHAR(255),
+  `routeid` INT,
+  `fromPort` VARCHAR(255),
+  `toPort` VARCHAR(255),
+  `depTime` INT,
+  `arrTime` INT,
+  PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_296682_initdbtableschema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_296682_initdbtableschema') AS relationships;
+DROP DATABASE `db_296682_initdbtableschema`;
+UNINSTALL EXTENSION vsql_schematron;

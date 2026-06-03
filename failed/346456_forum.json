@@ -1,0 +1,361 @@
+{
+  "INFO": {
+    "URL": "https://github.com/misterhaan/track7.org/blob/d516858300a2d6bea148b447fe17d53009f52d1a/etc/db/forum.sql?raw=true\n",
+    "LICENSE": "MIT",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "forum_discussions": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "threadid": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": "thread id from the old database, used to look up when redirecting"
+        },
+        "title": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "threadid"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "forum_replies": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "UnsignedMediumInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "postid": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": "post id from the old database, used to look up when redirecting"
+        },
+        "discussion": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "posted": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": "unix timestamp when the reply was posted"
+        },
+        "user": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "user who posted this reply, or null to use custom name and contacturl"
+        },
+        "name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "name of anonymous poster"
+        },
+        "contacturl": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "contact url for anonymous poster"
+        },
+        "html": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "html format of reply text, generated from markdown"
+        },
+        "markdown": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "editable version of reply text"
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "discussion"
+          ],
+          "FOREIGN_TABLE": "forum_discussions",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "postid"
+        ],
+        [
+          "posted"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "forum_tags": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "name": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "used for both display and links"
+        },
+        "count": {
+          "TYPE": "SmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "how many discussions use this tag"
+        },
+        "lastused": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": "unix timestamp for the last time a discussion was posted using this tag"
+        },
+        "description": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "lastused"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "forum_discussion_tags": {
+      "COLUMNS": {
+        "tag": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "discussion": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": true,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "tag",
+        "discussion"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "tag"
+          ],
+          "FOREIGN_TABLE": "forum_tags",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        },
+        {
+          "COLUMNS": [
+            "discussion"
+          ],
+          "FOREIGN_TABLE": "forum_discussions",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "discussion"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "forum_edits": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "UnsignedMediumInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "reply": {
+          "TYPE": "UnsignedMediumInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "editor": {
+          "TYPE": "UnsignedSmallInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "user who made this edit"
+        },
+        "posted": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": "unix timestamp when the edit was made"
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "reply"
+          ],
+          "FOREIGN_TABLE": "forum_replies",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    }
+  }
+}

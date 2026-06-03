@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 559415_elidmx
+--echo #
+CREATE DATABASE `db_559415_elidmx`;
+USE `db_559415_elidmx`;
+
+CREATE TABLE `categories` (
+  `id` INT,
+  `category` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `channels` (
+  `cid` INT,
+  `cname` VARCHAR(255),
+  `cnumber` INT,
+  `chancategoryid` INT,
+  PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `scenes` (
+  `sid` INT,
+  `sname` VARCHAR(255),
+  `scenecategoryid` INT,
+  PRIMARY KEY (`sid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `scene_channels` (
+  `id` INT,
+  `sceneid` INT,
+  `channelid` INT,
+  `percent` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stacks` (
+  `stid` INT,
+  `stname` VARCHAR(255),
+  `stackcategoryid` INT,
+  PRIMARY KEY (`stid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stack_scenes` (
+  `id` INT,
+  `stackid` INT,
+  `sceneid` INT,
+  `beats` INT,
+  `stackorder` INT,
+  `percent` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `settings` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `value` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_559415_elidmx') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_559415_elidmx') AS relationships;
+DROP DATABASE `db_559415_elidmx`;
+UNINSTALL EXTENSION vsql_schematron;

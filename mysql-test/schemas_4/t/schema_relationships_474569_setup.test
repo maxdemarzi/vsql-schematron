@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 474569_setup
+--echo #
+CREATE DATABASE `db_474569_setup`;
+USE `db_474569_setup`;
+
+CREATE TABLE `accounts` (
+  `UUID` VARCHAR(255),
+  `username` VARCHAR(255),
+  `email` VARCHAR(255),
+  `password` VARCHAR(255),
+  `verified` VARCHAR(255),
+  `verificationToken` VARCHAR(255),
+  PRIMARY KEY (`UUID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hoster` (
+  `UUID` VARCHAR(255),
+  `name` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `services` (
+  `UUID` VARCHAR(255),
+  `hoster_UUID` VARCHAR(255),
+  `type` VARCHAR(255),
+  `name` VARCHAR(255),
+  `virtualisierung` VARCHAR(255),
+  `neofetch_data` VARCHAR(255),
+  `swap_RAM` VARCHAR(255),
+  `upgrade_possibillity` VARCHAR(255),
+  `uptime_percentage` VARCHAR(255),
+  `testPeriod` VARCHAR(255)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_474569_setup') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_474569_setup') AS relationships;
+DROP DATABASE `db_474569_setup`;
+UNINSTALL EXTENSION vsql_schematron;

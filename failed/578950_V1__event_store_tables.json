@@ -1,0 +1,171 @@
+{
+  "INFO": {
+    "URL": "https://github.com/get-eventually/eventually-rs/blob/2b08cc60e164244e2782e6fdbaaeccee414dfb00/eventually-postgres/src/migrations/V1__event_store_tables.sql?raw=true\n",
+    "LICENSE": "MIT",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "aggregate_types": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "offset": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "aggregates": {
+      "COLUMNS": {
+        "id": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "aggregate_type_id": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "version": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "id",
+        "aggregate_type_id"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "aggregate_type_id"
+          ],
+          "FOREIGN_TABLE": "aggregate_types",
+          "REFERRED_COLUMNS": [
+            "id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "events": {
+      "COLUMNS": {
+        "aggregate_id": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "aggregate_type": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "version": {
+          "TYPE": "Integer",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "sequence_number": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "event": {
+          "TYPE": "JSONB",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "aggregate_id",
+        "aggregate_type",
+        "version"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "aggregate_id",
+            "aggregate_type"
+          ],
+          "FOREIGN_TABLE": "aggregates",
+          "REFERRED_COLUMNS": [
+            "id",
+            "aggregate_type_id"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    }
+  }
+}

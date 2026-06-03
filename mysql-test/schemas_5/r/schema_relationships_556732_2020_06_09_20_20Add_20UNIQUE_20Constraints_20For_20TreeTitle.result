@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 556732_2020_06_09_20_20Add_20UNIQUE_20Constraints_20For_20TreeTitle
+#
+CREATE DATABASE `db_556732_2020_06_09_20_20Add_20UNIQUE_20Constraints_20For_2`;
+USE `db_556732_2020_06_09_20_20Add_20UNIQUE_20Constraints_20For_2`;
+CREATE TABLE `Folders` (
+`Id` INT,
+`ParentFolder_Id` INT,
+`Name` VARCHAR(255),
+`DeleteDate` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Discs` (
+`Id` INT,
+`Folder_Id` INT,
+`Title` VARCHAR(255),
+`TreeTitle` VARCHAR(255),
+`AlbumTitle` VARCHAR(255),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Artists` (
+`Id` INT,
+`Name` VARCHAR(255),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Genres` (
+`Id` INT,
+`Name` VARCHAR(255),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Songs` (
+`Id` INT,
+`Artist_Id` INT,
+`Disc_Id` INT,
+`Genre_Id` INT,
+`TrackNumber` INT,
+`Year` INT,
+`Title` VARCHAR(255),
+`TreeTitle` VARCHAR(255),
+`Duration` DECIMAL(10,2),
+`Rating` INT,
+`FileSize` INT,
+`Checksum` INT,
+`Bitrate` INT,
+`LastPlaybackTime` DATETIME,
+`PlaybacksCount` INT,
+`DeleteDate` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Playbacks` (
+`Id` INT,
+`Song_Id` INT,
+`PlaybackTime` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `DiscImages` (
+`Id` INT,
+`Disc_Id` INT,
+`TreeTitle` VARCHAR(255),
+`ImageType` INT,
+`FileSize` INT,
+`Checksum` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_556732_2020_06_09_20_20Add_20UNIQUE_20Constraints_20For_2') AS relationships;
+relationships
+Database: db_556732_2020_06_09_20_20Add_20UNIQUE_20Constraints_20For_2
+
+Table Connections:
+------------------
+[Implied]  DiscImages.Disc_Id -> Discs.Id
+[Implied]  Discs.Folder_Id -> Folders.Id
+[Implied]  Folders.ParentFolder_Id -> Folders.Id
+[Implied]  Playbacks.Song_Id -> Songs.Id
+[Implied]  Songs.Artist_Id -> Artists.Id
+[Implied]  Songs.Disc_Id -> Discs.Id
+[Implied]  Songs.Genre_Id -> Genres.Id
+
+DROP DATABASE `db_556732_2020_06_09_20_20Add_20UNIQUE_20Constraints_20For_2`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,719 @@
+{
+  "INFO": {
+    "URL": "https://github.com/pavponn/dbms-coursework/blob/cdc3e0407fbb10559ade6da9f3ab727cee420748/ddl.sql?raw=true\n",
+    "LICENSE": "MIT",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "Countries": {
+      "COLUMNS": {
+        "countryId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "countryName": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "countryId"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "Tournaments": {
+      "COLUMNS": {
+        "tournamentId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "tournamentName": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "variation": {
+          "TYPE": "GameVariation",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "timeControl": {
+          "TYPE": "GameTimeControl",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "startTime": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "endTime": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "isRated": {
+          "TYPE": "Boolean",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "tournamentId"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [
+        "endTime > startTime",
+        "variation = 'Blitz' AND (timeControl).baseTime < INTERVAL '10 minutes' OR variation = 'Rapid' AND (timeControl).baseTime >= INTERVAL '10 minutes' AND (timeControl).baseTime < INTERVAL '1 hour' OR variation = 'Standard' AND ((timeControl).baseTime >= INTERVAL '1 hour' OR (timeControl).controlFormat = 'Nocontrol')",
+        "(timeControl).controlFormat = 'Fischer' AND (timeControl).moveTime > INTERVAL '0 seconds' OR (timeControl).controlFormat = 'Classic' AND (timeControl).moveTime = INTERVAL '0 seconds' OR (timeControl).controlFormat = 'Nocontrol' AND (timeControl).moveTime = INTERVAL '0 seconds' AND (timeControl).baseTime = INTERVAL '0 seconds'"
+      ],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "Sponsors": {
+      "COLUMNS": {
+        "sponsorId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "sponsorName": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "sponsorId"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "Sponsorships": {
+      "COLUMNS": {
+        "tournamentId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "sponsorId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "amount": {
+          "TYPE": "Decimal",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "tournamentId",
+        "sponsorId"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "tournamentId"
+          ],
+          "FOREIGN_TABLE": "Tournaments",
+          "REFERRED_COLUMNS": [
+            "tournamentId"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Cascade"
+        },
+        {
+          "COLUMNS": [
+            "sponsorId"
+          ],
+          "FOREIGN_TABLE": "Sponsors",
+          "REFERRED_COLUMNS": [
+            "sponsorId"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [
+        "amount > 0"
+      ],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "Players": {
+      "COLUMNS": {
+        "playerId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "playerName": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "countryId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "email": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "passHash": {
+          "TYPE": "Text",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "coachId": {
+          "TYPE": "BigInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "playerId"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "countryId"
+          ],
+          "FOREIGN_TABLE": "Countries",
+          "REFERRED_COLUMNS": [
+            "countryId"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Cascade"
+        },
+        {
+          "COLUMNS": [
+            "coachId"
+          ],
+          "FOREIGN_TABLE": "Players",
+          "REFERRED_COLUMNS": [
+            "playerId"
+          ],
+          "ON_DELETE": "SetNull",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [
+        "coachId <> playerId"
+      ],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "Ratings": {
+      "COLUMNS": {
+        "playerId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "variation": {
+          "TYPE": "GameVariation",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "rtimestamp": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "rating": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "playerId",
+        "variation",
+        "rtimestamp"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "playerId"
+          ],
+          "FOREIGN_TABLE": "Players",
+          "REFERRED_COLUMNS": [
+            "playerId"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "TournamentPlayers": {
+      "COLUMNS": {
+        "tournamentId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "playerId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "tournamentId",
+        "playerId"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "tournamentId"
+          ],
+          "FOREIGN_TABLE": "Tournaments",
+          "REFERRED_COLUMNS": [
+            "tournamentId"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Cascade"
+        },
+        {
+          "COLUMNS": [
+            "playerId"
+          ],
+          "FOREIGN_TABLE": "Players",
+          "REFERRED_COLUMNS": [
+            "playerId"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "Games": {
+      "COLUMNS": {
+        "gameId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "whiteId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "blackId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "tournamentId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "startTime": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "result": {
+          "TYPE": "GameResult",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "timeWhite": {
+          "TYPE": "Interval",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "timeBlack": {
+          "TYPE": "Interval",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "movesWhite": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "movesBlack": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "gameId"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "tournamentId",
+            "whiteId"
+          ],
+          "FOREIGN_TABLE": "TournamentPlayers",
+          "REFERRED_COLUMNS": [
+            "tournamentId",
+            "playerId"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Cascade"
+        },
+        {
+          "COLUMNS": [
+            "tournamentId",
+            "blackId"
+          ],
+          "FOREIGN_TABLE": "TournamentPlayers",
+          "REFERRED_COLUMNS": [
+            "tournamentId",
+            "playerId"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [
+        "movesWhite - movesBlack <= 1 AND movesWhite - movesBlack >= 0",
+        "whiteId <> blackId"
+      ],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "Clubs": {
+      "COLUMNS": {
+        "clubId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "clubName": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "countryId": {
+          "TYPE": "BigInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "adminId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "clubId"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "countryId"
+          ],
+          "FOREIGN_TABLE": "Countries",
+          "REFERRED_COLUMNS": [
+            "countryId"
+          ],
+          "ON_DELETE": "SetNull",
+          "ON_UPDATE": "Cascade"
+        },
+        {
+          "COLUMNS": [
+            "adminId"
+          ],
+          "FOREIGN_TABLE": "Players",
+          "REFERRED_COLUMNS": [
+            "playerId"
+          ],
+          "ON_DELETE": "Restrict",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "Memberships": {
+      "COLUMNS": {
+        "playerId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "clubId": {
+          "TYPE": "BigInt",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "status": {
+          "TYPE": "MemberStatus",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "playerId",
+        "clubId"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "playerId"
+          ],
+          "FOREIGN_TABLE": "Players",
+          "REFERRED_COLUMNS": [
+            "playerId"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        },
+        {
+          "COLUMNS": [
+            "clubId"
+          ],
+          "FOREIGN_TABLE": "Clubs",
+          "REFERRED_COLUMNS": [
+            "clubId"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    }
+  }
+}

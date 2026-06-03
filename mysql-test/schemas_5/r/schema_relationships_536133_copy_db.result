@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 536133_copy_db
+#
+CREATE DATABASE `db_536133_copy_db`;
+USE `db_536133_copy_db`;
+CREATE TABLE `User` (
+`UserId` INT,
+`FullName` VARCHAR(255),
+PRIMARY KEY (`UserId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Event` (
+`EventId` INT,
+`EventName` VARCHAR(255),
+`DueDate` DATETIME,
+`Description` VARCHAR(255),
+PRIMARY KEY (`EventId`)
+) CHARACTER SET latin1;
+CREATE TABLE `CreateEvent` (
+`EventId` INT,
+`UserId` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Account` (
+`LatestLoginTime` DATETIME,
+`Username` VARCHAR(255),
+`HashedPassword` VARCHAR(255),
+`CreatedTime` DATETIME,
+`UserId` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Course` (
+`CourseId` INT,
+`CourseName` VARCHAR(255),
+`Professor` VARCHAR(255),
+`MeetingTime` DATETIME,
+PRIMARY KEY (`CourseId`)
+) CHARACTER SET latin1;
+CREATE TABLE `CourseLink` (
+`CourseId` INT,
+`Link` VARCHAR(255),
+`Tag` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `Enrollment` (
+`CourseId` INT,
+`UserId` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Assign` (
+`AssignId` INT,
+`EventId` INT,
+`CourseId` INT,
+PRIMARY KEY (`AssignId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_536133_copy_db') AS relationships;
+relationships
+Database: db_536133_copy_db
+
+Table Connections:
+------------------
+[Implied]  Account.UserId -> User.UserId
+[Implied]  Assign.CourseId -> Course.CourseId
+[Implied]  Assign.EventId -> Event.EventId
+[Implied]  CourseLink.CourseId -> Course.CourseId
+[Implied]  CreateEvent.EventId -> Event.EventId
+[Implied]  CreateEvent.UserId -> User.UserId
+[Implied]  Enrollment.CourseId -> Course.CourseId
+[Implied]  Enrollment.UserId -> User.UserId
+
+DROP DATABASE `db_536133_copy_db`;
+UNINSTALL EXTENSION vsql_schematron;

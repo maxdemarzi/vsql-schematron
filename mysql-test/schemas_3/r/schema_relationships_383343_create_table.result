@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 383343_create_table
+#
+CREATE DATABASE `db_383343_create_table`;
+USE `db_383343_create_table`;
+CREATE TABLE `authors` (
+`author_id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`middle_name` VARCHAR(255),
+PRIMARY KEY (`author_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books` (
+`book_id` INT,
+`title` VARCHAR(255),
+`publisher_id` INT,
+`pub_date` DATETIME,
+`quantity` INT,
+PRIMARY KEY (`book_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `publisher` (
+`publisher_id` INT,
+`title` VARCHAR(255),
+PRIMARY KEY (`publisher_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `readers` (
+`reader_id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+PRIMARY KEY (`reader_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `library_queue` (
+`queue_id` INT,
+`book_id` INT,
+`reader_id` INT,
+`given` DATETIME,
+`taken` DATETIME,
+PRIMARY KEY (`queue_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book_author` (
+`book_id` INT,
+`author_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_383343_create_table') AS relationships;
+relationships
+Database: db_383343_create_table
+
+Table Connections:
+------------------
+[Implied]  book_author.author_id -> authors.author_id
+[Implied]  book_author.book_id -> books.book_id
+[Implied]  books.publisher_id -> publisher.publisher_id
+[Implied]  library_queue.book_id -> books.book_id
+[Implied]  library_queue.reader_id -> readers.reader_id
+
+DROP DATABASE `db_383343_create_table`;
+UNINSTALL EXTENSION vsql_schematron;

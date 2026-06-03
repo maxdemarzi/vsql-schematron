@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 336935_schema
+#
+CREATE DATABASE `db_336935_schema`;
+USE `db_336935_schema`;
+CREATE TABLE `user` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`is_admin` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answer_options` (
+`id` INT,
+`text` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questions` (
+`id` INT,
+`answer_id` INT,
+`text` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question_answer_rel` (
+`question_id` INT,
+`answer_option_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `quizzes` (
+`id` INT,
+`name` VARCHAR(255),
+`author_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `quiz_question_rel` (
+`quiz_id` INT,
+`question_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_336935_schema') AS relationships;
+relationships
+Database: db_336935_schema
+
+Table Connections:
+------------------
+[Implied]  question_answer_rel.answer_option_id -> answer_options.id
+[Implied]  question_answer_rel.question_id -> questions.id
+[Implied]  questions.answer_id -> answer_options.id
+[Implied]  quiz_question_rel.question_id -> questions.id
+[Implied]  quiz_question_rel.quiz_id -> quizzes.id
+[Implied]  quizzes.author_id -> user.id
+
+DROP DATABASE `db_336935_schema`;
+UNINSTALL EXTENSION vsql_schematron;

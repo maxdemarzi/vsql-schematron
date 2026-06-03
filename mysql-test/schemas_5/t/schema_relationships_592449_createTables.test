@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 592449_createTables
+--echo #
+CREATE DATABASE `db_592449_createTables`;
+USE `db_592449_createTables`;
+
+CREATE TABLE `child` (
+  `cid` INT,
+  `fname` VARCHAR(255),
+  `lname` VARCHAR(255),
+  `dob` DATETIME,
+  `gender` VARCHAR(255),
+  PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `parent` (
+  `pid` INT,
+  `fname` VARCHAR(255),
+  `lname` VARCHAR(255),
+  `dob` DATETIME,
+  `gender` VARCHAR(255),
+  PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `transfer` (
+  `tid` INT,
+  `dateOfEntry` DATETIME,
+  `timeOfEntry` DATETIME,
+  PRIMARY KEY (`tid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `category` (
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mood` (
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `family` (
+  `cid` INT,
+  `pid` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `attendance` (
+  `tid` INT,
+  `cid` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `parent_xchge` (
+  `tid` INT,
+  `pid` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `category_transfer` (
+  `tid` INT,
+  `category_name` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `disposition_transfer` (
+  `tid` INT,
+  `mood_name` VARCHAR(255)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_592449_createTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_592449_createTables') AS relationships;
+DROP DATABASE `db_592449_createTables`;
+UNINSTALL EXTENSION vsql_schematron;

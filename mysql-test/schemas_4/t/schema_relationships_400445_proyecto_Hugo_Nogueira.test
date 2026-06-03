@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 400445_proyecto_Hugo_Nogueira
+--echo #
+CREATE DATABASE `db_400445_proyecto_Hugo_Nogueira`;
+USE `db_400445_proyecto_Hugo_Nogueira`;
+
+CREATE TABLE `customer` (
+  `PK_id_customer` INT,
+  `name` VARCHAR(255),
+  `surname` VARCHAR(255),
+  `email_address` VARCHAR(255),
+  `username` VARCHAR(255),
+  `password` VARCHAR(255),
+  `picture` VARCHAR(255),
+  `creating_date` DATETIME,
+  `update_date` DATETIME,
+  PRIMARY KEY (`PK_id_customer`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `business` (
+  `PK_id_business` INT,
+  `name` VARCHAR(255),
+  `category` VARCHAR(255),
+  `username` VARCHAR(255),
+  `email_address` VARCHAR(255),
+  `password` VARCHAR(255),
+  `pictures` VARCHAR(255),
+  `opening_time` VARCHAR(255),
+  `score` DECIMAL(10,2),
+  `number_reviews` INT,
+  `bank_account` VARCHAR(255),
+  `creating_date` DATETIME,
+  `update_date` DATETIME,
+  `status` VARCHAR(255),
+  `calendar` DATETIME,
+  `allotment_available` INT,
+  `allotment` INT,
+  `city` VARCHAR(255),
+  `zip_code` VARCHAR(255),
+  `province` VARCHAR(255),
+  `line1` VARCHAR(255),
+  `line2` VARCHAR(255),
+  PRIMARY KEY (`PK_id_business`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pictures` (
+  `PK_id_pictures` INT,
+  `FK_pictures_business` INT,
+  `picture` VARCHAR(255),
+  PRIMARY KEY (`PK_id_pictures`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `booking` (
+  `PK_id_booking` INT,
+  `check_in_time` DATETIME,
+  `check_out_time` DATETIME,
+  `frequenzy_time` DATETIME,
+  `status` VARCHAR(255),
+  `units` INT,
+  `rating` INT,
+  `creating_date` DATETIME,
+  `update_date` DATETIME,
+  `holder_name` VARCHAR(255),
+  `expiry_date` DATETIME,
+  `cvc_code` INT,
+  `fee` INT,
+  `payment_date` DATETIME,
+  `FK_booking_business` INT,
+  `FK_booking_customer` INT,
+  PRIMARY KEY (`PK_id_booking`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_400445_proyecto_Hugo_Nogueira') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_400445_proyecto_Hugo_Nogueira') AS relationships;
+DROP DATABASE `db_400445_proyecto_Hugo_Nogueira`;
+UNINSTALL EXTENSION vsql_schematron;

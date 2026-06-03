@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 000032_create_table_ora
+#
+CREATE DATABASE `db_000032_create_table_ora`;
+USE `db_000032_create_table_ora`;
+CREATE TABLE `ora_t1` (
+`n1` DECIMAL(10,2),
+`v1` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `language` (
+`id` DECIMAL(10,2),
+`cd` VARCHAR(255),
+`description` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `author` (
+`id` DECIMAL(10,2),
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`date_of_birth` DATETIME,
+`year_of_birth` DECIMAL(10,2),
+`distinguished` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book` (
+`id` DECIMAL(10,2),
+`author_id` DECIMAL(10,2),
+`title` VARCHAR(255),
+`published_in` DECIMAL(10,2),
+`language_id` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book_store` (
+`name` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `book_to_book_store` (
+`name` VARCHAR(255),
+`book_id` INT,
+`stock` INT,
+PRIMARY KEY (`name`, `book_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_000032_create_table_ora') AS relationships;
+relationships
+Database: db_000032_create_table_ora
+
+Table Connections:
+------------------
+[Implied]  book.author_id -> author.id
+[Implied]  book.language_id -> language.id
+[Implied]  book_to_book_store.book_id -> book.id
+[Implied]  book_to_book_store.name -> book_store.name
+
+DROP DATABASE `db_000032_create_table_ora`;
+UNINSTALL EXTENSION vsql_schematron;

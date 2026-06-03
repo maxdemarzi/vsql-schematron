@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 411524_init_schema
+#
+CREATE DATABASE `db_411524_init_schema`;
+USE `db_411524_init_schema`;
+CREATE TABLE `tbl_user` (
+`id` VARCHAR(255),
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`email_address` VARCHAR(255),
+`addr_city` VARCHAR(255),
+`addr_state_prov` VARCHAR(255),
+`addr_zip_code` VARCHAR(255),
+`date_created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_account` (
+`id` VARCHAR(255),
+`user_name` VARCHAR(255),
+`access_code` VARCHAR(255),
+`user_id` VARCHAR(255),
+`date_created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_task` (
+`id` VARCHAR(255),
+`name` VARCHAR(255),
+`done` VARCHAR(255),
+`date_created` DATETIME,
+`next_task` VARCHAR(255),
+`parent_task` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_assignment` (
+`id` VARCHAR(255),
+`task_id` VARCHAR(255),
+`assignee_id` VARCHAR(255),
+`date_assigned` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_411524_init_schema') AS relationships;
+relationships
+Database: db_411524_init_schema
+
+Table Connections:
+------------------
+[Implied]  tbl_account.user_id -> tbl_user.id
+[Implied]  tbl_assignment.assignee_id -> tbl_user.id
+[Implied]  tbl_assignment.task_id -> tbl_task.id
+[Implied]  tbl_task.next_task -> tbl_task.id
+[Implied]  tbl_task.parent_task -> tbl_task.id
+
+DROP DATABASE `db_411524_init_schema`;
+UNINSTALL EXTENSION vsql_schematron;

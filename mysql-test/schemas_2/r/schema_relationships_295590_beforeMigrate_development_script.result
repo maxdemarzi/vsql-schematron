@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 295590_beforeMigrate_development_script
+#
+CREATE DATABASE `db_295590_beforeMigrate_development_script`;
+USE `db_295590_beforeMigrate_development_script`;
+CREATE TABLE `users` (
+`id` INT,
+`google_id` VARCHAR(255),
+`facebook_id` VARCHAR(255),
+`email` VARCHAR(255),
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `authority` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_authority` (
+`role_id` INT,
+`authority_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`user_id` INT,
+`role_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_295590_beforeMigrate_development_script') AS relationships;
+relationships
+Database: db_295590_beforeMigrate_development_script
+
+Table Connections:
+------------------
+[Implied]  role_authority.authority_id -> authority.id
+[Implied]  role_authority.role_id -> role.id
+[Implied]  user_role.role_id -> role.id
+[Implied]  user_role.user_id -> users.id
+
+DROP DATABASE `db_295590_beforeMigrate_development_script`;
+UNINSTALL EXTENSION vsql_schematron;

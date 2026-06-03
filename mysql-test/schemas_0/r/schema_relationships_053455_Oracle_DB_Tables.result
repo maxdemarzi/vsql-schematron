@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 053455_Oracle_DB_Tables
+#
+CREATE DATABASE `db_053455_Oracle_DB_Tables`;
+USE `db_053455_Oracle_DB_Tables`;
+CREATE TABLE `Item` (
+`IID` DECIMAL(10,2),
+`CID` DECIMAL(10,2),
+`Name` VARCHAR(255),
+`Description` VARCHAR(255),
+`Stock` DECIMAL(10,2),
+PRIMARY KEY (`IID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Category` (
+`CID` DECIMAL(10,2),
+`Name` VARCHAR(255),
+`ItemCount` DECIMAL(10,2),
+PRIMARY KEY (`CID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CL2CA` (
+`CLCAID` DECIMAL(10,2),
+`CID` DECIMAL(10,2),
+`CLID` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `Class` (
+`CLID` DECIMAL(10,2),
+`Name` VARCHAR(255),
+`CategoryCount` DECIMAL(10,2),
+PRIMARY KEY (`CLID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_053455_Oracle_DB_Tables') AS relationships;
+relationships
+Database: db_053455_Oracle_DB_Tables
+
+Table Connections:
+------------------
+[Implied]  CL2CA.CID -> Category.CID
+[Implied]  CL2CA.CLID -> Class.CLID
+[Implied]  Item.CID -> Category.CID
+
+DROP DATABASE `db_053455_Oracle_DB_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

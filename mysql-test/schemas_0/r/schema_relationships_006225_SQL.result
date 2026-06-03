@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 006225_SQL
+#
+CREATE DATABASE `db_006225_SQL`;
+USE `db_006225_SQL`;
+CREATE TABLE `users` (
+`id_user` INT,
+`name_user` VARCHAR(255),
+`email_user` VARCHAR(255),
+`password_user` VARCHAR(255),
+`created_at` DATETIME,
+PRIMARY KEY (`id_user`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_records` (
+`id_record` INT,
+`name_record` VARCHAR(255),
+`quantity_record` INT,
+`type_record` VARCHAR(255),
+`price_record` DECIMAL(10,2),
+`deleted` VARCHAR(255),
+`timeDeleted` DATETIME,
+`fk_user` INT,
+PRIMARY KEY (`id_record`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_picture` (
+`id_photo` INT,
+`filename` VARCHAR(255),
+`fk_user` INT,
+PRIMARY KEY (`id_photo`)
+) CHARACTER SET latin1;
+CREATE TABLE `pwdreset` (
+`id_pwdReset` INT,
+`ipRequest` VARCHAR(255),
+`dateRequest` DATETIME,
+`pwdResetEmail` VARCHAR(255),
+`pwdResetSelector` VARCHAR(255),
+`pwdResetToken` VARCHAR(255),
+`pwdResetExpires` VARCHAR(255),
+PRIMARY KEY (`id_pwdReset`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_006225_SQL') AS relationships;
+relationships
+Database: db_006225_SQL
+
+Table Connections:
+------------------
+[Implied]  user_picture.fk_user -> users.id_user
+[Implied]  user_records.fk_user -> users.id_user
+
+DROP DATABASE `db_006225_SQL`;
+UNINSTALL EXTENSION vsql_schematron;

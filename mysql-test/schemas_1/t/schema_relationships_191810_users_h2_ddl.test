@@ -1,0 +1,126 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 191810_users_h2_ddl
+--echo #
+CREATE DATABASE `db_191810_users_h2_ddl`;
+USE `db_191810_users_h2_ddl`;
+
+CREATE TABLE `User` (
+  `id` INT,
+  `username` VARCHAR(255),
+  `password` VARCHAR(255),
+  `tenant` VARCHAR(255),
+  `requestAt` INT,
+  `failedNum` INT,
+  `remoteAddr` VARCHAR(255),
+  `revoked` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ApiKey` (
+  `id` INT,
+  `userId` INT,
+  `accessKey` VARCHAR(255),
+  `secretKey` VARCHAR(255),
+  `revoked` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Group` (
+  `id` INT,
+  `api` VARCHAR(255),
+  `tenant` VARCHAR(255),
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Role` (
+  `id` INT,
+  `api` VARCHAR(255),
+  `tenant` VARCHAR(255),
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Permission` (
+  `id` INT,
+  `api` VARCHAR(255),
+  `tenant` VARCHAR(255),
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserRole` (
+  `id` INT,
+  `userId` INT,
+  `roleId` INT,
+  `api` VARCHAR(255),
+  `tenant` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserGroup` (
+  `id` INT,
+  `userId` INT,
+  `groupId` INT,
+  `api` VARCHAR(255),
+  `tenant` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GroupRole` (
+  `id` INT,
+  `groupId` INT,
+  `roleId` INT,
+  `api` VARCHAR(255),
+  `tenant` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserPermission` (
+  `id` INT,
+  `userId` INT,
+  `permissionId` INT,
+  `api` VARCHAR(255),
+  `tenant` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GroupPermission` (
+  `id` INT,
+  `groupId` INT,
+  `permissionId` INT,
+  `api` VARCHAR(255),
+  `tenant` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RolePermission` (
+  `id` INT,
+  `roleId` INT,
+  `permissionId` INT,
+  `api` VARCHAR(255),
+  `tenant` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_191810_users_h2_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_191810_users_h2_ddl') AS relationships;
+DROP DATABASE `db_191810_users_h2_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

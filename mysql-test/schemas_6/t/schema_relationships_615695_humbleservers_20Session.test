@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 615695_humbleservers_20Session
+--echo #
+CREATE DATABASE `db_615695_humbleservers_20Session`;
+USE `db_615695_humbleservers_20Session`;
+
+CREATE TABLE `account` (
+  `AccountNo` INT,
+  `FirstName` VARCHAR(255),
+  `LastName` VARCHAR(255),
+  `Email` VARCHAR(255),
+  `Password` VARCHAR(255),
+  `Gender` VARCHAR(255),
+  `BirthDate` DATETIME,
+  `AccountRole` VARCHAR(255),
+  `MaritalStatus` VARCHAR(255),
+  `Religion` VARCHAR(255),
+  `Race` VARCHAR(255),
+  `Nationality` VARCHAR(255),
+  `AccountTimestamp` DATETIME,
+  PRIMARY KEY (`AccountNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `address_line` (
+  `AddressNo` INT,
+  `FirstName` VARCHAR(255),
+  `LastName` VARCHAR(255),
+  `Address1` VARCHAR(255),
+  `Address2` VARCHAR(255),
+  `AddressCountry` VARCHAR(255),
+  `AddressState` VARCHAR(255),
+  `AddressZip` INT,
+  `AddressType` VARCHAR(255),
+  `AccountNo` INT,
+  PRIMARY KEY (`AddressNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payment` (
+  `PaymentNo` INT,
+  `PaymentType` VARCHAR(255),
+  `CardName` VARCHAR(255),
+  `CardNumber` INT,
+  `CardExpiration` VARCHAR(255),
+  `CVV` INT,
+  `AccountNo` INT,
+  PRIMARY KEY (`PaymentNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `login_activity` (
+  `ActivityNo` INT,
+  `ActivityName` VARCHAR(255),
+  `AccountNo` INT,
+  `ActivityTimestamp` DATETIME,
+  PRIMARY KEY (`ActivityNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `promo_code` (
+  `PromoCode` VARCHAR(255),
+  `PromoCodeDescription` VARCHAR(255),
+  `PromoCodeEndTimestamp` DATETIME,
+  `PromoCodeStartTimestamp` DATETIME,
+  PRIMARY KEY (`PromoCode`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bus` (
+  `BusNo` VARCHAR(255),
+  `BusRoute` VARCHAR(255),
+  `BusCapacity` INT,
+  PRIMARY KEY (`BusNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `booking_activity` (
+  `BookingNo` VARCHAR(255),
+  `AccountNo` INT,
+  `Quantity` INT,
+  `BusNo` VARCHAR(255),
+  `BusSeat` INT,
+  `BusDateTime` DATETIME,
+  `PromoCode` VARCHAR(255),
+  `BookingTimestamp` DATETIME,
+  PRIMARY KEY (`BookingNo`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_615695_humbleservers_20Session') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_615695_humbleservers_20Session') AS relationships;
+DROP DATABASE `db_615695_humbleservers_20Session`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 259953_schema
+--echo #
+CREATE DATABASE `db_259953_schema`;
+USE `db_259953_schema`;
+
+CREATE TABLE `ADMIN` (
+  `id` VARCHAR(255),
+  `email` VARCHAR(255),
+  `username` VARCHAR(255),
+  `password` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ARTICLE` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  `price` DECIMAL(10,2),
+  `amount_in_stock` INT,
+  `image_url` VARCHAR(255),
+  `version` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CUSTOMER_ORDER` (
+  `id` VARCHAR(255),
+  `creation_time` DATETIME,
+  `address` VARCHAR(255),
+  `city` VARCHAR(255),
+  `country` VARCHAR(255),
+  `email` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `phone` VARCHAR(255),
+  `zipcode` VARCHAR(255),
+  `price` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ORDER_ITEM` (
+  `id` VARCHAR(255),
+  `quantity` INT,
+  `article_id` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CUSTOMER_ORDER_ITEMS` (
+  `customer_order_id` VARCHAR(255),
+  `items_id` VARCHAR(255)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_259953_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_259953_schema') AS relationships;
+DROP DATABASE `db_259953_schema`;
+UNINSTALL EXTENSION vsql_schematron;

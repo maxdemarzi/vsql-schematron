@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 381868_schema
+#
+CREATE DATABASE `db_381868_schema`;
+USE `db_381868_schema`;
+CREATE TABLE `experiments` (
+`id` INT,
+`name` VARCHAR(255),
+`url_key` VARCHAR(255),
+`description` VARCHAR(255),
+`visible` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sentences` (
+`id` INT,
+`experiments_id` INT,
+`source` VARCHAR(255),
+`reference` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks` (
+`id` INT,
+`experiments_id` INT,
+`name` VARCHAR(255),
+`url_key` VARCHAR(255),
+`description` VARCHAR(255),
+`visible` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `translations` (
+`id` INT,
+`tasks_id` INT,
+`sentences_id` INT,
+`text` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `metrics` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `translations_metrics` (
+`translations_id` INT,
+`metrics_id` INT,
+`score` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks_metrics` (
+`tasks_id` INT,
+`metrics_id` INT,
+`score` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks_metrics_samples` (
+`tasks_id` INT,
+`metrics_id` INT,
+`sample_position` INT,
+`score` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `confirmed_ngrams` (
+`translations_id` INT,
+`text` VARCHAR(255),
+`length` INT,
+`position` INT
+) CHARACTER SET latin1;
+CREATE TABLE `unconfirmed_ngrams` (
+`translations_id` INT,
+`text` VARCHAR(255),
+`length` INT,
+`position` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_381868_schema') AS relationships;
+relationships
+Database: db_381868_schema
+
+Table Connections:
+------------------
+[Implied]  confirmed_ngrams.translations_id -> translations.id
+[Implied]  sentences.experiments_id -> experiments.id
+[Implied]  tasks.experiments_id -> experiments.id
+[Implied]  tasks_metrics.metrics_id -> metrics.id
+[Implied]  tasks_metrics.tasks_id -> tasks.id
+[Implied]  tasks_metrics_samples.metrics_id -> metrics.id
+[Implied]  tasks_metrics_samples.tasks_id -> tasks.id
+[Implied]  translations.sentences_id -> sentences.id
+[Implied]  translations.tasks_id -> tasks.id
+[Implied]  translations_metrics.metrics_id -> metrics.id
+[Implied]  translations_metrics.translations_id -> translations.id
+[Implied]  unconfirmed_ngrams.translations_id -> translations.id
+
+DROP DATABASE `db_381868_schema`;
+UNINSTALL EXTENSION vsql_schematron;

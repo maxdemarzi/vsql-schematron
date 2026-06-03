@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 392927_pen
+--echo #
+CREATE DATABASE `db_392927_pen`;
+USE `db_392927_pen`;
+
+CREATE TABLE `pensections` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  `sort` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `penstories` (
+  `id` VARCHAR(255),
+  `section` VARCHAR(255),
+  `name` VARCHAR(255),
+  `title` VARCHAR(255),
+  `subtitle` VARCHAR(255),
+  `pretitle` VARCHAR(255),
+  `description` VARCHAR(255),
+  `posted` VARCHAR(255),
+  `sort` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bln` (
+  `name` VARCHAR(255),
+  `status` VARCHAR(255),
+  `instant` INT,
+  `tags` VARCHAR(255),
+  `title` VARCHAR(255),
+  `post` VARCHAR(255),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_392927_pen') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_392927_pen') AS relationships;
+DROP DATABASE `db_392927_pen`;
+UNINSTALL EXTENSION vsql_schematron;

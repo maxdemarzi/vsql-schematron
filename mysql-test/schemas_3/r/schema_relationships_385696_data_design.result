@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 385696_data_design
+#
+CREATE DATABASE `db_385696_data_design`;
+USE `db_385696_data_design`;
+CREATE TABLE `profile` (
+`profileId` INT,
+`profileActivationToken` VARCHAR(255),
+`profileEmail` VARCHAR(255),
+`profileHash` VARCHAR(255),
+`profileSalt` VARCHAR(255),
+`profileUserName` VARCHAR(255),
+`profileLocation` VARCHAR(255),
+PRIMARY KEY (`profileId`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`itemId` INT,
+`itemProfileId` INT,
+`itemType` VARCHAR(255),
+`itemDescription` VARCHAR(255),
+`itemName` VARCHAR(255),
+`itemCost` DECIMAL(10,2),
+PRIMARY KEY (`itemId`)
+) CHARACTER SET latin1;
+CREATE TABLE `favorite` (
+`favoriteProfileId` INT,
+`favoriteDate` DATETIME,
+`favoriteItemId` INT,
+PRIMARY KEY (`favoriteItemId`, `favoriteProfileId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_385696_data_design') AS relationships;
+relationships
+Database: db_385696_data_design
+
+Table Connections:
+------------------
+[Implied]  favorite.favoriteItemId -> item.itemId
+[Implied]  favorite.favoriteProfileId -> profile.profileId
+[Implied]  item.itemProfileId -> profile.profileId
+
+DROP DATABASE `db_385696_data_design`;
+UNINSTALL EXTENSION vsql_schematron;

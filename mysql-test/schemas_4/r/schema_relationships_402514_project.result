@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 402514_project
+#
+CREATE DATABASE `db_402514_project`;
+USE `db_402514_project`;
+CREATE TABLE `user` (
+`userId` VARCHAR(255),
+`userActivationToken` VARCHAR(255),
+`userAdmin` VARCHAR(255),
+`userAllowContact` VARCHAR(255),
+`userEmail` VARCHAR(255),
+`userFirstName` VARCHAR(255),
+`userHash` VARCHAR(255),
+`userLastName` VARCHAR(255),
+`userPhone` VARCHAR(255),
+`userProfileImage` VARCHAR(255),
+`userStartDate` DATETIME,
+`userTotalHours` DECIMAL(10,2),
+`userZipCode` VARCHAR(255),
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`eventId` VARCHAR(255),
+`eventUserId` VARCHAR(255),
+`eventAddress` VARCHAR(255),
+`eventDate` DATETIME,
+`eventDescription` VARCHAR(255),
+`eventDescriptionSkillsRequired` VARCHAR(255),
+`eventDescriptionTransportation` VARCHAR(255),
+`eventDescriptionTypeOfWork` VARCHAR(255),
+`eventEndTime` DATETIME,
+`eventFlag` VARCHAR(255),
+`eventLatitude` VARCHAR(255),
+`eventLongitude` VARCHAR(255),
+`eventOrganization` VARCHAR(255),
+`eventStartTime` DATETIME,
+`eventTitle` VARCHAR(255),
+PRIMARY KEY (`eventId`)
+) CHARACTER SET latin1;
+CREATE TABLE `volunteer` (
+`volunteerEventId` VARCHAR(255),
+`volunteerUserId` VARCHAR(255),
+`volunteerHours` DECIMAL(10,2),
+`volunteerHoursPosterVerified` VARCHAR(255),
+`volunteerHoursVolunteerVerified` VARCHAR(255),
+PRIMARY KEY (`volunteerEventId`, `volunteerUserId`)
+) CHARACTER SET latin1;
+CREATE TABLE `flag` (
+`flagEventId` VARCHAR(255),
+`flagUserId` VARCHAR(255),
+`flagMessage` VARCHAR(255),
+PRIMARY KEY (`flagEventId`, `flagUserId`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookmarkedEvent` (
+`bookmarkedEventEventId` VARCHAR(255),
+`bookmarkedEventUserId` VARCHAR(255),
+PRIMARY KEY (`bookmarkedEventEventId`, `bookmarkedEventUserId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_402514_project') AS relationships;
+relationships
+Database: db_402514_project
+
+Table Connections:
+------------------
+[Implied]  bookmarkedEvent.bookmarkedEventEventId -> event.eventId
+[Implied]  bookmarkedEvent.bookmarkedEventUserId -> user.userId
+[Implied]  event.eventFlag -> flag.flagEventId
+[Implied]  event.eventFlag -> flag.flagUserId
+[Implied]  event.eventUserId -> user.userId
+[Implied]  flag.flagEventId -> event.eventId
+[Implied]  flag.flagUserId -> user.userId
+[Implied]  volunteer.volunteerEventId -> event.eventId
+[Implied]  volunteer.volunteerUserId -> user.userId
+
+DROP DATABASE `db_402514_project`;
+UNINSTALL EXTENSION vsql_schematron;

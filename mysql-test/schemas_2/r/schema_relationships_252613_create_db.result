@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 252613_create_db
+#
+CREATE DATABASE `db_252613_create_db`;
+USE `db_252613_create_db`;
+CREATE TABLE `users` (
+`uid` INT,
+`timeCreated` DATETIME,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`bio` VARCHAR(255),
+`isAdmin` INT,
+`score` INT,
+`userRank` INT,
+PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `patterns` (
+`uid` INT,
+`timeCreated` DATETIME,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`numObjects` INT,
+`GIF` VARCHAR(255),
+`difficulty` DECIMAL(10,2),
+`avgHighScoreCatch` DECIMAL(10,2),
+`avgHighScoreTime` DECIMAL(10,2),
+PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `records` (
+`uid` INT,
+`userUID` INT,
+`patternUID` INT,
+`isPersonalBest` INT,
+`score` DECIMAL(10,2),
+`recordRank` INT,
+`catches` INT,
+`duration` DATETIME,
+`timeRecorded` DATETIME,
+`video` VARCHAR(255),
+PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_252613_create_db') AS relationships;
+relationships
+Database: db_252613_create_db
+
+Table Connections:
+------------------
+[Implied]  records.patternUID -> patterns.uid
+[Implied]  records.userUID -> users.uid
+
+DROP DATABASE `db_252613_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

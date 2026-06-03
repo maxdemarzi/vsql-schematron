@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 106633_db_my
+--echo #
+CREATE DATABASE `db_106633_db_my`;
+USE `db_106633_db_my`;
+
+CREATE TABLE `posts` (
+  `id` INT,
+  `title` VARCHAR(255),
+  `content` VARCHAR(255),
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `category_post` (
+  `post_id` INT,
+  `category_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_106633_db_my') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_106633_db_my') AS relationships;
+DROP DATABASE `db_106633_db_my`;
+UNINSTALL EXTENSION vsql_schematron;

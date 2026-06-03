@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 110661_V0_0_0_create_tables
+#
+CREATE DATABASE `db_110661_V0_0_0_create_tables`;
+USE `db_110661_V0_0_0_create_tables`;
+CREATE TABLE `m_user` (
+`id` INT,
+`user_handle` VARCHAR(255),
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`email_address` VARCHAR(255),
+`password` VARCHAR(255),
+`pwauth_allowed` VARCHAR(255),
+`locked` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `m_group` (
+`id` INT,
+`group_name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `m_authority` (
+`id` INT,
+`authority` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `m_authenticator` (
+`id` INT,
+`name` VARCHAR(255),
+`user_id` INT,
+`counter` INT,
+`aa_guid` VARCHAR(255),
+`credential_id` VARCHAR(255),
+`credential_public_key` VARCHAR(255),
+`attestation_statement` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `r_user_group` (
+`user_id` INT,
+`group_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `r_user_authority` (
+`user_id` INT,
+`authority_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `r_group_authority` (
+`group_id` INT,
+`authority_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_110661_V0_0_0_create_tables') AS relationships;
+relationships
+Database: db_110661_V0_0_0_create_tables
+
+Table Connections:
+------------------
+[Implied]  m_authenticator.user_id -> m_user.id
+[Implied]  r_group_authority.authority_id -> m_authority.id
+[Implied]  r_group_authority.group_id -> m_group.id
+[Implied]  r_user_authority.authority_id -> m_authority.id
+[Implied]  r_user_authority.user_id -> m_user.id
+[Implied]  r_user_group.group_id -> m_group.id
+[Implied]  r_user_group.user_id -> m_user.id
+
+DROP DATABASE `db_110661_V0_0_0_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

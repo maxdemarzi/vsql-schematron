@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 229181_import
+#
+CREATE DATABASE `db_229181_import`;
+USE `db_229181_import`;
+CREATE TABLE `persistent_logins` (
+`username` VARCHAR(255),
+`series` VARCHAR(255),
+`token` VARCHAR(255),
+`last_used` DATETIME,
+PRIMARY KEY (`series`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`id` INT,
+`role_name` VARCHAR(255),
+`description` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`role_id` INT,
+`user_id` INT,
+PRIMARY KEY (`role_id`, `user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_229181_import') AS relationships;
+relationships
+Database: db_229181_import
+
+Table Connections:
+------------------
+[Implied]  user_role.role_id -> role.id
+[Implied]  user_role.user_id -> user.id
+
+DROP DATABASE `db_229181_import`;
+UNINSTALL EXTENSION vsql_schematron;

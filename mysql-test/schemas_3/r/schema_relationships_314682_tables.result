@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 314682_tables
+#
+CREATE DATABASE `db_314682_tables`;
+USE `db_314682_tables`;
+CREATE TABLE `tester_keys` (
+`id` VARCHAR(255),
+`type` VARCHAR(255),
+`f_owner` VARCHAR(255),
+`f_refferer` VARCHAR(255),
+`email_recipient` VARCHAR(255),
+`expiration_on` DATETIME,
+`created_on` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `passwords` (
+`id` VARCHAR(255),
+`f_owner` VARCHAR(255),
+`type` VARCHAR(255),
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`login` VARCHAR(255),
+`password_1` VARCHAR(255),
+`password_2` VARCHAR(255),
+`url` VARCHAR(255),
+`updated_on` DATETIME,
+`created_on` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` VARCHAR(255),
+`f_owner` VARCHAR(255),
+`name` VARCHAR(255),
+`color` VARCHAR(255),
+`icon` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `password_tag_linkers` (
+`id` INT,
+`f_password` VARCHAR(255),
+`f_tag` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_token_rsa` (
+`id` INT,
+`type` VARCHAR(255),
+`public_key` VARCHAR(255),
+`private_key` VARCHAR(255),
+`updated_on` DATETIME,
+`created_on` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_314682_tables') AS relationships;
+relationships
+Database: db_314682_tables
+
+Table Connections:
+------------------
+[Implied]  auth_token_rsa.private_key -> tester_keys.id
+[Implied]  auth_token_rsa.public_key -> tester_keys.id
+[Implied]  password_tag_linkers.f_password -> passwords.id
+[Implied]  password_tag_linkers.f_tag -> tags.id
+
+DROP DATABASE `db_314682_tables`;
+UNINSTALL EXTENSION vsql_schematron;

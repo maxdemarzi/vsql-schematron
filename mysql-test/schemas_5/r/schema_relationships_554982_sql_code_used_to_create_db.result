@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 554982_sql_code_used_to_create_db
+#
+CREATE DATABASE `db_554982_sql_code_used_to_create_db`;
+USE `db_554982_sql_code_used_to_create_db`;
+CREATE TABLE `users` (
+`user_id` INT,
+`userType` INT,
+`mail` VARCHAR(255),
+`password` VARCHAR(255),
+`name` VARCHAR(255),
+`surname` VARCHAR(255),
+`tc` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `exam` (
+`exam_id` INT,
+`teacher_id` INT,
+`name` VARCHAR(255),
+`lesson` VARCHAR(255),
+`startDate` DATETIME,
+`endDate` DATETIME,
+PRIMARY KEY (`exam_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question` (
+`question_id` INT,
+`exam_id` INT,
+`teacher_id` INT,
+`question_text` VARCHAR(255),
+`correct_option` VARCHAR(255),
+`option_1` VARCHAR(255),
+`option_2` VARCHAR(255),
+`option_3` VARCHAR(255),
+`option_4` VARCHAR(255),
+`option_5` VARCHAR(255),
+PRIMARY KEY (`question_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `exam_entry` (
+`exam_entry_id` INT,
+`exam_id` INT,
+`user_id` INT,
+`entryDate` DATETIME,
+PRIMARY KEY (`exam_entry_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answer` (
+`answer_id` INT,
+`question_id` INT,
+`student_id` INT,
+`exam_id` INT,
+PRIMARY KEY (`answer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `error` (
+`error_id` INT,
+`message` VARCHAR(255),
+`stack` VARCHAR(255),
+`date` DATETIME,
+PRIMARY KEY (`error_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_554982_sql_code_used_to_create_db') AS relationships;
+relationships
+Database: db_554982_sql_code_used_to_create_db
+
+Table Connections:
+------------------
+[Implied]  answer.exam_id -> exam.exam_id
+[Implied]  answer.question_id -> question.question_id
+[Implied]  answer.student_id -> users.user_id
+[Implied]  exam.teacher_id -> users.user_id
+[Implied]  exam_entry.exam_id -> exam.exam_id
+[Implied]  exam_entry.user_id -> users.user_id
+[Implied]  question.exam_id -> exam.exam_id
+[Implied]  question.teacher_id -> users.user_id
+
+DROP DATABASE `db_554982_sql_code_used_to_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

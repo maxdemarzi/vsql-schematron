@@ -1,0 +1,4843 @@
+{
+  "INFO": {
+    "URL": "https://github.com/camunda/camunda-bpm-dropwizard/blob/77d04fbdc10064bebe4674e8156a027b7a6f27b4/examples/camunda_mysql.sql?raw=true\n",
+    "LICENSE": "APACHE-2.0",
+    "PERMISSIVE": true
+  },
+  "TABLES": {
+    "ACT_GE_BYTEARRAY": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "afdf7c1f-8f8c-11e4-a486-0a0027000000",
+            "afdf7c20-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1,
+            1
+          ],
+          "COMMENT": null
+        },
+        "NAME_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "invoice.bpmn",
+            "invoice.png"
+          ],
+          "COMMENT": null
+        },
+        "DEPLOYMENT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "afdf7c1e-8f8c-11e4-a486-0a0027000000",
+            "afdf7c1e-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "BYTES_": {
+          "TYPE": "longblob",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:omgdc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:omgdi=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:signavio=\"http://www.signavio.com\" xsi:schemaLocation=\"http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd\" id=\"sid-0b0aaa25-3baf-4875-9d7a-0907d599a9ef\" exporter=\"Signavio Process Editor, http://www.signavio.com\" exporterVersion=\"5.4.1\" targetNamespace=\"http://www.omg.org/spec/BPMN/20100524/MODEL\">\n  <dataStore id=\"FinancialAccountingSystem\" isUnlimited=\"false\" name=\"Financial Accounting System\">\n    <dataState id=\"DataState_1\"/>\n  </dataStore>\n  <message id=\"foxMessage_en\" name=\"foxMessage_en\"/>\n  <collaboration id=\"collaboration_3\">\n    <participant id=\"Process_Engine_1\" name=\"Invoice Receipt\" processRef=\"invoice\"/>\n  </collaboration>\n  <process id=\"invoice\" name=\"Invoice Receipt\" isExecutable=\"true\">\n    <laneSet id=\"laneSet_5\">\n      <lane id=\"Approver\" name=\"Approver\">\n        <flowNodeRef>approveInvoice</flowNodeRef>\n        <flowNodeRef>invoice_approved</flowNodeRef>\n      </lane>\n      <lane id=\"teamAssistant\" name=\"Team Assistant\">\n        <flowNodeRef>reviewInvoice</flowNodeRef>\n        <flowNodeRef>reviewSuccessful_gw</flowNodeRef>\n        <flowNodeRef>assignApprover</flowNodeRef>\n        <flowNodeRef>StartEvent_1</flowNodeRef>\n        <flowNodeRef>invoiceNotProcessed</flowNodeRef>\n      </lane>\n      <lane id=\"Accountant\" name=\"Accountant\">\n        <flowNodeRef>prepareBankTransfer</flowNodeRef>\n        <flowNodeRef>invoiceProcessed</flowNodeRef>\n        <flowNodeRef>ServiceTask_1</flowNodeRef>\n      </lane>\n    </laneSet>\n    <userTask id=\"approveInvoice\" activiti:formKey=\"embedded:app:forms/approve-invoice.html\" activiti:assignee=\"${approver}\" activiti:dueDate=\"${dateTime().plusWeeks(1).toDate()}\" name=\"Approve Invoice\">\n      <documentation>Approve the invoice (or not).</documentation>\n      <incoming>sequenceFlow_178</incoming>\n      <incoming>reviewSuccessful</incoming>\n      <outgoing>sequenceFlow_180</outgoing>\n    </userTask>\n    <exclusiveGateway id=\"invoice_approved\" name=\"Invoice&#xA;approved?\" gatewayDirection=\"Diverging\">\n      <incoming>sequenceFlow_180</incoming>\n      <outgoing>invoiceNotApproved</outgoing>\n      <outgoing>invoiceApproved</outgoing>\n    </exclusiveGateway>\n    <userTask id=\"reviewInvoice\" activiti:assignee=\"demo\" activiti:formKey=\"embedded:app:forms/review-invoice.html\" activiti:dueDate=\"${dateTime().plusDays(2).toDate()}\" name=\"Review Invoice\">\n      <documentation><![CDATA[Review the invoice.\n\n\nIf data is missing, provide it.]]></documentation>\n      <incoming>invoiceNotApproved</incoming>\n      <outgoing>sequenceFlow_183</outgoing>\n    </userTask>\n    <exclusiveGateway id=\"reviewSuccessful_gw\" name=\"Review&#xA;successful?\" gatewayDirection=\"Diverging\">\n      <incoming>sequenceFlow_183</incoming>\n      <outgoing>reviewNotSuccessful</outgoing>\n      <outgoing>reviewSuccessful</outgoing>\n    </exclusiveGateway>\n    <userTask id=\"prepareBankTransfer\" activiti:formKey=\"embedded:app:forms/prepare-bank-transfer.html\" activiti:candidateGroups=\"accounting\" activiti:dueDate=\"${dateTime().plusWeeks(1).toDate()}\" name=\"Prepare&#xD;&#xA;Bank&#xD;&#xA;Transfer\">\n      <documentation>Prepare the bank transfer.</documentation>\n      <incoming>invoiceApproved</incoming>\n      <outgoing>SequenceFlow_2</outgoing>\n    </userTask>\n    <sequenceFlow id=\"invoiceNotApproved\" name=\"no\" isImmediate=\"true\" sourceRef=\"invoice_approved\" targetRef=\"reviewInvoice\">\n      <conditionExpression xsi:type=\"tFormalExpression\" id=\"conditionExpression_56\">${!approved}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"sequenceFlow_180\" isImmediate=\"true\" sourceRef=\"approveInvoice\" targetRef=\"invoice_approved\"/>\n    <sequenceFlow id=\"sequenceFlow_183\" isImmediate=\"true\" sourceRef=\"reviewInvoice\" targetRef=\"reviewSuccessful_gw\"/>\n    <sequenceFlow id=\"invoiceApproved\" name=\"yes\" isImmediate=\"true\" sourceRef=\"invoice_approved\" targetRef=\"prepareBankTransfer\">\n      <conditionExpression xsi:type=\"tFormalExpression\" id=\"conditionExpression_63\">${approved}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"reviewNotSuccessful\" name=\"no\" isImmediate=\"true\" sourceRef=\"reviewSuccessful_gw\" targetRef=\"invoiceNotProcessed\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${!clarified}</conditionExpression>\n    </sequenceFlow>\n    <sequenceFlow id=\"reviewSuccessful\" name=\"yes\" isImmediate=\"true\" sourceRef=\"reviewSuccessful_gw\" targetRef=\"approveInvoice\">\n      <conditionExpression xsi:type=\"tFormalExpression\">${clarified}</conditionExpression>\n    </sequenceFlow>\n    <dataStoreReference id=\"DataStoreReference_1\" name=\"Financial Accounting System\" dataStoreRef=\"FinancialAccountingSystem\"/>\n    <userTask id=\"assignApprover\" activiti:formKey=\"embedded:app:forms/assign-approver.html\" activiti:assignee=\"demo\" activiti:dueDate=\"${dateTime().plusDays(3).toDate()}\" name=\"Assign Approver\">\n      <documentation>Select the colleague who should approve this invoice.</documentation>\n      <incoming>SequenceFlow_1</incoming>\n      <outgoing>sequenceFlow_178</outgoing>\n    </userTask>\n    <sequenceFlow id=\"sequenceFlow_178\" isImmediate=\"true\" sourceRef=\"assignApprover\" targetRef=\"approveInvoice\"/>\n    <sequenceFlow id=\"SequenceFlow_2\" name=\"\" sourceRef=\"prepareBankTransfer\" targetRef=\"ServiceTask_1\"/>\n    <startEvent id=\"StartEvent_1\" activiti:formKey=\"embedded:app:forms/start-form.html\" name=\"Invoice&#xA;received\">\n      <outgoing>SequenceFlow_1</outgoing>\n    </startEvent>\n    <sequenceFlow id=\"SequenceFlow_1\" name=\"\" sourceRef=\"StartEvent_1\" targetRef=\"assignApprover\"/>\n    <endEvent id=\"invoiceNotProcessed\" name=\"Invoice not&#xA;processed\">\n      <incoming>reviewNotSuccessful</incoming>\n    </endEvent>\n    <endEvent id=\"invoiceProcessed\" name=\"Invoice&#xA;processed\">\n      <incoming>SequenceFlow_3</incoming>\n    </endEvent>\n    <serviceTask id=\"ServiceTask_1\" activiti:class=\"org.camunda.bpm.example.invoice.service.ArchiveInvoiceService\" activiti:async=\"true\" name=\"Archive Invoice\">\n      <incoming>SequenceFlow_2</incoming>\n      <outgoing>SequenceFlow_3</outgoing>\n    </serviceTask>\n    <sequenceFlow id=\"SequenceFlow_3\" name=\"\" sourceRef=\"ServiceTask_1\" targetRef=\"invoiceProcessed\"/>\n    <association id=\"Association_1\" sourceRef=\"DataStoreReference_1\" targetRef=\"prepareBankTransfer\"/>\n  </process>\n  <bpmndi:BPMNDiagram id=\"BPMNDiagram_73\">\n    <bpmndi:BPMNPlane id=\"BPMNPlane_73\" bpmnElement=\"collaboration_3\">\n      <bpmndi:BPMNShape id=\"Process_Engine_1_gui\" bpmnElement=\"Process_Engine_1\" isHorizontal=\"true\">\n        <omgdc:Bounds height=\"486.0\" width=\"1009.0\" x=\"0.0\" y=\"0.0\"/>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"Freigebender_105_gui\" bpmnElement=\"Approver\" isHorizontal=\"true\">\n        <omgdc:Bounds height=\"161.0\" width=\"979.0\" x=\"30.0\" y=\"182.0\"/>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"Team-Assistenz_110_gui\" bpmnElement=\"teamAssistant\" isHorizontal=\"true\">\n        <omgdc:Bounds height=\"183.0\" width=\"979.0\" x=\"30.0\" y=\"0.0\"/>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"Buchhaltung_119_gui\" bpmnElement=\"Accountant\" isHorizontal=\"true\">\n        <omgdc:Bounds height=\"144.0\" width=\"979.0\" x=\"30.0\" y=\"342.0\"/>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"Rechnung_freigeben_125_gui\" bpmnElement=\"approveInvoice\" isHorizontal=\"true\">\n        <omgdc:Bounds height=\"80.0\" width=\"100.0\" x=\"353.0\" y=\"224.0\"/>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"Freigabe_erfolgt__131_gui\" bpmnElement=\"invoice_approved\" isHorizontal=\"true\" isMarkerVisible=\"true\">\n        <omgdc:Bounds height=\"40.0\" width=\"40.0\" x=\"488.0\" y=\"244.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"22.0\" width=\"107.0\" x=\"455.0\" y=\"289.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"Freigebenden_zuordnen_143_gui\" bpmnElement=\"assignApprover\" isHorizontal=\"true\">\n        <omgdc:Bounds height=\"80.0\" width=\"100.0\" x=\"180.0\" y=\"52.0\"/>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"Rechnung_kl_ren_148_gui\" bpmnElement=\"reviewInvoice\" isHorizontal=\"true\">\n        <omgdc:Bounds height=\"80.0\" width=\"100.0\" x=\"548.0\" y=\"52.0\"/>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"Kl_rung_erfolgreich__153_gui\" bpmnElement=\"reviewSuccessful_gw\" isHorizontal=\"true\" isMarkerVisible=\"true\">\n        <omgdc:Bounds height=\"40.0\" width=\"40.0\" x=\"693.0\" y=\"72.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"22.0\" width=\"114.0\" x=\"656.0\" y=\"117.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"endEvent_165_gui\" bpmnElement=\"invoiceNotProcessed\" isHorizontal=\"true\">\n        <omgdc:Bounds height=\"28.0\" width=\"28.0\" x=\"912.0\" y=\"78.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"22.0\" width=\"131.0\" x=\"861.0\" y=\"111.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"zberweisung_vorbereiten_169_gui\" bpmnElement=\"prepareBankTransfer\" isHorizontal=\"true\">\n        <omgdc:Bounds height=\"80.0\" width=\"100.0\" x=\"638.0\" y=\"383.0\"/>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"Rechnungseingang_abgearbeitet_174_gui\" bpmnElement=\"invoiceProcessed\" isHorizontal=\"true\">\n        <omgdc:Bounds height=\"28.0\" width=\"28.0\" x=\"929.0\" y=\"409.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"22.0\" width=\"109.0\" x=\"889.0\" y=\"442.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNShape id=\"DataStoreReference_1_gui\" bpmnElement=\"DataStoreReference_1\" isHorizontal=\"true\">\n        <omgdc:Bounds height=\"61.0\" width=\"63.0\" x=\"574.0\" y=\"516.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"22.0\" width=\"176.0\" x=\"517.0\" y=\"582.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"Nein_182_gui\" bpmnElement=\"invoiceNotApproved\" sourceElement=\"Freigabe_erfolgt__131_gui\" targetElement=\"Rechnung_kl_ren_148_gui\">\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"508.0\" y=\"244.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"508.0\" y=\"92.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"548.0\" y=\"92.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"26.0\" width=\"24.0\" x=\"480.0\" y=\"216.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"sequenceFlow_180_gui\" bpmnElement=\"sequenceFlow_180\" sourceElement=\"Rechnung_freigeben_125_gui\" targetElement=\"Freigabe_erfolgt__131_gui\">\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"453.0\" y=\"264.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"488.0\" y=\"264.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"0.0\" width=\"0.0\" x=\"471.0\" y=\"264.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"sequenceFlow_183_gui\" bpmnElement=\"sequenceFlow_183\" sourceElement=\"Rechnung_kl_ren_148_gui\" targetElement=\"Kl_rung_erfolgreich__153_gui\">\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"648.0\" y=\"92.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"693.0\" y=\"92.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"0.0\" width=\"0.0\" x=\"671.0\" y=\"92.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"sequenceFlow_178_gui\" bpmnElement=\"sequenceFlow_178\" sourceElement=\"Freigebenden_zuordnen_143_gui\" targetElement=\"Rechnung_freigeben_125_gui\">\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"280.0\" y=\"92.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"310.0\" y=\"92.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"310.0\" y=\"264.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"353.0\" y=\"264.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"0.0\" width=\"0.0\" x=\"310.0\" y=\"185.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Association_1_gui\" bpmnElement=\"Association_1\" sourceElement=\"DataStoreReference_1_gui\" targetElement=\"zberweisung_vorbereiten_169_gui\">\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"625.0\" y=\"516.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"661.0\" y=\"463.0\"/>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"Ja_181_gui\" bpmnElement=\"invoiceApproved\" sourceElement=\"Freigabe_erfolgt__131_gui\" targetElement=\"zberweisung_vorbereiten_169_gui\">\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"528.0\" y=\"264.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"587.0\" y=\"264.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"587.0\" y=\"423.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"638.0\" y=\"423.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"26.0\" width=\"32.0\" x=\"540.0\" y=\"237.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"nein_185_gui\" bpmnElement=\"reviewNotSuccessful\" sourceElement=\"Kl_rung_erfolgreich__153_gui\" targetElement=\"endEvent_165_gui\">\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"733.0\" y=\"92.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"912.0\" y=\"92.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"26.0\" width=\"24.0\" x=\"744.0\" y=\"91.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"ja_186_gui\" bpmnElement=\"reviewSuccessful\" sourceElement=\"Kl_rung_erfolgreich__153_gui\" targetElement=\"Rechnung_freigeben_125_gui\">\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"713.0\" y=\"72.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"713.0\" y=\"35.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"403.0\" y=\"35.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"403.0\" y=\"224.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"26.0\" width=\"32.0\" x=\"720.0\" y=\"36.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNEdge id=\"BPMNEdge_SequenceFlow_1\" bpmnElement=\"SequenceFlow_2\" sourceElement=\"zberweisung_vorbereiten_169_gui\" targetElement=\"_BPMNShape_ServiceTask_2\">\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"738.0\" y=\"423.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"780.0\" y=\"423.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"6.0\" width=\"6.0\" x=\"745.0\" y=\"423.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNShape id=\"_BPMNShape_StartEvent_3\" bpmnElement=\"StartEvent_1\">\n        <omgdc:Bounds height=\"28.0\" width=\"28.0\" x=\"96.0\" y=\"78.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"22.0\" width=\"96.0\" x=\"62.0\" y=\"111.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"BPMNEdge_SequenceFlow_2\" bpmnElement=\"SequenceFlow_1\" sourceElement=\"_BPMNShape_StartEvent_3\" targetElement=\"Freigebenden_zuordnen_143_gui\">\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"124.0\" y=\"92.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"180.0\" y=\"92.0\"/>\n      </bpmndi:BPMNEdge>\n      <bpmndi:BPMNShape id=\"_BPMNShape_ServiceTask_2\" bpmnElement=\"ServiceTask_1\">\n        <omgdc:Bounds height=\"80.0\" width=\"100.0\" x=\"780.0\" y=\"383.0\"/>\n      </bpmndi:BPMNShape>\n      <bpmndi:BPMNEdge id=\"BPMNEdge_SequenceFlow_3\" bpmnElement=\"SequenceFlow_3\" sourceElement=\"_BPMNShape_ServiceTask_2\" targetElement=\"Rechnungseingang_abgearbeitet_174_gui\">\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"880.0\" y=\"423.0\"/>\n        <omgdi:waypoint xsi:type=\"omgdc:Point\" x=\"929.0\" y=\"423.0\"/>\n        <bpmndi:BPMNLabel>\n          <omgdc:Bounds height=\"6.0\" width=\"6.0\" x=\"913.0\" y=\"423.0\"/>\n        </bpmndi:BPMNLabel>\n      </bpmndi:BPMNEdge>\n    </bpmndi:BPMNPlane>\n  </bpmndi:BPMNDiagram>\n</definitions>",
+            "<PERSON>"
+          ],
+          "COMMENT": null
+        },
+        "GENERATED_": {
+          "TYPE": "TinyInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            0,
+            0
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "DEPLOYMENT_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RE_DEPLOYMENT",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "DEPLOYMENT_ID_"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "ACT_GE_PROPERTY": {
+      "COLUMNS": {
+        "NAME_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "deployment.lock",
+            "historyLevel",
+            "next.dbid",
+            "schema.history",
+            "schema.version"
+          ],
+          "COMMENT": null
+        },
+        "VALUE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "0",
+            "3",
+            "1",
+            "<PERSON>",
+            "fox"
+          ],
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "NAME_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "ACT_HI_ACTINST": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": true,
+          "VALUES": [
+            "StartEvent_1:b01ab08f-8f8c-11e4-a486-0a0027000000",
+            "StartEvent_1:b02a40f9-8f8c-11e4-a486-0a0027000000",
+            "StartEvent_1:b0369d18-8f8c-11e4-a486-0a0027000000",
+            "approveInvoice:b0331aa3-8f8c-11e4-a486-0a0027000000",
+            "approveInvoice:b0425cf1-8f8c-11e4-a486-0a0027000000",
+            "assignApprover:b01ad7a3-8f8c-11e4-a486-0a0027000000",
+            "assignApprover:b02a40fd-8f8c-11e4-a486-0a0027000000",
+            "assignApprover:b0369d1b-8f8c-11e4-a486-0a0027000000",
+            "invoice_approved:b0545e58-8f8c-11e4-a486-0a0027000000",
+            "reviewInvoice:b0548569-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "PARENT_ACT_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "PROC_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "ACT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "StartEvent_1",
+            "StartEvent_1",
+            "StartEvent_1",
+            "approveInvoice",
+            "approveInvoice",
+            "assignApprover",
+            "assignApprover",
+            "assignApprover",
+            "invoice_approved",
+            "reviewInvoice"
+          ],
+          "COMMENT": null
+        },
+        "TASK_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            "b0331aa4-8f8c-11e4-a486-0a0027000000",
+            "b0425cf2-8f8c-11e4-a486-0a0027000000",
+            "b01ad7a4-8f8c-11e4-a486-0a0027000000",
+            "b02a40fe-8f8c-11e4-a486-0a0027000000",
+            "b0369d1c-8f8c-11e4-a486-0a0027000000",
+            null,
+            "b054856a-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "CALL_PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "ACT_NAME_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "Invoice\nreceived",
+            "Invoice\nreceived",
+            "Invoice\nreceived",
+            "Approve Invoice",
+            "Approve Invoice",
+            "<PERSON>",
+            "<PERSON>",
+            "<PERSON>",
+            "Invoice\napproved?",
+            "Review Invoice"
+          ],
+          "COMMENT": null
+        },
+        "ACT_TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "startEvent",
+            "startEvent",
+            "startEvent",
+            "userTask",
+            "userTask",
+            "userTask",
+            "userTask",
+            "userTask",
+            "exclusiveGateway",
+            "userTask"
+          ],
+          "COMMENT": null
+        },
+        "ASSIGNEE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            "john",
+            "mary",
+            "demo",
+            "demo",
+            "demo",
+            null,
+            "demo"
+          ],
+          "COMMENT": null
+        },
+        "START_TIME_": {
+          "TYPE": "Datetime",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "2014-12-29 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-15 19:58:34",
+            "2014-12-24 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-24 19:58:34",
+            "2014-12-24 19:58:34"
+          ],
+          "COMMENT": null
+        },
+        "END_TIME_": {
+          "TYPE": "Datetime",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "2014-12-29 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-29 19:58:34",
+            null,
+            "2014-12-24 19:58:34",
+            null,
+            "2014-12-15 19:58:34",
+            "2014-12-24 19:58:34",
+            "2014-12-24 19:58:34",
+            null
+          ],
+          "COMMENT": null
+        },
+        "DURATION_": {
+          "TYPE": "BigInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1,
+            0,
+            0,
+            null,
+            273,
+            null,
+            -1209599806,
+            "<AU_ACN>",
+            0,
+            null
+          ],
+          "COMMENT": null
+        },
+        "ACT_INST_STATE_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "START_TIME_"
+        ],
+        [
+          "END_TIME_"
+        ],
+        [
+          "EXECUTION_ID_",
+          "ACT_ID_",
+          "END_TIME_",
+          "ID_"
+        ],
+        [
+          "PROC_INST_ID_",
+          "ACT_ID_"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "ACT_HI_ATTACHMENT": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "USER_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "NAME_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "DESCRIPTION_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "TASK_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "URL_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CONTENT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "ACT_HI_CASEACTINST": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "PARENT_ACT_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CASE_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CASE_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "CASE_ACT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "TASK_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CALL_PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CALL_CASE_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CASE_ACT_NAME_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CASE_ACT_TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CREATE_TIME_": {
+          "TYPE": "Datetime",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "END_TIME_": {
+          "TYPE": "Datetime",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "DURATION_": {
+          "TYPE": "BigInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "STATE_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "CREATE_TIME_"
+        ],
+        [
+          "END_TIME_"
+        ],
+        [
+          "CASE_ACT_ID_",
+          "END_TIME_",
+          "ID_"
+        ],
+        [
+          "CASE_INST_ID_",
+          "CASE_ACT_ID_"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "ACT_HI_COMMENT": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b04dcea3-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "comment"
+          ],
+          "COMMENT": null
+        },
+        "TIME_": {
+          "TYPE": "Datetime",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "2014-12-24 19:58:34"
+          ],
+          "COMMENT": null
+        },
+        "USER_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "mary"
+          ],
+          "COMMENT": null
+        },
+        "TASK_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null
+          ],
+          "COMMENT": null
+        },
+        "PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "ACTION_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "AddComment"
+          ],
+          "COMMENT": null
+        },
+        "MESSAGE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "I cannot approve this invoice: the amount is missing. Could you please provide the amount?"
+          ],
+          "COMMENT": null
+        },
+        "FULL_MSG_": {
+          "TYPE": "longblob",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "I cannot approve this invoice: the amount is missing.\n\n Could you please provide the amount?"
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "ACT_HI_DETAIL": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b01ad7a0-8f8c-11e4-a486-0a0027000000",
+            "b01ad7a1-8f8c-11e4-a486-0a0027000000",
+            "b01ad7a2-8f8c-11e4-a486-0a0027000000",
+            "b02a40fa-8f8c-11e4-a486-0a0027000000",
+            "b02a40fb-8f8c-11e4-a486-0a0027000000",
+            "b02a40fc-8f8c-11e4-a486-0a0027000000",
+            "b030f7c0-8f8c-11e4-a486-0a0027000000",
+            "b0369d19-8f8c-11e4-a486-0a0027000000",
+            "b0369d1a-8f8c-11e4-a486-0a0027000000",
+            "b03d2cce-8f8c-11e4-a486-0a0027000000",
+            "b05066b5-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "VariableUpdate",
+            "VariableUpdate",
+            "VariableUpdate",
+            "VariableUpdate",
+            "VariableUpdate",
+            "VariableUpdate",
+            "VariableUpdate",
+            "VariableUpdate",
+            "VariableUpdate",
+            "VariableUpdate",
+            "VariableUpdate"
+          ],
+          "COMMENT": null
+        },
+        "PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "CASE_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "CASE_EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "TASK_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "ACT_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "StartEvent_1:b01ab08f-8f8c-11e4-a486-0a0027000000",
+            "StartEvent_1:b01ab08f-8f8c-11e4-a486-0a0027000000",
+            "StartEvent_1:b01ab08f-8f8c-11e4-a486-0a0027000000",
+            "StartEvent_1:b02a40f9-8f8c-11e4-a486-0a0027000000",
+            "StartEvent_1:b02a40f9-8f8c-11e4-a486-0a0027000000",
+            "StartEvent_1:b02a40f9-8f8c-11e4-a486-0a0027000000",
+            "assignApprover:b02a40fd-8f8c-11e4-a486-0a0027000000",
+            "StartEvent_1:b0369d18-8f8c-11e4-a486-0a0027000000",
+            "StartEvent_1:b0369d18-8f8c-11e4-a486-0a0027000000",
+            "assignApprover:b0369d1b-8f8c-11e4-a486-0a0027000000",
+            "approveInvoice:b0425cf1-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "VAR_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b01a897c-8f8c-11e4-a486-0a0027000000",
+            "b01a897d-8f8c-11e4-a486-0a0027000000",
+            "b01a897e-8f8c-11e4-a486-0a0027000000",
+            "b02a40f6-8f8c-11e4-a486-0a0027000000",
+            "b02a40f7-8f8c-11e4-a486-0a0027000000",
+            "b02a40f8-8f8c-11e4-a486-0a0027000000",
+            "b030f7bf-8f8c-11e4-a486-0a0027000000",
+            "b0369d16-8f8c-11e4-a486-0a0027000000",
+            "b0369d17-8f8c-11e4-a486-0a0027000000",
+            "b03d2ccd-8f8c-11e4-a486-0a0027000000",
+            "b05066b4-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "NAME_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "amount",
+            "invoiceNumber",
+            "creditor",
+            "amount",
+            "invoiceNumber",
+            "creditor",
+            "approver",
+            "invoiceNumber",
+            "creditor",
+            "approver",
+            "approved"
+          ],
+          "COMMENT": null
+        },
+        "VAR_TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "string",
+            "string",
+            "string",
+            "string",
+            "string",
+            "string",
+            "string",
+            "string",
+            "string",
+            "string",
+            "string"
+          ],
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "COMMENT": null
+        },
+        "TIME_": {
+          "TYPE": "Datetime",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "2014-12-29 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-15 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-24 19:58:34",
+            "2014-12-24 19:58:34"
+          ],
+          "COMMENT": null
+        },
+        "BYTEARRAY_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "DOUBLE_": {
+          "TYPE": "Double",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "LONG_": {
+          "TYPE": "BigInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "TEXT_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "30\u20ac",
+            "GPFE-23232323",
+            "Great Pizza for Everyone Inc.",
+            "312.99$",
+            "BOS-43934",
+            "<PERSON>",
+            "john",
+            "PSACE-5342",
+            "<PERSON>",
+            "mary",
+            "false"
+          ],
+          "COMMENT": null
+        },
+        "TEXT2_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "PROC_INST_ID_"
+        ],
+        [
+          "ACT_INST_ID_"
+        ],
+        [
+          "CASE_INST_ID_"
+        ],
+        [
+          "CASE_EXECUTION_ID_"
+        ],
+        [
+          "TIME_"
+        ],
+        [
+          "NAME_"
+        ],
+        [
+          "TASK_ID_"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "ACT_HI_INCIDENT": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "PROC_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CREATE_TIME_": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "END_TIME_": {
+          "TYPE": "Timestamp",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "INCIDENT_MSG_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "INCIDENT_TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ACTIVITY_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CAUSE_INCIDENT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ROOT_CAUSE_INCIDENT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CONFIGURATION_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "INCIDENT_STATE_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "ACT_HI_OP_LOG": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b0327e62-8f8c-11e4-a486-0a0027000000",
+            "b0408830-8f8c-11e4-a486-0a0027000000",
+            "b052d7b7-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "PROC_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "PROC_DEF_KEY_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "CASE_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "CASE_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "CASE_EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "TASK_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b02a40fe-8f8c-11e4-a486-0a0027000000",
+            "b0369d1c-8f8c-11e4-a486-0a0027000000",
+            "b0425cf2-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "USER_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "demo",
+            "demo",
+            "mary"
+          ],
+          "COMMENT": null
+        },
+        "TIMESTAMP_": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "2014-12-15 19:58:34",
+            "2014-12-24 19:58:34",
+            "2014-12-24 19:58:34"
+          ],
+          "COMMENT": null
+        },
+        "OPERATION_TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "Complete",
+            "Complete",
+            "Complete"
+          ],
+          "COMMENT": null
+        },
+        "OPERATION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b0325751-8f8c-11e4-a486-0a0027000000",
+            "b040882f-8f8c-11e4-a486-0a0027000000",
+            "b052d7b6-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "ENTITY_TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "Task",
+            "Task",
+            "Task"
+          ],
+          "COMMENT": null
+        },
+        "PROPERTY_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "delete",
+            "delete",
+            "delete"
+          ],
+          "COMMENT": null
+        },
+        "ORG_VALUE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "false",
+            "false",
+            "false"
+          ],
+          "COMMENT": null
+        },
+        "NEW_VALUE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "true",
+            "true",
+            "true"
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "ACT_HI_TASKINST": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b01ad7a4-8f8c-11e4-a486-0a0027000000",
+            "b02a40fe-8f8c-11e4-a486-0a0027000000",
+            "b0331aa4-8f8c-11e4-a486-0a0027000000",
+            "b0369d1c-8f8c-11e4-a486-0a0027000000",
+            "b0425cf2-8f8c-11e4-a486-0a0027000000",
+            "b054856a-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "PROC_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "TASK_DEF_KEY_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "assignApprover",
+            "assignApprover",
+            "approveInvoice",
+            "assignApprover",
+            "approveInvoice",
+            "reviewInvoice"
+          ],
+          "COMMENT": null
+        },
+        "PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "CASE_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "CASE_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "CASE_EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "ACT_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "assignApprover:b01ad7a3-8f8c-11e4-a486-0a0027000000",
+            "assignApprover:b02a40fd-8f8c-11e4-a486-0a0027000000",
+            "approveInvoice:b0331aa3-8f8c-11e4-a486-0a0027000000",
+            "assignApprover:b0369d1b-8f8c-11e4-a486-0a0027000000",
+            "approveInvoice:b0425cf1-8f8c-11e4-a486-0a0027000000",
+            "reviewInvoice:b0548569-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "NAME_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "<PERSON>",
+            "<PERSON>",
+            "Approve Invoice",
+            "<PERSON>",
+            "Approve Invoice",
+            "Review Invoice"
+          ],
+          "COMMENT": null
+        },
+        "PARENT_TASK_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "DESCRIPTION_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "Select the colleague who should approve this invoice.",
+            "Select the colleague who should approve this invoice.",
+            "Approve the invoice (or not).",
+            "Select the colleague who should approve this invoice.",
+            "Approve the invoice (or not).",
+            "Review the invoice.\n\n\nIf data is missing, provide it."
+          ],
+          "COMMENT": null
+        },
+        "OWNER_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "ASSIGNEE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "demo",
+            "demo",
+            "john",
+            "demo",
+            "mary",
+            "demo"
+          ],
+          "COMMENT": null
+        },
+        "START_TIME_": {
+          "TYPE": "Datetime",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "2014-12-29 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-15 19:58:34",
+            "2014-12-29 19:58:34",
+            "2014-12-24 19:58:34",
+            "2014-12-24 19:58:34"
+          ],
+          "COMMENT": null
+        },
+        "END_TIME_": {
+          "TYPE": "Datetime",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            "2014-12-15 19:58:34",
+            null,
+            "2014-12-24 19:58:34",
+            "2014-12-24 19:58:34",
+            null
+          ],
+          "COMMENT": null
+        },
+        "DURATION_": {
+          "TYPE": "BigInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            -1209599806,
+            null,
+            "<AU_ACN>",
+            273,
+            null
+          ],
+          "COMMENT": null
+        },
+        "DELETE_REASON_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            "completed",
+            null,
+            "completed",
+            "completed",
+            null
+          ],
+          "COMMENT": null
+        },
+        "PRIORITY_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            50,
+            50,
+            50,
+            50,
+            50,
+            50
+          ],
+          "COMMENT": null
+        },
+        "DUE_DATE_": {
+          "TYPE": "Datetime",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "2015-01-01 19:58:34",
+            "2015-01-01 19:58:34",
+            "2014-12-22 19:58:34",
+            "2015-01-01 19:58:34",
+            "2014-12-31 19:58:34",
+            "2014-12-26 19:58:34"
+          ],
+          "COMMENT": null
+        },
+        "FOLLOW_UP_DATE_": {
+          "TYPE": "Datetime",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "ACT_HI_VARINST": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b01a897c-8f8c-11e4-a486-0a0027000000",
+            "b01a897d-8f8c-11e4-a486-0a0027000000",
+            "b01a897e-8f8c-11e4-a486-0a0027000000",
+            "b02a40f6-8f8c-11e4-a486-0a0027000000",
+            "b02a40f7-8f8c-11e4-a486-0a0027000000",
+            "b02a40f8-8f8c-11e4-a486-0a0027000000",
+            "b030f7bf-8f8c-11e4-a486-0a0027000000",
+            "b0369d16-8f8c-11e4-a486-0a0027000000",
+            "b0369d17-8f8c-11e4-a486-0a0027000000",
+            "b03d2ccd-8f8c-11e4-a486-0a0027000000",
+            "b05066b4-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "ACT_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "CASE_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "CASE_EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "TASK_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "NAME_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "amount",
+            "invoiceNumber",
+            "creditor",
+            "amount",
+            "invoiceNumber",
+            "creditor",
+            "approver",
+            "invoiceNumber",
+            "creditor",
+            "approver",
+            "approved"
+          ],
+          "COMMENT": null
+        },
+        "VAR_TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "string",
+            "string",
+            "string",
+            "string",
+            "string",
+            "string",
+            "string",
+            "string",
+            "string",
+            "string",
+            "string"
+          ],
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "COMMENT": null
+        },
+        "BYTEARRAY_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "DOUBLE_": {
+          "TYPE": "Double",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "LONG_": {
+          "TYPE": "BigInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "TEXT_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "30\u20ac",
+            "GPFE-23232323",
+            "Great Pizza for Everyone Inc.",
+            "312.99$",
+            "BOS-43934",
+            "<PERSON>",
+            "john",
+            "PSACE-5342",
+            "<PERSON>",
+            "mary",
+            "false"
+          ],
+          "COMMENT": null
+        },
+        "TEXT2_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "PROC_INST_ID_"
+        ],
+        [
+          "CASE_INST_ID_"
+        ],
+        [
+          "NAME_",
+          "VAR_TYPE_"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "ACT_ID_GROUP": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "accounting",
+            "<PERSON>",
+            "management",
+            "sales"
+          ],
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "COMMENT": null
+        },
+        "NAME_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "Accounting",
+            "camunda BPM Administrators",
+            "Management",
+            "Sales"
+          ],
+          "COMMENT": null
+        },
+        "TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "<PERSON>",
+            "SYSTEM",
+            "<PERSON>",
+            "<PERSON>"
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "ACT_ID_INFO": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "USER_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "KEY_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "VALUE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "PASSWORD_": {
+          "TYPE": "longblob",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "PARENT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "ACT_ID_MEMBERSHIP": {
+      "COLUMNS": {
+        "USER_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "demo",
+            "mary",
+            "demo",
+            "demo",
+            "peter",
+            "demo",
+            "john"
+          ],
+          "COMMENT": null
+        },
+        "GROUP_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": true,
+          "VALUES": [
+            "accounting",
+            "accounting",
+            "<PERSON>",
+            "management",
+            "management",
+            "sales",
+            "sales"
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "USER_ID_",
+        "GROUP_ID_"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "USER_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_ID_USER",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "GROUP_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_ID_GROUP",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "GROUP_ID_"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "ACT_ID_USER": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "demo",
+            "john",
+            "mary",
+            "peter"
+          ],
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "COMMENT": null
+        },
+        "FIRST_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "Demo",
+            "John",
+            "Mary",
+            "Peter"
+          ],
+          "COMMENT": null
+        },
+        "LAST_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "Demo",
+            "Doe",
+            "Anne",
+            "Meter"
+          ],
+          "COMMENT": null
+        },
+        "EMAIL_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "<EMAIL_ADDRESS>",
+            "<EMAIL_ADDRESS>",
+            "<EMAIL_ADDRESS>",
+            "<EMAIL_ADDRESS>"
+          ],
+          "COMMENT": null
+        },
+        "PWD_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "{SHA}ieSV55Qc+eQOaYDRSha/AjzNTJE=",
+            "{SHA}pR3afH/1C2Hq6gRENx9KapMB5QE=",
+            "{SHA}VmUzG5uBmsNYFl+MOJcNyMfdtH0=",
+            "{SHA}S4Nz0Bbyd1JxmDhbpy/aD+tdoBU="
+          ],
+          "COMMENT": null
+        },
+        "PICTURE_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "ACT_RE_DEPLOYMENT": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "afdf7c1e-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "NAME_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "camunda-invoice"
+          ],
+          "COMMENT": null
+        },
+        "DEPLOY_TIME_": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "2014-12-29 19:58:33"
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "ACT_RU_CASE_EXECUTION": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CASE_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "SUPER_CASE_EXEC_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "BUSINESS_KEY_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "PARENT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "CASE_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "ACT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "PREV_STATE_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CURRENT_STATE_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "CASE_INST_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_CASE_EXECUTION",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        },
+        {
+          "COLUMNS": [
+            "PARENT_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_CASE_EXECUTION",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "BUSINESS_KEY_"
+        ],
+        [
+          "CASE_INST_ID_"
+        ],
+        [
+          "PARENT_ID_"
+        ],
+        [
+          "CASE_DEF_ID_"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "ACT_RU_CASE_SENTRY_PART": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CASE_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "CASE_EXEC_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "SENTRY_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "SOURCE_CASE_EXEC_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "STANDARD_EVENT_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "SATISFIED_": {
+          "TYPE": "TinyInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "CASE_EXEC_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_CASE_EXECUTION",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "CASE_INST_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_CASE_EXECUTION",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "CASE_INST_ID_"
+        ],
+        [
+          "CASE_EXEC_ID_"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "ACT_RU_EVENT_SUBSCR": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "EVENT_TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "EVENT_NAME_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "ACTIVITY_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "CONFIGURATION_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "CREATED_": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "EXECUTION_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_EXECUTION",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "CONFIGURATION_"
+        ],
+        [
+          "EXECUTION_ID_"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "ACT_RU_EXECUTION": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1,
+            2,
+            3
+          ],
+          "COMMENT": null
+        },
+        "PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "BUSINESS_KEY_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "PARENT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "PROC_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "SUPER_EXEC_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "SUPER_CASE_EXEC_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "CASE_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "ACT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "assignApprover",
+            "approveInvoice",
+            "reviewInvoice"
+          ],
+          "COMMENT": null
+        },
+        "ACT_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "assignApprover:b01ad7a3-8f8c-11e4-a486-0a0027000000",
+            "approveInvoice:b0331aa3-8f8c-11e4-a486-0a0027000000",
+            "reviewInvoice:b0548569-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "IS_ACTIVE_": {
+          "TYPE": "TinyInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1,
+            1,
+            1
+          ],
+          "COMMENT": null
+        },
+        "IS_CONCURRENT_": {
+          "TYPE": "TinyInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            0,
+            0,
+            0
+          ],
+          "COMMENT": null
+        },
+        "IS_SCOPE_": {
+          "TYPE": "TinyInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1,
+            1,
+            1
+          ],
+          "COMMENT": null
+        },
+        "IS_EVENT_SCOPE_": {
+          "TYPE": "TinyInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            0,
+            0,
+            0
+          ],
+          "COMMENT": null
+        },
+        "SUSPENSION_STATE_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1,
+            1,
+            1
+          ],
+          "COMMENT": null
+        },
+        "CACHED_ENT_STATE_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            18,
+            18,
+            18
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "PARENT_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_EXECUTION",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "PROC_INST_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_EXECUTION",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        },
+        {
+          "COLUMNS": [
+            "SUPER_EXEC_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_EXECUTION",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "BUSINESS_KEY_"
+        ],
+        [
+          "PROC_INST_ID_"
+        ],
+        [
+          "PARENT_ID_"
+        ],
+        [
+          "SUPER_EXEC_"
+        ],
+        [
+          "PROC_DEF_ID_"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "ACT_RU_FILTER": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b0113a9a-8f8c-11e4-a486-0a0027000000",
+            "b012731c-8f8c-11e4-a486-0a0027000000",
+            "b0149600-8f8c-11e4-a486-0a0027000000",
+            "b015ce83-8f8c-11e4-a486-0a0027000000",
+            "b016dff5-8f8c-11e4-a486-0a0027000000",
+            "b0177c37-8f8c-11e4-a486-0a0027000000",
+            "b0186699-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "COMMENT": null
+        },
+        "RESOURCE_TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "Task",
+            "Task",
+            "Task",
+            "Task",
+            "Task",
+            "Task",
+            "Task"
+          ],
+          "COMMENT": null
+        },
+        "NAME_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "My Tasks",
+            "My Group Tasks",
+            "Accounting",
+            "<PERSON>",
+            "<PERSON>",
+            "<PERSON>",
+            "All Tasks"
+          ],
+          "COMMENT": null
+        },
+        "OWNER_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "demo",
+            "demo",
+            "demo",
+            "demo",
+            "demo",
+            "demo",
+            "demo"
+          ],
+          "COMMENT": null
+        },
+        "QUERY_": {
+          "TYPE": "longtext",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "{\"taskAssigneeExpression\":\"${currentUser()}\"}",
+            "{\"taskCandidateGroupInExpression\":\"${currentUserGroups()}\",\"unassigned\":true}",
+            "{\"unassigned\":true,\"candidateGroups\":[\"accounting\"]}",
+            "<PERSON>",
+            "<PERSON>",
+            "<PERSON>",
+            "{}"
+          ],
+          "COMMENT": null
+        },
+        "PROPERTIES_": {
+          "TYPE": "longtext",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "{\"description\":\"Tasks assigned to me\",\"priority\":-10,\"variables\":[{\"name\":\"amount\",\"label\":\"Invoice Amount\"},{\"name\":\"invoiceNumber\",\"label\":\"Invoice Number\"},{\"name\":\"creditor\",\"label\":\"Creditor\"},{\"name\":\"approver\",\"label\":\"Approver\"}]}",
+            "{\"description\":\"Tasks assigned to my Groups\",\"priority\":-5,\"variables\":[{\"name\":\"amount\",\"label\":\"Invoice Amount\"},{\"name\":\"invoiceNumber\",\"label\":\"Invoice Number\"},{\"name\":\"creditor\",\"label\":\"Creditor\"},{\"name\":\"approver\",\"label\":\"Approver\"}]}",
+            "{\"description\":\"Tasks for Group Accounting\",\"priority\":-5,\"variables\":[{\"name\":\"amount\",\"label\":\"Invoice Amount\"},{\"name\":\"invoiceNumber\",\"label\":\"Invoice Number\"},{\"name\":\"creditor\",\"label\":\"Creditor\"},{\"name\":\"approver\",\"label\":\"Approver\"}]}",
+            "<PERSON>",
+            "{\"description\":\"Tasks assigned to Mary\",\"priority\":-5,\"variables\":[{\"name\":\"amount\",\"label\":\"Invoice Amount\"},{\"name\":\"invoiceNumber\",\"label\":\"Invoice Number\"},{\"name\":\"creditor\",\"label\":\"Creditor\"},{\"name\":\"approver\",\"label\":\"Approver\"}]}",
+            "<PERSON>",
+            "{\"description\":\"All Tasks - Not recommended to be used in production :)\",\"priority\":-5,\"variables\":[{\"name\":\"amount\",\"label\":\"Invoice Amount\"},{\"name\":\"invoiceNumber\",\"label\":\"Invoice Number\"},{\"name\":\"creditor\",\"label\":\"Creditor\"},{\"name\":\"approver\",\"label\":\"Approver\"}]}"
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "ACT_RU_IDENTITYLINK": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "GROUP_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "USER_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "TASK_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "PROC_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "TASK_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_TASK",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "USER_ID_"
+        ],
+        [
+          "GROUP_ID_"
+        ],
+        [
+          "PROC_DEF_ID_"
+        ],
+        [
+          "TASK_ID_"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "ACT_RU_INCIDENT": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "INCIDENT_TIMESTAMP_": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "INCIDENT_MSG_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "INCIDENT_TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "ACTIVITY_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "PROC_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "CAUSE_INCIDENT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "ROOT_CAUSE_INCIDENT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "CONFIGURATION_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "ROOT_CAUSE_INCIDENT_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_INCIDENT",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        },
+        {
+          "COLUMNS": [
+            "CAUSE_INCIDENT_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_INCIDENT",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": "Cascade",
+          "ON_UPDATE": "Cascade"
+        },
+        {
+          "COLUMNS": [
+            "EXECUTION_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_EXECUTION",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "PROC_INST_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_EXECUTION",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "CONFIGURATION_"
+        ],
+        [
+          "CAUSE_INCIDENT_ID_"
+        ],
+        [
+          "EXECUTION_ID_"
+        ],
+        [
+          "PROC_DEF_ID_"
+        ],
+        [
+          "PROC_INST_ID_"
+        ],
+        [
+          "ROOT_CAUSE_INCIDENT_ID_"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "ACT_RU_JOB": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "LOCK_EXP_TIME_": {
+          "TYPE": "Timestamp",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "LOCK_OWNER_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "EXCLUSIVE_": {
+          "TYPE": "TinyInt",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "PROCESS_INSTANCE_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "PROCESS_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "PROCESS_DEF_KEY_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "RETRIES_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "EXCEPTION_STACK_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "COMMENT": null
+        },
+        "EXCEPTION_MSG_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "DUEDATE_": {
+          "TYPE": "Timestamp",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "REPEAT_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "HANDLER_TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "HANDLER_CFG_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "DEPLOYMENT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "SUSPENSION_STATE_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "JOB_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "EXCEPTION_STACK_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_GE_BYTEARRAY",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "PROCESS_INSTANCE_ID_"
+        ],
+        [
+          "EXCEPTION_STACK_ID_"
+        ]
+      ],
+      "COMMENT": null
+    },
+    "ACT_RU_JOBDEF": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "afef3392-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1
+          ],
+          "COMMENT": null
+        },
+        "PROC_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "PROC_DEF_KEY_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "invoice"
+          ],
+          "COMMENT": null
+        },
+        "ACT_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "ServiceTask_1"
+          ],
+          "COMMENT": null
+        },
+        "JOB_TYPE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "async-continuation"
+          ],
+          "COMMENT": null
+        },
+        "JOB_CONFIGURATION_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "async-before"
+          ],
+          "COMMENT": null
+        },
+        "SUSPENSION_STATE_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "ACT_RU_TASK": {
+      "COLUMNS": {
+        "ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": true,
+          "DEFAULT": "",
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "VALUES": [
+            "b01ad7a4-8f8c-11e4-a486-0a0027000000",
+            "b0331aa4-8f8c-11e4-a486-0a0027000000",
+            "b054856a-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "REV_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1,
+            1,
+            1
+          ],
+          "COMMENT": null
+        },
+        "EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "PROC_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "b01a3b5b-8f8c-11e4-a486-0a0027000000",
+            "b02a19e5-8f8c-11e4-a486-0a0027000000",
+            "b0369d15-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "PROC_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000",
+            "invoice:1:afef3391-8f8c-11e4-a486-0a0027000000"
+          ],
+          "COMMENT": null
+        },
+        "CASE_EXECUTION_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "CASE_INST_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "CASE_DEF_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "NAME_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "<PERSON>",
+            "Approve Invoice",
+            "Review Invoice"
+          ],
+          "COMMENT": null
+        },
+        "PARENT_TASK_ID_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "DESCRIPTION_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "Select the colleague who should approve this invoice.",
+            "Approve the invoice (or not).",
+            "Review the invoice.\n\n\nIf data is missing, provide it."
+          ],
+          "COMMENT": null
+        },
+        "TASK_DEF_KEY_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "assignApprover",
+            "approveInvoice",
+            "reviewInvoice"
+          ],
+          "COMMENT": null
+        },
+        "OWNER_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "ASSIGNEE_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "demo",
+            "john",
+            "demo"
+          ],
+          "COMMENT": null
+        },
+        "DELEGATION_": {
+          "TYPE": "Varchar",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "PRIORITY_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            50,
+            50,
+            50
+          ],
+          "COMMENT": null
+        },
+        "CREATE_TIME_": {
+          "TYPE": "Timestamp",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": true,
+          "VALUES": [
+            "2014-12-29 19:58:34",
+            "2014-12-15 19:58:34",
+            "2014-12-24 19:58:34"
+          ],
+          "COMMENT": null
+        },
+        "DUE_DATE_": {
+          "TYPE": "Datetime",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            "2015-01-01 19:58:34",
+            "2014-12-22 19:58:34",
+            "2014-12-26 19:58:34"
+          ],
+          "COMMENT": null
+        },
+        "FOLLOW_UP_DATE_": {
+          "TYPE": "Datetime",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            null,
+            null,
+            null
+          ],
+          "COMMENT": null
+        },
+        "SUSPENSION_STATE_": {
+          "TYPE": "Int",
+          "NULLABLE": null,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "VALUES": [
+            1,
+            1,
+            1
+          ],
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "ID_"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "CASE_EXECUTION_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_CASE_EXECUTION",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "EXECUTION_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_EXECUTION",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "PROC_INST_ID_"
+          ],
+          "FOREIGN_TABLE": "ACT_RU_EXECUTION",
+          "REFERRED_COLUMNS": [
+            "ID_"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [
+        [
+          "CREATE_TIME_"
+        ],
+        [
+          "ASSIGNEE_"
+        ],
+        [
+          "EXECUTION_ID_"
+        ],
+        [
+          "PROC_INST_ID_"
+        ],
+        [
+          "PROC_DEF_ID_"
+        ],
+        [
+          "CASE_EXECUTION_ID_"
+        ],
+        [
+          "CASE_DEF_ID_"
+        ]
+      ],
+      "COMMENT": null
+    }
+  }
+}

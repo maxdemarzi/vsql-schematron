@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 215717_MailSys
+#
+CREATE DATABASE `db_215717_MailSys`;
+USE `db_215717_MailSys`;
+CREATE TABLE `Attachment` (
+`mail_id` INT,
+`attach_order` INT,
+`file_id` INT,
+PRIMARY KEY (`mail_id`, `attach_order`)
+) CHARACTER SET latin1;
+CREATE TABLE `Contact` (
+`con_id` INT,
+`host_account` VARCHAR(255),
+`friend__account` VARCHAR(255),
+PRIMARY KEY (`con_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `File` (
+`file_path` VARCHAR(255),
+`file_name` VARCHAR(255),
+`file_id` INT,
+PRIMARY KEY (`file_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Mail` (
+`mail_id` INT,
+`sender_account` VARCHAR(255),
+`receiver_account` VARCHAR(255),
+`date_time` DATETIME,
+`subject` VARCHAR(255),
+`content` VARCHAR(255),
+`mail_state` INT,
+`size` INT,
+PRIMARY KEY (`mail_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Parameter` (
+`IP_filtering_rule` VARCHAR(255),
+`mail_filtering_rule` VARCHAR(255),
+`SMTP_state` INT,
+`SMTP_port` INT,
+`POP3_state` INT,
+`POP3_port` INT,
+`domain_name` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`nickname` VARCHAR(255),
+`account` VARCHAR(255),
+`password` VARCHAR(255),
+`role` INT,
+PRIMARY KEY (`account`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_215717_MailSys') AS relationships;
+relationships
+Database: db_215717_MailSys
+
+Table Connections:
+------------------
+[Implied]  Attachment.file_id -> File.file_id
+[Implied]  Attachment.mail_id -> Mail.mail_id
+[Implied]  Contact.friend__account -> User.account
+[Implied]  Contact.host_account -> User.account
+[Implied]  Mail.receiver_account -> User.account
+[Implied]  Mail.sender_account -> User.account
+
+DROP DATABASE `db_215717_MailSys`;
+UNINSTALL EXTENSION vsql_schematron;

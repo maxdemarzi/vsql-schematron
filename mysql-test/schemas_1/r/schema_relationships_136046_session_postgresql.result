@@ -1,0 +1,32 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 136046_session_postgresql
+#
+CREATE DATABASE `db_136046_session_postgresql`;
+USE `db_136046_session_postgresql`;
+CREATE TABLE `sessions` (
+`primary_id` VARCHAR(255),
+`session_id` VARCHAR(255),
+`creation_time` INT,
+`last_access_time` INT,
+`max_inactive_interval` INT,
+`expiry_time` INT,
+`principal_name` VARCHAR(255),
+PRIMARY KEY (`primary_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions_attributes` (
+`session_primary_id` VARCHAR(255),
+`attribute_name` VARCHAR(255),
+`attribute_bytes` VARCHAR(255),
+PRIMARY KEY (`session_primary_id`, `attribute_name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_136046_session_postgresql') AS relationships;
+relationships
+Database: db_136046_session_postgresql
+
+Table Connections:
+------------------
+[Implied]  sessions_attributes.session_primary_id -> sessions.primary_id
+
+DROP DATABASE `db_136046_session_postgresql`;
+UNINSTALL EXTENSION vsql_schematron;

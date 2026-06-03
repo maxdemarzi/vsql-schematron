@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 041065_initialize
+#
+CREATE DATABASE `db_041065_initialize`;
+USE `db_041065_initialize`;
+CREATE TABLE `player` (
+`player_id` INT,
+`player_name` VARCHAR(255),
+`current_room` VARCHAR(255),
+`creation_timestamp` DATETIME,
+PRIMARY KEY (`player_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `room` (
+`room_id` VARCHAR(255),
+`room_name` VARCHAR(255),
+`admin_id` INT,
+PRIMARY KEY (`room_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ticket` (
+`ticket_id` INT,
+`ticket_name` VARCHAR(255),
+`order_index` INT,
+`state` VARCHAR(255),
+`room_id` VARCHAR(255),
+PRIMARY KEY (`ticket_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vote` (
+`player_id` INT,
+`ticket_id` INT,
+`vote_value` INT,
+PRIMARY KEY (`player_id`, `ticket_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_041065_initialize') AS relationships;
+relationships
+Database: db_041065_initialize
+
+Table Connections:
+------------------
+[Implied]  player.current_room -> room.room_id
+[Implied]  room.admin_id -> player.player_id
+[Implied]  ticket.room_id -> room.room_id
+[Implied]  vote.player_id -> player.player_id
+[Implied]  vote.ticket_id -> ticket.ticket_id
+
+DROP DATABASE `db_041065_initialize`;
+UNINSTALL EXTENSION vsql_schematron;

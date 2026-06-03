@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 090653_ocm_tables_ddl
+--echo #
+CREATE DATABASE `db_090653_ocm_tables_ddl`;
+USE `db_090653_ocm_tables_ddl`;
+
+CREATE TABLE `users` (
+  `userid` INT,
+  `studylistid` INT,
+  `playzonelistid` INT,
+  `librarylistid` INT,
+  `name` VARCHAR(255),
+  `deleted` INT,
+  PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `extraunits` (
+  `extraunitid` INT,
+  `userid` INT,
+  `level` INT,
+  `orderIndex` INT,
+  `unitid` INT,
+  PRIMARY KEY (`extraunitid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `preferences` (
+  `name` VARCHAR(255),
+  `val` VARCHAR(255),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_090653_ocm_tables_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_090653_ocm_tables_ddl') AS relationships;
+DROP DATABASE `db_090653_ocm_tables_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 389084_schema
+#
+CREATE DATABASE `db_389084_schema`;
+USE `db_389084_schema`;
+CREATE TABLE `user` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movie` (
+`id` INT,
+`title` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `genre` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bridge_movie_genre` (
+`movie_id` INT,
+`genre_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `bridge_movie_user_rating` (
+`movie_id` INT,
+`user_id` INT,
+`rating` INT
+) CHARACTER SET latin1;
+CREATE TABLE `movie_list` (
+`id` INT,
+`movie_id` INT,
+`user_id` INT,
+`avg_rating` DECIMAL(10,2),
+`date_added` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_389084_schema') AS relationships;
+relationships
+Database: db_389084_schema
+
+Table Connections:
+------------------
+[Implied]  bridge_movie_genre.genre_id -> genre.id
+[Implied]  bridge_movie_genre.movie_id -> movie.id
+[Implied]  bridge_movie_user_rating.movie_id -> movie.id
+[Implied]  bridge_movie_user_rating.user_id -> user.id
+[Implied]  movie_list.movie_id -> movie.id
+[Implied]  movie_list.user_id -> user.id
+
+DROP DATABASE `db_389084_schema`;
+UNINSTALL EXTENSION vsql_schematron;

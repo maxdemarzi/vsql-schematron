@@ -1,0 +1,28 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 470239_db_init
+#
+CREATE DATABASE `db_470239_db_init`;
+USE `db_470239_db_init`;
+CREATE TABLE `pagerank` (
+`website_id` INT,
+`website_str` VARCHAR(255),
+`rank` DECIMAL(10,2),
+PRIMARY KEY (`website_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `connections` (
+`out_website_id` INT,
+`in_website_id` INT,
+PRIMARY KEY (`out_website_id`, `in_website_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_470239_db_init') AS relationships;
+relationships
+Database: db_470239_db_init
+
+Table Connections:
+------------------
+[Implied]  connections.in_website_id -> pagerank.website_id
+[Implied]  connections.out_website_id -> pagerank.website_id
+
+DROP DATABASE `db_470239_db_init`;
+UNINSTALL EXTENSION vsql_schematron;

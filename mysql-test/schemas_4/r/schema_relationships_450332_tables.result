@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 450332_tables
+#
+CREATE DATABASE `db_450332_tables`;
+USE `db_450332_tables`;
+CREATE TABLE `client` (
+`id` INT,
+`row_change_time` DATETIME,
+`c_name` VARCHAR(255),
+`c_surname` VARCHAR(255),
+`dob` DATETIME,
+`e_mail` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`id` INT,
+`item_name` VARCHAR(255),
+`item_price` DECIMAL(10,2),
+`item_serial_nr` VARCHAR(255),
+`active` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bill` (
+`id` INT,
+`bill_created` DATETIME,
+`shop_code` VARCHAR(255),
+`field_hash` VARCHAR(255),
+`client_id` INT,
+`bill_sent` VARCHAR(255),
+`bill_number` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bill_item` (
+`id` INT,
+`item_name` VARCHAR(255),
+`item_qty` INT,
+`item_price` DECIMAL(10,2),
+`item_discount_value` DECIMAL(10,2),
+`item_id` INT,
+`bill_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_450332_tables') AS relationships;
+relationships
+Database: db_450332_tables
+
+Table Connections:
+------------------
+[Implied]  bill.client_id -> client.id
+[Implied]  bill_item.bill_id -> bill.id
+[Implied]  bill_item.item_id -> item.id
+
+DROP DATABASE `db_450332_tables`;
+UNINSTALL EXTENSION vsql_schematron;
