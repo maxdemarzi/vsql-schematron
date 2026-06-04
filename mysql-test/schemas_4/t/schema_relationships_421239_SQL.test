@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 421239_SQL
+--echo #
+CREATE DATABASE `db_421239_SQL`;
+USE `db_421239_SQL`;
+
+CREATE TABLE `AUTHOR` (
+  `AUID` INT,
+  `Author` VARCHAR(64),
+  `Organize` VARCHAR(64),
+  PRIMARY KEY (`AUID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ARTICAL` (
+  `ArticalID` INT,
+  `Title` VARCHAR(64),
+  `Source` VARCHAR(64),
+  `Summary` VARCHAR(64),
+  `link` VARCHAR(64),
+  PRIMARY KEY (`ArticalID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUTHORMAP` (
+  `ArticalID` INT,
+  `AUID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `KEYWORDS` (
+  `ArticalID` INT,
+  `Keyword` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `REFERENCE` (
+  `ArticalID` INT,
+  `RefTitle` VARCHAR(64),
+  `RefLink` VARCHAR(64),
+  `RefID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `USER` (
+  `UID` INT,
+  `Username` VARCHAR(64),
+  `passwdRSA` VARCHAR(64),
+  PRIMARY KEY (`UID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USERDB` (
+  `UID` INT,
+  `ArticalID` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_421239_SQL') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_421239_SQL') AS relationships;
+DROP DATABASE `db_421239_SQL`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 539529_movieFinder
+#
+CREATE DATABASE `db_539529_movieFinder`;
+USE `db_539529_movieFinder`;
+CREATE TABLE `movieList` (
+`userID` INT,
+`movieID` INT,
+`choiceID` INT,
+PRIMARY KEY (`userID`, `movieID`)
+) CHARACTER SET latin1;
+CREATE TABLE `movieLocations` (
+`movieID` INT,
+`serviceID` INT,
+PRIMARY KEY (`movieID`)
+) CHARACTER SET latin1;
+CREATE TABLE `movies` (
+`movieID` INT,
+`movieName` VARCHAR(64),
+`releaseYear` INT,
+`ranking` INT,
+PRIMARY KEY (`movieID`)
+) CHARACTER SET latin1;
+CREATE TABLE `streamingServices` (
+`serviceID` INT,
+`serviceName` VARCHAR(64),
+`website` VARCHAR(64),
+PRIMARY KEY (`serviceID`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`userID` INT,
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_539529_movieFinder') AS relationships;
+relationships
+Database: db_539529_movieFinder
+
+Table Connections:
+------------------
+[Implied]  movieList.movieID -> movies.movieID
+[Implied]  movieList.userID -> users.userID
+[Implied]  movieLocations.movieID -> movies.movieID
+[Implied]  movieLocations.serviceID -> streamingServices.serviceID
+
+DROP DATABASE `db_539529_movieFinder`;
+UNINSTALL EXTENSION vsql_schematron;

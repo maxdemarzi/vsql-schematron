@@ -1,0 +1,113 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 428134_init
+--echo #
+CREATE DATABASE `db_428134_init`;
+USE `db_428134_init`;
+
+CREATE TABLE `MenuItems` (
+  `Id` INT,
+  `Title` VARCHAR(64),
+  `Price` DECIMAL(10,2),
+  `Calories` DECIMAL(10,2),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Users` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `BcryptPassword` VARCHAR(64),
+  `Registered` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserTokens` (
+  `Created` DATETIME,
+  `UserId` INT,
+  `Token` VARCHAR(64),
+  `CSRFToken` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Customers` (
+  `Id` INT,
+  `UserId` INT,
+  `BonusPoints` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Addresses` (
+  `Id` INT,
+  `CustomerId` INT,
+  `Street` VARCHAR(64),
+  `Building` VARCHAR(64),
+  `Room` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CreditCards` (
+  `Id` INT,
+  `CardNumber` VARCHAR(64),
+  `Expires` VARCHAR(64),
+  `CVV` VARCHAR(64),
+  `HolderName` VARCHAR(64),
+  `CustomerId` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Cooks` (
+  `Id` INT,
+  `UserId` INT,
+  `Active` BOOL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Couriers` (
+  `Id` INT,
+  `UserId` INT,
+  `Active` BOOL,
+  `Busy` BOOL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Orders` (
+  `Id` INT,
+  `ShownId` INT,
+  `Ready` BOOL,
+  `Delivered` BOOL,
+  `CourierId` INT,
+  `CustomerId` INT,
+  `AddressId` INT,
+  `Comment` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MenuItems_X_Orders` (
+  `OrderId` INT,
+  `MenuItemId` INT,
+  `CookId` INT,
+  `Amount` INT,
+  `Status` VARCHAR(64),
+  PRIMARY KEY (`OrderId`, `MenuItemId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_428134_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_428134_init') AS relationships;
+DROP DATABASE `db_428134_init`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 664179_ddl_test
+--echo #
+CREATE DATABASE `db_664179_ddl_test`;
+USE `db_664179_ddl_test`;
+
+CREATE TABLE `DOCUMENTS` (
+  `id` VARCHAR(64),
+  `title` VARCHAR(64),
+  `filename` VARCHAR(64),
+  `alternativeid` VARCHAR(64),
+  `previewlink` VARCHAR(64),
+  `amount` DECIMAL(10,2),
+  `created` DATETIME,
+  `modified` DATETIME,
+  `taglist` VARCHAR(64),
+  `senderlist` VARCHAR(64),
+  `invoicenumber` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DOCUMENTS_TO_SENDERS` (
+  `document_id` VARCHAR(64),
+  `sender_id` INT,
+  PRIMARY KEY (`document_id`, `sender_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DOCUMENTS_TO_TAGS` (
+  `document_id` VARCHAR(64),
+  `tag_id` INT,
+  PRIMARY KEY (`document_id`, `tag_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_664179_ddl_test') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_664179_ddl_test') AS relationships;
+DROP DATABASE `db_664179_ddl_test`;
+UNINSTALL EXTENSION vsql_schematron;

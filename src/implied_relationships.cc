@@ -2,6 +2,7 @@
 #include "domain_specific_matching.h"
 #include "schema_analyzer_helpers.h"
 #include "string_helpers.h"
+#include "name_matching.h"
 #include <algorithm>
 #include <cctype>
 #include <unordered_set>
@@ -9,7 +10,6 @@
 #include <iostream>
 
 namespace {
-
 
 bool isDescriptiveAttribute(const std::string& s) {
     std::string l = to_lower(s);
@@ -23,20 +23,106 @@ bool isDescriptiveAttribute(const std::string& s) {
     return DESCRIPTIVE_WORDS.count(l) > 0;
 }
 
+// Pre-computed table metadata used to optimize the O(N^2) inner-loop matches to O(1) or O(K) candidates.
+struct TablePrep {
+    std::string name;
+    std::string clean_name;
+    std::string acronym;                  // E.g., "bp" for "best_prices"
+    bool is_lookup = false;              // E.g., reference or lookup tables
+    bool is_person = false;              // E.g., user, member, staff
+    bool is_sequence_or_system = false;  // E.g., hibernate_sequence
+    bool is_junction_or_history = false; // E.g., user_role_map
+    std::vector<std::string> pks;
+    std::vector<std::string> pks_lower;
+    std::vector<std::string> pks_lower_clean;
+    std::vector<std::string> pk_types;
+    std::unordered_set<std::string> columns_lower;
+};
+
+// Caches table name lookup properties and detects if a prefix/suffix query is ambiguous (matches multiple tables).
+struct AmbiguityProps {
+    bool has_exact = false;
+    bool is_ambiguous = false;
+    std::string exact_match_tbl = "";
+    std::vector<std::string> filtered_matches;
+};
+
+bool isGenericPersonTable(const std::string& tbl) {
+    std::string clean = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
+    static const std::unordered_set<std::string> GENERIC_PERSON_TABLES = {
+        "user", "users", "person", "people", "member", "members", "account", "accounts", "party", "parties",
+        "comtnuser", "comtnusers", "comtnperson", "comtnpeople", "comtnmember", "comtnmembers", "comtnaccount", "comtnaccounts", "comtnparty", "comtnparties"
+    };
+    return GENERIC_PERSON_TABLES.count(clean) > 0;
+}
+
+std::string getLastWordOfCleanName(const std::string& clean_name) {
+    size_t last_under = clean_name.find_last_of('_');
+    if (last_under != std::string::npos) {
+        return clean_name.substr(last_under + 1);
+    }
+    return clean_name;
+}
+
+AmbiguityProps getAmbiguityProps(const std::string& query, const std::string& tbl_a,
+                                 const std::vector<std::string>& table_names,
+                                 const std::unordered_map<std::string, std::vector<std::string>>& effective_pks,
+                                 std::unordered_map<std::string, AmbiguityProps>& cache) {
+    auto it = cache.find(query);
+    if (it != cache.end()) {
+        return it->second;
+    }
+    
+    AmbiguityProps props;
+    for (const auto& other_tbl : table_names) {
+        if (isJunctionOrHistoryTable(other_tbl)) continue;
+        if (matchTableName(query, other_tbl, false)) {
+            props.has_exact = true;
+            props.exact_match_tbl = other_tbl;
+            break;
+        }
+    }
+    if (!props.has_exact) {
+        std::vector<std::string> matching_tables;
+        for (const auto& other_tbl : table_names) {
+            if (other_tbl == tbl_a) continue;
+            if (isSequenceOrSystemTable(other_tbl)) continue;
+            if (isJunctionOrHistoryTable(other_tbl)) continue;
+            auto it_pks = effective_pks.find(other_tbl);
+            if (it_pks != effective_pks.end() && it_pks->second.empty()) {
+                continue;
+            }
+            if (matchTableName(query, other_tbl, true)) {
+                matching_tables.push_back(other_tbl);
+            }
+        }
+        std::vector<std::string> filtered;
+        for (const auto& t1 : matching_tables) {
+            bool is_sub = false;
+            for (const auto& t2 : matching_tables) {
+                if (t1 != t2 && isSubtypeTable(t1, t2)) {
+                    is_sub = true;
+                    break;
+                }
+            }
+            if (!is_sub) {
+                filtered.push_back(t1);
+            }
+        }
+        props.filtered_matches = filtered;
+        if (filtered.size() > 1) {
+            props.is_ambiguous = true;
+        }
+    }
+    
+    cache[query] = props;
+    return props;
+}
+
+} // namespace
+
 /**
  * Pass 1: Identifies non-subtype implied foreign key relationships.
- *
- * Logic:
- *   Loops through all columns of all tables. If a column name:
- *   1. Is not already explicitly mapped,
- *   2. Matches a naming convention pointing to another table name (e.g. table acronym,
- *      prefix, middle ID convention, or exact suffix match to the target table's primary keys),
- *      and is compatible in data type,
- *   Then it suggests an implied relationship.
- *
- * Examples:
- *   - orders.customer_id -> customers.id  (where customer is a table name prefix / match)
- *   - employees.manager_id -> employees.id (where manager is a self-referential role prefix)
  */
 void findPass1ImpliedRelationships(
     const std::vector<std::string>& table_names,
@@ -49,21 +135,110 @@ void findPass1ImpliedRelationships(
         return to_lower(expandAllAbbreviations(x)) == to_lower(expandAllAbbreviations(y));
     };
 
+    // Pre-compile index structures to map suffix names, acronyms, table roles, and columns directly to indices.
+    // This allows us to select matching table candidates in O(1) or O(K) lookup complexity rather than O(T) full scans.
+    std::vector<TablePrep> prepped_tables(table_names.size());
+    std::unordered_map<std::string, size_t> table_name_to_idx;
+    table_name_to_idx.reserve(table_names.size());
+    
+    std::unordered_map<std::string, std::vector<size_t>> column_name_to_table_idxs;
+    std::unordered_map<std::string, std::vector<size_t>> pk_lower_clean_to_table_idxs;
+    std::unordered_map<std::string, std::vector<size_t>> pk_suffix_to_table_idxs;
+    std::unordered_map<std::string, std::vector<size_t>> acronym_to_table_idxs;
+    std::unordered_map<std::string, std::vector<size_t>> last_word_to_table_idxs;
+    std::vector<size_t> non_id_pk_table_idxs;
+    std::vector<size_t> person_table_idxs;
+    std::vector<size_t> lookup_table_idxs;
+
+    for (size_t i = 0; i < table_names.size(); ++i) {
+        const auto& tbl = table_names[i];
+        table_name_to_idx[tbl] = i;
+        auto& prep = prepped_tables[i];
+        prep.name = tbl;
+        prep.clean_name = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
+        prep.acronym = getTableAcronym(tbl);
+        prep.is_lookup = isLookupTable(tbl);
+        prep.is_person = isPersonTable(prep.clean_name);
+        prep.is_sequence_or_system = isSequenceOrSystemTable(tbl);
+        prep.is_junction_or_history = isJunctionOrHistoryTable(tbl);
+
+        auto it = tables_info.find(tbl);
+        if (it != tables_info.end()) {
+            for (const auto& col_pair : it->second.column_types) {
+                std::string col_lower = to_lower(col_pair.first);
+                prep.columns_lower.insert(col_lower);
+                column_name_to_table_idxs[col_lower].push_back(i);
+            }
+        }
+        
+        prep.pks = effective_pks.at(tbl);
+        for (const auto& pk : prep.pks) {
+            std::string pk_lower = to_lower(pk);
+            std::string pk_lower_clean = to_lower(stripTrailingUnderscore(pk));
+            prep.pks_lower.push_back(pk_lower);
+            prep.pks_lower_clean.push_back(pk_lower_clean);
+            
+            std::string pk_type = "INT";
+            if (it != tables_info.end()) {
+                auto col_it = it->second.column_types.find(pk);
+                if (col_it != it->second.column_types.end()) {
+                    pk_type = col_it->second;
+                }
+            }
+            prep.pk_types.push_back(pk_type);
+            
+            pk_lower_clean_to_table_idxs[pk_lower_clean].push_back(i);
+            
+            std::string pk_prefix, pk_suffix;
+            if (splitColumnName(pk, pk_prefix, pk_suffix)) {
+                pk_suffix_to_table_idxs[to_lower(pk_suffix)].push_back(i);
+            } else {
+                pk_suffix_to_table_idxs[pk_lower_clean].push_back(i);
+            }
+        }
+        
+        if (!prep.acronym.empty()) {
+            acronym_to_table_idxs[to_lower(prep.acronym)].push_back(i);
+        }
+        
+        std::string last_word = getLastWordOfCleanName(prep.clean_name);
+        if (!last_word.empty()) {
+            last_word_to_table_idxs[last_word].push_back(i);
+        }
+        
+        if (prep.is_person) {
+            person_table_idxs.push_back(i);
+        }
+        if (prep.is_lookup) {
+            lookup_table_idxs.push_back(i);
+        }
+        
+        bool has_non_id_pk = false;
+        for (const auto& pk_clean : prep.pks_lower_clean) {
+            if (pk_clean != "id" && !isGenericIdentifier(pk_clean) && !isGenericAttribute(pk_clean)) {
+                has_non_id_pk = true;
+                break;
+            }
+        }
+        if (has_non_id_pk) {
+            non_id_pk_table_idxs.push_back(i);
+        }
+    }
+
+    std::unordered_map<std::string, AmbiguityProps> prefix_cache;
+    std::unordered_map<std::string, AmbiguityProps> suffix_cache;
+
     // Iterate through every table (Table A) in the schema
     for (const auto& tbl_a : table_names) {
         auto it_a = tables_info.find(tbl_a);
         if (it_a == tables_info.end()) continue;
         const auto& info_a = it_a->second;
-
-        // Retrieve precomputed effective primary keys for Table A
         const auto& pks_a = effective_pks.at(tbl_a);
 
         // Scan every column in Table A
         for (const auto& col_pair : info_a.column_types) {
             const std::string& col_a = col_pair.first;
             const std::string& type_a = col_pair.second;
-
-
 
             // Skip relationship_types.dbin_id
             if (to_lower(tbl_a) == "relationship_types" && to_lower(col_a) == "dbin_id") {
@@ -112,47 +287,10 @@ void findPass1ImpliedRelationships(
             bool prefix_is_ambiguous = false;
             std::string prefix_exact_match_tbl = "";
             if (has_split) {
-                for (const auto& other_tbl : table_names) {
-                    if (isJunctionOrHistoryTable(other_tbl)) continue;
-                    if (matchTableName(prefix_a, other_tbl, false)) {
-                        prefix_has_exact = true;
-                        prefix_exact_match_tbl = other_tbl;
-                        break;
-                    }
-                }
-                // Mark prefix as ambiguous if it loose-matches multiple tables (to avoid incorrect guesses)
-                if (!prefix_has_exact) {
-                    std::vector<std::string> matching_tables;
-                    for (const auto& other_tbl : table_names) {
-                        if (other_tbl == tbl_a) continue;
-                        if (isSequenceOrSystemTable(other_tbl)) continue;
-                        if (isJunctionOrHistoryTable(other_tbl)) continue;
-                        auto it_pks = effective_pks.find(other_tbl);
-                        if (it_pks != effective_pks.end() && it_pks->second.empty()) {
-                            continue;
-                        }
-                        if (matchTableName(prefix_a, other_tbl, true)) {
-                            matching_tables.push_back(other_tbl);
-                        }
-                    }
-                    // Filter out subtype tables from the match candidates
-                    std::vector<std::string> filtered;
-                    for (const auto& t1 : matching_tables) {
-                        bool is_sub = false;
-                        for (const auto& t2 : matching_tables) {
-                            if (t1 != t2 && isSubtypeTable(t1, t2)) {
-                                is_sub = true;
-                                break;
-                            }
-                        }
-                        if (!is_sub) {
-                            filtered.push_back(t1);
-                        }
-                    }
-                    if (filtered.size() > 1) {
-                        prefix_is_ambiguous = true;
-                    }
-                }
+                auto props = getAmbiguityProps(prefix_a, tbl_a, table_names, effective_pks, prefix_cache);
+                prefix_has_exact = props.has_exact;
+                prefix_is_ambiguous = props.is_ambiguous;
+                prefix_exact_match_tbl = props.exact_match_tbl;
             }
 
             // Check if column suffix has an exact match in the schema table names
@@ -160,47 +298,10 @@ void findPass1ImpliedRelationships(
             bool suffix_is_ambiguous = false;
             std::string suffix_exact_match_tbl = "";
             if (has_split) {
-                for (const auto& other_tbl : table_names) {
-                    if (isJunctionOrHistoryTable(other_tbl)) continue;
-                    if (matchTableName(suffix_a, other_tbl, false)) {
-                        suffix_has_exact = true;
-                        suffix_exact_match_tbl = other_tbl;
-                        break;
-                    }
-                }
-                // Mark suffix as ambiguous if it loose-matches multiple tables (to avoid incorrect guesses)
-                if (!suffix_has_exact) {
-                    std::vector<std::string> matching_tables;
-                    for (const auto& other_tbl : table_names) {
-                        if (other_tbl == tbl_a) continue;
-                        if (isSequenceOrSystemTable(other_tbl)) continue;
-                        if (isJunctionOrHistoryTable(other_tbl)) continue;
-                        auto it_pks = effective_pks.find(other_tbl);
-                        if (it_pks != effective_pks.end() && it_pks->second.empty()) {
-                            continue;
-                        }
-                        if (matchTableName(suffix_a, other_tbl, true)) {
-                            matching_tables.push_back(other_tbl);
-                        }
-                    }
-                    // Filter out subtype tables from the match candidates
-                    std::vector<std::string> filtered;
-                    for (const auto& t1 : matching_tables) {
-                        bool is_sub = false;
-                        for (const auto& t2 : matching_tables) {
-                            if (t1 != t2 && isSubtypeTable(t1, t2)) {
-                                is_sub = true;
-                                break;
-                            }
-                        }
-                        if (!is_sub) {
-                            filtered.push_back(t1);
-                        }
-                    }
-                    if (filtered.size() > 1) {
-                        suffix_is_ambiguous = true;
-                    }
-                }
+                auto props = getAmbiguityProps(suffix_a, tbl_a, table_names, effective_pks, suffix_cache);
+                suffix_has_exact = props.has_exact;
+                suffix_is_ambiguous = props.is_ambiguous;
+                suffix_exact_match_tbl = props.exact_match_tbl;
             }
 
             // Parse out middle ID conventions (e.g. "customer_id_seq" -> "customer")
@@ -229,14 +330,110 @@ void findPass1ImpliedRelationships(
                 continue;
             }
 
-            // Compare Table A's column against all possible target tables (Table B)
-            for (const auto& tbl_b : table_names) {
+            // Optimization: Filter target candidate tables (Table B) using precomputed indexes to avoid O(T) inner loop scans.
+            // Candidates are gathered if their names match column prefixes, suffixes, acronyms, or column names.
+            std::vector<size_t> candidates;
+            candidates.reserve(64);
+            
+            auto add_candidates = [&](const std::vector<size_t>& idxs) {
+                candidates.insert(candidates.end(), idxs.begin(), idxs.end());
+            };
+            
+            for (size_t i = 0; i < prepped_tables.size(); ++i) {
+                if (matchTableName(col_a_clean, prepped_tables[i].name, true)) {
+                    candidates.push_back(i);
+                }
+            }
+            
+            {
+                auto it = pk_lower_clean_to_table_idxs.find(to_lower(stripTrailingUnderscore(col_a_clean)));
+                if (it != pk_lower_clean_to_table_idxs.end()) {
+                    add_candidates(it->second);
+                }
+            }
+            
+            std::vector<size_t> prefix_a_matches;
+            std::vector<size_t> suffix_a_matches;
+            if (has_split) {
+                for (size_t i = 0; i < prepped_tables.size(); ++i) {
+                    if (matchTableName(prefix_a, prepped_tables[i].name, true)) {
+                        prefix_a_matches.push_back(i);
+                    }
+                    if (matchTableName(suffix_a, prepped_tables[i].name, true)) {
+                        suffix_a_matches.push_back(i);
+                    }
+                }
+                add_candidates(prefix_a_matches);
+                add_candidates(suffix_a_matches);
+                
+                {
+                    auto it = acronym_to_table_idxs.find(to_lower(prefix_a));
+                    if (it != acronym_to_table_idxs.end()) {
+                        add_candidates(it->second);
+                    }
+                }
+                
+                {
+                    auto it = pk_suffix_to_table_idxs.find(to_lower(suffix_a));
+                    if (it != pk_suffix_to_table_idxs.end()) {
+                        add_candidates(it->second);
+                    }
+                }
+                
+                if (isGenericIdentifier(suffix_a)) {
+                    auto it = column_name_to_table_idxs.find(to_lower(prefix_a));
+                    if (it != column_name_to_table_idxs.end()) {
+                        add_candidates(it->second);
+                    }
+                }
+                
+                if (isPersonRole(prefix_a)) {
+                    add_candidates(person_table_idxs);
+                }
+                
+                add_candidates(lookup_table_idxs);
+                
+                {
+                    size_t last_under = prefix_a.find_last_of('_');
+                    std::string last_prefix_word = (last_under != std::string::npos) ? prefix_a.substr(last_under + 1) : prefix_a;
+                    auto it = last_word_to_table_idxs.find(to_lower(last_prefix_word));
+                    if (it != last_word_to_table_idxs.end()) {
+                        add_candidates(it->second);
+                    }
+                }
+            } else {
+                auto it = pk_suffix_to_table_idxs.find(to_lower(col_a_clean));
+                if (it != pk_suffix_to_table_idxs.end()) {
+                    add_candidates(it->second);
+                }
+            }
+            
+            if (to_lower(stripTrailingUnderscore(col_a_clean)) == "id" || isPersonRole(to_lower(col_a_clean))) {
+                add_candidates(person_table_idxs);
+            }
+            
+            if (!entity.empty()) {
+                for (size_t i = 0; i < prepped_tables.size(); ++i) {
+                    if (matchTableName(entity, prepped_tables[i].name, true)) {
+                        candidates.push_back(i);
+                    }
+                }
+            }
+            
+            add_candidates(non_id_pk_table_idxs);
+            
+            std::sort(candidates.begin(), candidates.end());
+            candidates.erase(std::unique(candidates.begin(), candidates.end()), candidates.end());
 
-                if (isSequenceOrSystemTable(tbl_b) || isJunctionOrHistoryTable(tbl_b)) continue;
-                auto it_b = effective_pks.find(tbl_b);
-                if (it_b == effective_pks.end()) continue;
-                const auto& pks_b = it_b->second;
-                if (pks_b.size() != 1) continue;
+            // Compare Table A's column against candidate target tables (Table B)
+            for (size_t tbl_b_idx : candidates) {
+                const auto& prep_b = prepped_tables[tbl_b_idx];
+                const std::string& tbl_b = prep_b.name;
+
+                if (prep_b.is_sequence_or_system || prep_b.is_junction_or_history) continue;
+                const auto& pks_b = prep_b.pks;
+                if (pks_b.empty()) continue;
+                bool is_composite = (pks_b.size() > 1);
 
                 auto it_b_info = tables_info.find(tbl_b);
                 if (it_b_info == tables_info.end()) continue;
@@ -246,18 +443,8 @@ void findPass1ImpliedRelationships(
 
                 // --- Scenario 1: Self-Referencing Heuristics (e.g., employee referencing employee) ---
                 if (is_self) {
-                    bool is_junction = false;
-                    std::string clean_a_tbl = stripTablePrefix(stripTableSuffix(stripSchemaPrefix(to_lower(tbl_a))));
-                    size_t last_under = clean_a_tbl.rfind('_');
-                    std::string suffix = (last_under == std::string::npos) ? clean_a_tbl : clean_a_tbl.substr(last_under + 1);
-                    static const std::unordered_set<std::string> JUNCTION_SUFFIXES = {
-                        "map", "maps", "link", "links", "relation", "relations",
-                        "relationship", "relationships", "membership", "memberships",
-                        "association", "associations"
-                    };
-                    if (JUNCTION_SUFFIXES.count(suffix) > 0 || JUNCTION_SUFFIXES.count(clean_a_tbl) > 0) {
-                        is_junction = true;
-                    }
+                    if (is_composite) continue;
+                    bool is_junction = prep_b.is_junction_or_history;
                     if (is_junction) {
                         continue;
                     }
@@ -330,27 +517,41 @@ void findPass1ImpliedRelationships(
                         continue;
                     }
 
-                    for (const auto& pk_b : pks_b) {
+                    for (size_t pk_idx = 0; pk_idx < pks_b.size(); ++pk_idx) {
+                        const std::string& pk_b = pks_b[pk_idx];
+                        const std::string& pk_b_lower = prep_b.pks_lower[pk_idx];
+                        const std::string& pk_b_lower_clean = prep_b.pks_lower_clean[pk_idx];
+                        const std::string& type_b = prep_b.pk_types[pk_idx];
 
-                        std::string col_lower = to_lower(col_a);
-                        if (col_lower.rfind("pay_", 0) == 0 || col_lower.rfind("receive_", 0) == 0) {
-                            std::string clean_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
-                            if (clean_a == "swap" || clean_a == "swaps") {
-                                std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
-                                if (clean_b == "businessdayconvention" || clean_b == "daycount" || clean_b == "currency") {
-                                    continue;
+                        if (is_composite) {
+                            // If table B has a composite primary key, we allow matching by exact column name match,
+                            // but exclude generic columns (like "id", "key", "type") to avoid false-positive relationships.
+                            // Example: tbl_a.TRIGGER_NAME -> tbl_b.TRIGGER_NAME (where TRIGGER_NAME is part of composite PK in tbl_b)
+                            if (to_lower(col_a) == pk_b_lower && typesAreSemanticallyCompatible(col_a, type_a, type_b)) {
+                                static const std::unordered_set<std::string> GENERIC_COMPOSITE_COLS = {
+                                    "id", "uuid", "guid", "uid", "key", "code", "name", "value", "desc", "description",
+                                    "type", "status", "num", "number", "no", "date", "time", "timestamp"
+                                };
+                                if (GENERIC_COMPOSITE_COLS.count(pk_b_lower_clean) == 0) {
+                                    Relationship rel;
+                                    rel.from_table = tbl_a;
+                                    rel.from_column = col_a;
+                                    rel.to_table = tbl_b;
+                                    rel.to_column = pk_b;
+                                    rel.is_explicit = false;
+                                    relationships.insert(rel);
                                 }
                             }
+                            continue;
                         }
 
-                        auto it_b_col = info_b.column_types.find(pk_b);
-                        if (it_b_col == info_b.column_types.end() || !typesAreSemanticallyCompatible(col_a, type_a, it_b_col->second)) {
+                        if (!typesAreSemanticallyCompatible(col_a, type_a, type_b)) {
                             continue;
                         }
 
                         // Heuristic: Exact match (excluding generic "id")
                         // Example: orders.customer_code -> customers.customer_code
-                        if (to_lower(stripTrailingUnderscore(col_a_clean)) == to_lower(stripTrailingUnderscore(pk_b)) && !isGenericIdentifier(col_a_clean) && !isGenericAttribute(col_a_clean)) {
+                        if (to_lower(stripTrailingUnderscore(col_a_clean)) == pk_b_lower_clean && !isGenericIdentifier(col_a_clean) && !isGenericAttribute(col_a_clean)) {
                             Relationship rel;
                             rel.from_table = tbl_a;
                             rel.from_column = col_a;
@@ -396,10 +597,10 @@ void findPass1ImpliedRelationships(
 
                         // Heuristic: Column prefix matches target table acronym
                         // Example: items.bp_id -> best_prices.id (where acronym of best_prices is "bp")
-                        std::string ref_tbl_acronym = getTableAcronym(tbl_b);
+                        std::string ref_tbl_acronym = prep_b.acronym;
                         if (!ref_tbl_acronym.empty() && ref_tbl_acronym.length() >= 2) {
                             if (has_split) {
-                                if (to_lower(prefix_a) == ref_tbl_acronym) {
+                                if (to_lower(prefix_a) == to_lower(ref_tbl_acronym)) {
                                     Relationship rel;
                                     rel.from_table = tbl_a;
                                     rel.from_column = col_a;
@@ -414,9 +615,8 @@ void findPass1ImpliedRelationships(
 
                         // Heuristic: User ID fallback match
                         // Example: orders.id -> users.id (where "users" is identified as a person table)
-                        if (to_lower(stripTrailingUnderscore(col_a_clean)) == "id" && to_lower(stripTrailingUnderscore(pk_b)) == "id") {
-                            std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
-                            if (isPersonTable(clean_b)) {
+                        if (to_lower(stripTrailingUnderscore(col_a_clean)) == "id" && pk_b_lower_clean == "id") {
+                            if (prep_b.is_person) {
                                 Relationship rel;
                                 rel.from_table = tbl_a;
                                 rel.from_column = col_a;
@@ -435,8 +635,7 @@ void findPass1ImpliedRelationships(
                                                    type_a.find("numeric") != std::string::npos ||
                                                    type_a.find("number") != std::string::npos);
                         if (isPersonRole(to_lower(col_a_clean)) && isGenericIdentifier(pk_b) && type_a_is_numeric) {
-                            std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
-                            if (isPersonTable(clean_b)) {
+                            if (prep_b.is_person) {
                                 Relationship rel;
                                 rel.from_table = tbl_a;
                                 rel.from_column = col_a;
@@ -454,13 +653,7 @@ void findPass1ImpliedRelationships(
                         if (isGenericIdentifier(pk_b)) {
                             if (has_split) {
                                 if (isGenericIdentifier(suffix_a)) {
-                                    bool has_alt_key = false;
-                                    for (const auto& col_pair_b : info_b.column_types) {
-                                        if (to_lower(col_pair_b.first) == to_lower(prefix_a)) {
-                                            has_alt_key = true;
-                                            break;
-                                        }
-                                    }
+                                    bool has_alt_key = (prep_b.columns_lower.count(to_lower(prefix_a)) > 0);
                                     if (has_alt_key) {
                                         Relationship rel;
                                         rel.from_table = tbl_a;
@@ -497,11 +690,11 @@ void findPass1ImpliedRelationships(
                             }
                         } else if (has_split) {
                             bool suffix_matches = false;
-                            if (to_lower(suffix_a) == to_lower(stripTrailingUnderscore(pk_b)) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b))) {
+                            if (to_lower(suffix_a) == pk_b_lower_clean || (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b))) {
                                 suffix_matches = true;
                             } else {
                                 std::string prefix_b_col, suffix_b_col;
-                                  if (splitColumnName(pk_b, prefix_b_col, suffix_b_col)) {
+                                if (splitColumnName(pk_b, prefix_b_col, suffix_b_col)) {
                                     if (to_lower(suffix_a) == to_lower(suffix_b_col) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(suffix_b_col))) {
                                         suffix_matches = true;
                                     }
@@ -513,9 +706,15 @@ void findPass1ImpliedRelationships(
                                  if (prefix_has_exact && !prefix_exact_match_tbl.empty() && isSubtypeTable(prefix_exact_match_tbl, tbl_b)) {
                                      allow_sub = true;
                                  }
-                                 if (!prefix_is_ambiguous && (matchTableName(prefix_a, tbl_b, allow_sub) || isPersonMatch(prefix_a, tbl_b) || isLookupMatch(prefix_a, tbl_b, table_names))) {
-                                     if (!(isDescriptiveAttribute(prefix_a) && !same_expanded_word(prefix_a, pk_b) && !matchTableName(prefix_a, tbl_b, true) && !matchTableName(prefix_a, tbl_a, true))) {
-                                         suffix_match = true;
+                                 if (!prefix_is_ambiguous) {
+                                     std::vector<std::string> prefix_a_matching_tables;
+                                     for (size_t idx : prefix_a_matches) {
+                                         prefix_a_matching_tables.push_back(prepped_tables[idx].name);
+                                     }
+                                     if (matchTableName(prefix_a, tbl_b, allow_sub) || isPersonMatch(prefix_a, tbl_b) || isLookupMatch(prefix_a, tbl_b, prefix_a_matching_tables)) {
+                                         if (!(isDescriptiveAttribute(prefix_a) && !same_expanded_word(prefix_a, pk_b) && !matchTableName(prefix_a, tbl_b, true) && !matchTableName(prefix_a, tbl_a, true))) {
+                                             suffix_match = true;
+                                         }
                                      }
                                  }
                              }
@@ -564,7 +763,7 @@ void findPass1ImpliedRelationships(
 
                         // Heuristic: Non-ID PK suffix match
                         // Example: orders.main_customer_code -> customers.customer_code
-                        if (to_lower(pk_b) != "id" && !isGenericIdentifier(pk_b) && !isGenericAttribute(pk_b)) {
+                        if (pk_b_lower != "id" && !isGenericIdentifier(pk_b) && !isGenericAttribute(pk_b)) {
                             if (col_a_clean.length() > pk_b.length()) {
                                 std::string col_lower = to_lower(col_a_clean);
                                 std::string pk_lower = to_lower(pk_b);
@@ -589,14 +788,6 @@ void findPass1ImpliedRelationships(
 
 /**
  * Pass 1.5: Identifies same-named key column fallback matches between tables.
- *
- * Logic:
- *   If two tables share a non-primary key column of the same name (such as "company_code" or "department_uid")
- *   and the column is not already classified as a foreign key on either end, and one table represents
- *   the target entity of that name, we suggest a relationship between them.
- *
- * Examples:
- *   - orders.store_code -> stores.store_code (where store_code is shared and stores represents the target entity)
  */
 void findPass1_5ImpliedRelationships(
     const std::vector<std::string>& table_names,
@@ -736,16 +927,6 @@ void findPass1_5ImpliedRelationships(
 
 /**
  * Pass 2: Identifies subtype (or ISA) relationships between tables.
- *
- * Logic:
- *   A subtype relationship exists when a primary key of table A references the primary key of table B.
- *   This occurs if:
- *   1. No other relationship exists between A and B,
- *   2. The table names imply hierarchy (e.g., A is a suffix/extension of B),
- *   3. The primary key types match.
- *
- * Examples:
- *   - customers_corporate.customer_id -> customers.customer_id
  */
 void findPass2ImpliedRelationships(
     const std::vector<std::string>& table_names,
@@ -758,6 +939,27 @@ void findPass2ImpliedRelationships(
     std::unordered_map<std::string, std::unordered_set<std::string>> parent_tables;
     for (const auto& rel : relationships) {
         parent_tables[rel.from_table].insert(rel.to_table);
+    }
+
+    // Precompute subtype/person parent mappings to avoid O(T^2) inner loop search
+    std::unordered_map<std::string, std::vector<size_t>> subtype_parents;
+    for (size_t i = 0; i < table_names.size(); ++i) {
+        const auto& tbl_a = table_names[i];
+        for (size_t j = 0; j < table_names.size(); ++j) {
+            if (i == j) continue;
+            const auto& tbl_b = table_names[j];
+            if (isSubtypeTable(tbl_a, tbl_b)) {
+                subtype_parents[tbl_a].push_back(j);
+            } else {
+                std::string clean_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
+                std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                if (isPersonTable(clean_a) && isPersonTable(clean_b)) {
+                    if (!(isGenericPersonTable(tbl_a) && !isGenericPersonTable(tbl_b))) {
+                        subtype_parents[tbl_a].push_back(j);
+                    }
+                }
+            }
+        }
     }
 
     // Find all subtype relationships (only if no relationship between tbl_a and tbl_b via other columns already exists)
@@ -782,8 +984,11 @@ void findPass2ImpliedRelationships(
 
             std::string col_a_clean = stripAcronymPrefix(col_a, tbl_a);
 
-            for (const auto& tbl_b : table_names) {
-                if (tbl_a == tbl_b) continue;
+            auto parents_it = subtype_parents.find(tbl_a);
+            if (parents_it == subtype_parents.end()) continue;
+
+            for (size_t tbl_b_idx : parents_it->second) {
+                const std::string& tbl_b = table_names[tbl_b_idx];
                 if (isSequenceOrSystemTable(tbl_b) || isJunctionOrHistoryTable(tbl_b)) continue;
 
                 auto it_b_info = tables_info.find(tbl_b);
@@ -857,11 +1062,7 @@ void findPass2ImpliedRelationships(
                                     }
                                 }
                             } else {
-                                std::string clean_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
-                                std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
-                                if (isPersonTable(clean_a) && isPersonTable(clean_b)) {
-                                    is_subtype = true;
-                                }
+                                is_subtype = true;
                             }
                         }
                     }
@@ -931,12 +1132,8 @@ int getPrefixMatchScore(const std::string& ep_clean, const std::string& et_clean
     return 0;
 }
 
-} // namespace
-
 /**
  * The entry point for identifying implied relationships.
- * Hoists prefix detection and precomputes foreign key state to optimize performance,
- * and runs Pass 1, Pass 1.5, and Pass 2 in sequence.
  */
 void findImpliedRelationships(
     const std::vector<std::string>& table_names,
@@ -1055,5 +1252,4 @@ void findImpliedRelationships(
 
     // 5. Clean up the dynamic table prefix
     clearDynamicPrefix();
-
 }

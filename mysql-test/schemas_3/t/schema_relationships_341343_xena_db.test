@@ -1,0 +1,247 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 341343_xena_db
+--echo #
+CREATE DATABASE `db_341343_xena_db`;
+USE `db_341343_xena_db`;
+
+CREATE TABLE `staff_area` (
+  `id` INT,
+  `user_id` INT,
+  `code` VARCHAR(64),
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `staff_division` (
+  `id` INT,
+  `user_id` INT,
+  `code` VARCHAR(64),
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cost_centers` (
+  `id` INT,
+  `user_id` INT,
+  `code` VARCHAR(64),
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `companies` (
+  `id` INT,
+  `user_id` INT,
+  `name` VARCHAR(64),
+  `business_name` VARCHAR(64),
+  `ruc` VARCHAR(64),
+  `square_icon` VARCHAR(64),
+  `rectangle_icon` VARCHAR(64),
+  `is_default` BOOL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employees` (
+  `id` INT,
+  `company_id` INT,
+  `person_id` INT,
+  `code` VARCHAR(64),
+  `date_entry` DATETIME,
+  `email` VARCHAR(64),
+  `company_position_id` INT,
+  `staff_area_id` INT,
+  `cost_center_id` INT,
+  `staff_division_id` INT,
+  `organizational_unit_id` INT,
+  `eps_affiliate` BOOL,
+  `eps_plan` VARCHAR(64),
+  `eps_option` VARCHAR(64),
+  `affiliated` BOOL,
+  `sctr_affiliate` BOOL,
+  `ev_affiliate` BOOL,
+  `boss` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `salt` VARCHAR(64),
+  `is_admin` BOOL,
+  `recovery_token` VARCHAR(64),
+  `enabled` BOOL,
+  `name` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `email` VARCHAR(64),
+  `avatar_url` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_sessions` (
+  `id` INT,
+  `user_id` INT,
+  `token` VARCHAR(64),
+  `expire` DATETIME,
+  `ip` VARCHAR(64),
+  `browser` VARCHAR(64),
+  `version` VARCHAR(64),
+  `platform` VARCHAR(64),
+  `created_at` DATETIME,
+  `closed_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `document_types` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `abbr` VARCHAR(64),
+  `length` DECIMAL(10,2),
+  `exact_length` BOOL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `organizational_units` (
+  `id` INT,
+  `user_id` INT,
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_collaborators` (
+  `id` INT,
+  `user_id` INT,
+  `company_id` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `fishing_vessels` (
+  `id` INT,
+  `company_id` INT,
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `fishing_company_parameters` (
+  `id` INT,
+  `employee_id` INT,
+  `fishing_vessel_id` INT,
+  `fishing_part` DECIMAL(10,2),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `company_positions` (
+  `id` INT,
+  `company_id` INT,
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `departments` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `code` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `provinces` (
+  `id` INT,
+  `department_id` INT,
+  `name` VARCHAR(64),
+  `code` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `districts` (
+  `id` INT,
+  `province_id` INT,
+  `name` VARCHAR(64),
+  `code` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `persons` (
+  `id` INT,
+  `user_id` INT,
+  `name` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `marital_status` VARCHAR(64),
+  `document_type_id` INT,
+  `document_number` VARCHAR(64),
+  `date_of_birth` DATETIME,
+  `district_id` INT,
+  `direction` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `mobile` VARCHAR(64),
+  `email` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_341343_xena_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_341343_xena_db') AS relationships;
+DROP DATABASE `db_341343_xena_db`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -4,6 +4,7 @@
 #include <string>
 
 std::string to_lower(std::string s);
+std::string camelToSnake(const std::string& s);
 std::string singularize(const std::string& w);
 std::string expandAbbreviation(const std::string& word);
 std::string expandAllAbbreviations(const std::string& s);

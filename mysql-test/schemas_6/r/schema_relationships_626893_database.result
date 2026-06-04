@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 626893_database
+#
+CREATE DATABASE `db_626893_database`;
+USE `db_626893_database`;
+CREATE TABLE `roles` (
+`id` INT,
+`role` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`role_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `modules` (
+`id` INT,
+`module` VARCHAR(64),
+`url` VARCHAR(64),
+`base_url` BOOL,
+`parent` INT,
+`is_parent` BOOL,
+`other` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `module_role` (
+`id` INT,
+`module_id` INT,
+`role_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_626893_database') AS relationships;
+relationships
+Database: db_626893_database
+
+Table Connections:
+------------------
+[Implied]  module_role.module_id -> modules.id
+[Implied]  module_role.role_id -> roles.id
+[Implied]  users.role_id -> roles.id
+
+DROP DATABASE `db_626893_database`;
+UNINSTALL EXTENSION vsql_schematron;

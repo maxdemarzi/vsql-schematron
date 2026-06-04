@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 280923_DBScript
+--echo #
+CREATE DATABASE `db_280923_DBScript`;
+USE `db_280923_DBScript`;
+
+CREATE TABLE `tblreportdetail` (
+  `EquipmentId` INT,
+  `ReportId` INT,
+  `DamagedLevel` VARCHAR(64),
+  `Position` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Solution` VARCHAR(64),
+  `ResolveTime` DATETIME,
+  `Status` INT,
+  PRIMARY KEY (`EquipmentId`, `ReportId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbluser` (
+  `Username` VARCHAR(64),
+  `RoleId` INT,
+  `Password` VARCHAR(64),
+  `Status` INT,
+  PRIMARY KEY (`Username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbluserinfo` (
+  `Username` VARCHAR(64),
+  `FullName` VARCHAR(64),
+  `Phone` VARCHAR(64),
+  `LastLogin` DATETIME,
+  `DeviceId` VARCHAR(64),
+  PRIMARY KEY (`Username`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_280923_DBScript') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_280923_DBScript') AS relationships;
+DROP DATABASE `db_280923_DBScript`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 485661_database
+#
+CREATE DATABASE `db_485661_database`;
+USE `db_485661_database`;
+CREATE TABLE `user` (
+`user_id` INT,
+`name` VARCHAR(64),
+`phoneNumber` VARCHAR(64),
+`user_name` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `application` (
+`app_id` INT,
+`name` VARCHAR(64),
+`kind` VARCHAR(64),
+`price` DECIMAL(10,2),
+`description` VARCHAR(64),
+`publisher` VARCHAR(64),
+`datepublish` DATETIME,
+`size` DECIMAL(10,2),
+`ratings` VARCHAR(64),
+PRIMARY KEY (`app_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment` (
+`payment_id` INT,
+`user_id` INT,
+`name` VARCHAR(64),
+`money` DECIMAL(10,2),
+PRIMARY KEY (`payment_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bill` (
+`bill_id` INT,
+`app_id` INT,
+`user_id` INT,
+`payment_id` INT,
+`unitprice` DECIMAL(10,2),
+`datacreate` DATETIME,
+PRIMARY KEY (`bill_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `appbougth` (
+`user_id` INT,
+`app_id` INT,
+PRIMARY KEY (`user_id`, `app_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_485661_database') AS relationships;
+relationships
+Database: db_485661_database
+
+Table Connections:
+------------------
+[Implied]  appbougth.app_id -> application.app_id
+[Implied]  appbougth.user_id -> user.user_id
+[Implied]  bill.app_id -> application.app_id
+[Implied]  bill.payment_id -> payment.payment_id
+[Implied]  bill.user_id -> user.user_id
+[Implied]  payment.user_id -> user.user_id
+
+DROP DATABASE `db_485661_database`;
+UNINSTALL EXTENSION vsql_schematron;

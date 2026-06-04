@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 223178_V1_0_0_create_structures
+#
+CREATE DATABASE `db_223178_V1_0_0_create_structures`;
+USE `db_223178_V1_0_0_create_structures`;
+CREATE TABLE `users` (
+`id` INT,
+`card_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`birthday` DATETIME,
+`user_group` VARCHAR(64),
+`is_member` BOOL,
+`created_by` VARCHAR(64),
+`created_date` DATETIME,
+`changed_by` VARCHAR(64),
+`changed_date` DATETIME,
+`deleted_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_properties` (
+`id` INT,
+`type` VARCHAR(64),
+`value` VARCHAR(64),
+`created_by` VARCHAR(64),
+`created_date` DATETIME,
+`changed_by` VARCHAR(64),
+`changed_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_user_properties` (
+`users_id` INT,
+`user_properties_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `wallets` (
+`id` INT,
+`user_id` INT,
+`cash_balance` INT,
+`total_spent` INT,
+`latest_transaction_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transactions` (
+`id` INT,
+`wallet_id` INT,
+`previous_balance` INT,
+`balance_change` INT,
+`previous_transaction_id` INT,
+`hash` INT,
+`transaction_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`created_by` VARCHAR(64),
+`created_date` DATETIME,
+`changed_by` VARCHAR(64),
+`changed_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `borrowed_items` (
+`id` INT,
+`item_id` INT,
+`borrower_id` INT,
+`comment` VARCHAR(64),
+`borrowed_date` DATETIME,
+`return_by_date` DATETIME,
+`returned_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_223178_V1_0_0_create_structures') AS relationships;
+relationships
+Database: db_223178_V1_0_0_create_structures
+
+Table Connections:
+------------------
+[Implied]  borrowed_items.borrower_id -> users.id
+[Implied]  borrowed_items.item_id -> items.id
+[Implied]  transactions.previous_transaction_id -> transactions.id
+[Implied]  transactions.wallet_id -> wallets.id
+[Implied]  users_user_properties.user_properties_id -> user_properties.id
+[Implied]  users_user_properties.users_id -> users.id
+[Implied]  wallets.latest_transaction_id -> transactions.id
+[Implied]  wallets.user_id -> users.id
+
+DROP DATABASE `db_223178_V1_0_0_create_structures`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -14,6 +14,27 @@ std::string to_lower(std::string s) {
 }
 
 /**
+ * Converts camelCase strings to snake_case.
+ */
+std::string camelToSnake(const std::string& s) {
+    if (s.empty()) return s;
+    std::string res;
+    res.reserve(s.length() + 4);
+    res += s[0];
+    for (size_t i = 1; i < s.length(); ++i) {
+        char c = s[i];
+        char prev = s[i-1];
+        if (std::isupper(c) && (!std::isupper(prev) || (i + 1 < s.length() && std::islower(s[i+1])))) {
+            if (prev != '_' && prev != ' ') {
+                res += '_';
+            }
+        }
+        res += c;
+    }
+    return res;
+}
+
+/**
  * Expands technical abbreviations to their full English words.
  *
  * Examples:

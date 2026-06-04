@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 156157_mydb
+#
+CREATE DATABASE `db_156157_mydb`;
+USE `db_156157_mydb`;
+CREATE TABLE `Books` (
+`bookId` INT,
+`title` VARCHAR(64),
+`genre` VARCHAR(64),
+`author` VARCHAR(64),
+`published_year` VARCHAR(64),
+`stock` INT,
+`price` DECIMAL(10,2),
+PRIMARY KEY (`bookId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+`userId` INT,
+`userName` VARCHAR(64),
+`firstName` VARCHAR(64),
+`familyName` VARCHAR(64),
+`email` VARCHAR(64),
+`bankingCardNumber` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reviews` (
+`reviewId` INT,
+`reviewText` VARCHAR(64),
+PRIMARY KEY (`reviewId`)
+) CHARACTER SET latin1;
+CREATE TABLE `BuyedBooks` (
+`userId` INT,
+`bookId` INT,
+`quantity` INT,
+PRIMARY KEY (`userId`, `bookId`)
+) CHARACTER SET latin1;
+CREATE TABLE `ReviewedBooks` (
+`reviewId` INT,
+`bookId` INT,
+`userId` INT,
+`score` DECIMAL(10,2),
+PRIMARY KEY (`reviewId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_156157_mydb') AS relationships;
+relationships
+Database: db_156157_mydb
+
+Table Connections:
+------------------
+[Implied]  BuyedBooks.bookId -> Books.bookId
+[Implied]  BuyedBooks.userId -> Users.userId
+[Implied]  ReviewedBooks.bookId -> Books.bookId
+[Implied]  ReviewedBooks.reviewId -> Reviews.reviewId
+[Implied]  ReviewedBooks.userId -> Users.userId
+
+DROP DATABASE `db_156157_mydb`;
+UNINSTALL EXTENSION vsql_schematron;

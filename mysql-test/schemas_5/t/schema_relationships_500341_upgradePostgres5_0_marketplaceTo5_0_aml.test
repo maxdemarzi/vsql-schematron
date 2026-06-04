@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 500341_upgradePostgres5_0_marketplaceTo5_0_aml
+--echo #
+CREATE DATABASE `db_500341_upgradePostgres5_0_marketplaceTo5_0_aml`;
+USE `db_500341_upgradePostgres5_0_marketplaceTo5_0_aml`;
+
+CREATE TABLE `score_card` (
+  `id` INT,
+  `version` INT,
+  `created_by_id` INT,
+  `created_date` DATETIME,
+  `edited_by_id` INT,
+  `edited_date` DATETIME,
+  `score` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `score_card_item` (
+  `id` INT,
+  `version` INT,
+  `created_by_id` INT,
+  `created_date` DATETIME,
+  `description` VARCHAR(64),
+  `edited_by_id` INT,
+  `edited_date` DATETIME,
+  `is_standard_question` BOOL,
+  `question` VARCHAR(64),
+  `weight` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `score_card_item_response` (
+  `id` INT,
+  `version` INT,
+  `created_by_id` INT,
+  `created_date` DATETIME,
+  `edited_by_id` INT,
+  `edited_date` DATETIME,
+  `is_satisfied` BOOL,
+  `score_card_id` INT,
+  `score_card_item_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_500341_upgradePostgres5_0_marketplaceTo5_0_aml') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_500341_upgradePostgres5_0_marketplaceTo5_0_aml') AS relationships;
+DROP DATABASE `db_500341_upgradePostgres5_0_marketplaceTo5_0_aml`;
+UNINSTALL EXTENSION vsql_schematron;

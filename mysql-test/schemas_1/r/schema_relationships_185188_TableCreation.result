@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 185188_TableCreation
+#
+CREATE DATABASE `db_185188_TableCreation`;
+USE `db_185188_TableCreation`;
+CREATE TABLE `Person` (
+`PersonID` INT,
+`Name` VARCHAR(64),
+`Email` VARCHAR(64),
+`PhoneNumber` VARCHAR(64),
+`Address` VARCHAR(64),
+PRIMARY KEY (`PersonID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Photographers` (
+`PhotographerID` INT,
+`PersonID` INT,
+`Rating` INT,
+PRIMARY KEY (`PhotographerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customers` (
+`CustomerID` INT,
+`BillingInfo` VARCHAR(64),
+`PersonID` INT,
+PRIMARY KEY (`CustomerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comment` (
+`CommentID` INT,
+`Name` VARCHAR(64),
+`Email` VARCHAR(64),
+`Content` VARCHAR(64),
+PRIMARY KEY (`CommentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Review` (
+`ReviewID` INT,
+`Rating` INT,
+`Comment` VARCHAR(64),
+`Customers_CustomerID` INT,
+`Photographers_PhotographerID` INT,
+`Comment_CommentID` INT,
+PRIMARY KEY (`ReviewID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PhotoPackages` (
+`PackageID` INT,
+`Name` VARCHAR(64),
+`Price` DECIMAL(10,2),
+`Description` VARCHAR(64),
+PRIMARY KEY (`PackageID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Booking` (
+`BookingID` INT,
+`Date` DATETIME,
+`EventType` VARCHAR(64),
+`Address` VARCHAR(64),
+`CustomerID` INT,
+`PhotoPackages_PackageID` INT,
+PRIMARY KEY (`BookingID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Photographs` (
+`PhotoID` INT,
+`Name` VARCHAR(64),
+`DateTaken` DATETIME,
+`Description` VARCHAR(64),
+`Picture` VARCHAR(64),
+`Photographers_PhotographerID` INT,
+`Booking_BookingID` INT,
+`Customers_CustomerID` INT,
+PRIMARY KEY (`PhotoID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Blog` (
+`PostID` INT,
+`Date` DATETIME,
+`Name` VARCHAR(64),
+`NumLikes` INT,
+`Content` VARCHAR(64),
+`Category` VARCHAR(64),
+`Photographers_PhotographerID` INT,
+PRIMARY KEY (`PostID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ScheduledPhotographers` (
+`Photographers_PhotographerID` INT,
+`Booking_BookingID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `PostComments` (
+`Blog_PostID` INT,
+`Comment_CommentID` INT,
+PRIMARY KEY (`Blog_PostID`, `Comment_CommentID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_185188_TableCreation') AS relationships;
+relationships
+Database: db_185188_TableCreation
+
+Table Connections:
+------------------
+[Implied]  Blog.Photographers_PhotographerID -> Photographers.PhotographerID
+[Implied]  Booking.CustomerID -> Customers.CustomerID
+[Implied]  Booking.PhotoPackages_PackageID -> PhotoPackages.PackageID
+[Implied]  Customers.PersonID -> Person.PersonID
+[Implied]  Photographers.PersonID -> Person.PersonID
+[Implied]  Photographs.Booking_BookingID -> Booking.BookingID
+[Implied]  Photographs.Customers_CustomerID -> Customers.CustomerID
+[Implied]  Photographs.Photographers_PhotographerID -> Photographers.PhotographerID
+[Implied]  PostComments.Blog_PostID -> Blog.PostID
+[Implied]  PostComments.Comment_CommentID -> Comment.CommentID
+[Implied]  Review.Comment_CommentID -> Comment.CommentID
+[Implied]  Review.Customers_CustomerID -> Customers.CustomerID
+[Implied]  Review.Photographers_PhotographerID -> Photographers.PhotographerID
+[Implied]  ScheduledPhotographers.Booking_BookingID -> Booking.BookingID
+[Implied]  ScheduledPhotographers.Photographers_PhotographerID -> Photographers.PhotographerID
+
+DROP DATABASE `db_185188_TableCreation`;
+UNINSTALL EXTENSION vsql_schematron;

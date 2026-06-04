@@ -1,0 +1,140 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 330571_banco_de_dados_tcc
+#
+CREATE DATABASE `db_330571_banco_de_dados_tcc`;
+USE `db_330571_banco_de_dados_tcc`;
+CREATE TABLE `usuario` (
+`idUsuario` INT,
+`isadm` BOOL,
+`isprofessor` BOOL,
+`isparticipante` BOOL,
+`nome` VARCHAR(64),
+`usuario` VARCHAR(64),
+`sexo` VARCHAR(64),
+`senha` VARCHAR(64),
+`cpf` VARCHAR(64),
+`email` VARCHAR(64),
+`endereco` VARCHAR(64),
+`numero` VARCHAR(64),
+`bairro` VARCHAR(64),
+`cidade` VARCHAR(64),
+`estado` VARCHAR(64),
+`cep` VARCHAR(64),
+`telefone` VARCHAR(64),
+PRIMARY KEY (`idUsuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `evento` (
+`idEvento` INT,
+`validado` BOOL,
+`permiteemimssaocertificado` BOOL,
+`oficina_minicurso` VARCHAR(64),
+`extencao_ou_ic` VARCHAR(64),
+`descricao` VARCHAR(64),
+`carga_horaria` DATETIME,
+`data_inicio` DATETIME,
+`data_fim` DATETIME,
+`data_criacao` DATETIME,
+`tipo` VARCHAR(64),
+`extensao` VARCHAR(64),
+`pesquisa` VARCHAR(64),
+`projeto_bolsista` BOOL,
+`projeto_orientador` BOOL,
+`projeto_voluntario` BOOL,
+`projeto_colaborador` BOOL,
+`evento_organizador` BOOL,
+`evento_palestrante` BOOL,
+`evento_ministrante` BOOL,
+`evento_apresentador` BOOL,
+`evento_monitor` BOOL,
+`evento_mediador` BOOL,
+`evento_participante` BOOL,
+`evento_avaliador` BOOL,
+`curso_organizador` BOOL,
+`curso_ministrante` BOOL,
+`curso_participante` BOOL,
+`pesquisa_projeto_ic_orientador` BOOL,
+`pesquisa_projeto_ic_bolsista` BOOL,
+`pesquisa_projeto_ic_voluntario` BOOL,
+`pesquisa_projeto_icj_orientador` BOOL,
+`pesquisa_projeto_icj_bolsista` BOOL,
+`pesquisa_projeto_icj_voluntario` BOOL,
+`sigaextensao` BOOL,
+`id_siga_extensao` VARCHAR(64),
+`map` BOOL,
+`idmap` VARCHAR(64),
+`informado_ao_colegiado_do_curso` BOOL,
+`numero_ata` VARCHAR(64),
+`data_ata` DATETIME,
+`outras_ocorrencias` VARCHAR(64),
+`curso` VARCHAR(64),
+`colaboracao` VARCHAR(64),
+`id_usuario_responsavel` INT,
+`codigo_evento_pai` VARCHAR(64),
+`fomento` VARCHAR(64),
+`id_evento_pai` INT,
+PRIMARY KEY (`idEvento`)
+) CHARACTER SET latin1;
+CREATE TABLE `eventopai` (
+`idEventopai` INT,
+`descricao` VARCHAR(64),
+`codigo` VARCHAR(64),
+`data_inicio` DATETIME,
+`data_fim` DATETIME,
+`curso` VARCHAR(64),
+`id_usuario_responsavel` INT,
+PRIMARY KEY (`idEventopai`)
+) CHARACTER SET latin1;
+CREATE TABLE `participanteevento` (
+`idParticipanteEvento` INT,
+`tipo` VARCHAR(64),
+`numero_posteres` INT,
+`tipoPoster` VARCHAR(64),
+`data_inscricao` DATETIME,
+`entrada` DATETIME,
+`saida` DATETIME,
+`id_usuario` INT,
+`id_evento` INT,
+PRIMARY KEY (`idParticipanteEvento`)
+) CHARACTER SET latin1;
+CREATE TABLE `autor` (
+`idAutor` INT,
+`nome` VARCHAR(64),
+`id_evento` INT,
+PRIMARY KEY (`idAutor`)
+) CHARACTER SET latin1;
+CREATE TABLE `inscricao_participante` (
+`idInscricaoParticipante` INT,
+`inscrito` BOOL,
+`id_evento` INT,
+`id_usuario` INT,
+PRIMARY KEY (`idInscricaoParticipante`)
+) CHARACTER SET latin1;
+CREATE TABLE `presenca_usuario` (
+`idPresenca` INT,
+`data_corrente` DATETIME,
+`entrada` DATETIME,
+`saida` DATETIME,
+`id_usuario` INT,
+`id_evento` INT,
+PRIMARY KEY (`idPresenca`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_330571_banco_de_dados_tcc') AS relationships;
+relationships
+Database: db_330571_banco_de_dados_tcc
+
+Table Connections:
+------------------
+[Implied]  autor.id_evento -> evento.idEvento
+[Implied]  evento.id_evento_pai -> eventopai.idEventopai
+[Implied]  evento.id_usuario_responsavel -> usuario.idUsuario
+[Implied]  eventopai.id_usuario_responsavel -> usuario.idUsuario
+[Implied]  inscricao_participante.id_evento -> evento.idEvento
+[Implied]  inscricao_participante.id_usuario -> usuario.idUsuario
+[Implied]  participanteevento.id_evento -> evento.idEvento
+[Implied]  participanteevento.id_usuario -> usuario.idUsuario
+[Implied]  presenca_usuario.id_evento -> evento.idEvento
+[Implied]  presenca_usuario.id_usuario -> usuario.idUsuario
+
+DROP DATABASE `db_330571_banco_de_dados_tcc`;
+UNINSTALL EXTENSION vsql_schematron;

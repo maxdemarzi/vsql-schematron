@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 246336_PostgreSQL_20Schema
+--echo #
+CREATE DATABASE `db_246336_PostgreSQL_20Schema`;
+USE `db_246336_PostgreSQL_20Schema`;
+
+CREATE TABLE `TB_FUNCTIONS` (
+  `ID` VARCHAR(64),
+  `TB_MODULES_ID` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `OUTCOME` VARCHAR(64),
+  `CREATE_DATE` DATETIME,
+  `UPDATE_DATE` DATETIME,
+  `CODE` VARCHAR(64),
+  `SEQUENCE` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TB_FUNCTIONS_ITEMS` (
+  `ID` VARCHAR(64),
+  `TB_FUNCTIONS_ID` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `CODE` VARCHAR(64),
+  `URL` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TB_GROUPS` (
+  `ID` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `CODE` VARCHAR(64),
+  `ENABLED` DECIMAL(10,2),
+  `CREATE_DATE` DATETIME,
+  `UPDATE_DATE` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TB_GROUPS_FUNCTIONS` (
+  `ID` VARCHAR(64),
+  `TB_GROUPS_ID` VARCHAR(64),
+  `TB_FUNCTIONS_ID` VARCHAR(64),
+  `TB_FUNCTIONS_ITEMS_ID` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TB_MODULES` (
+  `ID` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `CODE` VARCHAR(64),
+  `SEQUENCE` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TB_USERS` (
+  `ID` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `ACCOUNT` VARCHAR(64),
+  `PASSWORD` VARCHAR(64),
+  `ENABLED` BOOL,
+  `EMAIL` VARCHAR(64),
+  `CREATE_DATE` DATETIME,
+  `UPDATE_DATE` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TB_USERS_GROUPS` (
+  `TB_USERS_ID` VARCHAR(64),
+  `TB_GROUPS_ID` VARCHAR(64),
+  PRIMARY KEY (`TB_USERS_ID`, `TB_GROUPS_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_246336_PostgreSQL_20Schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_246336_PostgreSQL_20Schema') AS relationships;
+DROP DATABASE `db_246336_PostgreSQL_20Schema`;
+UNINSTALL EXTENSION vsql_schematron;

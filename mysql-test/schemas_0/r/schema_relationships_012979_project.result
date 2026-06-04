@@ -1,0 +1,171 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 012979_project
+#
+CREATE DATABASE `db_012979_project`;
+USE `db_012979_project`;
+CREATE TABLE `Owner` (
+`ownerid` INT,
+`ownerName` VARCHAR(64),
+`phone` VARCHAR(64),
+`houseDetails` VARCHAR(64),
+`street` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`country` VARCHAR(64),
+`pincode` VARCHAR(64),
+`dateOfPurchase` VARCHAR(64),
+`code` VARCHAR(64),
+`isResident` BOOL,
+`userid` INT,
+`apartmentid` INT,
+PRIMARY KEY (`ownerid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Resident` (
+`residentid` INT,
+`residentName` VARCHAR(64),
+`isOwner` BOOL,
+`code` VARCHAR(64),
+`userid` INT,
+`apartmentid` INT,
+`numOfMembers` VARCHAR(64),
+`phone` VARCHAR(64),
+PRIMARY KEY (`residentid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Staff` (
+`name` VARCHAR(64),
+`phone` VARCHAR(64),
+`houseDetails` VARCHAR(64),
+`street` VARCHAR(64),
+`userid` INT,
+`staffid` INT,
+`dob` VARCHAR(64),
+`joinDate` VARCHAR(64),
+`code` VARCHAR(64),
+PRIMARY KEY (`staffid`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`userid` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`userType` VARCHAR(64),
+PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Vendor` (
+`vendorid` INT,
+`name` VARCHAR(64),
+`phone` VARCHAR(64),
+`email` VARCHAR(64),
+`officeDetails` VARCHAR(64),
+`street` VARCHAR(64),
+`city` VARCHAR(64),
+`pincode` VARCHAR(64),
+`state` VARCHAR(64),
+`code` VARCHAR(64),
+`monthlyAmount` INT,
+PRIMARY KEY (`vendorid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Service` (
+`serviceid` INT,
+`fund` INT,
+`monthlyAmount` INT,
+`vendorid` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`startTime` VARCHAR(64),
+`endTime` VARCHAR(64),
+`numOfPeople` INT,
+PRIMARY KEY (`serviceid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Project` (
+`projectid` INT,
+`fund` INT,
+`code` VARCHAR(64),
+`vendorid` INT,
+`startTime` VARCHAR(64),
+`endTime` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`projectid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Facilities` (
+`facilityid` INT,
+`amountPerHour` INT,
+`facilityName` VARCHAR(64),
+PRIMARY KEY (`facilityid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Booking` (
+`bookingid` INT,
+`phone` VARCHAR(64),
+`amount` INT,
+`date` VARCHAR(64),
+`startTime` VARCHAR(64),
+`endTime` VARCHAR(64),
+`purposeOfBooking` VARCHAR(64),
+`facilityid` INT,
+`residentid` INT,
+PRIMARY KEY (`bookingid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Guest` (
+`guestid` INT,
+`name` VARCHAR(64),
+`purposeOfVisit` VARCHAR(64),
+`entryTime` VARCHAR(64),
+`exitTime` VARCHAR(64),
+`phone` VARCHAR(64),
+`category` VARCHAR(64),
+`visited` VARCHAR(64),
+`date` VARCHAR(64),
+PRIMARY KEY (`guestid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Maintenance` (
+`maintenanceid` INT,
+`month` VARCHAR(64),
+`year` VARCHAR(64),
+`amount` INT,
+`ownerid` INT,
+`apartmentid` INT,
+`paid` BOOL,
+PRIMARY KEY (`maintenanceid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Paid` (
+`transactionid` INT,
+`amount` INT,
+`projectid` INT,
+`vendorid` INT,
+PRIMARY KEY (`transactionid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Salary` (
+`transactionid` INT,
+`vendorid` INT,
+`serviceid` INT,
+`salary` INT,
+`monthyear` VARCHAR(64),
+PRIMARY KEY (`transactionid`)
+) CHARACTER SET latin1;
+CREATE TABLE `ForgotPass` (
+`url` VARCHAR(64),
+`userid` INT,
+PRIMARY KEY (`url`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_012979_project') AS relationships;
+relationships
+Database: db_012979_project
+
+Table Connections:
+------------------
+[Implied]  Booking.facilityid -> Facilities.facilityid
+[Implied]  Booking.residentid -> Resident.residentid
+[Implied]  ForgotPass.userid -> user.userid
+[Implied]  Maintenance.ownerid -> Owner.ownerid
+[Implied]  Owner.userid -> user.userid
+[Implied]  Paid.projectid -> Project.projectid
+[Implied]  Paid.vendorid -> Vendor.vendorid
+[Implied]  Project.vendorid -> Vendor.vendorid
+[Implied]  Resident.userid -> user.userid
+[Implied]  Salary.serviceid -> Service.serviceid
+[Implied]  Salary.vendorid -> Vendor.vendorid
+[Implied]  Service.vendorid -> Vendor.vendorid
+[Implied]  Staff.userid -> user.userid
+
+DROP DATABASE `db_012979_project`;
+UNINSTALL EXTENSION vsql_schematron;

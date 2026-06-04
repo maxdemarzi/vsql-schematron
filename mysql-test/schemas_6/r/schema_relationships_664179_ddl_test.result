@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 664179_ddl_test
+#
+CREATE DATABASE `db_664179_ddl_test`;
+USE `db_664179_ddl_test`;
+CREATE TABLE `DOCUMENTS` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`filename` VARCHAR(64),
+`alternativeid` VARCHAR(64),
+`previewlink` VARCHAR(64),
+`amount` DECIMAL(10,2),
+`created` DATETIME,
+`modified` DATETIME,
+`taglist` VARCHAR(64),
+`senderlist` VARCHAR(64),
+`invoicenumber` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `DOCUMENTS_TO_SENDERS` (
+`document_id` VARCHAR(64),
+`sender_id` INT,
+PRIMARY KEY (`document_id`, `sender_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `DOCUMENTS_TO_TAGS` (
+`document_id` VARCHAR(64),
+`tag_id` INT,
+PRIMARY KEY (`document_id`, `tag_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_664179_ddl_test') AS relationships;
+relationships
+Database: db_664179_ddl_test
+
+Table Connections:
+------------------
+[Implied]  DOCUMENTS_TO_SENDERS.document_id -> DOCUMENTS.id
+[Implied]  DOCUMENTS_TO_TAGS.document_id -> DOCUMENTS.id
+
+DROP DATABASE `db_664179_ddl_test`;
+UNINSTALL EXTENSION vsql_schematron;

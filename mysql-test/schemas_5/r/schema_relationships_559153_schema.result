@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 559153_schema
+#
+CREATE DATABASE `db_559153_schema`;
+USE `db_559153_schema`;
+CREATE TABLE `BuildQueue` (
+`id` INT,
+`name` VARCHAR(64),
+`search` VARCHAR(64),
+`data` VARCHAR(64),
+`cancelled` VARCHAR(64),
+`newestAvailablePost` INT,
+`oldestAvailablePost` INT,
+`newestUnavailablePost` INT,
+`oldestUnavailablePost` INT,
+`availableFound` INT,
+`unavailableFound` INT,
+`createdTimestamp` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `DownloadQueue` (
+`id` INT,
+`buildQueueId` INT,
+`pauseState` VARCHAR(64),
+`complete` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `EventLog` (
+`id` INT,
+`timestamp` INT,
+`application` VARCHAR(64),
+`message` VARCHAR(64),
+`additional` VARCHAR(64),
+`severity` VARCHAR(64),
+`userId` INT,
+`ip` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `FailedDownloads` (
+`id` INT,
+`data` VARCHAR(64),
+`reason` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Favorites` (
+`id` INT,
+`userId` INT,
+`itemId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ItemMetadata` (
+`id` INT,
+`itemId` INT,
+`key` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ItemTagMappings` (
+`id` INT,
+`itemId` INT,
+`tagId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Permissions` (
+`id` INT,
+`userId` INT,
+`permission` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+`id` INT,
+`password` VARCHAR(64),
+`displayName` VARCHAR(64),
+`lastLoginTimestamp` INT,
+`lastLoginIp` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_559153_schema') AS relationships;
+relationships
+Database: db_559153_schema
+
+Table Connections:
+------------------
+[Implied]  DownloadQueue.buildQueueId -> BuildQueue.id
+[Implied]  EventLog.userId -> Users.id
+[Implied]  Favorites.userId -> Users.id
+[Implied]  Permissions.userId -> Users.id
+
+DROP DATABASE `db_559153_schema`;
+UNINSTALL EXTENSION vsql_schematron;

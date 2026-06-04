@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 418866_1_20create_20db
+--echo #
+CREATE DATABASE `db_418866_1_20create_20db`;
+USE `db_418866_1_20create_20db`;
+
+CREATE TABLE `address` (
+  `id` INT,
+  `street` VARCHAR(64),
+  `number` VARCHAR(64),
+  `postcode` VARCHAR(64),
+  `customer_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customer` (
+  `id` INT,
+  `firstname` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `phone` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order` (
+  `id` INT,
+  `date` DATETIME,
+  `status` VARCHAR(64),
+  `customer_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_item` (
+  `order_id` INT,
+  `product_id` INT,
+  `quantity` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `product` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `discount_ratio` DECIMAL(10,2),
+  `stock` INT,
+  `is_hot` INT,
+  `product_category_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product_category` (
+  `id` VARCHAR(64),
+  `title` VARCHAR(64),
+  `parent` VARCHAR(64),
+  `other` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_418866_1_20create_20db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_418866_1_20create_20db') AS relationships;
+DROP DATABASE `db_418866_1_20create_20db`;
+UNINSTALL EXTENSION vsql_schematron;

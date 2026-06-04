@@ -7,6 +7,10 @@
 void setDynamicPrefix(const std::string& prefix);
 void clearDynamicPrefix();
 
+int getOrCreatePrefixId(const std::string& prefix);
+int getOrCreateTableId(const std::string& table);
+bool matchTableNameByIds(int prefix_id, int table_id, bool allow_substring);
+
 std::string stripSchemaPrefix(const std::string& name);
 std::string stripTablePrefix(const std::string& name);
 std::string stripTableSuffix(const std::string& name);

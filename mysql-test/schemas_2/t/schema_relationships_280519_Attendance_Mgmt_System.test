@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 280519_Attendance_Mgmt_System
+--echo #
+CREATE DATABASE `db_280519_Attendance_Mgmt_System`;
+USE `db_280519_Attendance_Mgmt_System`;
+
+CREATE TABLE `Class` (
+  `Semester` INT,
+  `Section` VARCHAR(64),
+  `Department` VARCHAR(64),
+  `CTID` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MessageImages` (
+  `MsgID` INT,
+  `Images` VARCHAR(64),
+  PRIMARY KEY (`MsgID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Messages` (
+  `MsgID` INT,
+  `ToID` VARCHAR(64),
+  `FromID` VARCHAR(64),
+  `Content` VARCHAR(64),
+  PRIMARY KEY (`MsgID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Student Attendance` (
+  `USN` VARCHAR(64),
+  `Subject Code` VARCHAR(64),
+  `Attendance` INT,
+  `Absent Days` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Subjects` (
+  `Subject` VARCHAR(64),
+  `Subject Code` VARCHAR(64),
+  `Dep` VARCHAR(64),
+  `Sem` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_280519_Attendance_Mgmt_System') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_280519_Attendance_Mgmt_System') AS relationships;
+DROP DATABASE `db_280519_Attendance_Mgmt_System`;
+UNINSTALL EXTENSION vsql_schematron;

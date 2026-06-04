@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 433481_create_table
+#
+CREATE DATABASE `db_433481_create_table`;
+USE `db_433481_create_table`;
+CREATE TABLE `address` (
+`address_id` DECIMAL(10,2),
+`line1` VARCHAR(64),
+`line2` VARCHAR(64),
+`line3` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`postal_code` VARCHAR(64),
+PRIMARY KEY (`address_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `person` (
+`person_id` DECIMAL(10,2),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`gender` INT,
+`birthday` DATETIME,
+`address_id` DECIMAL(10,2),
+`phone` VARCHAR(64),
+PRIMARY KEY (`person_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `member` (
+`member_id` DECIMAL(10,2),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`person_id` DECIMAL(10,2),
+`reward` INT,
+`super_ember` DECIMAL(10,2),
+PRIMARY KEY (`member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group` (
+`group_id` DECIMAL(10,2),
+`name` VARCHAR(64),
+PRIMARY KEY (`group_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`category_id` DECIMAL(10,2),
+`name` VARCHAR(64),
+PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `supplier` (
+`supplier_id` DECIMAL(10,2),
+`name` VARCHAR(64),
+`address_id` DECIMAL(10,2),
+`contact_person` DECIMAL(10,2),
+PRIMARY KEY (`supplier_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_433481_create_table') AS relationships;
+relationships
+Database: db_433481_create_table
+
+Table Connections:
+------------------
+[Implied]  member.person_id -> person.person_id
+[Implied]  person.address_id -> address.address_id
+[Implied]  person.person_id -> member.member_id
+[Implied]  supplier.address_id -> address.address_id
+[Implied]  supplier.contact_person -> person.person_id
+
+DROP DATABASE `db_433481_create_table`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,6 +1,7 @@
 #include "schema_analyzer_helpers.h"
 #include "domain_specific_matching.h"
 #include "name_matching.h"
+#include <mutex>
 #include <cctype>
 #include <algorithm>
 #include <sstream>
@@ -21,6 +22,18 @@ bool isTemporalType(const std::string& type) {
  * Returns true if the column represents technical metadata/auditing fields (like rowguid).
  */
 bool isSystemColumn(const std::string& col_name) {
+    std::string cl = to_lower(col_name);
+    // Ignore temporal/audit timestamps and date fields from foreign key candidate extraction
+    // Examples: created_time, modified_date, update_timestamp, last_login_datetime
+    if (cl.length() > 5 && (cl.rfind("_time") == cl.length() - 5 || cl.rfind("_date") == cl.length() - 5)) {
+        return true;
+    }
+    if (cl.length() > 9 && cl.rfind("_datetime") == cl.length() - 9) {
+        return true;
+    }
+    if (cl.length() > 10 && cl.rfind("_timestamp") == cl.length() - 10) {
+        return true;
+    }
     static const std::unordered_set<std::string> SYSTEM_COLUMNS = {
         "rowguid", "row_guid", "_partneruuid", "partneruuid", "partner_uuid",
         "_revision", "revision", "revision_number", "modifieddate", "modified_date", "modifeddate",
@@ -30,10 +43,14 @@ bool isSystemColumn(const std::string& col_name) {
         "last_update_by", "last_updated_by", "lastupdateby", "lastupdatedby",
         "last_update_date", "lastupdatedate", "last_update_time", "lastupdatetime",
         "updated_by", "updatedby",
-        "pers_id_registerer", "pers_id_modifier", "pers_id_author", "last_updusr_id", "frst_register_id",
-        "pers_id", "pers_id_leader", "pers_id_grantee", "orig_del", "original_deletion", "orig_deletion"
+        "last_updusr_id", "frst_register_id",
+        "orig_del", "original_deletion", "orig_deletion",
+        "last_login", "lastlogin", "last_login_time", "last_login_date",
+        "creator_id", "creator", "modifier_id", "modifier", "original_creator_id", "original_modifier_id",
+        "created_by_id", "updated_by_id", "modified_by", "modified_by_id",
+        "tenant_id", "tenantid", "tenant_code", "tenantcode"
     };
-    return SYSTEM_COLUMNS.count(to_lower(col_name)) > 0;
+    return SYSTEM_COLUMNS.count(cl) > 0;
 }
 
 /**
@@ -120,11 +137,11 @@ std::vector<std::string> getEffectivePKs(
     auto isIdLikeColumn = [](const std::string& col) {
         std::string c = to_lower(col);
         static const std::unordered_set<std::string> ID_LIKE_COLUMNS = {
-            "id", "uuid", "guid", "uid", "key", "code"
+            "id", "uuid", "guid", "uid", "key", "code", "alias"
         };
         if (ID_LIKE_COLUMNS.count(c) > 0) return true;
         
-        std::vector<std::string> suffixes = {"id", "uuid", "guid", "uid", "key", "code", "number", "num", "no"};
+        std::vector<std::string> suffixes = {"id", "uuid", "guid", "uid", "key", "code", "number", "num", "no", "alias"};
         for (const auto& sfx : suffixes) {
             if (c.length() > sfx.length() && c.rfind(sfx) == c.length() - sfx.length()) {
                 char prev_char = col[col.length() - sfx.length() - 1];
@@ -161,7 +178,8 @@ std::vector<std::string> getEffectivePKs(
     }
     
     std::string tbl_clean = stripTablePrefix(tbl_name);
-    std::string tbl_lower = to_lower(tbl_name);
+    // Convert table name from camelCase to snake_case before matching, e.g. "AuthorInfo" -> "author_info" or "xenaDb" -> "xena_db"
+    std::string tbl_lower = to_lower(camelToSnake(tbl_name));
     std::string tbl_sing = singularize(tbl_clean);
     std::string tbl_sing_lower = singularize(tbl_lower);
 
@@ -230,7 +248,7 @@ std::vector<std::string> getEffectivePKs(
     std::string last_word = words.empty() ? "" : words.back();
     
     std::vector<std::string> id_prefixes = {"id", "code", "cod", "cd", "no", "num", "number", "key", "nro", "nra", "nr"};
-    std::vector<std::string> id_suffixes = {"id", "code", "cod", "cd", "no", "num", "number", "key"};
+    std::vector<std::string> id_suffixes = {"id", "code", "cod", "cd", "no", "num", "number", "key", "alias"};
     
     // Pass 1: Look for ID-like columns
     for (const auto& col_pair : info.column_types) {
@@ -485,103 +503,122 @@ bool isSequenceOrSystemTable(const std::string& tbl_name) {
  *   isSubtypeTable("customer_corporate", "customer") -> true
  */
 bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
-    std::string a = stripSchemaPrefix(to_lower(tbl_a));
-    std::string b = stripSchemaPrefix(to_lower(tbl_b));
-    std::string clean_a = stripTablePrefix(stripTableSuffix(a));
-    std::string clean_b = stripTablePrefix(stripTableSuffix(b));
-    if (clean_a == clean_b) {
-        auto endsWithCatalog = [](const std::string& name) {
-            static const std::unordered_set<std::string> CATS = {
-                "type", "types", "status", "statuses", "code", "codes", "state", "states", "group", "groups"
-            };
-            size_t under = name.rfind('_');
-            if (under != std::string::npos) {
-                return CATS.count(name.substr(under + 1)) > 0;
-            }
-            return false;
-        };
-        if (endsWithCatalog(a) != endsWithCatalog(b)) {
-            return false;
+    // Thread-local lookup cache to optimize recursive O(T^2) subtype relationship checks
+    thread_local std::unordered_map<std::string, std::unordered_map<std::string, bool>> cache;
+    auto it1 = cache.find(tbl_a);
+    if (it1 != cache.end()) {
+        auto it2 = it1->second.find(tbl_b);
+        if (it2 != it1->second.end()) {
+            return it2->second;
         }
-        return a.length() > b.length();
     }
-    if (clean_a.length() > clean_b.length()) {
-        std::string sing_b = singularize(clean_b);
-        if (clean_a.rfind(sing_b + "_", 0) == 0 || clean_a.rfind(clean_b + "_", 0) == 0) {
-            size_t under_a = clean_a.rfind('_');
-            size_t under_b = clean_b.rfind('_');
-            if (under_a != std::string::npos && under_b != std::string::npos) {
-                std::string sfx_a = clean_a.substr(under_a + 1);
-                std::string sfx_b = clean_b.substr(under_b + 1);
-                if (sfx_a == sfx_b || singularize(sfx_a) == singularize(sfx_b)) {
-                    std::string rem_a = clean_a.substr(0, under_a);
-                    std::string rem_b = clean_b.substr(0, under_b);
-                    if (rem_a.length() >= rem_b.length()) {
-                        std::string sing_rem_b = singularize(rem_b);
-                        std::string sing_rem_a = singularize(rem_a);
-                        if (sing_rem_a.rfind(sing_rem_b) == sing_rem_a.length() - sing_rem_b.length() ||
-                            rem_a.rfind(rem_b) == rem_a.length() - rem_b.length()) {
-                            return true;
+
+    auto compute = [&]() -> bool {
+        std::string a = stripSchemaPrefix(to_lower(camelToSnake(tbl_a)));
+        std::string b = stripSchemaPrefix(to_lower(camelToSnake(tbl_b)));
+        std::string clean_a = stripTablePrefix(stripTableSuffix(a));
+        std::string clean_b = stripTablePrefix(stripTableSuffix(b));
+        if (clean_a == clean_b) {
+            auto endsWithCatalog = [](const std::string& name) {
+                static const std::unordered_set<std::string> CATS = {
+                    "type", "types", "status", "statuses", "code", "codes", "state", "states", "group", "groups"
+                };
+                size_t under = name.rfind('_');
+                if (under != std::string::npos) {
+                    return CATS.count(name.substr(under + 1)) > 0;
+                }
+                return false;
+            };
+            if (endsWithCatalog(a) != endsWithCatalog(b)) {
+                return false;
+            }
+            return a.length() > b.length();
+        }
+        if (clean_a.length() > clean_b.length()) {
+            std::string sing_b = singularize(clean_b);
+            if (clean_a.rfind(sing_b + "_", 0) == 0 || clean_a.rfind(clean_b + "_", 0) == 0) {
+                size_t under_a = clean_a.rfind('_');
+                size_t under_b = clean_b.rfind('_');
+                if (under_a != std::string::npos && under_b != std::string::npos) {
+                    std::string sfx_a = clean_a.substr(under_a + 1);
+                    std::string sfx_b = clean_b.substr(under_b + 1);
+                    if (sfx_a == sfx_b || singularize(sfx_a) == singularize(sfx_b)) {
+                        std::string rem_a = clean_a.substr(0, under_a);
+                        std::string rem_b = clean_b.substr(0, under_b);
+                        if (rem_a.length() >= rem_b.length()) {
+                            std::string sing_rem_b = singularize(rem_b);
+                            std::string sing_rem_a = singularize(rem_a);
+                            if (sing_rem_a.rfind(sing_rem_b) == sing_rem_a.length() - sing_rem_b.length() ||
+                                rem_a.rfind(rem_b) == rem_a.length() - rem_b.length()) {
+                                return true;
+                            }
                         }
                     }
                 }
             }
-        }
-        // Exclude catalog/lookup tables from being subtypes
-        size_t last_underscore = clean_a.rfind('_');
-        if (last_underscore != std::string::npos && last_underscore > 0) {
-            std::string suffix = clean_a.substr(last_underscore + 1);
-            static const std::unordered_set<std::string> CATALOG_SUFFIXES = {
-                "type", "types", "status", "statuses", "cat", "cats", "category", "categories",
-                "class", "classes", "group", "groups", "genre", "genres", "role", "roles",
-                "state", "states", "level", "levels", "priority", "priorities", "lookup", "lookups",
-                "code", "codes", "mode", "modes", "action", "actions", "tag", "tags", "master", "mstr", "dict",
-                "version", "versions", "ver", "vers",
-                "content", "contents", "value", "values", "blob", "blobs", "data", "xml", "text", "file", "files",
-                "system", "systems", "service", "services", "assignment", "assignments", "map", "maps", "link", "links",
-                "relation", "relations", "relationship", "relationships", "membership", "memberships", "association", "associations",
-                "property", "properties", "store", "stores", "history"
+            // Exclude catalog/lookup/transactional suffixes from being subtypes.
+            // Example: order_item is not a subtype of order; order_detail is not a subtype of order.
+            size_t last_underscore = clean_a.rfind('_');
+            if (last_underscore != std::string::npos && last_underscore > 0) {
+                std::string suffix = clean_a.substr(last_underscore + 1);
+                static const std::unordered_set<std::string> CATALOG_SUFFIXES = {
+                    "type", "types", "status", "statuses", "cat", "cats", "category", "categories",
+                    "class", "classes", "group", "groups", "genre", "genres", "role", "roles",
+                    "state", "states", "level", "levels", "priority", "priorities", "lookup", "lookups",
+                    "code", "codes", "mode", "modes", "action", "actions", "tag", "tags", "master", "mstr", "dict",
+                    "version", "versions", "ver", "vers",
+                    "content", "contents", "value", "values", "blob", "blobs", "data", "xml", "text", "file", "files",
+                    "system", "systems", "service", "services", "assignment", "assignments", "map", "maps", "link", "links",
+                    "relation", "relations", "relationship", "relationships", "membership", "memberships", "association", "associations",
+                    "property", "properties", "store", "stores", "history",
+                    "item", "items", "payment", "payments", "log", "logs", "record", "records", "detail", "details"
+                };
+                if (CATALOG_SUFFIXES.count(suffix) && suffix != clean_b && suffix + "s" != clean_b && singularize(suffix) != singularize(clean_b)) {
+                    return false;
+                }
+            }
+
+            static const std::unordered_set<std::string> CATALOG_WORDS = {
+                "type", "types", "status", "statuses", "code", "codes", "state", "states", "group", "groups",
+                "lookup", "lookups", "tag", "tags"
             };
-            if (CATALOG_SUFFIXES.count(suffix) && suffix != clean_b && suffix + "s" != clean_b && singularize(suffix) != singularize(clean_b)) {
+            if (CATALOG_WORDS.count(clean_b) > 0) {
                 return false;
             }
-        }
 
-        static const std::unordered_set<std::string> CATALOG_WORDS = {
-            "type", "types", "status", "statuses", "code", "codes", "state", "states", "group", "groups",
-            "lookup", "lookups", "tag", "tags"
-        };
-        if (CATALOG_WORDS.count(clean_b) > 0) {
-            return false;
-        }
-
-        size_t pos = clean_a.rfind(clean_b);
-        if (pos != std::string::npos && pos == clean_a.length() - clean_b.length()) {
-            std::string prefix = clean_a.substr(0, pos);
-            if (prefix == "meta" || prefix == "sys" || prefix == "ref" || prefix == "ext" ||
-                prefix == "meta_" || prefix == "sys_" || prefix == "ref_" || prefix == "ext_") {
-                return false;
-            }
-            return true;
-        }
-        
-        // Prefix-based hierarchy (e.g. step_video -> steps)
-        // If tbl_b is a catalog table, it cannot be a parent in a prefix-based hierarchy
-        bool b_is_catalog = false;
-        static const std::unordered_set<std::string> CATS = {
-            "type", "types", "status", "statuses", "code", "codes", "state", "states", "group", "groups"
-        };
-        size_t under_b = b.rfind('_');
-        if (under_b != std::string::npos) {
-            b_is_catalog = (CATS.count(b.substr(under_b + 1)) > 0);
-        }
-        if (!b_is_catalog) {
-            std::string sb = clean_b;
-            if (sb.length() > 1 && sb.back() == 's') sb = sb.substr(0, sb.length() - 1);
-            if (clean_a.rfind(sb + "_", 0) == 0 || clean_a.rfind(clean_b + "_", 0) == 0) {
+            size_t pos = clean_a.rfind(clean_b);
+            if (pos != std::string::npos && pos == clean_a.length() - clean_b.length()) {
+                std::string prefix = clean_a.substr(0, pos);
+                if (prefix == "meta" || prefix == "sys" || prefix == "ref" || prefix == "ext" ||
+                    prefix == "meta_" || prefix == "sys_" || prefix == "ref_" || prefix == "ext_") {
+                    return false;
+                }
                 return true;
             }
+            
+            // Prefix-based hierarchy (e.g. step_video -> steps)
+            // If tbl_b is a catalog table, it cannot be a parent in a prefix-based hierarchy
+            bool b_is_catalog = false;
+            static const std::unordered_set<std::string> CATS = {
+                "type", "types", "status", "statuses", "code", "codes", "state", "states", "group", "groups"
+            };
+            size_t under_b = b.rfind('_');
+            if (under_b != std::string::npos) {
+                b_is_catalog = (CATS.count(b.substr(under_b + 1)) > 0);
+            }
+            if (!b_is_catalog) {
+                std::string sb = clean_b;
+                if (sb.length() > 1 && sb.back() == 's') sb = sb.substr(0, sb.length() - 1);
+                if (clean_a.rfind(sb + "_", 0) == 0 || clean_a.rfind(clean_b + "_", 0) == 0 ||
+                    (clean_b.length() >= 3 && (clean_a.rfind(sb, 0) == 0 || clean_a.rfind(clean_b, 0) == 0))) {
+                    return true;
+                }
+            }
         }
-    }
-    return false;
+        return false;
+    };
+
+    bool result = compute();
+    cache[tbl_a][tbl_b] = result;
+    return result;
 }

@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 418866_1_20create_20db
+#
+CREATE DATABASE `db_418866_1_20create_20db`;
+USE `db_418866_1_20create_20db`;
+CREATE TABLE `address` (
+`id` INT,
+`street` VARCHAR(64),
+`number` VARCHAR(64),
+`postcode` VARCHAR(64),
+`customer_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`id` INT,
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`phone` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+`id` INT,
+`date` DATETIME,
+`status` VARCHAR(64),
+`customer_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_item` (
+`order_id` INT,
+`product_id` INT,
+`quantity` INT
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`price` DECIMAL(10,2),
+`discount_ratio` DECIMAL(10,2),
+`stock` INT,
+`is_hot` INT,
+`product_category_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_category` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`parent` VARCHAR(64),
+`other` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_418866_1_20create_20db') AS relationships;
+relationships
+Database: db_418866_1_20create_20db
+
+Table Connections:
+------------------
+[Implied]  address.customer_id -> customer.id
+[Implied]  order.customer_id -> customer.id
+[Implied]  order_item.order_id -> order.id
+[Implied]  order_item.product_id -> product.id
+[Implied]  product.product_category_id -> product_category.id
+
+DROP DATABASE `db_418866_1_20create_20db`;
+UNINSTALL EXTENSION vsql_schematron;

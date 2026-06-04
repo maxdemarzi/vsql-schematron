@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 421239_SQL
+#
+CREATE DATABASE `db_421239_SQL`;
+USE `db_421239_SQL`;
+CREATE TABLE `AUTHOR` (
+`AUID` INT,
+`Author` VARCHAR(64),
+`Organize` VARCHAR(64),
+PRIMARY KEY (`AUID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ARTICAL` (
+`ArticalID` INT,
+`Title` VARCHAR(64),
+`Source` VARCHAR(64),
+`Summary` VARCHAR(64),
+`link` VARCHAR(64),
+PRIMARY KEY (`ArticalID`)
+) CHARACTER SET latin1;
+CREATE TABLE `AUTHORMAP` (
+`ArticalID` INT,
+`AUID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `KEYWORDS` (
+`ArticalID` INT,
+`Keyword` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `REFERENCE` (
+`ArticalID` INT,
+`RefTitle` VARCHAR(64),
+`RefLink` VARCHAR(64),
+`RefID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `USER` (
+`UID` INT,
+`Username` VARCHAR(64),
+`passwdRSA` VARCHAR(64),
+PRIMARY KEY (`UID`)
+) CHARACTER SET latin1;
+CREATE TABLE `USERDB` (
+`UID` INT,
+`ArticalID` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_421239_SQL') AS relationships;
+relationships
+Database: db_421239_SQL
+
+Table Connections:
+------------------
+[Implied]  AUTHORMAP.AUID -> AUTHOR.AUID
+[Implied]  AUTHORMAP.ArticalID -> ARTICAL.ArticalID
+[Implied]  KEYWORDS.ArticalID -> ARTICAL.ArticalID
+[Implied]  REFERENCE.ArticalID -> ARTICAL.ArticalID
+[Implied]  USERDB.ArticalID -> ARTICAL.ArticalID
+[Implied]  USERDB.UID -> USER.UID
+
+DROP DATABASE `db_421239_SQL`;
+UNINSTALL EXTENSION vsql_schematron;

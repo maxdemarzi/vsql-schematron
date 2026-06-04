@@ -1,0 +1,139 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 000279_devernet_db
+#
+CREATE DATABASE `db_000279_devernet_db`;
+USE `db_000279_devernet_db`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`lastname` VARCHAR(64),
+`address` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`user_type` VARCHAR(64),
+`deleted` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `brands` (
+`id` INT,
+`name` VARCHAR(64),
+`image_urL` VARCHAR(64),
+`deleted` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`name` VARCHAR(64),
+`image_urL` VARCHAR(64),
+`cost` DECIMAL(10,2),
+`brand_id` INT,
+`deleted` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `antennas` (
+`id` INT,
+`product_id` INT,
+`mac` VARCHAR(64),
+`deleted` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `services` (
+`id` INT,
+`name` VARCHAR(64),
+`pay` DECIMAL(10,2),
+`megabytes` INT,
+`description` VARCHAR(64),
+`deleted` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `instalations` (
+`id` INT,
+`antenna_id` INT,
+`service_id` INT,
+`user_id` INT,
+`ip` VARCHAR(64),
+`commentary` VARCHAR(64),
+`deleted` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clients` (
+`id` INT,
+`user_id` INT,
+`instalation_id` INT,
+`active` BOOL,
+`deleted` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `service_payments` (
+`id` INT,
+`client_id` INT,
+`amount` DECIMAL(10,2),
+`pay` DECIMAL(10,2),
+`cancelled` DATETIME,
+`payment_date` DATETIME,
+`due_date` DATETIME,
+`deleted` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales` (
+`id` INT,
+`client_id` INT,
+`product_id` INT,
+`pay` DECIMAL(10,2),
+`amount` DECIMAL(10,2),
+`commentary` VARCHAR(64),
+`cancelled` DATETIME,
+`deleted` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notices` (
+`id` INT,
+`title` VARCHAR(64),
+`textarea` VARCHAR(64),
+`user_id` INT,
+`deleted` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_000279_devernet_db') AS relationships;
+relationships
+Database: db_000279_devernet_db
+
+Table Connections:
+------------------
+[Implied]  antennas.product_id -> products.id
+[Implied]  clients.instalation_id -> instalations.id
+[Implied]  clients.user_id -> users.id
+[Implied]  instalations.antenna_id -> antennas.id
+[Implied]  instalations.service_id -> services.id
+[Implied]  instalations.user_id -> users.id
+[Implied]  notices.user_id -> users.id
+[Implied]  products.brand_id -> brands.id
+[Implied]  sales.client_id -> clients.id
+[Implied]  sales.product_id -> products.id
+[Implied]  service_payments.client_id -> clients.id
+
+DROP DATABASE `db_000279_devernet_db`;
+UNINSTALL EXTENSION vsql_schematron;

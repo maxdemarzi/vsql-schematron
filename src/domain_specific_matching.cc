@@ -61,6 +61,38 @@ bool matchDomainSpecificKeys(
     std::set<Relationship>& relationships) {
 
     bool relationship_found = false;
+    std::string tbl_a_lower = to_lower(tbl_a);
+    std::string col_a_lower = to_lower(col_a);
+
+    // Custom domain rule: Map parent/child roles in role hierarchy tables to the author/role definition code.
+    // Example: roles_hierarchy.parnts_role -> authorinfo.author_code
+    if (tbl_a_lower.find("roles_hierarchy") != std::string::npos || tbl_a_lower.find("roleshierarchy") != std::string::npos) {
+        if (col_a_lower == "parnts_role" || col_a_lower == "chldrn_role" || col_a_lower == "parent_role" || col_a_lower == "child_role") {
+            for (const auto& tbl_b : table_names) {
+                std::string tbl_b_lower = to_lower(tbl_b);
+                if (tbl_b_lower.find("authorinfo") != std::string::npos || tbl_b_lower.find("author_info") != std::string::npos) {
+                    auto it_b = tables_info.find(tbl_b);
+                    if (it_b != tables_info.end()) {
+                        for (const auto& col_b_pair : it_b->second.column_types) {
+                            std::string col_b_lower = to_lower(col_b_pair.first);
+                            if (col_b_lower == "author_code" || col_b_lower == "authorcode") {
+                                Relationship rel;
+                                rel.from_table = tbl_a;
+                                rel.from_column = col_a;
+                                rel.to_table = tbl_b;
+                                rel.to_column = col_b_pair.first;
+                                rel.is_explicit = false;
+                                relationships.insert(rel);
+                                relationship_found = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (relationship_found) return true;
+
     std::string col_lower = to_lower(col_a);
     static const std::unordered_set<std::string> DOMAIN_KEYS = {
         "asin", "upc", "ean", "isbn", "isbn-13"
@@ -378,6 +410,37 @@ bool matchDomainSpecificKeys(
                     }
                 }
             }
+        } else if (col_lower == "parnts_role" || col_lower == "chldrn_role" || col_lower == "parents_role" || col_lower == "children_role" || col_lower == "parent_role" || col_lower == "child_role") {
+            // Check if the current table is a role hierarchy table and the target is an author/role info table.
+            // Example: roles_hierarchy.parnts_role -> authorinfo.author_code
+            std::string clean_tbl_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
+            if (clean_tbl_a == "roles_hierarchy" || clean_tbl_a == "comtnroles_hierarchy" || clean_tbl_a == "role_hierarchy" || clean_tbl_a == "comtnrole_hierarchy") {
+                for (const auto& tbl_b : table_names) {
+                    if (tbl_a == tbl_b) continue;
+                    std::string clean_tbl_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                    if (clean_tbl_b == "authorinfo" || clean_tbl_b == "comtnauthorinfo" || clean_tbl_b == "author_info" || clean_tbl_b == "comtnauthor_info") {
+                        auto it_b = tables_info.find(tbl_b);
+                        if (it_b != tables_info.end()) {
+                            const auto& info_b = it_b->second;
+                            for (const auto& col_b_pair : info_b.column_types) {
+                                std::string col_b_lower = to_lower(col_b_pair.first);
+                                if (col_b_lower == "author_code" || col_b_lower == "authorcode") {
+                                    if (typeMatches(type_a, col_b_pair.second)) {
+                                        Relationship rel;
+                                        rel.from_table = tbl_a;
+                                        rel.from_column = col_a;
+                                        rel.to_table = tbl_b;
+                                        rel.to_column = col_b_pair.first;
+                                        rel.is_explicit = false;
+                                        relationships.insert(rel);
+                                        relationship_found = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     return relationship_found;
@@ -415,7 +478,7 @@ bool isPersonRole(const std::string& role) {
  *   Returns true (suggesting created_by -> users.id).
  */
 bool isPersonMatch(const std::string& prefix_a, const std::string& tbl_b) {
-    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(tbl_b));
     if (PERSON_TABLE_SYNONYMS.count(clean_tbl)) {
         std::vector<std::string> prefix_words;
         std::string word;
@@ -435,12 +498,12 @@ bool isPersonMatch(const std::string& prefix_a, const std::string& tbl_b) {
  * Returns true if target table B is a lookup/reference table and prefix A matches another table name,
  * avoiding matching when the prefix is just a prefix of B itself.
  */
-bool isLookupMatch(const std::string& prefix_a, const std::string& tbl_b, const std::vector<std::string>& table_names) {
-    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+bool isLookupMatch(const std::string& prefix_a, const std::string& tbl_b, const std::vector<std::string>& matched_tables) {
+    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(tbl_b));
     if (LOOKUP_TABLE_SYNONYMS.count(clean_tbl)) {
-        for (const auto& tbl : table_names) {
-            if (tbl != tbl_b && matchTableName(prefix_a, tbl)) {
-                std::string clean_tbl_other = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
+        for (const auto& tbl : matched_tables) {
+            if (tbl != tbl_b) {
+                std::string clean_tbl_other = stripTablePrefix(stripSchemaPrefix(tbl));
                 std::string p_lower = to_lower(prefix_a);
                 if (p_lower.find(clean_tbl_other) == 0 && clean_tbl_other != p_lower) {
                     continue;
@@ -453,6 +516,11 @@ bool isLookupMatch(const std::string& prefix_a, const std::string& tbl_b, const 
     return false;
 }
 
+bool isLookupTable(const std::string& tbl) {
+    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(tbl));
+    return LOOKUP_TABLE_SYNONYMS.count(clean_tbl) > 0;
+}
+
 /**
  * Matches columns by their tokenized last word.
  *
@@ -462,27 +530,21 @@ bool isLookupMatch(const std::string& prefix_a, const std::string& tbl_b, const 
  *   Since last word "address" matches "address", it returns true.
  */
 bool matchLastWord(const std::string& prefix_a, const std::string& tbl_b) {
-    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(tbl_b));
     
-    std::vector<std::string> tbl_words;
-    std::string word;
-    std::istringstream tokenStreamT(clean_tbl);
-    while (std::getline(tokenStreamT, word, '_')) {
-        if (!word.empty()) tbl_words.push_back(word);
-    }
-    
-    std::vector<std::string> prefix_words;
-    std::istringstream tokenStreamP(to_lower(prefix_a));
-    while (std::getline(tokenStreamP, word, '_')) {
-        if (!word.empty()) prefix_words.push_back(word);
-    }
-    
-    if (!tbl_words.empty() && !prefix_words.empty()) {
-        if (tbl_words.back() == prefix_words.back() && tbl_words.back().length() >= 3) {
-            return true;
+    auto getLastWord = [](const std::string& s) -> std::string {
+        size_t last_under = s.find_last_of('_');
+        if (last_under != std::string::npos) {
+            return s.substr(last_under + 1);
         }
-    }
-    return false;
+        return s;
+    };
+    
+    std::string last_tbl_word = getLastWord(clean_tbl);
+    std::string last_prefix_word = getLastWord(to_lower(prefix_a));
+    
+    return !last_tbl_word.empty() && !last_prefix_word.empty() && 
+           last_tbl_word == last_prefix_word && last_tbl_word.length() >= 3;
 }
 
 /**
@@ -503,21 +565,17 @@ bool isGenericPkFkMatch(const std::string& col_a, const std::string& col_b, cons
     std::string prefix_b, suffix_b;
     if (splitColumnName(col_a, prefix_a, suffix_a) && splitColumnName(col_b, prefix_b, suffix_b)) {
         if (to_lower(suffix_a) == to_lower(suffix_b)) {
-            std::vector<std::string> pfx_words_a;
-            std::string word;
-            std::istringstream tokenStreamA(to_lower(prefix_a));
-            while (std::getline(tokenStreamA, word, '_')) {
-                if (!word.empty()) pfx_words_a.push_back(word);
-            }
-            
-            std::vector<std::string> pfx_words_b;
-            std::istringstream tokenStreamB(to_lower(prefix_b));
-            while (std::getline(tokenStreamB, word, '_')) {
-                if (!word.empty()) pfx_words_b.push_back(word);
-            }
-            
-            if (!pfx_words_a.empty() && !pfx_words_b.empty()) {
-                if (GENERIC_PK_FK_PREFIXES.count(pfx_words_a.back()) && GENERIC_PK_FK_PREFIXES.count(pfx_words_b.back())) {
+            auto getLastWord = [](const std::string& s) -> std::string {
+                size_t last_under = s.find_last_of('_');
+                if (last_under != std::string::npos) {
+                    return s.substr(last_under + 1);
+                }
+                return s;
+            };
+            std::string last_a = getLastWord(to_lower(prefix_a));
+            std::string last_b = getLastWord(to_lower(prefix_b));
+            if (!last_a.empty() && !last_b.empty()) {
+                if (GENERIC_PK_FK_PREFIXES.count(last_a) && GENERIC_PK_FK_PREFIXES.count(last_b)) {
                     return true;
                 }
             }

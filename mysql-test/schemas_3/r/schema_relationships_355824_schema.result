@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 355824_schema
+#
+CREATE DATABASE `db_355824_schema`;
+USE `db_355824_schema`;
+CREATE TABLE `users` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`address1` VARCHAR(64),
+`address2` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`zip` VARCHAR(64),
+`mobile` VARCHAR(64),
+`salt` VARCHAR(64),
+`password` VARCHAR(64),
+`last_login` DATETIME,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contacts` (
+`id` INT,
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`nickname` VARCHAR(64),
+`relationship` VARCHAR(64),
+`email` VARCHAR(64),
+`mobile` VARCHAR(64),
+`users` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+`id` INT,
+`groupname` VARCHAR(64),
+`users` INT,
+`contacts` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `plans` (
+`id` INT,
+`planname` VARCHAR(64),
+`isActive` BOOL,
+`isHome` BOOL,
+`durationBeforeExecution` INT,
+`activatestart` DATETIME,
+`activateend` DATETIME,
+`executeplan` BOOL,
+`users` INT,
+`contacts` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `templates` (
+`id` INT,
+`nickname` VARCHAR(64),
+`val` VARCHAR(64),
+`users` INT,
+`contacts` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_355824_schema') AS relationships;
+relationships
+Database: db_355824_schema
+
+Table Connections:
+------------------
+[Implied]  contacts.users -> users.id
+[Implied]  groups.contacts -> contacts.id
+[Implied]  groups.users -> users.id
+[Implied]  plans.contacts -> contacts.id
+[Implied]  plans.users -> users.id
+[Implied]  templates.contacts -> contacts.id
+[Implied]  templates.users -> users.id
+
+DROP DATABASE `db_355824_schema`;
+UNINSTALL EXTENSION vsql_schematron;

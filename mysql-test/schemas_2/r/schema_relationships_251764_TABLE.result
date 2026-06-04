@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 251764_TABLE
+#
+CREATE DATABASE `db_251764_TABLE`;
+USE `db_251764_TABLE`;
+CREATE TABLE `USER` (
+`ID` INT,
+`FIRST_NAME` VARCHAR(64),
+`LAST_NAME` VARCHAR(64),
+`EMAIL` VARCHAR(64),
+`PHONE` VARCHAR(64),
+`PASSWORD` VARCHAR(64),
+`ADDRESS` VARCHAR(64),
+`TYPE` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `STAFF` (
+`ID` INT,
+`ROLE` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `Card` (
+`CardID` INT,
+`Card_Number` INT,
+`CVC` INT,
+`Expiry` DATETIME,
+PRIMARY KEY (`CardID`)
+) CHARACTER SET latin1;
+CREATE TABLE `RoomType` (
+`RoomTypeID` INT,
+`CostPerDay` DECIMAL(10,2),
+`NumBeds` INT,
+`Suite` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`RoomTypeID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Room` (
+`RoomID` INT,
+`RoomTypeID` INT,
+PRIMARY KEY (`RoomID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Booking` (
+`BookingID` INT,
+`UserID` INT,
+`RoomID` INT,
+`Starting_Date` DATETIME,
+`Ending_Date` DATETIME,
+`Status` VARCHAR(64),
+`Paid` BOOL,
+`Total_Cost` DECIMAL(10,2),
+PRIMARY KEY (`BookingID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_251764_TABLE') AS relationships;
+relationships
+Database: db_251764_TABLE
+
+Table Connections:
+------------------
+[Implied]  Booking.RoomID -> Room.RoomID
+[Implied]  Booking.UserID -> USER.ID
+[Implied]  Room.RoomTypeID -> RoomType.RoomTypeID
+[Implied]  STAFF.ID -> USER.ID
+
+DROP DATABASE `db_251764_TABLE`;
+UNINSTALL EXTENSION vsql_schematron;

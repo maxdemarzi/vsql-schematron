@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 692207_init
+#
+CREATE DATABASE `db_692207_init`;
+USE `db_692207_init`;
+CREATE TABLE `Person` (
+`Person_ID` INT,
+`Last_Name` VARCHAR(64),
+`First_Name` VARCHAR(64),
+`Phone` VARCHAR(64),
+`Address` VARCHAR(64),
+PRIMARY KEY (`Person_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Owner` (
+`Owner_ID` INT,
+`Description` VARCHAR(64),
+`Person_ID` INT,
+PRIMARY KEY (`Owner_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employee` (
+`Employee_ID` INT,
+`Spec` VARCHAR(64),
+`Person_ID` INT,
+PRIMARY KEY (`Employee_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pet_Type` (
+`Pet_Type_ID` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`Pet_Type_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pet` (
+`Pet_ID` INT,
+`Nick` VARCHAR(64),
+`Breed` VARCHAR(64),
+`Age` INT,
+`Description` VARCHAR(64),
+`Pet_Type_ID` INT,
+`Owner_ID` INT,
+PRIMARY KEY (`Pet_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Service` (
+`Service_ID` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`Service_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employee_Service` (
+`Employee_ID` INT,
+`Service_ID` INT,
+`Is_Basic` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Order_Info` (
+`Order_ID` INT,
+`Owner_ID` INT,
+`Service_ID` INT,
+`Pet_ID` INT,
+`Employee_ID` INT,
+`Time_Order` DATETIME,
+`Is_Done` INT,
+`Mark` INT,
+`Comments` VARCHAR(64),
+PRIMARY KEY (`Order_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_692207_init') AS relationships;
+relationships
+Database: db_692207_init
+
+Table Connections:
+------------------
+[Implied]  Employee.Person_ID -> Person.Person_ID
+[Implied]  Employee_Service.Employee_ID -> Employee.Employee_ID
+[Implied]  Employee_Service.Service_ID -> Service.Service_ID
+[Implied]  Order_Info.Employee_ID -> Employee.Employee_ID
+[Implied]  Order_Info.Owner_ID -> Owner.Owner_ID
+[Implied]  Order_Info.Pet_ID -> Pet.Pet_ID
+[Implied]  Order_Info.Service_ID -> Service.Service_ID
+[Implied]  Owner.Person_ID -> Person.Person_ID
+[Implied]  Pet.Owner_ID -> Owner.Owner_ID
+[Implied]  Pet.Pet_Type_ID -> Pet_Type.Pet_Type_ID
+
+DROP DATABASE `db_692207_init`;
+UNINSTALL EXTENSION vsql_schematron;

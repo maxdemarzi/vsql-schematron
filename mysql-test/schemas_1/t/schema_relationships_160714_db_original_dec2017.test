@@ -1,0 +1,117 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 160714_db_original_dec2017
+--echo #
+CREATE DATABASE `db_160714_db_original_dec2017`;
+USE `db_160714_db_original_dec2017`;
+
+CREATE TABLE `student` (
+  `id` INT,
+  `studentId` VARCHAR(64),
+  `firstNameStudent` VARCHAR(64),
+  `lastNameStudent` VARCHAR(64),
+  `idMajor` VARCHAR(64),
+  PRIMARY KEY (`id`, `studentId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `staff` (
+  `id` INT,
+  `staffId` VARCHAR(64),
+  `firstNameStaff` VARCHAR(64),
+  `lastNameStaff` VARCHAR(64),
+  `idDepartment` INT,
+  PRIMARY KEY (`id`, `staffId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rfid` (
+  `id` INT,
+  `idCard` VARCHAR(64),
+  `numberId` VARCHAR(64),
+  PRIMARY KEY (`id`, `idCard`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event` (
+  `id` INT,
+  `nameEvent` VARCHAR(64),
+  `timeStart` DATETIME,
+  `timeEnd` DATETIME,
+  `dateEvent` DATETIME,
+  `locationEvent` VARCHAR(64),
+  `descriptionEvent` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `attendance` (
+  `id` INT,
+  `idEvent` INT,
+  `idCard` VARCHAR(64),
+  `timeIn` DATETIME,
+  `timeOut` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `department` (
+  `id` INT,
+  `nameDepartment` VARCHAR(64),
+  `idFaculty` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `faculty` (
+  `id` INT,
+  `idFaculty` VARCHAR(64),
+  `nameFaculty` VARCHAR(64),
+  PRIMARY KEY (`id`, `idFaculty`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `major` (
+  `id` INT,
+  `idMajor` VARCHAR(64),
+  `nameMajor` VARCHAR(64),
+  `idFaculty` VARCHAR(64),
+  PRIMARY KEY (`id`, `idMajor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `register` (
+  `id` INT,
+  `numberId` VARCHAR(64),
+  `idEvent` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `account` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `name` VARCHAR(64),
+  `role` VARCHAR(64),
+  PRIMARY KEY (`id`, `username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `apikey` (
+  `id` INT,
+  `valueApi` VARCHAR(64),
+  `encriptApi` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_160714_db_original_dec2017') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_160714_db_original_dec2017') AS relationships;
+DROP DATABASE `db_160714_db_original_dec2017`;
+UNINSTALL EXTENSION vsql_schematron;

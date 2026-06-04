@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 252200_schema
+#
+CREATE DATABASE `db_252200_schema`;
+USE `db_252200_schema`;
+CREATE TABLE `product` (
+`id` INT,
+`name` VARCHAR(64),
+`slogan` VARCHAR(64),
+`description` VARCHAR(64),
+`category` VARCHAR(64),
+`default_price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questions` (
+`id` INT,
+`product_id` INT,
+`body` VARCHAR(64),
+`date_written` INT,
+`asker_name` VARCHAR(64),
+`asker_email` VARCHAR(64),
+`reported` INT,
+`helpful` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answers` (
+`id` INT,
+`question_id` INT,
+`body` VARCHAR(64),
+`date_written` INT,
+`answerer_name` VARCHAR(64),
+`answerer_email` VARCHAR(64),
+`reported` INT,
+`helpful` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answers_photos` (
+`id` INT,
+`answer_id` INT,
+`url` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_252200_schema') AS relationships;
+relationships
+Database: db_252200_schema
+
+Table Connections:
+------------------
+[Implied]  answers.question_id -> questions.id
+[Implied]  answers_photos.answer_id -> answers.id
+[Implied]  questions.product_id -> product.id
+
+DROP DATABASE `db_252200_schema`;
+UNINSTALL EXTENSION vsql_schematron;
