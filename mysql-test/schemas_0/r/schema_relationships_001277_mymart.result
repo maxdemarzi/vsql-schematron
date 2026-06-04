@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 001277_mymart
+#
+CREATE DATABASE `db_001277_mymart`;
+USE `db_001277_mymart`;
+CREATE TABLE `addresses` (
+`id` INT,
+`line1` VARCHAR(64),
+`line2` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`country` VARCHAR(64),
+`phone` VARCHAR(64),
+`pincode` INT,
+`user_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`user_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `orders_details` (
+`id` INT,
+`order_id` INT,
+`product_id` INT,
+`quantity` INT
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`title` VARCHAR(64),
+`image` VARCHAR(64),
+`images` VARCHAR(64),
+`description` VARCHAR(64),
+`price` DECIMAL(10,2),
+`quantity` INT,
+`short_desc` VARCHAR(64),
+`cat_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+`fname` VARCHAR(64),
+`lname` VARCHAR(64),
+`age` INT,
+`role` INT,
+`photoUrl` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_001277_mymart') AS relationships;
+relationships
+Database: db_001277_mymart
+
+Table Connections:
+------------------
+[Implied]  addresses.user_id -> users.id
+[Implied]  orders.user_id -> users.id
+[Implied]  orders_details.order_id -> orders.id
+[Implied]  orders_details.product_id -> products.id
+[Implied]  products.cat_id -> categories.id
+
+DROP DATABASE `db_001277_mymart`;
+UNINSTALL EXTENSION vsql_schematron;

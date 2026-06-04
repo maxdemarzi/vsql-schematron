@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 001277_mymart
+--echo #
+CREATE DATABASE `db_001277_mymart`;
+USE `db_001277_mymart`;
+
+CREATE TABLE `addresses` (
+  `id` INT,
+  `line1` VARCHAR(64),
+  `line2` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `country` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `pincode` INT,
+  `user_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `id` INT,
+  `title` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `id` INT,
+  `user_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders_details` (
+  `id` INT,
+  `order_id` INT,
+  `product_id` INT,
+  `quantity` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `products` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `image` VARCHAR(64),
+  `images` VARCHAR(64),
+  `description` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `quantity` INT,
+  `short_desc` VARCHAR(64),
+  `cat_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `age` INT,
+  `role` INT,
+  `photoUrl` VARCHAR(64),
+  `type` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_001277_mymart') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_001277_mymart') AS relationships;
+DROP DATABASE `db_001277_mymart`;
+UNINSTALL EXTENSION vsql_schematron;
