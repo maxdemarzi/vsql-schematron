@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 145403_db
+#
+CREATE DATABASE `db_145403_db`;
+USE `db_145403_db`;
+CREATE TABLE `enduro_totals` (
+`evento_id` VARCHAR(255),
+`equipe_id` INT,
+`lap_count` INT,
+`lap_time_avg` INT,
+`lap_time_min` INT,
+`lap_time_max` INT,
+PRIMARY KEY (`evento_id`, `equipe_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `equipe` (
+`evento_id` VARCHAR(255),
+`equipe_id` INT,
+`escola` VARCHAR(255),
+`equipe` VARCHAR(255),
+`estado` VARCHAR(255),
+`presente` INT,
+`escola_curto` VARCHAR(255),
+`equipe_curto` VARCHAR(255),
+`cidade` VARCHAR(255),
+PRIMARY KEY (`evento_id`, `equipe_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `evento` (
+`evento_id` VARCHAR(255),
+`titulo` VARCHAR(255),
+`nome` VARCHAR(255),
+`tipo` INT,
+`ano` INT,
+`menu` VARCHAR(255),
+`ativo` INT,
+`finalizado` INT,
+PRIMARY KEY (`evento_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `prova` (
+`evento_id` VARCHAR(255),
+`prova_id` VARCHAR(255),
+`nome` VARCHAR(255),
+`status` INT,
+`tempo` INT,
+`modificado` DATETIME,
+`params` VARCHAR(255),
+`totals` VARCHAR(255),
+PRIMARY KEY (`prova_id`, `evento_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`user_id` INT,
+`evento_id` VARCHAR(255),
+`prova_id` VARCHAR(255),
+`role` VARCHAR(255),
+`habilitado` INT,
+PRIMARY KEY (`user_id`, `evento_id`, `prova_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_145403_db') AS relationships;
+relationships
+Database: db_145403_db
+
+Table Connections:
+------------------
+[Implied]  enduro_totals.evento_id -> evento.evento_id
+[Implied]  equipe.evento_id -> evento.evento_id
+[Implied]  prova.evento_id -> evento.evento_id
+[Implied]  roles.evento_id -> evento.evento_id
+
+DROP DATABASE `db_145403_db`;
+UNINSTALL EXTENSION vsql_schematron;

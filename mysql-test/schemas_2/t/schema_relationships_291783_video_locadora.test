@@ -1,0 +1,178 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 291783_video_locadora
+--echo #
+CREATE DATABASE `db_291783_video_locadora`;
+USE `db_291783_video_locadora`;
+
+CREATE TABLE `ceps` (
+  `id` INT,
+  `cep` VARCHAR(255),
+  `tipo` VARCHAR(255),
+  `logradouro` VARCHAR(255),
+  `bairro` VARCHAR(255),
+  `municipio` VARCHAR(255),
+  `uf` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `empresas` (
+  `id` INT,
+  `cnpj` VARCHAR(255),
+  `razao_social` VARCHAR(255),
+  `cep_id` INT,
+  `site` VARCHAR(255),
+  `email` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `funcionarios` (
+  `id` INT,
+  `cpf` VARCHAR(255),
+  `nome` VARCHAR(255),
+  `rg` VARCHAR(255),
+  `data_admissao` DATETIME,
+  `cep_id` INT,
+  `telefone` VARCHAR(255),
+  `celular` VARCHAR(255),
+  `foto` VARCHAR(255),
+  `administrador` VARCHAR(255),
+  `empresa_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `clientes` (
+  `id` INT,
+  `cpf` VARCHAR(255),
+  `nome` VARCHAR(255),
+  `rg` VARCHAR(255),
+  `foto` VARCHAR(255),
+  `data_cadastro` DATETIME,
+  `taxa_inscricao` DECIMAL(10,2),
+  `cep_id` INT,
+  `telefone` VARCHAR(255),
+  `email` VARCHAR(255),
+  `referencias` VARCHAR(255),
+  `receber_novidades_email` VARCHAR(255),
+  `liberado` VARCHAR(255),
+  `funcionario_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dependentes` (
+  `id` INT,
+  `nome` VARCHAR(255),
+  `cliente_id` INT,
+  `foto` VARCHAR(255),
+  `data_cadastro` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `fornecedores` (
+  `id` INT,
+  `razao_social` VARCHAR(255),
+  `cpf` VARCHAR(255),
+  `cnpj` VARCHAR(255),
+  `inscricao_estadual` VARCHAR(255),
+  `cep_id` INT,
+  `telefone` VARCHAR(255),
+  `site` VARCHAR(255),
+  `contato` VARCHAR(255),
+  `contato_fone` VARCHAR(255),
+  `fax` VARCHAR(255),
+  `observacao` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `generos` (
+  `id` INT,
+  `descricao` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `distribuidoras` (
+  `id` INT,
+  `nome` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `filmes` (
+  `id` INT,
+  `diretor` VARCHAR(255),
+  `duracao` VARCHAR(255),
+  `sinopse` VARCHAR(255),
+  `foto_cena` VARCHAR(255),
+  `ano` VARCHAR(255),
+  `ator_principal` VARCHAR(255),
+  `ator_coadjuvante` VARCHAR(255),
+  `genero_id` INT,
+  `distribuidora_id` INT,
+  `titulo` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `compras` (
+  `id` INT,
+  `data` DATETIME,
+  `fornecedor_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `compra_itens` (
+  `id` INT,
+  `compra_id` INT,
+  `filme_id` INT,
+  `quantidade` INT,
+  `preco_unitario` DECIMAL(10,2),
+  `estoque_min` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `fitas` (
+  `id` INT,
+  `fornecedor_id` INT,
+  `tipo` VARCHAR(255),
+  `filme_id` INT,
+  `cotacao` VARCHAR(255),
+  `custo_aquisicao` DECIMAL(10,2),
+  `data_aquisicao` DATETIME,
+  `quantidade_copias` INT,
+  `dub_leg` VARCHAR(255),
+  `lancamento` VARCHAR(255),
+  `observacao` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `locacoes` (
+  `id` INT,
+  `fita_id` INT,
+  `cliente_id` INT,
+  `data_locacao` DATETIME,
+  `data_devolucao` DATETIME,
+  `cheque` VARCHAR(255),
+  `forma_pagamento` INT,
+  `multa_atrazo` DECIMAL(10,2),
+  `valor_total` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_291783_video_locadora') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_291783_video_locadora') AS relationships;
+DROP DATABASE `db_291783_video_locadora`;
+UNINSTALL EXTENSION vsql_schematron;

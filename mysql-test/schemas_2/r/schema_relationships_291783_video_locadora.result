@@ -1,0 +1,169 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 291783_video_locadora
+#
+CREATE DATABASE `db_291783_video_locadora`;
+USE `db_291783_video_locadora`;
+CREATE TABLE `ceps` (
+`id` INT,
+`cep` VARCHAR(255),
+`tipo` VARCHAR(255),
+`logradouro` VARCHAR(255),
+`bairro` VARCHAR(255),
+`municipio` VARCHAR(255),
+`uf` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `empresas` (
+`id` INT,
+`cnpj` VARCHAR(255),
+`razao_social` VARCHAR(255),
+`cep_id` INT,
+`site` VARCHAR(255),
+`email` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `funcionarios` (
+`id` INT,
+`cpf` VARCHAR(255),
+`nome` VARCHAR(255),
+`rg` VARCHAR(255),
+`data_admissao` DATETIME,
+`cep_id` INT,
+`telefone` VARCHAR(255),
+`celular` VARCHAR(255),
+`foto` VARCHAR(255),
+`administrador` VARCHAR(255),
+`empresa_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clientes` (
+`id` INT,
+`cpf` VARCHAR(255),
+`nome` VARCHAR(255),
+`rg` VARCHAR(255),
+`foto` VARCHAR(255),
+`data_cadastro` DATETIME,
+`taxa_inscricao` DECIMAL(10,2),
+`cep_id` INT,
+`telefone` VARCHAR(255),
+`email` VARCHAR(255),
+`referencias` VARCHAR(255),
+`receber_novidades_email` VARCHAR(255),
+`liberado` VARCHAR(255),
+`funcionario_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dependentes` (
+`id` INT,
+`nome` VARCHAR(255),
+`cliente_id` INT,
+`foto` VARCHAR(255),
+`data_cadastro` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fornecedores` (
+`id` INT,
+`razao_social` VARCHAR(255),
+`cpf` VARCHAR(255),
+`cnpj` VARCHAR(255),
+`inscricao_estadual` VARCHAR(255),
+`cep_id` INT,
+`telefone` VARCHAR(255),
+`site` VARCHAR(255),
+`contato` VARCHAR(255),
+`contato_fone` VARCHAR(255),
+`fax` VARCHAR(255),
+`observacao` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `generos` (
+`id` INT,
+`descricao` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `distribuidoras` (
+`id` INT,
+`nome` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `filmes` (
+`id` INT,
+`diretor` VARCHAR(255),
+`duracao` VARCHAR(255),
+`sinopse` VARCHAR(255),
+`foto_cena` VARCHAR(255),
+`ano` VARCHAR(255),
+`ator_principal` VARCHAR(255),
+`ator_coadjuvante` VARCHAR(255),
+`genero_id` INT,
+`distribuidora_id` INT,
+`titulo` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `compras` (
+`id` INT,
+`data` DATETIME,
+`fornecedor_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `compra_itens` (
+`id` INT,
+`compra_id` INT,
+`filme_id` INT,
+`quantidade` INT,
+`preco_unitario` DECIMAL(10,2),
+`estoque_min` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fitas` (
+`id` INT,
+`fornecedor_id` INT,
+`tipo` VARCHAR(255),
+`filme_id` INT,
+`cotacao` VARCHAR(255),
+`custo_aquisicao` DECIMAL(10,2),
+`data_aquisicao` DATETIME,
+`quantidade_copias` INT,
+`dub_leg` VARCHAR(255),
+`lancamento` VARCHAR(255),
+`observacao` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `locacoes` (
+`id` INT,
+`fita_id` INT,
+`cliente_id` INT,
+`data_locacao` DATETIME,
+`data_devolucao` DATETIME,
+`cheque` VARCHAR(255),
+`forma_pagamento` INT,
+`multa_atrazo` DECIMAL(10,2),
+`valor_total` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_291783_video_locadora') AS relationships;
+relationships
+Database: db_291783_video_locadora
+
+Table Connections:
+------------------
+[Implied]  clientes.cep_id -> ceps.id
+[Implied]  clientes.funcionario_id -> funcionarios.id
+[Implied]  compra_itens.compra_id -> compras.id
+[Implied]  compra_itens.filme_id -> filmes.id
+[Implied]  compras.fornecedor_id -> fornecedores.id
+[Implied]  dependentes.cliente_id -> clientes.id
+[Implied]  empresas.cep_id -> ceps.id
+[Implied]  filmes.distribuidora_id -> distribuidoras.id
+[Implied]  filmes.genero_id -> generos.id
+[Implied]  fitas.filme_id -> filmes.id
+[Implied]  fitas.fornecedor_id -> fornecedores.id
+[Implied]  fornecedores.cep_id -> ceps.id
+[Implied]  funcionarios.cep_id -> ceps.id
+[Implied]  funcionarios.empresa_id -> empresas.id
+[Implied]  locacoes.cliente_id -> clientes.id
+[Implied]  locacoes.fita_id -> fitas.id
+
+DROP DATABASE `db_291783_video_locadora`;
+UNINSTALL EXTENSION vsql_schematron;

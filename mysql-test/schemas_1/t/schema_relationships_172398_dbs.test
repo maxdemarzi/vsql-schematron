@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 172398_dbs
+--echo #
+CREATE DATABASE `db_172398_dbs`;
+USE `db_172398_dbs`;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `first` VARCHAR(255),
+  `last` VARCHAR(255),
+  `email` VARCHAR(255),
+  `password` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_recipe` (
+  `id` INT,
+  `recipe_id` INT,
+  `recipe_title` VARCHAR(255),
+  `day` VARCHAR(255),
+  `week` VARCHAR(255),
+  `quantity` INT,
+  PRIMARY KEY (`id`, `recipe_id`, `day`, `week`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_activity` (
+  `id` INT,
+  `lastWeekNo` INT,
+  `recentSearch` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recipe` (
+  `recipe_id` INT,
+  `recipe_title` VARCHAR(255),
+  `data` VARCHAR(255),
+  PRIMARY KEY (`recipe_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_172398_dbs') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_172398_dbs') AS relationships;
+DROP DATABASE `db_172398_dbs`;
+UNINSTALL EXTENSION vsql_schematron;

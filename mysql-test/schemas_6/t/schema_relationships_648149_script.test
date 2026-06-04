@@ -1,0 +1,118 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 648149_script
+--echo #
+CREATE DATABASE `db_648149_script`;
+USE `db_648149_script`;
+
+CREATE TABLE `email` (
+  `email` VARCHAR(255),
+  `email_id` INT,
+  `user_id` INT,
+  `is_principal` VARCHAR(255),
+  `is_valid` VARCHAR(255),
+  `is_active` VARCHAR(255),
+  PRIMARY KEY (`email_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `phone` (
+  `phone_id` INT,
+  `user_id` INT,
+  `phone` VARCHAR(255),
+  `is_principal` VARCHAR(255),
+  `is_valid` VARCHAR(255),
+  `is_active` VARCHAR(255),
+  PRIMARY KEY (`phone_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `creation_date` DATETIME,
+  `name` VARCHAR(255),
+  `user_id` INT,
+  `surname` VARCHAR(255),
+  `user_type` VARCHAR(255),
+  `is_active` VARCHAR(255),
+  `password` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `attribute_kind` (
+  `attribute_kind_id` INT,
+  `sql_syntax` VARCHAR(255),
+  `name` VARCHAR(255),
+  `max_value` INT,
+  `min_value` INT,
+  `description` VARCHAR(255),
+  PRIMARY KEY (`attribute_kind_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `_database` (
+  `url` VARCHAR(255),
+  `name` VARCHAR(255),
+  `user_id` INT,
+  `_database_id` INT,
+  PRIMARY KEY (`_database_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `_table` (
+  `_table_id` INT,
+  `name` VARCHAR(255),
+  `_database_id` INT,
+  PRIMARY KEY (`_table_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `query` (
+  `query_type` VARCHAR(255),
+  `creation_date` DATETIME,
+  `name` VARCHAR(255),
+  `query_id` INT,
+  `_database_id` INT,
+  PRIMARY KEY (`query_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `attribute` (
+  `attribute_kind_id` INT,
+  `attribute_id` INT,
+  `name` VARCHAR(255),
+  `table_id` INT,
+  PRIMARY KEY (`attribute_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `level` (
+  `level_id` INT,
+  `name` VARCHAR(255),
+  `number` INT,
+  `is_principal` VARCHAR(255),
+  `is_active` VARCHAR(255),
+  PRIMARY KEY (`level_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `session` (
+  `session_id` INT,
+  `user_id` INT,
+  `token` VARCHAR(255),
+  `date` DATETIME,
+  `ip` VARCHAR(255),
+  PRIMARY KEY (`session_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_648149_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_648149_script') AS relationships;
+DROP DATABASE `db_648149_script`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 220191_init
+#
+CREATE DATABASE `db_220191_init`;
+USE `db_220191_init`;
+CREATE TABLE `country` (
+`id` INT,
+`code` VARCHAR(255),
+`phone_code` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `phone` (
+`id` INT,
+`phone_number` VARCHAR(255),
+`is_active` INT,
+`country_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`id` INT,
+`phone_id` INT,
+`date` DATETIME,
+`special_id` INT,
+`message_text` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_220191_init') AS relationships;
+relationships
+Database: db_220191_init
+
+Table Connections:
+------------------
+[Implied]  country.phone_code -> phone.id
+[Implied]  message.phone_id -> phone.id
+[Implied]  phone.country_id -> country.id
+
+DROP DATABASE `db_220191_init`;
+UNINSTALL EXTENSION vsql_schematron;

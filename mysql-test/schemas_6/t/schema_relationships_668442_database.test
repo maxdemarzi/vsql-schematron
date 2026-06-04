@@ -1,0 +1,117 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 668442_database
+--echo #
+CREATE DATABASE `db_668442_database`;
+USE `db_668442_database`;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `full_name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `password` VARCHAR(255),
+  `date_of_birth` DATETIME,
+  `phone_number` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permission` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_has_permission` (
+  `permission_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`permission_id`, `role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_has_role` (
+  `user_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `drafted_request` (
+  `id` INT,
+  `request_date` DATETIME,
+  `title` VARCHAR(255),
+  `details` VARCHAR(255),
+  `quantity` INT,
+  `cost_per_unit` DECIMAL(10,2),
+  `total_cost` DECIMAL(10,2),
+  `workflow_status` VARCHAR(255),
+  `user_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `request` (
+  `id` INT,
+  `request_date` DATETIME,
+  `title` VARCHAR(255),
+  `details` VARCHAR(255),
+  `quantity` INT,
+  `cost_per_unit` DECIMAL(10,2),
+  `total_cost` DECIMAL(10,2),
+  `workflow_status` VARCHAR(255),
+  `user_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `request_transition` (
+  `id` INT,
+  `request_id` VARCHAR(255),
+  `user_id` INT,
+  `transition` VARCHAR(255),
+  `from_step` VARCHAR(255),
+  `to_step` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `system_registry` (
+  `id` INT,
+  `content` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_668442_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_668442_database') AS relationships;
+DROP DATABASE `db_668442_database`;
+UNINSTALL EXTENSION vsql_schematron;

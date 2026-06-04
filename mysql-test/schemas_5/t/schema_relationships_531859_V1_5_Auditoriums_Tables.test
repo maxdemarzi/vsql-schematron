@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 531859_V1_5_Auditoriums_Tables
+--echo #
+CREATE DATABASE `db_531859_V1_5_Auditoriums_Tables`;
+USE `db_531859_V1_5_Auditoriums_Tables`;
+
+CREATE TABLE `auditorium` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `type` VARCHAR(255),
+  `floor` INT,
+  `building` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `lesson` (
+  `id` INT,
+  `auditorium_id` INT,
+  `day` INT,
+  `start_time` DATETIME,
+  `end_time` DATETIME,
+  `group` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `lesson_weeks` (
+  `lesson_id` INT,
+  `week` INT,
+  PRIMARY KEY (`lesson_id`, `week`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_531859_V1_5_Auditoriums_Tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_531859_V1_5_Auditoriums_Tables') AS relationships;
+DROP DATABASE `db_531859_V1_5_Auditoriums_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

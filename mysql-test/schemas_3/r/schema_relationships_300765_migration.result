@@ -1,0 +1,123 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 300765_migration
+#
+CREATE DATABASE `db_300765_migration`;
+USE `db_300765_migration`;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`email_verified` DATETIME,
+`image` VARCHAR(255),
+`is_admin` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `accounts` (
+`id` INT,
+`compound_id` VARCHAR(255),
+`user_id` INT,
+`provider_type` VARCHAR(255),
+`provider_id` VARCHAR(255),
+`provider_account_id` VARCHAR(255),
+`refresh_token` VARCHAR(255),
+`access_token` VARCHAR(255),
+`access_token_expires` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`id` INT,
+`user_id` INT,
+`expires` DATETIME,
+`session_token` VARCHAR(255),
+`access_token` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `verification_requests` (
+`id` INT,
+`identifier` VARCHAR(255),
+`token` VARCHAR(255),
+`expires` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`id` INT,
+`creator_id` INT,
+`description` VARCHAR(255),
+`start_at` DATETIME,
+`end_at` DATETIME,
+`entry_start_at` DATETIME,
+`entry_end_at` DATETIME,
+`team_member` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_teams` (
+`event_id` INT,
+`team_id` INT,
+`team_member` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`event_id`, `team_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_team_results` (
+`event_id` INT,
+`team_id` INT,
+`rank` INT,
+PRIMARY KEY (`event_id`, `team_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teams` (
+`id` INT,
+`creator_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `team_users` (
+`team_id` INT,
+`user_id` INT,
+PRIMARY KEY (`user_id`, `team_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `social_accounts` (
+`id` INT,
+`social_type` VARCHAR(255),
+`social_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `social_followers` (
+`date` DATETIME,
+`count` INT,
+`social_account_id` INT,
+PRIMARY KEY (`social_account_id`, `date`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_300765_migration') AS relationships;
+relationships
+Database: db_300765_migration
+
+Table Connections:
+------------------
+[Implied]  accounts.user_id -> users.id
+[Implied]  event_team_results.event_id -> events.id
+[Implied]  event_team_results.team_id -> teams.id
+[Implied]  event_teams.event_id -> events.id
+[Implied]  event_teams.team_id -> teams.id
+[Implied]  events.creator_id -> users.id
+[Implied]  sessions.user_id -> users.id
+[Implied]  social_accounts.user_id -> users.id
+[Implied]  social_followers.social_account_id -> social_accounts.id
+[Implied]  team_users.team_id -> teams.id
+[Implied]  team_users.user_id -> users.id
+[Implied]  teams.creator_id -> users.id
+
+DROP DATABASE `db_300765_migration`;
+UNINSTALL EXTENSION vsql_schematron;

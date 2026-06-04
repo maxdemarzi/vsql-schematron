@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 273346_V1_CreateTables
+#
+CREATE DATABASE `db_273346_V1_CreateTables`;
+USE `db_273346_V1_CreateTables`;
+CREATE TABLE `games` (
+`id` INT,
+`name` VARCHAR(255),
+`image` VARCHAR(255),
+`genre` VARCHAR(255),
+`rating` INT,
+`price` INT,
+`operating_system` VARCHAR(255),
+`summary` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `friends` (
+`user_1_id` INT,
+`user_2_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `library` (
+`game_id` INT,
+`user_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`date_created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `authority` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_authority` (
+`authority_id` INT,
+`user_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `points` (
+`user_id` INT,
+`points` INT
+) CHARACTER SET latin1;
+CREATE TABLE `reviews` (
+`id` INT,
+`game_id` INT,
+`user_id` INT,
+`rating` INT,
+`review` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stats` (
+`game_id` INT,
+`players_online` INT
+) CHARACTER SET latin1;
+CREATE TABLE `wishlist` (
+`game_id` INT,
+`user_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `shopping_cart` (
+`id` INT,
+`game_id` INT,
+`price` INT,
+`quantity` INT,
+`image` VARCHAR(255),
+`name` VARCHAR(255)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_273346_V1_CreateTables') AS relationships;
+relationships
+Database: db_273346_V1_CreateTables
+
+Table Connections:
+------------------
+[Implied]  library.game_id -> games.id
+[Implied]  library.user_id -> users.id
+[Implied]  points.user_id -> users.id
+[Implied]  reviews.game_id -> games.id
+[Implied]  reviews.user_id -> users.id
+[Implied]  shopping_cart.game_id -> games.id
+[Implied]  stats.game_id -> games.id
+[Implied]  users_authority.authority_id -> authority.id
+[Implied]  users_authority.user_id -> users.id
+[Implied]  wishlist.game_id -> games.id
+[Implied]  wishlist.user_id -> users.id
+
+DROP DATABASE `db_273346_V1_CreateTables`;
+UNINSTALL EXTENSION vsql_schematron;

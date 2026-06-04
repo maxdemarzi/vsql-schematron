@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 264126_V1_event_store
+#
+CREATE DATABASE `db_264126_V1_event_store`;
+USE `db_264126_V1_event_store`;
+CREATE TABLE `stream` (
+`stream_id` VARCHAR(255),
+`version` INT,
+PRIMARY KEY (`stream_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`stream_id` VARCHAR(255),
+`version` INT,
+`data` VARCHAR(255),
+`metadata` VARCHAR(255),
+PRIMARY KEY (`stream_id`, `version`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_sequence` (
+`position` INT,
+`stream_id` VARCHAR(255),
+`version` INT,
+PRIMARY KEY (`position`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_264126_V1_event_store') AS relationships;
+relationships
+Database: db_264126_V1_event_store
+
+Table Connections:
+------------------
+[Implied]  event.stream_id -> stream.stream_id
+[Implied]  event_sequence.stream_id -> stream.stream_id
+
+DROP DATABASE `db_264126_V1_event_store`;
+UNINSTALL EXTENSION vsql_schematron;

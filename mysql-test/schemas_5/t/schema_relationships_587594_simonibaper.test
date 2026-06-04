@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 587594_simonibaper
+--echo #
+CREATE DATABASE `db_587594_simonibaper`;
+USE `db_587594_simonibaper`;
+
+CREATE TABLE `request` (
+  `id` INT,
+  `requestor_id` INT,
+  `facilitator_id` INT,
+  `province_id` INT,
+  `regency_id` INT,
+  PRIMARY KEY (`id`, `requestor_id`, `facilitator_id`, `province_id`, `regency_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `request_statuses` (
+  `request_id` INT,
+  `set_id` INT,
+  `status_id` INT,
+  `flag` VARCHAR(255),
+  PRIMARY KEY (`request_id`, `set_id`, `status_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sets` (
+  `id` INT,
+  `set_name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `set_status_groups` (
+  `set_id` INT,
+  `status_id` INT,
+  PRIMARY KEY (`set_id`, `status_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_587594_simonibaper') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_587594_simonibaper') AS relationships;
+DROP DATABASE `db_587594_simonibaper`;
+UNINSTALL EXTENSION vsql_schematron;

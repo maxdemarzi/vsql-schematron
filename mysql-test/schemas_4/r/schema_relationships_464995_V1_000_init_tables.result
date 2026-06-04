@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 464995_V1_000_init_tables
+#
+CREATE DATABASE `db_464995_V1_000_init_tables`;
+USE `db_464995_V1_000_init_tables`;
+CREATE TABLE `users` (
+`id` INT,
+`registered_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `guides` (
+`id` INT,
+`delay` INT,
+`title` VARCHAR(255),
+`text` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_guides` (
+`user_id` INT,
+`guide_id` INT,
+PRIMARY KEY (`user_id`, `guide_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answers` (
+`id` INT,
+`text` VARCHAR(255),
+`question_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questions` (
+`id` INT,
+`text` VARCHAR(255),
+`guide_id` INT,
+`answer_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_464995_V1_000_init_tables') AS relationships;
+relationships
+Database: db_464995_V1_000_init_tables
+
+Table Connections:
+------------------
+[Implied]  answers.question_id -> questions.id
+[Implied]  questions.answer_id -> answers.id
+[Implied]  questions.guide_id -> guides.id
+[Implied]  user_guides.guide_id -> guides.id
+[Implied]  user_guides.user_id -> users.id
+
+DROP DATABASE `db_464995_V1_000_init_tables`;
+UNINSTALL EXTENSION vsql_schematron;

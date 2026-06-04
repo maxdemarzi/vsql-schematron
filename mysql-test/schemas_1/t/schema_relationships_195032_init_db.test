@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 195032_init_db
+--echo #
+CREATE DATABASE `db_195032_init_db`;
+USE `db_195032_init_db`;
+
+CREATE TABLE `hardware` (
+  `hardware_id` INT,
+  `hardware_name` VARCHAR(255),
+  `display_name` VARCHAR(255),
+  `hardware_make` VARCHAR(255),
+  `hardware_type` VARCHAR(255),
+  `average_ppd` DECIMAL(10,2),
+  `multiplier` DECIMAL(10,2),
+  PRIMARY KEY (`hardware_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `teams` (
+  `team_id` INT,
+  `team_name` VARCHAR(255),
+  `team_description` VARCHAR(255),
+  `forum_link` VARCHAR(255),
+  PRIMARY KEY (`team_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `folding_username` VARCHAR(255),
+  `display_username` VARCHAR(255),
+  `passkey` VARCHAR(255),
+  `category` VARCHAR(255),
+  `profile_link` VARCHAR(255),
+  `live_stats_link` VARCHAR(255),
+  `hardware_id` INT,
+  `team_id` INT,
+  `is_captain` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_initial_stats` (
+  `user_id` INT,
+  `utc_timestamp` DATETIME,
+  `initial_points` INT,
+  `initial_units` INT,
+  PRIMARY KEY (`user_id`, `utc_timestamp`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_offset_tc_stats` (
+  `user_id` INT,
+  `utc_timestamp` DATETIME,
+  `offset_points` INT,
+  `offset_multiplied_points` INT,
+  `offset_units` INT,
+  PRIMARY KEY (`user_id`, `utc_timestamp`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_total_stats` (
+  `user_id` INT,
+  `utc_timestamp` DATETIME,
+  `total_points` INT,
+  `total_units` INT,
+  PRIMARY KEY (`user_id`, `utc_timestamp`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `retired_user_stats` (
+  `retired_user_id` INT,
+  `team_id` INT,
+  `user_id` INT,
+  `display_username` VARCHAR(255),
+  `utc_timestamp` DATETIME,
+  `final_points` INT,
+  `final_multiplied_points` INT,
+  `final_units` INT,
+  PRIMARY KEY (`retired_user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_tc_stats_hourly` (
+  `user_id` INT,
+  `utc_timestamp` DATETIME,
+  `tc_points` INT,
+  `tc_points_multiplied` INT,
+  `tc_units` INT,
+  PRIMARY KEY (`user_id`, `utc_timestamp`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `monthly_results` (
+  `utc_timestamp` DATETIME,
+  `json_result` VARCHAR(255),
+  PRIMARY KEY (`utc_timestamp`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_195032_init_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_195032_init_db') AS relationships;
+DROP DATABASE `db_195032_init_db`;
+UNINSTALL EXTENSION vsql_schematron;

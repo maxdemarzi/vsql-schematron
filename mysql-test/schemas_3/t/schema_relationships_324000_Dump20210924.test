@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 324000_Dump20210924
+--echo #
+CREATE DATABASE `db_324000_Dump20210924`;
+USE `db_324000_Dump20210924`;
+
+CREATE TABLE `book_tags` (
+  `goodreads_book_id` INT,
+  `tags_id` INT,
+  `count` INT,
+  PRIMARY KEY (`goodreads_book_id`, `tags_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `books` (
+  `book_id` INT,
+  `goodreads_book_id` INT,
+  `books_count` INT,
+  `isbn` INT,
+  `authors` VARCHAR(255),
+  `original_publication_year` INT,
+  `original_title` VARCHAR(255),
+  `title` VARCHAR(255),
+  `language_code` VARCHAR(255),
+  `ratings_count` INT,
+  `ratings_1` INT,
+  `ratings_2` INT,
+  `ratings_3` INT,
+  `ratings_4` INT,
+  `ratings_5` INT,
+  PRIMARY KEY (`book_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ratings` (
+  `user_id` INT,
+  `book_id` INT,
+  `rating` INT,
+  PRIMARY KEY (`user_id`, `book_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tags` (
+  `tag_id` INT,
+  `tag_name` VARCHAR(255),
+  PRIMARY KEY (`tag_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `to_read` (
+  `user_id` INT,
+  `book_id` INT,
+  PRIMARY KEY (`user_id`, `book_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `pseudo` VARCHAR(255),
+  `password` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_324000_Dump20210924') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_324000_Dump20210924') AS relationships;
+DROP DATABASE `db_324000_Dump20210924`;
+UNINSTALL EXTENSION vsql_schematron;

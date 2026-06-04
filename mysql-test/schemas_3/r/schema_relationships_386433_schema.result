@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 386433_schema
+#
+CREATE DATABASE `db_386433_schema`;
+USE `db_386433_schema`;
+CREATE TABLE `guilds` (
+`GuildID` INT,
+`Prefix` VARCHAR(255),
+`StarChannel` INT,
+PRIMARY KEY (`GuildID`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`GuildID` INT,
+`TagOwner` INT,
+`TagName` VARCHAR(255),
+`TagContent` VARCHAR(255),
+`Uses` INT,
+PRIMARY KEY (`GuildID`, `TagName`)
+) CHARACTER SET latin1;
+CREATE TABLE `starboard` (
+`BaseMessageID` INT,
+`GuildID` INT,
+`StarMessageID` INT,
+`Stars` INT,
+PRIMARY KEY (`BaseMessageID`, `GuildID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_386433_schema') AS relationships;
+relationships
+Database: db_386433_schema
+
+Table Connections:
+------------------
+[Implied]  starboard.GuildID -> guilds.GuildID
+[Implied]  tags.GuildID -> guilds.GuildID
+
+DROP DATABASE `db_386433_schema`;
+UNINSTALL EXTENSION vsql_schematron;

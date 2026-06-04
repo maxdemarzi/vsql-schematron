@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 404235_init
+#
+CREATE DATABASE `db_404235_init`;
+USE `db_404235_init`;
+CREATE TABLE `role` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`email` VARCHAR(255),
+`role_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`id` INT,
+`categoryName` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `article` (
+`id` INT,
+`title` VARCHAR(255),
+`summary` VARCHAR(255),
+`content` VARCHAR(255),
+`status` VARCHAR(255),
+`createTime` INT,
+`deleted` VARCHAR(255),
+`category_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`id` INT,
+`content` VARCHAR(255),
+`ip` VARCHAR(255),
+`username` VARCHAR(255),
+`email` VARCHAR(255),
+`createTime` INT,
+`deleted` VARCHAR(255),
+`article_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_404235_init') AS relationships;
+relationships
+Database: db_404235_init
+
+Table Connections:
+------------------
+[Implied]  article.category_id -> category.id
+[Implied]  article.user_id -> user.id
+[Implied]  comment.article_id -> article.id
+[Implied]  user.role_id -> role.id
+
+DROP DATABASE `db_404235_init`;
+UNINSTALL EXTENSION vsql_schematron;

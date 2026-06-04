@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 093100_V001_inital_schema
+#
+CREATE DATABASE `db_093100_V001_inital_schema`;
+USE `db_093100_V001_inital_schema`;
+CREATE TABLE `benchmark_run_measurements` (
+`benchmark_run_id` INT,
+`measurement_id` INT,
+PRIMARY KEY (`benchmark_run_id`, `measurement_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `benchmark_runs` (
+`id` INT,
+`name` VARCHAR(255),
+`unique_name` VARCHAR(255),
+`sequence_id` VARCHAR(255),
+`started` DATETIME,
+`ended` DATETIME,
+`version` INT,
+`environment_id` INT,
+`status` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `benchmark_runs_attributes` (
+`benchmark_run_id` INT,
+`name` VARCHAR(255),
+`value` VARCHAR(255),
+PRIMARY KEY (`benchmark_run_id`, `name`)
+) CHARACTER SET latin1;
+CREATE TABLE `benchmark_runs_variables` (
+`benchmark_run_id` INT,
+`name` VARCHAR(255),
+`value` VARCHAR(255),
+PRIMARY KEY (`benchmark_run_id`, `name`)
+) CHARACTER SET latin1;
+CREATE TABLE `environment_attributes` (
+`environment_id` INT,
+`name` VARCHAR(255),
+`value` VARCHAR(255),
+PRIMARY KEY (`environment_id`, `name`)
+) CHARACTER SET latin1;
+CREATE TABLE `environments` (
+`id` INT,
+`name` VARCHAR(255),
+`version` INT,
+`started` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `execution_attributes` (
+`execution_id` INT,
+`name` VARCHAR(255),
+`value` VARCHAR(255),
+PRIMARY KEY (`execution_id`, `name`)
+) CHARACTER SET latin1;
+CREATE TABLE `execution_measurements` (
+`execution_id` INT,
+`measurement_id` INT,
+PRIMARY KEY (`execution_id`, `measurement_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `executions` (
+`id` INT,
+`sequence_id` VARCHAR(255),
+`benchmark_run_id` INT,
+`started` DATETIME,
+`ended` DATETIME,
+`version` INT,
+`status` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `measurements` (
+`id` INT,
+`name` VARCHAR(255),
+`unit` VARCHAR(255),
+`value` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_093100_V001_inital_schema') AS relationships;
+relationships
+Database: db_093100_V001_inital_schema
+
+Table Connections:
+------------------
+[Implied]  benchmark_run_measurements.benchmark_run_id -> benchmark_runs.id
+[Implied]  benchmark_run_measurements.measurement_id -> measurements.id
+[Implied]  benchmark_runs.environment_id -> environments.id
+[Implied]  benchmark_runs_attributes.benchmark_run_id -> benchmark_runs.id
+[Implied]  benchmark_runs_variables.benchmark_run_id -> benchmark_runs.id
+[Implied]  environment_attributes.environment_id -> environments.id
+[Implied]  execution_attributes.execution_id -> executions.id
+[Implied]  execution_measurements.execution_id -> executions.id
+[Implied]  execution_measurements.measurement_id -> measurements.id
+[Implied]  executions.benchmark_run_id -> benchmark_runs.id
+
+DROP DATABASE `db_093100_V001_inital_schema`;
+UNINSTALL EXTENSION vsql_schematron;

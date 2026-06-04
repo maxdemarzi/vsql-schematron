@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 604494_data
+#
+CREATE DATABASE `db_604494_data`;
+USE `db_604494_data`;
+CREATE TABLE `users` (
+`username` VARCHAR(255),
+`firstname` VARCHAR(255),
+`lastname` VARCHAR(255),
+`email` VARCHAR(255),
+`email_confirmed` INT,
+`password` VARCHAR(255),
+`uploads_id` INT,
+`location` VARCHAR(255),
+`study` VARCHAR(255),
+`bio` VARCHAR(255),
+`relationship_status` VARCHAR(255),
+`phone_number` VARCHAR(255),
+`creation_date` DATETIME,
+`last_edit_date` DATETIME,
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `uploads` (
+`id` INT,
+`filename` VARCHAR(255),
+`location` VARCHAR(255),
+`filesize` INT,
+`type` VARCHAR(255),
+`sha256` VARCHAR(255),
+`creation_date` DATETIME,
+`last_edit_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`body` VARCHAR(255),
+`title` VARCHAR(255),
+`username` VARCHAR(255),
+`uploads_id` INT,
+`creation_date` DATETIME,
+`last_edit_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`post_id` INT,
+`username` VARCHAR(255),
+`comment` VARCHAR(255),
+`creation_date` DATETIME,
+`last_edit_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `friends` (
+`id` INT,
+`username` VARCHAR(255),
+`friend` VARCHAR(255),
+`accepted` INT,
+`sender` INT,
+`creation_date` DATETIME,
+`last_edit_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hobbies` (
+`id` INT,
+`username` VARCHAR(255),
+`title` VARCHAR(255),
+`creation_date` DATETIME,
+`last_edit_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `skills` (
+`id` INT,
+`username` VARCHAR(255),
+`title` VARCHAR(255),
+`skill_level` INT,
+`creation_date` DATETIME,
+`last_edit_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `languages` (
+`id` INT,
+`username` VARCHAR(255),
+`title` VARCHAR(255),
+`skill_level` INT,
+`creation_date` DATETIME,
+`last_edit_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_604494_data') AS relationships;
+relationships
+Database: db_604494_data
+
+Table Connections:
+------------------
+[Implied]  comments.post_id -> posts.id
+[Implied]  comments.username -> users.username
+[Implied]  friends.username -> users.username
+[Implied]  hobbies.username -> users.username
+[Implied]  languages.username -> users.username
+[Implied]  posts.uploads_id -> uploads.id
+[Implied]  posts.username -> users.username
+[Implied]  skills.username -> users.username
+[Implied]  users.uploads_id -> uploads.id
+
+DROP DATABASE `db_604494_data`;
+UNINSTALL EXTENSION vsql_schematron;

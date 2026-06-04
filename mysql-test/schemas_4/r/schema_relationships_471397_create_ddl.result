@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 471397_create_ddl
+#
+CREATE DATABASE `db_471397_create_ddl`;
+USE `db_471397_create_ddl`;
+CREATE TABLE `chain` (
+`ID` INT,
+`NAME` VARCHAR(255),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `area` (
+`ID` INT,
+`NAME` VARCHAR(255),
+`CHAIN_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `region` (
+`ID` INT,
+`NAME` VARCHAR(255),
+`AREA_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `district` (
+`ID` INT,
+`NAME` VARCHAR(255),
+`REGION_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales` (
+`ID` INT,
+`SALES_DATE` DATETIME,
+`DISTRICT_ID` INT,
+`AMOUNT` INT,
+PRIMARY KEY (`ID`, `SALES_DATE`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_471397_create_ddl') AS relationships;
+relationships
+Database: db_471397_create_ddl
+
+Table Connections:
+------------------
+[Implied]  area.CHAIN_ID -> chain.ID
+[Implied]  district.REGION_ID -> region.ID
+[Implied]  region.AREA_ID -> area.ID
+[Implied]  sales.DISTRICT_ID -> district.ID
+
+DROP DATABASE `db_471397_create_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

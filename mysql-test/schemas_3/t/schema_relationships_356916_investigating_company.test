@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 356916_investigating_company
+--echo #
+CREATE DATABASE `db_356916_investigating_company`;
+USE `db_356916_investigating_company`;
+
+CREATE TABLE `address` (
+  `address_id` INT,
+  `person_id` INT,
+  `description` VARCHAR(255),
+  `street` VARCHAR(255),
+  `city` VARCHAR(255),
+  `province` VARCHAR(255),
+  `postal_code` VARCHAR(255),
+  `country_code` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `country` (
+  `country_code` VARCHAR(255),
+  `country_name` VARCHAR(255),
+  PRIMARY KEY (`country_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `person` (
+  `person_id` INT,
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `notes` VARCHAR(255),
+  PRIMARY KEY (`person_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `picture` (
+  `picture_id` INT,
+  `person_id` INT,
+  `description` VARCHAR(255)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_356916_investigating_company') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_356916_investigating_company') AS relationships;
+DROP DATABASE `db_356916_investigating_company`;
+UNINSTALL EXTENSION vsql_schematron;

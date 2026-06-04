@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 237768_initdb
+--echo #
+CREATE DATABASE `db_237768_initdb`;
+USE `db_237768_initdb`;
+
+CREATE TABLE `projects` (
+  `created` DATETIME,
+  `created_by` VARCHAR(255),
+  `geom` VARCHAR(255),
+  `image` VARCHAR(255),
+  `is_featured` VARCHAR(255),
+  `look_for` VARCHAR(255),
+  `name` VARCHAR(255),
+  `progress` INT,
+  `project_details` VARCHAR(255),
+  `project_id` VARCHAR(255),
+  `project_type` INT,
+  `required_results` INT,
+  `result_count` INT,
+  `status` VARCHAR(255),
+  `verification_number` INT,
+  `project_type_specifics` VARCHAR(255),
+  PRIMARY KEY (`project_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `groups` (
+  `project_id` VARCHAR(255),
+  `group_id` VARCHAR(255),
+  `number_of_tasks` INT,
+  `finished_count` INT,
+  `required_count` INT,
+  `progress` INT,
+  `project_type_specifics` VARCHAR(255),
+  PRIMARY KEY (`project_id`, `group_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tasks` (
+  `project_id` VARCHAR(255),
+  `group_id` VARCHAR(255),
+  `task_id` VARCHAR(255),
+  `geom` VARCHAR(255),
+  `project_type_specifics` VARCHAR(255),
+  PRIMARY KEY (`project_id`, `group_id`, `task_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `user_id` VARCHAR(255),
+  `username` VARCHAR(255),
+  `created` DATETIME,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_temp` (
+  `user_id` VARCHAR(255),
+  `username` VARCHAR(255),
+  `created` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `results` (
+  `project_id` VARCHAR(255),
+  `group_id` VARCHAR(255),
+  `user_id` VARCHAR(255),
+  `task_id` VARCHAR(255),
+  `timestamp` DATETIME,
+  `start_time` DATETIME,
+  `end_time` DATETIME,
+  `result` INT,
+  PRIMARY KEY (`project_id`, `group_id`, `task_id`, `user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `results_temp` (
+  `project_id` VARCHAR(255),
+  `group_id` VARCHAR(255),
+  `user_id` VARCHAR(255),
+  `task_id` VARCHAR(255),
+  `timestamp` DATETIME,
+  `start_time` DATETIME,
+  `end_time` DATETIME,
+  `result` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_237768_initdb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_237768_initdb') AS relationships;
+DROP DATABASE `db_237768_initdb`;
+UNINSTALL EXTENSION vsql_schematron;

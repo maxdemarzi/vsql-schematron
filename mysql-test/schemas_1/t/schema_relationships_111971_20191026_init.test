@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 111971_20191026_init
+--echo #
+CREATE DATABASE `db_111971_20191026_init`;
+USE `db_111971_20191026_init`;
+
+CREATE TABLE `basho` (
+  `id` INT,
+  `start_date` VARCHAR(255),
+  `venue` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rikishi` (
+  `id` INT,
+  `family_name` VARCHAR(255),
+  `given_name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `banzuke` (
+  `rikishi_id` INT,
+  `basho_id` INT,
+  `family_name` VARCHAR(255),
+  `given_name` VARCHAR(255),
+  `rank` VARCHAR(255),
+  PRIMARY KEY (`rikishi_id`, `basho_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `torikumi` (
+  `basho_id` INT,
+  `day` INT,
+  `seq` INT,
+  `side` VARCHAR(255),
+  `rikishi_id` INT,
+  `win` INT,
+  PRIMARY KEY (`basho_id`, `day`, `seq`, `side`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `player` (
+  `id` INT,
+  `join_date` VARCHAR(255),
+  `name` VARCHAR(255),
+  `admin_level` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `player_discord` (
+  `player_id` INT,
+  `user_id` VARCHAR(255),
+  `username` VARCHAR(255),
+  `avatar` VARCHAR(255),
+  `discriminator` VARCHAR(255),
+  `mod_date` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pick` (
+  `player_id` INT,
+  `basho_id` INT,
+  `rikishi_id` INT,
+  PRIMARY KEY (`player_id`, `basho_id`, `rikishi_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `award` (
+  `basho_id` INT,
+  `type` INT,
+  `player_id` INT,
+  PRIMARY KEY (`basho_id`, `type`, `player_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_111971_20191026_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_111971_20191026_init') AS relationships;
+DROP DATABASE `db_111971_20191026_init`;
+UNINSTALL EXTENSION vsql_schematron;

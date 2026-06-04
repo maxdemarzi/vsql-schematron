@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 244342_point_of_sales
+#
+CREATE DATABASE `db_244342_point_of_sales`;
+USE `db_244342_point_of_sales`;
+CREATE TABLE `categories` (
+`category_id` INT,
+`category_name` VARCHAR(255),
+`category_status` VARCHAR(255),
+PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ms_sku` (
+`sku_id` INT,
+`category_id` INT,
+`kode` VARCHAR(255),
+`bulan` VARCHAR(255),
+`tahun` VARCHAR(255),
+`counter` INT,
+PRIMARY KEY (`sku_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`product_id` INT,
+`category_id` INT,
+`product_name` VARCHAR(255),
+`product_price` INT,
+`product_sku` VARCHAR(255),
+`product_status` VARCHAR(255),
+`product_image` VARCHAR(255),
+`product_stock` INT,
+`product_description` VARCHAR(255),
+PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transactions` (
+`trx_id` INT,
+`product_id` INT,
+`trx_price` INT,
+`trx_date` DATETIME,
+`trx_qty` INT,
+PRIMARY KEY (`trx_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_244342_point_of_sales') AS relationships;
+relationships
+Database: db_244342_point_of_sales
+
+Table Connections:
+------------------
+[Implied]  ms_sku.category_id -> categories.category_id
+[Implied]  products.category_id -> categories.category_id
+[Implied]  transactions.product_id -> products.product_id
+
+DROP DATABASE `db_244342_point_of_sales`;
+UNINSTALL EXTENSION vsql_schematron;

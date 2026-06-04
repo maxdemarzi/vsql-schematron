@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 637678_schema_mysql
+--echo #
+CREATE DATABASE `db_637678_schema_mysql`;
+USE `db_637678_schema_mysql`;
+
+CREATE TABLE `account` (
+  `id` INT,
+  `email` VARCHAR(255),
+  `email_check_token` VARCHAR(255),
+  `email_check_token_generated_at` DATETIME,
+  `email_verified` VARCHAR(255),
+  `joined_at` DATETIME,
+  `login_id` VARCHAR(255),
+  `nickname` VARCHAR(255),
+  `password` VARCHAR(255),
+  `profile_image` VARCHAR(255),
+  `comment_notification` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `persistent_logins` (
+  `series` VARCHAR(255),
+  `last_used` DATETIME,
+  `token` VARCHAR(255),
+  `username` VARCHAR(255),
+  PRIMARY KEY (`series`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `post` (
+  `id` INT,
+  `account_id` INT,
+  `contents` VARCHAR(255),
+  `created_at` DATETIME,
+  `hits` INT,
+  `post_type` VARCHAR(255),
+  `title` VARCHAR(255),
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comment` (
+  `id` INT,
+  `contents` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `account_id` INT,
+  `post_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notification` (
+  `id` INT,
+  `checked` VARCHAR(255),
+  `created_at` DATETIME,
+  `link` VARCHAR(255),
+  `message` VARCHAR(255),
+  `account_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_637678_schema_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_637678_schema_mysql') AS relationships;
+DROP DATABASE `db_637678_schema_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

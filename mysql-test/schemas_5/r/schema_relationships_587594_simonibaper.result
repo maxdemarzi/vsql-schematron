@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 587594_simonibaper
+#
+CREATE DATABASE `db_587594_simonibaper`;
+USE `db_587594_simonibaper`;
+CREATE TABLE `request` (
+`id` INT,
+`requestor_id` INT,
+`facilitator_id` INT,
+`province_id` INT,
+`regency_id` INT,
+PRIMARY KEY (`id`, `requestor_id`, `facilitator_id`, `province_id`, `regency_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `request_statuses` (
+`request_id` INT,
+`set_id` INT,
+`status_id` INT,
+`flag` VARCHAR(255),
+PRIMARY KEY (`request_id`, `set_id`, `status_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sets` (
+`id` INT,
+`set_name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `set_status_groups` (
+`set_id` INT,
+`status_id` INT,
+PRIMARY KEY (`set_id`, `status_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_587594_simonibaper') AS relationships;
+relationships
+Database: db_587594_simonibaper
+
+Table Connections:
+------------------
+[Implied]  request_statuses.set_id -> sets.id
+[Implied]  set_status_groups.set_id -> sets.id
+
+DROP DATABASE `db_587594_simonibaper`;
+UNINSTALL EXTENSION vsql_schematron;

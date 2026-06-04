@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 193459_raw_data
+#
+CREATE DATABASE `db_193459_raw_data`;
+USE `db_193459_raw_data`;
+CREATE TABLE `tile` (
+`tileid` INT,
+`ra` DECIMAL(10,2),
+`dec` DECIMAL(10,2),
+`pass` INT,
+`in_desi` INT,
+PRIMARY KEY (`tileid`)
+) CHARACTER SET latin1;
+CREATE TABLE `brick` (
+`brickid` INT,
+`brickname` VARCHAR(255),
+`brickq` INT,
+`brickrow` INT,
+`brickcol` INT,
+`ra` DECIMAL(10,2),
+`dec` DECIMAL(10,2),
+`ra1` DECIMAL(10,2),
+`ra2` DECIMAL(10,2),
+`dec1` DECIMAL(10,2),
+`dec2` DECIMAL(10,2),
+`area` DECIMAL(10,2),
+PRIMARY KEY (`brickid`)
+) CHARACTER SET latin1;
+CREATE TABLE `night` (
+`night` VARCHAR(255),
+PRIMARY KEY (`night`)
+) CHARACTER SET latin1;
+CREATE TABLE `exposureflavor` (
+`flavor` VARCHAR(255),
+PRIMARY KEY (`flavor`)
+) CHARACTER SET latin1;
+CREATE TABLE `frame` (
+`frameid` VARCHAR(255),
+`band` VARCHAR(255),
+`spectrograph` INT,
+`expid` INT,
+`night` VARCHAR(255),
+`flavor` VARCHAR(255),
+`telra` DECIMAL(10,2),
+`teldec` DECIMAL(10,2),
+`tileid` INT,
+`exptime` DECIMAL(10,2),
+`dateobs` DATETIME,
+`alt` DECIMAL(10,2),
+`az` DECIMAL(10,2),
+PRIMARY KEY (`frameid`)
+) CHARACTER SET latin1;
+CREATE TABLE `frame2brick` (
+`frameid` VARCHAR(255),
+`brickid` INT,
+PRIMARY KEY (`frameid`, `brickid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tile2brick` (
+`tileid` INT,
+`petalid` INT,
+`brickid` INT,
+PRIMARY KEY (`tileid`, `petalid`, `brickid`)
+) CHARACTER SET latin1;
+CREATE TABLE `status` (
+`status` VARCHAR(255),
+PRIMARY KEY (`status`)
+) CHARACTER SET latin1;
+CREATE TABLE `framestatus` (
+`frameid` VARCHAR(255),
+`status` VARCHAR(255),
+`stamp` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `brickstatus` (
+`brickid` INT,
+`status` VARCHAR(255),
+`stamp` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_193459_raw_data') AS relationships;
+relationships
+Database: db_193459_raw_data
+
+Table Connections:
+------------------
+[Implied]  brickstatus.brickid -> brick.brickid
+[Implied]  brickstatus.status -> status.status
+[Implied]  frame.flavor -> exposureflavor.flavor
+[Implied]  frame.night -> night.night
+[Implied]  frame.tileid -> tile.tileid
+[Implied]  frame2brick.brickid -> brick.brickid
+[Implied]  frame2brick.frameid -> frame.frameid
+[Implied]  framestatus.frameid -> frame.frameid
+[Implied]  framestatus.status -> status.status
+[Implied]  tile2brick.brickid -> brick.brickid
+[Implied]  tile2brick.tileid -> tile.tileid
+
+DROP DATABASE `db_193459_raw_data`;
+UNINSTALL EXTENSION vsql_schematron;

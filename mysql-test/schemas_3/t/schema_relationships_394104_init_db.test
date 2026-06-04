@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 394104_init_db
+--echo #
+CREATE DATABASE `db_394104_init_db`;
+USE `db_394104_init_db`;
+
+CREATE TABLE `products` (
+  `product_id` INT,
+  `name` VARCHAR(255),
+  `price` DECIMAL(10,2),
+  `category_id` INT,
+  PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `category_id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `order_id` INT,
+  `user_id` INT,
+  `createdAt` DATETIME,
+  `status_id` INT,
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `status` (
+  `status_id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`status_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_products` (
+  `order_id` INT,
+  `product_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `login` VARCHAR(255),
+  `password` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_394104_init_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_394104_init_db') AS relationships;
+DROP DATABASE `db_394104_init_db`;
+UNINSTALL EXTENSION vsql_schematron;

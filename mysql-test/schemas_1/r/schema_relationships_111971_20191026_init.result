@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 111971_20191026_init
+#
+CREATE DATABASE `db_111971_20191026_init`;
+USE `db_111971_20191026_init`;
+CREATE TABLE `basho` (
+`id` INT,
+`start_date` VARCHAR(255),
+`venue` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rikishi` (
+`id` INT,
+`family_name` VARCHAR(255),
+`given_name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `banzuke` (
+`rikishi_id` INT,
+`basho_id` INT,
+`family_name` VARCHAR(255),
+`given_name` VARCHAR(255),
+`rank` VARCHAR(255),
+PRIMARY KEY (`rikishi_id`, `basho_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `torikumi` (
+`basho_id` INT,
+`day` INT,
+`seq` INT,
+`side` VARCHAR(255),
+`rikishi_id` INT,
+`win` INT,
+PRIMARY KEY (`basho_id`, `day`, `seq`, `side`)
+) CHARACTER SET latin1;
+CREATE TABLE `player` (
+`id` INT,
+`join_date` VARCHAR(255),
+`name` VARCHAR(255),
+`admin_level` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `player_discord` (
+`player_id` INT,
+`user_id` VARCHAR(255),
+`username` VARCHAR(255),
+`avatar` VARCHAR(255),
+`discriminator` VARCHAR(255),
+`mod_date` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `pick` (
+`player_id` INT,
+`basho_id` INT,
+`rikishi_id` INT,
+PRIMARY KEY (`player_id`, `basho_id`, `rikishi_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `award` (
+`basho_id` INT,
+`type` INT,
+`player_id` INT,
+PRIMARY KEY (`basho_id`, `type`, `player_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_111971_20191026_init') AS relationships;
+relationships
+Database: db_111971_20191026_init
+
+Table Connections:
+------------------
+[Implied]  award.basho_id -> basho.id
+[Implied]  award.player_id -> player.id
+[Implied]  banzuke.basho_id -> basho.id
+[Implied]  banzuke.rikishi_id -> rikishi.id
+[Implied]  pick.basho_id -> basho.id
+[Implied]  pick.player_id -> player.id
+[Implied]  pick.rikishi_id -> rikishi.id
+[Implied]  player_discord.player_id -> player.id
+[Implied]  torikumi.basho_id -> basho.id
+[Implied]  torikumi.rikishi_id -> rikishi.id
+
+DROP DATABASE `db_111971_20191026_init`;
+UNINSTALL EXTENSION vsql_schematron;

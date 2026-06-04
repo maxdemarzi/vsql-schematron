@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 627129_my_dictionary_database
+--echo #
+CREATE DATABASE `db_627129_my_dictionary_database`;
+USE `db_627129_my_dictionary_database`;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `nickname` VARCHAR(255),
+  `password` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_role` (
+  `id` INT,
+  `user_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `languages` (
+  `language_id` INT,
+  `language_name` VARCHAR(255),
+  `created_at` DATETIME,
+  PRIMARY KEY (`language_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `courses` (
+  `user_id` INT,
+  `course_id` INT,
+  `language_id` INT,
+  `language_name` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `words` (
+  `user_id` INT,
+  `word_id` INT,
+  `course_id` INT,
+  `language_id` INT,
+  `word_text` VARCHAR(255),
+  `word_description` VARCHAR(255),
+  `language_name` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`word_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_627129_my_dictionary_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_627129_my_dictionary_database') AS relationships;
+DROP DATABASE `db_627129_my_dictionary_database`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 691239_CMS
+--echo #
+CREATE DATABASE `db_691239_CMS`;
+USE `db_691239_CMS`;
+
+CREATE TABLE `admins` (
+  `adminID` VARCHAR(255),
+  `adminName` VARCHAR(255),
+  `adminPassword` VARCHAR(255),
+  PRIMARY KEY (`adminID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `assetsUnit` (
+  `assetsUnitID` INT,
+  `managerID` INT,
+  `assetsUnitShortname` VARCHAR(255),
+  `assetsBalance` DECIMAL(10,2),
+  PRIMARY KEY (`assetsUnitID`, `managerID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `assetsunitmanager` (
+  `managerID` INT,
+  `managerNname` VARCHAR(255),
+  `managerShortname` VARCHAR(255),
+  `managerState` VARCHAR(255),
+  PRIMARY KEY (`managerID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cms` (
+  `numberID` VARCHAR(255),
+  `name` VARCHAR(255),
+  `nickname` VARCHAR(255),
+  `password` VARCHAR(255),
+  `ID` VARCHAR(255),
+  `phone` DECIMAL(10,2),
+  `belong` VARCHAR(255),
+  `user_number` VARCHAR(255),
+  `role` DECIMAL(10,2),
+  `status` VARCHAR(255),
+  PRIMARY KEY (`numberID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `connection` (
+  `adminID` VARCHAR(255),
+  `operatorID` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `log` (
+  `adminID` VARCHAR(255),
+  `userID` VARCHAR(255),
+  `role` VARCHAR(255),
+  `time` VARCHAR(255),
+  `way` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `operators` (
+  `operatorID` VARCHAR(255),
+  `operatorName` VARCHAR(255),
+  `operatorNickname` VARCHAR(255),
+  `operatorPassword` VARCHAR(255),
+  `operatorPhone` VARCHAR(255),
+  `ID` VARCHAR(255),
+  `operatorRole` VARCHAR(255),
+  `operatorStatus` VARCHAR(255),
+  `assetID` INT,
+  `tradeID` INT,
+  PRIMARY KEY (`operatorID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_691239_CMS') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_691239_CMS') AS relationships;
+DROP DATABASE `db_691239_CMS`;
+UNINSTALL EXTENSION vsql_schematron;

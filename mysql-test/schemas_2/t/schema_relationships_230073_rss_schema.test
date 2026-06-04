@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 230073_rss_schema
+--echo #
+CREATE DATABASE `db_230073_rss_schema`;
+USE `db_230073_rss_schema`;
+
+CREATE TABLE `channel` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `url` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `item` (
+  `id` INT,
+  `channel_id` INT,
+  `channel` INT,
+  `title` VARCHAR(255),
+  `link` VARCHAR(255),
+  `description` VARCHAR(255),
+  `language` VARCHAR(255),
+  `copyright` VARCHAR(255),
+  `managing_editor` VARCHAR(255),
+  `web_master` VARCHAR(255),
+  `pub_date` DATETIME,
+  `last_build_date` DATETIME,
+  `generator` VARCHAR(255),
+  `docs` VARCHAR(255),
+  `cloud_id` INT,
+  `ttl` INT,
+  `image_id` INT,
+  `skip_hours` VARCHAR(255),
+  `skip_days` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `category` (
+  `id` INT,
+  `category` VARCHAR(255),
+  `domain` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `item_category` (
+  `id` INT,
+  `category_id` INT,
+  `item_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `image` (
+  `id` INT,
+  `url` VARCHAR(255),
+  `title` VARCHAR(255),
+  `link` VARCHAR(255),
+  `width` INT,
+  `height` INT,
+  `description` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cloud` (
+  `id` INT,
+  `domain` VARCHAR(255),
+  `port` VARCHAR(255),
+  `path` VARCHAR(255),
+  `register_procedure` VARCHAR(255),
+  `protocol` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_230073_rss_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_230073_rss_schema') AS relationships;
+DROP DATABASE `db_230073_rss_schema`;
+UNINSTALL EXTENSION vsql_schematron;

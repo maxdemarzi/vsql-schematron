@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 616958_schema
+#
+CREATE DATABASE `db_616958_schema`;
+USE `db_616958_schema`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `folders` (
+`id` INT,
+`name` VARCHAR(255),
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sets` (
+`id` INT,
+`title` VARCHAR(255),
+`description` VARCHAR(255),
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `flash_cards` (
+`id` INT,
+`term` VARCHAR(255),
+`definition` VARCHAR(255),
+`q_type` INT,
+`set_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sets_and_tags` (
+`set_id` INT,
+`tag_id` INT,
+PRIMARY KEY (`set_id`, `tag_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `folders_and_sets` (
+`folder_id` INT,
+`set_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_616958_schema') AS relationships;
+relationships
+Database: db_616958_schema
+
+Table Connections:
+------------------
+[Implied]  flash_cards.set_id -> sets.id
+[Implied]  folders.user_id -> users.id
+[Implied]  folders_and_sets.folder_id -> folders.id
+[Implied]  folders_and_sets.set_id -> sets.id
+[Implied]  sets.user_id -> users.id
+[Implied]  sets_and_tags.set_id -> sets.id
+[Implied]  sets_and_tags.tag_id -> tags.id
+
+DROP DATABASE `db_616958_schema`;
+UNINSTALL EXTENSION vsql_schematron;

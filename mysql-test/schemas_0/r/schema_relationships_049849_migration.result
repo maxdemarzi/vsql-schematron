@@ -1,0 +1,111 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 049849_migration
+#
+CREATE DATABASE `db_049849_migration`;
+USE `db_049849_migration`;
+CREATE TABLE `users` (
+`id` VARCHAR(255),
+`email` VARCHAR(255),
+`passwordHash` VARCHAR(255),
+`firstName` VARCHAR(255),
+`middleName` VARCHAR(255),
+`lastName` VARCHAR(255),
+`profilePicture` VARCHAR(255),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books` (
+`id` VARCHAR(255),
+`title` VARCHAR(255),
+`isbn` INT,
+`description` VARCHAR(255),
+`price` DECIMAL(10,2),
+`coverUrl` VARCHAR(255),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`transactionId` VARCHAR(255),
+`publisherId` VARCHAR(255),
+`sold` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `authors` (
+`id` VARCHAR(255),
+`firstName` VARCHAR(255),
+`middleName` VARCHAR(255),
+`lastName` VARCHAR(255),
+`description` VARCHAR(255),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`bookId` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `publishers` (
+`id` VARCHAR(255),
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `genres` (
+`id` INT,
+`name` VARCHAR(255),
+`bookId` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ratings` (
+`id` VARCHAR(255),
+`value` INT,
+`description` VARCHAR(255),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`userId` VARCHAR(255),
+`bookId` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `addresses` (
+`id` VARCHAR(255),
+`street` VARCHAR(255),
+`apartmentOrUnit` VARCHAR(255),
+`city` VARCHAR(255),
+`state` VARCHAR(255),
+`country` VARCHAR(255),
+`zipcode` INT,
+`userShippingAddressId` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transactions` (
+`id` VARCHAR(255),
+`userId` VARCHAR(255),
+`booksId` VARCHAR(255),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `credit_cards` (
+`cardId` VARCHAR(255),
+`userId` VARCHAR(255),
+`encryptedCreditCardNumber` VARCHAR(255),
+`encryptedCCV` VARCHAR(255),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`cardId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_049849_migration') AS relationships;
+relationships
+Database: db_049849_migration
+
+Table Connections:
+------------------
+[Implied]  addresses.userShippingAddressId -> users.id
+[Implied]  authors.bookId -> books.id
+[Implied]  books.publisherId -> publishers.id
+[Implied]  books.transactionId -> transactions.id
+[Implied]  credit_cards.userId -> users.id
+[Implied]  genres.bookId -> books.id
+[Implied]  ratings.bookId -> books.id
+[Implied]  ratings.userId -> users.id
+[Implied]  transactions.booksId -> books.id
+[Implied]  transactions.userId -> users.id
+
+DROP DATABASE `db_049849_migration`;
+UNINSTALL EXTENSION vsql_schematron;

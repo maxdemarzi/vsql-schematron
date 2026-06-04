@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 574187_migration
+--echo #
+CREATE DATABASE `db_574187_migration`;
+USE `db_574187_migration`;
+
+CREATE TABLE `posts` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `title` VARCHAR(255),
+  `content` VARCHAR(255),
+  `published` VARCHAR(255),
+  `authorId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `accounts` (
+  `id` INT,
+  `compoundId` VARCHAR(255),
+  `userId` INT,
+  `providerType` VARCHAR(255),
+  `providerId` VARCHAR(255),
+  `providerAccountId` VARCHAR(255),
+  `refreshToken` VARCHAR(255),
+  `accessToken` VARCHAR(255),
+  `accessTokenExpires` DATETIME,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sessions` (
+  `id` INT,
+  `userId` INT,
+  `expires` DATETIME,
+  `sessionToken` VARCHAR(255),
+  `accessToken` VARCHAR(255),
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `emailVerified` DATETIME,
+  `image` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `verification_requests` (
+  `id` INT,
+  `identifier` VARCHAR(255),
+  `token` VARCHAR(255),
+  `expires` DATETIME,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_574187_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_574187_migration') AS relationships;
+DROP DATABASE `db_574187_migration`;
+UNINSTALL EXTENSION vsql_schematron;

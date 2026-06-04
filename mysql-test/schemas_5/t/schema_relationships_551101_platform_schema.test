@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 551101_platform_schema
+--echo #
+CREATE DATABASE `db_551101_platform_schema`;
+USE `db_551101_platform_schema`;
+
+CREATE TABLE `projects` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `groups` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `project_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `is_student` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_auth` (
+  `id` INT,
+  `token` VARCHAR(255),
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `students_in_groups` (
+  `id` INT,
+  `group_id` INT,
+  `student_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `integrations` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `comment` VARCHAR(255),
+  `project_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stages` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `start_date` DATETIME,
+  `end_date` DATETIME,
+  `comment` VARCHAR(255),
+  `project_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stages_in_integrations` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `order_number` INT,
+  `stage_id` INT,
+  `integration_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_551101_platform_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_551101_platform_schema') AS relationships;
+DROP DATABASE `db_551101_platform_schema`;
+UNINSTALL EXTENSION vsql_schematron;

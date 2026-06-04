@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 627129_my_dictionary_database
+#
+CREATE DATABASE `db_627129_my_dictionary_database`;
+USE `db_627129_my_dictionary_database`;
+CREATE TABLE `users` (
+`user_id` INT,
+`nickname` VARCHAR(255),
+`password` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`id` INT,
+`user_id` INT,
+`role_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `languages` (
+`language_id` INT,
+`language_name` VARCHAR(255),
+`created_at` DATETIME,
+PRIMARY KEY (`language_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `courses` (
+`user_id` INT,
+`course_id` INT,
+`language_id` INT,
+`language_name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `words` (
+`user_id` INT,
+`word_id` INT,
+`course_id` INT,
+`language_id` INT,
+`word_text` VARCHAR(255),
+`word_description` VARCHAR(255),
+`language_name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`word_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_627129_my_dictionary_database') AS relationships;
+relationships
+Database: db_627129_my_dictionary_database
+
+Table Connections:
+------------------
+[Implied]  courses.language_id -> languages.language_id
+[Implied]  courses.user_id -> users.user_id
+[Implied]  user_role.role_id -> roles.id
+[Implied]  user_role.user_id -> users.user_id
+[Implied]  words.course_id -> courses.course_id
+[Implied]  words.language_id -> languages.language_id
+[Implied]  words.user_id -> users.user_id
+
+DROP DATABASE `db_627129_my_dictionary_database`;
+UNINSTALL EXTENSION vsql_schematron;

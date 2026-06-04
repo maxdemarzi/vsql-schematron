@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 360697_db
+#
+CREATE DATABASE `db_360697_db`;
+USE `db_360697_db`;
+CREATE TABLE `users` (
+`user_id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`coins` INT,
+`elorating` INT,
+`logged` VARCHAR(255),
+`bio` VARCHAR(255),
+`img` VARCHAR(255),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `score` (
+`score_id` INT,
+`user_id` INT,
+`wins` INT,
+`loses` INT,
+`draws` INT,
+PRIMARY KEY (`score_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cards` (
+`card_id` VARCHAR(255),
+`name` VARCHAR(255),
+`damage` DECIMAL(10,2),
+`deck` INT,
+PRIMARY KEY (`card_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_ticket` (
+`user_id` INT,
+`card_id` VARCHAR(255),
+PRIMARY KEY (`user_id`, `card_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `packages` (
+`package_id` INT,
+`card_id` VARCHAR(255),
+`name` VARCHAR(255),
+`damage` DECIMAL(10,2),
+PRIMARY KEY (`package_id`, `card_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_360697_db') AS relationships;
+relationships
+Database: db_360697_db
+
+Table Connections:
+------------------
+[Implied]  packages.card_id -> cards.card_id
+[Implied]  score.user_id -> users.user_id
+[Implied]  users_ticket.card_id -> cards.card_id
+[Implied]  users_ticket.user_id -> users.user_id
+
+DROP DATABASE `db_360697_db`;
+UNINSTALL EXTENSION vsql_schematron;

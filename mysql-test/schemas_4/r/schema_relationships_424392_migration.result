@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 424392_migration
+#
+CREATE DATABASE `db_424392_migration`;
+USE `db_424392_migration`;
+CREATE TABLE `Post` (
+`authorId` INT,
+`content` VARCHAR(255),
+`id` INT,
+`published` VARCHAR(255),
+`title` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `accounts` (
+`id` INT,
+`compound_id` VARCHAR(255),
+`user_id` INT,
+`provider_type` VARCHAR(255),
+`provider_id` VARCHAR(255),
+`provider_account_id` VARCHAR(255),
+`refresh_token` VARCHAR(255),
+`access_token` VARCHAR(255),
+`access_token_expires` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`id` INT,
+`user_id` INT,
+`expires` DATETIME,
+`session_token` VARCHAR(255),
+`access_token` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`email_verified` DATETIME,
+`image` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `verification_requests` (
+`id` INT,
+`identifier` VARCHAR(255),
+`token` VARCHAR(255),
+`expires` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_424392_migration') AS relationships;
+relationships
+Database: db_424392_migration
+
+Table Connections:
+------------------
+[Implied]  Post.authorId -> users.id
+[Implied]  accounts.user_id -> users.id
+[Implied]  sessions.user_id -> users.id
+
+DROP DATABASE `db_424392_migration`;
+UNINSTALL EXTENSION vsql_schematron;

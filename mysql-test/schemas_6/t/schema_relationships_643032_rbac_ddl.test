@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 643032_rbac_ddl
+--echo #
+CREATE DATABASE `db_643032_rbac_ddl`;
+USE `db_643032_rbac_ddl`;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `mobile` VARCHAR(255),
+  `password` VARCHAR(255),
+  `enabled` VARCHAR(255),
+  `role_id` INT,
+  `created_by_id` INT,
+  `created_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permission` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `group` VARCHAR(255),
+  `authority` VARCHAR(255),
+  `description` VARCHAR(255),
+  `created_by_id` INT,
+  `created_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_permission` (
+  `user_id` INT,
+  `permission_id` INT,
+  PRIMARY KEY (`user_id`, `permission_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  `created_by_id` INT,
+  `created_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_permission` (
+  `role_id` INT,
+  `permission_id` INT,
+  `created_by_id` INT,
+  `created_date` DATETIME,
+  PRIMARY KEY (`role_id`, `permission_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_643032_rbac_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_643032_rbac_ddl') AS relationships;
+DROP DATABASE `db_643032_rbac_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 312115_foodfy
+--echo #
+CREATE DATABASE `db_312115_foodfy`;
+USE `db_312115_foodfy`;
+
+CREATE TABLE `files` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `path` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chefs` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `file_id` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recipe_files` (
+  `id` INT,
+  `recipe_id` INT,
+  `file_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recipes` (
+  `id` INT,
+  `chef_id` INT,
+  `title` VARCHAR(255),
+  `ingredients` VARCHAR(255),
+  `preparation` VARCHAR(255),
+  `information` VARCHAR(255),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `password` VARCHAR(255),
+  `reset_token` VARCHAR(255),
+  `reset_token_expires` VARCHAR(255),
+  `is_admin` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_312115_foodfy') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_312115_foodfy') AS relationships;
+DROP DATABASE `db_312115_foodfy`;
+UNINSTALL EXTENSION vsql_schematron;

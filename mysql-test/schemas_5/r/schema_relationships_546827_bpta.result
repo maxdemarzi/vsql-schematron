@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 546827_bpta
+#
+CREATE DATABASE `db_546827_bpta`;
+USE `db_546827_bpta`;
+CREATE TABLE `users` (
+`id` INT,
+`userFirstName` VARCHAR(255),
+`userLastName` VARCHAR(255),
+`password` VARCHAR(255),
+`accessLevel` INT,
+`email` VARCHAR(255),
+`DOB` VARCHAR(255),
+`profileImage` VARCHAR(255),
+`securityQuestionOne` VARCHAR(255),
+`securityQuestionTwo` VARCHAR(255),
+`locationZone` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`deletedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `workouts` (
+`id` INT,
+`userID` INT,
+`pushUps` INT,
+`sitUps` INT,
+`boxJumps` INT,
+`kilometersRan` INT,
+`waterIntakeOz` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`deletedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `userWorkoutsLinkings` (
+`userID` INT,
+`workoutsID` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`deletedAt` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`accessLevelReq` INT,
+`body` INT,
+`userID` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`deletedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `resources` (
+`id` INT,
+`url` VARCHAR(255),
+`description` VARCHAR(255),
+`subject` VARCHAR(255),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`deletedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_546827_bpta') AS relationships;
+relationships
+Database: db_546827_bpta
+
+Table Connections:
+------------------
+[Implied]  posts.userID -> users.id
+[Implied]  userWorkoutsLinkings.userID -> users.id
+[Implied]  userWorkoutsLinkings.workoutsID -> workouts.id
+[Implied]  workouts.userID -> users.id
+
+DROP DATABASE `db_546827_bpta`;
+UNINSTALL EXTENSION vsql_schematron;

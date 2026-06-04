@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 333458_V1_0_initial
+#
+CREATE DATABASE `db_333458_V1_0_initial`;
+USE `db_333458_V1_0_initial`;
+CREATE TABLE `Customer` (
+`CustomerId` VARCHAR(255),
+`name` VARCHAR(255),
+`version` INT,
+PRIMARY KEY (`CustomerId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Orders` (
+`order_id` INT,
+`customer_id` VARCHAR(255),
+`version` INT,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderDetails` (
+`OrderDetailsId` INT,
+`order_id` INT,
+`version` INT,
+PRIMARY KEY (`OrderDetailsId`)
+) CHARACTER SET latin1;
+CREATE TABLE `row` (
+`RowId` INT,
+`Name` VARCHAR(255),
+`version` INT,
+PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+CREATE TABLE `column` (
+`ColumnId` INT,
+`Name` VARCHAR(255),
+`version` INT,
+PRIMARY KEY (`ColumnId`)
+) CHARACTER SET latin1;
+CREATE TABLE `cell` (
+`RowId` INT,
+`ColumnId` INT,
+PRIMARY KEY (`RowId`, `ColumnId`)
+) CHARACTER SET latin1;
+CREATE TABLE `cell_data` (
+`RowId` INT,
+`ColumnId` INT,
+`cell_text` VARCHAR(255),
+PRIMARY KEY (`RowId`, `ColumnId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_333458_V1_0_initial') AS relationships;
+relationships
+Database: db_333458_V1_0_initial
+
+Table Connections:
+------------------
+[Implied]  OrderDetails.order_id -> Orders.order_id
+[Implied]  Orders.customer_id -> Customer.CustomerId
+[Implied]  cell.ColumnId -> column.ColumnId
+[Implied]  cell.RowId -> row.RowId
+[Implied]  cell_data.ColumnId -> column.ColumnId
+[Implied]  cell_data.RowId -> row.RowId
+
+DROP DATABASE `db_333458_V1_0_initial`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,85 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 262783_db_init
+#
+CREATE DATABASE `db_262783_db_init`;
+USE `db_262783_db_init`;
+CREATE TABLE `companies` (
+`company_id` INT,
+`company_name` VARCHAR(255),
+`company_address` VARCHAR(255),
+`company_tax_number` VARCHAR(255),
+PRIMARY KEY (`company_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `conversations` (
+`conversation_id` INT,
+`conversation_subject` VARCHAR(255),
+PRIMARY KEY (`conversation_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `conversations_members` (
+`id` INT,
+`conversation_id` INT,
+`user_id` INT,
+`conversation_last_viewed` INT,
+`conversation_deleted` INT
+) CHARACTER SET latin1;
+CREATE TABLE `conversations_messages` (
+`message_id` INT,
+`conversation_id` INT,
+`user_id` INT,
+`date_sent` INT,
+`message_body` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `shipments` (
+`shipment_id` INT,
+`sent` INT,
+`recipient` VARCHAR(255),
+`recipient_address` VARCHAR(255),
+`body_sent_correspondence` VARCHAR(255),
+`received` INT,
+`shipment_type_id` INT,
+`registered_by_id` INT,
+`date_received` DATETIME,
+`date_sent` DATETIME,
+`updated_by_id` INT,
+`date_updated` DATETIME,
+`deleted` INT
+) CHARACTER SET latin1;
+CREATE TABLE `shipments_types` (
+`shipment_type_id` INT,
+`shipment_type_name` VARCHAR(255),
+PRIMARY KEY (`shipment_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`user_id` INT,
+`login` VARCHAR(255),
+`password` VARCHAR(255),
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`job_title` VARCHAR(255),
+`cellphone` VARCHAR(255),
+`landline_phone` VARCHAR(255),
+`email` VARCHAR(255),
+`company_id` INT,
+`allow_email` INT,
+`permissions` INT,
+`last_logged_in` DATETIME,
+`picture` VARCHAR(255),
+`type` VARCHAR(255),
+`active` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_262783_db_init') AS relationships;
+relationships
+Database: db_262783_db_init
+
+Table Connections:
+------------------
+[Implied]  conversations_members.conversation_id -> conversations.conversation_id
+[Implied]  conversations_members.user_id -> users.user_id
+[Implied]  conversations_messages.conversation_id -> conversations.conversation_id
+[Implied]  conversations_messages.user_id -> users.user_id
+[Implied]  shipments.shipment_type_id -> shipments_types.shipment_type_id
+[Implied]  users.company_id -> companies.company_id
+
+DROP DATABASE `db_262783_db_init`;
+UNINSTALL EXTENSION vsql_schematron;

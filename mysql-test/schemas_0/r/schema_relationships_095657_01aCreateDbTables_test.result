@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 095657_01aCreateDbTables_test
+#
+CREATE DATABASE `db_095657_01aCreateDbTables_test`;
+USE `db_095657_01aCreateDbTables_test`;
+CREATE TABLE `market` (
+`marketId` INT,
+`name` VARCHAR(255),
+`sortName` VARCHAR(255),
+`url` VARCHAR(255),
+`imageUrl` VARCHAR(255),
+`dateEnd` DATETIME,
+PRIMARY KEY (`marketId`)
+) CHARACTER SET latin1;
+CREATE TABLE `contract` (
+`imageUrl` VARCHAR(255),
+`contractId` INT,
+`marketId` INT,
+`contractName` VARCHAR(255),
+`contractShortName` VARCHAR(255),
+`dateEnd` DATETIME,
+PRIMARY KEY (`contractId`)
+) CHARACTER SET latin1;
+CREATE TABLE `querySource` (
+`querySourceId` INT,
+`name` VARCHAR(255),
+`shortName` VARCHAR(255),
+PRIMARY KEY (`querySourceId`)
+) CHARACTER SET latin1;
+CREATE TABLE `marketNotExist` (
+`marketId` INT,
+`querySourceId` INT,
+PRIMARY KEY (`marketId`, `querySourceId`)
+) CHARACTER SET latin1;
+CREATE TABLE `image` (
+`imageUrl` VARCHAR(255),
+`image` VARCHAR(255),
+`type` VARCHAR(255),
+PRIMARY KEY (`imageUrl`)
+) CHARACTER SET latin1;
+CREATE TABLE `marketChartData` (
+`marketId` INT,
+`contractId` INT,
+`dateTimeStamp` DATETIME,
+`querySourceId` INT,
+`openSharePrice` DECIMAL(10,2),
+`highSharePrice` DECIMAL(10,2),
+`lowSharePrice` DECIMAL(10,2),
+`closeSharePrice` DECIMAL(10,2),
+`tradeVolume` DECIMAL(10,2),
+PRIMARY KEY (`contractId`, `dateTimeStamp`, `querySourceId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_095657_01aCreateDbTables_test') AS relationships;
+relationships
+Database: db_095657_01aCreateDbTables_test
+
+Table Connections:
+------------------
+[Implied]  contract.imageUrl -> image.imageUrl
+[Implied]  contract.marketId -> market.marketId
+[Implied]  market.imageUrl -> image.imageUrl
+[Implied]  marketChartData.contractId -> contract.contractId
+[Implied]  marketChartData.marketId -> market.marketId
+[Implied]  marketChartData.querySourceId -> querySource.querySourceId
+[Implied]  marketNotExist.marketId -> market.marketId
+[Implied]  marketNotExist.querySourceId -> querySource.querySourceId
+
+DROP DATABASE `db_095657_01aCreateDbTables_test`;
+UNINSTALL EXTENSION vsql_schematron;

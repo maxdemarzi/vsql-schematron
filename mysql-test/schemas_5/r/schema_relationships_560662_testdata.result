@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 560662_testdata
+#
+CREATE DATABASE `db_560662_testdata`;
+USE `db_560662_testdata`;
+CREATE TABLE `example` (
+`id` INT,
+`name` VARCHAR(255),
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shop` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+`id` INT,
+`shopId` INT,
+`customerId` INT,
+`amount` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`id` INT,
+`description` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item_order` (
+`itemId` INT,
+`orderId` INT
+) CHARACTER SET latin1;
+CREATE TABLE `remark` (
+`id` INT,
+`orderId` INT,
+`text` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_560662_testdata') AS relationships;
+relationships
+Database: db_560662_testdata
+
+Table Connections:
+------------------
+[Implied]  item_order.itemId -> item.id
+[Implied]  item_order.orderId -> order.id
+[Implied]  order.customerId -> customer.id
+[Implied]  order.shopId -> shop.id
+[Implied]  remark.orderId -> order.id
+
+DROP DATABASE `db_560662_testdata`;
+UNINSTALL EXTENSION vsql_schematron;

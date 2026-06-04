@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 535182_lms
+#
+CREATE DATABASE `db_535182_lms`;
+USE `db_535182_lms`;
+CREATE TABLE `courses` (
+`module_code` VARCHAR(255),
+`module_name` VARCHAR(255),
+`dept_ID` VARCHAR(255),
+`yr` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `department` (
+`dept_ID` VARCHAR(255),
+`dept_name` VARCHAR(255),
+PRIMARY KEY (`dept_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`events_id` INT,
+`event_name` VARCHAR(255),
+`event_image` VARCHAR(255),
+`event_content` VARCHAR(255),
+`venue` VARCHAR(255),
+`date` DATETIME,
+`time` VARCHAR(255),
+PRIMARY KEY (`events_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `eventuser` (
+`user_id` INT,
+`events_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `inquiries` (
+`inq_id` INT,
+`inq_name` VARCHAR(255),
+`inq_email` VARCHAR(255),
+`inq_msg` VARCHAR(255),
+PRIMARY KEY (`inq_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student-enrol` (
+`user_id` INT,
+`module_code` VARCHAR(255),
+PRIMARY KEY (`user_id`, `module_code`)
+) CHARACTER SET latin1;
+CREATE TABLE `subscribers` (
+`sub_id` INT,
+`sub_email` VARCHAR(255),
+PRIMARY KEY (`sub_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`user_id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`user_fullname` VARCHAR(255),
+`user_email` VARCHAR(255),
+`user_image` VARCHAR(255),
+`role` VARCHAR(255),
+`randSalt` VARCHAR(255),
+`Index_no` VARCHAR(255),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_535182_lms') AS relationships;
+relationships
+Database: db_535182_lms
+
+Table Connections:
+------------------
+[Implied]  courses.dept_ID -> department.dept_ID
+[Implied]  eventuser.events_id -> events.events_id
+[Implied]  eventuser.user_id -> users.user_id
+[Implied]  student-enrol.user_id -> users.user_id
+
+DROP DATABASE `db_535182_lms`;
+UNINSTALL EXTENSION vsql_schematron;

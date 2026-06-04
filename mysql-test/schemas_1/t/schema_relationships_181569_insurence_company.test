@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 181569_insurence_company
+--echo #
+CREATE DATABASE `db_181569_insurence_company`;
+USE `db_181569_insurence_company`;
+
+CREATE TABLE `ci_sessions` (
+  `id` VARCHAR(255),
+  `ip_address` VARCHAR(255),
+  `timestamp` INT,
+  `data` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `districts` (
+  `id` INT,
+  `division_id` INT,
+  `name` VARCHAR(255),
+  `bn_name` VARCHAR(255),
+  `lat` DECIMAL(10,2),
+  `lon` DECIMAL(10,2),
+  `website` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `divisions` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `bn_name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `insurence_data` (
+  `insurence_data_id` INT,
+  `user_id` INT,
+  `insurence_data_no` VARCHAR(255),
+  `insurence_data_thaird_party` VARCHAR(255),
+  `insurence_data_compensive` VARCHAR(255),
+  `insurence_data_value_taka` VARCHAR(255),
+  `customer_name` VARCHAR(255),
+  `customer_address` VARCHAR(255),
+  `insurence_data_certificate` VARCHAR(255),
+  `insurence_data_vehicle_mark_number` VARCHAR(255),
+  `insurence_data_engine_number` VARCHAR(255),
+  `insurence_data_chasis_number` VARCHAR(255),
+  `insurence_data_make_model_carrying_number` VARCHAR(255),
+  `insurence_data_act_first_date` DATETIME,
+  `insurence_data_act_last_date` DATETIME,
+  `insurence_data_entitle_drive` VARCHAR(255),
+  `insurence_data_mr_number` VARCHAR(255),
+  `insurence_data_date` DATETIME,
+  `insurence_data_primiam_price` VARCHAR(255),
+  `insurence_data_less_percent` INT,
+  `insurence_data_percent_money` VARCHAR(255),
+  `insurence_data_total_until_passenger` VARCHAR(255),
+  `insurence_data_passenger_price` VARCHAR(255),
+  `insurence_data_driver_price` VARCHAR(255),
+  `insurence_data_sub_total_price` VARCHAR(255),
+  `insurence_data_total_vat` VARCHAR(255),
+  `insurence_data_total_money` VARCHAR(255),
+  `created_date` DATETIME,
+  `customer_mobile` VARCHAR(255),
+  `customer_refence` VARCHAR(255),
+  `insurence_data_passenger_plus` VARCHAR(255),
+  `insurence_data_notice_date` VARCHAR(255),
+  `insurence_data_notification_active` INT,
+  PRIMARY KEY (`insurence_data_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `options` (
+  `option_id` INT,
+  `option_name` VARCHAR(255),
+  `option_value` VARCHAR(255),
+  PRIMARY KEY (`option_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `user_name` VARCHAR(255),
+  `user_phone` VARCHAR(255),
+  `user_email` VARCHAR(255),
+  `user_pass` VARCHAR(255),
+  `district_name` VARCHAR(255),
+  `user_type` VARCHAR(255),
+  `user_status` VARCHAR(255),
+  `registered_date` DATETIME,
+  `updated_date` DATETIME,
+  `user_picture` VARCHAR(255),
+  `no_number` VARCHAR(255),
+  `mr_number` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_181569_insurence_company') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_181569_insurence_company') AS relationships;
+DROP DATABASE `db_181569_insurence_company`;
+UNINSTALL EXTENSION vsql_schematron;

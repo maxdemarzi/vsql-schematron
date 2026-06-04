@@ -1,0 +1,120 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 674009_postgres
+--echo #
+CREATE DATABASE `db_674009_postgres`;
+USE `db_674009_postgres`;
+
+CREATE TABLE `labels` (
+  `language_id` INT,
+  `value` VARCHAR(255),
+  `key` VARCHAR(255),
+  PRIMARY KEY (`language_id`, `key`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `languages` (
+  `id` INT,
+  `active` VARCHAR(255),
+  `created` DATETIME,
+  `deleted` VARCHAR(255),
+  `modified` DATETIME,
+  `iso_language` VARCHAR(255),
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `parameters` (
+  `id` INT,
+  `active` VARCHAR(255),
+  `description` VARCHAR(255),
+  `label` VARCHAR(255),
+  `type` VARCHAR(255),
+  `value` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `databasechangelog` (
+  `id` VARCHAR(255),
+  `author` VARCHAR(255),
+  `filename` VARCHAR(255),
+  `dateexecuted` DATETIME,
+  `orderexecuted` INT,
+  `exectype` VARCHAR(255),
+  `md5sum` VARCHAR(255),
+  `description` VARCHAR(255),
+  `comments` VARCHAR(255),
+  `tag` VARCHAR(255),
+  `liquibase` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `databasechangeloglock` (
+  `id` INT,
+  `locked` VARCHAR(255),
+  `lockgranted` DATETIME,
+  `lockedby` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `consumer_api` (
+  `id` INT,
+  `document_number` VARCHAR(255),
+  `name` VARCHAR(255),
+  `contact_name` VARCHAR(255),
+  `consumer_id` VARCHAR(255),
+  `secret` VARCHAR(255),
+  `access_level` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `keychain` (
+  `id` INT,
+  `value` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `security_profile` (
+  `id` INT,
+  `key` VARCHAR(255),
+  `name` VARCHAR(255),
+  `max_number_of_connections_per_user` INT,
+  `max_number_of_connections` INT,
+  `refresh_token_timeout_seconds` INT,
+  `access_token_timeout_seconds` INT,
+  `revocable` VARCHAR(255),
+  `max_access_token_requests` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tokens` (
+  `id` VARCHAR(255),
+  `user_id` VARCHAR(255),
+  `security_profile_id` INT,
+  `remote_ip` VARCHAR(255),
+  `user_agent` VARCHAR(255),
+  `issued_at` DATETIME,
+  `expiration` DATETIME,
+  `token_type` VARCHAR(255),
+  `token` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_674009_postgres') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_674009_postgres') AS relationships;
+DROP DATABASE `db_674009_postgres`;
+UNINSTALL EXTENSION vsql_schematron;

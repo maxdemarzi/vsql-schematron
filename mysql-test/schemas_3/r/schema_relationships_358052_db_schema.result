@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 358052_db_schema
+#
+CREATE DATABASE `db_358052_db_schema`;
+USE `db_358052_db_schema`;
+CREATE TABLE `dish` (
+`dishID` INT,
+`dishName` VARCHAR(255),
+`netWeight` DECIMAL(10,2),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`dishID`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`employeeID` INT,
+`firstName` VARCHAR(255),
+`middleName` VARCHAR(255),
+`lastName` VARCHAR(255),
+`positionName` VARCHAR(255),
+`Address` VARCHAR(255),
+`phoneNumber` VARCHAR(255),
+`username` VARCHAR(255),
+`hashPassword` INT,
+`dateOfEmployment` DATETIME,
+`dateOfBirth` DATETIME,
+PRIMARY KEY (`employeeID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ordering` (
+`orderID` INT,
+`tableID` INT,
+`employeeID` INT,
+`date` DATETIME,
+PRIMARY KEY (`orderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ordersaccount` (
+`orderID` INT,
+`dishID` INT,
+`amount` INT,
+PRIMARY KEY (`orderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `position` (
+`positionName` VARCHAR(255),
+`salary` DECIMAL(10,2),
+PRIMARY KEY (`positionName`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`productID` INT,
+`productName` VARCHAR(255),
+`amount` INT,
+`unitOfMeasurement` VARCHAR(255),
+PRIMARY KEY (`productID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_358052_db_schema') AS relationships;
+relationships
+Database: db_358052_db_schema
+
+Table Connections:
+------------------
+[Implied]  employee.positionName -> position.positionName
+[Implied]  ordering.employeeID -> employee.employeeID
+[Implied]  ordersaccount.dishID -> dish.dishID
+
+DROP DATABASE `db_358052_db_schema`;
+UNINSTALL EXTENSION vsql_schematron;

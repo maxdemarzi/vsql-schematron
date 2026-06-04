@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 322209_schema
+#
+CREATE DATABASE `db_322209_schema`;
+USE `db_322209_schema`;
+CREATE TABLE `users` (
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`enabled` INT,
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+`id` INT,
+`group_name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group_authorities` (
+`group_id` INT,
+`authority` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `group_members` (
+`id` INT,
+`username` VARCHAR(255),
+`group_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `queries` (
+`id` INT,
+`name` VARCHAR(255),
+`project` VARCHAR(255),
+`sql_string` VARCHAR(255),
+`creator` VARCHAR(255),
+`description` VARCHAR(255),
+`created_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_hits` (
+`username` VARCHAR(255),
+`hit_time` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_322209_schema') AS relationships;
+relationships
+Database: db_322209_schema
+
+Table Connections:
+------------------
+[Implied]  group_authorities.group_id -> groups.id
+[Implied]  group_members.group_id -> groups.id
+[Implied]  group_members.username -> users.username
+[Implied]  user_hits.username -> users.username
+
+DROP DATABASE `db_322209_schema`;
+UNINSTALL EXTENSION vsql_schematron;

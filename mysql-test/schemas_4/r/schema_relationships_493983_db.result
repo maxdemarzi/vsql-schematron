@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 493983_db
+#
+CREATE DATABASE `db_493983_db`;
+USE `db_493983_db`;
+CREATE TABLE `group_authorities` (
+`group_id` INT,
+`authority` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `group_members` (
+`id` INT,
+`username` VARCHAR(255),
+`group_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+`id` INT,
+`group_name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`enabled` INT,
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_493983_db') AS relationships;
+relationships
+Database: db_493983_db
+
+Table Connections:
+------------------
+[Implied]  group_authorities.group_id -> groups.id
+[Implied]  group_members.group_id -> groups.id
+[Implied]  group_members.username -> users.username
+
+DROP DATABASE `db_493983_db`;
+UNINSTALL EXTENSION vsql_schematron;

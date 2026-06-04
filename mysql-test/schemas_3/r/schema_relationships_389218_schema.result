@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 389218_schema
+#
+CREATE DATABASE `db_389218_schema`;
+USE `db_389218_schema`;
+CREATE TABLE `project` (
+`project_id` VARCHAR(255),
+`description` VARCHAR(255),
+PRIMARY KEY (`project_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `environment` (
+`project_id` VARCHAR(255),
+`environment_id` VARCHAR(255),
+`description` VARCHAR(255),
+`policy_arn` VARCHAR(255),
+`roles` VARCHAR(255),
+`groups` VARCHAR(255),
+PRIMARY KEY (`project_id`, `environment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `secret` (
+`project_id` VARCHAR(255),
+`environment_id` VARCHAR(255),
+`secret_id` VARCHAR(255),
+`description` VARCHAR(255),
+PRIMARY KEY (`project_id`, `environment_id`, `secret_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_389218_schema') AS relationships;
+relationships
+Database: db_389218_schema
+
+Table Connections:
+------------------
+[Implied]  environment.project_id -> project.project_id
+[Implied]  secret.project_id -> project.project_id
+
+DROP DATABASE `db_389218_schema`;
+UNINSTALL EXTENSION vsql_schematron;

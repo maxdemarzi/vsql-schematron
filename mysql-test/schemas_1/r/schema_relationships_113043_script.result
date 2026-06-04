@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 113043_script
+#
+CREATE DATABASE `db_113043_script`;
+USE `db_113043_script`;
+CREATE TABLE `tasks` (
+`taskID` INT,
+`userID` INT,
+`TimeDate` DATETIME,
+`taskType` VARCHAR(255),
+PRIMARY KEY (`taskID`)
+) CHARACTER SET latin1;
+CREATE TABLE `discussions` (
+`discussionID` INT,
+`userID` INT,
+`fileID` INT,
+`taskID` INT,
+`logID` INT,
+`commentID` INT,
+`discussionName` VARCHAR(255),
+`discussionPermission` VARCHAR(255),
+PRIMARY KEY (`discussionID`)
+) CHARACTER SET latin1;
+CREATE TABLE `discussionmessages` (
+`messageID` INT,
+`userID` INT,
+`timeDate` DATETIME,
+`discussionID` INT,
+`messageType` VARCHAR(255),
+PRIMARY KEY (`messageID`)
+) CHARACTER SET latin1;
+CREATE TABLE `files` (
+`fileID` INT,
+`userID` INT,
+`dateTime` DATETIME,
+`discussionID` INT,
+`fileType` VARCHAR(255),
+PRIMARY KEY (`fileID`)
+) CHARACTER SET latin1;
+CREATE TABLE `privatemessages` (
+`PMID` INT,
+`userID` INT,
+`description` VARCHAR(255),
+`fileID` INT,
+`dateTime` DATETIME,
+PRIMARY KEY (`PMID`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`commentID` INT,
+`userID` INT,
+`fileID` INT,
+`discussionID` INT,
+`description` VARCHAR(255),
+PRIMARY KEY (`commentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `logs` (
+`logID` INT,
+`userID` INT,
+`logType` VARCHAR(255),
+`dateTime` DATETIME,
+`discussionID` INT,
+`description` VARCHAR(255),
+PRIMARY KEY (`logID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_113043_script') AS relationships;
+relationships
+Database: db_113043_script
+
+Table Connections:
+------------------
+[Implied]  comments.discussionID -> discussions.discussionID
+[Implied]  comments.fileID -> files.fileID
+[Implied]  discussionmessages.discussionID -> discussions.discussionID
+[Implied]  discussions.commentID -> comments.commentID
+[Implied]  discussions.fileID -> files.fileID
+[Implied]  discussions.logID -> logs.logID
+[Implied]  discussions.taskID -> tasks.taskID
+[Implied]  files.discussionID -> discussions.discussionID
+[Implied]  logs.discussionID -> discussions.discussionID
+[Implied]  privatemessages.fileID -> files.fileID
+
+DROP DATABASE `db_113043_script`;
+UNINSTALL EXTENSION vsql_schematron;

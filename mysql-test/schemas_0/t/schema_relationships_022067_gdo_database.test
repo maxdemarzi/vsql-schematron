@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 022067_gdo_database
+--echo #
+CREATE DATABASE `db_022067_gdo_database`;
+USE `db_022067_gdo_database`;
+
+CREATE TABLE `applicant` (
+  `ApplicantId` INT,
+  `RecordId` VARCHAR(255),
+  `TimeSubmitted` DATETIME,
+  `FirstName` VARCHAR(255),
+  `LastName` VARCHAR(255),
+  `Address` VARCHAR(255),
+  `City` VARCHAR(255),
+  `State` VARCHAR(255),
+  `ZipCode` INT,
+  `DateOfBirth` DATETIME,
+  `Ethnicity` VARCHAR(255),
+  `Allergies` VARCHAR(255),
+  `Medications` VARCHAR(255),
+  `ParentsWithBachelors` VARCHAR(255),
+  `MilitaryRelatives` INT,
+  `RisingGradeLevel` VARCHAR(255),
+  `AttendingSchool` VARCHAR(255),
+  `CollegeOfInterest` VARCHAR(255),
+  `ShirtSize` VARCHAR(255),
+  `WaiverStatus` VARCHAR(255),
+  `ApplicationStatus` VARCHAR(255),
+  PRIMARY KEY (`ApplicantId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `applicant_stem_interests` (
+  `ApplicantId` INT,
+  `DisciplineId` INT,
+  PRIMARY KEY (`ApplicantId`, `DisciplineId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `emergency_contact` (
+  `EmergencyId` INT,
+  `ApplicantId` INT,
+  `Name` VARCHAR(255),
+  `Relationship` VARCHAR(255),
+  `Address` VARCHAR(255),
+  `City` VARCHAR(255),
+  `State` VARCHAR(255),
+  `ZipCode` INT,
+  `MobilePhone` INT,
+  `HomePhone` INT,
+  `WorkPhone` INT,
+  `InitialSignature` VARCHAR(255),
+  PRIMARY KEY (`EmergencyId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `parent` (
+  `ParentId` INT,
+  `ApplicantId` INT,
+  `FirstName` VARCHAR(255),
+  `LastName` VARCHAR(255),
+  `Email` VARCHAR(255),
+  `Address` VARCHAR(255),
+  `City` VARCHAR(255),
+  `State` VARCHAR(255),
+  `ZipCode` INT,
+  `MobilePhone` INT,
+  `WorkPhone` INT,
+  `HomePhone` INT,
+  `OtherParentFName` VARCHAR(255),
+  `OtherParentLName` VARCHAR(255),
+  PRIMARY KEY (`ParentId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `waivers` (
+  `ApplicantId` INT,
+  `WaiverType` INT,
+  `WaiverStatus` VARCHAR(255),
+  `WaiverLocation` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `max_applicants` (
+  `max_applicants` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_022067_gdo_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_022067_gdo_database') AS relationships;
+DROP DATABASE `db_022067_gdo_database`;
+UNINSTALL EXTENSION vsql_schematron;

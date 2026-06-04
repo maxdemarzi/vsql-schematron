@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 280779_storedb
+#
+CREATE DATABASE `db_280779_storedb`;
+USE `db_280779_storedb`;
+CREATE TABLE `category` (
+`id` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`id` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`price` DECIMAL(10,2),
+`percentageOFF` DECIMAL(10,2),
+`imageURL` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `salesItem` (
+`id` INT,
+`sales_id` INT,
+`item_id` INT,
+`qte` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `itemsincategory` (
+`id` INT,
+`itemID` INT,
+`categoryID` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `store` (
+`id` INT,
+`name` VARCHAR(255),
+`hours` VARCHAR(255),
+`areOpen` VARCHAR(255),
+`address` VARCHAR(255),
+`phoneNumber` VARCHAR(255),
+`email` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_280779_storedb') AS relationships;
+relationships
+Database: db_280779_storedb
+
+Table Connections:
+------------------
+[Implied]  itemsincategory.categoryID -> category.id
+[Implied]  itemsincategory.itemID -> item.id
+[Implied]  salesItem.item_id -> item.id
+[Implied]  salesItem.sales_id -> sales.id
+
+DROP DATABASE `db_280779_storedb`;
+UNINSTALL EXTENSION vsql_schematron;

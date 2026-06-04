@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 668442_database
+#
+CREATE DATABASE `db_668442_database`;
+USE `db_668442_database`;
+CREATE TABLE `user` (
+`id` INT,
+`full_name` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`date_of_birth` DATETIME,
+`phone_number` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`id` INT,
+`name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `permission` (
+`id` INT,
+`name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_has_permission` (
+`permission_id` INT,
+`role_id` INT,
+PRIMARY KEY (`permission_id`, `role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_has_role` (
+`user_id` INT,
+`role_id` INT,
+PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `drafted_request` (
+`id` INT,
+`request_date` DATETIME,
+`title` VARCHAR(255),
+`details` VARCHAR(255),
+`quantity` INT,
+`cost_per_unit` DECIMAL(10,2),
+`total_cost` DECIMAL(10,2),
+`workflow_status` VARCHAR(255),
+`user_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `request` (
+`id` INT,
+`request_date` DATETIME,
+`title` VARCHAR(255),
+`details` VARCHAR(255),
+`quantity` INT,
+`cost_per_unit` DECIMAL(10,2),
+`total_cost` DECIMAL(10,2),
+`workflow_status` VARCHAR(255),
+`user_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `request_transition` (
+`id` INT,
+`request_id` VARCHAR(255),
+`user_id` INT,
+`transition` VARCHAR(255),
+`from_step` VARCHAR(255),
+`to_step` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `system_registry` (
+`id` INT,
+`content` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_668442_database') AS relationships;
+relationships
+Database: db_668442_database
+
+Table Connections:
+------------------
+[Implied]  drafted_request.user_id -> user.id
+[Implied]  request.user_id -> user.id
+[Implied]  request_transition.user_id -> user.id
+[Implied]  role_has_permission.permission_id -> permission.id
+[Implied]  role_has_permission.role_id -> role.id
+[Implied]  user_has_role.role_id -> role.id
+[Implied]  user_has_role.user_id -> user.id
+
+DROP DATABASE `db_668442_database`;
+UNINSTALL EXTENSION vsql_schematron;

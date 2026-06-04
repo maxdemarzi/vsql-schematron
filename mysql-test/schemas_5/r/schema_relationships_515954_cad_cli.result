@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 515954_cad_cli
+#
+CREATE DATABASE `db_515954_cad_cli`;
+USE `db_515954_cad_cli`;
+CREATE TABLE `clientes` (
+`id` INT,
+`cpf` VARCHAR(255),
+`nome` VARCHAR(255),
+`credito_liberado` VARCHAR(255),
+`data_nasc` DATETIME,
+`user_id` INT,
+`email` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`role` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `produtos` (
+`id` INT,
+`descricao` VARCHAR(255),
+`unidade` VARCHAR(255),
+`user_id` INT,
+`data_cadastro` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedidos` (
+`id` INT,
+`quantidade` INT,
+`preco_venda` DECIMAL(10,2),
+`data_pedido` DATETIME,
+`data_confirmacao` DATETIME,
+`cliente_id` INT,
+`user_id` INT,
+`produto_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_515954_cad_cli') AS relationships;
+relationships
+Database: db_515954_cad_cli
+
+Table Connections:
+------------------
+[Implied]  clientes.user_id -> users.id
+[Implied]  pedidos.cliente_id -> clientes.id
+[Implied]  pedidos.produto_id -> produtos.id
+[Implied]  pedidos.user_id -> users.id
+[Implied]  produtos.user_id -> users.id
+
+DROP DATABASE `db_515954_cad_cli`;
+UNINSTALL EXTENSION vsql_schematron;

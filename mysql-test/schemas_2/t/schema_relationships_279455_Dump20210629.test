@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 279455_Dump20210629
+--echo #
+CREATE DATABASE `db_279455_Dump20210629`;
+USE `db_279455_Dump20210629`;
+
+CREATE TABLE `offered_answers` (
+  `answer_id` INT,
+  `answer_text` VARCHAR(255),
+  `question_id` INT,
+  PRIMARY KEY (`answer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `questions` (
+  `question_id` INT,
+  `question_text` VARCHAR(255),
+  `question_type` VARCHAR(255),
+  `question_correct_answer` VARCHAR(255),
+  `kc_question_id` INT,
+  PRIMARY KEY (`question_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `user_id` INT,
+  `user_login` VARCHAR(255),
+  `user_email` VARCHAR(255),
+  `user_password` VARCHAR(255),
+  `user_role` VARCHAR(255),
+  `user_name` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_answers` (
+  `user_answer_id` INT,
+  `user_answer` VARCHAR(255),
+  `user_answer_iscorrect` INT,
+  `user_id` INT,
+  `question_id` INT,
+  `question_kc_id` INT,
+  PRIMARY KEY (`user_answer_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_279455_Dump20210629') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_279455_Dump20210629') AS relationships;
+DROP DATABASE `db_279455_Dump20210629`;
+UNINSTALL EXTENSION vsql_schematron;

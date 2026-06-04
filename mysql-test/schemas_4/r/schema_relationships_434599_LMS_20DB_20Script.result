@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 434599_LMS_20DB_20Script
+#
+CREATE DATABASE `db_434599_LMS_20DB_20Script`;
+USE `db_434599_LMS_20DB_20Script`;
+CREATE TABLE `users` (
+`username` VARCHAR(255),
+`first_name` VARCHAR(255),
+`middle_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`region` VARCHAR(255),
+`district` VARCHAR(255),
+`street` VARCHAR(255),
+`ward` VARCHAR(255),
+`email` VARCHAR(255),
+`mobile_no` INT,
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `login` (
+`username` VARCHAR(255),
+`password` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `administrator` (
+`username` VARCHAR(255),
+`admin_ID` INT,
+`date_employed` DATETIME,
+PRIMARY KEY (`admin_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `librarian` (
+`username` VARCHAR(255),
+`librarian_ID` INT,
+`date_employed` DATETIME,
+PRIMARY KEY (`librarian_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `library_member` (
+`username` VARCHAR(255),
+`member_ID` INT,
+`date_registered` DATETIME,
+`expiry_date` DATETIME,
+PRIMARY KEY (`member_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `books` (
+`book_id` INT,
+`book_title` VARCHAR(255),
+`author` VARCHAR(255),
+`book_availability` VARCHAR(255),
+PRIMARY KEY (`book_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment` (
+`payment_id` INT,
+`amount` INT,
+`date_paid` DATETIME,
+`payment_purpose` VARCHAR(255),
+PRIMARY KEY (`payment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `admin_librarian` (
+`admin_id` INT,
+`librarian_id` INT,
+PRIMARY KEY (`admin_id`, `librarian_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `librarian_member` (
+`member_id` INT,
+`librarian_id` INT,
+PRIMARY KEY (`member_id`, `librarian_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `librarian_book` (
+`book_id` INT,
+`librarian_id` INT,
+PRIMARY KEY (`book_id`, `librarian_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `member_payment` (
+`payment_id` INT,
+`member_id` INT,
+PRIMARY KEY (`payment_id`, `member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `member_book` (
+`member_id` INT,
+`book_id` INT,
+PRIMARY KEY (`member_id`, `book_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_434599_LMS_20DB_20Script') AS relationships;
+relationships
+Database: db_434599_LMS_20DB_20Script
+
+Table Connections:
+------------------
+[Implied]  admin_librarian.admin_id -> administrator.admin_ID
+[Implied]  admin_librarian.librarian_id -> librarian.librarian_ID
+[Implied]  administrator.username -> users.username
+[Implied]  librarian.username -> users.username
+[Implied]  librarian_book.book_id -> books.book_id
+[Implied]  librarian_book.librarian_id -> librarian.librarian_ID
+[Implied]  librarian_member.librarian_id -> librarian.librarian_ID
+[Implied]  librarian_member.member_id -> library_member.member_ID
+[Implied]  library_member.username -> users.username
+[Implied]  login.username -> users.username
+[Implied]  member_book.book_id -> books.book_id
+[Implied]  member_book.member_id -> library_member.member_ID
+[Implied]  member_payment.member_id -> library_member.member_ID
+[Implied]  member_payment.payment_id -> payment.payment_id
+
+DROP DATABASE `db_434599_LMS_20DB_20Script`;
+UNINSTALL EXTENSION vsql_schematron;

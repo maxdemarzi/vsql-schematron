@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 112548_V1_0_0_Init
+#
+CREATE DATABASE `db_112548_V1_0_0_Init`;
+USE `db_112548_V1_0_0_Init`;
+CREATE TABLE `links` (
+`id` INT,
+`hash` VARCHAR(255),
+`alias` VARCHAR(255),
+`url` VARCHAR(255),
+`status` INT,
+`redirect_code` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `link_meta` (
+`id` INT,
+`link_id` INT,
+`title` VARCHAR(255),
+`description` VARCHAR(255),
+`create_at` DATETIME,
+`update_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `link_analytics` (
+`link_id` INT,
+`platform` VARCHAR(255),
+`device` VARCHAR(255),
+`browser` VARCHAR(255),
+`location` VARCHAR(255),
+`ip` VARCHAR(255),
+`create_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `link_expiration` (
+`link_id` INT,
+`expire_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `link_user` (
+`user_id` INT,
+`link_hash` VARCHAR(255),
+`link_id` INT,
+`create_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_112548_V1_0_0_Init') AS relationships;
+relationships
+Database: db_112548_V1_0_0_Init
+
+Table Connections:
+------------------
+[Implied]  link_analytics.link_id -> links.id
+[Implied]  link_expiration.link_id -> links.id
+[Implied]  link_meta.link_id -> links.id
+[Implied]  link_user.link_id -> links.id
+[Implied]  link_user.user_id -> users.id
+
+DROP DATABASE `db_112548_V1_0_0_Init`;
+UNINSTALL EXTENSION vsql_schematron;

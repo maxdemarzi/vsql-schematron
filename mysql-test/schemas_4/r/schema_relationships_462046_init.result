@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 462046_init
+#
+CREATE DATABASE `db_462046_init`;
+USE `db_462046_init`;
+CREATE TABLE `OrleansQuery` (
+`QueryKey` VARCHAR(255),
+`QueryText` VARCHAR(255),
+PRIMARY KEY (`QueryKey`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrleansMembershipVersionTable` (
+`DeploymentId` VARCHAR(255),
+`Timestamp` DATETIME,
+`Version` INT,
+PRIMARY KEY (`DeploymentId`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrleansMembershipTable` (
+`DeploymentId` VARCHAR(255),
+`Address` VARCHAR(255),
+`Port` INT,
+`Generation` INT,
+`SiloName` VARCHAR(255),
+`HostName` VARCHAR(255),
+`Status` INT,
+`ProxyPort` INT,
+`SuspectTimes` VARCHAR(255),
+`StartTime` DATETIME,
+`IAmAliveTime` DATETIME,
+PRIMARY KEY (`DeploymentId`, `Address`, `Port`, `Generation`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrleansRemindersTable` (
+`ServiceId` VARCHAR(255),
+`GrainId` VARCHAR(255),
+`ReminderName` VARCHAR(255),
+`StartTime` DATETIME,
+`Period` INT,
+`GrainHash` INT,
+`Version` INT,
+PRIMARY KEY (`ServiceId`, `GrainId`, `ReminderName`)
+) CHARACTER SET latin1;
+CREATE TABLE `feed` (
+`id` VARCHAR(255),
+`url` VARCHAR(255),
+`title` VARCHAR(255),
+`create_time` DATETIME,
+`update_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `article` (
+`id` VARCHAR(255),
+`url` VARCHAR(255),
+`feed_id` VARCHAR(255),
+`title` VARCHAR(255),
+`summary` VARCHAR(255),
+`published` DATETIME,
+`updated` DATETIME,
+`created` DATETIME,
+`keyword` VARCHAR(255),
+`content` VARCHAR(255),
+`contributors` VARCHAR(255),
+`authors` VARCHAR(255),
+`copyright` VARCHAR(255),
+`create_time` DATETIME,
+`update_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subscription` (
+`id` INT,
+`user_id` VARCHAR(255),
+`feed_id` VARCHAR(255),
+`create_time` DATETIME,
+`update_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` VARCHAR(255),
+`mail` VARCHAR(255),
+`password` VARCHAR(255),
+`salt` VARCHAR(255),
+`create_time` DATETIME,
+`update_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `readrecord` (
+`article_id` VARCHAR(255),
+`user_id` VARCHAR(255),
+`create_time` DATETIME,
+`update_time` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_462046_init') AS relationships;
+relationships
+Database: db_462046_init
+
+Table Connections:
+------------------
+[Implied]  OrleansMembershipTable.DeploymentId -> OrleansMembershipVersionTable.DeploymentId
+[Implied]  article.feed_id -> feed.id
+[Implied]  readrecord.article_id -> article.id
+[Implied]  readrecord.user_id -> user.id
+[Implied]  subscription.feed_id -> feed.id
+[Implied]  subscription.user_id -> user.id
+
+DROP DATABASE `db_462046_init`;
+UNINSTALL EXTENSION vsql_schematron;

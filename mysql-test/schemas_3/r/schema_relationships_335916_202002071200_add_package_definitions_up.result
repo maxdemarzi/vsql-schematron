@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 335916_202002071200_add_package_definitions_up
+#
+CREATE DATABASE `db_335916_202002071200_add_package_definitions_up`;
+USE `db_335916_202002071200_add_package_definitions_up`;
+CREATE TABLE `packages` (
+`id` VARCHAR(255),
+`tenant_id` VARCHAR(255),
+`app_id` VARCHAR(255),
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`instance_auth_request_json_schema` VARCHAR(255),
+`default_instance_auth` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `package_instance_auths` (
+`id` VARCHAR(255),
+`package_id` VARCHAR(255),
+`tenant_id` VARCHAR(255),
+`context` VARCHAR(255),
+`input_params` VARCHAR(255),
+`auth_value` VARCHAR(255),
+`status_condition` VARCHAR(255),
+`status_timestamp` DATETIME,
+`status_message` VARCHAR(255),
+`status_reason` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_335916_202002071200_add_package_definitions_up') AS relationships;
+relationships
+Database: db_335916_202002071200_add_package_definitions_up
+
+Table Connections:
+------------------
+[Implied]  package_instance_auths.package_id -> packages.id
+[Implied]  packages.default_instance_auth -> package_instance_auths.id
+
+DROP DATABASE `db_335916_202002071200_add_package_definitions_up`;
+UNINSTALL EXTENSION vsql_schematron;

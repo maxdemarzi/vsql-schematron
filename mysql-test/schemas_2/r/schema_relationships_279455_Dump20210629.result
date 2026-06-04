@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 279455_Dump20210629
+#
+CREATE DATABASE `db_279455_Dump20210629`;
+USE `db_279455_Dump20210629`;
+CREATE TABLE `offered_answers` (
+`answer_id` INT,
+`answer_text` VARCHAR(255),
+`question_id` INT,
+PRIMARY KEY (`answer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questions` (
+`question_id` INT,
+`question_text` VARCHAR(255),
+`question_type` VARCHAR(255),
+`question_correct_answer` VARCHAR(255),
+`kc_question_id` INT,
+PRIMARY KEY (`question_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`user_id` INT,
+`user_login` VARCHAR(255),
+`user_email` VARCHAR(255),
+`user_password` VARCHAR(255),
+`user_role` VARCHAR(255),
+`user_name` VARCHAR(255),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_answers` (
+`user_answer_id` INT,
+`user_answer` VARCHAR(255),
+`user_answer_iscorrect` INT,
+`user_id` INT,
+`question_id` INT,
+`question_kc_id` INT,
+PRIMARY KEY (`user_answer_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_279455_Dump20210629') AS relationships;
+relationships
+Database: db_279455_Dump20210629
+
+Table Connections:
+------------------
+[Implied]  offered_answers.question_id -> questions.question_id
+[Implied]  user_answers.question_id -> questions.question_id
+[Implied]  user_answers.user_answer_iscorrect -> user.user_id
+[Implied]  user_answers.user_id -> user.user_id
+
+DROP DATABASE `db_279455_Dump20210629`;
+UNINSTALL EXTENSION vsql_schematron;

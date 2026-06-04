@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 143712_schema_mysql
+#
+CREATE DATABASE `db_143712_schema_mysql`;
+USE `db_143712_schema_mysql`;
+CREATE TABLE `pet` (
+`id` INT,
+`name` VARCHAR(255),
+`sex` VARCHAR(255),
+`vaccinated` VARCHAR(255),
+`adopted` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `client` (
+`id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `client_pet_ref` (
+`id` INT,
+`pet_id` INT,
+`client_id` INT,
+`registered` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_143712_schema_mysql') AS relationships;
+relationships
+Database: db_143712_schema_mysql
+
+Table Connections:
+------------------
+[Implied]  client_pet_ref.client_id -> client.id
+[Implied]  client_pet_ref.pet_id -> pet.id
+
+DROP DATABASE `db_143712_schema_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

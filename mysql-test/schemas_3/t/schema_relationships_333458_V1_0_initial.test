@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 333458_V1_0_initial
+--echo #
+CREATE DATABASE `db_333458_V1_0_initial`;
+USE `db_333458_V1_0_initial`;
+
+CREATE TABLE `Customer` (
+  `CustomerId` VARCHAR(255),
+  `name` VARCHAR(255),
+  `version` INT,
+  PRIMARY KEY (`CustomerId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Orders` (
+  `order_id` INT,
+  `customer_id` VARCHAR(255),
+  `version` INT,
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `OrderDetails` (
+  `OrderDetailsId` INT,
+  `order_id` INT,
+  `version` INT,
+  PRIMARY KEY (`OrderDetailsId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `row` (
+  `RowId` INT,
+  `Name` VARCHAR(255),
+  `version` INT,
+  PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `column` (
+  `ColumnId` INT,
+  `Name` VARCHAR(255),
+  `version` INT,
+  PRIMARY KEY (`ColumnId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cell` (
+  `RowId` INT,
+  `ColumnId` INT,
+  PRIMARY KEY (`RowId`, `ColumnId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cell_data` (
+  `RowId` INT,
+  `ColumnId` INT,
+  `cell_text` VARCHAR(255),
+  PRIMARY KEY (`RowId`, `ColumnId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_333458_V1_0_initial') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_333458_V1_0_initial') AS relationships;
+DROP DATABASE `db_333458_V1_0_initial`;
+UNINSTALL EXTENSION vsql_schematron;

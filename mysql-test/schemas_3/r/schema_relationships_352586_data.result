@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 352586_data
+#
+CREATE DATABASE `db_352586_data`;
+USE `db_352586_data`;
+CREATE TABLE `role` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shop_user` (
+`id` INT,
+`role_id` INT,
+`name` VARCHAR(255),
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction` (
+`id` INT,
+`shop_user_id` INT,
+`status_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`id` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`category` VARCHAR(255),
+`stock_number` INT,
+`price` DECIMAL(10,2),
+`image` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cart` (
+`id` INT,
+`transaction_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `r_cart_item` (
+`id` INT,
+`cart_id` INT,
+`item_id` INT,
+`quantity` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_352586_data') AS relationships;
+relationships
+Database: db_352586_data
+
+Table Connections:
+------------------
+[Implied]  cart.transaction_id -> transaction.id
+[Implied]  r_cart_item.cart_id -> cart.id
+[Implied]  r_cart_item.item_id -> item.id
+[Implied]  shop_user.role_id -> role.id
+[Implied]  transaction.shop_user_id -> shop_user.id
+
+DROP DATABASE `db_352586_data`;
+UNINSTALL EXTENSION vsql_schematron;

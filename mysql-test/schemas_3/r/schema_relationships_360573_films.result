@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 360573_films
+#
+CREATE DATABASE `db_360573_films`;
+USE `db_360573_films`;
+CREATE TABLE `cinemas` (
+`id` INT,
+`cinema_name` VARCHAR(255),
+`places` INT,
+`country_id` INT,
+`date_deleted` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `countries` (
+`country_id` INT,
+`country_name` VARCHAR(255),
+`date_deleted` DATETIME,
+PRIMARY KEY (`country_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `directors` (
+`director_id` INT,
+`director_name` VARCHAR(255),
+`diirector_bio` VARCHAR(255),
+`date_deleted` DATETIME,
+PRIMARY KEY (`director_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `films` (
+`film_id` INT,
+`film_name` VARCHAR(255),
+`imdb_index` DECIMAL(10,2),
+`plot` VARCHAR(255),
+`year_of_production` INT,
+`producer_id` INT,
+`director_id` INT,
+`screenwriter_id` INT,
+`tickets_sold` INT,
+`country_id` INT,
+`date_deleted` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `genres` (
+`genre_id` INT,
+`genre_name` VARCHAR(255),
+`date_deleted` DATETIME,
+PRIMARY KEY (`genre_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `producers` (
+`producer_id` INT,
+`producer_name` VARCHAR(255),
+`birth_year` INT,
+`producer_bio` VARCHAR(255),
+`date_deleted` DATETIME,
+PRIMARY KEY (`producer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `screenwriters` (
+`screenwriter_id` INT,
+`sceenwriter_name` VARCHAR(255),
+`screenwriter_bio` VARCHAR(255),
+`number_of_screenwritigs` INT,
+`date_deleted` DATETIME,
+PRIMARY KEY (`screenwriter_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_360573_films') AS relationships;
+relationships
+Database: db_360573_films
+
+Table Connections:
+------------------
+[Implied]  cinemas.country_id -> countries.country_id
+[Implied]  films.country_id -> countries.country_id
+[Implied]  films.director_id -> directors.director_id
+[Implied]  films.producer_id -> producers.producer_id
+[Implied]  films.screenwriter_id -> screenwriters.screenwriter_id
+
+DROP DATABASE `db_360573_films`;
+UNINSTALL EXTENSION vsql_schematron;

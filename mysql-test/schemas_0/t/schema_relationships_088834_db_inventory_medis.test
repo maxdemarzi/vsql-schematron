@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 088834_db_inventory_medis
+--echo #
+CREATE DATABASE `db_088834_db_inventory_medis`;
+USE `db_088834_db_inventory_medis`;
+
+CREATE TABLE `barang` (
+  `kode` VARCHAR(255),
+  `category_id` VARCHAR(255),
+  `idsup` VARCHAR(255),
+  `namabarang` VARCHAR(255),
+  `stok` INT,
+  `hrgjual` INT,
+  `hrgbeli` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `barangkeluar` (
+  `kodekeluar` VARCHAR(255),
+  `nik` VARCHAR(255),
+  `tglkeluar` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `barangmasuk` (
+  `kodemasuk` VARCHAR(255),
+  `nik` VARCHAR(255),
+  `tglmasuk` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `category_id` VARCHAR(255),
+  `explanation` VARCHAR(255),
+  PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `detbarangkeluar` (
+  `kodebk` INT,
+  `kodekeluar` VARCHAR(255),
+  `kode` VARCHAR(255),
+  `qtykeluar` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `detbarangmasuk` (
+  `kodebm` INT,
+  `kodemasuk` VARCHAR(255),
+  `kode` VARCHAR(255),
+  `qtymasuk` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `supplier` (
+  `idsup` VARCHAR(255),
+  `namasup` VARCHAR(255),
+  `notelp` VARCHAR(255),
+  `alamat` VARCHAR(255),
+  `category_id` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `nik` VARCHAR(255),
+  `username` VARCHAR(255),
+  `nama` VARCHAR(255),
+  `password` VARCHAR(255),
+  `job` VARCHAR(255),
+  PRIMARY KEY (`nik`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_088834_db_inventory_medis') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_088834_db_inventory_medis') AS relationships;
+DROP DATABASE `db_088834_db_inventory_medis`;
+UNINSTALL EXTENSION vsql_schematron;

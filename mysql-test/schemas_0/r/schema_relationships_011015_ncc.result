@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 011015_ncc
+#
+CREATE DATABASE `db_011015_ncc`;
+USE `db_011015_ncc`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`event_id` INT,
+`event_username` VARCHAR(255),
+`event_name` VARCHAR(255),
+`event_desc` VARCHAR(255),
+`event_date` DATETIME,
+`time` VARCHAR(255),
+`venue` VARCHAR(255),
+`status1` VARCHAR(255),
+PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `eventJoin` (
+`event_id` INT,
+`username` VARCHAR(255),
+`status2` VARCHAR(255),
+PRIMARY KEY (`event_id`, `username`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_011015_ncc') AS relationships;
+relationships
+Database: db_011015_ncc
+
+Table Connections:
+------------------
+[Implied]  event.event_username -> users.username
+[Implied]  eventJoin.event_id -> event.event_id
+[Implied]  eventJoin.username -> users.username
+
+DROP DATABASE `db_011015_ncc`;
+UNINSTALL EXTENSION vsql_schematron;

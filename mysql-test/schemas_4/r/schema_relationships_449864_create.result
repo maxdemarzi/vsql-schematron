@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 449864_create
+#
+CREATE DATABASE `db_449864_create`;
+USE `db_449864_create`;
+CREATE TABLE `poll` (
+`id` VARCHAR(255),
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`owner_id` VARCHAR(255),
+`expires` DATETIME,
+`close` DATETIME,
+`write_ins` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `candidate` (
+`id` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`poll_id` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ballot` (
+`id` VARCHAR(255),
+`name` VARCHAR(255),
+`timestamp` DATETIME,
+`owner_id` VARCHAR(255),
+`poll_id` VARCHAR(255),
+PRIMARY KEY (`id`, `poll_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ranking` (
+`ballot_id` VARCHAR(255),
+`poll_id` VARCHAR(255),
+`candidate_id` INT,
+`ranking` INT,
+PRIMARY KEY (`ballot_id`, `poll_id`, `candidate_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_449864_create') AS relationships;
+relationships
+Database: db_449864_create
+
+Table Connections:
+------------------
+[Implied]  ballot.poll_id -> poll.id
+[Implied]  candidate.poll_id -> poll.id
+[Implied]  ranking.candidate_id -> candidate.id
+[Implied]  ranking.poll_id -> poll.id
+
+DROP DATABASE `db_449864_create`;
+UNINSTALL EXTENSION vsql_schematron;

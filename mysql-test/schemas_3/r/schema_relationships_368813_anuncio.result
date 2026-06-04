@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 368813_anuncio
+#
+CREATE DATABASE `db_368813_anuncio`;
+USE `db_368813_anuncio`;
+CREATE TABLE `pagamentos` (
+`id` INT,
+`valor` DECIMAL(10,2),
+`forma_pagamento` VARCHAR(255),
+`credito` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `anuncios` (
+`id` INT,
+`quantidade_visualizacao` INT,
+`publico_alvO` VARCHAR(255),
+`regiao` VARCHAR(255),
+`cliques` INT,
+`data_inicio` DATETIME,
+`data_final` DATETIME,
+`postagem_anuncio` VARCHAR(255),
+`pagamentos_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `anunciantes` (
+`id` INT,
+`pagina` VARCHAR(255),
+`usuario` VARCHAR(255),
+`pagamentos_id` INT,
+`anuncios_id` INT,
+PRIMARY KEY (`id`, `pagamentos_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_368813_anuncio') AS relationships;
+relationships
+Database: db_368813_anuncio
+
+Table Connections:
+------------------
+[Implied]  anunciantes.anuncios_id -> anuncios.id
+[Implied]  anunciantes.pagamentos_id -> pagamentos.id
+[Implied]  anuncios.pagamentos_id -> pagamentos.id
+
+DROP DATABASE `db_368813_anuncio`;
+UNINSTALL EXTENSION vsql_schematron;

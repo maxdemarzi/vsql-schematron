@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 340408_migration
+#
+CREATE DATABASE `db_340408_migration`;
+USE `db_340408_migration`;
+CREATE TABLE `accounts` (
+`id` VARCHAR(255),
+`authentication_id` VARCHAR(255),
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`last_name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `authentications` (
+`id` VARCHAR(255),
+`account_id` VARCHAR(255),
+`sessions_number` INT,
+`password` VARCHAR(255),
+`failed_attempts` INT,
+`locked` VARCHAR(255),
+`status` VARCHAR(255),
+`active` VARCHAR(255),
+`auth_groups_id` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `authentication__sessions` (
+`authentication_id` VARCHAR(255),
+`session_id` VARCHAR(255),
+PRIMARY KEY (`authentication_id`, `session_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`id` VARCHAR(255),
+`ip` VARCHAR(255),
+`device` VARCHAR(255),
+`active` VARCHAR(255),
+`created_at` DATETIME,
+`expires_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_groups` (
+`id` VARCHAR(255),
+`title` VARCHAR(255),
+`created_at` DATETIME,
+`active` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_groups__permissions` (
+`auth_group_id` VARCHAR(255),
+`permission_id` VARCHAR(255),
+PRIMARY KEY (`auth_group_id`, `permission_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `permissions` (
+`name` VARCHAR(255),
+`action` VARCHAR(255),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_340408_migration') AS relationships;
+relationships
+Database: db_340408_migration
+
+Table Connections:
+------------------
+[Implied]  accounts.authentication_id -> authentications.id
+[Implied]  auth_groups__permissions.auth_group_id -> auth_groups.id
+[Implied]  auth_groups__permissions.permission_id -> permissions.name
+[Implied]  authentication__sessions.authentication_id -> authentications.id
+[Implied]  authentication__sessions.session_id -> sessions.id
+[Implied]  authentications.account_id -> accounts.id
+[Implied]  authentications.auth_groups_id -> auth_groups.id
+
+DROP DATABASE `db_340408_migration`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 532447_Production_20Setup
+--echo #
+CREATE DATABASE `db_532447_Production_20Setup`;
+USE `db_532447_Production_20Setup`;
+
+CREATE TABLE `processing_status` (
+  `PROCESS_DATE` DATETIME,
+  `STATUS` VARCHAR(255),
+  `TIME_PROCESSED` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `history` (
+  `COMMENT` VARCHAR(255),
+  `DT_MODIFIED` DATETIME,
+  `CATEGORY_ID` INT,
+  `STATUS_ID` INT,
+  `PRIORITY_ID` INT,
+  `HIST_ID` INT,
+  PRIMARY KEY (`HIST_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `priority` (
+  `TASK` VARCHAR(255),
+  `WEIGHT` INT,
+  `CATEGORY_ID` INT,
+  `DESCRIPTION` VARCHAR(255),
+  `IMPORTANCE` INT,
+  `URGENCY` INT,
+  `DIFFICULTY` INT,
+  `DT_ADDED` DATETIME,
+  `DATE_DUE` DATETIME,
+  `DT_COMPLETE` DATETIME,
+  `STATUS_ID` INT,
+  `HIST_ID` INT,
+  `PRIORITY_ID` INT,
+  PRIMARY KEY (`PRIORITY_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_532447_Production_20Setup') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_532447_Production_20Setup') AS relationships;
+DROP DATABASE `db_532447_Production_20Setup`;
+UNINSTALL EXTENSION vsql_schematron;

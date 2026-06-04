@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 531859_V1_5_Auditoriums_Tables
+#
+CREATE DATABASE `db_531859_V1_5_Auditoriums_Tables`;
+USE `db_531859_V1_5_Auditoriums_Tables`;
+CREATE TABLE `auditorium` (
+`id` INT,
+`name` VARCHAR(255),
+`type` VARCHAR(255),
+`floor` INT,
+`building` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lesson` (
+`id` INT,
+`auditorium_id` INT,
+`day` INT,
+`start_time` DATETIME,
+`end_time` DATETIME,
+`group` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lesson_weeks` (
+`lesson_id` INT,
+`week` INT,
+PRIMARY KEY (`lesson_id`, `week`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_531859_V1_5_Auditoriums_Tables') AS relationships;
+relationships
+Database: db_531859_V1_5_Auditoriums_Tables
+
+Table Connections:
+------------------
+[Implied]  lesson.auditorium_id -> auditorium.id
+[Implied]  lesson_weeks.lesson_id -> lesson.id
+
+DROP DATABASE `db_531859_V1_5_Auditoriums_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

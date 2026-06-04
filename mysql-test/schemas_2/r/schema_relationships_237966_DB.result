@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 237966_DB
+#
+CREATE DATABASE `db_237966_DB`;
+USE `db_237966_DB`;
+CREATE TABLE `articles` (
+`title` VARCHAR(255),
+`image` VARCHAR(255),
+`description` VARCHAR(255),
+`create_date` DATETIME,
+`article_id` INT,
+`user_id` INT,
+PRIMARY KEY (`article_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chats` (
+`name` VARCHAR(255),
+`short_description` VARCHAR(255),
+`chat_id` INT,
+PRIMARY KEY (`chat_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+`chat_id` INT,
+`user_id` INT,
+`m_text` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`login` VARCHAR(255),
+`password` VARCHAR(255),
+`salt` VARCHAR(255),
+`img` VARCHAR(255),
+`user_id` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `articles_to_users` (
+`article_id` INT,
+`user_id` INT,
+PRIMARY KEY (`user_id`, `article_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chats_to_users` (
+`chat_id` INT,
+`user_id` INT,
+PRIMARY KEY (`user_id`, `chat_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags_to_articles` (
+`article_id` INT,
+`tag` VARCHAR(255)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_237966_DB') AS relationships;
+relationships
+Database: db_237966_DB
+
+Table Connections:
+------------------
+[Implied]  articles.user_id -> users.user_id
+[Implied]  articles_to_users.article_id -> articles.article_id
+[Implied]  articles_to_users.user_id -> users.user_id
+[Implied]  chats_to_users.chat_id -> chats.chat_id
+[Implied]  chats_to_users.user_id -> users.user_id
+[Implied]  messages.chat_id -> chats.chat_id
+[Implied]  messages.user_id -> users.user_id
+[Implied]  tags_to_articles.article_id -> articles.article_id
+
+DROP DATABASE `db_237966_DB`;
+UNINSTALL EXTENSION vsql_schematron;

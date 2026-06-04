@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 603210_schema
+#
+CREATE DATABASE `db_603210_schema`;
+USE `db_603210_schema`;
+CREATE TABLE `customer` (
+`id` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`created_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `profile` (
+`customer_id` INT,
+`street_number` VARCHAR(255),
+`street_name` VARCHAR(255),
+`district` VARCHAR(255),
+`city` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`id` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_tag` (
+`tag_id` INT,
+`product_id` INT,
+PRIMARY KEY (`tag_id`, `product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer_order` (
+`id` INT,
+`customer_id` INT,
+`discount` DECIMAL(10,2),
+`created_date` DATETIME,
+`last_modified` DATETIME,
+`status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_603210_schema') AS relationships;
+relationships
+Database: db_603210_schema
+
+Table Connections:
+------------------
+[Implied]  customer_order.customer_id -> customer.id
+[Implied]  product_tag.product_id -> product.id
+[Implied]  product_tag.tag_id -> tag.id
+[Implied]  profile.customer_id -> customer.id
+
+DROP DATABASE `db_603210_schema`;
+UNINSTALL EXTENSION vsql_schematron;

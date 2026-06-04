@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 280507_melonbookkeeping
+#
+CREATE DATABASE `db_280507_melonbookkeeping`;
+USE `db_280507_melonbookkeeping`;
+CREATE TABLE `admin` (
+`admin_id` INT,
+`user_name` VARCHAR(255),
+`password` VARCHAR(255),
+PRIMARY KEY (`admin_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `app` (
+`app_id` INT,
+`is_available` INT,
+`version` INT,
+`info` VARCHAR(255),
+`update_time` DATETIME,
+PRIMARY KEY (`app_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookkeeping` (
+`bookkeeping_id` INT,
+`user_id` INT,
+`time` DATETIME,
+`count` DECIMAL(10,2),
+`out_intype` INT,
+`detail_type` VARCHAR(255),
+`pic_res` INT,
+`note` VARCHAR(255),
+`remark` VARCHAR(255),
+`location` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `config` (
+`config_kind` INT,
+`config_key` VARCHAR(255),
+`config_value` VARCHAR(255),
+PRIMARY KEY (`config_key`)
+) CHARACTER SET latin1;
+CREATE TABLE `feedback` (
+`feedback_id` INT,
+`user_id` INT,
+`content` VARCHAR(255),
+`create_time` DATETIME,
+`is_read` INT,
+PRIMARY KEY (`feedback_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`user_id` INT,
+`user_name` VARCHAR(255),
+`password` VARCHAR(255),
+`nick_name` VARCHAR(255),
+`avatar` VARCHAR(255),
+`phone_number` VARCHAR(255),
+`status` INT,
+`register_time` DATETIME,
+`last_login_time` DATETIME,
+`access_token` VARCHAR(255),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_280507_melonbookkeeping') AS relationships;
+relationships
+Database: db_280507_melonbookkeeping
+
+Table Connections:
+------------------
+[Implied]  bookkeeping.user_id -> user.user_id
+[Implied]  feedback.user_id -> user.user_id
+
+DROP DATABASE `db_280507_melonbookkeeping`;
+UNINSTALL EXTENSION vsql_schematron;

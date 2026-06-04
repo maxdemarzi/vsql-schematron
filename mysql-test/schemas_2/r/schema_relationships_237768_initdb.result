@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 237768_initdb
+#
+CREATE DATABASE `db_237768_initdb`;
+USE `db_237768_initdb`;
+CREATE TABLE `projects` (
+`created` DATETIME,
+`created_by` VARCHAR(255),
+`geom` VARCHAR(255),
+`image` VARCHAR(255),
+`is_featured` VARCHAR(255),
+`look_for` VARCHAR(255),
+`name` VARCHAR(255),
+`progress` INT,
+`project_details` VARCHAR(255),
+`project_id` VARCHAR(255),
+`project_type` INT,
+`required_results` INT,
+`result_count` INT,
+`status` VARCHAR(255),
+`verification_number` INT,
+`project_type_specifics` VARCHAR(255),
+PRIMARY KEY (`project_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+`project_id` VARCHAR(255),
+`group_id` VARCHAR(255),
+`number_of_tasks` INT,
+`finished_count` INT,
+`required_count` INT,
+`progress` INT,
+`project_type_specifics` VARCHAR(255),
+PRIMARY KEY (`project_id`, `group_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks` (
+`project_id` VARCHAR(255),
+`group_id` VARCHAR(255),
+`task_id` VARCHAR(255),
+`geom` VARCHAR(255),
+`project_type_specifics` VARCHAR(255),
+PRIMARY KEY (`project_id`, `group_id`, `task_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`user_id` VARCHAR(255),
+`username` VARCHAR(255),
+`created` DATETIME,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_temp` (
+`user_id` VARCHAR(255),
+`username` VARCHAR(255),
+`created` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `results` (
+`project_id` VARCHAR(255),
+`group_id` VARCHAR(255),
+`user_id` VARCHAR(255),
+`task_id` VARCHAR(255),
+`timestamp` DATETIME,
+`start_time` DATETIME,
+`end_time` DATETIME,
+`result` INT,
+PRIMARY KEY (`project_id`, `group_id`, `task_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `results_temp` (
+`project_id` VARCHAR(255),
+`group_id` VARCHAR(255),
+`user_id` VARCHAR(255),
+`task_id` VARCHAR(255),
+`timestamp` DATETIME,
+`start_time` DATETIME,
+`end_time` DATETIME,
+`result` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_237768_initdb') AS relationships;
+relationships
+Database: db_237768_initdb
+
+Table Connections:
+------------------
+[Implied]  groups.project_id -> projects.project_id
+[Implied]  results.project_id -> projects.project_id
+[Implied]  results.user_id -> users.user_id
+[Implied]  results_temp.project_id -> projects.project_id
+[Implied]  results_temp.user_id -> users.user_id
+[Implied]  tasks.project_id -> projects.project_id
+[Implied]  users_temp.user_id -> users.user_id
+
+DROP DATABASE `db_237768_initdb`;
+UNINSTALL EXTENSION vsql_schematron;

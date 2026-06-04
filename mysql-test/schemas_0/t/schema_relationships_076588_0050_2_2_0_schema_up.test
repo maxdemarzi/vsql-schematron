@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 076588_0050_2_2_0_schema_up
+--echo #
+CREATE DATABASE `db_076588_0050_2_2_0_schema_up`;
+USE `db_076588_0050_2_2_0_schema_up`;
+
+CREATE TABLE `role_permission` (
+  `id` INT,
+  `role_type` VARCHAR(255),
+  `role_id` INT,
+  `permission_policy_id` INT,
+  `creation_time` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permission_policy` (
+  `id` INT,
+  `scope` VARCHAR(255),
+  `resource` VARCHAR(255),
+  `action` VARCHAR(255),
+  `effect` VARCHAR(255),
+  `creation_time` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vulnerability_record` (
+  `id` INT,
+  `cve_id` VARCHAR(255),
+  `registration_uuid` VARCHAR(255),
+  `package` VARCHAR(255),
+  `package_version` VARCHAR(255),
+  `package_type` VARCHAR(255),
+  `severity` VARCHAR(255),
+  `fixed_version` VARCHAR(255),
+  `urls` VARCHAR(255),
+  `cvss_score_v3` DECIMAL(10,2),
+  `cvss_score_v2` DECIMAL(10,2),
+  `cvss_vector_v3` VARCHAR(255),
+  `cvss_vector_v2` VARCHAR(255),
+  `description` VARCHAR(255),
+  `cwe_ids` VARCHAR(255),
+  `vendor_attributes` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `report_vulnerability_record` (
+  `id` INT,
+  `report_uuid` VARCHAR(255),
+  `vuln_record_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_076588_0050_2_2_0_schema_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_076588_0050_2_2_0_schema_up') AS relationships;
+DROP DATABASE `db_076588_0050_2_2_0_schema_up`;
+UNINSTALL EXTENSION vsql_schematron;

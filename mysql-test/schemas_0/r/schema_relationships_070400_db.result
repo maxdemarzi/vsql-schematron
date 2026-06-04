@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 070400_db
+#
+CREATE DATABASE `db_070400_db`;
+USE `db_070400_db`;
+CREATE TABLE `clientes` (
+`id` INT,
+`nome` VARCHAR(255),
+`email` VARCHAR(255),
+`cpf` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `compras` (
+`id` INT,
+`data` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `compra_itens` (
+`id` INT,
+`quantidade` INT,
+`preco_unitario` DECIMAL(10,2),
+`estoque_min` INT,
+`compra_id` INT,
+`produto_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `funcionarios` (
+`id` INT,
+`nome` VARCHAR(255),
+`email` VARCHAR(255),
+`cpf` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedidos` (
+`id` INT,
+`data` DATETIME,
+`data_confirmacao` DATETIME,
+`cliente_id` INT,
+`funcionario_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `produtos` (
+`id` INT,
+`nome` VARCHAR(255),
+`data_cadastro` DATETIME,
+`quantidade` INT,
+`unidade_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `unidades` (
+`id` INT,
+`unidade` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_070400_db') AS relationships;
+relationships
+Database: db_070400_db
+
+Table Connections:
+------------------
+[Implied]  compra_itens.compra_id -> compras.id
+[Implied]  compra_itens.produto_id -> produtos.id
+[Implied]  pedidos.cliente_id -> clientes.id
+[Implied]  pedidos.funcionario_id -> funcionarios.id
+[Implied]  produtos.unidade_id -> unidades.id
+
+DROP DATABASE `db_070400_db`;
+UNINSTALL EXTENSION vsql_schematron;

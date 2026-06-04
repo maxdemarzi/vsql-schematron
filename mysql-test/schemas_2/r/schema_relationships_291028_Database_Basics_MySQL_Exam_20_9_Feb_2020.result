@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 291028_Database_Basics_MySQL_Exam_20_9_Feb_2020
+#
+CREATE DATABASE `db_291028_Database_Basics_MySQL_Exam_20_9_Feb_2020`;
+USE `db_291028_Database_Basics_MySQL_Exam_20_9_Feb_2020`;
+CREATE TABLE `players` (
+`id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`age` INT,
+`position` VARCHAR(255),
+`salary` DECIMAL(10,2),
+`hire_date` DATETIME,
+`skills_data_id` INT,
+`team_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `players_coaches` (
+`player_id` INT,
+`coach_id` INT,
+PRIMARY KEY (`player_id`, `coach_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `coaches` (
+`id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`salary` DECIMAL(10,2),
+`coach_level` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `skills_data` (
+`id` INT,
+`dribbling` INT,
+`pace` INT,
+`passing` INT,
+`shooting` INT,
+`speed` INT,
+`strength` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `countries` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `towns` (
+`id` INT,
+`name` VARCHAR(255),
+`country_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stadiums` (
+`id` INT,
+`name` VARCHAR(255),
+`capacity` INT,
+`town_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teams` (
+`id` INT,
+`name` VARCHAR(255),
+`established` DATETIME,
+`fan_base` INT,
+`stadium_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_291028_Database_Basics_MySQL_Exam_20_9_Feb_2020') AS relationships;
+relationships
+Database: db_291028_Database_Basics_MySQL_Exam_20_9_Feb_2020
+
+Table Connections:
+------------------
+[Implied]  players.skills_data_id -> skills_data.id
+[Implied]  players.team_id -> teams.id
+[Implied]  players_coaches.coach_id -> coaches.id
+[Implied]  players_coaches.player_id -> players.id
+[Implied]  stadiums.town_id -> towns.id
+[Implied]  teams.stadium_id -> stadiums.id
+[Implied]  towns.country_id -> countries.id
+
+DROP DATABASE `db_291028_Database_Basics_MySQL_Exam_20_9_Feb_2020`;
+UNINSTALL EXTENSION vsql_schematron;

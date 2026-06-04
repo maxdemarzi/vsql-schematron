@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 535182_lms
+--echo #
+CREATE DATABASE `db_535182_lms`;
+USE `db_535182_lms`;
+
+CREATE TABLE `courses` (
+  `module_code` VARCHAR(255),
+  `module_name` VARCHAR(255),
+  `dept_ID` VARCHAR(255),
+  `yr` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `department` (
+  `dept_ID` VARCHAR(255),
+  `dept_name` VARCHAR(255),
+  PRIMARY KEY (`dept_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `events` (
+  `events_id` INT,
+  `event_name` VARCHAR(255),
+  `event_image` VARCHAR(255),
+  `event_content` VARCHAR(255),
+  `venue` VARCHAR(255),
+  `date` DATETIME,
+  `time` VARCHAR(255),
+  PRIMARY KEY (`events_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `eventuser` (
+  `user_id` INT,
+  `events_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `inquiries` (
+  `inq_id` INT,
+  `inq_name` VARCHAR(255),
+  `inq_email` VARCHAR(255),
+  `inq_msg` VARCHAR(255),
+  PRIMARY KEY (`inq_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `student-enrol` (
+  `user_id` INT,
+  `module_code` VARCHAR(255),
+  PRIMARY KEY (`user_id`, `module_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subscribers` (
+  `sub_id` INT,
+  `sub_email` VARCHAR(255),
+  PRIMARY KEY (`sub_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `username` VARCHAR(255),
+  `password` VARCHAR(255),
+  `user_fullname` VARCHAR(255),
+  `user_email` VARCHAR(255),
+  `user_image` VARCHAR(255),
+  `role` VARCHAR(255),
+  `randSalt` VARCHAR(255),
+  `Index_no` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_535182_lms') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_535182_lms') AS relationships;
+DROP DATABASE `db_535182_lms`;
+UNINSTALL EXTENSION vsql_schematron;

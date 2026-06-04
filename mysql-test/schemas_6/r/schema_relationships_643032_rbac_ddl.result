@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 643032_rbac_ddl
+#
+CREATE DATABASE `db_643032_rbac_ddl`;
+USE `db_643032_rbac_ddl`;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`mobile` VARCHAR(255),
+`password` VARCHAR(255),
+`enabled` VARCHAR(255),
+`role_id` INT,
+`created_by_id` INT,
+`created_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `permission` (
+`id` INT,
+`name` VARCHAR(255),
+`group` VARCHAR(255),
+`authority` VARCHAR(255),
+`description` VARCHAR(255),
+`created_by_id` INT,
+`created_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_permission` (
+`user_id` INT,
+`permission_id` INT,
+PRIMARY KEY (`user_id`, `permission_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`id` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`created_by_id` INT,
+`created_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_permission` (
+`role_id` INT,
+`permission_id` INT,
+`created_by_id` INT,
+`created_date` DATETIME,
+PRIMARY KEY (`role_id`, `permission_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_643032_rbac_ddl') AS relationships;
+relationships
+Database: db_643032_rbac_ddl
+
+Table Connections:
+------------------
+[Implied]  role_permission.permission_id -> permission.id
+[Implied]  role_permission.role_id -> role.id
+[Implied]  user_permission.permission_id -> permission.id
+[Implied]  user_permission.user_id -> users.id
+[Implied]  users.role_id -> role.id
+
+DROP DATABASE `db_643032_rbac_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

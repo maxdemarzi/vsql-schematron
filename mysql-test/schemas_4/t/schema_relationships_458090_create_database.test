@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 458090_create_database
+--echo #
+CREATE DATABASE `db_458090_create_database`;
+USE `db_458090_create_database`;
+
+CREATE TABLE `capital` (
+  `capital_id` INT,
+  `timestamp` DATETIME,
+  `capital` INT,
+  PRIMARY KEY (`capital_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `openorders` (
+  `order_id` INT,
+  `trade_id` INT,
+  `time_stamp` DATETIME,
+  `year` INT,
+  `month` INT,
+  `day` INT,
+  `hour` INT,
+  `minute` INT,
+  `ticker` VARCHAR(255),
+  `buy_price` DECIMAL(10,2),
+  `sell_price` DECIMAL(10,2),
+  `quantity` INT,
+  `order_type` VARCHAR(255),
+  `trader_id` INT,
+  `cost` DECIMAL(10,2),
+  `profit` DECIMAL(10,2),
+  `result` VARCHAR(255),
+  `status` VARCHAR(255),
+  PRIMARY KEY (`trade_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `order_id` INT,
+  `trade_id` INT,
+  `time_stamp` DATETIME,
+  `year` INT,
+  `month` INT,
+  `day` INT,
+  `hour` INT,
+  `minute` INT,
+  `ticker` VARCHAR(255),
+  `buy_price` DECIMAL(10,2),
+  `sell_price` DECIMAL(10,2),
+  `quantity` INT,
+  `order_type` VARCHAR(255),
+  `trader_id` INT,
+  `cost` DECIMAL(10,2),
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_458090_create_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_458090_create_database') AS relationships;
+DROP DATABASE `db_458090_create_database`;
+UNINSTALL EXTENSION vsql_schematron;

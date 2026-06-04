@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 596843_V1_0_0_initial_schema
+#
+CREATE DATABASE `db_596843_V1_0_0_initial_schema`;
+USE `db_596843_V1_0_0_initial_schema`;
+CREATE TABLE `client_request` (
+`id` VARCHAR(255),
+`name` VARCHAR(255),
+`time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `outbox` (
+`id` INT,
+`content` VARCHAR(255),
+`creation_time` DATETIME,
+`event_id` VARCHAR(255),
+`event_state` VARCHAR(255),
+`event_type_name` VARCHAR(255),
+`times_sent` INT,
+`topic` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `buyer` (
+`id` VARCHAR(255),
+`user_id` VARCHAR(255),
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment_method` (
+`id` VARCHAR(255),
+`alias` VARCHAR(255),
+`card_holder_name` VARCHAR(255),
+`card_number` VARCHAR(255),
+`card_type` VARCHAR(255),
+`expiration` DATETIME,
+`security_number` VARCHAR(255),
+`buyer_id` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` VARCHAR(255),
+`city` VARCHAR(255),
+`country` VARCHAR(255),
+`state` VARCHAR(255),
+`street` VARCHAR(255),
+`zip_code` VARCHAR(255),
+`buyer_id` VARCHAR(255),
+`description` VARCHAR(255),
+`is_draft` VARCHAR(255),
+`order_date` DATETIME,
+`order_status` VARCHAR(255),
+`payment_method_id` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_item` (
+`id` VARCHAR(255),
+`discount` DECIMAL(10,2),
+`picture_url` VARCHAR(255),
+`product_id` VARCHAR(255),
+`product_name` VARCHAR(255),
+`unit_price` DECIMAL(10,2),
+`units` INT,
+`order_id` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_596843_V1_0_0_initial_schema') AS relationships;
+relationships
+Database: db_596843_V1_0_0_initial_schema
+
+Table Connections:
+------------------
+[Implied]  order_item.order_id -> orders.id
+[Implied]  orders.buyer_id -> buyer.id
+[Implied]  orders.payment_method_id -> payment_method.id
+[Implied]  payment_method.buyer_id -> buyer.id
+
+DROP DATABASE `db_596843_V1_0_0_initial_schema`;
+UNINSTALL EXTENSION vsql_schematron;

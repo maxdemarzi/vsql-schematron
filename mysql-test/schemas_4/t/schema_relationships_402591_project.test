@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 402591_project
+--echo #
+CREATE DATABASE `db_402591_project`;
+USE `db_402591_project`;
+
+CREATE TABLE `company` (
+  `Id` INT,
+  `Name` VARCHAR(255),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `educationalbackground` (
+  `Id` INT,
+  `UserId` INT,
+  `Field` VARCHAR(255),
+  `University` VARCHAR(255),
+  `Grade` INT,
+  `FromDate` VARCHAR(255),
+  `ToDate` VARCHAR(255),
+  `Activity` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `personalinformation` (
+  `Id` INT,
+  `UserId` INT,
+  `FirstName` VARCHAR(255),
+  `LastName` VARCHAR(255),
+  `FirstNameEn` VARCHAR(255),
+  `LastNameEn` VARCHAR(255),
+  `Email` VARCHAR(255),
+  `Mobile` INT,
+  `Gender` INT,
+  `MaritalStatus` INT,
+  `Born` VARCHAR(255),
+  `City` INT,
+  `Address` VARCHAR(255),
+  `MilitaryService` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `skills` (
+  `Id` INT,
+  `UserId` INT,
+  `Name` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `socialnetwork` (
+  `Id` INT,
+  `UserId` INT,
+  `Category` INT,
+  `NetworkId` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `Id` INT,
+  `UserName` VARCHAR(255),
+  `Password` VARCHAR(255),
+  `Status` INT,
+  `ReferralCode` VARCHAR(255),
+  `MyReferralCode` VARCHAR(255),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `workexperience` (
+  `Id` INT,
+  `UserId` INT,
+  `JobTitle` VARCHAR(255),
+  `Company` VARCHAR(255),
+  `FromDate` VARCHAR(255),
+  `ToDate` VARCHAR(255),
+  `Description` VARCHAR(255),
+  `Activity` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_402591_project') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_402591_project') AS relationships;
+DROP DATABASE `db_402591_project`;
+UNINSTALL EXTENSION vsql_schematron;

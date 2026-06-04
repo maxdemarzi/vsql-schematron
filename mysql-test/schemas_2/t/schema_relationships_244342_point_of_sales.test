@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 244342_point_of_sales
+--echo #
+CREATE DATABASE `db_244342_point_of_sales`;
+USE `db_244342_point_of_sales`;
+
+CREATE TABLE `categories` (
+  `category_id` INT,
+  `category_name` VARCHAR(255),
+  `category_status` VARCHAR(255),
+  PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ms_sku` (
+  `sku_id` INT,
+  `category_id` INT,
+  `kode` VARCHAR(255),
+  `bulan` VARCHAR(255),
+  `tahun` VARCHAR(255),
+  `counter` INT,
+  PRIMARY KEY (`sku_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `products` (
+  `product_id` INT,
+  `category_id` INT,
+  `product_name` VARCHAR(255),
+  `product_price` INT,
+  `product_sku` VARCHAR(255),
+  `product_status` VARCHAR(255),
+  `product_image` VARCHAR(255),
+  `product_stock` INT,
+  `product_description` VARCHAR(255),
+  PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `transactions` (
+  `trx_id` INT,
+  `product_id` INT,
+  `trx_price` INT,
+  `trx_date` DATETIME,
+  `trx_qty` INT,
+  PRIMARY KEY (`trx_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_244342_point_of_sales') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_244342_point_of_sales') AS relationships;
+DROP DATABASE `db_244342_point_of_sales`;
+UNINSTALL EXTENSION vsql_schematron;

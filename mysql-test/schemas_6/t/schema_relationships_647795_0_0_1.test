@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 647795_0_0_1
+--echo #
+CREATE DATABASE `db_647795_0_0_1`;
+USE `db_647795_0_0_1`;
+
+CREATE TABLE `events` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `startDate` INT,
+  `endDate` INT,
+  `description` VARCHAR(255),
+  `uuid` VARCHAR(255),
+  `recurringEvent` VARCHAR(255),
+  `type` VARCHAR(255),
+  `locationName` VARCHAR(255),
+  `lat` DECIMAL(10,2),
+  `lng` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `members` (
+  `id` INT,
+  `uuid` VARCHAR(255),
+  `firstName` VARCHAR(255),
+  `lastName` VARCHAR(255),
+  `height` VARCHAR(255),
+  `weight` VARCHAR(255),
+  `extra` VARCHAR(255),
+  `roles` VARCHAR(255),
+  `type` VARCHAR(255),
+  `email` VARCHAR(255),
+  `contact` VARCHAR(255),
+  `code` VARCHAR(255),
+  `activated` INT,
+  `subscribed` INT,
+  `deleted` INT,
+  `language` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `participation` (
+  `member_uuid` INT,
+  `event_uuid` INT,
+  `answer` VARCHAR(255),
+  `presence` VARCHAR(255),
+  PRIMARY KEY (`member_uuid`, `event_uuid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recurring_events` (
+  `uuid` VARCHAR(255),
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  `interval` VARCHAR(255),
+  PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notifications` (
+  `id` INT,
+  `notificationType` VARCHAR(255),
+  `authorUUID` VARCHAR(255),
+  `objectUUID` VARCHAR(255),
+  `sendDate` INT,
+  `delivered` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_647795_0_0_1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_647795_0_0_1') AS relationships;
+DROP DATABASE `db_647795_0_0_1`;
+UNINSTALL EXTENSION vsql_schematron;

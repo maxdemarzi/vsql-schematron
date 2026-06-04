@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 278248_1420341373
+--echo #
+CREATE DATABASE `db_278248_1420341373`;
+USE `db_278248_1420341373`;
+
+CREATE TABLE `job` (
+  `id` INT,
+  `created_on` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `job_url` (
+  `job_id` INT,
+  `url` VARCHAR(255),
+  `completed_on` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `job_result` (
+  `job_id` INT,
+  `refer` VARCHAR(255),
+  `url` VARCHAR(255),
+  `mime` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `url` (
+  `id` INT,
+  `mime` VARCHAR(255),
+  `url` VARCHAR(255),
+  `refer` VARCHAR(255),
+  `crawled` VARCHAR(255),
+  `created_on` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `url_pending` (
+  `origin` VARCHAR(255),
+  `url` VARCHAR(255)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_278248_1420341373') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_278248_1420341373') AS relationships;
+DROP DATABASE `db_278248_1420341373`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,122 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 195985_0001
+--echo #
+CREATE DATABASE `db_195985_0001`;
+USE `db_195985_0001`;
+
+CREATE TABLE `company` (
+  `companyid` VARCHAR(255),
+  `phonenumber` VARCHAR(255),
+  `invoicingemailaddress` VARCHAR(255),
+  `created` DATETIME,
+  `salesemailaddress` VARCHAR(255),
+  `companyname` VARCHAR(255),
+  `supportemailaddress` VARCHAR(255),
+  `companycode` VARCHAR(255),
+  `modified` DATETIME,
+  `deliveryaddress_postaladdressid` VARCHAR(255),
+  `invoicingaddress_postaladdressid` VARCHAR(255),
+  `iban` VARCHAR(255),
+  `bic` VARCHAR(255),
+  `host` VARCHAR(255),
+  `termsandconditions` VARCHAR(255),
+  PRIMARY KEY (`companyid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customer` (
+  `customerid` VARCHAR(255),
+  `lastname` VARCHAR(255),
+  `phonenumber` VARCHAR(255),
+  `created` DATETIME,
+  `company` VARCHAR(255),
+  `emailaddress` VARCHAR(255),
+  `firstname` VARCHAR(255),
+  `companyname` VARCHAR(255),
+  `modified` DATETIME,
+  `companycode` VARCHAR(255),
+  `deliveryaddress_postaladdressid` VARCHAR(255),
+  `invoicingaddress_postaladdressid` VARCHAR(255),
+  `owner_companyid` VARCHAR(255),
+  PRIMARY KEY (`customerid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `group_` (
+  `groupid` VARCHAR(255),
+  `created` DATETIME,
+  `description` VARCHAR(255),
+  `name` VARCHAR(255),
+  `modified` DATETIME,
+  `owner_companyid` VARCHAR(255),
+  PRIMARY KEY (`groupid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `groupmember` (
+  `groupmemberid` VARCHAR(255),
+  `created` DATETIME,
+  `group_groupid` VARCHAR(255),
+  `user_userid` VARCHAR(255),
+  PRIMARY KEY (`groupmemberid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `postaladdress` (
+  `postaladdressid` VARCHAR(255),
+  `addresslinetwo` VARCHAR(255),
+  `addresslinethree` VARCHAR(255),
+  `postalcode` VARCHAR(255),
+  `addresslineone` VARCHAR(255),
+  `city` VARCHAR(255),
+  `country` VARCHAR(255),
+  PRIMARY KEY (`postaladdressid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `privilege` (
+  `privilegeid` VARCHAR(255),
+  `created` DATETIME,
+  `dataid` VARCHAR(255),
+  `key` VARCHAR(255),
+  `user_userid` VARCHAR(255),
+  `group_groupid` VARCHAR(255),
+  PRIMARY KEY (`privilegeid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_` (
+  `userid` VARCHAR(255),
+  `lastname` VARCHAR(255),
+  `phonenumber` VARCHAR(255),
+  `created` DATETIME,
+  `emailaddress` VARCHAR(255),
+  `firstname` VARCHAR(255),
+  `modified` DATETIME,
+  `owner_companyid` VARCHAR(255),
+  `passwordhash` VARCHAR(255),
+  PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schemaversion` (
+  `created` DATETIME,
+  `schemaname` VARCHAR(255),
+  `schemaversion` VARCHAR(255),
+  PRIMARY KEY (`created`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_195985_0001') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_195985_0001') AS relationships;
+DROP DATABASE `db_195985_0001`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 344547_V2017_04_22_11_09_00_CreateBaseTables
+--echo #
+CREATE DATABASE `db_344547_V2017_04_22_11_09_00_CreateBaseTables`;
+USE `db_344547_V2017_04_22_11_09_00_CreateBaseTables`;
+
+CREATE TABLE `login` (
+  `id` INT,
+  `email` VARCHAR(255),
+  `pwd` VARCHAR(255),
+  `salt` VARCHAR(255),
+  `created_on` DATETIME,
+  `last_login_on` DATETIME,
+  `security_level` INT,
+  `is_superuser` VARCHAR(255),
+  `is_active` VARCHAR(255),
+  `locale` VARCHAR(255),
+  `timezone` VARCHAR(255),
+  `fname` VARCHAR(255),
+  `lname` VARCHAR(255),
+  `address1` VARCHAR(255),
+  `address2` VARCHAR(255),
+  `city` VARCHAR(255),
+  `state` VARCHAR(255),
+  `postal` VARCHAR(255),
+  `country` VARCHAR(255),
+  `phone1` VARCHAR(255),
+  `phone2` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `login_attr` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `value` VARCHAR(255),
+  `login_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event_log` (
+  `id` INT,
+  `created_on` DATETIME,
+  `login_id` INT,
+  `event_id` INT,
+  `data` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `global_properties` (
+  `id` INT,
+  `created_on` DATETIME,
+  `name` VARCHAR(255),
+  `value` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_344547_V2017_04_22_11_09_00_CreateBaseTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_344547_V2017_04_22_11_09_00_CreateBaseTables') AS relationships;
+DROP DATABASE `db_344547_V2017_04_22_11_09_00_CreateBaseTables`;
+UNINSTALL EXTENSION vsql_schematron;

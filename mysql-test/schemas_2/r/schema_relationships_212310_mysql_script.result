@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 212310_mysql_script
+#
+CREATE DATABASE `db_212310_mysql_script`;
+USE `db_212310_mysql_script`;
+CREATE TABLE `patient` (
+`patient_id` INT,
+`bu_number` INT,
+`contact_number` VARCHAR(255),
+`icmr_number` VARCHAR(255),
+`srf_number` VARCHAR(255),
+`zone` VARCHAR(255),
+PRIMARY KEY (`patient_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `queue` (
+`id` INT,
+`type` VARCHAR(255),
+`patient_id` INT,
+`enqueue_timestamp` DATETIME,
+`updated_timestamp` DATETIME,
+`zone` VARCHAR(255),
+`is_active` INT,
+`push_front` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `allotment` (
+`id` INT,
+`queue_id` INT,
+`patient_id` INT,
+`hospital_id` VARCHAR(255),
+`bed_type` VARCHAR(255),
+`request_time` DATETIME,
+`allocation_time` DATETIME,
+`zone` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_212310_mysql_script') AS relationships;
+relationships
+Database: db_212310_mysql_script
+
+Table Connections:
+------------------
+[Implied]  allotment.patient_id -> patient.patient_id
+[Implied]  allotment.queue_id -> queue.id
+[Implied]  queue.patient_id -> patient.patient_id
+
+DROP DATABASE `db_212310_mysql_script`;
+UNINSTALL EXTENSION vsql_schematron;

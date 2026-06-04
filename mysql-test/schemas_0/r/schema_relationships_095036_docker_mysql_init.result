@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 095036_docker_mysql_init
+#
+CREATE DATABASE `db_095036_docker_mysql_init`;
+USE `db_095036_docker_mysql_init`;
+CREATE TABLE `channels` (
+`id` INT,
+`name` VARCHAR(255),
+`project_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`foreign_id` INT,
+`channel_id` INT,
+`inserted_at` DATETIME,
+`name` VARCHAR(255),
+`phone` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `projects` (
+`id` INT,
+`name` VARCHAR(255),
+`creator_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_095036_docker_mysql_init') AS relationships;
+relationships
+Database: db_095036_docker_mysql_init
+
+Table Connections:
+------------------
+[Implied]  channels.project_id -> projects.id
+[Implied]  projects.creator_id -> users.id
+[Implied]  users.channel_id -> channels.id
+
+DROP DATABASE `db_095036_docker_mysql_init`;
+UNINSTALL EXTENSION vsql_schematron;

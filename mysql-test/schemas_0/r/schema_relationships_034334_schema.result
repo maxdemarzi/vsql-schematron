@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 034334_schema
+#
+CREATE DATABASE `db_034334_schema`;
+USE `db_034334_schema`;
+CREATE TABLE `guilds` (
+`guild_id` INT,
+`prefix` VARCHAR(255),
+`clear_spam` VARCHAR(255),
+`event_role_id` INT,
+`event_delete_role_id` INT,
+PRIMARY KEY (`guild_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`user_id` INT,
+`bungie_id` INT,
+`bliz_id` INT,
+`xbox_id` INT,
+`psn_id` INT,
+`bungie_name` VARCHAR(255),
+`bliz_name` VARCHAR(255),
+`xbox_name` VARCHAR(255),
+`psn_name` VARCHAR(255),
+`platform` INT,
+`access_token` VARCHAR(255),
+`refresh_token` VARCHAR(255),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`guild_id` INT,
+`start_time` DATETIME,
+`timezone` VARCHAR(255),
+`title` VARCHAR(255),
+`description` VARCHAR(255),
+`max_members` INT,
+`user_id` INT,
+PRIMARY KEY (`guild_id`, `title`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_event` (
+`user_id` INT,
+`guild_id` INT,
+`title` VARCHAR(255),
+`attending` VARCHAR(255),
+`last_updated` DATETIME,
+PRIMARY KEY (`user_id`, `guild_id`, `title`)
+) CHARACTER SET latin1;
+CREATE TABLE `roster` (
+`user_id` INT,
+`guild_id` INT,
+`role` VARCHAR(255),
+`timezone` VARCHAR(255),
+PRIMARY KEY (`user_id`, `guild_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_034334_schema') AS relationships;
+relationships
+Database: db_034334_schema
+
+Table Connections:
+------------------
+[Implied]  events.guild_id -> guilds.guild_id
+[Implied]  events.user_id -> users.user_id
+[Implied]  roster.guild_id -> guilds.guild_id
+[Implied]  roster.user_id -> users.user_id
+[Implied]  user_event.guild_id -> guilds.guild_id
+[Implied]  user_event.user_id -> users.user_id
+
+DROP DATABASE `db_034334_schema`;
+UNINSTALL EXTENSION vsql_schematron;

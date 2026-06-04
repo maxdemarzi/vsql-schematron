@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 104230_hospital_db
+#
+CREATE DATABASE `db_104230_hospital_db`;
+USE `db_104230_hospital_db`;
+CREATE TABLE `admins` (
+`id` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`phone` VARCHAR(255),
+`role` INT,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `doctors` (
+`id` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`phone` VARCHAR(255),
+`specialist` VARCHAR(255),
+`role` INT,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nurses` (
+`id` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`phone` VARCHAR(255),
+`role` VARCHAR(255),
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `patients` (
+`id` INT,
+`name` VARCHAR(255),
+`phone` VARCHAR(255),
+`gender` INT,
+`health_condition` VARCHAR(255),
+`doctor_id` INT,
+`nurse_id` INT,
+`created` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `images` (
+`id` INT,
+`patient_id` INT,
+`note` VARCHAR(255),
+`cancerous` INT,
+`url` VARCHAR(255),
+`created` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_104230_hospital_db') AS relationships;
+relationships
+Database: db_104230_hospital_db
+
+Table Connections:
+------------------
+[Implied]  images.patient_id -> patients.id
+[Implied]  patients.doctor_id -> doctors.id
+[Implied]  patients.nurse_id -> nurses.id
+
+DROP DATABASE `db_104230_hospital_db`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,108 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 616093_db_schema
+--echo #
+CREATE DATABASE `db_616093_db_schema`;
+USE `db_616093_db_schema`;
+
+CREATE TABLE `roles` (
+  `role` VARCHAR(255),
+  PRIMARY KEY (`role`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `user_id` VARCHAR(255),
+  `name` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `documents` (
+  `document_id` INT,
+  `token_xpath` VARCHAR(255),
+  `name` VARCHAR(255),
+  `save_path` VARCHAR(255),
+  `hash` VARCHAR(255),
+  PRIMARY KEY (`document_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `documents_users` (
+  `document_id` INT,
+  `user_id` VARCHAR(255),
+  `role` VARCHAR(255),
+  PRIMARY KEY (`document_id`, `user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `documents_namespaces` (
+  `document_id` INT,
+  `prefix` VARCHAR(255),
+  `ns` VARCHAR(255),
+  PRIMARY KEY (`document_id`, `prefix`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tokens` (
+  `document_id` INT,
+  `token_id` INT,
+  PRIMARY KEY (`document_id`, `token_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `property_types` (
+  `type_id` VARCHAR(255),
+  PRIMARY KEY (`type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `properties` (
+  `document_id` INT,
+  `property_xpath` VARCHAR(255),
+  `type_id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `read_only` VARCHAR(255),
+  `optional` VARCHAR(255),
+  `ord` INT,
+  `attributes` VARCHAR(255),
+  PRIMARY KEY (`document_id`, `property_xpath`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orig_values` (
+  `document_id` INT,
+  `token_id` INT,
+  `property_xpath` VARCHAR(255),
+  `value` VARCHAR(255),
+  PRIMARY KEY (`document_id`, `token_id`, `property_xpath`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `values` (
+  `document_id` INT,
+  `property_xpath` VARCHAR(255),
+  `token_id` INT,
+  `user_id` VARCHAR(255),
+  `value` VARCHAR(255),
+  `date` DATETIME,
+  PRIMARY KEY (`document_id`, `token_id`, `property_xpath`, `user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `import_tmp` (
+  `id` INT,
+  `xml` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_616093_db_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_616093_db_schema') AS relationships;
+DROP DATABASE `db_616093_db_schema`;
+UNINSTALL EXTENSION vsql_schematron;
