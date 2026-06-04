@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 386756_schedule
+--echo #
+CREATE DATABASE `db_386756_schedule`;
+USE `db_386756_schedule`;
+
+CREATE TABLE `operators` (
+  `operator_id` INT,
+  `operator_name` VARCHAR(255),
+  `operator_phone` VARCHAR(255),
+  `operator_email` VARCHAR(255),
+  `operator_send_email` INT,
+  `operator_send_sms` INT,
+  `operator_active` INT,
+  PRIMARY KEY (`operator_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permissions` (
+  `permission_id` VARCHAR(255),
+  PRIMARY KEY (`permission_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `login_name` VARCHAR(255),
+  `password_hash` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `last_login` DATETIME,
+  `enabled` INT,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `report_limits` (
+  `limit_id` INT,
+  `report_id` INT,
+  `criterion` VARCHAR(255),
+  `span` VARCHAR(255),
+  `comparison` VARCHAR(255),
+  PRIMARY KEY (`limit_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sessions` (
+  `session_id` VARCHAR(255),
+  `user_id` INT,
+  `last_access` DATETIME,
+  PRIMARY KEY (`session_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activity_history` (
+  `event_id` INT,
+  `user_id` INT,
+  `event_type` VARCHAR(255),
+  `table_name` VARCHAR(255),
+  `event_timestamp` DATETIME,
+  PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `group_access` (
+  `group_id` INT,
+  `permission_id` VARCHAR(255),
+  PRIMARY KEY (`group_id`, `permission_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `meetings` (
+  `meeting_id` INT,
+  `sess_number` INT,
+  `chamber` VARCHAR(255),
+  `publishtime` DATETIME,
+  `meetingtime` DATETIME,
+  `displaytime` VARCHAR(255),
+  `committeename` VARCHAR(255),
+  `bill_list` VARCHAR(255),
+  `special_requests` VARCHAR(255),
+  `notation` VARCHAR(255),
+  `phone` VARCHAR(255),
+  `location` VARCHAR(255),
+  `agendalink` INT,
+  `canceled` INT,
+  `internal` INT,
+  `video_type` VARCHAR(255),
+  `video_title` VARCHAR(255),
+  `video_filename` VARCHAR(255),
+  `video_duration` VARCHAR(255),
+  `youtube_video_id` VARCHAR(255),
+  `feed_name` VARCHAR(255),
+  `house_committee` INT,
+  `senate_committee` INT,
+  PRIMARY KEY (`meeting_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_386756_schedule') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_386756_schedule') AS relationships;
+DROP DATABASE `db_386756_schedule`;
+UNINSTALL EXTENSION vsql_schematron;

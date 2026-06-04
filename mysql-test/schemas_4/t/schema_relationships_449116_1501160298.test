@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 449116_1501160298
+--echo #
+CREATE DATABASE `db_449116_1501160298`;
+USE `db_449116_1501160298`;
+
+CREATE TABLE `organization` (
+  `id` INT,
+  `organization_name` VARCHAR(255),
+  `kind` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `organization_email_domain` (
+  `organization_id` INT,
+  `domain` VARCHAR(255),
+  PRIMARY KEY (`organization_id`, `domain`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `game` (
+  `id` INT,
+  `replay_name` VARCHAR(255),
+  `replay_bucket` INT,
+  `map_width` INT,
+  `map_height` INT,
+  `map_seed` INT,
+  `map_generator` VARCHAR(255),
+  `time_played` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `game_participant` (
+  `game_id` INT,
+  `user_id` INT,
+  `bot_id` INT,
+  `version_number` INT,
+  `log_name` VARCHAR(255),
+  `rank` INT,
+  `player_index` INT,
+  `timed_out` VARCHAR(255),
+  PRIMARY KEY (`game_id`, `user_id`, `bot_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bot_history` (
+  `user_id` INT,
+  `bot_id` INT,
+  `version_number` INT,
+  `last_rank` INT,
+  `last_score` DECIMAL(10,2),
+  `last_num_players` INT,
+  `last_games_played` INT,
+  `language` VARCHAR(255),
+  `when_retired` DATETIME,
+  PRIMARY KEY (`user_id`, `bot_id`, `version_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_notification` (
+  `id` INT,
+  `user_id` INT,
+  `title` VARCHAR(255),
+  `body` VARCHAR(255),
+  `mood` VARCHAR(255),
+  `creation_time` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_449116_1501160298') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_449116_1501160298') AS relationships;
+DROP DATABASE `db_449116_1501160298`;
+UNINSTALL EXTENSION vsql_schematron;

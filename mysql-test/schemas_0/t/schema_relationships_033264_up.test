@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 033264_up
+--echo #
+CREATE DATABASE `db_033264_up`;
+USE `db_033264_up`;
+
+CREATE TABLE `users` (
+  `id` VARCHAR(255),
+  `username` VARCHAR(255),
+  `host` VARCHAR(255),
+  `nickname` VARCHAR(255),
+  `uri` VARCHAR(255),
+  `inbox` VARCHAR(255),
+  `public_key` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_auth` (
+  `username` VARCHAR(255),
+  `encrypted_password` VARCHAR(255),
+  `users_id` VARCHAR(255),
+  `private_key` VARCHAR(255),
+  `public_key` VARCHAR(255),
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_033264_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_033264_up') AS relationships;
+DROP DATABASE `db_033264_up`;
+UNINSTALL EXTENSION vsql_schematron;

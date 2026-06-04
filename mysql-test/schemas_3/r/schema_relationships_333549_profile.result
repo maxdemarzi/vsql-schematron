@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 333549_profile
+#
+CREATE DATABASE `db_333549_profile`;
+USE `db_333549_profile`;
+CREATE TABLE `categories` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `person_interests` (
+`personal_data_id` INT,
+`interest_id` INT,
+PRIMARY KEY (`personal_data_id`, `interest_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `personal_data` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`name` VARCHAR(255),
+`surname` VARCHAR(255),
+`telephone` VARCHAR(255),
+`gender` VARCHAR(255),
+`birth_date` VARCHAR(255),
+`profile_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `profile_settings` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`is_private` INT,
+`can_receive_message_from_unknown` INT,
+`can_be_tagged` INT,
+`profile_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `verification_requests` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`profile_id` INT,
+`name` VARCHAR(255),
+`surname` VARCHAR(255),
+`verification_status` INT,
+`image_path` VARCHAR(255),
+`category_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_333549_profile') AS relationships;
+relationships
+Database: db_333549_profile
+
+Table Connections:
+------------------
+[Implied]  person_interests.personal_data_id -> personal_data.id
+[Implied]  personal_data.profile_id -> profile_settings.id
+[Implied]  verification_requests.category_id -> categories.id
+[Implied]  verification_requests.profile_id -> profile_settings.id
+
+DROP DATABASE `db_333549_profile`;
+UNINSTALL EXTENSION vsql_schematron;

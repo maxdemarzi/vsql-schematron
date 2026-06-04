@@ -1,0 +1,121 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 194085_database
+--echo #
+CREATE DATABASE `db_194085_database`;
+USE `db_194085_database`;
+
+CREATE TABLE `admin_tab` (
+  `id` INT,
+  `word` VARCHAR(255),
+  `allow_new_key` INT,
+  `access_keys` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_tab` (
+  `id` INT,
+  `admin_id` INT,
+  `authorized` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `format_processor_tab` (
+  `id` INT,
+  `format_processor_name` VARCHAR(255),
+  `format_processor_class_name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `resource_tab` (
+  `id` INT,
+  `resource_name` VARCHAR(255),
+  `resource_size` DECIMAL(10,2),
+  `resource_url` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subject_tab` (
+  `id` INT,
+  `subject_name` VARCHAR(255),
+  `teacher_name` VARCHAR(255),
+  `email_address` VARCHAR(255),
+  `team_limit` VARCHAR(255),
+  `recommend_processor_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `submission_tab` (
+  `id` INT,
+  `task_id` INT,
+  `user_id` INT,
+  `team_id` INT,
+  `submit_date` DATETIME,
+  `resource_id` INT,
+  `former_name` VARCHAR(255),
+  `save_name` VARCHAR(255),
+  `size` DECIMAL(10,2),
+  `path` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `task_tab` (
+  `id` INT,
+  `subject_id` INT,
+  `title` VARCHAR(255),
+  `content` VARCHAR(255),
+  `is_team_task` INT,
+  `deadline` DATETIME,
+  `type` VARCHAR(255),
+  `format_processor_id` INT,
+  `format` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `team_tab` (
+  `id` INT,
+  `subject_id` INT,
+  `team_index` INT,
+  `team_name` VARCHAR(255),
+  `member_user_id_array` VARCHAR(255),
+  `leader_user_id_array` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `token_tab` (
+  `id` INT,
+  `user_id` INT,
+  `token` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_tab` (
+  `id` INT,
+  `user_code` VARCHAR(255),
+  `user_name` VARCHAR(255),
+  `theme` VARCHAR(255),
+  `enable_access_token` INT,
+  `access_token` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_194085_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_194085_database') AS relationships;
+DROP DATABASE `db_194085_database`;
+UNINSTALL EXTENSION vsql_schematron;

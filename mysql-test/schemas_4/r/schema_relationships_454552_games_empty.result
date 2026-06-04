@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 454552_games_empty
+#
+CREATE DATABASE `db_454552_games_empty`;
+USE `db_454552_games_empty`;
+CREATE TABLE `games` (
+`id` INT,
+`title` VARCHAR(255),
+`platform` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `games_meta` (
+`game_id` INT,
+`todo_solo_sometimes` INT,
+`todo_multiplayer_sometimes` INT,
+`singleplayer_recurring` INT,
+`multiplayer_recurring` INT,
+`to_do` INT,
+`to_buy` INT,
+`to_watch_background` INT,
+`to_watch_serious` INT,
+`to_rewatch` INT,
+`original` INT,
+`copy` INT,
+`many` INT,
+`top_game` INT,
+`hall_of_fame` INT,
+`hall_of_fame_year` INT,
+`hall_of_fame_position` INT,
+`played_it_often` INT,
+`ongoing` INT,
+`comments` VARCHAR(255),
+`todo_with_help` INT,
+`has_box` INT,
+`bgf` INT,
+`to_watch_position` INT,
+`to_do_position` INT,
+PRIMARY KEY (`game_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `history` (
+`id` INT,
+`game_id` INT,
+`year` INT,
+`position` INT,
+`watched` INT,
+`played` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `trades` (
+`id` INT,
+`game_id` INT,
+`year` INT,
+`month` INT,
+`day` INT,
+`type` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_454552_games_empty') AS relationships;
+relationships
+Database: db_454552_games_empty
+
+Table Connections:
+------------------
+[Implied]  games_meta.top_game -> games.id
+[Implied]  history.game_id -> games.id
+[Implied]  history.game_id -> games_meta.game_id
+[Implied]  trades.game_id -> games.id
+[Implied]  trades.game_id -> games_meta.game_id
+
+DROP DATABASE `db_454552_games_empty`;
+UNINSTALL EXTENSION vsql_schematron;

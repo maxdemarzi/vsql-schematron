@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 487488_V1_0_2_blog
+#
+CREATE DATABASE `db_487488_V1_0_2_blog`;
+USE `db_487488_V1_0_2_blog`;
+CREATE TABLE `user_table` (
+`id` INT,
+`username` VARCHAR(255),
+`email` VARCHAR(255),
+`profile` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `blogpost` (
+`id` INT,
+`title` VARCHAR(255),
+`content` VARCHAR(255),
+`tags` VARCHAR(255),
+`status` INT,
+`create_time` INT,
+`update_time` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ccomment` (
+`id` INT,
+`content` VARCHAR(255),
+`status` INT,
+`create_time` INT,
+`author` VARCHAR(255),
+`email` VARCHAR(255),
+`url` VARCHAR(255),
+`post_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag_table` (
+`id` INT,
+`name` VARCHAR(255),
+`frequency` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `preferences` (
+`id` INT,
+`locale` VARCHAR(255),
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_487488_V1_0_2_blog') AS relationships;
+relationships
+Database: db_487488_V1_0_2_blog
+
+Table Connections:
+------------------
+[Implied]  blogpost.user_id -> user_table.id
+[Implied]  ccomment.post_id -> blogpost.id
+[Implied]  preferences.user_id -> user_table.id
+
+DROP DATABASE `db_487488_V1_0_2_blog`;
+UNINSTALL EXTENSION vsql_schematron;

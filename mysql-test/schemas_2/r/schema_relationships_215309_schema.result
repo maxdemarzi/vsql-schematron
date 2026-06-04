@@ -1,0 +1,99 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 215309_schema
+#
+CREATE DATABASE `db_215309_schema`;
+USE `db_215309_schema`;
+CREATE TABLE `clients` (
+`id` INT,
+`name` VARCHAR(255),
+`surname` VARCHAR(255),
+`tel` VARCHAR(255),
+`email` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `devices` (
+`id` INT,
+`name` VARCHAR(255),
+`type` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `devices_owners` (
+`deviceID` INT,
+`ownerIDi` INT,
+PRIMARY KEY (`deviceID`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`deviceID` INT,
+`clientID` INT,
+`inDate` INT,
+`outDate` INT,
+`state` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ordered_services` (
+`orderID` INT,
+`serviceID` INT,
+`price` DECIMAL(10,2),
+`startDate` INT,
+`endDate` INT,
+`description` VARCHAR(255),
+PRIMARY KEY (`orderID`, `serviceID`)
+) CHARACTER SET latin1;
+CREATE TABLE `services` (
+`id` INT,
+`name` VARCHAR(255),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `parts` (
+`id` INT,
+`name` VARCHAR(255),
+`quantity` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tools` (
+`id` INT,
+`name` VARCHAR(255),
+`type` VARCHAR(255),
+`quantity` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `accessories` (
+`id` INT,
+`name` VARCHAR(255),
+`type` VARCHAR(255),
+`quantity` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tools_accessories` (
+`toolID` INT,
+`accessoryID` INT,
+PRIMARY KEY (`toolID`, `accessoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `substances` (
+`id` INT,
+`name` VARCHAR(255),
+`type` VARCHAR(255),
+`quantity` INT,
+`unit` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_215309_schema') AS relationships;
+relationships
+Database: db_215309_schema
+
+Table Connections:
+------------------
+[Implied]  devices_owners.deviceID -> devices.id
+[Implied]  ordered_services.orderID -> orders.id
+[Implied]  ordered_services.serviceID -> services.id
+[Implied]  orders.clientID -> clients.id
+[Implied]  orders.deviceID -> devices.id
+[Implied]  orders.deviceID -> devices_owners.deviceID
+[Implied]  tools_accessories.accessoryID -> accessories.id
+[Implied]  tools_accessories.toolID -> tools.id
+
+DROP DATABASE `db_215309_schema`;
+UNINSTALL EXTENSION vsql_schematron;

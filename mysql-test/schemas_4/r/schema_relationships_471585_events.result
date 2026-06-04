@@ -1,0 +1,126 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 471585_events
+#
+CREATE DATABASE `db_471585_events`;
+USE `db_471585_events`;
+CREATE TABLE `user_info` (
+`id` INT,
+`firstname` VARCHAR(255),
+`lastname` VARCHAR(255),
+`website` VARCHAR(255),
+`profileimg` VARCHAR(255),
+`bio` VARCHAR(255),
+`gender` INT,
+`user_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `institution` (
+`id` INT,
+`name` VARCHAR(255),
+`emblem` VARCHAR(255),
+`description` VARCHAR(255),
+`address` VARCHAR(255),
+`gmap_location` VARCHAR(255),
+`website_url` VARCHAR(255),
+`institution_category` VARCHAR(255),
+`country` VARCHAR(255),
+`state` VARCHAR(255),
+`city` INT,
+`postal_code` VARCHAR(255),
+`facebook` VARCHAR(255),
+`linkedin` VARCHAR(255),
+`twitter` VARCHAR(255),
+`google` VARCHAR(255),
+`status` VARCHAR(255),
+`created_at` DATETIME,
+`modified_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_type` (
+`id` INT,
+`name` VARCHAR(255),
+`name_code` VARCHAR(255),
+`category` VARCHAR(255),
+`category_code` VARCHAR(255),
+`status` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `symposium` (
+`id` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`mobile_description` VARCHAR(255),
+`logo` VARCHAR(255),
+`banner` VARCHAR(255),
+`url_key` VARCHAR(255),
+`contact_info` VARCHAR(255),
+`event_from` DATETIME,
+`event_to` DATETIME,
+`allowed_users` INT,
+`address` VARCHAR(255),
+`website` VARCHAR(255),
+`gmap_location` VARCHAR(255),
+`status` VARCHAR(255),
+`user_id` INT,
+`institution_id` INT,
+`event_type` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`id` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`contact_us` VARCHAR(255),
+`event_from` DATETIME,
+`event_to` DATETIME,
+`sym_id` INT,
+`allowed_users` INT,
+`status` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subscribers` (
+`id` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`phone_no` VARCHAR(255),
+`institution_id` INT,
+`program_id` INT,
+`event_ids` VARCHAR(255),
+`event_type` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`status` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hsm_admin` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`status` VARCHAR(255),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_471585_events') AS relationships;
+relationships
+Database: db_471585_events
+
+Table Connections:
+------------------
+[Implied]  events.sym_id -> symposium.id
+[Implied]  subscribers.event_type -> event_type.id
+[Implied]  subscribers.institution_id -> institution.id
+[Implied]  symposium.event_type -> event_type.id
+[Implied]  symposium.institution_id -> institution.id
+[Implied]  symposium.user_id -> user_info.id
+
+DROP DATABASE `db_471585_events`;
+UNINSTALL EXTENSION vsql_schematron;

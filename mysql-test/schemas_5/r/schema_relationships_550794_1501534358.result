@@ -1,0 +1,100 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 550794_1501534358
+#
+CREATE DATABASE `db_550794_1501534358`;
+USE `db_550794_1501534358`;
+CREATE TABLE `organization` (
+`id` INT,
+`organization_name` VARCHAR(255),
+`kind` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `organization_email_domain` (
+`organization_id` INT,
+`domain` VARCHAR(255),
+PRIMARY KEY (`organization_id`, `domain`)
+) CHARACTER SET latin1;
+CREATE TABLE `game` (
+`id` INT,
+`replay_name` VARCHAR(255),
+`replay_bucket` INT,
+`map_width` INT,
+`map_height` INT,
+`map_seed` INT,
+`map_generator` VARCHAR(255),
+`time_played` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `game_participant` (
+`game_id` INT,
+`user_id` INT,
+`bot_id` INT,
+`version_number` INT,
+`log_name` VARCHAR(255),
+`rank` INT,
+`player_index` INT,
+`timed_out` VARCHAR(255),
+PRIMARY KEY (`game_id`, `user_id`, `bot_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bot_history` (
+`user_id` INT,
+`bot_id` INT,
+`version_number` INT,
+`last_rank` INT,
+`last_score` DECIMAL(10,2),
+`last_num_players` INT,
+`last_games_played` INT,
+`language` VARCHAR(255),
+`when_retired` DATETIME,
+PRIMARY KEY (`user_id`, `bot_id`, `version_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_notification` (
+`id` INT,
+`user_id` INT,
+`title` VARCHAR(255),
+`body` VARCHAR(255),
+`mood` VARCHAR(255),
+`creation_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hackathon` (
+`id` INT,
+`title` VARCHAR(255),
+`description` VARCHAR(255),
+`start_date` DATETIME,
+`end_date` DATETIME,
+`verification_code` VARCHAR(255),
+`organization_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hackathon_participant` (
+`hackathon_id` INT,
+`user_id` INT,
+PRIMARY KEY (`hackathon_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hackathon_snapshot` (
+`hackathon_id` INT,
+`user_id` INT,
+`bot_id` INT,
+`score` DECIMAL(10,2),
+PRIMARY KEY (`hackathon_id`, `user_id`, `bot_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_550794_1501534358') AS relationships;
+relationships
+Database: db_550794_1501534358
+
+Table Connections:
+------------------
+[Implied]  bot_history.user_id -> user_notification.id
+[Implied]  game_participant.game_id -> game.id
+[Implied]  game_participant.user_id -> user_notification.id
+[Implied]  hackathon.organization_id -> organization.id
+[Implied]  hackathon_participant.hackathon_id -> hackathon.id
+[Implied]  hackathon_participant.user_id -> user_notification.id
+[Implied]  hackathon_snapshot.hackathon_id -> hackathon.id
+[Implied]  hackathon_snapshot.user_id -> user_notification.id
+[Implied]  organization_email_domain.organization_id -> organization.id
+
+DROP DATABASE `db_550794_1501534358`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 527363_20190119184757_create_user_permissions
+#
+CREATE DATABASE `db_527363_20190119184757_create_user_permissions`;
+USE `db_527363_20190119184757_create_user_permissions`;
+CREATE TABLE `permissions` (
+`id` INT,
+`name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT,
+`name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_permissions` (
+`id` INT,
+`role_id` INT,
+`permission_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_roles` (
+`id` INT,
+`user_id` INT,
+`role_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `admins` (
+`id` INT,
+`user_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_527363_20190119184757_create_user_permissions') AS relationships;
+relationships
+Database: db_527363_20190119184757_create_user_permissions
+
+Table Connections:
+------------------
+[Implied]  admins.user_id -> user_roles.id
+[Implied]  role_permissions.permission_id -> permissions.id
+[Implied]  role_permissions.role_id -> roles.id
+[Implied]  user_roles.role_id -> roles.id
+
+DROP DATABASE `db_527363_20190119184757_create_user_permissions`;
+UNINSTALL EXTENSION vsql_schematron;

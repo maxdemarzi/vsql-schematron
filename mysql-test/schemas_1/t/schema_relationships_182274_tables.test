@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 182274_tables
+--echo #
+CREATE DATABASE `db_182274_tables`;
+USE `db_182274_tables`;
+
+CREATE TABLE `data` (
+  `id` VARCHAR(255),
+  `user_id` INT,
+  `site_id` VARCHAR(255),
+  `date` DATETIME,
+  `temperature` DECIMAL(10,2),
+  `temp_standard` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `site_statistics` (
+  `statistics_id` VARCHAR(255),
+  `site_id` VARCHAR(255),
+  `date` DATETIME,
+  `week_max` DECIMAL(10,2),
+  `week_min` DECIMAL(10,2),
+  `week_avg` DECIMAL(10,2),
+  `week_deviation` DECIMAL(10,2),
+  `month_max` DECIMAL(10,2),
+  `month_min` DECIMAL(10,2),
+  `month_avg` DECIMAL(10,2),
+  `month_deviation` DECIMAL(10,2),
+  `year_max` DECIMAL(10,2),
+  `year_min` DECIMAL(10,2),
+  `year_avg` DECIMAL(10,2),
+  `year_deviation` DECIMAL(10,2),
+  `all_max` DECIMAL(10,2),
+  `all_min` DECIMAL(10,2),
+  `all_avg` DECIMAL(10,2),
+  `all_deviation` DECIMAL(10,2),
+  PRIMARY KEY (`statistics_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `upload_history` (
+  `id` VARCHAR(255),
+  `site_id` VARCHAR(255),
+  `date` DATETIME,
+  `duration` VARCHAR(255),
+  `description` VARCHAR(255),
+  `error` INT,
+  `viewed` INT,
+  `user_id` INT,
+  `records` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `username` VARCHAR(255),
+  `password` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `middle_initial` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `enabled` VARCHAR(255),
+  `temp_standard` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_role` (
+  `user_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_182274_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_182274_tables') AS relationships;
+DROP DATABASE `db_182274_tables`;
+UNINSTALL EXTENSION vsql_schematron;

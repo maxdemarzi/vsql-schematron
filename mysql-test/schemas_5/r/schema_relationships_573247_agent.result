@@ -1,0 +1,121 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 573247_agent
+#
+CREATE DATABASE `db_573247_agent`;
+USE `db_573247_agent`;
+CREATE TABLE `agent_products` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`user_id` INT,
+`product_id` INT,
+`quantity` INT,
+`price_per_item` DECIMAL(10,2),
+`valid_from` DATETIME,
+`is_valid` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `campaign_stats` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`campaign_id` INT,
+`post_link` VARCHAR(255),
+`statistics_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `influencer_stats` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`campaign_stat_id` INT,
+`influencer_username` VARCHAR(255),
+`statistics_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `interest_stats` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`campaign_stat_id` INT,
+`interest` VARCHAR(255),
+`statistics_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`product_id` INT,
+`quantity` INT,
+`order_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`timestamp` DATETIME,
+`full_price` DECIMAL(10,2),
+`user_id` INT,
+`agent_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`name` VARCHAR(255),
+`picture_path` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_privileges` (
+`role_id` INT,
+`privilege_id` INT,
+PRIMARY KEY (`role_id`, `privilege_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `statistics` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`num_of_likes` INT,
+`num_of_dislikes` INT,
+`num_of_visits` INT,
+`num_of_comments` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_roles` (
+`user_id` INT,
+`role_id` INT,
+PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_573247_agent') AS relationships;
+relationships
+Database: db_573247_agent
+
+Table Connections:
+------------------
+[Implied]  agent_products.is_valid -> influencer_stats.id
+[Implied]  agent_products.is_valid -> interest_stats.id
+[Implied]  agent_products.price_per_item -> items.id
+[Implied]  agent_products.product_id -> products.id
+[Implied]  campaign_stats.statistics_id -> statistics.id
+[Implied]  influencer_stats.campaign_stat_id -> campaign_stats.id
+[Implied]  influencer_stats.statistics_id -> statistics.id
+[Implied]  interest_stats.campaign_stat_id -> campaign_stats.id
+[Implied]  interest_stats.statistics_id -> statistics.id
+[Implied]  items.order_id -> orders.id
+[Implied]  items.product_id -> products.id
+[Implied]  orders.agent_id -> agent_products.id
+
+DROP DATABASE `db_573247_agent`;
+UNINSTALL EXTENSION vsql_schematron;

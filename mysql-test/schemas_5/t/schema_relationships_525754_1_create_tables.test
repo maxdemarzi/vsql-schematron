@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 525754_1_create_tables
+--echo #
+CREATE DATABASE `db_525754_1_create_tables`;
+USE `db_525754_1_create_tables`;
+
+CREATE TABLE `flows_v3` (
+  `flow_id` VARCHAR(255),
+  `user_name` VARCHAR(255),
+  `ts_epoch` INT,
+  `tags` VARCHAR(255),
+  `system_tags` VARCHAR(255),
+  PRIMARY KEY (`flow_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `runs_v3` (
+  `flow_id` VARCHAR(255),
+  `run_number` INT,
+  `user_name` VARCHAR(255),
+  `ts_epoch` INT,
+  `tags` VARCHAR(255),
+  `system_tags` VARCHAR(255),
+  PRIMARY KEY (`flow_id`, `run_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `steps_v3` (
+  `flow_id` VARCHAR(255),
+  `run_number` INT,
+  `step_name` VARCHAR(255),
+  `user_name` VARCHAR(255),
+  `ts_epoch` INT,
+  `tags` VARCHAR(255),
+  `system_tags` VARCHAR(255),
+  PRIMARY KEY (`flow_id`, `run_number`, `step_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tasks_v3` (
+  `flow_id` VARCHAR(255),
+  `run_number` INT,
+  `step_name` VARCHAR(255),
+  `task_id` INT,
+  `user_name` VARCHAR(255),
+  `ts_epoch` INT,
+  `tags` VARCHAR(255),
+  `system_tags` VARCHAR(255),
+  PRIMARY KEY (`task_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `metadata_v3` (
+  `flow_id` VARCHAR(255),
+  `run_number` INT,
+  `step_name` VARCHAR(255),
+  `task_id` INT,
+  `id` INT,
+  `field_name` VARCHAR(255),
+  `value` VARCHAR(255),
+  `type` VARCHAR(255),
+  `user_name` VARCHAR(255),
+  `ts_epoch` INT,
+  `tags` VARCHAR(255),
+  `system_tags` VARCHAR(255),
+  PRIMARY KEY (`flow_id`, `run_number`, `step_name`, `task_id`, `field_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `artifact_v3` (
+  `flow_id` VARCHAR(255),
+  `run_number` INT,
+  `step_name` VARCHAR(255),
+  `task_id` INT,
+  `name` VARCHAR(255),
+  `location` VARCHAR(255),
+  `ds_type` VARCHAR(255),
+  `sha` VARCHAR(255),
+  `type` VARCHAR(255),
+  `content_type` VARCHAR(255),
+  `user_name` VARCHAR(255),
+  `attempt_id` INT,
+  `ts_epoch` INT,
+  `tags` VARCHAR(255),
+  `system_tags` VARCHAR(255),
+  PRIMARY KEY (`flow_id`, `run_number`, `step_name`, `task_id`, `attempt_id`, `name`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_525754_1_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_525754_1_create_tables') AS relationships;
+DROP DATABASE `db_525754_1_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

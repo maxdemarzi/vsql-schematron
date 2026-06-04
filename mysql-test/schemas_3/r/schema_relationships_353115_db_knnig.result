@@ -1,0 +1,100 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 353115_db_knnig
+#
+CREATE DATABASE `db_353115_db_knnig`;
+USE `db_353115_db_knnig`;
+CREATE TABLE `cyrotherapy` (
+`patient_id` INT,
+`sex` INT,
+`age` INT,
+`time` DECIMAL(10,2),
+`number_of_warts` INT,
+`type` INT,
+`area` INT,
+`result_of_treatment` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`patient_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dataset_type` (
+`id` INT,
+`type` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `experiments` (
+`experiment_id` INT,
+`dataset_id` INT,
+`type` VARCHAR(255),
+`created_at` DATETIME,
+`number_of_folds` INT,
+`number_of_neighbors` INT,
+`thresholds` DECIMAL(10,2),
+`updated_at` DATETIME,
+PRIMARY KEY (`experiment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `experiment_details` (
+`detail_id` INT,
+`experiment_id` INT,
+`fold_number` INT,
+`tp` INT,
+`tn` INT,
+`fp` INT,
+`fn` INT,
+`accuracy` DECIMAL(10,2),
+`sensitivity` DECIMAL(10,2),
+`specificity` DECIMAL(10,2),
+`execution_time` DECIMAL(10,2),
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `immunotherapy` (
+`patient_id` INT,
+`sex` INT,
+`age` INT,
+`time` DECIMAL(10,2),
+`number_of_warts` INT,
+`type` INT,
+`area` INT,
+`induration_diameter` INT,
+`result_of_treatment` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`patient_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `information_gain` (
+`id` INT,
+`dataset_id` INT,
+`feature` VARCHAR(255),
+`gain` DECIMAL(10,2),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `patients` (
+`patient_id` INT,
+`sex` INT,
+`age` INT,
+`time` DECIMAL(10,2),
+`number_of_warts` INT,
+`type` INT,
+`area` INT,
+`result_of_treatment` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`patient_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_353115_db_knnig') AS relationships;
+relationships
+Database: db_353115_db_knnig
+
+Table Connections:
+------------------
+[Implied]  experiment_details.experiment_id -> experiments.experiment_id
+[Implied]  experiments.dataset_id -> dataset_type.id
+[Implied]  information_gain.dataset_id -> dataset_type.id
+
+DROP DATABASE `db_353115_db_knnig`;
+UNINSTALL EXTENSION vsql_schematron;

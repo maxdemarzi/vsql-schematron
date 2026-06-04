@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 547980_retention_schema
+--echo #
+CREATE DATABASE `db_547980_retention_schema`;
+USE `db_547980_retention_schema`;
+
+CREATE TABLE `retention_rule_history` (
+  `id` INT,
+  `retention_rule_id` INT,
+  `dataset_name` VARCHAR(255),
+  `retention_value` VARCHAR(255),
+  `data_storage_name` VARCHAR(255),
+  `data_storage_root` VARCHAR(255),
+  `data_storage_type` VARCHAR(255),
+  `project_id` VARCHAR(255),
+  `type` VARCHAR(255),
+  `version` INT,
+  `is_active` VARCHAR(255),
+  `created_at` DATETIME,
+  `user` VARCHAR(255),
+  `metadata` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `retention_job` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `retention_rule_id` INT,
+  `retention_rule_version` INT,
+  `retention_rule_type` VARCHAR(255),
+  `retention_rule_data_storage_name` VARCHAR(255),
+  `retention_rule_project_id` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `type` VARCHAR(255),
+  `batch_id` VARCHAR(255),
+  `metadata` VARCHAR(255),
+  `data_storage_root` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `retention_job_validation` (
+  `id` INT,
+  `retention_job_id` INT,
+  `job_operation_name` VARCHAR(255),
+  `status` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `batch_id` VARCHAR(255),
+  `start_time` DATETIME,
+  `end_time` DATETIME,
+  `metadata` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dm_queue` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `data_storage_name` VARCHAR(255),
+  `status` VARCHAR(255),
+  `priority` INT,
+  `data_storage_root` VARCHAR(255),
+  `retention_job_id` INT,
+  `number_of_retry` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `distributed_lock` (
+  `id` VARCHAR(255),
+  `lock_token` VARCHAR(255),
+  `lock_duration` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_547980_retention_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_547980_retention_schema') AS relationships;
+DROP DATABASE `db_547980_retention_schema`;
+UNINSTALL EXTENSION vsql_schematron;

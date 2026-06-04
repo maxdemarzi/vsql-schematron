@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 562732_mysql_db_snapshot
+#
+CREATE DATABASE `db_562732_mysql_db_snapshot`;
+USE `db_562732_mysql_db_snapshot`;
+CREATE TABLE `blobs` (
+`id` INT,
+`blobstore_id` VARCHAR(255),
+`sha1` VARCHAR(255),
+`created_at` DATETIME,
+`type` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cloud_configs` (
+`id` INT,
+`properties` VARCHAR(255),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cpi_configs` (
+`id` INT,
+`properties` VARCHAR(255),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `deployment_problems` (
+`id` INT,
+`deployment_id` INT,
+`state` VARCHAR(255),
+`resource_id` INT,
+`type` VARCHAR(255),
+`data_json` VARCHAR(255),
+`created_at` DATETIME,
+`last_seen_at` DATETIME,
+`counter` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dns_schema` (
+`filename` VARCHAR(255),
+PRIMARY KEY (`filename`)
+) CHARACTER SET latin1;
+CREATE TABLE `errand_runs` (
+`id` INT,
+`deployment_id` INT,
+`errand_name` VARCHAR(255),
+`successful_state_hash` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `local_dns_blobs` (
+`id` INT,
+`blob_id` INT,
+`version` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `runtime_configs` (
+`id` INT,
+`properties` VARCHAR(255),
+`created_at` DATETIME,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schema_migrations` (
+`filename` VARCHAR(255),
+PRIMARY KEY (`filename`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_562732_mysql_db_snapshot') AS relationships;
+relationships
+Database: db_562732_mysql_db_snapshot
+
+Table Connections:
+------------------
+[Implied]  errand_runs.deployment_id -> deployment_problems.id
+[Implied]  local_dns_blobs.blob_id -> blobs.id
+
+DROP DATABASE `db_562732_mysql_db_snapshot`;
+UNINSTALL EXTENSION vsql_schematron;

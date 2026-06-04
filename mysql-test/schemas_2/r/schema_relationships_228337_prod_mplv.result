@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 228337_prod_mplv
+#
+CREATE DATABASE `db_228337_prod_mplv`;
+USE `db_228337_prod_mplv`;
+CREATE TABLE `action_types` (
+`id` INT,
+`source_type` VARCHAR(255),
+`action` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `email_change_petitions` (
+`id` INT,
+`user_id` INT,
+`old_email` VARCHAR(255),
+`new_email` VARCHAR(255),
+`token` VARCHAR(255),
+`confirmed` VARCHAR(255),
+`expires_at` DATETIME,
+`confirmed_at` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `password_resets` (
+`email` VARCHAR(255),
+`token` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `product_pictures` (
+`id` INT,
+`product_id` INT,
+`path` VARCHAR(255),
+`default` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_points` (
+`id` INT,
+`user_id` INT,
+`action_type_id` INT,
+`source_id` INT,
+`points` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_228337_prod_mplv') AS relationships;
+relationships
+Database: db_228337_prod_mplv
+
+Table Connections:
+------------------
+[Implied]  email_change_petitions.user_id -> user_points.id
+[Implied]  user_points.action_type_id -> action_types.id
+
+DROP DATABASE `db_228337_prod_mplv`;
+UNINSTALL EXTENSION vsql_schematron;
