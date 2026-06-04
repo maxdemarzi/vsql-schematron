@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 574376_ofeel_portfolio_chelsea
+#
+CREATE DATABASE `db_574376_ofeel_portfolio_chelsea`;
+USE `db_574376_ofeel_portfolio_chelsea`;
+CREATE TABLE `ofeel_portfolio_chelsea.categories` (
+`id` INT,
+`name` VARCHAR(255),
+`icone` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeel_portfolio_chelsea.works` (
+`id` INT,
+`title` VARCHAR(255),
+`resume` VARCHAR(255),
+`description` VARCHAR(255),
+`image` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`categorie_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeel_portfolio_chelsea.workcomments` (
+`id` INT,
+`pseudo` VARCHAR(255),
+`content` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`work_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeel_portfolio_chelsea.articles` (
+`id` INT,
+`title` VARCHAR(255),
+`description` VARCHAR(255),
+`image` VARCHAR(255),
+`resume` VARCHAR(255),
+`created_at` VARCHAR(255),
+`updated_at` VARCHAR(255),
+`categorie_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeel_portfolio_chelsea.tags` (
+`id` INT,
+`name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeel_portfolio_chelsea.artcomments` (
+`id` INT,
+`pseudo` VARCHAR(255),
+`content` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`article_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeel_portfolio_chelsea.works_has_tags` (
+`work_id` INT,
+`tag_id` INT,
+PRIMARY KEY (`work_id`, `tag_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeel_portfolio_chelsea.articles_has_tags` (
+`article_id` INT,
+`tag_id` INT,
+PRIMARY KEY (`article_id`, `tag_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_574376_ofeel_portfolio_chelsea') AS relationships;
+relationships
+Database: db_574376_ofeel_portfolio_chelsea
+
+Table Connections:
+------------------
+[Implied]  ofeel_portfolio_chelsea.artcomments.article_id -> ofeel_portfolio_chelsea.articles.id
+[Implied]  ofeel_portfolio_chelsea.articles.categorie_id -> ofeel_portfolio_chelsea.categories.id
+[Implied]  ofeel_portfolio_chelsea.articles_has_tags.article_id -> ofeel_portfolio_chelsea.articles.id
+[Implied]  ofeel_portfolio_chelsea.articles_has_tags.tag_id -> ofeel_portfolio_chelsea.tags.id
+[Implied]  ofeel_portfolio_chelsea.workcomments.work_id -> ofeel_portfolio_chelsea.works.id
+[Implied]  ofeel_portfolio_chelsea.works.categorie_id -> ofeel_portfolio_chelsea.categories.id
+[Implied]  ofeel_portfolio_chelsea.works_has_tags.tag_id -> ofeel_portfolio_chelsea.tags.id
+[Implied]  ofeel_portfolio_chelsea.works_has_tags.work_id -> ofeel_portfolio_chelsea.works.id
+
+DROP DATABASE `db_574376_ofeel_portfolio_chelsea`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 588812_createdb
+--echo #
+CREATE DATABASE `db_588812_createdb`;
+USE `db_588812_createdb`;
+
+CREATE TABLE `KiharaDB.Structure` (
+  `StructureID` INT,
+  `Description` VARCHAR(255),
+  `StructureFilePath` VARCHAR(255),
+  `ImageFilePath` VARCHAR(255),
+  `AnimationFilePath` VARCHAR(255),
+  `ZernikeDescriptors` VARCHAR(255),
+  `ParentStructureID` INT,
+  `StructureTypeID` INT,
+  PRIMARY KEY (`StructureID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `KiharaDB.MultipleParentStructures` (
+  `StructureID` INT,
+  `ParentStructureID` INT,
+  PRIMARY KEY (`StructureID`, `ParentStructureID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `KiharaDB.StructureCATHCodes` (
+  `StructureID` INT,
+  `CATHID` INT,
+  PRIMARY KEY (`StructureID`, `CATHID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_588812_createdb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_588812_createdb') AS relationships;
+DROP DATABASE `db_588812_createdb`;
+UNINSTALL EXTENSION vsql_schematron;

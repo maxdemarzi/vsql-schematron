@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 240150_schema
+--echo #
+CREATE DATABASE `db_240150_schema`;
+USE `db_240150_schema`;
+
+CREATE TABLE `public.animals` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `date_of_birth` DATETIME,
+  `escape_attempts` INT,
+  `neutered` VARCHAR(255),
+  `weight_kg` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `public.owners` (
+  `id` INT,
+  `full_name` VARCHAR(255),
+  `age` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `public.vets` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `age` INT,
+  `date_of_graduation` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `public.specializations` (
+  `vet_id` INT,
+  `species_id` INT,
+  PRIMARY KEY (`vet_id`, `species_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `public.visits` (
+  `date` DATETIME,
+  `vet_id` INT,
+  `animal_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_240150_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_240150_schema') AS relationships;
+DROP DATABASE `db_240150_schema`;
+UNINSTALL EXTENSION vsql_schematron;

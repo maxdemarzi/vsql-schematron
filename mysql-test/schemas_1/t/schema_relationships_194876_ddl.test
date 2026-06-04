@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 194876_ddl
+--echo #
+CREATE DATABASE `db_194876_ddl`;
+USE `db_194876_ddl`;
+
+CREATE TABLE `digital_account.address` (
+  `address_id` VARCHAR(255),
+  `street` VARCHAR(255),
+  `house_number` INT,
+  `cep` INT,
+  `city` VARCHAR(255),
+  `state` VARCHAR(255),
+  `country` VARCHAR(255),
+  PRIMARY KEY (`address_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `digital_account.customer` (
+  `customer_id` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `date_of_birth` DATETIME,
+  `registration_date` DATETIME,
+  `address_id` VARCHAR(255),
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `digital_account.account_type` (
+  `account_type_id` VARCHAR(255),
+  `account_type_name` VARCHAR(255),
+  PRIMARY KEY (`account_type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `digital_account.account` (
+  `account_id` VARCHAR(255),
+  `account_number` INT,
+  `account_type_id` VARCHAR(255),
+  `customer_id` VARCHAR(255),
+  `date_opened` DATETIME,
+  `date_closed` DATETIME,
+  `balance` DECIMAL(10,2),
+  PRIMARY KEY (`account_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `digital_account.transactions` (
+  `transaction_id` VARCHAR(255),
+  `account_id` VARCHAR(255),
+  `transaction_date` DATETIME,
+  `amount` DECIMAL(10,2),
+  `balance_account` DECIMAL(10,2),
+  PRIMARY KEY (`transaction_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_194876_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_194876_ddl') AS relationships;
+DROP DATABASE `db_194876_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

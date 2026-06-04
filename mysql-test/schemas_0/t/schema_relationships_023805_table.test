@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 023805_table
+--echo #
+CREATE DATABASE `db_023805_table`;
+USE `db_023805_table`;
+
+CREATE TABLE `@extschema@.table` (
+  `id` INT,
+  `schema` VARCHAR(255),
+  `table` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `@extschema@.variable` (
+  `schema_from` VARCHAR(255),
+  `table_from` VARCHAR(255),
+  `column_from` VARCHAR(255),
+  `schema_to` VARCHAR(255),
+  `table_to` VARCHAR(255),
+  `column_to` VARCHAR(255),
+  PRIMARY KEY (`schema_from`, `table_from`, `column_from`, `schema_to`, `table_to`, `column_to`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `@extschema@.user` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `index` INT,
+  `delete` VARCHAR(255),
+  `mask` VARCHAR(255),
+  `history` VARCHAR(255),
+  `right` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `@extschema@.table_user_right` (
+  `id_user` INT,
+  `id_table` INT,
+  `read` VARCHAR(255),
+  `insert` VARCHAR(255),
+  `update` VARCHAR(255),
+  `delete` VARCHAR(255),
+  PRIMARY KEY (`id_user`, `id_table`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `@extschema@.insert_object` (
+  `name` VARCHAR(255),
+  `objt` VARCHAR(255),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `@extschema@.select_object` (
+  `name` VARCHAR(255),
+  `objt` VARCHAR(255),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_023805_table') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_023805_table') AS relationships;
+DROP DATABASE `db_023805_table`;
+UNINSTALL EXTENSION vsql_schematron;

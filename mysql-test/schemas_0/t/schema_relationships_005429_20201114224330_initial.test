@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 005429_20201114224330_initial
+--echo #
+CREATE DATABASE `db_005429_20201114224330_initial`;
+USE `db_005429_20201114224330_initial`;
+
+CREATE TABLE `zandbox.projects` (
+  `name` VARCHAR(255),
+  `version` VARCHAR(255),
+  `zinc_version` VARCHAR(255),
+  `project` VARCHAR(255),
+  `bytecode` VARCHAR(255),
+  `verifying_key` VARCHAR(255),
+  `created_at` DATETIME,
+  PRIMARY KEY (`name`, `version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `zandbox.contracts` (
+  `account_id` INT,
+  `name` VARCHAR(255),
+  `version` VARCHAR(255),
+  `instance` VARCHAR(255),
+  `eth_address` VARCHAR(255),
+  `eth_private_key` VARCHAR(255),
+  `created_at` DATETIME,
+  PRIMARY KEY (`account_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `zandbox.fields` (
+  `account_id` INT,
+  `index` INT,
+  `name` VARCHAR(255),
+  `value` VARCHAR(255),
+  PRIMARY KEY (`account_id`, `index`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_005429_20201114224330_initial') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_005429_20201114224330_initial') AS relationships;
+DROP DATABASE `db_005429_20201114224330_initial`;
+UNINSTALL EXTENSION vsql_schematron;

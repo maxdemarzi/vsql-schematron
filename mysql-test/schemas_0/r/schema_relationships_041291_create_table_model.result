@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 041291_create_table_model
+#
+CREATE DATABASE `db_041291_create_table_model`;
+USE `db_041291_create_table_model`;
+CREATE TABLE `org.Contact` (
+`ContactId` VARCHAR(255),
+`DateOfBirth` DATETIME,
+`FirstName` VARCHAR(255),
+`LastName` VARCHAR(255),
+`HeightFt` INT,
+`HeightInch` INT,
+`Picture` VARCHAR(255),
+`PreferredHeight` VARCHAR(255),
+PRIMARY KEY (`ContactId`)
+) CHARACTER SET latin1;
+CREATE TABLE `org.Organization` (
+`OrganizationId` VARCHAR(255),
+`Name` VARCHAR(255),
+PRIMARY KEY (`OrganizationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `org.WorkHistory` (
+`WorkHistoryId` VARCHAR(255),
+`ContactId` VARCHAR(255),
+`OrganizationId` VARCHAR(255),
+`StartMonth` VARCHAR(255),
+`StartYear` VARCHAR(255),
+`EndMonth` VARCHAR(255),
+`EndYear` VARCHAR(255),
+`JobDescription` VARCHAR(255),
+`JobTitle` VARCHAR(255),
+PRIMARY KEY (`WorkHistoryId`)
+) CHARACTER SET latin1;
+CREATE TABLE `org.ContactLink` (
+`SourceContactId` VARCHAR(255),
+`TargetContactId` VARCHAR(255),
+`WorkHistoryId` VARCHAR(255),
+PRIMARY KEY (`SourceContactId`, `TargetContactId`, `WorkHistoryId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_041291_create_table_model') AS relationships;
+relationships
+Database: db_041291_create_table_model
+
+Table Connections:
+------------------
+[Implied]  org.ContactLink.SourceContactId -> org.Contact.ContactId
+[Implied]  org.ContactLink.TargetContactId -> org.Contact.ContactId
+[Implied]  org.ContactLink.WorkHistoryId -> org.WorkHistory.WorkHistoryId
+[Implied]  org.WorkHistory.ContactId -> org.Contact.ContactId
+[Implied]  org.WorkHistory.OrganizationId -> org.Organization.OrganizationId
+
+DROP DATABASE `db_041291_create_table_model`;
+UNINSTALL EXTENSION vsql_schematron;

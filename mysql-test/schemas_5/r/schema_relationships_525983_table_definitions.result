@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 525983_table_definitions
+#
+CREATE DATABASE `db_525983_table_definitions`;
+USE `db_525983_table_definitions`;
+CREATE TABLE `public.book` (
+`isbn13` VARCHAR(255),
+`title` VARCHAR(255),
+`thumbnail` VARCHAR(255),
+PRIMARY KEY (`isbn13`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.media` (
+`name` VARCHAR(255),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.user` (
+`user_name` VARCHAR(255),
+PRIMARY KEY (`user_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.own` (
+`own_id` INT,
+`isbn13` VARCHAR(255),
+`media_name` VARCHAR(255),
+`own_user` VARCHAR(255),
+PRIMARY KEY (`own_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.read_book` (
+`read_book_id` INT,
+`user_name` VARCHAR(255),
+`own_id` INT,
+`is_read` VARCHAR(255),
+PRIMARY KEY (`read_book_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_525983_table_definitions') AS relationships;
+relationships
+Database: db_525983_table_definitions
+
+Table Connections:
+------------------
+[Implied]  public.own.isbn13 -> public.book.isbn13
+[Implied]  public.own.media_name -> public.media.name
+[Implied]  public.own.own_user -> public.user.user_name
+[Implied]  public.read_book.own_id -> public.own.own_id
+[Implied]  public.read_book.user_name -> public.user.user_name
+
+DROP DATABASE `db_525983_table_definitions`;
+UNINSTALL EXTENSION vsql_schematron;

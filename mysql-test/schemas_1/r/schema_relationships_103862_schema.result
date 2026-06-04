@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 103862_schema
+#
+CREATE DATABASE `db_103862_schema`;
+USE `db_103862_schema`;
+CREATE TABLE `securrity.users` (
+`user_id` VARCHAR(255),
+`name` VARCHAR(255),
+`encrypted_password` VARCHAR(255),
+`status` VARCHAR(255),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `securrity.sessions` (
+`session_id` VARCHAR(255),
+`started_at` DATETIME,
+`ended_at` DATETIME,
+PRIMARY KEY (`session_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `securrity.operations` (
+`operation_id` VARCHAR(255),
+`code` VARCHAR(255),
+`display_name` VARCHAR(255),
+`description` VARCHAR(255),
+`locked` VARCHAR(255),
+PRIMARY KEY (`operation_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `securrity.objects` (
+`object_id` VARCHAR(255),
+`code` VARCHAR(255),
+`display_name` VARCHAR(255),
+`type` VARCHAR(255),
+`definition` VARCHAR(255),
+`functional_model` VARCHAR(255),
+`source` VARCHAR(255),
+`locked` VARCHAR(255),
+PRIMARY KEY (`object_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `securrity.roles` (
+`role_id` VARCHAR(255),
+`display_name` VARCHAR(255),
+`description` VARCHAR(255),
+PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `securrity.user_roles` (
+`user_id` VARCHAR(255),
+`role_id` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `securrity.session_role` (
+`session_id` VARCHAR(255),
+`role_id` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `securrity.permissions` (
+`permission_id` VARCHAR(255),
+`code` VARCHAR(255),
+`display_name` VARCHAR(255),
+`description` VARCHAR(255),
+`object_id` VARCHAR(255),
+`operation_id` VARCHAR(255),
+PRIMARY KEY (`permission_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `securrity.role_permissions` (
+`role_id` VARCHAR(255),
+`permission_id` VARCHAR(255)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_103862_schema') AS relationships;
+relationships
+Database: db_103862_schema
+
+Table Connections:
+------------------
+[Implied]  securrity.permissions.object_id -> securrity.objects.object_id
+[Implied]  securrity.permissions.operation_id -> securrity.operations.operation_id
+[Implied]  securrity.role_permissions.permission_id -> securrity.permissions.permission_id
+[Implied]  securrity.role_permissions.role_id -> securrity.roles.role_id
+[Implied]  securrity.session_role.role_id -> securrity.roles.role_id
+[Implied]  securrity.session_role.session_id -> securrity.sessions.session_id
+[Implied]  securrity.user_roles.role_id -> securrity.roles.role_id
+[Implied]  securrity.user_roles.user_id -> securrity.users.user_id
+
+DROP DATABASE `db_103862_schema`;
+UNINSTALL EXTENSION vsql_schematron;

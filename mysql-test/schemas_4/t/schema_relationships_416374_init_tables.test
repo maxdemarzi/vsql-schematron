@@ -1,0 +1,99 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 416374_init_tables
+--echo #
+CREATE DATABASE `db_416374_init_tables`;
+USE `db_416374_init_tables`;
+
+CREATE TABLE `FITNESS.PROGRAM` (
+  `ID` INT,
+  `PROGRAM_NM` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FITNESS.EXERCISE` (
+  `ID` INT,
+  `EXERCISE_NM` VARCHAR(255),
+  `MUSCLES_NM` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FITNESS.ITEM` (
+  `ID` INT,
+  `ITEM_TITLE` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FITNESS.GYM` (
+  `ID` INT,
+  `GYM_TITLE` VARCHAR(255),
+  `CLUB_NM` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FITNESS.TRAINER` (
+  `ID` INT,
+  `TRAINER_NM` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FITNESS.ATHLETE` (
+  `ID` INT,
+  `ATHLETE_NM` VARCHAR(255),
+  `TRAINER_ID` INT,
+  `PROGRAM_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FITNESS.PROGRAM_X_EXERCISE` (
+  `EXERCISE_ID` INT,
+  `PROGRAM_ID` INT,
+  PRIMARY KEY (`EXERCISE_ID`, `PROGRAM_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FITNESS.EXERCISE_X_ITEM` (
+  `EXERCISE_ID` INT,
+  `ITEM_ID` INT,
+  PRIMARY KEY (`EXERCISE_ID`, `ITEM_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FITNESS.ATHLETE_X_GYM` (
+  `ATHLETE_ID` INT,
+  `GYM_ID` INT,
+  PRIMARY KEY (`ATHLETE_ID`, `GYM_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FITNESS.TRAINER_X_GYM` (
+  `TRAINER_ID` INT,
+  `GYM_ID` INT,
+  PRIMARY KEY (`TRAINER_ID`, `GYM_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FITNESS.GYM_X_ITEM` (
+  `ITEM_ID` INT,
+  `GYM_ID` INT,
+  `VALID_FROM_DTTM` DATETIME,
+  `VALID_TO_DTTM` DATETIME,
+  PRIMARY KEY (`ITEM_ID`, `GYM_ID`, `VALID_FROM_DTTM`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_416374_init_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_416374_init_tables') AS relationships;
+DROP DATABASE `db_416374_init_tables`;
+UNINSTALL EXTENSION vsql_schematron;

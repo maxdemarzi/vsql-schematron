@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 207982_tableGenerate
+#
+CREATE DATABASE `db_207982_tableGenerate`;
+USE `db_207982_tableGenerate`;
+CREATE TABLE `mydb.Movie` (
+`idMovie` VARCHAR(255),
+`title` VARCHAR(255),
+`isAdult` INT,
+`releaseYear` INT,
+`runtimeMinutes` INT,
+`rating` DECIMAL(10,2),
+`numVotes` INT,
+`imgUrl` VARCHAR(255),
+PRIMARY KEY (`idMovie`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.WritersAndDirectors` (
+`idWritersAndDirectors` VARCHAR(255),
+`name` VARCHAR(255),
+`birthYear` INT,
+`deathYear` INT,
+PRIMARY KEY (`idWritersAndDirectors`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.GenresByMovie` (
+`idGenre` INT,
+`idMovie` VARCHAR(255),
+PRIMARY KEY (`idGenre`, `idMovie`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.Opinion` (
+`idUser` INT,
+`idMovie` VARCHAR(255),
+`ocena` DECIMAL(10,2),
+`opinion` VARCHAR(255),
+PRIMARY KEY (`idUser`, `idMovie`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.Team` (
+`idWritersAndDirectors` VARCHAR(255),
+`idMovie` VARCHAR(255),
+`director` INT,
+`writer` INT,
+PRIMARY KEY (`idWritersAndDirectors`, `idMovie`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_207982_tableGenerate') AS relationships;
+relationships
+Database: db_207982_tableGenerate
+
+Table Connections:
+------------------
+[Implied]  mydb.GenresByMovie.idMovie -> mydb.Movie.idMovie
+[Implied]  mydb.Opinion.idMovie -> mydb.Movie.idMovie
+[Implied]  mydb.Team.idMovie -> mydb.Movie.idMovie
+[Implied]  mydb.Team.idWritersAndDirectors -> mydb.WritersAndDirectors.idWritersAndDirectors
+
+DROP DATABASE `db_207982_tableGenerate`;
+UNINSTALL EXTENSION vsql_schematron;

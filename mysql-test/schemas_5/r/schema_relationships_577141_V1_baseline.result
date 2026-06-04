@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 577141_V1_baseline
+#
+CREATE DATABASE `db_577141_V1_baseline`;
+USE `db_577141_V1_baseline`;
+CREATE TABLE `itemStorage.item` (
+`item_uid` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`market` VARCHAR(255),
+`stock` INT,
+`price_tag` DECIMAL(10,2),
+`state` VARCHAR(255),
+`created_by` VARCHAR(255),
+`modified_at` DATETIME,
+`created_at` DATETIME,
+`last_modified_by` VARCHAR(255),
+PRIMARY KEY (`item_uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `itemStorage.user` (
+`user_uid` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`created_by` VARCHAR(255),
+`modified_at` DATETIME,
+`created_at` DATETIME,
+`last_modified_by` VARCHAR(255),
+PRIMARY KEY (`user_uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `itemStorage.cart` (
+`cart_uid` INT,
+`fk_user_uid` INT,
+`created_by` VARCHAR(255),
+`modified_at` DATETIME,
+`created_at` DATETIME,
+`last_modified_by` VARCHAR(255),
+PRIMARY KEY (`cart_uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `itemStorage.cart_item` (
+`cart_item_uid` INT,
+`fk_cart_uid` INT,
+`fk_item_uid` INT,
+`quantity` INT,
+`created_by` VARCHAR(255),
+`modified_at` DATETIME,
+`created_at` DATETIME,
+`last_modified_by` VARCHAR(255),
+PRIMARY KEY (`cart_item_uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `itemStorage.role` (
+`role_uid` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+PRIMARY KEY (`role_uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `itemStorage.user_roles` (
+`role_uid` INT,
+`user_uid` INT,
+PRIMARY KEY (`role_uid`, `user_uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `itemStorage.session` (
+`session_uid` INT,
+`token` VARCHAR(255),
+PRIMARY KEY (`session_uid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_577141_V1_baseline') AS relationships;
+relationships
+Database: db_577141_V1_baseline
+
+Table Connections:
+------------------
+[Implied]  itemStorage.cart.fk_user_uid -> itemStorage.user.user_uid
+[Implied]  itemStorage.cart_item.fk_cart_uid -> itemStorage.cart.cart_uid
+[Implied]  itemStorage.cart_item.fk_item_uid -> itemStorage.item.item_uid
+[Implied]  itemStorage.user_roles.role_uid -> itemStorage.role.role_uid
+[Implied]  itemStorage.user_roles.user_uid -> itemStorage.user.user_uid
+
+DROP DATABASE `db_577141_V1_baseline`;
+UNINSTALL EXTENSION vsql_schematron;

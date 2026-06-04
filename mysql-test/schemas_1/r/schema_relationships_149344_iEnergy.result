@@ -1,0 +1,109 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 149344_iEnergy
+#
+CREATE DATABASE `db_149344_iEnergy`;
+USE `db_149344_iEnergy`;
+CREATE TABLE `iEnergyDatabase.user` (
+`iduser` INT,
+`name` VARCHAR(255),
+`login` VARCHAR(255),
+`password` VARCHAR(255),
+PRIMARY KEY (`iduser`)
+) CHARACTER SET latin1;
+CREATE TABLE `iEnergyDatabase.devices` (
+`iddevices` INT,
+`name` VARCHAR(255),
+`activePower` DECIMAL(10,2),
+`apparentPower` DECIMAL(10,2),
+`model` VARCHAR(255),
+`manufacturer` VARCHAR(255),
+`type` INT,
+`phasesNumber` INT,
+`description` VARCHAR(255),
+`iduser` INT,
+PRIMARY KEY (`iddevices`)
+) CHARACTER SET latin1;
+CREATE TABLE `iEnergyDatabase.consumption` (
+`idConsumption` INT,
+`dateTime` DATETIME,
+`type` INT,
+`value` DECIMAL(10,2),
+`phaseId` INT,
+`iddevices` INT,
+PRIMARY KEY (`idConsumption`)
+) CHARACTER SET latin1;
+CREATE TABLE `iEnergyDatabase.varData` (
+`idvarData` INT,
+`type` INT,
+`value` DECIMAL(10,2),
+`phaseId` INT,
+`dateTime` DATETIME,
+`iddevices` INT,
+PRIMARY KEY (`idvarData`)
+) CHARACTER SET latin1;
+CREATE TABLE `iEnergyDatabase.potential` (
+`idpotential` INT,
+`type` INT,
+`value` DECIMAL(10,2),
+`phaseId` INT,
+`dateTime` DATETIME,
+`iddevices` INT,
+PRIMARY KEY (`idpotential`)
+) CHARACTER SET latin1;
+CREATE TABLE `iEnergyDatabase.current` (
+`idcurrent` INT,
+`type` INT,
+`value` DECIMAL(10,2),
+`phaseId` INT,
+`dateTime` DATETIME,
+`iddevices` INT,
+PRIMARY KEY (`idcurrent`)
+) CHARACTER SET latin1;
+CREATE TABLE `iEnergyDatabase.userData` (
+`iduserData` INT,
+`address` VARCHAR(255),
+`zipcode` VARCHAR(255),
+`state` VARCHAR(255),
+`city` VARCHAR(255),
+`country` VARCHAR(255),
+`phone` VARCHAR(255),
+`mobile` VARCHAR(255),
+`email` VARCHAR(255),
+`iduser` INT,
+PRIMARY KEY (`iduserData`)
+) CHARACTER SET latin1;
+CREATE TABLE `iEnergyDatabase.logInfoMessages` (
+`idlogInfoMessages` INT,
+`type` INT,
+`payload` VARCHAR(255),
+`iddevices` INT,
+PRIMARY KEY (`idlogInfoMessages`)
+) CHARACTER SET latin1;
+CREATE TABLE `iEnergyDatabase.powerFactor` (
+`idpowerFactor` INT,
+`value` DECIMAL(10,2),
+`phaseId` INT,
+`dateTime` DATETIME,
+`iddevices` INT,
+PRIMARY KEY (`idpowerFactor`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_149344_iEnergy') AS relationships;
+relationships
+Database: db_149344_iEnergy
+
+Table Connections:
+------------------
+[Implied]  iEnergyDatabase.consumption.iddevices -> iEnergyDatabase.devices.iddevices
+[Implied]  iEnergyDatabase.current.iddevices -> iEnergyDatabase.devices.iddevices
+[Implied]  iEnergyDatabase.devices.activePower -> iEnergyDatabase.powerFactor.idpowerFactor
+[Implied]  iEnergyDatabase.devices.apparentPower -> iEnergyDatabase.powerFactor.idpowerFactor
+[Implied]  iEnergyDatabase.devices.iduser -> iEnergyDatabase.user.iduser
+[Implied]  iEnergyDatabase.logInfoMessages.iddevices -> iEnergyDatabase.devices.iddevices
+[Implied]  iEnergyDatabase.potential.iddevices -> iEnergyDatabase.devices.iddevices
+[Implied]  iEnergyDatabase.powerFactor.iddevices -> iEnergyDatabase.devices.iddevices
+[Implied]  iEnergyDatabase.userData.iduser -> iEnergyDatabase.user.iduser
+[Implied]  iEnergyDatabase.varData.iddevices -> iEnergyDatabase.devices.iddevices
+
+DROP DATABASE `db_149344_iEnergy`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 547689_db_schema
+#
+CREATE DATABASE `db_547689_db_schema`;
+USE `db_547689_db_schema`;
+CREATE TABLE `chatweb.rooms` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chatweb.messages` (
+`id` INT,
+`message` VARCHAR(255),
+`room_id` INT,
+`sender_id` INT,
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chatweb.user_room` (
+`users_id` INT,
+`rooms_id` INT,
+PRIMARY KEY (`users_id`, `rooms_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_547689_db_schema') AS relationships;
+relationships
+Database: db_547689_db_schema
+
+Table Connections:
+------------------
+[Implied]  chatweb.messages.room_id -> chatweb.rooms.id
+[Implied]  chatweb.user_room.rooms_id -> chatweb.rooms.id
+
+DROP DATABASE `db_547689_db_schema`;
+UNINSTALL EXTENSION vsql_schematron;

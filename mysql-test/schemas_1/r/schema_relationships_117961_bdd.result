@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 117961_bdd
+#
+CREATE DATABASE `db_117961_bdd`;
+USE `db_117961_bdd`;
+CREATE TABLE `Gestion_tests_COVID.Tests` (
+`idTests` INT,
+`Type` VARCHAR(255),
+`Cout_unit` DECIMAL(10,2),
+`Pays_import` VARCHAR(255),
+PRIMARY KEY (`idTests`)
+) CHARACTER SET latin1;
+CREATE TABLE `Gestion_tests_COVID.Planning` (
+`idPlanning` INT,
+`Date` DATETIME,
+`Stock_total` INT,
+PRIMARY KEY (`idPlanning`)
+) CHARACTER SET latin1;
+CREATE TABLE `Gestion_tests_COVID.Tested_patient` (
+`idTested_patient` INT,
+`Nom` VARCHAR(255),
+`Prenom` VARCHAR(255),
+`Age` INT,
+`Ville` VARCHAR(255),
+`Symptome_principal` VARCHAR(255),
+`Planning_idPlanning` INT,
+`Tests_idTests` INT,
+PRIMARY KEY (`idTested_patient`, `Planning_idPlanning`, `Tests_idTests`)
+) CHARACTER SET latin1;
+CREATE TABLE `Gestion_tests_COVID.Patient_for_rendezvous` (
+`idTested_patient` INT,
+`Nom` VARCHAR(255),
+`Prenom` VARCHAR(255),
+`Age` INT,
+`Ville` VARCHAR(255),
+`Symptome_principal` VARCHAR(255),
+`Planning_idPlanning` INT,
+PRIMARY KEY (`idTested_patient`, `Planning_idPlanning`)
+) CHARACTER SET latin1;
+CREATE TABLE `Gestion_tests_COVID.Tests_has_Planning` (
+`Tests_idTests` INT,
+`Planning_idPlanning` INT,
+PRIMARY KEY (`Tests_idTests`, `Planning_idPlanning`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_117961_bdd') AS relationships;
+relationships
+Database: db_117961_bdd
+
+Table Connections:
+------------------
+[Implied]  Gestion_tests_COVID.Patient_for_rendezvous.Planning_idPlanning -> Gestion_tests_COVID.Planning.idPlanning
+[Implied]  Gestion_tests_COVID.Tested_patient.Planning_idPlanning -> Gestion_tests_COVID.Planning.idPlanning
+[Implied]  Gestion_tests_COVID.Tested_patient.Tests_idTests -> Gestion_tests_COVID.Tests.idTests
+[Implied]  Gestion_tests_COVID.Tests_has_Planning.Planning_idPlanning -> Gestion_tests_COVID.Planning.idPlanning
+[Implied]  Gestion_tests_COVID.Tests_has_Planning.Tests_idTests -> Gestion_tests_COVID.Tests.idTests
+
+DROP DATABASE `db_117961_bdd`;
+UNINSTALL EXTENSION vsql_schematron;

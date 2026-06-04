@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 394461_V1_init
+#
+CREATE DATABASE `db_394461_V1_init`;
+USE `db_394461_V1_init`;
+CREATE TABLE `menu_service.week` (
+`id` INT,
+`week_number` VARCHAR(255),
+`start_date` VARCHAR(255),
+`end_date` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `menu_service.unit_of_measure` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `menu_service.ingredient` (
+`id` INT,
+`name` VARCHAR(255),
+`external_id` VARCHAR(255),
+`amount` VARCHAR(255),
+`unit_of_measure_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `menu_service.menu` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `menu_service.week_has_menu` (
+`week_id` INT,
+`menu_id` INT,
+PRIMARY KEY (`week_id`, `menu_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `menu_service.menu_has_ingredient` (
+`menu_id` INT,
+`ingredient_id` INT,
+PRIMARY KEY (`menu_id`, `ingredient_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_394461_V1_init') AS relationships;
+relationships
+Database: db_394461_V1_init
+
+Table Connections:
+------------------
+[Implied]  menu_service.ingredient.unit_of_measure_id -> menu_service.unit_of_measure.id
+[Implied]  menu_service.menu_has_ingredient.ingredient_id -> menu_service.ingredient.id
+[Implied]  menu_service.menu_has_ingredient.menu_id -> menu_service.menu.id
+[Implied]  menu_service.week_has_menu.menu_id -> menu_service.menu.id
+[Implied]  menu_service.week_has_menu.week_id -> menu_service.week.id
+
+DROP DATABASE `db_394461_V1_init`;
+UNINSTALL EXTENSION vsql_schematron;

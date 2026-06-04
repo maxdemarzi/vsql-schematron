@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 428671_mobileappstudy_0_00_17_10
+#
+CREATE DATABASE `db_428671_mobileappstudy_0_00_17_10`;
+USE `db_428671_mobileappstudy_0_00_17_10`;
+CREATE TABLE `mobileappstudy.Study` (
+`RowId` INT,
+`ShortName` VARCHAR(255),
+`Created` DATETIME,
+`CreatedBy` VARCHAR(255),
+`Modified` DATETIME,
+`ModifiedBy` VARCHAR(255),
+`Container` VARCHAR(255),
+PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+CREATE TABLE `mobileappstudy.Participant` (
+`RowId` INT,
+`AppToken` VARCHAR(255),
+`StudyId` INT,
+`Created` DATETIME,
+`Container` VARCHAR(255),
+PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+CREATE TABLE `mobileappstudy.EnrollmentTokenBatch` (
+`RowId` INT,
+`Count` INT,
+`Created` DATETIME,
+`CreatedBy` VARCHAR(255),
+`Container` VARCHAR(255),
+PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+CREATE TABLE `mobileappstudy.EnrollmentToken` (
+`RowId` INT,
+`BatchId` INT,
+`Token` VARCHAR(255),
+`ParticipantId` INT,
+`Created` DATETIME,
+`CreatedBy` VARCHAR(255),
+`Container` VARCHAR(255),
+PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+CREATE TABLE `mobileappstudy.Response` (
+`RowId` INT,
+`Response` VARCHAR(255),
+`ParticipantId` INT,
+`AppToken` VARCHAR(255),
+`SurveyVersion` VARCHAR(255),
+`SurveyId` VARCHAR(255),
+`Status` INT,
+`Processed` DATETIME,
+`ProcessedBy` VARCHAR(255),
+`ErrorMessage` VARCHAR(255),
+`Container` VARCHAR(255),
+`Created` DATETIME,
+`CreatedBy` VARCHAR(255),
+PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+CREATE TABLE `mobileappstudy.ResponseMetadata` (
+`RowId` INT,
+`Container` VARCHAR(255),
+`ListName` VARCHAR(255),
+`SurveyId` INT,
+`QuestionId` VARCHAR(255),
+`StartTime` DATETIME,
+`EndTime` DATETIME,
+`Skipped` VARCHAR(255),
+`Created` DATETIME,
+PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_428671_mobileappstudy_0_00_17_10') AS relationships;
+relationships
+Database: db_428671_mobileappstudy_0_00_17_10
+
+Table Connections:
+------------------
+[Implied]  mobileappstudy.EnrollmentToken.BatchId -> mobileappstudy.EnrollmentTokenBatch.RowId
+[Implied]  mobileappstudy.EnrollmentToken.ParticipantId -> mobileappstudy.Participant.RowId
+[Implied]  mobileappstudy.Participant.StudyId -> mobileappstudy.Study.RowId
+[Implied]  mobileappstudy.Response.ParticipantId -> mobileappstudy.Participant.RowId
+
+DROP DATABASE `db_428671_mobileappstudy_0_00_17_10`;
+UNINSTALL EXTENSION vsql_schematron;

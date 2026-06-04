@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 587392_V1_init_tables
+#
+CREATE DATABASE `db_587392_V1_init_tables`;
+USE `db_587392_V1_init_tables`;
+CREATE TABLE `${schemakeeper_schema}.schema_type` (
+`schema_type_name` VARCHAR(255),
+PRIMARY KEY (`schema_type_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `${schemakeeper_schema}.compatibility_type` (
+`compatibility_type_name` VARCHAR(255),
+PRIMARY KEY (`compatibility_type_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `${schemakeeper_schema}.subject` (
+`subject_name` VARCHAR(255),
+`compatibility_type_name` VARCHAR(255),
+`is_locked` VARCHAR(255),
+`creation_ts` DATETIME,
+PRIMARY KEY (`subject_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `${schemakeeper_schema}.schema_info` (
+`schema_id` INT,
+`schema_type_name` VARCHAR(255),
+`schema_text` VARCHAR(255),
+`schema_hash` VARCHAR(255),
+`creation_ts` DATETIME,
+PRIMARY KEY (`schema_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `${schemakeeper_schema}.subject_schema` (
+`subject_name` VARCHAR(255),
+`schema_id` INT,
+`version` INT,
+`creation_ts` DATETIME,
+PRIMARY KEY (`subject_name`, `schema_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_587392_V1_init_tables') AS relationships;
+relationships
+Database: db_587392_V1_init_tables
+
+Table Connections:
+------------------
+[Implied]  ${schemakeeper_schema}.schema_info.schema_type_name -> ${schemakeeper_schema}.schema_type.schema_type_name
+[Implied]  ${schemakeeper_schema}.subject.compatibility_type_name -> ${schemakeeper_schema}.compatibility_type.compatibility_type_name
+[Implied]  ${schemakeeper_schema}.subject_schema.schema_id -> ${schemakeeper_schema}.schema_info.schema_id
+[Implied]  ${schemakeeper_schema}.subject_schema.subject_name -> ${schemakeeper_schema}.subject.subject_name
+
+DROP DATABASE `db_587392_V1_init_tables`;
+UNINSTALL EXTENSION vsql_schematron;

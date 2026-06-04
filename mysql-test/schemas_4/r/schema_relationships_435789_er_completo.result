@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 435789_er_completo
+#
+CREATE DATABASE `db_435789_er_completo`;
+USE `db_435789_er_completo`;
+CREATE TABLE `db_locashow.menu` (
+`id` INT,
+`nome` VARCHAR(255),
+`link` VARCHAR(255),
+`icone` VARCHAR(255),
+`ordem` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `db_locashow.grupo` (
+`id` INT,
+`nome` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `db_locashow.usuario_grupo` (
+`id` INT,
+`usuario_id` INT,
+`grupo_id` INT,
+PRIMARY KEY (`id`, `usuario_id`, `grupo_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `db_locashow.grupo_menu` (
+`id` INT,
+`grupo_id` INT,
+`menu_id` INT,
+PRIMARY KEY (`id`, `grupo_id`, `menu_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `db_locashow.log_acesso` (
+`id` INT,
+`usuario_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`, `usuario_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `db_locashow.boleto_cliente` (
+`id` INT,
+`contrato_id` INT,
+`cliente_id` INT,
+`valor` DECIMAL(10,2),
+`dt_vencimento` DATETIME,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_435789_er_completo') AS relationships;
+relationships
+Database: db_435789_er_completo
+
+Table Connections:
+------------------
+[Implied]  db_locashow.grupo_menu.grupo_id -> db_locashow.grupo.id
+[Implied]  db_locashow.grupo_menu.menu_id -> db_locashow.menu.id
+[Implied]  db_locashow.usuario_grupo.grupo_id -> db_locashow.grupo.id
+
+DROP DATABASE `db_435789_er_completo`;
+UNINSTALL EXTENSION vsql_schematron;

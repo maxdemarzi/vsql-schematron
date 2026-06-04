@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 271754_Schema
+--echo #
+CREATE DATABASE `db_271754_Schema`;
+USE `db_271754_Schema`;
+
+CREATE TABLE `MiniInsta.Gender` (
+  `ID` INT,
+  `Name` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MiniInsta.User` (
+  `ID` INT,
+  `Username` VARCHAR(255),
+  `Name` VARCHAR(255),
+  `Website` VARCHAR(255),
+  `GenderID` INT,
+  `Bio` VARCHAR(255),
+  `Email` VARCHAR(255),
+  `CreationTime` DATETIME,
+  `Password` VARCHAR(255),
+  `ProfileImageUrl` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MiniInsta.Post` (
+  `ID` INT,
+  `Location` VARCHAR(255),
+  `LocationName` VARCHAR(255),
+  `CreationTime` DATETIME,
+  `UserID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MiniInsta.Following` (
+  `FollowerUserID` INT,
+  `FolloweeUserID` INT,
+  `CreationTime` DATETIME,
+  PRIMARY KEY (`FolloweeUserID`, `FollowerUserID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MiniInsta.MediaType` (
+  `ID` INT,
+  `Name` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MiniInsta.PostMedia` (
+  `ID` INT,
+  `PostID` INT,
+  `MediaFileUrl` VARCHAR(255),
+  `MediaTypeID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MiniInsta.Liking` (
+  `PostID` INT,
+  `UserID` INT,
+  `CreationTime` DATETIME,
+  PRIMARY KEY (`PostID`, `UserID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MiniInsta.Comment` (
+  `ID` INT,
+  `PostID` INT,
+  `UserID` INT,
+  `Comment` VARCHAR(255),
+  `CreationTime` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_271754_Schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_271754_Schema') AS relationships;
+DROP DATABASE `db_271754_Schema`;
+UNINSTALL EXTENSION vsql_schematron;

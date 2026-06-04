@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 057395_lap8
+--echo #
+CREATE DATABASE `db_057395_lap8`;
+USE `db_057395_lap8`;
+
+CREATE TABLE `company_version_two.employee` (
+  `Emp_no` INT,
+  `birth_date` DATETIME,
+  `frist_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `sex` VARCHAR(255),
+  `hire_date` DATETIME,
+  PRIMARY KEY (`Emp_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `company_version_two.departments` (
+  `dept_no` VARCHAR(255),
+  `dept_name` VARCHAR(255),
+  PRIMARY KEY (`dept_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `company_version_two.manger_table` (
+  `Emp_no` INT,
+  `manger_no` INT,
+  PRIMARY KEY (`manger_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `company_version_two.labor` (
+  `Emp_no` INT,
+  `labor_id` INT,
+  `repositbilty` VARCHAR(255),
+  PRIMARY KEY (`labor_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `company_version_two.dept_manger` (
+  `dept_no` VARCHAR(255),
+  `manger_no` INT,
+  `from_date` DATETIME,
+  `to_date` DATETIME,
+  PRIMARY KEY (`dept_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `company_version_two.dept_emp` (
+  `dept_no` VARCHAR(255),
+  `labor_no` INT,
+  `from_date` DATETIME,
+  `to_date` DATETIME,
+  PRIMARY KEY (`dept_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `company_version_two.title` (
+  `emp_no` INT,
+  `title` VARCHAR(255),
+  `from_date` DATETIME,
+  `to_date` DATETIME,
+  PRIMARY KEY (`title`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `company_version_two.salary` (
+  `emp_no` INT,
+  `salary` INT,
+  `from_date` DATETIME,
+  `to_date` DATETIME,
+  PRIMARY KEY (`emp_no`, `from_date`, `to_date`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_057395_lap8') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_057395_lap8') AS relationships;
+DROP DATABASE `db_057395_lap8`;
+UNINSTALL EXTENSION vsql_schematron;

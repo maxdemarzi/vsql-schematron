@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 004807_trip_calculator
+#
+CREATE DATABASE `db_004807_trip_calculator`;
+USE `db_004807_trip_calculator`;
+CREATE TABLE `trip_calculator.category` (
+`name` VARCHAR(255),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `trip_calculator.user` (
+`name` VARCHAR(255),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `trip_calculator.item_set` (
+`name` VARCHAR(255),
+`people` INT,
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `trip_calculator.user_has_item_set` (
+`user_name` VARCHAR(255),
+`item_set_name` VARCHAR(255),
+PRIMARY KEY (`user_name`, `item_set_name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_004807_trip_calculator') AS relationships;
+relationships
+Database: db_004807_trip_calculator
+
+Table Connections:
+------------------
+[Implied]  trip_calculator.user_has_item_set.item_set_name -> trip_calculator.item_set.name
+[Implied]  trip_calculator.user_has_item_set.user_name -> trip_calculator.user.name
+
+DROP DATABASE `db_004807_trip_calculator`;
+UNINSTALL EXTENSION vsql_schematron;

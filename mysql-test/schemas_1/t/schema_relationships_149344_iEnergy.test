@@ -1,0 +1,120 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 149344_iEnergy
+--echo #
+CREATE DATABASE `db_149344_iEnergy`;
+USE `db_149344_iEnergy`;
+
+CREATE TABLE `iEnergyDatabase.user` (
+  `iduser` INT,
+  `name` VARCHAR(255),
+  `login` VARCHAR(255),
+  `password` VARCHAR(255),
+  PRIMARY KEY (`iduser`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iEnergyDatabase.devices` (
+  `iddevices` INT,
+  `name` VARCHAR(255),
+  `activePower` DECIMAL(10,2),
+  `apparentPower` DECIMAL(10,2),
+  `model` VARCHAR(255),
+  `manufacturer` VARCHAR(255),
+  `type` INT,
+  `phasesNumber` INT,
+  `description` VARCHAR(255),
+  `iduser` INT,
+  PRIMARY KEY (`iddevices`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iEnergyDatabase.consumption` (
+  `idConsumption` INT,
+  `dateTime` DATETIME,
+  `type` INT,
+  `value` DECIMAL(10,2),
+  `phaseId` INT,
+  `iddevices` INT,
+  PRIMARY KEY (`idConsumption`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iEnergyDatabase.varData` (
+  `idvarData` INT,
+  `type` INT,
+  `value` DECIMAL(10,2),
+  `phaseId` INT,
+  `dateTime` DATETIME,
+  `iddevices` INT,
+  PRIMARY KEY (`idvarData`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iEnergyDatabase.potential` (
+  `idpotential` INT,
+  `type` INT,
+  `value` DECIMAL(10,2),
+  `phaseId` INT,
+  `dateTime` DATETIME,
+  `iddevices` INT,
+  PRIMARY KEY (`idpotential`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iEnergyDatabase.current` (
+  `idcurrent` INT,
+  `type` INT,
+  `value` DECIMAL(10,2),
+  `phaseId` INT,
+  `dateTime` DATETIME,
+  `iddevices` INT,
+  PRIMARY KEY (`idcurrent`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iEnergyDatabase.userData` (
+  `iduserData` INT,
+  `address` VARCHAR(255),
+  `zipcode` VARCHAR(255),
+  `state` VARCHAR(255),
+  `city` VARCHAR(255),
+  `country` VARCHAR(255),
+  `phone` VARCHAR(255),
+  `mobile` VARCHAR(255),
+  `email` VARCHAR(255),
+  `iduser` INT,
+  PRIMARY KEY (`iduserData`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iEnergyDatabase.logInfoMessages` (
+  `idlogInfoMessages` INT,
+  `type` INT,
+  `payload` VARCHAR(255),
+  `iddevices` INT,
+  PRIMARY KEY (`idlogInfoMessages`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iEnergyDatabase.powerFactor` (
+  `idpowerFactor` INT,
+  `value` DECIMAL(10,2),
+  `phaseId` INT,
+  `dateTime` DATETIME,
+  `iddevices` INT,
+  PRIMARY KEY (`idpowerFactor`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_149344_iEnergy') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_149344_iEnergy') AS relationships;
+DROP DATABASE `db_149344_iEnergy`;
+UNINSTALL EXTENSION vsql_schematron;

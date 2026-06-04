@@ -1,0 +1,35 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 095101_init
+#
+CREATE DATABASE `db_095101_init`;
+USE `db_095101_init`;
+CREATE TABLE `user.users` (
+`user_id` INT,
+`username` VARCHAR(255),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `community.communities` (
+`community_id` INT,
+`community_name` VARCHAR(255),
+`owner_id` INT,
+PRIMARY KEY (`community_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event.events` (
+`event_id` INT,
+`owner_id` INT,
+`community_id` INT,
+PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_095101_init') AS relationships;
+relationships
+Database: db_095101_init
+
+Table Connections:
+------------------
+[Implied]  community.communities.owner_id -> user.users.user_id
+[Implied]  event.events.community_id -> community.communities.community_id
+[Implied]  event.events.owner_id -> user.users.user_id
+
+DROP DATABASE `db_095101_init`;
+UNINSTALL EXTENSION vsql_schematron;

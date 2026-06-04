@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 191194_createtables
+#
+CREATE DATABASE `db_191194_createtables`;
+USE `db_191194_createtables`;
+CREATE TABLE `users` (
+`user_id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`password` VARCHAR(255),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks` (
+`task_id` INT,
+`task_desc` VARCHAR(255),
+`task_state` VARCHAR(255),
+`task_type` VARCHAR(255),
+`task_date` DATETIME,
+`user_id` INT,
+PRIMARY KEY (`task_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`comm_id` INT,
+`comm_desc` VARCHAR(255),
+`comm_date` DATETIME,
+`task_id` INT,
+PRIMARY KEY (`comm_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`role_id` INT,
+`role_type` VARCHAR(255),
+PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `files_attached` (
+`file_id` INT,
+`file_path` VARCHAR(255),
+`task_id` INT,
+PRIMARY KEY (`file_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_info` (
+`id` INT,
+`phone_no` VARCHAR(255),
+`user_id` INT,
+`email` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.user_role` (
+`user_id` INT,
+`role_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_191194_createtables') AS relationships;
+relationships
+Database: db_191194_createtables
+
+Table Connections:
+------------------
+[Implied]  comments.task_id -> tasks.task_id
+[Implied]  files_attached.task_id -> tasks.task_id
+[Implied]  public.user_role.role_id -> roles.role_id
+[Implied]  public.user_role.user_id -> users.user_id
+[Implied]  tasks.user_id -> users.user_id
+[Implied]  user_info.user_id -> users.user_id
+
+DROP DATABASE `db_191194_createtables`;
+UNINSTALL EXTENSION vsql_schematron;

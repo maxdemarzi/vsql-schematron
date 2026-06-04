@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 483392_001_add_careerguide_users
+#
+CREATE DATABASE `db_483392_001_add_careerguide_users`;
+USE `db_483392_001_add_careerguide_users`;
+CREATE TABLE `pontoonapps_careerguide.users` (
+`id` INT,
+`pontoon_user_id` INT,
+`guest_name` VARCHAR(255),
+`date_created` DATETIME,
+`date_modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pontoonapps_careerguide.likes` (
+`user_id` INT,
+`job_id` INT,
+`type` VARCHAR(255),
+`time_stamp` DATETIME,
+PRIMARY KEY (`user_id`, `job_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pontoonapps_careerguide.shortlists` (
+`user_id` INT,
+`job_id` INT,
+`time_stamp` DATETIME,
+PRIMARY KEY (`user_id`, `job_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pontoonapps_careerguide.answers` (
+`user_id` INT,
+`question_id` INT,
+`option_number` INT,
+`time_stamp` DATETIME,
+PRIMARY KEY (`user_id`, `question_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_483392_001_add_careerguide_users') AS relationships;
+relationships
+Database: db_483392_001_add_careerguide_users
+
+Table Connections:
+------------------
+[Implied]  pontoonapps_careerguide.answers.user_id -> pontoonapps_careerguide.users.id
+[Implied]  pontoonapps_careerguide.likes.user_id -> pontoonapps_careerguide.users.id
+[Implied]  pontoonapps_careerguide.shortlists.user_id -> pontoonapps_careerguide.users.id
+
+DROP DATABASE `db_483392_001_add_careerguide_users`;
+UNINSTALL EXTENSION vsql_schematron;

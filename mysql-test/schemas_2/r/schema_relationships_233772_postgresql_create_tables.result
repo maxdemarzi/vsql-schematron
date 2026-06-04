@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 233772_postgresql_create_tables
+#
+CREATE DATABASE `db_233772_postgresql_create_tables`;
+USE `db_233772_postgresql_create_tables`;
+CREATE TABLE `lookup.preference_type` (
+`preference_type_id` INT,
+`preference_type` VARCHAR(255),
+PRIMARY KEY (`preference_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lookup.preference_value` (
+`preference_value_id` INT,
+`preference_value` VARCHAR(255),
+PRIMARY KEY (`preference_value_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `patient.preferences` (
+`patient_id` VARCHAR(255),
+`preference_type_id` INT,
+`preference_value_id` INT,
+`preference_priority` INT,
+`created` DATETIME,
+`last_updated` DATETIME,
+PRIMARY KEY (`patient_id`, `preference_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `receipt.documents` (
+`patient_id` VARCHAR(255),
+`guid` VARCHAR(255),
+`ts` DATETIME,
+PRIMARY KEY (`patient_id`, `guid`)
+) CHARACTER SET latin1;
+CREATE TABLE `register.documents` (
+`GUID` VARCHAR(255),
+`fhir_id` VARCHAR(255),
+`Title` VARCHAR(255),
+`Clinic` VARCHAR(255),
+`Document_Type` VARCHAR(255),
+`Filesname` VARCHAR(255),
+`URL` VARCHAR(255),
+`Patient_Visible` INT,
+`CreatedDate` DATETIME,
+`Modified` DATETIME,
+`Specialty` VARCHAR(255),
+`FullPath` VARCHAR(255),
+`BaseURL` VARCHAR(255),
+`BaseSite` VARCHAR(255),
+PRIMARY KEY (`GUID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_233772_postgresql_create_tables') AS relationships;
+relationships
+Database: db_233772_postgresql_create_tables
+
+Table Connections:
+------------------
+[Implied]  patient.preferences.preference_type_id -> lookup.preference_type.preference_type_id
+[Implied]  patient.preferences.preference_value_id -> lookup.preference_value.preference_value_id
+
+DROP DATABASE `db_233772_postgresql_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

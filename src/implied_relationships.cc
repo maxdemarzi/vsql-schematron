@@ -8,6 +8,23 @@
 
 namespace {
 
+bool isActivitiTable(const std::string& tbl_name) {
+    std::string t = to_lower(tbl_name);
+    size_t dot = t.find_last_of('.');
+    if (dot != std::string::npos) {
+        t = t.substr(dot + 1);
+    }
+    return (t.rfind("act_ru_", 0) == 0 ||
+            t.rfind("act_re_", 0) == 0 ||
+            t.rfind("act_ge_", 0) == 0 ||
+            t.rfind("act_hi_", 0) == 0 ||
+            t.rfind("act_id_", 0) == 0 ||
+            t.rfind("act_co_", 0) == 0 ||
+            t.rfind("act_fo_", 0) == 0 ||
+            t.rfind("act_evt_", 0) == 0 ||
+            t.rfind("act_dmn_", 0) == 0);
+}
+
 bool isDescriptiveAttribute(const std::string& s) {
     std::string l = to_lower(s);
     static const std::unordered_set<std::string> DESCRIPTIVE_WORDS = {
@@ -15,7 +32,7 @@ bool isDescriptiveAttribute(const std::string& s) {
         "type", "status", "price", "cost", "value", "val", "qty", "quantity",
         "count", "num", "number", "url", "path", "file", "email", "phone",
         "mobile", "address", "date", "time", "datetime", "timestamp",
-        "rate", "amount", "amt", "size", "scale", "weight", "oid"
+        "rate", "amount", "amt", "size", "scale", "weight", "oid", "version", "ver"
     };
     return DESCRIPTIVE_WORDS.count(l) > 0;
 }
@@ -834,6 +851,16 @@ void findImpliedRelationships(
     findPass1_5ImpliedRelationships(table_names, tables_info, effective_pks, col_is_fk_cache, relationships);
     findPass2ImpliedRelationships(table_names, tables_info, explicit_mapped_cols, effective_pks, relationships);
 
+    // Filter out implied relationships on Activiti/Camunda tables
+    for (auto it = relationships.begin(); it != relationships.end(); ) {
+        if (isActivitiTable(it->from_table) || isActivitiTable(it->to_table)) {
+            it = relationships.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
     // 5. Clean up the dynamic table prefix
     clearDynamicPrefix();
+
 }

@@ -1,0 +1,34 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 093471_V0_0_1_Create_tables
+#
+CREATE DATABASE `db_093471_V0_0_1_Create_tables`;
+USE `db_093471_V0_0_1_Create_tables`;
+CREATE TABLE `user_data` (
+`id` INT,
+`login` VARCHAR(255),
+`password_hash` VARCHAR(255),
+`password_salt` VARCHAR(255),
+`notebook_version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `note` (
+`id` INT,
+`parent_id` INT,
+`user_id` INT,
+`title` VARCHAR(255),
+`link` VARCHAR(255),
+`description` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_093471_V0_0_1_Create_tables') AS relationships;
+relationships
+Database: db_093471_V0_0_1_Create_tables
+
+Table Connections:
+------------------
+[Implied]  note.parent_id -> note.id
+[Implied]  note.user_id -> user_data.id
+
+DROP DATABASE `db_093471_V0_0_1_Create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 557673_createevents
+--echo #
+CREATE DATABASE `db_557673_createevents`;
+USE `db_557673_createevents`;
+
+CREATE TABLE `RECLEAGUE.EVENT_INFO` (
+  `EVENT_ID` DECIMAL(10,2),
+  `DESCRIPTION` VARCHAR(255),
+  `CATEGORY` VARCHAR(255),
+  `MATCH_TIME` DATETIME,
+  PRIMARY KEY (`EVENT_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RECLEAGUE.EVENTS` (
+  `EVENT_ID` DECIMAL(10,2),
+  `TEAM_ID` DECIMAL(10,2),
+  `SCORE` VARCHAR(255),
+  `PLACEMENT` DECIMAL(10,2),
+  `LEAGUE_POINTS` DECIMAL(10,2),
+  PRIMARY KEY (`TEAM_ID`, `EVENT_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_557673_createevents') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_557673_createevents') AS relationships;
+DROP DATABASE `db_557673_createevents`;
+UNINSTALL EXTENSION vsql_schematron;

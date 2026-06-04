@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 655595_model_mysql
+#
+CREATE DATABASE `db_655595_model_mysql`;
+USE `db_655595_model_mysql`;
+CREATE TABLE `schemaname.person` (
+`person_id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`dob` DATETIME,
+PRIMARY KEY (`person_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schemaname.studio` (
+`studio_id` INT,
+`name` VARCHAR(255),
+`website` VARCHAR(255),
+PRIMARY KEY (`studio_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schemaname.movie` (
+`movie_id` INT,
+`title` VARCHAR(255),
+`year` INT,
+`description` VARCHAR(255),
+`studio_id` INT,
+PRIMARY KEY (`movie_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schemaname.actors` (
+`person_id` INT,
+`movie_id` INT,
+PRIMARY KEY (`person_id`, `movie_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schemaname.showing` (
+`theater` VARCHAR(255),
+`day` VARCHAR(255),
+`movie_id` INT,
+PRIMARY KEY (`theater`, `day`, `movie_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_655595_model_mysql') AS relationships;
+relationships
+Database: db_655595_model_mysql
+
+Table Connections:
+------------------
+[Implied]  schemaname.actors.movie_id -> schemaname.movie.movie_id
+[Implied]  schemaname.actors.person_id -> schemaname.person.person_id
+[Implied]  schemaname.movie.studio_id -> schemaname.studio.studio_id
+[Implied]  schemaname.showing.movie_id -> schemaname.movie.movie_id
+
+DROP DATABASE `db_655595_model_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

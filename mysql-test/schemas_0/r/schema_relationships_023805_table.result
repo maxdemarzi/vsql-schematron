@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 023805_table
+#
+CREATE DATABASE `db_023805_table`;
+USE `db_023805_table`;
+CREATE TABLE `@extschema@.table` (
+`id` INT,
+`schema` VARCHAR(255),
+`table` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `@extschema@.variable` (
+`schema_from` VARCHAR(255),
+`table_from` VARCHAR(255),
+`column_from` VARCHAR(255),
+`schema_to` VARCHAR(255),
+`table_to` VARCHAR(255),
+`column_to` VARCHAR(255),
+PRIMARY KEY (`schema_from`, `table_from`, `column_from`, `schema_to`, `table_to`, `column_to`)
+) CHARACTER SET latin1;
+CREATE TABLE `@extschema@.user` (
+`id` INT,
+`name` VARCHAR(255),
+`index` INT,
+`delete` VARCHAR(255),
+`mask` VARCHAR(255),
+`history` VARCHAR(255),
+`right` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `@extschema@.table_user_right` (
+`id_user` INT,
+`id_table` INT,
+`read` VARCHAR(255),
+`insert` VARCHAR(255),
+`update` VARCHAR(255),
+`delete` VARCHAR(255),
+PRIMARY KEY (`id_user`, `id_table`)
+) CHARACTER SET latin1;
+CREATE TABLE `@extschema@.insert_object` (
+`name` VARCHAR(255),
+`objt` VARCHAR(255),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `@extschema@.select_object` (
+`name` VARCHAR(255),
+`objt` VARCHAR(255),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_023805_table') AS relationships;
+relationships
+Database: db_023805_table
+
+Table Connections:
+------------------
+[Implied]  @extschema@.table_user_right.id_table -> @extschema@.table.id
+[Implied]  @extschema@.table_user_right.id_user -> @extschema@.user.id
+[Implied]  @extschema@.table_user_right.insert -> @extschema@.insert_object.name
+
+DROP DATABASE `db_023805_table`;
+UNINSTALL EXTENSION vsql_schematron;

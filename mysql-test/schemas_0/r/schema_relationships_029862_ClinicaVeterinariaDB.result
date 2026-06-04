@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 029862_ClinicaVeterinariaDB
+#
+CREATE DATABASE `db_029862_ClinicaVeterinariaDB`;
+USE `db_029862_ClinicaVeterinariaDB`;
+CREATE TABLE `ClinicaVeterinariaDB.animal` (
+`id` INT,
+`nome` VARCHAR(255),
+`especie` VARCHAR(255),
+`raca` VARCHAR(255),
+`idade` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ClinicaVeterinariaDB.consulta` (
+`id` INT,
+`descricao` VARCHAR(255),
+`valor` DECIMAL(10,2),
+`data_consulta` DATETIME,
+`data_prevista` DATETIME,
+`data_agendamento` DATETIME,
+`fk_animal` INT,
+`fk_atendente` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ClinicaVeterinariaDB.cliente_animal` (
+`fk_cliente` INT,
+`fk_animal` INT,
+PRIMARY KEY (`fk_cliente`, `fk_animal`)
+) CHARACTER SET latin1;
+CREATE TABLE `ClinicaVeterinariaDB.veterinario_consulta` (
+`fk_veterinario` INT,
+`fk_consulta` INT,
+PRIMARY KEY (`fk_veterinario`, `fk_consulta`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_029862_ClinicaVeterinariaDB') AS relationships;
+relationships
+Database: db_029862_ClinicaVeterinariaDB
+
+Table Connections:
+------------------
+[Implied]  ClinicaVeterinariaDB.cliente_animal.fk_animal -> ClinicaVeterinariaDB.animal.id
+[Implied]  ClinicaVeterinariaDB.consulta.fk_animal -> ClinicaVeterinariaDB.animal.id
+[Implied]  ClinicaVeterinariaDB.veterinario_consulta.fk_consulta -> ClinicaVeterinariaDB.consulta.id
+
+DROP DATABASE `db_029862_ClinicaVeterinariaDB`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 106720_library_scheme
+#
+CREATE DATABASE `db_106720_library_scheme`;
+USE `db_106720_library_scheme`;
+CREATE TABLE `public.author` (
+`id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.book` (
+`id` INT,
+`title` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.author_book` (
+`author_id` INT,
+`book_id` INT,
+PRIMARY KEY (`author_id`, `book_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.reader` (
+`id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.reader_book` (
+`reader_id` INT,
+`book_id` INT,
+PRIMARY KEY (`reader_id`, `book_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_106720_library_scheme') AS relationships;
+relationships
+Database: db_106720_library_scheme
+
+Table Connections:
+------------------
+[Implied]  public.author_book.author_id -> public.author.id
+[Implied]  public.author_book.book_id -> public.book.id
+[Implied]  public.reader_book.book_id -> public.book.id
+[Implied]  public.reader_book.reader_id -> public.reader.id
+
+DROP DATABASE `db_106720_library_scheme`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 057395_lap8
+#
+CREATE DATABASE `db_057395_lap8`;
+USE `db_057395_lap8`;
+CREATE TABLE `company_version_two.employee` (
+`Emp_no` INT,
+`birth_date` DATETIME,
+`frist_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`sex` VARCHAR(255),
+`hire_date` DATETIME,
+PRIMARY KEY (`Emp_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `company_version_two.departments` (
+`dept_no` VARCHAR(255),
+`dept_name` VARCHAR(255),
+PRIMARY KEY (`dept_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `company_version_two.manger_table` (
+`Emp_no` INT,
+`manger_no` INT,
+PRIMARY KEY (`manger_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `company_version_two.labor` (
+`Emp_no` INT,
+`labor_id` INT,
+`repositbilty` VARCHAR(255),
+PRIMARY KEY (`labor_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `company_version_two.dept_manger` (
+`dept_no` VARCHAR(255),
+`manger_no` INT,
+`from_date` DATETIME,
+`to_date` DATETIME,
+PRIMARY KEY (`dept_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `company_version_two.dept_emp` (
+`dept_no` VARCHAR(255),
+`labor_no` INT,
+`from_date` DATETIME,
+`to_date` DATETIME,
+PRIMARY KEY (`dept_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `company_version_two.title` (
+`emp_no` INT,
+`title` VARCHAR(255),
+`from_date` DATETIME,
+`to_date` DATETIME,
+PRIMARY KEY (`title`)
+) CHARACTER SET latin1;
+CREATE TABLE `company_version_two.salary` (
+`emp_no` INT,
+`salary` INT,
+`from_date` DATETIME,
+`to_date` DATETIME,
+PRIMARY KEY (`emp_no`, `from_date`, `to_date`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_057395_lap8') AS relationships;
+relationships
+Database: db_057395_lap8
+
+Table Connections:
+------------------
+[Implied]  company_version_two.dept_emp.labor_no -> company_version_two.labor.labor_id
+[Implied]  company_version_two.dept_manger.manger_no -> company_version_two.manger_table.manger_no
+[Implied]  company_version_two.labor.Emp_no -> company_version_two.employee.Emp_no
+[Implied]  company_version_two.manger_table.Emp_no -> company_version_two.employee.Emp_no
+[Implied]  company_version_two.salary.emp_no -> company_version_two.employee.Emp_no
+[Implied]  company_version_two.title.emp_no -> company_version_two.employee.Emp_no
+
+DROP DATABASE `db_057395_lap8`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 604943_M006_CreateSbdhSchema
+#
+CREATE DATABASE `db_604943_M006_CreateSbdhSchema`;
+USE `db_604943_M006_CreateSbdhSchema`;
+CREATE TABLE `sbdh.standardheader` (
+`id` INT,
+`version` VARCHAR(255),
+`standard` VARCHAR(255),
+`type_version` VARCHAR(255),
+`identifier` VARCHAR(255),
+`type` VARCHAR(255),
+`creation_datetime` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sbdh.contactinformation` (
+`id` INT,
+`header_id` INT,
+`type` INT,
+`identifier` VARCHAR(255),
+`contact` VARCHAR(255),
+`email` VARCHAR(255),
+`fax_number` VARCHAR(255),
+`phone_number` VARCHAR(255),
+`type_identifier` VARCHAR(255),
+PRIMARY KEY (`header_id`, `id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sbdh.custom_field` (
+`header_id` INT,
+`field_id` INT,
+`parent_id` INT,
+`namespace` VARCHAR(255),
+`name` VARCHAR(255),
+`type` INT,
+`text_value` VARCHAR(255),
+`numeric_value` DECIMAL(10,2),
+`date_value` DATETIME,
+PRIMARY KEY (`header_id`, `field_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_604943_M006_CreateSbdhSchema') AS relationships;
+relationships
+Database: db_604943_M006_CreateSbdhSchema
+
+Table Connections:
+------------------
+[Implied]  sbdh.contactinformation.header_id -> sbdh.standardheader.id
+[Implied]  sbdh.custom_field.header_id -> sbdh.standardheader.id
+
+DROP DATABASE `db_604943_M006_CreateSbdhSchema`;
+UNINSTALL EXTENSION vsql_schematron;

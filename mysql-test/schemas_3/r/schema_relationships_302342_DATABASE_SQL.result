@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 302342_DATABASE_SQL
+#
+CREATE DATABASE `db_302342_DATABASE_SQL`;
+USE `db_302342_DATABASE_SQL`;
+CREATE TABLE `mydb.language` (
+`ISO` VARCHAR(255),
+`language` VARCHAR(255),
+PRIMARY KEY (`ISO`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.migration` (
+`version` VARCHAR(255),
+`apply_time` INT,
+PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.newsletter` (
+`id` INT,
+`newsletteremail` VARCHAR(255),
+`subscribed_on` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.course` (
+`id` INT,
+`language` VARCHAR(255),
+`courseName` VARCHAR(255),
+`courseCategory` INT,
+`courseDescription` VARCHAR(255),
+`imageURL` VARCHAR(255),
+`addDate` INT,
+`author` INT,
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.lesson` (
+`id` INT,
+`lessonTitle` VARCHAR(255),
+`lessonDescription` VARCHAR(255),
+`courseID` INT,
+`order` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.review` (
+`id` INT,
+`reviewtext` VARCHAR(255),
+`rating` INT,
+`FK_userID` INT,
+`FK_courseID` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.unit` (
+`id` INT,
+`unitTitle` VARCHAR(255),
+`unitText` VARCHAR(255),
+`imageURL` VARCHAR(255),
+`lessonID` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.user_course` (
+`user_id` INT,
+`course_id` INT,
+`subscribed_at` INT,
+PRIMARY KEY (`user_id`, `course_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.video` (
+`id` INT,
+`videoTitle` VARCHAR(255),
+`videoDescription` VARCHAR(255),
+`videoURL` VARCHAR(255),
+`lessonID` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_302342_DATABASE_SQL') AS relationships;
+relationships
+Database: db_302342_DATABASE_SQL
+
+Table Connections:
+------------------
+[Implied]  mydb.course.language -> mydb.language.ISO
+[Implied]  mydb.lesson.courseID -> mydb.course.id
+[Implied]  mydb.review.FK_courseID -> mydb.course.id
+[Implied]  mydb.unit.lessonID -> mydb.lesson.id
+[Implied]  mydb.user_course.course_id -> mydb.course.id
+[Implied]  mydb.video.lessonID -> mydb.lesson.id
+
+DROP DATABASE `db_302342_DATABASE_SQL`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 193427_db_schema_test
+--echo #
+CREATE DATABASE `db_193427_db_schema_test`;
+USE `db_193427_db_schema_test`;
+
+CREATE TABLE `test.rooms` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `test.messages` (
+  `id` INT,
+  `message` VARCHAR(255),
+  `room_id` INT,
+  `sender_id` INT,
+  `date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `test.user_room` (
+  `users_id` INT,
+  `rooms_id` INT,
+  PRIMARY KEY (`users_id`, `rooms_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_193427_db_schema_test') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_193427_db_schema_test') AS relationships;
+DROP DATABASE `db_193427_db_schema_test`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 613991_bdprojeto
+#
+CREATE DATABASE `db_613991_bdprojeto`;
+USE `db_613991_bdprojeto`;
+CREATE TABLE `mydb.usuario` (
+`login` VARCHAR(255),
+`senha` VARCHAR(255),
+`nivel_permissao` INT,
+PRIMARY KEY (`login`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.clientes` (
+`id` INT,
+`nome` VARCHAR(255),
+`data_nasc` DATETIME,
+`email` VARCHAR(255),
+`imagem` VARCHAR(255),
+`usuario_login` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.administradores` (
+`id` INT,
+`nome` VARCHAR(255),
+`imagem` VARCHAR(255),
+`usuario_login` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.autores` (
+`id` INT,
+`nome` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.editoras` (
+`id` INT,
+`nome` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.livros` (
+`id` INT,
+`titulo` VARCHAR(255),
+`descricao` VARCHAR(255),
+`quantidade` INT,
+`imagem` VARCHAR(255),
+`editoras_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.emprestimos` (
+`id` INT,
+`data_devolucao` DATETIME,
+`data_emprestimo` DATETIME,
+`data_real_devolucao` DATETIME,
+`status` INT,
+`livros_id` INT,
+`clientes_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.livros_has_autores` (
+`livros_id` INT,
+`autores_id` INT,
+PRIMARY KEY (`livros_id`, `autores_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_613991_bdprojeto') AS relationships;
+relationships
+Database: db_613991_bdprojeto
+
+Table Connections:
+------------------
+[Implied]  mydb.administradores.usuario_login -> mydb.usuario.login
+[Implied]  mydb.clientes.usuario_login -> mydb.usuario.login
+[Implied]  mydb.emprestimos.clientes_id -> mydb.clientes.id
+[Implied]  mydb.emprestimos.livros_id -> mydb.livros.id
+[Implied]  mydb.livros.editoras_id -> mydb.editoras.id
+[Implied]  mydb.livros_has_autores.autores_id -> mydb.autores.id
+[Implied]  mydb.livros_has_autores.livros_id -> mydb.livros.id
+
+DROP DATABASE `db_613991_bdprojeto`;
+UNINSTALL EXTENSION vsql_schematron;

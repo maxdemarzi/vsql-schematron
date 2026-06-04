@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 624888_ofeelportfolio
+#
+CREATE DATABASE `db_624888_ofeelportfolio`;
+USE `db_624888_ofeelportfolio`;
+CREATE TABLE `ofeelportfolio.works` (
+`id` INT,
+`title` VARCHAR(255),
+`resume` VARCHAR(255),
+`description` VARCHAR(255),
+`image` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeelportfolio.categories` (
+`id` INT,
+`name` VARCHAR(255),
+`icone` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeelportfolio.commentsOfWork` (
+`id` INT,
+`pseudo` VARCHAR(255),
+`content` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`work_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeelportfolio.articles` (
+`id` INT,
+`title` VARCHAR(255),
+`description` VARCHAR(255),
+`image` VARCHAR(255),
+`resume` VARCHAR(255),
+`created_at` VARCHAR(255),
+`updated_at` VARCHAR(255),
+`categorie_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeelportfolio.tags` (
+`id` INT,
+`name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeelportfolio.commentsOfArticle` (
+`id` INT,
+`pseudo` VARCHAR(255),
+`content` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`article_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeelportfolio.works_has_categories` (
+`work_id` INT,
+`categorie_id` INT,
+PRIMARY KEY (`work_id`, `categorie_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeelportfolio.works_has_tags` (
+`work_id` INT,
+`tag_id` INT,
+PRIMARY KEY (`work_id`, `tag_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ofeelportfolio.articles_has_tags` (
+`article_id` INT,
+`tag_id` INT,
+PRIMARY KEY (`article_id`, `tag_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_624888_ofeelportfolio') AS relationships;
+relationships
+Database: db_624888_ofeelportfolio
+
+Table Connections:
+------------------
+[Implied]  ofeelportfolio.articles.categorie_id -> ofeelportfolio.categories.id
+[Implied]  ofeelportfolio.articles_has_tags.article_id -> ofeelportfolio.articles.id
+[Implied]  ofeelportfolio.articles_has_tags.tag_id -> ofeelportfolio.tags.id
+[Implied]  ofeelportfolio.commentsOfArticle.article_id -> ofeelportfolio.articles.id
+[Implied]  ofeelportfolio.commentsOfWork.work_id -> ofeelportfolio.works.id
+[Implied]  ofeelportfolio.works_has_categories.categorie_id -> ofeelportfolio.categories.id
+[Implied]  ofeelportfolio.works_has_categories.work_id -> ofeelportfolio.works.id
+[Implied]  ofeelportfolio.works_has_tags.tag_id -> ofeelportfolio.tags.id
+[Implied]  ofeelportfolio.works_has_tags.work_id -> ofeelportfolio.works.id
+
+DROP DATABASE `db_624888_ofeelportfolio`;
+UNINSTALL EXTENSION vsql_schematron;

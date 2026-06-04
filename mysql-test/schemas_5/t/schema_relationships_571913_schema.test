@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 571913_schema
+--echo #
+CREATE DATABASE `db_571913_schema`;
+USE `db_571913_schema`;
+
+CREATE TABLE `public.pairs` (
+  `id` INT,
+  `symbol` VARCHAR(255),
+  `coin1` VARCHAR(255),
+  `coin2` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `public.candlestick_15m` (
+  `pair_id` INT,
+  `open_time` DATETIME,
+  `open` DECIMAL(10,2),
+  `high` DECIMAL(10,2),
+  `low` DECIMAL(10,2),
+  `close` DECIMAL(10,2),
+  `volume` DECIMAL(10,2),
+  `close_time` DATETIME,
+  `quote_asset_volume` DECIMAL(10,2),
+  `number_of_trades` INT,
+  `taker_buy_base_asset_volume` DECIMAL(10,2),
+  `taker_buy_quote_asset_volume` DECIMAL(10,2),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `column1` INT,
+  PRIMARY KEY (`pair_id`, `open_time`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `public.environment` (
+  `id` INT,
+  `starting_timestamp` DATETIME,
+  `starting_funds` DECIMAL(10,2),
+  `trading_fees_percent` DECIMAL(10,2),
+  `trading_fees_buy` DECIMAL(10,2),
+  `trading_fees_sell` DECIMAL(10,2),
+  `name` VARCHAR(255),
+  `pair_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `public.strategy` (
+  `id` INT,
+  `strategy_name` VARCHAR(255),
+  `model` VARCHAR(255),
+  `max_batch_size` INT,
+  `extra_rows` INT,
+  `parameters` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `public.simulation` (
+  `id` INT,
+  `strategy_id` INT,
+  `environment_id` INT,
+  `info_dict` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `public.simulation_record` (
+  `simulation_id` INT,
+  `open_time` DATETIME,
+  `trade_action` VARCHAR(255),
+  `execute_price` DECIMAL(10,2),
+  `fund1` DECIMAL(10,2),
+  `fund2` DECIMAL(10,2),
+  `total_value` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_571913_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_571913_schema') AS relationships;
+DROP DATABASE `db_571913_schema`;
+UNINSTALL EXTENSION vsql_schematron;

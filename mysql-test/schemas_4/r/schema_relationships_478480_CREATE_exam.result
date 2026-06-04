@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 478480_CREATE_exam
+#
+CREATE DATABASE `db_478480_CREATE_exam`;
+USE `db_478480_CREATE_exam`;
+CREATE TABLE `DB_exam_21.personne` (
+`numSS` INT,
+`nom` VARCHAR(255),
+`prenom` VARCHAR(255),
+`dateNaiss` VARCHAR(255),
+`nbComorbidites` INT,
+PRIMARY KEY (`numSS`)
+) CHARACTER SET latin1;
+CREATE TABLE `DB_exam_21.laboratoire` (
+`idlaboratoire` INT,
+`nom` VARCHAR(255),
+`adresse` VARCHAR(255),
+`ville` VARCHAR(255),
+`codePostal` INT,
+`departement` INT,
+`capacitéAccueil` INT,
+PRIMARY KEY (`idlaboratoire`)
+) CHARACTER SET latin1;
+CREATE TABLE `DB_exam_21.rendezVous` (
+`idRendezVous` INT,
+`dateJour` VARCHAR(255),
+`heure` VARCHAR(255),
+`typeTest` VARCHAR(255),
+`laboratoire_idlaboratoire` INT,
+`Personne_numSS` INT,
+PRIMARY KEY (`idRendezVous`)
+) CHARACTER SET latin1;
+CREATE TABLE `DB_exam_21.nombreTestDispoJournaliers` (
+`dateJour` VARCHAR(255),
+`nbTotal` INT,
+`nbPCR` INT,
+`nbAntigenique` INT,
+`nbSerologique` INT,
+`laboratoire_idlaboratoire` INT,
+`ID` VARCHAR(255),
+PRIMARY KEY (`laboratoire_idlaboratoire`, `ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `DB_exam_21.testsEffectuesJournaliers` (
+`dateJour` VARCHAR(255),
+`nbTotal` INT,
+`nbPCR` VARCHAR(255),
+`nbAntigenique` VARCHAR(255),
+`nbSerologique` VARCHAR(255),
+`laboratoire_idlaboratoire` INT,
+`ID` INT,
+PRIMARY KEY (`laboratoire_idlaboratoire`, `ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_478480_CREATE_exam') AS relationships;
+relationships
+Database: db_478480_CREATE_exam
+
+Table Connections:
+------------------
+[Implied]  DB_exam_21.nombreTestDispoJournaliers.laboratoire_idlaboratoire -> DB_exam_21.laboratoire.idlaboratoire
+[Implied]  DB_exam_21.rendezVous.Personne_numSS -> DB_exam_21.personne.numSS
+[Implied]  DB_exam_21.rendezVous.laboratoire_idlaboratoire -> DB_exam_21.laboratoire.idlaboratoire
+[Implied]  DB_exam_21.testsEffectuesJournaliers.laboratoire_idlaboratoire -> DB_exam_21.laboratoire.idlaboratoire
+
+DROP DATABASE `db_478480_CREATE_exam`;
+UNINSTALL EXTENSION vsql_schematron;

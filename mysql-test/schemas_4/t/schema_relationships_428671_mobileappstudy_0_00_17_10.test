@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 428671_mobileappstudy_0_00_17_10
+--echo #
+CREATE DATABASE `db_428671_mobileappstudy_0_00_17_10`;
+USE `db_428671_mobileappstudy_0_00_17_10`;
+
+CREATE TABLE `mobileappstudy.Study` (
+  `RowId` INT,
+  `ShortName` VARCHAR(255),
+  `Created` DATETIME,
+  `CreatedBy` VARCHAR(255),
+  `Modified` DATETIME,
+  `ModifiedBy` VARCHAR(255),
+  `Container` VARCHAR(255),
+  PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mobileappstudy.Participant` (
+  `RowId` INT,
+  `AppToken` VARCHAR(255),
+  `StudyId` INT,
+  `Created` DATETIME,
+  `Container` VARCHAR(255),
+  PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mobileappstudy.EnrollmentTokenBatch` (
+  `RowId` INT,
+  `Count` INT,
+  `Created` DATETIME,
+  `CreatedBy` VARCHAR(255),
+  `Container` VARCHAR(255),
+  PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mobileappstudy.EnrollmentToken` (
+  `RowId` INT,
+  `BatchId` INT,
+  `Token` VARCHAR(255),
+  `ParticipantId` INT,
+  `Created` DATETIME,
+  `CreatedBy` VARCHAR(255),
+  `Container` VARCHAR(255),
+  PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mobileappstudy.Response` (
+  `RowId` INT,
+  `Response` VARCHAR(255),
+  `ParticipantId` INT,
+  `AppToken` VARCHAR(255),
+  `SurveyVersion` VARCHAR(255),
+  `SurveyId` VARCHAR(255),
+  `Status` INT,
+  `Processed` DATETIME,
+  `ProcessedBy` VARCHAR(255),
+  `ErrorMessage` VARCHAR(255),
+  `Container` VARCHAR(255),
+  `Created` DATETIME,
+  `CreatedBy` VARCHAR(255),
+  PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mobileappstudy.ResponseMetadata` (
+  `RowId` INT,
+  `Container` VARCHAR(255),
+  `ListName` VARCHAR(255),
+  `SurveyId` INT,
+  `QuestionId` VARCHAR(255),
+  `StartTime` DATETIME,
+  `EndTime` DATETIME,
+  `Skipped` VARCHAR(255),
+  `Created` DATETIME,
+  PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_428671_mobileappstudy_0_00_17_10') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_428671_mobileappstudy_0_00_17_10') AS relationships;
+DROP DATABASE `db_428671_mobileappstudy_0_00_17_10`;
+UNINSTALL EXTENSION vsql_schematron;
