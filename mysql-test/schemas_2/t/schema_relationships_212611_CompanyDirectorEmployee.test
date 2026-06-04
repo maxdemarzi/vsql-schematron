@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 212611_CompanyDirectorEmployee
+--echo #
+CREATE DATABASE `db_212611_CompanyDirectorEmployee`;
+USE `db_212611_CompanyDirectorEmployee`;
+
+CREATE TABLE `attendance` (
+  `attendee_given_name` VARCHAR(255),
+  `attendee_family_name` VARCHAR(255),
+  `meeting_company_name` VARCHAR(255),
+  `meeting_date` DATETIME,
+  `meeting_is_board_meeting` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `company` (
+  `company_name` VARCHAR(255),
+  `is_listed` VARCHAR(255),
+  PRIMARY KEY (`company_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `directorship` (
+  `director_given_name` VARCHAR(255),
+  `director_family_name` VARCHAR(255),
+  `company_name` VARCHAR(255),
+  `appointment_date` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `employee` (
+  `employee_nr` INT,
+  `company_name` VARCHAR(255),
+  `manager_nr` INT,
+  `manager_is_ceo` VARCHAR(255),
+  PRIMARY KEY (`employee_nr`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employment` (
+  `person_given_name` VARCHAR(255),
+  `person_family_name` VARCHAR(255),
+  `employee_nr` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `meeting` (
+  `company_name` VARCHAR(255),
+  `date` DATETIME,
+  `is_board_meeting` VARCHAR(255),
+  PRIMARY KEY (`company_name`, `date`, `is_board_meeting`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `person` (
+  `given_name` VARCHAR(255),
+  `family_name` VARCHAR(255),
+  `birth_date` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_212611_CompanyDirectorEmployee') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_212611_CompanyDirectorEmployee') AS relationships;
+DROP DATABASE `db_212611_CompanyDirectorEmployee`;
+UNINSTALL EXTENSION vsql_schematron;

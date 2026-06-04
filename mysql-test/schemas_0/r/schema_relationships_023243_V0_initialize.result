@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 023243_V0_initialize
+#
+CREATE DATABASE `db_023243_V0_initialize`;
+USE `db_023243_V0_initialize`;
+CREATE TABLE `accounts` (
+`account_id` INT,
+`account_name` VARCHAR(255),
+`email_address` VARCHAR(255),
+`password_digest` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`account_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_activations` (
+`account_id` INT,
+`activation_digest` VARCHAR(255),
+`activated` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `account_cookies` (
+`account_id` INT,
+`remember_digest` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `account_relationships` (
+`account_relationship_id` INT,
+`follower_account_id` INT,
+`followed_account_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`account_relationship_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_resets` (
+`account_id` INT,
+`reset_digest` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `lunches` (
+`lunch_id` INT,
+`account_id` INT,
+`lunch_date` DATETIME,
+`comment` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`lunch_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_023243_V0_initialize') AS relationships;
+relationships
+Database: db_023243_V0_initialize
+
+Table Connections:
+------------------
+[Implied]  account_activations.account_id -> accounts.account_id
+[Implied]  account_cookies.account_id -> accounts.account_id
+[Implied]  account_relationships.followed_account_id -> accounts.account_id
+[Implied]  account_relationships.follower_account_id -> accounts.account_id
+[Implied]  account_resets.account_id -> accounts.account_id
+[Implied]  lunches.account_id -> accounts.account_id
+
+DROP DATABASE `db_023243_V0_initialize`;
+UNINSTALL EXTENSION vsql_schematron;

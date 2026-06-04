@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 432784_posta
+#
+CREATE DATABASE `db_432784_posta`;
+USE `db_432784_posta`;
+CREATE TABLE `comments` (
+`comment_id` INT,
+`comment_name` VARCHAR(255),
+`post_id` INT,
+`comment_user_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `migrations` (
+`migration` VARCHAR(255),
+`batch` INT
+) CHARACTER SET latin1;
+CREATE TABLE `notification` (
+`notification_id` INT,
+`comment_user_id` INT,
+`post_id` INT,
+`comment_user_name` VARCHAR(255),
+`post_user_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `password_resets` (
+`email` VARCHAR(255),
+`token` VARCHAR(255),
+`created_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`post_id` INT,
+`post_name` VARCHAR(255),
+`post_user_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`post_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`remember_token` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_432784_posta') AS relationships;
+relationships
+Database: db_432784_posta
+
+Table Connections:
+------------------
+[Implied]  comments.comment_user_id -> users.id
+[Implied]  comments.post_id -> posts.post_id
+[Implied]  notification.comment_user_id -> users.id
+[Implied]  notification.post_id -> posts.post_id
+[Implied]  notification.post_user_id -> users.id
+[Implied]  posts.post_user_id -> users.id
+
+DROP DATABASE `db_432784_posta`;
+UNINSTALL EXTENSION vsql_schematron;

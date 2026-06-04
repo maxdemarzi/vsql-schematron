@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 621397_0001
+#
+CREATE DATABASE `db_621397_0001`;
+USE `db_621397_0001`;
+CREATE TABLE `project` (
+`created_at` DATETIME,
+`deleted_at` DATETIME,
+`id` VARCHAR(255),
+`name` VARCHAR(255),
+`modified_at` DATETIME,
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `article` (
+`cover_image_id` VARCHAR(255),
+`created_at` DATETIME,
+`deleted_at` DATETIME,
+`id` VARCHAR(255),
+`modified_at` DATETIME,
+`project_id` VARCHAR(255),
+`title` VARCHAR(255),
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `article_block` (
+`article_id` VARCHAR(255),
+`created_at` DATETIME,
+`data` VARCHAR(255),
+`deleted_at` DATETIME,
+`id` VARCHAR(255),
+`modified_at` DATETIME,
+`sort_rank` VARCHAR(255),
+`type` VARCHAR(255),
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`created_at` DATETIME,
+`deleted_at` DATETIME,
+`id` VARCHAR(255),
+`name` VARCHAR(255),
+`modified_at` DATETIME,
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `article_tag` (
+`article_id` VARCHAR(255),
+`created_at` DATETIME,
+`id` VARCHAR(255),
+`modified_at` DATETIME,
+`sort_rank` VARCHAR(255),
+`tag_id` VARCHAR(255),
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `image` (
+`created_at` DATETIME,
+`deleted_at` DATETIME,
+`type` VARCHAR(255),
+`height` INT,
+`id` VARCHAR(255),
+`modified_at` DATETIME,
+`version` INT,
+`width` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_621397_0001') AS relationships;
+relationships
+Database: db_621397_0001
+
+Table Connections:
+------------------
+[Implied]  article.cover_image_id -> image.id
+[Implied]  article.project_id -> project.id
+[Implied]  article_block.article_id -> article.id
+[Implied]  article_tag.article_id -> article.id
+[Implied]  article_tag.tag_id -> tag.id
+
+DROP DATABASE `db_621397_0001`;
+UNINSTALL EXTENSION vsql_schematron;

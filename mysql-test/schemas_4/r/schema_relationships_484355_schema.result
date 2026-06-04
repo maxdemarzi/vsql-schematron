@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 484355_schema
+#
+CREATE DATABASE `db_484355_schema`;
+USE `db_484355_schema`;
+CREATE TABLE `_meta` (
+`k` VARCHAR(255),
+`v` VARCHAR(255),
+PRIMARY KEY (`k`)
+) CHARACTER SET latin1;
+CREATE TABLE `plug_proc` (
+`plug_proc_id` VARCHAR(255),
+`url` VARCHAR(255),
+`tag` VARCHAR(255),
+`t_ins` VARCHAR(255),
+PRIMARY KEY (`plug_proc_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `plug_strm` (
+`plug_strm_id` VARCHAR(255),
+`url` VARCHAR(255),
+`tag` VARCHAR(255),
+`t_ins` VARCHAR(255),
+PRIMARY KEY (`plug_strm_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `site` (
+`site_id` VARCHAR(255),
+`url` VARCHAR(255),
+`auto` INT,
+`t_ins` VARCHAR(255),
+PRIMARY KEY (`site_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `page` (
+`page_id` VARCHAR(255),
+`site_id` VARCHAR(255),
+`url` VARCHAR(255),
+PRIMARY KEY (`page_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `crwl` (
+`site_id` VARCHAR(255),
+`site_v` VARCHAR(255),
+`status` VARCHAR(255),
+`plug_proc_conf` VARCHAR(255),
+PRIMARY KEY (`site_id`, `site_v`)
+) CHARACTER SET latin1;
+CREATE TABLE `crwl_plug_proc` (
+`site_id` VARCHAR(255),
+`site_v` VARCHAR(255),
+`plug_proc_id` VARCHAR(255),
+PRIMARY KEY (`site_id`, `site_v`, `plug_proc_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `crwl_plug_strm` (
+`site_id` VARCHAR(255),
+`site_v` VARCHAR(255),
+`plug_strm_id` VARCHAR(255),
+PRIMARY KEY (`site_id`, `site_v`, `plug_strm_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `crwl_page` (
+`site_id` VARCHAR(255),
+`site_v` VARCHAR(255),
+`page_id` VARCHAR(255),
+`page_v` VARCHAR(255),
+`plug_proc_id` VARCHAR(255),
+`p_page_id` VARCHAR(255),
+`p_page_v` VARCHAR(255),
+`p_plug_proc_id` VARCHAR(255),
+`t_ins` VARCHAR(255),
+PRIMARY KEY (`site_id`, `site_v`, `page_id`, `plug_proc_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_484355_schema') AS relationships;
+relationships
+Database: db_484355_schema
+
+Table Connections:
+------------------
+[Implied]  crwl.plug_proc_conf -> plug_proc.plug_proc_id
+[Implied]  crwl.site_id -> site.site_id
+[Implied]  crwl.site_v -> site.site_id
+[Implied]  crwl_page.p_page_id -> page.page_id
+[Implied]  crwl_page.p_page_v -> page.page_id
+[Implied]  crwl_page.p_plug_proc_id -> plug_proc.plug_proc_id
+[Implied]  crwl_page.page_id -> page.page_id
+[Implied]  crwl_page.page_v -> page.page_id
+[Implied]  crwl_page.plug_proc_id -> plug_proc.plug_proc_id
+[Implied]  crwl_page.site_id -> site.site_id
+[Implied]  crwl_page.site_v -> site.site_id
+[Implied]  crwl_plug_proc.plug_proc_id -> plug_proc.plug_proc_id
+[Implied]  crwl_plug_proc.site_id -> site.site_id
+[Implied]  crwl_plug_proc.site_v -> site.site_id
+[Implied]  crwl_plug_strm.plug_strm_id -> plug_strm.plug_strm_id
+[Implied]  crwl_plug_strm.site_id -> site.site_id
+[Implied]  crwl_plug_strm.site_v -> site.site_id
+[Implied]  page.site_id -> site.site_id
+
+DROP DATABASE `db_484355_schema`;
+UNINSTALL EXTENSION vsql_schematron;

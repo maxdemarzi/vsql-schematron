@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 030464_000001_init_schema_up
+--echo #
+CREATE DATABASE `db_030464_000001_init_schema_up`;
+USE `db_030464_000001_init_schema_up`;
+
+CREATE TABLE `accounts` (
+  `id` INT,
+  `owner` VARCHAR(255),
+  `citizenship` VARCHAR(255),
+  `balance` INT,
+  `currency` VARCHAR(255),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entries` (
+  `id` INT,
+  `account_id` INT,
+  `amount` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `transfers` (
+  `id` INT,
+  `from_account_id` INT,
+  `to_account_id` INT,
+  `amount` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `transfers_bank` (
+  `id` INT,
+  `account_id` INT,
+  `bank_account_id` INT,
+  `amount` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_030464_000001_init_schema_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_030464_000001_init_schema_up') AS relationships;
+DROP DATABASE `db_030464_000001_init_schema_up`;
+UNINSTALL EXTENSION vsql_schematron;

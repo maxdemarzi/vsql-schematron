@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 330816_V1_0_0_create_schema
+--echo #
+CREATE DATABASE `db_330816_V1_0_0_create_schema`;
+USE `db_330816_V1_0_0_create_schema`;
+
+CREATE TABLE `user_detail` (
+  `user_id` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `created_by` VARCHAR(255),
+  `modified_by` VARCHAR(255),
+  `version` INT,
+  `avatar_url` VARCHAR(255),
+  `description` VARCHAR(255),
+  `address_line1` VARCHAR(255),
+  `address_line2` VARCHAR(255),
+  `city` VARCHAR(255),
+  `state` VARCHAR(255),
+  `phone_numbers` VARCHAR(255),
+  `department_id` INT,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `faculty_member` (
+  `faculty_id` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `created_by` VARCHAR(255),
+  `modified_by` VARCHAR(255),
+  `version` INT,
+  PRIMARY KEY (`faculty_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course` (
+  `code` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `created_by` VARCHAR(255),
+  `modified_by` VARCHAR(255),
+  `version` INT,
+  `active` VARCHAR(255),
+  `title` VARCHAR(255),
+  `department_id` INT,
+  PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course_in_charge` (
+  `floated_course_id` VARCHAR(255),
+  `in_charge_faculty_id` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `attendance` (
+  `id` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `created_by` VARCHAR(255),
+  `modified_by` VARCHAR(255),
+  `version` INT,
+  `attended` INT,
+  `delivered` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `persistent_login` (
+  `series` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `created_by` VARCHAR(255),
+  `modified_by` VARCHAR(255),
+  `version` INT,
+  `last_used` DATETIME,
+  `token` VARCHAR(255),
+  `username` VARCHAR(255),
+  PRIMARY KEY (`series`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_330816_V1_0_0_create_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_330816_V1_0_0_create_schema') AS relationships;
+DROP DATABASE `db_330816_V1_0_0_create_schema`;
+UNINSTALL EXTENSION vsql_schematron;

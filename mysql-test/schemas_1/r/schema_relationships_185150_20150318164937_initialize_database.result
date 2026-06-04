@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 185150_20150318164937_initialize_database
+#
+CREATE DATABASE `db_185150_20150318164937_initialize_database`;
+USE `db_185150_20150318164937_initialize_database`;
+CREATE TABLE `therapists` (
+`id` INT,
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`name` VARCHAR(255),
+`street` VARCHAR(255),
+`zip` VARCHAR(255),
+`city` VARCHAR(255),
+`phone` VARCHAR(255),
+`iban` VARCHAR(255),
+`bic` VARCHAR(255),
+`business_identity_code` VARCHAR(255),
+`interest_percent` INT,
+`term_days` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customers` (
+`id` INT,
+`therapist_id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`street` VARCHAR(255),
+`city` VARCHAR(255),
+`zip` VARCHAR(255),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`id` INT,
+`therapist_id` INT,
+`customer_id` INT,
+`session_date` DATETIME,
+`start_time` DATETIME,
+`end_time` DATETIME,
+`price` DECIMAL(10,2),
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `invoices` (
+`id` INT,
+`invoice_number` INT,
+`therapist_id` INT,
+`customer_id` INT,
+`customer_number` VARCHAR(255),
+`invoice_date` DATETIME,
+`due_date` DATETIME,
+`name` VARCHAR(255),
+`street` VARCHAR(255),
+`zip` VARCHAR(255),
+`city` VARCHAR(255),
+`reference_number` VARCHAR(255),
+`term` INT,
+`extra_text` VARCHAR(255),
+`status` VARCHAR(255),
+`previous_invoice_id` INT,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `invoice_audits` (
+`id` INT,
+`invoice_id` INT,
+`created` DATETIME,
+`status` VARCHAR(255),
+`status_message` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `accounts` (
+`id` INT,
+`therapist_id` INT,
+`name` VARCHAR(255),
+`number` INT,
+`vat` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_185150_20150318164937_initialize_database') AS relationships;
+relationships
+Database: db_185150_20150318164937_initialize_database
+
+Table Connections:
+------------------
+[Implied]  accounts.therapist_id -> therapists.id
+[Implied]  customers.therapist_id -> therapists.id
+[Implied]  invoice_audits.invoice_id -> invoices.id
+[Implied]  invoices.customer_id -> customers.id
+[Implied]  invoices.previous_invoice_id -> invoices.id
+[Implied]  invoices.therapist_id -> therapists.id
+[Implied]  sessions.customer_id -> customers.id
+[Implied]  sessions.therapist_id -> therapists.id
+
+DROP DATABASE `db_185150_20150318164937_initialize_database`;
+UNINSTALL EXTENSION vsql_schematron;

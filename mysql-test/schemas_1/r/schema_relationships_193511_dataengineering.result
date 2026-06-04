@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 193511_dataengineering
+#
+CREATE DATABASE `db_193511_dataengineering`;
+USE `db_193511_dataengineering`;
+CREATE TABLE `departments` (
+`dept_no` VARCHAR(255),
+`dept_name` VARCHAR(255),
+PRIMARY KEY (`dept_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `dept_emp` (
+`emp_no` INT,
+`dept_no` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `dept_manager` (
+`dept_no` VARCHAR(255),
+`emp_no` INT
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`emp_no` INT,
+`emp_title_id` VARCHAR(255),
+`birth_date` DATETIME,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`sex` VARCHAR(255),
+`hire_date` DATETIME,
+PRIMARY KEY (`emp_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `salaries` (
+`emp_no` INT,
+`salary` INT
+) CHARACTER SET latin1;
+CREATE TABLE `titles` (
+`title_id` VARCHAR(255),
+`title` VARCHAR(255),
+PRIMARY KEY (`title_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_193511_dataengineering') AS relationships;
+relationships
+Database: db_193511_dataengineering
+
+Table Connections:
+------------------
+[Implied]  dept_emp.dept_no -> departments.dept_no
+[Implied]  dept_emp.emp_no -> employees.emp_no
+[Implied]  dept_manager.dept_no -> departments.dept_no
+[Implied]  dept_manager.emp_no -> employees.emp_no
+[Implied]  employees.emp_title_id -> titles.title_id
+[Implied]  salaries.emp_no -> employees.emp_no
+
+DROP DATABASE `db_193511_dataengineering`;
+UNINSTALL EXTENSION vsql_schematron;

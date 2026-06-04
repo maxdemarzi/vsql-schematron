@@ -1,0 +1,277 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 565380_structure
+--echo #
+CREATE DATABASE `db_565380_structure`;
+USE `db_565380_structure`;
+
+CREATE TABLE `actions` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `started_at` DATETIME,
+  `finished_at` DATETIME,
+  `succeeded` VARCHAR(255),
+  `error_id` INT,
+  `trigger` VARCHAR(255),
+  `params` VARCHAR(255),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ar_internal_metadata` (
+  `key` VARCHAR(255),
+  `value` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `authorizations` (
+  `id` INT,
+  `scope` VARCHAR(255),
+  `access_token` VARCHAR(255),
+  `refresh_token` VARCHAR(255),
+  `secret` VARCHAR(255),
+  `expires_in` INT,
+  `expires_at` DATETIME,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `user_id` INT,
+  `props` VARCHAR(255),
+  `type` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `commits` (
+  `id` INT,
+  `sha` VARCHAR(255),
+  `message` VARCHAR(255),
+  `committer` VARCHAR(255),
+  `date` DATETIME,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `committer_email` VARCHAR(255),
+  `project_id` INT,
+  `authored_at` DATETIME,
+  `unreachable` VARCHAR(255),
+  `parent_sha` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `commits_pull_requests` (
+  `commit_id` INT,
+  `pull_request_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `commits_users` (
+  `commit_id` INT,
+  `user_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `deploys` (
+  `id` INT,
+  `project_id` INT,
+  `sha` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `environment_name` VARCHAR(255),
+  `deployer` VARCHAR(255),
+  `commit_id` INT,
+  `duration` INT,
+  `branch` VARCHAR(255),
+  `completed_at` DATETIME,
+  `output` VARCHAR(255),
+  `user_id` INT,
+  `successful` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `errors` (
+  `id` INT,
+  `sha` VARCHAR(255),
+  `message` VARCHAR(255),
+  `backtrace` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `type` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `follows` (
+  `id` INT,
+  `user_id` INT,
+  `project_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `measurements` (
+  `id` INT,
+  `subject_type` VARCHAR(255),
+  `subject_id` INT,
+  `name` VARCHAR(255),
+  `value` VARCHAR(255),
+  `taken_at` DATETIME,
+  `taken_on` DATETIME,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `persistent_triggers` (
+  `id` INT,
+  `type` VARCHAR(255),
+  `value` VARCHAR(255),
+  `params` VARCHAR(255),
+  `action` VARCHAR(255),
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `projects` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `slug` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `color_name` VARCHAR(255),
+  `retired_at` DATETIME,
+  `category` VARCHAR(255),
+  `version_control_name` VARCHAR(255),
+  `ticket_tracker_name` VARCHAR(255),
+  `ci_server_name` VARCHAR(255),
+  `error_tracker_name` VARCHAR(255),
+  `last_ticket_tracker_sync_at` DATETIME,
+  `ticket_tracker_sync_started_at` DATETIME,
+  `selected_features` VARCHAR(255),
+  `head_sha` VARCHAR(255),
+  `props` VARCHAR(255),
+  `team_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pull_requests` (
+  `id` INT,
+  `project_id` INT,
+  `user_id` INT,
+  `title` VARCHAR(255),
+  `number` INT,
+  `repo` VARCHAR(255),
+  `username` VARCHAR(255),
+  `url` VARCHAR(255),
+  `base_ref` VARCHAR(255),
+  `base_sha` VARCHAR(255),
+  `head_ref` VARCHAR(255),
+  `head_sha` VARCHAR(255),
+  `body` VARCHAR(255),
+  `props` VARCHAR(255),
+  `avatar_url` VARCHAR(255),
+  `json_labels` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `closed_at` DATETIME,
+  `merged_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `id` INT,
+  `user_id` INT,
+  `project_id` INT,
+  `name` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schema_migrations` (
+  `version` VARCHAR(255),
+  PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `teams` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `props` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `teams_users` (
+  `id` INT,
+  `team_id` INT,
+  `user_id` INT,
+  `roles` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `email` VARCHAR(255),
+  `encrypted_password` VARCHAR(255),
+  `reset_password_token` VARCHAR(255),
+  `reset_password_sent_at` DATETIME,
+  `remember_created_at` DATETIME,
+  `sign_in_count` INT,
+  `current_sign_in_at` DATETIME,
+  `last_sign_in_at` DATETIME,
+  `current_sign_in_ip` VARCHAR(255),
+  `last_sign_in_ip` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `invitation_token` VARCHAR(255),
+  `invitation_sent_at` DATETIME,
+  `invitation_accepted_at` DATETIME,
+  `invitation_limit` INT,
+  `invited_by_type` VARCHAR(255),
+  `invited_by_id` INT,
+  `authentication_token` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `retired_at` DATETIME,
+  `email_addresses` VARCHAR(255),
+  `invitation_created_at` DATETIME,
+  `current_project_id` INT,
+  `nickname` VARCHAR(255),
+  `username` VARCHAR(255),
+  `props` VARCHAR(255),
+  `role` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `versions` (
+  `id` INT,
+  `versioned_type` VARCHAR(255),
+  `versioned_id` INT,
+  `user_type` VARCHAR(255),
+  `user_id` INT,
+  `user_name` VARCHAR(255),
+  `modifications` VARCHAR(255),
+  `number` INT,
+  `reverted_from` INT,
+  `tag` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_565380_structure') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_565380_structure') AS relationships;
+DROP DATABASE `db_565380_structure`;
+UNINSTALL EXTENSION vsql_schematron;

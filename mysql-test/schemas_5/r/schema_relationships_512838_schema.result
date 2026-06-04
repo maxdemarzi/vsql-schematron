@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 512838_schema
+#
+CREATE DATABASE `db_512838_schema`;
+USE `db_512838_schema`;
+CREATE TABLE `alpha` (
+`id` INT,
+`val` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `beta` (
+`id` INT,
+`alpha_id` INT,
+`val` VARCHAR(255),
+`val2` VARCHAR(255),
+`j` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `gamma` (
+`id` INT,
+`alpha_id_one` INT,
+`alpha_id_two` INT,
+`beta_id` INT,
+`val` VARCHAR(255),
+`j` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `zeta` (
+`id` INT,
+`val` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `alpha_zeta` (
+`alpha_id` INT,
+`zeta_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `sch.delta` (
+`id` INT,
+`beta_id` INT,
+`val` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sch.epsilon` (
+`id` INT,
+`alpha_id` INT,
+`val` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_512838_schema') AS relationships;
+relationships
+Database: db_512838_schema
+
+Table Connections:
+------------------
+[Implied]  alpha_zeta.alpha_id -> alpha.id
+[Implied]  alpha_zeta.zeta_id -> zeta.id
+[Implied]  beta.alpha_id -> alpha.id
+[Implied]  gamma.alpha_id_one -> alpha.id
+[Implied]  gamma.alpha_id_two -> alpha.id
+[Implied]  gamma.beta_id -> beta.id
+[Implied]  sch.delta.beta_id -> beta.id
+[Implied]  sch.epsilon.alpha_id -> alpha.id
+
+DROP DATABASE `db_512838_schema`;
+UNINSTALL EXTENSION vsql_schematron;

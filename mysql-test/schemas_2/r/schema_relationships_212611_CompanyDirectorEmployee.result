@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 212611_CompanyDirectorEmployee
+#
+CREATE DATABASE `db_212611_CompanyDirectorEmployee`;
+USE `db_212611_CompanyDirectorEmployee`;
+CREATE TABLE `attendance` (
+`attendee_given_name` VARCHAR(255),
+`attendee_family_name` VARCHAR(255),
+`meeting_company_name` VARCHAR(255),
+`meeting_date` DATETIME,
+`meeting_is_board_meeting` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `company` (
+`company_name` VARCHAR(255),
+`is_listed` VARCHAR(255),
+PRIMARY KEY (`company_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `directorship` (
+`director_given_name` VARCHAR(255),
+`director_family_name` VARCHAR(255),
+`company_name` VARCHAR(255),
+`appointment_date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`employee_nr` INT,
+`company_name` VARCHAR(255),
+`manager_nr` INT,
+`manager_is_ceo` VARCHAR(255),
+PRIMARY KEY (`employee_nr`)
+) CHARACTER SET latin1;
+CREATE TABLE `employment` (
+`person_given_name` VARCHAR(255),
+`person_family_name` VARCHAR(255),
+`employee_nr` INT
+) CHARACTER SET latin1;
+CREATE TABLE `meeting` (
+`company_name` VARCHAR(255),
+`date` DATETIME,
+`is_board_meeting` VARCHAR(255),
+PRIMARY KEY (`company_name`, `date`, `is_board_meeting`)
+) CHARACTER SET latin1;
+CREATE TABLE `person` (
+`given_name` VARCHAR(255),
+`family_name` VARCHAR(255),
+`birth_date` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_212611_CompanyDirectorEmployee') AS relationships;
+relationships
+Database: db_212611_CompanyDirectorEmployee
+
+Table Connections:
+------------------
+[Implied]  attendance.meeting_company_name -> company.company_name
+[Implied]  directorship.company_name -> company.company_name
+[Implied]  employee.company_name -> company.company_name
+[Implied]  employee.manager_nr -> employee.employee_nr
+[Implied]  employment.employee_nr -> employee.employee_nr
+[Implied]  meeting.company_name -> company.company_name
+
+DROP DATABASE `db_212611_CompanyDirectorEmployee`;
+UNINSTALL EXTENSION vsql_schematron;

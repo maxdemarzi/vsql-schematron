@@ -1,0 +1,192 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 509849_greatn
+#
+CREATE DATABASE `db_509849_greatn`;
+USE `db_509849_greatn`;
+CREATE TABLE `chats` (
+`id` INT,
+`user_id` INT,
+`reciver_id` INT,
+`job_post_id` INT,
+`message` VARCHAR(255),
+`status` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `conversations` (
+`id` INT,
+`user_one` INT,
+`user_two` INT,
+`status` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `free_files` (
+`id` INT,
+`user_idf` INT,
+`apply_idf` INT,
+`f_file` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `gen_settings` (
+`id` INT,
+`app_name` VARCHAR(255),
+`copy` VARCHAR(255),
+`year` VARCHAR(255),
+`logo` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `job_levels` (
+`id` INT,
+`job_level` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `languages` (
+`id` INT,
+`user_idl` INT,
+`language` VARCHAR(255),
+`proficiency` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+`id` INT,
+`message` VARCHAR(255),
+`is_seen` INT,
+`deleted_from_sender` INT,
+`deleted_from_receiver` INT,
+`user_id` INT,
+`conversation_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `migrations` (
+`id` INT,
+`migration` VARCHAR(255),
+`batch` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `model_has_permissions` (
+`permission_id` INT,
+`model_id` INT,
+`model_type` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `model_has_roles` (
+`role_id` INT,
+`model_id` INT,
+`model_type` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `notifications` (
+`id` VARCHAR(255),
+`type` VARCHAR(255),
+`notifiable_id` INT,
+`notifiable_type` VARCHAR(255),
+`data` VARCHAR(255),
+`read_at` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `password_resets` (
+`email` VARCHAR(255),
+`token` VARCHAR(255),
+`created_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `permissions` (
+`id` INT,
+`name` VARCHAR(255),
+`guard_name` VARCHAR(255),
+`display_name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`title` VARCHAR(255),
+`body` VARCHAR(255),
+`user_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project_categories` (
+`id` INT,
+`project_cat` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project_payments` (
+`id` INT,
+`job_post_id` INT,
+`user_id` INT,
+`payment` VARCHAR(255),
+`currency` VARCHAR(255),
+`payment_id` VARCHAR(255),
+`token` VARCHAR(255),
+`PayerID` VARCHAR(255),
+`merchant_id` VARCHAR(255),
+`merchant_email` VARCHAR(255),
+`payment_create` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project_types` (
+`id` INT,
+`project_type` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT,
+`name` VARCHAR(255),
+`guard_name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_has_permissions` (
+`permission_id` INT,
+`role_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `service_fees` (
+`id` INT,
+`servicefee` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `skill_categories` (
+`id` INT,
+`skill_category` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_509849_greatn') AS relationships;
+relationships
+Database: db_509849_greatn
+
+Table Connections:
+------------------
+[Implied]  chats.job_post_id -> posts.id
+[Implied]  messages.conversation_id -> conversations.id
+[Implied]  model_has_permissions.permission_id -> permissions.id
+[Implied]  model_has_roles.role_id -> roles.id
+[Implied]  project_payments.job_post_id -> posts.id
+[Implied]  role_has_permissions.permission_id -> permissions.id
+[Implied]  role_has_permissions.role_id -> roles.id
+
+DROP DATABASE `db_509849_greatn`;
+UNINSTALL EXTENSION vsql_schematron;

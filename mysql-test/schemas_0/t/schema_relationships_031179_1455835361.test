@@ -1,0 +1,149 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 031179_1455835361
+--echo #
+CREATE DATABASE `db_031179_1455835361`;
+USE `db_031179_1455835361`;
+
+CREATE TABLE `ability_upgrades` (
+  `slot_id` INT,
+  `ability` INT,
+  `time` INT,
+  `level` INT,
+  PRIMARY KEY (`slot_id`, `level`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `additional_units` (
+  `slot_id` INT,
+  `unitname` VARCHAR(255),
+  `item_0` INT,
+  `item_1` INT,
+  `item_2` INT,
+  `item_3` INT,
+  `item_4` INT,
+  `item_5` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `leagues` (
+  `leagueid` INT,
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  `tournament_url` VARCHAR(255),
+  `itemdef` INT,
+  `is_finished` INT,
+  PRIMARY KEY (`leagueid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `league_prize_pools` (
+  `league_id` INT,
+  `prize_pool` INT,
+  `date` DATETIME,
+  PRIMARY KEY (`league_id`, `date`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `matches` (
+  `match_id` INT,
+  `season` INT,
+  `radiant_win` INT,
+  `duration` INT,
+  `first_blood_time` INT,
+  `start_time` DATETIME,
+  `match_seq_num` INT,
+  `game_mode` INT,
+  `tower_status_radiant` INT,
+  `tower_status_dire` INT,
+  `barracks_status_radiant` INT,
+  `barracks_status_dire` INT,
+  `replay_salt` INT,
+  `lobby_type` INT,
+  `human_players` INT,
+  `leagueid` INT,
+  `cluster` INT,
+  `positive_votes` INT,
+  `negative_votes` INT,
+  `radiant_team_id` INT,
+  `radiant_name` VARCHAR(255),
+  `radiant_logo` VARCHAR(255),
+  `radiant_team_complete` INT,
+  `dire_team_id` INT,
+  `dire_name` VARCHAR(255),
+  `dire_logo` VARCHAR(255),
+  `dire_team_complete` INT,
+  PRIMARY KEY (`match_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `picks_bans` (
+  `id` INT,
+  `match_id` INT,
+  `is_pick` INT,
+  `hero_id` INT,
+  `team` INT,
+  `order` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `slots` (
+  `id` INT,
+  `match_id` INT,
+  `account_id` INT,
+  `hero_id` INT,
+  `player_slot` INT,
+  `item_0` INT,
+  `item_1` INT,
+  `item_2` INT,
+  `item_3` INT,
+  `item_4` INT,
+  `item_5` INT,
+  `kills` INT,
+  `deaths` INT,
+  `assists` INT,
+  `leaver_status` INT,
+  `gold` INT,
+  `last_hits` INT,
+  `denies` INT,
+  `gold_per_min` INT,
+  `xp_per_min` INT,
+  `gold_spent` INT,
+  `hero_damage` INT,
+  `tower_damage` INT,
+  `hero_healing` INT,
+  `level` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `account_id` INT,
+  `personaname` VARCHAR(255),
+  `steamid` VARCHAR(255),
+  `avatar` VARCHAR(255),
+  `profileurl` VARCHAR(255),
+  `is_personaname_real` INT,
+  PRIMARY KEY (`account_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `teams` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_031179_1455835361') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_031179_1455835361') AS relationships;
+DROP DATABASE `db_031179_1455835361`;
+UNINSTALL EXTENSION vsql_schematron;

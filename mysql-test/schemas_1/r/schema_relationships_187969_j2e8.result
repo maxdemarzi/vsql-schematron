@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 187969_j2e8
+#
+CREATE DATABASE `db_187969_j2e8`;
+USE `db_187969_j2e8`;
+CREATE TABLE `admin` (
+`admin_id` INT,
+PRIMARY KEY (`admin_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `commity` (
+`commity_id` INT,
+`commity_content` VARCHAR(255),
+`commity_user_id` INT,
+`commity_time` DATETIME,
+`commity_like` INT,
+`commity_dislike` INT,
+`commity_shop_id` INT,
+PRIMARY KEY (`commity_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reply` (
+`reply_id` INT,
+`reply_content` VARCHAR(255),
+`reply_time` DATETIME,
+`reply_user_id` INT,
+`reply_commity_id` INT,
+PRIMARY KEY (`reply_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `type` (
+`type_id` INT,
+`type_name` VARCHAR(255),
+PRIMARY KEY (`type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `type_shop` (
+`type_id` INT,
+`shop_type_id` INT,
+PRIMARY KEY (`type_id`, `shop_type_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_187969_j2e8') AS relationships;
+relationships
+Database: db_187969_j2e8
+
+Table Connections:
+------------------
+[Implied]  reply.reply_commity_id -> commity.commity_id
+[Implied]  type_shop.shop_type_id -> type.type_id
+[Implied]  type_shop.type_id -> type.type_id
+
+DROP DATABASE `db_187969_j2e8`;
+UNINSTALL EXTENSION vsql_schematron;

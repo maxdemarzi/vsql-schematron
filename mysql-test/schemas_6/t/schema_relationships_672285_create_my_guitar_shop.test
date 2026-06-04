@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 672285_create_my_guitar_shop
+--echo #
+CREATE DATABASE `db_672285_create_my_guitar_shop`;
+USE `db_672285_create_my_guitar_shop`;
+
+CREATE TABLE `categories` (
+  `category_id` INT,
+  `category_name` VARCHAR(255),
+  PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `products` (
+  `product_id` INT,
+  `category_id` INT,
+  `product_code` VARCHAR(255),
+  `product_name` VARCHAR(255),
+  `description` VARCHAR(255),
+  `list_price` DECIMAL(10,2),
+  `discount_percent` DECIMAL(10,2),
+  `date_added` DATETIME,
+  PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customers` (
+  `customer_id` INT,
+  `email_address` VARCHAR(255),
+  `password` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `shipping_address_id` INT,
+  `billing_address_id` INT,
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `addresses` (
+  `address_id` INT,
+  `customer_id` INT,
+  `line1` VARCHAR(255),
+  `line2` VARCHAR(255),
+  `city` VARCHAR(255),
+  `state` VARCHAR(255),
+  `zip_code` VARCHAR(255),
+  `phone` VARCHAR(255),
+  `disabled` INT,
+  PRIMARY KEY (`address_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `order_id` INT,
+  `customer_id` INT,
+  `order_date` DATETIME,
+  `ship_amount` DECIMAL(10,2),
+  `tax_amount` DECIMAL(10,2),
+  `ship_date` DATETIME,
+  `ship_address_id` INT,
+  `card_type` VARCHAR(255),
+  `card_number` VARCHAR(255),
+  `card_expires` VARCHAR(255),
+  `billing_address_id` INT,
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_items` (
+  `item_id` INT,
+  `order_id` INT,
+  `product_id` INT,
+  `item_price` DECIMAL(10,2),
+  `discount_amount` DECIMAL(10,2),
+  `quantity` INT,
+  PRIMARY KEY (`item_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `administrators` (
+  `admin_id` INT,
+  `email_address` VARCHAR(255),
+  `password` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  PRIMARY KEY (`admin_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_672285_create_my_guitar_shop') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_672285_create_my_guitar_shop') AS relationships;
+DROP DATABASE `db_672285_create_my_guitar_shop`;
+UNINSTALL EXTENSION vsql_schematron;

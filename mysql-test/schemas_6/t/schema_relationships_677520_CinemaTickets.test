@@ -1,0 +1,102 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 677520_CinemaTickets
+--echo #
+CREATE DATABASE `db_677520_CinemaTickets`;
+USE `db_677520_CinemaTickets`;
+
+CREATE TABLE `allocatable_cinema_section` (
+  `cinema_id` INT,
+  `section_name` VARCHAR(255),
+  PRIMARY KEY (`cinema_id`, `section_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cinema` (
+  `cinema_id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`cinema_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `film` (
+  `film_id` INT,
+  `name` VARCHAR(255),
+  `year_nr` INT,
+  PRIMARY KEY (`film_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `person` (
+  `person_id` INT,
+  `encrypted_password` VARCHAR(255),
+  `login_name` VARCHAR(255),
+  PRIMARY KEY (`person_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `places_paid` (
+  `booking_nr` INT,
+  `payment_method_code` VARCHAR(255),
+  `number` INT,
+  PRIMARY KEY (`booking_nr`, `payment_method_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `seat` (
+  `row_cinema_id` INT,
+  `row_nr` VARCHAR(255),
+  `seat_number` INT,
+  `section_name` VARCHAR(255),
+  PRIMARY KEY (`row_cinema_id`, `row_nr`, `seat_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `seat_allocation` (
+  `booking_nr` INT,
+  `allocated_seat_row_cinema_id` INT,
+  `allocated_seat_row_nr` VARCHAR(255),
+  `allocated_seat_number` INT,
+  PRIMARY KEY (`booking_nr`, `allocated_seat_row_cinema_id`, `allocated_seat_row_nr`, `allocated_seat_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `session` (
+  `cinema_id` INT,
+  `session_time_year_nr` INT,
+  `session_time_month_nr` INT,
+  `session_time_day` INT,
+  `session_time_hour` INT,
+  `session_time_minute` INT,
+  `is_high_demand` VARCHAR(255),
+  `uses_allocated_seating` VARCHAR(255),
+  `film_id` INT,
+  PRIMARY KEY (`cinema_id`, `session_time_year_nr`, `session_time_month_nr`, `session_time_day`, `session_time_hour`, `session_time_minute`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ticket_pricing` (
+  `session_time_year_nr` INT,
+  `session_time_month_nr` INT,
+  `session_time_day` INT,
+  `session_time_hour` INT,
+  `session_time_minute` INT,
+  `cinema_id` INT,
+  `section_name` VARCHAR(255),
+  `high_demand` VARCHAR(255),
+  `price` VARCHAR(255),
+  PRIMARY KEY (`session_time_year_nr`, `session_time_month_nr`, `session_time_day`, `session_time_hour`, `session_time_minute`, `cinema_id`, `section_name`, `high_demand`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_677520_CinemaTickets') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_677520_CinemaTickets') AS relationships;
+DROP DATABASE `db_677520_CinemaTickets`;
+UNINSTALL EXTENSION vsql_schematron;

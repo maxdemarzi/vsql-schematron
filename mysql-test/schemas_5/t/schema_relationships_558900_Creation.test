@@ -1,0 +1,162 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 558900_Creation
+--echo #
+CREATE DATABASE `db_558900_Creation`;
+USE `db_558900_Creation`;
+
+CREATE TABLE `addresses` (
+  `id` INT,
+  `compony_name` VARCHAR(255),
+  `country` VARCHAR(255),
+  `street` VARCHAR(255),
+  `apartment` VARCHAR(255),
+  `city` VARCHAR(255),
+  `postcode` VARCHAR(255),
+  `phone` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `carts` (
+  `id` INT,
+  `product_id` INT,
+  `user_id` INT,
+  `quantity` INT,
+  `size_id` INT,
+  `color_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `id` INT,
+  `cat_name` VARCHAR(255),
+  `cat_img` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `colors` (
+  `id` INT,
+  `pro_color` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `favorites` (
+  `id` INT,
+  `product_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `offers` (
+  `id` INT,
+  `product_id` INT,
+  `percentage` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `id` INT,
+  `user_id` INT,
+  `date` DATETIME,
+  `payment_method` VARCHAR(255),
+  `total_price` INT,
+  `address_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_products` (
+  `id` INT,
+  `product_id` INT,
+  `quantity` INT,
+  `order_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `products` (
+  `id` INT,
+  `pro_name` VARCHAR(255),
+  `pro_des` VARCHAR(255),
+  `price` INT,
+  `mainImage` VARCHAR(255),
+  `category_id` INT,
+  `pro_rate` INT,
+  `pro_gender` VARCHAR(255),
+  `favHeader` INT,
+  `trending` INT,
+  `defaultSize_id` INT,
+  `defaultColor_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product_colors` (
+  `id` INT,
+  `product_id` INT,
+  `color_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `product_images` (
+  `id` INT,
+  `pro_img` VARCHAR(255),
+  `product_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `product_sizes` (
+  `id` INT,
+  `product_id` INT,
+  `size_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `resetpasswords` (
+  `id` INT,
+  `pin` INT,
+  PRIMARY KEY (`id`, `pin`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reviews` (
+  `id` INT,
+  `re_des` VARCHAR(255),
+  `re_rate` INT,
+  `product_id` INT,
+  `user_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `sizes` (
+  `id` INT,
+  `pro_size` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `Fname` VARCHAR(255),
+  `Lname` VARCHAR(255),
+  `email` VARCHAR(255),
+  `verify_code` VARCHAR(255),
+  `password` VARCHAR(255),
+  `IsAdmin` INT,
+  `email_verified_at` DATETIME,
+  `remember_token` VARCHAR(255),
+  `img` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_558900_Creation') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_558900_Creation') AS relationships;
+DROP DATABASE `db_558900_Creation`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 551897_Create_Datebase
+--echo #
+CREATE DATABASE `db_551897_Create_Datebase`;
+USE `db_551897_Create_Datebase`;
+
+CREATE TABLE `households` (
+  `hh_id` INT,
+  `hh_race` INT,
+  `hh_is_latinx` INT,
+  `hh_zip_code` INT,
+  `hh_state` VARCHAR(255),
+  `hh_income` INT,
+  `hh_size` INT,
+  `hh_residence_type` INT,
+  PRIMARY KEY (`hh_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trips` (
+  `hh_id` INT,
+  `TC_date` DATETIME,
+  `TC_retailer_code` INT,
+  `TC_retailer_code_store_code` INT,
+  `TC_retailer_code_store_zip3` INT,
+  `TC_total_spent` DECIMAL(10,2),
+  `TC_id` INT,
+  PRIMARY KEY (`TC_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `products` (
+  `brand_at_prod_id` VARCHAR(255),
+  `department_at_prod_id` VARCHAR(255),
+  `prod_id` INT,
+  `group_at_prod_id` VARCHAR(255),
+  `module_at_prod_id` VARCHAR(255),
+  `amount_at_prod_id` DECIMAL(10,2),
+  `units_at_prod_id` VARCHAR(255),
+  PRIMARY KEY (`prod_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `purchases` (
+  `TC_id` INT,
+  `quantity_at_TC_prod_id` INT,
+  `total_price_paid_at_TC_prod_id` DECIMAL(10,2),
+  `coupon_value_at_TC_prod_id` DECIMAL(10,2),
+  `deal_flag_at_TC_prod_id` INT,
+  `prod_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_551897_Create_Datebase') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_551897_Create_Datebase') AS relationships;
+DROP DATABASE `db_551897_Create_Datebase`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,99 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 448900_database_20and_20tables
+--echo #
+CREATE DATABASE `db_448900_database_20and_20tables`;
+USE `db_448900_database_20and_20tables`;
+
+CREATE TABLE `admin` (
+  `adminid` INT,
+  `adminUsername` VARCHAR(255),
+  `adminPassword` VARCHAR(255),
+  PRIMARY KEY (`adminid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customer` (
+  `customerid` INT,
+  `firstname` VARCHAR(255),
+  `lastname` VARCHAR(255),
+  `email` VARCHAR(255),
+  `phonenumber` VARCHAR(255),
+  PRIMARY KEY (`customerid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `city` (
+  `cityid` INT,
+  `city` VARCHAR(255),
+  PRIMARY KEY (`cityid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `restaurant` (
+  `restaurantid` INT,
+  `cityid` INT,
+  `restaurantname` VARCHAR(255),
+  `description` VARCHAR(255),
+  `timeavailable` DATETIME,
+  `timeend` DATETIME,
+  PRIMARY KEY (`restaurantid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tables` (
+  `tableid` INT,
+  `restaurantid` INT,
+  `tableno` VARCHAR(255),
+  `tablecapacity` VARCHAR(255),
+  PRIMARY KEY (`tableid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reservedtables` (
+  `restableid` INT,
+  `restaurantid` INT,
+  `tableid` INT,
+  `tableno` VARCHAR(255),
+  `numberofpeople` VARCHAR(255),
+  `dates` DATETIME,
+  `times` DATETIME,
+  PRIMARY KEY (`restableid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dates` (
+  `dateid` INT,
+  `restaurantid` INT,
+  `dates` DATETIME,
+  PRIMARY KEY (`dateid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `datesfull` (
+  `dateid` INT,
+  `restaurantid` INT,
+  `datesfull` DATETIME,
+  PRIMARY KEY (`dateid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `booking` (
+  `bookingid` INT,
+  `customerid` INT,
+  `restableid` INT,
+  PRIMARY KEY (`bookingid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_448900_database_20and_20tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_448900_database_20and_20tables') AS relationships;
+DROP DATABASE `db_448900_database_20and_20tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,193 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 274312_db_sois_accomplishmentreport
+#
+CREATE DATABASE `db_274312_db_sois_accomplishmentreport`;
+USE `db_274312_db_sois_accomplishmentreport`;
+CREATE TABLE `courses` (
+`course_id` INT,
+`organization_id` INT,
+`course_name` VARCHAR(255),
+`course_acronym` VARCHAR(255),
+PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`event_id` INT,
+`organization_id` INT,
+`title` VARCHAR(255),
+`description` VARCHAR(255),
+`objective` VARCHAR(255),
+`date` DATETIME,
+`start_time` DATETIME,
+`end_time` DATETIME,
+`venue` VARCHAR(255),
+`activity_type` VARCHAR(255),
+`beneficiaries` VARCHAR(255),
+`sponsors` VARCHAR(255),
+`budget` INT,
+`slug` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `event_images` (
+`event_image_id` INT,
+`event_id` INT,
+`image_type` INT,
+`image` VARCHAR(255),
+`caption` VARCHAR(255),
+`slug` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `failed_jobs` (
+`id` INT,
+`uuid` VARCHAR(255),
+`connection` VARCHAR(255),
+`queue` VARCHAR(255),
+`payload` VARCHAR(255),
+`exception` VARCHAR(255),
+`failed_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `migrations` (
+`id` INT,
+`migration` VARCHAR(255),
+`batch` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notifications` (
+`notification_id` INT,
+`user_id` INT,
+`title` VARCHAR(255),
+`description` VARCHAR(255),
+`link` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `organizations` (
+`organization_id` INT,
+`organization_name` VARCHAR(255),
+`organization_acronym` VARCHAR(255),
+PRIMARY KEY (`organization_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `organization_assets` (
+`organization_asset_id` INT,
+`organization_id` INT,
+`image` VARCHAR(255),
+`type` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `organization_documents` (
+`orgdoc_id` INT,
+`org_id` INT,
+`orgdoc_type_id` INT,
+`file` VARCHAR(255),
+`title` VARCHAR(255),
+`description` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `organization_document_types` (
+`orgdoctype_id` INT,
+`org_id` INT,
+`doctype` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `password_resets` (
+`email` VARCHAR(255),
+`token` VARCHAR(255),
+`created_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `position_titles` (
+`position_title_id` INT,
+`organization_id` INT,
+`position_title` VARCHAR(255),
+PRIMARY KEY (`position_title_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`role_id` INT,
+`role` VARCHAR(255),
+`description` VARCHAR(255),
+PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_accomplishments` (
+`student_accomplishment_id` INT,
+`user_id` INT,
+`organization_id` INT,
+`accomplishment_uuid` VARCHAR(255),
+`title` VARCHAR(255),
+`description` VARCHAR(255),
+`status` INT,
+`remarks` VARCHAR(255),
+`deleted_at` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `student_accomplishment_files` (
+`student_accomplishment_file_id` INT,
+`student_accomplishment_id` INT,
+`file` VARCHAR(255),
+`caption` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `temporary_files` (
+`id` INT,
+`folder` VARCHAR(255),
+`filename` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`user_id` INT,
+`course_id` INT,
+`role_id` INT,
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`student_number` VARCHAR(255),
+`first_name` VARCHAR(255),
+`middle_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`gender` INT,
+`date_of_birth` DATETIME,
+`mobile_number` VARCHAR(255),
+`address` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`status` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_position_titles` (
+`position_title_position_title_id` INT,
+`user_user_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_274312_db_sois_accomplishmentreport') AS relationships;
+relationships
+Database: db_274312_db_sois_accomplishmentreport
+
+Table Connections:
+------------------
+[Implied]  courses.organization_id -> organizations.organization_id
+[Implied]  event_images.event_id -> events.event_id
+[Implied]  events.organization_id -> organizations.organization_id
+[Implied]  notifications.user_id -> users.user_id
+[Implied]  organization_assets.organization_id -> organizations.organization_id
+[Implied]  organization_document_types.org_id -> organizations.organization_id
+[Implied]  organization_documents.org_id -> organizations.organization_id
+[Implied]  position_titles.organization_id -> organizations.organization_id
+[Implied]  student_accomplishment_files.student_accomplishment_id -> student_accomplishments.student_accomplishment_id
+[Implied]  student_accomplishments.organization_id -> organizations.organization_id
+[Implied]  student_accomplishments.user_id -> users.user_id
+[Implied]  users.course_id -> courses.course_id
+[Implied]  users.role_id -> roles.role_id
+[Implied]  users_position_titles.position_title_position_title_id -> position_titles.position_title_id
+[Implied]  users_position_titles.user_user_id -> users.user_id
+
+DROP DATABASE `db_274312_db_sois_accomplishmentreport`;
+UNINSTALL EXTENSION vsql_schematron;

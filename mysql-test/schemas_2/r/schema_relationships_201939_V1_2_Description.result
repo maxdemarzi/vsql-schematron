@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 201939_V1_2_Description
+#
+CREATE DATABASE `db_201939_V1_2_Description`;
+USE `db_201939_V1_2_Description`;
+CREATE TABLE `permission` (
+`id` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`deleted` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`id` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`deleted` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_permission` (
+`id_role` INT,
+`id_permission` INT,
+PRIMARY KEY (`id_role`, `id_permission`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.user` (
+`id` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`phone` VARCHAR(255),
+`cpf` VARCHAR(255),
+`deleted` VARCHAR(255),
+`role_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_201939_V1_2_Description') AS relationships;
+relationships
+Database: db_201939_V1_2_Description
+
+Table Connections:
+------------------
+[Implied]  public.user.role_id -> role.id
+[Implied]  role_permission.id_permission -> permission.id
+[Implied]  role_permission.id_role -> role.id
+
+DROP DATABASE `db_201939_V1_2_Description`;
+UNINSTALL EXTENSION vsql_schematron;

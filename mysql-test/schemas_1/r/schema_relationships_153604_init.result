@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 153604_init
+#
+CREATE DATABASE `db_153604_init`;
+USE `db_153604_init`;
+CREATE TABLE `domains` (
+`name` VARCHAR(255),
+`domain_suffix` VARCHAR(255),
+`provisioning_cert` VARCHAR(255),
+`provisioning_cert_storage_format` VARCHAR(255),
+`provisioning_cert_key` VARCHAR(255),
+`creation_date` DATETIME,
+`created_by` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `ciraconfigs` (
+`cira_config_name` VARCHAR(255),
+`mps_server_address` VARCHAR(255),
+`mps_port` INT,
+`user_name` VARCHAR(255),
+`password` VARCHAR(255),
+`common_name` VARCHAR(255),
+`server_address_format` INT,
+`auth_method` INT,
+`mps_root_certificate` VARCHAR(255),
+`proxydetails` VARCHAR(255),
+PRIMARY KEY (`cira_config_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `profiles` (
+`profile_name` VARCHAR(255),
+`activation` VARCHAR(255),
+`amt_password` VARCHAR(255),
+`cira_config_name` VARCHAR(255),
+`creation_date` DATETIME,
+`created_by` VARCHAR(255),
+`mebx_password` VARCHAR(255),
+`tags` VARCHAR(255),
+`dhcp_enabled` VARCHAR(255),
+PRIMARY KEY (`profile_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `profiles_wirelessconfigs` (
+`wireless_profile_name` VARCHAR(255),
+`profile_name` VARCHAR(255),
+`priority` INT,
+`creation_date` DATETIME,
+`created_by` VARCHAR(255),
+PRIMARY KEY (`wireless_profile_name`, `profile_name`, `priority`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_153604_init') AS relationships;
+relationships
+Database: db_153604_init
+
+Table Connections:
+------------------
+[Implied]  profiles.cira_config_name -> ciraconfigs.cira_config_name
+[Implied]  profiles_wirelessconfigs.profile_name -> profiles.profile_name
+[Implied]  profiles_wirelessconfigs.wireless_profile_name -> profiles.profile_name
+
+DROP DATABASE `db_153604_init`;
+UNINSTALL EXTENSION vsql_schematron;

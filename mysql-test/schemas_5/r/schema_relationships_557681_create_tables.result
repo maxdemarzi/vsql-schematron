@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 557681_create_tables
+#
+CREATE DATABASE `db_557681_create_tables`;
+USE `db_557681_create_tables`;
+CREATE TABLE `address` (
+`id` INT,
+`address_line_1` VARCHAR(255),
+`address_line_2` VARCHAR(255),
+`address_line_3` VARCHAR(255),
+`address_line_4` VARCHAR(255),
+`postcode` VARCHAR(255),
+`uprn` INT,
+`approximation_concept_id` INT,
+`property_type_concept_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `organisation` (
+`id` INT,
+`service_id` VARCHAR(255),
+`system_id` VARCHAR(255),
+`ods_code` VARCHAR(255),
+`name` VARCHAR(255),
+`is_active` VARCHAR(255),
+`parent_organisation_id` INT,
+`type_concept_id` INT,
+`main_location_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `procedure` (
+`id` INT,
+`patient_id` INT,
+`concept_id` INT,
+`effective_date` DATETIME,
+`effective_date_precision` INT,
+`effective_practitioner_id` INT,
+`entered_by_practitioner_id` INT,
+`end_date` DATETIME,
+`usual_practitioner_id` INT,
+`encounter_id` INT,
+`encounter_heading_concept_id` INT,
+`owning_organisation_id` INT,
+`status_concept_id` INT,
+`is_confidential` VARCHAR(255),
+`original_code` VARCHAR(255),
+`original_term` VARCHAR(255),
+`original_code_scheme` INT,
+`original_system` INT,
+`outcome_concept_id` INT,
+`is_consent` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_557681_create_tables') AS relationships;
+relationships
+Database: db_557681_create_tables
+
+Table Connections:
+------------------
+[Implied]  organisation.parent_organisation_id -> organisation.id
+[Implied]  procedure.owning_organisation_id -> organisation.id
+
+DROP DATABASE `db_557681_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

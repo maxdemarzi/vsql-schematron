@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 674015_blog
+#
+CREATE DATABASE `db_674015_blog`;
+USE `db_674015_blog`;
+CREATE TABLE `comments` (
+`comment_id` INT,
+`post_id` INT,
+`user_id` INT,
+`comments` VARCHAR(255),
+`is_delete` INT,
+`commented_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`post_id` INT,
+`user_id` INT,
+`title` VARCHAR(255),
+`body` VARCHAR(255),
+`is_delete` INT,
+`posted_at` DATETIME,
+PRIMARY KEY (`post_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`user_id` INT,
+`username` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `userschat` (
+`chat_id` INT,
+`user_id` INT,
+`with_user_id` INT,
+`chat` VARCHAR(255),
+`chat_at` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_674015_blog') AS relationships;
+relationships
+Database: db_674015_blog
+
+Table Connections:
+------------------
+[Implied]  comments.post_id -> post.post_id
+[Implied]  comments.user_id -> user.user_id
+[Implied]  post.user_id -> user.user_id
+[Implied]  userschat.user_id -> user.user_id
+[Implied]  userschat.with_user_id -> user.user_id
+
+DROP DATABASE `db_674015_blog`;
+UNINSTALL EXTENSION vsql_schematron;

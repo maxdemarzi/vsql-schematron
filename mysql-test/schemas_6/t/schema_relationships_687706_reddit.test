@@ -1,0 +1,226 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 687706_reddit
+--echo #
+CREATE DATABASE `db_687706_reddit`;
+USE `db_687706_reddit`;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `username` VARCHAR(255),
+  `senha` VARCHAR(255),
+  `postKarma` INT,
+  `commentKarma` INT,
+  `cakeDay` DATETIME,
+  `avatar` VARCHAR(255),
+  `description` VARCHAR(255),
+  `banner` VARCHAR(255),
+  `category` VARCHAR(255),
+  `moderator` VARCHAR(255),
+  `communityVisibility` VARCHAR(255),
+  `contentVisibility` VARCHAR(255),
+  `flags` VARCHAR(255),
+  `numberOfPosts` INT,
+  `numberOfComments` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subreddit` (
+  `id` INT,
+  `flags` VARCHAR(255),
+  `moderators` VARCHAR(255),
+  `postID` INT,
+  `rules` VARCHAR(255),
+  `subscribes` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `post` (
+  `FK_subreddit_id` INT,
+  `FK_post_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `results` (
+  `id` INT,
+  `textO` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `private` (
+  `id` INT,
+  `whoSent` VARCHAR(255),
+  `whoReceive` VARCHAR(255),
+  `message` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `inbox` (
+  `id` INT,
+  `whoSent` VARCHAR(255),
+  `whoReceive` VARCHAR(255),
+  `message` VARCHAR(255),
+  `subredditID` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `unread` (
+  `id` INT,
+  `whoSent` VARCHAR(255),
+  `whoReceive` VARCHAR(255),
+  `message` VARCHAR(255),
+  `subredditID` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `direct` (
+  `id` INT,
+  `whoSent` VARCHAR(255),
+  `whoReceive` VARCHAR(255),
+  `message` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `room` (
+  `id` INT,
+  `userID` INT,
+  `message` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comments` (
+  `FK_user_id` INT,
+  `FK_comments_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `savedPosts` (
+  `id` INT,
+  `postID` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `frontpage` (
+  `id` INT,
+  `postID` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `msg1` (
+  `FK_user_id` INT,
+  `FK_private_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `msg2` (
+  `FK_user_id` INT,
+  `FK_inbox_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `subscribe` (
+  `FK_user_id` INT,
+  `FK_subreddit_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `createSubReddit` (
+  `FK_user_id` INT,
+  `FK_subreddit_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `avaliar` (
+  `FK_user_id` INT,
+  `FK_post_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `ver` (
+  `FK_user_id` INT,
+  `FK_post_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `report` (
+  `FK_user_id` INT,
+  `FK_post_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `hide` (
+  `FK_user_id` INT,
+  `FK_post_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `createPost` (
+  `FK_user_id` INT,
+  `FK_post_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `save` (
+  `FK_user_id` INT,
+  `FK_post_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `giveGold` (
+  `FK_user_id` INT,
+  `FK_post_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `msg3` (
+  `FK_user_id` INT,
+  `FK_unread_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `chat2` (
+  `FK_user_id` INT,
+  `FK_direct_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `chat1` (
+  `FK_user_id` INT,
+  `FK_room_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `search` (
+  `FK_user_id` INT,
+  `FK_results_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `escrever1` (
+  `FK_room_id` INT,
+  `FK_msg1_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `ecrever2` (
+  `FK_direct_id` INT,
+  `FK_msg2_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `postComment` (
+  `FK_post_id` INT,
+  `FK_comments_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `savePost` (
+  `FK_post_id` INT,
+  `FK_savedPosts_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `featured` (
+  `FK_frontpage_id` INT,
+  `FK_post_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_687706_reddit') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_687706_reddit') AS relationships;
+DROP DATABASE `db_687706_reddit`;
+UNINSTALL EXTENSION vsql_schematron;
