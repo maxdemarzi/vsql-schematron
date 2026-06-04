@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 037806_flowable_oracle_upgradestep_5_99_0_to_6_0_0_identity
+--echo #
+CREATE DATABASE `db_037806_flowable_oracle_upgradestep_5_99_0_to_6_0_0_identi`;
+USE `db_037806_flowable_oracle_upgradestep_5_99_0_to_6_0_0_identi`;
+
+CREATE TABLE `ACT_ID_PROPERTY` (
+  `NAME_` VARCHAR(64),
+  `VALUE_` VARCHAR(64),
+  `REV_` INT,
+  PRIMARY KEY (`NAME_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_ID_BYTEARRAY` (
+  `ID_` VARCHAR(64),
+  `REV_` INT,
+  `NAME_` VARCHAR(64),
+  `BYTES_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_ID_TOKEN` (
+  `ID_` VARCHAR(64),
+  `REV_` INT,
+  `TOKEN_VALUE_` VARCHAR(64),
+  `TOKEN_DATE_` DATETIME,
+  `IP_ADDRESS_` VARCHAR(64),
+  `USER_AGENT_` VARCHAR(64),
+  `USER_ID_` VARCHAR(64),
+  `TOKEN_DATA_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_ID_PRIV` (
+  `ID_` VARCHAR(64),
+  `NAME_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_ID_PRIV_MAPPING` (
+  `ID_` VARCHAR(64),
+  `PRIV_ID_` VARCHAR(64),
+  `USER_ID_` VARCHAR(64),
+  `GROUP_ID_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_037806_flowable_oracle_upgradestep_5_99_0_to_6_0_0_identi') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_037806_flowable_oracle_upgradestep_5_99_0_to_6_0_0_identi') AS relationships;
+DROP DATABASE `db_037806_flowable_oracle_upgradestep_5_99_0_to_6_0_0_identi`;
+UNINSTALL EXTENSION vsql_schematron;

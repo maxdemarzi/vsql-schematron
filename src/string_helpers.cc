@@ -131,7 +131,8 @@ std::string expandAbbreviation(const std::string& word) {
         {"pk", "key"},
         {"crsreq", "course_request"},
         {"corr", "correlation"},
-        {"corrset", "correlation_set"}
+        {"corrset", "correlation_set"},
+        {"pers", "person"}
     };
 
     auto check = [&](const std::string& s) -> std::string {
@@ -218,4 +219,11 @@ bool isKnown2CharAbbreviation(const std::string& s) {
         "tx", "dt", "cd", "cl", "db", "yr", "wk", "hr", "ms", "nm", "st", "nb", "fk", "pk", "no"
     };
     return ABBR.count(s);
+}
+
+std::string stripTrailingUnderscore(const std::string& s) {
+    if (!s.empty() && s.back() == '_') {
+        return s.substr(0, s.length() - 1);
+    }
+    return s;
 }

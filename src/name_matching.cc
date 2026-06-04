@@ -78,7 +78,7 @@ std::string stripTablePrefix(const std::string& name) {
         std::string prefix = n.substr(0, underscore);
         static const std::unordered_set<std::string> TECHNICAL_PREFIXES = {
             "idn", "oauth", "oauth2", "oauth1a", "oidc", "comtn",
-            "vsql", "sys", "db", "tbl", "ref", "cuds", "ext"
+            "vsql", "sys", "db", "tbl", "ref", "cuds", "ext", "act"
         };
         if (TECHNICAL_PREFIXES.count(prefix) > 0 || prefix.length() <= 2) {
             n = n.substr(underscore + 1);
@@ -354,32 +354,33 @@ bool matchTableName(const std::string& col_prefix, const std::string& tbl_name, 
  *   - splitColumnName("customeruuid", prefix, suffix) -> prefix: "customer", suffix: "uuid" (returns true)
  */
 bool splitColumnName(const std::string& col, std::string& prefix, std::string& suffix) {
-    size_t sep_pos = col.find_last_of("_ ");
-    if (sep_pos != std::string::npos && sep_pos > 0 && sep_pos < col.length() - 1) {
-        prefix = col.substr(0, sep_pos);
-        suffix = col.substr(sep_pos + 1);
+    std::string clean_col = stripTrailingUnderscore(col);
+    size_t sep_pos = clean_col.find_last_of("_ ");
+    if (sep_pos != std::string::npos && sep_pos > 0 && sep_pos < clean_col.length() - 1) {
+        prefix = clean_col.substr(0, sep_pos);
+        suffix = clean_col.substr(sep_pos + 1);
         while (!prefix.empty() && prefix.back() == ' ') prefix.pop_back();
         while (!prefix.empty() && prefix.front() == ' ') prefix.erase(prefix.begin());
         while (!suffix.empty() && suffix.back() == ' ') suffix.pop_back();
         while (!suffix.empty() && suffix.front() == ' ') suffix.erase(suffix.begin());
         return true;
     }
-    if (col.length() > 1) {
-        for (size_t i = col.length() - 1; i > 0; --i) {
-            if (std::isupper(col[i]) && (!std::isupper(col[i-1]) || (i + 1 < col.length() && std::islower(col[i+1])))) {
-                prefix = col.substr(0, i);
-                suffix = col.substr(i);
+    if (clean_col.length() > 1) {
+        for (size_t i = clean_col.length() - 1; i > 0; --i) {
+            if (std::isupper(clean_col[i]) && (!std::isupper(clean_col[i-1]) || (i + 1 < clean_col.length() && std::islower(clean_col[i+1])))) {
+                prefix = clean_col.substr(0, i);
+                suffix = clean_col.substr(i);
                 return true;
             }
         }
     }
     // Fallback for lowercase without underscore ending in identifier suffixes (id, uuid, guid, uid, code, key, number, num, no)
-    std::string c_lower = to_lower(col);
+    std::string c_lower = to_lower(clean_col);
     std::vector<std::string> suffixes = {"uuid", "guid", "uid", "id", "code", "key", "number", "num", "no"};
     for (const auto& sfx : suffixes) {
         if (c_lower.length() > sfx.length() && c_lower.rfind(sfx) == c_lower.length() - sfx.length()) {
-            prefix = col.substr(0, col.length() - sfx.length());
-            suffix = col.substr(col.length() - sfx.length());
+            prefix = clean_col.substr(0, clean_col.length() - sfx.length());
+            suffix = clean_col.substr(clean_col.length() - sfx.length());
             return true;
         }
     }
@@ -464,7 +465,8 @@ std::string stripAcronymPrefix(const std::string& col, const std::string& tbl) {
  *   isGenericIdentifier("customer_id") -> false (only direct standard abbreviations match)
  */
 bool isGenericIdentifier(const std::string& s) {
-    std::string l = to_lower(s);
+    std::string clean = stripTrailingUnderscore(s);
+    std::string l = to_lower(clean);
     static const std::unordered_set<std::string> GENERIC_IDS = {
         "id", "uuid", "guid", "uid"
     };
@@ -472,7 +474,8 @@ bool isGenericIdentifier(const std::string& s) {
 }
 
 bool isGenericAttribute(const std::string& s) {
-    std::string l = to_lower(s);
+    std::string clean = stripTrailingUnderscore(s);
+    std::string l = to_lower(clean);
     static const std::unordered_set<std::string> GENERIC_ATTRS = {
         "name", "value", "description", "desc", "number", "num"
     };

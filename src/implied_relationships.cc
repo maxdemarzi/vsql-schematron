@@ -87,7 +87,7 @@ void findPass1ImpliedRelationships(
             bool col_a_is_pk = false;
             if (pks_a.size() == 1) {
                 for (const auto& pk_a : pks_a) {
-                    if (to_lower(col_a_clean) == to_lower(pk_a)) {
+                    if (to_lower(stripTrailingUnderscore(col_a_clean)) == to_lower(stripTrailingUnderscore(pk_a))) {
                         col_a_is_pk = true;
                         break;
                     }
@@ -276,7 +276,7 @@ void findPass1ImpliedRelationships(
                     }
                     if (is_self_ref_name) {
                         for (const auto& pk_b : pks_b) {
-                            if (to_lower(col_a_clean) == to_lower(pk_b)) continue;
+                            if (to_lower(stripTrailingUnderscore(col_a_clean)) == to_lower(stripTrailingUnderscore(pk_b))) continue;
                             auto it_b_col = info_b.column_types.find(pk_b);
                             if (it_b_col != info_b.column_types.end() && typeMatches(type_a, it_b_col->second)) {
                                 Relationship rel;
@@ -289,17 +289,17 @@ void findPass1ImpliedRelationships(
                             }
                         }
                     }
-
+ 
                     // Heuristic: Self-referencing suffix match (checking words like parent/child)
                     // Example: node.parent_node_id -> node.node_id
                     for (const auto& pk_b : pks_b) {
-                        if (to_lower(col_a_clean) == to_lower(pk_b)) continue;
-
+                        if (to_lower(stripTrailingUnderscore(col_a_clean)) == to_lower(stripTrailingUnderscore(pk_b))) continue;
+ 
                         auto it_b_col = info_b.column_types.find(pk_b);
                         if (it_b_col != info_b.column_types.end() && typeMatches(type_a, it_b_col->second)) {
                             if (has_split) {
                                 bool suffix_matches = false;
-                                if (to_lower(suffix_a) == to_lower(pk_b) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b))) {
+                                if (to_lower(suffix_a) == to_lower(stripTrailingUnderscore(pk_b)) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b))) {
                                     suffix_matches = true;
                                 } else {
                                     std::string prefix_b_col, suffix_b_col;
@@ -350,7 +350,7 @@ void findPass1ImpliedRelationships(
 
                         // Heuristic: Exact match (excluding generic "id")
                         // Example: orders.customer_code -> customers.customer_code
-                        if (to_lower(col_a_clean) == to_lower(pk_b) && !isGenericIdentifier(col_a_clean) && !isGenericAttribute(col_a_clean)) {
+                        if (to_lower(stripTrailingUnderscore(col_a_clean)) == to_lower(stripTrailingUnderscore(pk_b)) && !isGenericIdentifier(col_a_clean) && !isGenericAttribute(col_a_clean)) {
                             Relationship rel;
                             rel.from_table = tbl_a;
                             rel.from_column = col_a;
@@ -414,7 +414,7 @@ void findPass1ImpliedRelationships(
 
                         // Heuristic: User ID fallback match
                         // Example: orders.id -> users.id (where "users" is identified as a person table)
-                        if (to_lower(col_a_clean) == "id" && to_lower(pk_b) == "id") {
+                        if (to_lower(stripTrailingUnderscore(col_a_clean)) == "id" && to_lower(stripTrailingUnderscore(pk_b)) == "id") {
                             std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
                             if (isPersonTable(clean_b)) {
                                 Relationship rel;
@@ -497,7 +497,7 @@ void findPass1ImpliedRelationships(
                             }
                         } else if (has_split) {
                             bool suffix_matches = false;
-                            if (to_lower(suffix_a) == to_lower(pk_b) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b))) {
+                            if (to_lower(suffix_a) == to_lower(stripTrailingUnderscore(pk_b)) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b))) {
                                 suffix_matches = true;
                             } else {
                                 std::string prefix_b_col, suffix_b_col;
@@ -620,7 +620,7 @@ void findPass1_5ImpliedRelationships(
             // Check if column is already Table A's PK
             bool col_a_is_pk = false;
             for (const auto& pk_a : pks_a) {
-                if (to_lower(col_name_a) == to_lower(pk_a)) {
+                if (to_lower(stripTrailingUnderscore(col_name_a)) == to_lower(stripTrailingUnderscore(pk_a))) {
                     col_a_is_pk = true;
                     break;
                 }
@@ -630,7 +630,7 @@ void findPass1_5ImpliedRelationships(
             if (isTemporalType(type_a) || isSystemColumn(col_name_a) || isStatisticColumn(col_name_a)) continue;
             
             auto is_key_column = [](const std::string& name) -> bool {
-                std::string n = to_lower(name);
+                std::string n = to_lower(stripTrailingUnderscore(name));
                 static const std::unordered_set<std::string> DIRECT_KEYS = {
                     "id", "uuid", "guid", "uid", "key", "code"
                 };
@@ -671,7 +671,7 @@ void findPass1_5ImpliedRelationships(
                     // Check if column is Table B's PK
                     bool col_b_is_pk = false;
                     for (const auto& pk_b : info_b.pk_columns) {
-                        if (to_lower(col_name_b) == to_lower(pk_b)) {
+                        if (to_lower(stripTrailingUnderscore(col_name_b)) == to_lower(stripTrailingUnderscore(pk_b))) {
                             col_b_is_pk = true;
                             break;
                         }
@@ -683,7 +683,7 @@ void findPass1_5ImpliedRelationships(
                     if (col_b_is_fk) continue;
                     
                     // Match shared same-name key columns (e.g. orders.store_code -> stores.store_code)
-                    if (col_a == col_b && typesAreSemanticallyCompatible(col_name_a, type_a, type_b)) {
+                    if (to_lower(stripTrailingUnderscore(col_name_a)) == to_lower(stripTrailingUnderscore(col_name_b)) && typesAreSemanticallyCompatible(col_name_a, type_a, type_b)) {
                         bool should_match = false;
                         if (pks_b.empty() && info_a.pk_columns.empty()) {
                             bool tbl_b_has_outgoing = false;
@@ -805,7 +805,7 @@ void findPass2ImpliedRelationships(
                     bool is_subtype = false;
                     bool col_a_is_pk = false;
                     for (const auto& pk_a : pks_a) {
-                        if (to_lower(col_a_clean) == to_lower(pk_a)) {
+                        if (to_lower(stripTrailingUnderscore(col_a_clean)) == to_lower(stripTrailingUnderscore(pk_a))) {
                             col_a_is_pk = true;
                             break;
                         }
@@ -822,7 +822,7 @@ void findPass2ImpliedRelationships(
                         if (!already_has_rel) {
                             if (isSubtypeTable(tbl_a, tbl_b)) {
                                 bool col_name_matches = false;
-                                if (to_lower(col_a_clean) == to_lower(pk_b)) {
+                                if (to_lower(stripTrailingUnderscore(col_a_clean)) == to_lower(stripTrailingUnderscore(pk_b))) {
                                     col_name_matches = true;
                                 } else if (isGenericIdentifier(col_a_clean)) {
                                     col_name_matches = true;
@@ -833,7 +833,7 @@ void findPass2ImpliedRelationships(
                                     if (splitColumnName(col_a_clean, prefix_a, suffix_a)) {
                                         if (matchTableName(prefix_a, tbl_b, false)) {
                                             col_name_matches = true;
-                                        } else if (to_lower(suffix_a) == to_lower(pk_b) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b))) {
+                                        } else if (to_lower(suffix_a) == to_lower(stripTrailingUnderscore(pk_b)) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b))) {
                                             if (matchTableName(prefix_a, tbl_b, false)) {
                                                 col_name_matches = true;
                                             }
@@ -893,7 +893,7 @@ bool isAcronymMatchRelation(const Relationship& rel) {
 }
 
 std::string getCleanEntityPrefix(const std::string& col, const std::string& tbl) {
-    std::string col_clean = stripAcronymPrefix(col, tbl);
+    std::string col_clean = stripTrailingUnderscore(stripAcronymPrefix(col, tbl));
     std::string prefix, suffix;
     if (splitColumnName(col_clean, prefix, suffix)) {
         std::string entity = prefix;
