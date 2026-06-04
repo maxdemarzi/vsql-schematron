@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 287747_thread
+--echo #
+CREATE DATABASE `db_287747_thread`;
+USE `db_287747_thread`;
+
+CREATE TABLE `used_challenge_tokens` (
+  `token_id` VARCHAR(255),
+  `ctime` INT,
+  `atime` INT,
+  PRIMARY KEY (`token_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `threads` (
+  `thread_id` VARCHAR(255),
+  `num_conversants` INT,
+  PRIMARY KEY (`thread_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `thread_keys` (
+  `thread_id` VARCHAR(255),
+  `user_zid` INT,
+  `key_data` VARCHAR(255),
+  `etime` INT,
+  `write_token` VARCHAR(255),
+  `signing_key_public` VARCHAR(255),
+  `key_proof` VARCHAR(255),
+  `signing_key_private` VARCHAR(255),
+  PRIMARY KEY (`thread_id`, `user_zid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `messages` (
+  `thread_id` VARCHAR(255),
+  `msg_zid` INT,
+  `sender_zid` INT,
+  `num_chunks` INT,
+  `etime` INT,
+  `sig` VARCHAR(255),
+  `prev_msg_zid` INT,
+  `parent_msg_zid` INT,
+  PRIMARY KEY (`thread_id`, `msg_zid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chunks` (
+  `thread_id` VARCHAR(255),
+  `msg_zid` INT,
+  `chunk_zid` INT,
+  `data` VARCHAR(255),
+  PRIMARY KEY (`thread_id`, `msg_zid`, `chunk_zid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `deletions` (
+  `thread_id` VARCHAR(255),
+  `user_zid` INT,
+  `msg_zid` INT,
+  PRIMARY KEY (`thread_id`, `user_zid`, `msg_zid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_287747_thread') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_287747_thread') AS relationships;
+DROP DATABASE `db_287747_thread`;
+UNINSTALL EXTENSION vsql_schematron;

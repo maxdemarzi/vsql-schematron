@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 179593_general_schema_out
+--echo #
+CREATE DATABASE `db_179593_general_schema_out`;
+USE `db_179593_general_schema_out`;
+
+CREATE TABLE `orders` (
+  `id` INT,
+  `user_id` INT,
+  `status` VARCHAR(255),
+  `created_at` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_items` (
+  `order_id` INT,
+  `product_id` INT,
+  `quantity` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `products` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `merchant_id` INT,
+  `price` INT,
+  `status` VARCHAR(255),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `full_name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `gender` VARCHAR(255),
+  `date_of_birth` VARCHAR(255),
+  `created_at` VARCHAR(255),
+  `country_code` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `merchants` (
+  `id` INT,
+  `merchant_name` VARCHAR(255),
+  `country_code` INT,
+  `created_at` VARCHAR(255),
+  `admin_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `countries` (
+  `code` INT,
+  `name` VARCHAR(255),
+  `continent_name` VARCHAR(255),
+  PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_179593_general_schema_out') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_179593_general_schema_out') AS relationships;
+DROP DATABASE `db_179593_general_schema_out`;
+UNINSTALL EXTENSION vsql_schematron;

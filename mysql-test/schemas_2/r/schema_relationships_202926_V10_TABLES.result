@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 202926_V10_TABLES
+#
+CREATE DATABASE `db_202926_V10_TABLES`;
+USE `db_202926_V10_TABLES`;
+CREATE TABLE `blogpost` (
+`id` VARCHAR(255),
+`auditing_created_at` DATETIME,
+`auditing_updated_at` DATETIME,
+`blogpost_author` VARCHAR(255),
+`title` VARCHAR(255),
+`content` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `blogpost_comment` (
+`id` VARCHAR(255),
+`auditing_created_at` DATETIME,
+`auditing_updated_at` DATETIME,
+`blogpost_comment_author` VARCHAR(255),
+`blogpost_id` VARCHAR(255),
+`content` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `blogpost_comments` (
+`blogpost_id` VARCHAR(255),
+`comment_id` VARCHAR(255)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_202926_V10_TABLES') AS relationships;
+relationships
+Database: db_202926_V10_TABLES
+
+Table Connections:
+------------------
+[Implied]  blogpost_comment.blogpost_id -> blogpost.id
+[Implied]  blogpost_comments.blogpost_id -> blogpost.id
+[Implied]  blogpost_comments.comment_id -> blogpost_comment.id
+
+DROP DATABASE `db_202926_V10_TABLES`;
+UNINSTALL EXTENSION vsql_schematron;

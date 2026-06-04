@@ -1,0 +1,115 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 271656_V1_schema
+#
+CREATE DATABASE `db_271656_V1_schema`;
+USE `db_271656_V1_schema`;
+CREATE TABLE `bookmaker` (
+`id` INT,
+`name` VARCHAR(255),
+`home_url` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tournament` (
+`id` INT,
+`name` VARCHAR(255),
+`sex` VARCHAR(255),
+`type` VARCHAR(255),
+`surface` VARCHAR(255),
+`year` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tournament_bookmaker` (
+`id` INT,
+`tournament_id` INT,
+`bookmaker_id` INT,
+`tournament_bookmaker_id` VARCHAR(255),
+`tournament_bookmaker_extra_id` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `matches` (
+`id` INT,
+`home` VARCHAR(255),
+`away` VARCHAR(255),
+`start_time_utc` DATETIME,
+`tournament_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `matches_bookmaker` (
+`id` INT,
+`match_id` INT,
+`bookmaker_id` INT,
+`match_bookmaker_id` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `odds` (
+`id` INT,
+`bookmaker_id` INT,
+`match_bookmaker_id` VARCHAR(255),
+`odds_type` VARCHAR(255),
+`match_part` VARCHAR(255),
+`odd1` DECIMAL(10,2),
+`odd2` DECIMAL(10,2),
+`utc_time_recorded` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `inplay` (
+`id` INT,
+`bookmaker_id` INT,
+`match_bookmaker_id` VARCHAR(255),
+`utc_time_recorded` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bet` (
+`id` INT,
+`bookmaker_id` INT,
+`match_bookmaker_id` VARCHAR(255),
+`bet_type` VARCHAR(255),
+`match_part` VARCHAR(255),
+`odd` DECIMAL(10,2),
+`probability` DECIMAL(10,2),
+`result` VARCHAR(255),
+`utc_time_recorded` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `match_course` (
+`id` INT,
+`match_id` INT,
+`set_number` INT,
+`result` VARCHAR(255),
+`utc_time_recorded` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bet_manually_updated` (
+`id` INT,
+`bookmaker_id` INT,
+`match_bookmaker_id` VARCHAR(255),
+`bet_type` VARCHAR(255),
+`match_part` VARCHAR(255),
+`odd` DECIMAL(10,2),
+`probability` DECIMAL(10,2),
+`result` VARCHAR(255),
+`utc_time_recorded` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_271656_V1_schema') AS relationships;
+relationships
+Database: db_271656_V1_schema
+
+Table Connections:
+------------------
+[Implied]  bet.bookmaker_id -> bookmaker.id
+[Implied]  bet.odd -> odds.id
+[Implied]  bet_manually_updated.bookmaker_id -> bookmaker.id
+[Implied]  bet_manually_updated.odd -> odds.id
+[Implied]  inplay.bookmaker_id -> bookmaker.id
+[Implied]  match_course.match_id -> matches.id
+[Implied]  matches.tournament_id -> tournament.id
+[Implied]  matches_bookmaker.bookmaker_id -> bookmaker.id
+[Implied]  matches_bookmaker.match_id -> matches.id
+[Implied]  odds.bookmaker_id -> bookmaker.id
+[Implied]  tournament_bookmaker.bookmaker_id -> bookmaker.id
+[Implied]  tournament_bookmaker.tournament_id -> tournament.id
+
+DROP DATABASE `db_271656_V1_schema`;
+UNINSTALL EXTENSION vsql_schematron;

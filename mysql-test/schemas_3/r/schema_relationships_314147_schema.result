@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 314147_schema
+#
+CREATE DATABASE `db_314147_schema`;
+USE `db_314147_schema`;
+CREATE TABLE `accounts` (
+`id` VARCHAR(255),
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`password_salt` VARCHAR(255),
+`verified` VARCHAR(255),
+`verified_token` VARCHAR(255),
+`two_factor_auth` VARCHAR(255),
+`last_ip_login` VARCHAR(255),
+`current_ip_login` VARCHAR(255),
+`sign_in_count` INT,
+`failed_attempts` INT,
+`unlock_token` VARCHAR(255),
+`locked` VARCHAR(255),
+`locked_at` DATETIME,
+`profile` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nodes` (
+`id` VARCHAR(255),
+`account_id` VARCHAR(255),
+`node_name` VARCHAR(255),
+`seen_last_at` DATETIME,
+`node_status` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `builds` (
+`id` VARCHAR(255),
+`node_id` VARCHAR(255),
+`build_hash` VARCHAR(255),
+`build_path` VARCHAR(255),
+`configs` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_314147_schema') AS relationships;
+relationships
+Database: db_314147_schema
+
+Table Connections:
+------------------
+[Implied]  builds.node_id -> nodes.id
+[Implied]  nodes.account_id -> accounts.id
+
+DROP DATABASE `db_314147_schema`;
+UNINSTALL EXTENSION vsql_schematron;

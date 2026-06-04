@@ -1,0 +1,166 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 343764_tables
+#
+CREATE DATABASE `db_343764_tables`;
+USE `db_343764_tables`;
+CREATE TABLE `golfer` (
+`id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`middle_name` VARCHAR(255),
+`email` VARCHAR(255),
+`city` VARCHAR(255),
+`state` VARCHAR(255),
+`zip` VARCHAR(255),
+`home_phone` VARCHAR(255),
+`work_phone` VARCHAR(255),
+`notes` VARCHAR(255),
+`date_added` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `golfer_status` (
+`golfer_id` INT,
+`status_id` VARCHAR(255),
+`updated` DATETIME,
+PRIMARY KEY (`golfer_id`, `status_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `status` (
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `team_member` (
+`team_id` INT,
+`golfer_id` INT,
+PRIMARY KEY (`team_id`, `golfer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `team` (
+`id` INT,
+`league_id` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `team_flight` (
+`team_id` INT,
+`flight_id` INT,
+PRIMARY KEY (`team_id`, `flight_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `flight` (
+`id` INT,
+`league_id` INT,
+`start` DATETIME,
+`end` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `league` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `season` (
+`id` INT,
+`year` VARCHAR(255),
+`league_id` INT,
+`course_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`id` INT,
+`season_id` INT,
+`day` DATETIME,
+`event_type` VARCHAR(255),
+`notes` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_type` (
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `team_event` (
+`event_id` INT,
+`team_id` INT,
+PRIMARY KEY (`event_id`, `team_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nine` (
+`course_id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`course_id`, `name`)
+) CHARACTER SET latin1;
+CREATE TABLE `hole` (
+`id` INT,
+`course_id` INT,
+`nine_name` VARCHAR(255),
+`hole_number` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hole_handicap` (
+`hole_id` INT,
+`created` DATETIME,
+`handicap` INT,
+PRIMARY KEY (`hole_id`, `created`)
+) CHARACTER SET latin1;
+CREATE TABLE `hole_par` (
+`hole_id` INT,
+`created` DATETIME,
+`par` INT,
+PRIMARY KEY (`hole_id`, `created`)
+) CHARACTER SET latin1;
+CREATE TABLE `player_handicap` (
+`id` INT,
+`golfer_id` INT,
+`created` DATETIME,
+`handicap` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `round` (
+`id` INT,
+`event_id` INT,
+`golfer_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `score` (
+`round_id` INT,
+`hole_id` INT,
+`score` INT,
+PRIMARY KEY (`round_id`, `hole_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_343764_tables') AS relationships;
+relationships
+Database: db_343764_tables
+
+Table Connections:
+------------------
+[Implied]  event.event_type -> event_type.name
+[Implied]  event.season_id -> season.id
+[Implied]  flight.league_id -> league.id
+[Implied]  golfer_status.golfer_id -> golfer.id
+[Implied]  golfer_status.status_id -> status.name
+[Implied]  hole.course_id -> course.id
+[Implied]  hole_handicap.hole_id -> hole.id
+[Implied]  hole_par.hole_id -> hole.id
+[Implied]  nine.course_id -> course.id
+[Implied]  player_handicap.golfer_id -> golfer.id
+[Implied]  round.event_id -> event.id
+[Implied]  round.golfer_id -> golfer.id
+[Implied]  score.hole_id -> hole.id
+[Implied]  score.round_id -> round.id
+[Implied]  season.course_id -> course.id
+[Implied]  season.league_id -> league.id
+[Implied]  team.league_id -> league.id
+[Implied]  team_event.event_id -> event.id
+[Implied]  team_event.team_id -> team.id
+[Implied]  team_flight.flight_id -> flight.id
+[Implied]  team_flight.team_id -> team.id
+[Implied]  team_member.golfer_id -> golfer.id
+[Implied]  team_member.team_id -> team.id
+
+DROP DATABASE `db_343764_tables`;
+UNINSTALL EXTENSION vsql_schematron;

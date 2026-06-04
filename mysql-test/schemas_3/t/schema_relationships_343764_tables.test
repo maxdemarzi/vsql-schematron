@@ -1,0 +1,175 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 343764_tables
+--echo #
+CREATE DATABASE `db_343764_tables`;
+USE `db_343764_tables`;
+
+CREATE TABLE `golfer` (
+  `id` INT,
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `middle_name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `city` VARCHAR(255),
+  `state` VARCHAR(255),
+  `zip` VARCHAR(255),
+  `home_phone` VARCHAR(255),
+  `work_phone` VARCHAR(255),
+  `notes` VARCHAR(255),
+  `date_added` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `golfer_status` (
+  `golfer_id` INT,
+  `status_id` VARCHAR(255),
+  `updated` DATETIME,
+  PRIMARY KEY (`golfer_id`, `status_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `status` (
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `team_member` (
+  `team_id` INT,
+  `golfer_id` INT,
+  PRIMARY KEY (`team_id`, `golfer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `team` (
+  `id` INT,
+  `league_id` INT,
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `team_flight` (
+  `team_id` INT,
+  `flight_id` INT,
+  PRIMARY KEY (`team_id`, `flight_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `flight` (
+  `id` INT,
+  `league_id` INT,
+  `start` DATETIME,
+  `end` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `league` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `season` (
+  `id` INT,
+  `year` VARCHAR(255),
+  `league_id` INT,
+  `course_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event` (
+  `id` INT,
+  `season_id` INT,
+  `day` DATETIME,
+  `event_type` VARCHAR(255),
+  `notes` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event_type` (
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `team_event` (
+  `event_id` INT,
+  `team_id` INT,
+  PRIMARY KEY (`event_id`, `team_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `nine` (
+  `course_id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`course_id`, `name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hole` (
+  `id` INT,
+  `course_id` INT,
+  `nine_name` VARCHAR(255),
+  `hole_number` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hole_handicap` (
+  `hole_id` INT,
+  `created` DATETIME,
+  `handicap` INT,
+  PRIMARY KEY (`hole_id`, `created`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hole_par` (
+  `hole_id` INT,
+  `created` DATETIME,
+  `par` INT,
+  PRIMARY KEY (`hole_id`, `created`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `player_handicap` (
+  `id` INT,
+  `golfer_id` INT,
+  `created` DATETIME,
+  `handicap` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `round` (
+  `id` INT,
+  `event_id` INT,
+  `golfer_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `score` (
+  `round_id` INT,
+  `hole_id` INT,
+  `score` INT,
+  PRIMARY KEY (`round_id`, `hole_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_343764_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_343764_tables') AS relationships;
+DROP DATABASE `db_343764_tables`;
+UNINSTALL EXTENSION vsql_schematron;

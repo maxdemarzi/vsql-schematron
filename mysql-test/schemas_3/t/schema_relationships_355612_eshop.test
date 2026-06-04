@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 355612_eshop
+--echo #
+CREATE DATABASE `db_355612_eshop`;
+USE `db_355612_eshop`;
+
+CREATE TABLE `products` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `price` DECIMAL(10,2),
+  `quantity` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customers` (
+  `id` INT,
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `tel` VARCHAR(255),
+  `email` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `id` INT,
+  `date` DATETIME,
+  `products_id` INT,
+  `customers_id` INT,
+  `quantity` INT,
+  `total_price` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders2` (
+  `id` INT,
+  `date` DATETIME,
+  `customers_id` INT,
+  `total_price` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `eshop1.orders2_details` (
+  `id` INT,
+  `orders2_id` INT,
+  `products_id` INT,
+  `price` DECIMAL(10,2),
+  `quantity` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_355612_eshop') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_355612_eshop') AS relationships;
+DROP DATABASE `db_355612_eshop`;
+UNINSTALL EXTENSION vsql_schematron;

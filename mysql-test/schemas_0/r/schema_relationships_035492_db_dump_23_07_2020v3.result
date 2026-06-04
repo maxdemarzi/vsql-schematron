@@ -1,0 +1,145 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 035492_db_dump_23_07_2020v3
+#
+CREATE DATABASE `db_035492_db_dump_23_07_2020v3`;
+USE `db_035492_db_dump_23_07_2020v3`;
+CREATE TABLE `addresses` (
+`id` INT,
+`street` VARCHAR(255),
+`exteriorNumberAddress` INT,
+`interiorNumberAddress` INT,
+`suburb` VARCHAR(255),
+`city` VARCHAR(255),
+`estate` VARCHAR(255),
+`cp` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`user_id` INT,
+`provider_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `offices` (
+`id` INT,
+`nameOffice` VARCHAR(255),
+`phone` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`address_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`nameCategory` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `providers` (
+`id` INT,
+`phone` INT,
+`nameProvider` VARCHAR(255),
+`apProvider` VARCHAR(255),
+`amProvider` VARCHAR(255),
+`companyProvider` VARCHAR(255),
+`descriptionProvider` VARCHAR(255),
+`emailProvider` VARCHAR(255),
+`rfcProvider` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `typeUsers` (
+`id` INT,
+`role` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sexs` (
+`id` INT,
+`sex` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `administrators` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`user_id` INT,
+`office_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sizes` (
+`id` INT,
+`nom_talla` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `statusProducts` (
+`id` INT,
+`nameStatus` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `imagesProducts` (
+`id` INT,
+`url` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`product_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `buys` (
+`id` INT,
+`dateBuy` DATETIME,
+`cost_com` DECIMAL(10,2),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`administrator_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `buyDetails` (
+`cantidad_com` INT,
+`cost_com` DECIMAL(10,2),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`buy_id` INT,
+`product_id` INT,
+`inventory_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `sells` (
+`id` INT,
+`fec_vta` DATETIME,
+`monto_pago` DECIMAL(10,2),
+`status_vta` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shipments` (
+`id` INT,
+`fec_env` DATETIME,
+`fec_ent` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`sell_id` INT,
+`user_id` INT,
+`address_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_035492_db_dump_23_07_2020v3') AS relationships;
+relationships
+Database: db_035492_db_dump_23_07_2020v3
+
+Table Connections:
+------------------
+[Implied]  addresses.provider_id -> providers.id
+[Implied]  administrators.office_id -> offices.id
+[Implied]  buyDetails.buy_id -> buys.id
+[Implied]  buys.administrator_id -> administrators.id
+[Implied]  offices.address_id -> addresses.id
+[Implied]  shipments.address_id -> addresses.id
+[Implied]  shipments.sell_id -> sells.id
+
+DROP DATABASE `db_035492_db_dump_23_07_2020v3`;
+UNINSTALL EXTENSION vsql_schematron;

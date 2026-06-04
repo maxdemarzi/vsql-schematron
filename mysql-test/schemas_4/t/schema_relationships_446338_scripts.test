@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 446338_scripts
+--echo #
+CREATE DATABASE `db_446338_scripts`;
+USE `db_446338_scripts`;
+
+CREATE TABLE `user` (
+  `ID` INT,
+  `username` VARCHAR(255),
+  `nickname` VARCHAR(255),
+  `age` INT,
+  `gender` VARCHAR(255),
+  `phoneNumber` VARCHAR(255),
+  `email` VARCHAR(255),
+  `password` VARCHAR(255),
+  `registered` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `counsellor` (
+  `ID` INT,
+  `firstName` VARCHAR(255),
+  `lastName` VARCHAR(255),
+  `email` VARCHAR(255),
+  `password` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `session` (
+  `ID` INT,
+  `beginTime` DATETIME,
+  `endTime` DATETIME,
+  `counsellorID` INT,
+  `userID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `message` (
+  `ID` INT,
+  `sessionID` INT,
+  `messageTime` DATETIME,
+  `counsellorID` INT,
+  `userID` INT,
+  `messageContent` VARCHAR(255),
+  `fromCounsellor` INT,
+  `fromTwilio` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_446338_scripts') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_446338_scripts') AS relationships;
+DROP DATABASE `db_446338_scripts`;
+UNINSTALL EXTENSION vsql_schematron;

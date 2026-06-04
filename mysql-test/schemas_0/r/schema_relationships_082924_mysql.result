@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 082924_mysql
+#
+CREATE DATABASE `db_082924_mysql`;
+USE `db_082924_mysql`;
+CREATE TABLE `admintokens` (
+`id` VARCHAR(255),
+`user_id` INT,
+`valid_until` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `bookletlogs` (
+`booklet_id` INT,
+`timestamp` INT,
+`logentry` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `bookletreviews` (
+`booklet_id` INT,
+`reviewtime` DATETIME,
+`reviewer` VARCHAR(255),
+`priority` INT,
+`categories` VARCHAR(255),
+`entry` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `booklets` (
+`id` INT,
+`name` VARCHAR(255),
+`person_id` INT,
+`laststate` VARCHAR(255),
+`locked` INT,
+`label` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `logins` (
+`id` INT,
+`name` VARCHAR(255),
+`mode` VARCHAR(255),
+`workspace_id` INT,
+`valid_until` DATETIME,
+`token` VARCHAR(255),
+`booklet_def` VARCHAR(255),
+`groupname` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `persons` (
+`id` INT,
+`code` VARCHAR(255),
+`login_id` INT,
+`valid_until` DATETIME,
+`token` VARCHAR(255),
+`laststate` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `unitlogs` (
+`unit_id` INT,
+`timestamp` INT,
+`logentry` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `unitreviews` (
+`unit_id` INT,
+`reviewtime` DATETIME,
+`reviewer` VARCHAR(255),
+`priority` INT,
+`categories` VARCHAR(255),
+`entry` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `units` (
+`id` INT,
+`name` VARCHAR(255),
+`booklet_id` INT,
+`laststate` VARCHAR(255),
+`responses` VARCHAR(255),
+`responsetype` VARCHAR(255),
+`responses_ts` INT,
+`restorepoint` VARCHAR(255),
+`restorepoint_ts` INT
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(255),
+`password` VARCHAR(255),
+`email` VARCHAR(255),
+`is_superadmin` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `workspaces` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `workspace_users` (
+`workspace_id` INT,
+`user_id` INT,
+`role` VARCHAR(255)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_082924_mysql') AS relationships;
+relationships
+Database: db_082924_mysql
+
+Table Connections:
+------------------
+[Implied]  admintokens.user_id -> users.id
+[Implied]  bookletlogs.booklet_id -> booklets.id
+[Implied]  bookletreviews.booklet_id -> booklets.id
+[Implied]  booklets.person_id -> persons.id
+[Implied]  logins.workspace_id -> workspaces.id
+[Implied]  persons.login_id -> logins.id
+[Implied]  unitlogs.unit_id -> units.id
+[Implied]  unitreviews.unit_id -> units.id
+[Implied]  units.booklet_id -> booklets.id
+[Implied]  workspace_users.user_id -> users.id
+[Implied]  workspace_users.workspace_id -> workspaces.id
+
+DROP DATABASE `db_082924_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

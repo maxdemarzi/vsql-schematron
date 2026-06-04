@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 355612_eshop
+#
+CREATE DATABASE `db_355612_eshop`;
+USE `db_355612_eshop`;
+CREATE TABLE `products` (
+`id` INT,
+`name` VARCHAR(255),
+`price` DECIMAL(10,2),
+`quantity` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customers` (
+`id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`tel` VARCHAR(255),
+`email` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`date` DATETIME,
+`products_id` INT,
+`customers_id` INT,
+`quantity` INT,
+`total_price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders2` (
+`id` INT,
+`date` DATETIME,
+`customers_id` INT,
+`total_price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `eshop1.orders2_details` (
+`id` INT,
+`orders2_id` INT,
+`products_id` INT,
+`price` DECIMAL(10,2),
+`quantity` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_355612_eshop') AS relationships;
+relationships
+Database: db_355612_eshop
+
+Table Connections:
+------------------
+[Implied]  eshop1.orders2_details.orders2_id -> orders2.id
+[Implied]  eshop1.orders2_details.products_id -> products.id
+[Implied]  orders.customers_id -> customers.id
+[Implied]  orders.products_id -> products.id
+[Implied]  orders2.customers_id -> customers.id
+
+DROP DATABASE `db_355612_eshop`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,5 +1,7 @@
 #include "domain_specific_matching.h"
 #include "schema_analyzer_helpers.h"
+#include "name_matching.h"
+#include "string_helpers.h"
 #include <cctype>
 #include <algorithm>
 #include <sstream>
@@ -195,6 +197,182 @@ bool matchDomainSpecificKeys(
                                 rel.is_explicit = false;
                                 relationships.insert(rel);
                                 relationship_found = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        // BPMN / Camunda Specific Rules
+        std::string clean_tbl_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
+        bool is_hi_a = (clean_tbl_a.rfind("hi_", 0) == 0 || clean_tbl_a.find("_hi_") != std::string::npos ||
+                        to_lower(tbl_a).rfind("act_hi_", 0) == 0 || to_lower(tbl_a).find("_hi_") != std::string::npos);
+
+        if (col_lower == "proc_inst_id_" || col_lower == "proc_inst_id" ||
+            col_lower == "process_instance_id_" || col_lower == "process_instance_id") {
+            for (const auto& tbl_b : table_names) {
+                std::string clean_tbl_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                bool match = false;
+                if (is_hi_a) {
+                    if (clean_tbl_b == "procinst" || clean_tbl_b == "hi_procinst" || clean_tbl_b == "processinstance") {
+                        match = true;
+                    }
+                } else {
+                    if (clean_tbl_b == "execution" || clean_tbl_b == "ru_execution") {
+                        match = true;
+                    }
+                }
+                if (match) {
+                    auto it_b = tables_info.find(tbl_b);
+                    if (it_b != tables_info.end()) {
+                        const auto& info_b = it_b->second;
+                        for (const auto& col_b_pair : info_b.column_types) {
+                            if (to_lower(stripTrailingUnderscore(col_b_pair.first)) == "id") {
+                                if (typeMatches(type_a, col_b_pair.second)) {
+                                    Relationship rel;
+                                    rel.from_table = tbl_a;
+                                    rel.from_column = col_a;
+                                    rel.to_table = tbl_b;
+                                    rel.to_column = col_b_pair.first;
+                                    rel.is_explicit = false;
+                                    relationships.insert(rel);
+                                    relationship_found = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (col_lower == "proc_def_id_" || col_lower == "proc_def_id" ||
+                   col_lower == "process_definition_id_" || col_lower == "process_definition_id") {
+            for (const auto& tbl_b : table_names) {
+                std::string clean_tbl_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                if (clean_tbl_b == "procdef" || clean_tbl_b == "re_procdef" || clean_tbl_b == "processdefinition") {
+                    auto it_b = tables_info.find(tbl_b);
+                    if (it_b != tables_info.end()) {
+                        const auto& info_b = it_b->second;
+                        for (const auto& col_b_pair : info_b.column_types) {
+                            if (to_lower(stripTrailingUnderscore(col_b_pair.first)) == "id") {
+                                if (typeMatches(type_a, col_b_pair.second)) {
+                                    Relationship rel;
+                                    rel.from_table = tbl_a;
+                                    rel.from_column = col_a;
+                                    rel.to_table = tbl_b;
+                                    rel.to_column = col_b_pair.first;
+                                    rel.is_explicit = false;
+                                    relationships.insert(rel);
+                                    relationship_found = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (col_lower == "exception_stack_id_" || col_lower == "exception_stack_id" ||
+                   col_lower == "editor_source_value_id_" || col_lower == "editor_source_value_id" ||
+                   col_lower == "editor_source_extra_value_id_" || col_lower == "editor_source_extra_value_id" ||
+                   col_lower == "custom_values_id_" || col_lower == "custom_values_id") {
+            for (const auto& tbl_b : table_names) {
+                std::string clean_tbl_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                if (clean_tbl_b == "bytearray" || clean_tbl_b == "ge_bytearray") {
+                    auto it_b = tables_info.find(tbl_b);
+                    if (it_b != tables_info.end()) {
+                        const auto& info_b = it_b->second;
+                        for (const auto& col_b_pair : info_b.column_types) {
+                            if (to_lower(stripTrailingUnderscore(col_b_pair.first)) == "id") {
+                                if (typeMatches(type_a, col_b_pair.second)) {
+                                    Relationship rel;
+                                    rel.from_table = tbl_a;
+                                    rel.from_column = col_a;
+                                    rel.to_table = tbl_b;
+                                    rel.to_column = col_b_pair.first;
+                                    rel.is_explicit = false;
+                                    relationships.insert(rel);
+                                    relationship_found = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (col_lower == "super_exec_" || col_lower == "super_exec") {
+            for (const auto& tbl_b : table_names) {
+                std::string clean_tbl_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                if (clean_tbl_b == "execution" || clean_tbl_b == "ru_execution") {
+                    auto it_b = tables_info.find(tbl_b);
+                    if (it_b != tables_info.end()) {
+                        const auto& info_b = it_b->second;
+                        for (const auto& col_b_pair : info_b.column_types) {
+                            if (to_lower(stripTrailingUnderscore(col_b_pair.first)) == "id") {
+                                if (typeMatches(type_a, col_b_pair.second)) {
+                                    Relationship rel;
+                                    rel.from_table = tbl_a;
+                                    rel.from_column = col_a;
+                                    rel.to_table = tbl_b;
+                                    rel.to_column = col_b_pair.first;
+                                    rel.is_explicit = false;
+                                    relationships.insert(rel);
+                                    relationship_found = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (col_lower == "case_inst_id_" || col_lower == "case_inst_id") {
+            for (const auto& tbl_b : table_names) {
+                std::string clean_tbl_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                bool match = false;
+                if (is_hi_a) {
+                    if (clean_tbl_b == "caseinst" || clean_tbl_b == "hi_caseinst") {
+                        match = true;
+                    }
+                } else {
+                    if (clean_tbl_b == "case_execution" || clean_tbl_b == "ru_case_execution" || clean_tbl_b == "caseexecution") {
+                        match = true;
+                    }
+                }
+                if (match) {
+                    auto it_b = tables_info.find(tbl_b);
+                    if (it_b != tables_info.end()) {
+                        const auto& info_b = it_b->second;
+                        for (const auto& col_b_pair : info_b.column_types) {
+                            if (to_lower(stripTrailingUnderscore(col_b_pair.first)) == "id") {
+                                if (typeMatches(type_a, col_b_pair.second)) {
+                                    Relationship rel;
+                                    rel.from_table = tbl_a;
+                                    rel.from_column = col_a;
+                                    rel.to_table = tbl_b;
+                                    rel.to_column = col_b_pair.first;
+                                    rel.is_explicit = false;
+                                    relationships.insert(rel);
+                                    relationship_found = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (col_lower == "case_def_id_" || col_lower == "case_def_id") {
+            for (const auto& tbl_b : table_names) {
+                std::string clean_tbl_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                if (clean_tbl_b == "casedef" || clean_tbl_b == "case_def" || clean_tbl_b == "re_case_def" || clean_tbl_b == "casedefinition" || clean_tbl_b == "case_definition") {
+                    auto it_b = tables_info.find(tbl_b);
+                    if (it_b != tables_info.end()) {
+                        const auto& info_b = it_b->second;
+                        for (const auto& col_b_pair : info_b.column_types) {
+                            if (to_lower(stripTrailingUnderscore(col_b_pair.first)) == "id") {
+                                if (typeMatches(type_a, col_b_pair.second)) {
+                                    Relationship rel;
+                                    rel.from_table = tbl_a;
+                                    rel.from_column = col_a;
+                                    rel.to_table = tbl_b;
+                                    rel.to_column = col_b_pair.first;
+                                    rel.is_explicit = false;
+                                    relationships.insert(rel);
+                                    relationship_found = true;
+                                }
                             }
                         }
                     }

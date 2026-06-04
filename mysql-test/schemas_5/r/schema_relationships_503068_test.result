@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 503068_test
+#
+CREATE DATABASE `db_503068_test`;
+USE `db_503068_test`;
+CREATE TABLE `users` (
+`id` INT,
+`full_name` VARCHAR(255),
+`created_at` DATETIME,
+`country_code` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `merchants` (
+`id` INT,
+`merchant_name` VARCHAR(255),
+`country_code` INT,
+`created at` VARCHAR(255),
+`admin_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `countries` (
+`code` INT,
+`name` VARCHAR(255),
+`continent_name` VARCHAR(255),
+`test` BOOL,
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_items` (
+`order_id` INT,
+`product_id` INT,
+`quantity` INT
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`user_id` INT,
+`status` VARCHAR(255),
+`created_at` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`name` VARCHAR(255),
+`merchant_id` INT,
+`price` INT,
+`status` VARCHAR(255),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_503068_test') AS relationships;
+relationships
+Database: db_503068_test
+
+Table Connections:
+------------------
+[Implied]  merchants.admin_id -> users.id
+[Implied]  merchants.country_code -> countries.code
+[Implied]  order_items.order_id -> orders.id
+[Implied]  order_items.product_id -> products.id
+[Implied]  orders.user_id -> users.id
+[Implied]  products.merchant_id -> merchants.id
+[Implied]  users.country_code -> countries.code
+
+DROP DATABASE `db_503068_test`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 317410_210831_SQL_class2
+--echo #
+CREATE DATABASE `db_317410_210831_SQL_class2`;
+USE `db_317410_210831_SQL_class2`;
+
+CREATE TABLE `number1` (
+  `data` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `number2` (
+  `data` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `number3` (
+  `data` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `number4` (
+  `data` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user1` (
+  `user_id` INT,
+  `name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `age` INT,
+  `rdate` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `user2` (
+  `user_id` INT,
+  `name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `age` INT,
+  `rdate` DATETIME,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `city_800` (
+  `countrycode` VARCHAR(255),
+  `name` VARCHAR(255),
+  `population` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `user_id` INT,
+  `name` VARCHAR(255),
+  `address` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `money` (
+  `money_id` INT,
+  `income` INT,
+  `user_id` INT,
+  PRIMARY KEY (`money_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_317410_210831_SQL_class2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_317410_210831_SQL_class2') AS relationships;
+DROP DATABASE `db_317410_210831_SQL_class2`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 461427_schema_pgsql
+#
+CREATE DATABASE `db_461427_schema_pgsql`;
+USE `db_461427_schema_pgsql`;
+CREATE TABLE `artist` (
+`artistId` INT,
+`artistTypeId` INT,
+`name` VARCHAR(255),
+`slug` VARCHAR(255),
+`bio` VARCHAR(255),
+PRIMARY KEY (`artistId`)
+) CHARACTER SET latin1;
+CREATE TABLE `artist_type` (
+`artistTypeId` INT,
+`type` VARCHAR(255),
+`slug` VARCHAR(255),
+PRIMARY KEY (`artistTypeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`eventId` INT,
+`name` VARCHAR(255),
+`slug` VARCHAR(255),
+`sub_name` VARCHAR(255),
+`dateStart` DATETIME,
+`dateEnd` DATETIME,
+`venueId` INT,
+PRIMARY KEY (`eventId`)
+) CHARACTER SET latin1;
+CREATE TABLE `planned_event` (
+`eventId` INT,
+`name` VARCHAR(255),
+`slug` VARCHAR(255),
+`sub_name` VARCHAR(255),
+`dateStart` DATETIME,
+`dateEnd` DATETIME,
+`venueId` INT,
+`completeness` INT,
+PRIMARY KEY (`eventId`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_artist` (
+`eventId` INT,
+`artistId` INT,
+`eventArtistName` VARCHAR(255),
+`priority` INT,
+`sequence` INT,
+PRIMARY KEY (`eventId`, `artistId`)
+) CHARACTER SET latin1;
+CREATE TABLE `ticket` (
+`ticketId` INT,
+`eventId` INT,
+`name` VARCHAR(255),
+`cost` DECIMAL(10,2),
+`numAvailable` INT,
+`numSold` INT,
+PRIMARY KEY (`ticketId`)
+) CHARACTER SET latin1;
+CREATE TABLE `venue` (
+`venueId` INT,
+`name` VARCHAR(255),
+`slug` VARCHAR(255),
+`address` VARCHAR(255),
+`shortAddress` VARCHAR(255),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+PRIMARY KEY (`venueId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_461427_schema_pgsql') AS relationships;
+relationships
+Database: db_461427_schema_pgsql
+
+Table Connections:
+------------------
+[Implied]  artist.artistTypeId -> artist_type.artistTypeId
+[Implied]  event.venueId -> venue.venueId
+[Implied]  event_artist.artistId -> artist.artistId
+[Implied]  event_artist.eventId -> event.eventId
+[Implied]  planned_event.venueId -> venue.venueId
+[Implied]  ticket.eventId -> event.eventId
+
+DROP DATABASE `db_461427_schema_pgsql`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 592186_init
+#
+CREATE DATABASE `db_592186_init`;
+USE `db_592186_init`;
+CREATE TABLE `partner` (
+`id` INT,
+`partner_name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`id` INT,
+`product_name` VARCHAR(255),
+`base_url` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `client` (
+`id` INT,
+`client_name` VARCHAR(255),
+`partner_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `client_product` (
+`client_id` INT,
+`product_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`client_id`, `product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`email` VARCHAR(255),
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`client_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_592186_init') AS relationships;
+relationships
+Database: db_592186_init
+
+Table Connections:
+------------------
+[Implied]  client.partner_id -> partner.id
+[Implied]  client_product.client_id -> client.id
+[Implied]  client_product.product_id -> product.id
+[Implied]  user.client_id -> client.id
+
+DROP DATABASE `db_592186_init`;
+UNINSTALL EXTENSION vsql_schematron;

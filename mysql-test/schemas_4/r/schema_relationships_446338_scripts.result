@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 446338_scripts
+#
+CREATE DATABASE `db_446338_scripts`;
+USE `db_446338_scripts`;
+CREATE TABLE `user` (
+`ID` INT,
+`username` VARCHAR(255),
+`nickname` VARCHAR(255),
+`age` INT,
+`gender` VARCHAR(255),
+`phoneNumber` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`registered` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `counsellor` (
+`ID` INT,
+`firstName` VARCHAR(255),
+`lastName` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `session` (
+`ID` INT,
+`beginTime` DATETIME,
+`endTime` DATETIME,
+`counsellorID` INT,
+`userID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`ID` INT,
+`sessionID` INT,
+`messageTime` DATETIME,
+`counsellorID` INT,
+`userID` INT,
+`messageContent` VARCHAR(255),
+`fromCounsellor` INT,
+`fromTwilio` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_446338_scripts') AS relationships;
+relationships
+Database: db_446338_scripts
+
+Table Connections:
+------------------
+[Implied]  message.counsellorID -> counsellor.ID
+[Implied]  message.fromCounsellor -> counsellor.ID
+[Implied]  message.sessionID -> session.ID
+[Implied]  message.userID -> user.ID
+[Implied]  session.counsellorID -> counsellor.ID
+[Implied]  session.userID -> user.ID
+
+DROP DATABASE `db_446338_scripts`;
+UNINSTALL EXTENSION vsql_schematron;

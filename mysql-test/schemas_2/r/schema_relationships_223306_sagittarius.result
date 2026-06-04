@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 223306_sagittarius
+#
+CREATE DATABASE `db_223306_sagittarius`;
+USE `db_223306_sagittarius`;
+CREATE TABLE `client` (
+`id` INT,
+`client_state` VARCHAR(255),
+`city` VARCHAR(255),
+`street` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `physical_client` (
+`id` INT,
+`first_name` VARCHAR(255),
+`mid_name` VARCHAR(255),
+`surname` VARCHAR(255),
+`id_client` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `juridical_client` (
+`id` INT,
+`company_name` VARCHAR(255),
+`id_client` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contract` (
+`id` INT,
+`accept_date` DATETIME,
+`start_date` DATETIME,
+`end_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `insured_person` (
+`id` INT,
+`unique_num` INT,
+`personal_cost` DECIMAL(10,2),
+`client_id` INT,
+`contract_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_223306_sagittarius') AS relationships;
+relationships
+Database: db_223306_sagittarius
+
+Table Connections:
+------------------
+[Implied]  insured_person.client_id -> client.id
+[Implied]  insured_person.contract_id -> contract.id
+[Implied]  juridical_client.id_client -> client.id
+[Implied]  physical_client.id_client -> client.id
+
+DROP DATABASE `db_223306_sagittarius`;
+UNINSTALL EXTENSION vsql_schematron;

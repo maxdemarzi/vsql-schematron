@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 179593_general_schema_out
+#
+CREATE DATABASE `db_179593_general_schema_out`;
+USE `db_179593_general_schema_out`;
+CREATE TABLE `orders` (
+`id` INT,
+`user_id` INT,
+`status` VARCHAR(255),
+`created_at` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_items` (
+`order_id` INT,
+`product_id` INT,
+`quantity` INT
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`name` VARCHAR(255),
+`merchant_id` INT,
+`price` INT,
+`status` VARCHAR(255),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`full_name` VARCHAR(255),
+`email` VARCHAR(255),
+`gender` VARCHAR(255),
+`date_of_birth` VARCHAR(255),
+`created_at` VARCHAR(255),
+`country_code` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `merchants` (
+`id` INT,
+`merchant_name` VARCHAR(255),
+`country_code` INT,
+`created_at` VARCHAR(255),
+`admin_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `countries` (
+`code` INT,
+`name` VARCHAR(255),
+`continent_name` VARCHAR(255),
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_179593_general_schema_out') AS relationships;
+relationships
+Database: db_179593_general_schema_out
+
+Table Connections:
+------------------
+[Implied]  merchants.admin_id -> users.id
+[Implied]  merchants.country_code -> countries.code
+[Implied]  order_items.order_id -> orders.id
+[Implied]  order_items.product_id -> products.id
+[Implied]  orders.user_id -> users.id
+[Implied]  products.merchant_id -> merchants.id
+[Implied]  users.country_code -> countries.code
+
+DROP DATABASE `db_179593_general_schema_out`;
+UNINSTALL EXTENSION vsql_schematron;

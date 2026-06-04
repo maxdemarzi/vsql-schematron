@@ -64,6 +64,14 @@ std::string stripSchemaPrefix(const std::string& name) {
  */
 std::string stripTablePrefix(const std::string& name) {
     std::string n = to_lower(name);
+    if (n.rfind("<<prefix>>", 0) == 0) {
+        n = n.substr(10);
+    } else if (n.rfind("<prefix>", 0) == 0) {
+        n = n.substr(8);
+    } else if (n.rfind("__prefix__", 0) == 0) {
+        n = n.substr(10);
+    }
+    
     if (!g_dynamic_prefix.empty()) {
         std::string dp = to_lower(g_dynamic_prefix) + "_";
         if (n.rfind(dp, 0) == 0) {

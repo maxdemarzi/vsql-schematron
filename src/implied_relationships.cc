@@ -491,7 +491,7 @@ void findPass1ImpliedRelationships(
                         // Heuristic: Suffix matching
                         // Example: orders.customer_id -> customers.id
                         bool suffix_match = false;
-                        if (col_a_clean.find("_id_") != std::string::npos) {
+                        if (to_lower(col_a_clean).find("_id_") != std::string::npos) {
                             if (matchMiddleIdConvention(col_a_clean, tbl_b, false)) {
                                 suffix_match = true;
                             }
