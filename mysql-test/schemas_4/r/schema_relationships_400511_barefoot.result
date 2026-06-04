@@ -1,0 +1,99 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 400511_barefoot
+#
+CREATE DATABASE `db_400511_barefoot`;
+USE `db_400511_barefoot`;
+CREATE TABLE `bookmarks` (
+`id` INT,
+`user_id` INT,
+`post_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`name` VARCHAR(255),
+`slug` VARCHAR(255),
+`icon` VARCHAR(255),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`user_id` INT,
+`post_id` INT,
+`comment` VARCHAR(255),
+`created_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`user_id` INT,
+`title` VARCHAR(255),
+`slug` VARCHAR(255),
+`reading_time` INT,
+`youtube_url` VARCHAR(255),
+`category_id` INT,
+`image` VARCHAR(255),
+`body` VARCHAR(255),
+`is_published` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts_likes` (
+`id` INT,
+`user_id` INT,
+`post_id` INT,
+`created_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `posts_tags` (
+`id` INT,
+`post_id` INT,
+`tag_id` INT,
+`created_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `socials` (
+`id` INT,
+`user_id` INT,
+`facebook` VARCHAR(255),
+`instagram` VARCHAR(255),
+`twitter` VARCHAR(255),
+`youtube` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` INT,
+`name` VARCHAR(255),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`email` VARCHAR(255),
+`verified` INT,
+`token` VARCHAR(255),
+`password` VARCHAR(255),
+`profile_image` VARCHAR(255),
+`banner_title` VARCHAR(255),
+`banner_image` VARCHAR(255),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_400511_barefoot') AS relationships;
+relationships
+Database: db_400511_barefoot
+
+Table Connections:
+------------------
+[Implied]  bookmarks.post_id -> posts.id
+[Implied]  bookmarks.user_id -> users.id
+[Implied]  comments.post_id -> posts.id
+[Implied]  comments.user_id -> users.id
+[Implied]  posts.category_id -> categories.id
+[Implied]  posts.user_id -> users.id
+[Implied]  posts_likes.post_id -> posts.id
+[Implied]  posts_likes.user_id -> users.id
+[Implied]  posts_tags.post_id -> posts.id
+[Implied]  posts_tags.tag_id -> tags.id
+[Implied]  socials.user_id -> users.id
+
+DROP DATABASE `db_400511_barefoot`;
+UNINSTALL EXTENSION vsql_schematron;

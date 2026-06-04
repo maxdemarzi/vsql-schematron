@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 603773_gstore
+#
+CREATE DATABASE `db_603773_gstore`;
+USE `db_603773_gstore`;
+CREATE TABLE `cart` (
+`id` INT,
+`session_id` VARCHAR(255),
+`product_id` INT,
+`amount` INT
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`product_id` INT,
+`product_name` VARCHAR(255),
+`product_desc` VARCHAR(255),
+`product_price` INT,
+`product_stock` INT,
+`product_image` VARCHAR(255),
+PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transactions` (
+`transaction_id` VARCHAR(255),
+`session_id` VARCHAR(255),
+`full_name` VARCHAR(255),
+`address` VARCHAR(255),
+`phone_number` VARCHAR(255),
+`transaction_date` DATETIME,
+PRIMARY KEY (`transaction_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction_detail` (
+`id` INT,
+`transaction_id` VARCHAR(255),
+`product_id` INT,
+`amount` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`user_id` INT,
+`full_name` VARCHAR(255),
+`username` VARCHAR(255),
+`password` VARCHAR(255)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_603773_gstore') AS relationships;
+relationships
+Database: db_603773_gstore
+
+Table Connections:
+------------------
+[Implied]  cart.product_id -> product.product_id
+[Implied]  transaction_detail.product_id -> product.product_id
+[Implied]  transaction_detail.transaction_id -> transactions.transaction_id
+
+DROP DATABASE `db_603773_gstore`;
+UNINSTALL EXTENSION vsql_schematron;

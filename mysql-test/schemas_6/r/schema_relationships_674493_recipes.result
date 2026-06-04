@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 674493_recipes
+#
+CREATE DATABASE `db_674493_recipes`;
+USE `db_674493_recipes`;
+CREATE TABLE `products` (
+`product_id` INT,
+`product_name` VARCHAR(255),
+`product_category_id` INT,
+`product_price` DECIMAL(10,2),
+`product_calories` INT,
+`date_deleted` DATETIME,
+PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_categories` (
+`product_category_id` INT,
+`product_category_name` VARCHAR(255),
+`date_deleted` DATETIME,
+PRIMARY KEY (`product_category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipes` (
+`recipe_id` INT,
+`recipe_name` VARCHAR(255),
+`prep_description` VARCHAR(255),
+`prep_time` INT,
+`recipe_category_id` INT,
+`date_created` DATETIME,
+`date_deleted` DATETIME,
+PRIMARY KEY (`recipe_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipes_products` (
+`id` INT,
+`recipe_id` INT,
+`product_id` INT,
+`product_quantity` DECIMAL(10,2),
+`unit_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `recipe_categories` (
+`recipe_category_id` INT,
+`recipe_category_name` VARCHAR(255),
+`date_deleted` DATETIME,
+`date_created` DATETIME,
+PRIMARY KEY (`recipe_category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `units` (
+`unit_id` INT,
+`unit_name` VARCHAR(255),
+`date_deleted` DATETIME,
+PRIMARY KEY (`unit_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_674493_recipes') AS relationships;
+relationships
+Database: db_674493_recipes
+
+Table Connections:
+------------------
+[Implied]  products.product_category_id -> product_categories.product_category_id
+[Implied]  recipes.recipe_category_id -> recipe_categories.recipe_category_id
+[Implied]  recipes_products.product_id -> products.product_id
+[Implied]  recipes_products.recipe_id -> recipes.recipe_id
+[Implied]  recipes_products.unit_id -> units.unit_id
+
+DROP DATABASE `db_674493_recipes`;
+UNINSTALL EXTENSION vsql_schematron;

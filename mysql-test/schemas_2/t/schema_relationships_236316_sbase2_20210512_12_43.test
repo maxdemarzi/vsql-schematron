@@ -1,0 +1,109 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 236316_sbase2_20210512_12_43
+--echo #
+CREATE DATABASE `db_236316_sbase2_20210512_12_43`;
+USE `db_236316_sbase2_20210512_12_43`;
+
+CREATE TABLE `acceso` (
+  `id` INT,
+  `accion_id` INT,
+  `perfil_id` INT,
+  `permitido` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `accion` (
+  `id` INT,
+  `accion` VARCHAR(255),
+  `controlador_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `controlador` (
+  `id` INT,
+  `controlador` VARCHAR(255),
+  `perfil_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `generacomp` (
+  `id` INT,
+  `generacomp_at` DATETIME,
+  `usuario_id` INT,
+  `periodo_mes` VARCHAR(255),
+  `periodo_anio` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `menu` (
+  `id` INT,
+  `texto` VARCHAR(255),
+  `icono` VARCHAR(255),
+  `color` VARCHAR(255),
+  `perfil_id` INT,
+  `posicion` INT,
+  `accion_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `modulo` (
+  `id` INT,
+  `modulo` VARCHAR(255),
+  `descripcion` VARCHAR(255),
+  `logo` VARCHAR(255),
+  `privado` VARCHAR(255),
+  `modulo_at` DATETIME,
+  `link` VARCHAR(255),
+  `inicial` VARCHAR(255),
+  `publicado` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `persona` (
+  `id` INT,
+  `ape` VARCHAR(255),
+  `nom` VARCHAR(255),
+  `dni` INT,
+  `cuil` VARCHAR(255),
+  `cel` VARCHAR(255),
+  `fijo` VARCHAR(255),
+  `pais` VARCHAR(255),
+  `nac` DATETIME,
+  `usuario_id` INT,
+  `mail` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rol` (
+  `id` INT,
+  `usuario_id` INT,
+  `perfil_id` INT,
+  `activo` VARCHAR(255),
+  `contrata_at` DATETIME,
+  `finaliza` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuario` (
+  `id` INT,
+  `usu` VARCHAR(255),
+  `cla` VARCHAR(255),
+  `usuario_at` DATETIME,
+  `foto` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_236316_sbase2_20210512_12_43') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_236316_sbase2_20210512_12_43') AS relationships;
+DROP DATABASE `db_236316_sbase2_20210512_12_43`;
+UNINSTALL EXTENSION vsql_schematron;

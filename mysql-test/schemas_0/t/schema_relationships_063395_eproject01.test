@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 063395_eproject01
+--echo #
+CREATE DATABASE `db_063395_eproject01`;
+USE `db_063395_eproject01`;
+
+CREATE TABLE `admin` (
+  `ID` INT,
+  `USERNAME` VARCHAR(255),
+  `PASSWORD` VARCHAR(255),
+  `NAME` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customer` (
+  `ID` INT,
+  `EMAIL` VARCHAR(255),
+  `PASSWORD` VARCHAR(255),
+  `NAME` VARCHAR(255),
+  `PHONE` INT,
+  `ADDRESS` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `ID` INT,
+  `CUSTOMER_ID` INT,
+  `PAYMENT_METHOD` VARCHAR(255),
+  `NOTE` VARCHAR(255),
+  `TOTAL_PRICE` DECIMAL(10,2),
+  `STATUS` INT,
+  `CREATE_AT` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_detail` (
+  `ORDER_ID` INT,
+  `PRODUCT_ID` INT,
+  `PRODUCT_QUANTITY` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `product` (
+  `ID` INT,
+  `TITLE` VARCHAR(255),
+  `THUMBNAIL` VARCHAR(255),
+  `MANUFACTURER` VARCHAR(255),
+  `DESCRIPTION` VARCHAR(255),
+  `IMPORT_DATE` DATETIME,
+  `PRICE` DECIMAL(10,2),
+  `QUANTITY` INT,
+  `STATUS` INT,
+  `CATEGORY` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_063395_eproject01') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_063395_eproject01') AS relationships;
+DROP DATABASE `db_063395_eproject01`;
+UNINSTALL EXTENSION vsql_schematron;

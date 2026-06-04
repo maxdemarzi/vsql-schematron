@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 677962_huellahidrica
+--echo #
+CREATE DATABASE `db_677962_huellahidrica`;
+USE `db_677962_huellahidrica`;
+
+CREATE TABLE `comentarios` (
+  `id` INT,
+  `descripcion` VARCHAR(255),
+  `created` DATETIME,
+  `modified` DATETIME,
+  `publicaciones_id` INT,
+  `persona_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `encuesta` (
+  `id` INT,
+  `titulo` VARCHAR(255),
+  `fecha` DATETIME,
+  `created` DATETIME,
+  `modified` DATETIME,
+  `persona_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `persona` (
+  `id` INT,
+  `nombre` VARCHAR(255),
+  `apellido` VARCHAR(255),
+  `nickname` VARCHAR(255),
+  `email` VARCHAR(255),
+  `contrasena` VARCHAR(255),
+  `created` DATETIME,
+  `modified` DATETIME,
+  `potable` INT,
+  `tipo_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `preguntas` (
+  `id` INT,
+  `descripcion` VARCHAR(255),
+  `created` DATETIME,
+  `modified` DATETIME,
+  `encuesta_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `publicaciones` (
+  `id` INT,
+  `titulo` VARCHAR(255),
+  `descripcion` VARCHAR(255),
+  `created` DATETIME,
+  `modified` DATETIME,
+  `persona_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `respuesta` (
+  `id` INT,
+  `descripcion` VARCHAR(255),
+  `created` DATETIME,
+  `modified` DATETIME,
+  `preguntas_id` INT,
+  `persona_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tipo` (
+  `id` INT,
+  `rol` VARCHAR(255),
+  `created` DATETIME,
+  `modified` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_677962_huellahidrica') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_677962_huellahidrica') AS relationships;
+DROP DATABASE `db_677962_huellahidrica`;
+UNINSTALL EXTENSION vsql_schematron;

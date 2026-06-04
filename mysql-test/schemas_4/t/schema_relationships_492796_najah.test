@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 492796_najah
+--echo #
+CREATE DATABASE `db_492796_najah`;
+USE `db_492796_najah`;
+
+CREATE TABLE `answer` (
+  `answer_id` INT,
+  `one` INT,
+  `two` INT,
+  `three` INT,
+  `four` INT,
+  `five` INT,
+  `six` INT,
+  `seven` INT,
+  `eight` INT,
+  `nine` INT,
+  `ten` INT,
+  `user_id` INT,
+  PRIMARY KEY (`answer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `results` (
+  `id` INT,
+  `success` INT,
+  `fail` INT,
+  `user_id` INT,
+  `answer_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `username` VARCHAR(255),
+  `phone` INT,
+  `email` VARCHAR(255),
+  `pass` VARCHAR(255),
+  `user_type` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_492796_najah') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_492796_najah') AS relationships;
+DROP DATABASE `db_492796_najah`;
+UNINSTALL EXTENSION vsql_schematron;

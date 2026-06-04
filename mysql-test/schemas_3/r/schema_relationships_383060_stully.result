@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 383060_stully
+#
+CREATE DATABASE `db_383060_stully`;
+USE `db_383060_stully`;
+CREATE TABLE `account` (
+`account_id` INT,
+`username` VARCHAR(255),
+`password_hash` VARCHAR(255),
+`email` VARCHAR(255),
+`punten` INT,
+`status` VARCHAR(255),
+PRIMARY KEY (`account_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`comment_id` INT,
+`comment` VARCHAR(255),
+`punten` INT,
+`post_id` INT,
+`account_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`post_id` INT,
+`account_id` INT,
+`title` VARCHAR(255),
+`code` VARCHAR(255),
+`subtext` VARCHAR(255),
+`timestamp` DATETIME,
+PRIMARY KEY (`post_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_383060_stully') AS relationships;
+relationships
+Database: db_383060_stully
+
+Table Connections:
+------------------
+[Implied]  comments.account_id -> account.account_id
+[Implied]  comments.post_id -> posts.post_id
+[Implied]  posts.account_id -> account.account_id
+
+DROP DATABASE `db_383060_stully`;
+UNINSTALL EXTENSION vsql_schematron;

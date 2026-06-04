@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 033616_tugasakhir_yusron
+--echo #
+CREATE DATABASE `db_033616_tugasakhir_yusron`;
+USE `db_033616_tugasakhir_yusron`;
+
+CREATE TABLE `departement` (
+  `id_departement` INT,
+  `namadepartement` VARCHAR(255),
+  `deskripsidepartement` VARCHAR(255),
+  PRIMARY KEY (`id_departement`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kategori` (
+  `id_kategori` INT,
+  `namakategori` VARCHAR(255),
+  `deskripsikategori` VARCHAR(255),
+  PRIMARY KEY (`id_kategori`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kriteria` (
+  `kriteria_id` INT,
+  `kriteria_nama` VARCHAR(255),
+  `kriteria_bobot` DECIMAL(10,2),
+  `kriteria_sifat` VARCHAR(255),
+  `kategori_id` INT,
+  PRIMARY KEY (`kriteria_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pegawai` (
+  `id_pegawai` INT,
+  `nip` VARCHAR(255),
+  `nama` VARCHAR(255),
+  `departement_id` INT,
+  `kontak` VARCHAR(255),
+  PRIMARY KEY (`id_pegawai`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `penilaian` (
+  `id_penilaian` INT,
+  `pegawai_id` INT,
+  `kriteria_id` INT,
+  `jawaban` INT,
+  `periode_bulan` INT,
+  `periode_tahun` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id_user` INT,
+  `nip` VARCHAR(255),
+  `nama` VARCHAR(255),
+  `kontak` VARCHAR(255),
+  `level` VARCHAR(255),
+  `password` VARCHAR(255),
+  `last_login` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_033616_tugasakhir_yusron') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_033616_tugasakhir_yusron') AS relationships;
+DROP DATABASE `db_033616_tugasakhir_yusron`;
+UNINSTALL EXTENSION vsql_schematron;

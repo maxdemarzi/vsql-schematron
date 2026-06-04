@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 416372_coffeeshop
+--echo #
+CREATE DATABASE `db_416372_coffeeshop`;
+USE `db_416372_coffeeshop`;
+
+CREATE TABLE `customer` (
+  `id` VARCHAR(255),
+  `address` VARCHAR(255),
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `item` (
+  `code` VARCHAR(255),
+  `description` VARCHAR(255),
+  `qtyOnHand` INT,
+  `unitPrice` DECIMAL(10,2),
+  PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order` (
+  `id` VARCHAR(255),
+  `date` DATETIME,
+  `customerId` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orderdetail` (
+  `itemCode` VARCHAR(255),
+  `orderId` VARCHAR(255),
+  `qty` INT,
+  `unitPrice` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_416372_coffeeshop') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_416372_coffeeshop') AS relationships;
+DROP DATABASE `db_416372_coffeeshop`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 669212_pacific
+#
+CREATE DATABASE `db_669212_pacific`;
+USE `db_669212_pacific`;
+CREATE TABLE `activities` (
+`ActivityId` INT,
+`ActivityName` VARCHAR(255),
+`ActivityDescription` VARCHAR(255),
+PRIMARY KEY (`ActivityId`)
+) CHARACTER SET latin1;
+CREATE TABLE `client` (
+`ClientId` INT,
+`FName` VARCHAR(255),
+`LName` VARCHAR(255),
+`Address` VARCHAR(255),
+`Phone` VARCHAR(255),
+`Email` VARCHAR(255),
+`ResId` INT,
+`ActivityId` INT,
+PRIMARY KEY (`ClientId`)
+) CHARACTER SET latin1;
+CREATE TABLE `package` (
+`PackageId` INT,
+`PackageName` VARCHAR(255),
+`PackageDescription` VARCHAR(255),
+`NumberOfNights` INT,
+`Cost` INT,
+PRIMARY KEY (`PackageId`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`ProductId` INT,
+`Name` VARCHAR(255),
+`Description` VARCHAR(255),
+`Product_Image_URL` VARCHAR(255),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`ProductId`)
+) CHARACTER SET latin1;
+CREATE TABLE `reservationyurt` (
+`ResId` INT,
+`ArrivalDate` DATETIME,
+`NumberOfNights` INT,
+`PackageId` INT,
+`Comments` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `whenclientactivity` (
+`Id` INT,
+`Date` DATETIME,
+`ActivityId` INT,
+`ClientId` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_669212_pacific') AS relationships;
+relationships
+Database: db_669212_pacific
+
+Table Connections:
+------------------
+[Implied]  client.ActivityId -> activities.ActivityId
+[Implied]  reservationyurt.PackageId -> package.PackageId
+[Implied]  whenclientactivity.ActivityId -> activities.ActivityId
+[Implied]  whenclientactivity.ClientId -> client.ClientId
+
+DROP DATABASE `db_669212_pacific`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 138645_lankparb_tours
+--echo #
+CREATE DATABASE `db_138645_lankparb_tours`;
+USE `db_138645_lankparb_tours`;
+
+CREATE TABLE `hotel_ratings` (
+  `id_hotel_ratings` INT,
+  `hotel_name` VARCHAR(255),
+  `rating` DECIMAL(10,2),
+  `total_rating` DECIMAL(10,2),
+  `raters` INT,
+  `lat` DECIMAL(10,2),
+  `lng` DECIMAL(10,2),
+  PRIMARY KEY (`id_hotel_ratings`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `package` (
+  `package_id` INT,
+  `name` VARCHAR(255),
+  `rate` DECIMAL(10,2),
+  `tour_id` INT,
+  PRIMARY KEY (`package_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `testimonial` (
+  `id_testimonial` INT,
+  `review` VARCHAR(255),
+  `name` VARCHAR(255),
+  `date` VARCHAR(255),
+  `lang` VARCHAR(255),
+  PRIMARY KEY (`id_testimonial`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tour` (
+  `tour_id` INT,
+  `name` VARCHAR(255),
+  `image_name` VARCHAR(255),
+  PRIMARY KEY (`tour_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trip` (
+  `trip_id` INT,
+  `name` VARCHAR(255),
+  `artical` VARCHAR(255),
+  `todo` VARCHAR(255),
+  `package_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_138645_lankparb_tours') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_138645_lankparb_tours') AS relationships;
+DROP DATABASE `db_138645_lankparb_tours`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,116 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 447537_schema
+--echo #
+CREATE DATABASE `db_447537_schema`;
+USE `db_447537_schema`;
+
+CREATE TABLE `hierarchy` (
+  `category_idea_id` VARCHAR(255),
+  `sub_idea_id` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` VARCHAR(255),
+  `username` VARCHAR(255),
+  `password` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `module_state` (
+  `module_id` VARCHAR(255),
+  `participant_id` VARCHAR(255),
+  `state` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `participant` (
+  `id` VARCHAR(255),
+  `session_id` VARCHAR(255),
+  `browser_key` VARCHAR(255),
+  `state` VARCHAR(255),
+  `color` VARCHAR(255),
+  `symbol` VARCHAR(255),
+  `ip_hash` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `random_idea` (
+  `idea_id` VARCHAR(255),
+  `participant_id` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `resource` (
+  `id` VARCHAR(255),
+  `session_id` VARCHAR(255),
+  `title` VARCHAR(255),
+  `image` VARCHAR(255),
+  `link` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `selection` (
+  `id` VARCHAR(255),
+  `topic_id` VARCHAR(255),
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `selection_idea` (
+  `selection_id` VARCHAR(255),
+  `idea_id` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `session` (
+  `id` VARCHAR(255),
+  `title` VARCHAR(255),
+  `description` VARCHAR(255),
+  `connection_key` VARCHAR(255),
+  `max_participants` INT,
+  `expiration_date` DATETIME,
+  `creation_date` DATETIME,
+  `public_screen_module_id` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `session_role` (
+  `session_id` VARCHAR(255),
+  `user_id` VARCHAR(255),
+  `role` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `topic` (
+  `id` VARCHAR(255),
+  `session_id` VARCHAR(255),
+  `title` VARCHAR(255),
+  `description` VARCHAR(255),
+  `active_task_id` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vote` (
+  `id` VARCHAR(255),
+  `task_id` VARCHAR(255),
+  `participant_id` VARCHAR(255),
+  `idea_id` VARCHAR(255),
+  `rating` INT,
+  `detail_rating` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_447537_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_447537_schema') AS relationships;
+DROP DATABASE `db_447537_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 205860_zwallet
+#
+CREATE DATABASE `db_205860_zwallet`;
+USE `db_205860_zwallet`;
+CREATE TABLE `profile` (
+`id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`photo` VARCHAR(255),
+`password` VARCHAR(255),
+`phone` VARCHAR(255),
+`email` VARCHAR(255),
+`balance` VARCHAR(255),
+`pin` INT,
+`verified` VARCHAR(255),
+`role_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_role` (
+`id` INT,
+`role_name` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `tes` (
+`id` INT,
+`name` VARCHAR(255),
+`pass` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `top_up` (
+`id` INT,
+`step` INT,
+`article` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transfer` (
+`transfer_id` INT,
+`profile_id` INT,
+`receiver_id` INT,
+`amount` DECIMAL(10,2),
+`trans_name` VARCHAR(255),
+`trans_type` VARCHAR(255),
+`date` DATETIME,
+`note` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `wallet` (
+`wallet_id` INT,
+`user_id` INT,
+`pin` INT,
+`balance` DECIMAL(10,2),
+PRIMARY KEY (`wallet_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_205860_zwallet') AS relationships;
+relationships
+Database: db_205860_zwallet
+
+Table Connections:
+------------------
+[Implied]  profile.role_id -> tb_role.id
+[Implied]  transfer.profile_id -> profile.id
+
+DROP DATABASE `db_205860_zwallet`;
+UNINSTALL EXTENSION vsql_schematron;

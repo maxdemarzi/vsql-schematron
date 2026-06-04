@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 249066_fakebook
+--echo #
+CREATE DATABASE `db_249066_fakebook`;
+USE `db_249066_fakebook`;
+
+CREATE TABLE `comments` (
+  `comment_id` INT,
+  `comment_content` VARCHAR(255),
+  `post_id` INT,
+  `comment_owner` INT,
+  `commented_on` DATETIME,
+  PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comment_liked_by_users` (
+  `comment_id` INT,
+  `comment_liked_by` INT,
+  `comment_liked_on` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `friend_requests` (
+  `request_id` INT,
+  `request_from` INT,
+  `request_to` INT,
+  `request_on` DATETIME,
+  `request_status` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `messages` (
+  `msg_id` INT,
+  `msg_content` VARCHAR(255),
+  `msg_from` INT,
+  `msg_to` INT,
+  `msgd_on` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `posts` (
+  `post_id` INT,
+  `post_content` VARCHAR(255),
+  `original_post` INT,
+  `post_owner` INT,
+  `posted_on` DATETIME,
+  `is_shared_post` INT,
+  PRIMARY KEY (`post_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `post_liked_by_users` (
+  `post_id` INT,
+  `post_liked_by` INT,
+  `post_liked_on` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `tokens` (
+  `user_id` INT,
+  `token` VARCHAR(255),
+  `logged_in` DATETIME,
+  PRIMARY KEY (`user_id`, `token`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `fname` VARCHAR(255),
+  `lname` VARCHAR(255),
+  `email` VARCHAR(255),
+  `psword` VARCHAR(255),
+  `registered_on` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_249066_fakebook') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_249066_fakebook') AS relationships;
+DROP DATABASE `db_249066_fakebook`;
+UNINSTALL EXTENSION vsql_schematron;

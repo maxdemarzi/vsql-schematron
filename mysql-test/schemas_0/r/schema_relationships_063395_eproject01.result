@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 063395_eproject01
+#
+CREATE DATABASE `db_063395_eproject01`;
+USE `db_063395_eproject01`;
+CREATE TABLE `admin` (
+`ID` INT,
+`USERNAME` VARCHAR(255),
+`PASSWORD` VARCHAR(255),
+`NAME` VARCHAR(255),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`ID` INT,
+`EMAIL` VARCHAR(255),
+`PASSWORD` VARCHAR(255),
+`NAME` VARCHAR(255),
+`PHONE` INT,
+`ADDRESS` VARCHAR(255),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`ID` INT,
+`CUSTOMER_ID` INT,
+`PAYMENT_METHOD` VARCHAR(255),
+`NOTE` VARCHAR(255),
+`TOTAL_PRICE` DECIMAL(10,2),
+`STATUS` INT,
+`CREATE_AT` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_detail` (
+`ORDER_ID` INT,
+`PRODUCT_ID` INT,
+`PRODUCT_QUANTITY` INT
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`ID` INT,
+`TITLE` VARCHAR(255),
+`THUMBNAIL` VARCHAR(255),
+`MANUFACTURER` VARCHAR(255),
+`DESCRIPTION` VARCHAR(255),
+`IMPORT_DATE` DATETIME,
+`PRICE` DECIMAL(10,2),
+`QUANTITY` INT,
+`STATUS` INT,
+`CATEGORY` VARCHAR(255),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_063395_eproject01') AS relationships;
+relationships
+Database: db_063395_eproject01
+
+Table Connections:
+------------------
+[Implied]  order_detail.ORDER_ID -> orders.ID
+[Implied]  order_detail.PRODUCT_ID -> product.ID
+[Implied]  orders.CUSTOMER_ID -> customer.ID
+
+DROP DATABASE `db_063395_eproject01`;
+UNINSTALL EXTENSION vsql_schematron;

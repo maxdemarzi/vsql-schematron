@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 319887_db
+#
+CREATE DATABASE `db_319887_db`;
+USE `db_319887_db`;
+CREATE TABLE `companies` (
+`id` INT,
+`company_name` VARCHAR(255),
+`country` VARCHAR(255),
+`company_vat` VARCHAR(255),
+`company_type` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `company_type` (
+`id` INT,
+`type` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `invoices` (
+`id` INT,
+`invoice_number` INT,
+`invoice_date` DATETIME,
+`user_id` INT,
+`company_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `registration` (
+`id` INT,
+`username` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`email` VARCHAR(255),
+`company_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_319887_db') AS relationships;
+relationships
+Database: db_319887_db
+
+Table Connections:
+------------------
+[Implied]  companies.company_type -> company_type.id
+[Implied]  invoices.company_id -> companies.id
+[Implied]  invoices.user_id -> users.id
+[Implied]  users.company_id -> companies.id
+
+DROP DATABASE `db_319887_db`;
+UNINSTALL EXTENSION vsql_schematron;

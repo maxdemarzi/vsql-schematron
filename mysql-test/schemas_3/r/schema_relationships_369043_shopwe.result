@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 369043_shopwe
+#
+CREATE DATABASE `db_369043_shopwe`;
+USE `db_369043_shopwe`;
+CREATE TABLE `brands` (
+`id` INT,
+`name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `colors` (
+`id` INT,
+`name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `detail_order` (
+`id` INT,
+`order_id` INT,
+`product_id` INT,
+`size` VARCHAR(255),
+`color` VARCHAR(255),
+`price` INT,
+`quantity` INT,
+`sub_total` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`user_id` INT,
+`tracking_number` VARCHAR(255),
+`address` VARCHAR(255),
+`payment_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payments` (
+`id` INT,
+`name` VARCHAR(255),
+`image` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`brand_id` INT,
+`name` VARCHAR(255),
+`category_id` INT,
+`categories` VARCHAR(255),
+`colors` VARCHAR(255),
+`sizes` VARCHAR(255),
+`price` INT,
+`image` VARCHAR(255),
+`quantity` INT,
+`description` VARCHAR(255),
+`rating` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `sizes` (
+`id` INT,
+`name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`full_name` VARCHAR(255),
+`birth` DATETIME,
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`phone` VARCHAR(255),
+`image` VARCHAR(255),
+`address` VARCHAR(255),
+`address_active` INT,
+`role` INT,
+`access_key` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_369043_shopwe') AS relationships;
+relationships
+Database: db_369043_shopwe
+
+Table Connections:
+------------------
+[Implied]  detail_order.order_id -> orders.id
+[Implied]  detail_order.product_id -> products.id
+[Implied]  orders.payment_id -> payments.id
+[Implied]  orders.user_id -> users.id
+[Implied]  products.brand_id -> brands.id
+[Implied]  products.category_id -> categories.id
+
+DROP DATABASE `db_369043_shopwe`;
+UNINSTALL EXTENSION vsql_schematron;

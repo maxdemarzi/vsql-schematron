@@ -1,0 +1,191 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 546689_flora_bd
+--echo #
+CREATE DATABASE `db_546689_flora_bd`;
+USE `db_546689_flora_bd`;
+
+CREATE TABLE `addition` (
+  `id` INT,
+  `created_at` INT,
+  `updated_at` INT,
+  `name` VARCHAR(255),
+  `cost` DECIMAL(10,2),
+  `about` VARCHAR(255),
+  `type` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `message_to_paid` (
+  `id` INT,
+  `user_id` INT,
+  `service_type` INT,
+  `service_id` INT,
+  `date_to_paid` DATETIME,
+  `amount` DECIMAL(10,2),
+  `debtor` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `migration` (
+  `version` VARCHAR(255),
+  `apply_time` INT,
+  PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payments` (
+  `id` INT,
+  `user_id` INT,
+  `shop_id` INT,
+  `type_service` INT,
+  `service_id` INT,
+  `type` INT,
+  `way` INT,
+  `date` DATETIME,
+  `invoice_number` INT,
+  `invoice_date` DATETIME,
+  `amount` DECIMAL(10,2),
+  `description` VARCHAR(255),
+  `status` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `service` (
+  `id` INT,
+  `user_id` INT,
+  `shop_id` INT,
+  `type_service` INT,
+  `type_serviceId` INT,
+  `connection_date` DATETIME,
+  `writeoff_date` DATETIME,
+  `writeoff_amount` DECIMAL(10,2),
+  `agree` INT,
+  `repeat_service` INT,
+  `deleted` INT,
+  `old_service_id` INT,
+  `old_connection_date` DATETIME,
+  `old_writeoff_date` DATETIME,
+  `old_writeoff_amount` DECIMAL(10,2),
+  `edit_description` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `shops` (
+  `id` INT,
+  `created_at` INT,
+  `updated_at` INT,
+  `address` VARCHAR(255),
+  `tariff_id` INT,
+  `user_id` INT,
+  `on_check` INT,
+  `deleted` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `shops_addition` (
+  `shop_id` INT,
+  `addition_id` INT,
+  `quantity` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tariff` (
+  `id` INT,
+  `created_at` INT,
+  `updated_at` INT,
+  `name` VARCHAR(255),
+  `cost` DECIMAL(10,2),
+  `about` VARCHAR(255),
+  `drop` INT,
+  `status` INT,
+  `maximum` INT,
+  `term` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tariff_addition` (
+  `tariff_id` INT,
+  `addition_id` INT,
+  `quantity` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tariff_addition_quantity` (
+  `tariff_id` INT,
+  `addition_id` INT,
+  `status_con` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tickets` (
+  `id` INT,
+  `user_id` INT,
+  `subject` VARCHAR(255),
+  `status` INT,
+  `new_text` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tickets_text` (
+  `id` INT,
+  `ticket_id` INT,
+  `date_time` DATETIME,
+  `text` VARCHAR(255),
+  `user_type` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `transaction` (
+  `user_id` INT,
+  `transaction_id` VARCHAR(255),
+  `payment_id` INT,
+  `status` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `email` VARCHAR(255),
+  `phone` VARCHAR(255),
+  `company_name` VARCHAR(255),
+  `password_hash` VARCHAR(255),
+  `password_reset_token` VARCHAR(255),
+  `auth_key` VARCHAR(255),
+  `status` INT,
+  `avatar` VARCHAR(255),
+  `balance` DECIMAL(10,2),
+  `created_at` INT,
+  `updated_at` INT,
+  `role` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_settings` (
+  `id` INT,
+  `user_id` INT,
+  `doc_num` VARCHAR(255),
+  `type_org` VARCHAR(255),
+  `name_org` VARCHAR(255),
+  `ur_addr_org` VARCHAR(255),
+  `ogrn` VARCHAR(255),
+  `inn` VARCHAR(255),
+  `kpp` VARCHAR(255),
+  `bik_banka` VARCHAR(255),
+  `name_bank` VARCHAR(255),
+  `kor_schet` VARCHAR(255),
+  `rass_schet` VARCHAR(255)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_546689_flora_bd') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_546689_flora_bd') AS relationships;
+DROP DATABASE `db_546689_flora_bd`;
+UNINSTALL EXTENSION vsql_schematron;

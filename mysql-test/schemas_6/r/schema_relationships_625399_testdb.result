@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 625399_testdb
+#
+CREATE DATABASE `db_625399_testdb`;
+USE `db_625399_testdb`;
+CREATE TABLE `brands` (
+`id` INT,
+`title` VARCHAR(255),
+`alias` VARCHAR(255),
+`dateadd` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cars` (
+`id` INT,
+`model_id` INT,
+`engine_id` INT,
+`drive_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `drives` (
+`id` INT,
+`title` VARCHAR(255),
+`alias` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `engines` (
+`id` INT,
+`title` VARCHAR(255),
+`alias` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `models` (
+`id` INT,
+`brand_id` INT,
+`title` VARCHAR(255),
+`alias` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_625399_testdb') AS relationships;
+relationships
+Database: db_625399_testdb
+
+Table Connections:
+------------------
+[Implied]  cars.drive_id -> drives.id
+[Implied]  cars.engine_id -> engines.id
+[Implied]  cars.model_id -> models.id
+[Implied]  models.brand_id -> brands.id
+
+DROP DATABASE `db_625399_testdb`;
+UNINSTALL EXTENSION vsql_schematron;

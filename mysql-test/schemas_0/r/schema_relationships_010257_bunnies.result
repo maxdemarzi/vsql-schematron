@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 010257_bunnies
+#
+CREATE DATABASE `db_010257_bunnies`;
+USE `db_010257_bunnies`;
+CREATE TABLE `bunnies` (
+`bunny_id` INT,
+`name` VARCHAR(255),
+`age` INT,
+`category_id` INT,
+`date_created` DATETIME,
+`date_deleted` DATETIME,
+PRIMARY KEY (`bunny_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bunny_categories` (
+`category_id` INT,
+`name` VARCHAR(255),
+`date_created` DATETIME,
+`date_deleted` DATETIME,
+PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `owners` (
+`owner_id` INT,
+`name` VARCHAR(255),
+`age` INT,
+`information` VARCHAR(255),
+`date_created` DATETIME,
+`date_deleted` DATETIME,
+PRIMARY KEY (`owner_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `owners_bunnies` (
+`owner_id` INT,
+`bunny_id` INT,
+`id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_010257_bunnies') AS relationships;
+relationships
+Database: db_010257_bunnies
+
+Table Connections:
+------------------
+[Implied]  bunnies.category_id -> bunny_categories.category_id
+[Implied]  owners_bunnies.bunny_id -> bunnies.bunny_id
+[Implied]  owners_bunnies.owner_id -> owners.owner_id
+
+DROP DATABASE `db_010257_bunnies`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 416372_coffeeshop
+#
+CREATE DATABASE `db_416372_coffeeshop`;
+USE `db_416372_coffeeshop`;
+CREATE TABLE `customer` (
+`id` VARCHAR(255),
+`address` VARCHAR(255),
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`code` VARCHAR(255),
+`description` VARCHAR(255),
+`qtyOnHand` INT,
+`unitPrice` DECIMAL(10,2),
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+`id` VARCHAR(255),
+`date` DATETIME,
+`customerId` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderdetail` (
+`itemCode` VARCHAR(255),
+`orderId` VARCHAR(255),
+`qty` INT,
+`unitPrice` DECIMAL(10,2)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_416372_coffeeshop') AS relationships;
+relationships
+Database: db_416372_coffeeshop
+
+Table Connections:
+------------------
+[Implied]  order.customerId -> customer.id
+[Implied]  orderdetail.itemCode -> item.code
+[Implied]  orderdetail.orderId -> order.id
+
+DROP DATABASE `db_416372_coffeeshop`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 326768_db_resto
+#
+CREATE DATABASE `db_326768_db_resto`;
+USE `db_326768_db_resto`;
+CREATE TABLE `food` (
+`id` INT,
+`name` VARCHAR(255),
+`detail` VARCHAR(255),
+`price` INT,
+`category` INT,
+`status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `food_category` (
+`id` INT,
+`name` VARCHAR(255),
+`is_food` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `food_image` (
+`id` INT,
+`food_id` INT,
+`img` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+`id` INT,
+`user_id` INT,
+`order_time` DATETIME,
+`total_price` INT,
+`is_payed` INT,
+`step` INT,
+`table_number` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_item` (
+`id` INT,
+`food_id` INT,
+`qty` INT,
+`note` VARCHAR(255),
+`approved` INT,
+`order_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `topup_history` (
+`id` INT,
+`user_id` INT,
+`nominal` INT,
+`topup_date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`username` VARCHAR(255),
+`email` VARCHAR(255),
+`password_hash` VARCHAR(255),
+`status` INT,
+`auth_key` VARCHAR(255),
+`password_reset_token` VARCHAR(255),
+`account_activation_token` VARCHAR(255),
+`role` INT,
+`current_saldo` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_326768_db_resto') AS relationships;
+relationships
+Database: db_326768_db_resto
+
+Table Connections:
+------------------
+[Implied]  food.category -> food_category.id
+[Implied]  food_category.is_food -> food.id
+[Implied]  food_image.food_id -> food.id
+[Implied]  order.user_id -> user.id
+[Implied]  order_item.food_id -> food.id
+[Implied]  order_item.order_id -> order.id
+[Implied]  topup_history.user_id -> user.id
+
+DROP DATABASE `db_326768_db_resto`;
+UNINSTALL EXTENSION vsql_schematron;

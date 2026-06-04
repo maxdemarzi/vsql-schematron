@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 496954_arisan_bersama
+#
+CREATE DATABASE `db_496954_arisan_bersama`;
+USE `db_496954_arisan_bersama`;
+CREATE TABLE `arisan` (
+`id` INT,
+`user_id` INT,
+`unique_id` VARCHAR(255),
+`title` VARCHAR(255),
+`nominal` INT,
+`description` VARCHAR(255),
+`time_start` DATETIME,
+`period` VARCHAR(255),
+`long_time` INT,
+`max_join` DATETIME,
+`status` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_participant` (
+`id` INT,
+`arisan_id` INT,
+`user_id` INT,
+`number` INT,
+`income` INT,
+`status` VARCHAR(255),
+`img` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `transaction` (
+`id` INT,
+`arisan_id` INT,
+`user_id` INT,
+`payment_amount` INT,
+`label` VARCHAR(255),
+`status` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`role` VARCHAR(255),
+`name` VARCHAR(255),
+`tel` VARCHAR(255),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_496954_arisan_bersama') AS relationships;
+relationships
+Database: db_496954_arisan_bersama
+
+Table Connections:
+------------------
+[Implied]  arisan.user_id -> users.id
+[Implied]  order_participant.arisan_id -> arisan.id
+[Implied]  order_participant.user_id -> users.id
+[Implied]  transaction.arisan_id -> arisan.id
+[Implied]  transaction.user_id -> users.id
+
+DROP DATABASE `db_496954_arisan_bersama`;
+UNINSTALL EXTENSION vsql_schematron;

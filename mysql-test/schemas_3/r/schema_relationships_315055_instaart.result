@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 315055_instaart
+#
+CREATE DATABASE `db_315055_instaart`;
+USE `db_315055_instaart`;
+CREATE TABLE `comments` (
+`id` INT,
+`post_id` INT,
+`user_id` INT,
+`body` VARCHAR(255),
+`date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `follows` (
+`id` INT,
+`following_id` INT,
+`follower_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `likes` (
+`id` INT,
+`post_id` INT,
+`user_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`user_id` INT,
+`title` VARCHAR(255),
+`caption` VARCHAR(255),
+`image` VARCHAR(255),
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`display_name` VARCHAR(255),
+`biodata` VARCHAR(255),
+`image` VARCHAR(255),
+`email` VARCHAR(255),
+`phone_number` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_315055_instaart') AS relationships;
+relationships
+Database: db_315055_instaart
+
+Table Connections:
+------------------
+[Implied]  comments.post_id -> posts.id
+[Implied]  comments.user_id -> users.id
+[Implied]  likes.post_id -> posts.id
+[Implied]  likes.user_id -> users.id
+[Implied]  posts.user_id -> users.id
+
+DROP DATABASE `db_315055_instaart`;
+UNINSTALL EXTENSION vsql_schematron;

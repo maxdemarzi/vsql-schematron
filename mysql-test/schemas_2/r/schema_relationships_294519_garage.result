@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 294519_garage
+#
+CREATE DATABASE `db_294519_garage`;
+USE `db_294519_garage`;
+CREATE TABLE `appointments` (
+`id` INT,
+`name` VARCHAR(255),
+`comment` VARCHAR(255),
+`datetime` DATETIME,
+`status` VARCHAR(255),
+`car_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cars` (
+`id` INT,
+`plate` VARCHAR(255),
+`brand` VARCHAR(255),
+`type` VARCHAR(255),
+`customer_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `customers` (
+`id` INT,
+`firstname` VARCHAR(255),
+`lastname` VARCHAR(255),
+`address` VARCHAR(255),
+`city` VARCHAR(255),
+`zipcode` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `parts` (
+`id` INT,
+`name` VARCHAR(255),
+`brand` VARCHAR(255),
+`type` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `repairs` (
+`id` INT,
+`appointment_id` INT,
+`part_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_294519_garage') AS relationships;
+relationships
+Database: db_294519_garage
+
+Table Connections:
+------------------
+[Implied]  appointments.car_id -> cars.id
+[Implied]  cars.customer_id -> customers.id
+[Implied]  repairs.appointment_id -> appointments.id
+[Implied]  repairs.part_id -> parts.id
+
+DROP DATABASE `db_294519_garage`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 447704_steno
+--echo #
+CREATE DATABASE `db_447704_steno`;
+USE `db_447704_steno`;
+
+CREATE TABLE `about` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `value` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `authors` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `password` VARCHAR(255),
+  `is_admin` INT,
+  `about` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `show_on_homepage` INT,
+  `show_on_navbar` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `homepage` (
+  `id` INT,
+  `section` VARCHAR(255),
+  `show` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `links` (
+  `name` VARCHAR(255),
+  `url` VARCHAR(255),
+  `enabled` INT,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `main_pages` (
+  `id` INT,
+  `page_name` VARCHAR(255),
+  `title` VARCHAR(255),
+  `caption` VARCHAR(255),
+  `show_on_nav` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `messages` (
+  `id` INT,
+  `sender` VARCHAR(255),
+  `contents` VARCHAR(255),
+  `email` VARCHAR(255),
+  `date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `posts` (
+  `id` INT,
+  `title` VARCHAR(255),
+  `author_id` INT,
+  `date` DATETIME,
+  `format` VARCHAR(255),
+  `views` INT,
+  `online` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `post_categories` (
+  `id` INT,
+  `post_id` INT,
+  `category_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `post_headings` (
+  `id` INT,
+  `content` VARCHAR(255),
+  `post_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `post_texts` (
+  `id` INT,
+  `content` VARCHAR(255),
+  `post_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_447704_steno') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_447704_steno') AS relationships;
+DROP DATABASE `db_447704_steno`;
+UNINSTALL EXTENSION vsql_schematron;

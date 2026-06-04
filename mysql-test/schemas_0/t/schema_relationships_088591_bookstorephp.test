@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 088591_bookstorephp
+--echo #
+CREATE DATABASE `db_088591_bookstorephp`;
+USE `db_088591_bookstorephp`;
+
+CREATE TABLE `account` (
+  `id` INT,
+  `full_name` VARCHAR(255),
+  `user_name` VARCHAR(255),
+  `pwd` VARCHAR(255),
+  `image` VARCHAR(255),
+  `role_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `author` (
+  `id` INT,
+  `full_name` VARCHAR(255),
+  `date_of_brith` DATETIME,
+  `country` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `book` (
+  `id` INT,
+  `author_id` INT,
+  `title` VARCHAR(255),
+  `image` VARCHAR(255),
+  `price` DECIMAL(10,2),
+  `publish_year` INT,
+  `category_id` INT,
+  `description` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cartitem` (
+  `id` INT,
+  `account_id` INT,
+  `quantity` INT,
+  `book_id` INT,
+  `order_date` DATETIME,
+  `status` INT,
+  `shipping_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `category` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role` (
+  `id` INT,
+  `name` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `shipping` (
+  `id` INT,
+  `account_id` INT,
+  `card_owner` VARCHAR(255),
+  `card_number` INT,
+  `address` VARCHAR(255),
+  `city` VARCHAR(255),
+  `number_phone` INT,
+  `status` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_088591_bookstorephp') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_088591_bookstorephp') AS relationships;
+DROP DATABASE `db_088591_bookstorephp`;
+UNINSTALL EXTENSION vsql_schematron;

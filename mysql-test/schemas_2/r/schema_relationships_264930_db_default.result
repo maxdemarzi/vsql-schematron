@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 264930_db_default
+#
+CREATE DATABASE `db_264930_db_default`;
+USE `db_264930_db_default`;
+CREATE TABLE `answer` (
+`id` INT,
+`html_text` VARCHAR(255),
+`created_date` DATETIME,
+`question_id` INT,
+`user_id` INT,
+`approved` INT,
+`comment` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answer_attachment` (
+`id` INT,
+`location` VARCHAR(255),
+`answer_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answer_vote` (
+`id` INT,
+`vote` INT,
+`answer_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question` (
+`id` INT,
+`subject` VARCHAR(255),
+`html_text` VARCHAR(255),
+`created_date` DATETIME,
+`category_id` INT,
+`user_id` INT,
+`approved` INT,
+`comment` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question_attachment` (
+`id` INT,
+`location` VARCHAR(255),
+`question_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question_vote` (
+`id` INT,
+`vote` INT,
+`question_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`user_id` INT,
+`role_id` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_264930_db_default') AS relationships;
+relationships
+Database: db_264930_db_default
+
+Table Connections:
+------------------
+[Implied]  answer.question_id -> question.id
+[Implied]  answer.user_id -> user_role.user_id
+[Implied]  answer_attachment.answer_id -> answer.id
+[Implied]  answer_vote.answer_id -> answer.id
+[Implied]  answer_vote.user_id -> user_role.user_id
+[Implied]  answer_vote.vote -> question_vote.id
+[Implied]  question.user_id -> user_role.user_id
+[Implied]  question_attachment.question_id -> question.id
+[Implied]  question_vote.question_id -> question.id
+[Implied]  question_vote.user_id -> user_role.user_id
+[Implied]  question_vote.vote -> answer_vote.id
+
+DROP DATABASE `db_264930_db_default`;
+UNINSTALL EXTENSION vsql_schematron;

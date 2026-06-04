@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 684471_dump
+#
+CREATE DATABASE `db_684471_dump`;
+USE `db_684471_dump`;
+CREATE TABLE `car` (
+`id` INT,
+`make` VARCHAR(255),
+`model` VARCHAR(255),
+`year` INT,
+`consumption` INT,
+`km` INT,
+`lastTechInspection` DATETIME,
+`priceTechInspection` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `costs` (
+`id` INT,
+`fuelCosts` INT,
+`techInspectionCosts` INT,
+`status` VARCHAR(255),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`payment_id` INT,
+`employee_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`id` INT,
+`firstName` VARCHAR(255),
+`lastName` VARCHAR(255),
+`phoneNumber` INT,
+`email` VARCHAR(255),
+`kmLimit` INT,
+`car_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment` (
+`id` INT,
+`sum` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_684471_dump') AS relationships;
+relationships
+Database: db_684471_dump
+
+Table Connections:
+------------------
+[Implied]  costs.employee_id -> employee.id
+[Implied]  costs.payment_id -> payment.id
+[Implied]  employee.car_id -> car.id
+
+DROP DATABASE `db_684471_dump`;
+UNINSTALL EXTENSION vsql_schematron;

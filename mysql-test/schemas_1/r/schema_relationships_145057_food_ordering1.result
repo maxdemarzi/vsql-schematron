@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 145057_food_ordering1
+#
+CREATE DATABASE `db_145057_food_ordering1`;
+USE `db_145057_food_ordering1`;
+CREATE TABLE `customer` (
+`id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`email` VARCHAR(255),
+`contact_no` VARCHAR(255),
+`password` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`id` INT,
+`name` VARCHAR(255),
+`description` VARCHAR(255),
+`price` DECIMAL(10,2),
+`photo` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`customer_id` INT,
+`date_time` DATETIME,
+`status` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_details` (
+`id` INT,
+`order_id` INT,
+`item_id` INT,
+`quantity` INT
+) CHARACTER SET latin1;
+CREATE TABLE `shop` (
+`id` INT,
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`role` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_145057_food_ordering1') AS relationships;
+relationships
+Database: db_145057_food_ordering1
+
+Table Connections:
+------------------
+[Implied]  order_details.item_id -> item.id
+[Implied]  order_details.order_id -> orders.id
+[Implied]  orders.customer_id -> customer.id
+
+DROP DATABASE `db_145057_food_ordering1`;
+UNINSTALL EXTENSION vsql_schematron;

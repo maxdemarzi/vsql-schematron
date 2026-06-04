@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 262893_diploma_v1
+#
+CREATE DATABASE `db_262893_diploma_v1`;
+USE `db_262893_diploma_v1`;
+CREATE TABLE `ci_sessions` (
+`id` VARCHAR(255),
+`ip_address` VARCHAR(255),
+`timestamp` INT,
+`data` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `dietitian` (
+`dietitian_id` INT,
+`dietitian_name` VARCHAR(255),
+`dietitian_email` VARCHAR(255),
+`dietitian_password` VARCHAR(255),
+`dietitian_age` INT,
+`dietitian_mobile` INT,
+PRIMARY KEY (`dietitian_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fat_percentage` (
+`id` INT,
+`fat_percent` INT,
+`user_id` INT,
+`date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `feedback1` (
+`id` INT,
+`reaction` VARCHAR(255),
+`text_reaction` VARCHAR(255),
+`meal_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `food` (
+`id` INT,
+`foodname` VARCHAR(255),
+`food_type` VARCHAR(255),
+`calories_per_100` INT,
+`dietitianId` INT
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+`id` INT,
+`customer` VARCHAR(255),
+`message` VARCHAR(255),
+`date_sent` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `personal_data` (
+`id` INT,
+`customer` VARCHAR(255),
+`date` DATETIME,
+`weight` INT,
+`userId` INT
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`avatar` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`is_confirmed` INT,
+`is_deleted` INT,
+`is_deactivated` INT,
+`dietitianId` INT
+) CHARACTER SET latin1;
+CREATE TABLE `user_notes` (
+`id` INT,
+`note` VARCHAR(255),
+`user_id` INT,
+`date_inserted` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `waistline` (
+`id` INT,
+`user_waistline` INT,
+`user_id` INT,
+`date` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_262893_diploma_v1') AS relationships;
+relationships
+Database: db_262893_diploma_v1
+
+Table Connections:
+------------------
+[Implied]  fat_percentage.user_id -> users.id
+[Implied]  food.dietitianId -> dietitian.dietitian_id
+[Implied]  personal_data.userId -> users.id
+[Implied]  user_notes.user_id -> users.id
+[Implied]  users.dietitianId -> dietitian.dietitian_id
+[Implied]  waistline.user_id -> users.id
+
+DROP DATABASE `db_262893_diploma_v1`;
+UNINSTALL EXTENSION vsql_schematron;

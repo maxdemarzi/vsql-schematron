@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 385398_mbti
+#
+CREATE DATABASE `db_385398_mbti`;
+USE `db_385398_mbti`;
+CREATE TABLE `participant` (
+`id` INT,
+`email` VARCHAR(255),
+`timestamp` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `participant_answer` (
+`id` INT,
+`participant_id` INT,
+`question_id` INT,
+`score` INT
+) CHARACTER SET latin1;
+CREATE TABLE `participant_perspective` (
+`id` INT,
+`participant_id` INT,
+`ei_i` INT,
+`ei_e` INT,
+`sn_s` INT,
+`sn_n` INT,
+`tf_t` INT,
+`tf_f` INT,
+`jp_j` INT,
+`jp_p` INT,
+`summary` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `question` (
+`id` INT,
+`question` VARCHAR(255),
+`dimension` VARCHAR(255),
+`direction` INT,
+`meaning` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_385398_mbti') AS relationships;
+relationships
+Database: db_385398_mbti
+
+Table Connections:
+------------------
+[Implied]  participant_answer.participant_id -> participant.id
+[Implied]  participant_answer.question_id -> question.id
+[Implied]  participant_perspective.participant_id -> participant.id
+
+DROP DATABASE `db_385398_mbti`;
+UNINSTALL EXTENSION vsql_schematron;

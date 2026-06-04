@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 364227_CrimeyBoyz
+#
+CREATE DATABASE `db_364227_CrimeyBoyz`;
+USE `db_364227_CrimeyBoyz`;
+CREATE TABLE `interactions` (
+`interactionID` INT,
+`metricName` VARCHAR(255),
+`roundID` INT,
+`initiatingPlayerNum` INT,
+`actionTime` DECIMAL(10,2),
+`actionXPos` DECIMAL(10,2),
+`actionYPos` DECIMAL(10,2),
+`actionSpecificData` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `metrics` (
+`metricName` VARCHAR(255),
+`metricDescription` VARCHAR(255),
+`dataDescription` VARCHAR(255),
+`behaviourType` VARCHAR(255),
+PRIMARY KEY (`metricName`)
+) CHARACTER SET latin1;
+CREATE TABLE `rounds` (
+`roundID` INT,
+`sessionID` INT,
+`sceneName` VARCHAR(255),
+`roundStartTime` DECIMAL(10,2),
+`player1StartingScore` INT,
+`player2StartingScore` INT,
+`player3StartingScore` INT,
+`player4StartingScore` INT,
+`player5StartingScore` INT,
+`tabletPlayer` INT,
+PRIMARY KEY (`roundID`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`sessionID` INT,
+`sessionStartTime` DATETIME,
+`player1` INT,
+`player2` INT,
+`player3` INT,
+`player4` INT,
+`player5` INT
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(255),
+`username` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`researcher` INT,
+`institution` VARCHAR(255),
+`field` VARCHAR(255),
+`AllowsDataCollection` INT,
+`Notes` VARCHAR(255)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_364227_CrimeyBoyz') AS relationships;
+relationships
+Database: db_364227_CrimeyBoyz
+
+Table Connections:
+------------------
+[Implied]  interactions.metricName -> metrics.metricName
+[Implied]  interactions.roundID -> rounds.roundID
+[Implied]  rounds.sessionID -> sessions.sessionID
+
+DROP DATABASE `db_364227_CrimeyBoyz`;
+UNINSTALL EXTENSION vsql_schematron;

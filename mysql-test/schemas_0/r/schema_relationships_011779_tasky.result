@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 011779_tasky
+#
+CREATE DATABASE `db_011779_tasky`;
+USE `db_011779_tasky`;
+CREATE TABLE `lists` (
+`id` INT,
+`name` VARCHAR(255),
+`descrip` VARCHAR(255),
+`create_date` DATETIME,
+`edit_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subtasks` (
+`id` INT,
+`name` VARCHAR(255),
+`descrip` VARCHAR(255),
+`state` INT,
+`create_date` DATETIME,
+`edit_date` DATETIME,
+`task_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `tasks` (
+`id` INT,
+`name` VARCHAR(255),
+`descrip` VARCHAR(255),
+`priori` INT,
+`expir` DATETIME,
+`memo` DATETIME,
+`colour` VARCHAR(255),
+`state` INT,
+`create_date` DATETIME,
+`edit_date` DATETIME,
+`list_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`email` VARCHAR(255),
+`pass` VARCHAR(255),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_list` (
+`user_id` INT,
+`list_id` INT,
+`perm` INT,
+`link_date` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_011779_tasky') AS relationships;
+relationships
+Database: db_011779_tasky
+
+Table Connections:
+------------------
+[Implied]  subtasks.task_id -> tasks.id
+[Implied]  tasks.list_id -> lists.id
+[Implied]  user_list.list_id -> lists.id
+[Implied]  user_list.user_id -> users.id
+
+DROP DATABASE `db_011779_tasky`;
+UNINSTALL EXTENSION vsql_schematron;

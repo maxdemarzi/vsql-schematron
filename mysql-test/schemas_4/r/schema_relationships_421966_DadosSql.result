@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 421966_DadosSql
+#
+CREATE DATABASE `db_421966_DadosSql`;
+USE `db_421966_DadosSql`;
+CREATE TABLE `articles` (
+`id` INT,
+`user_id` INT,
+`title` VARCHAR(255),
+`slug` VARCHAR(255),
+`body` VARCHAR(255),
+`published` INT,
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `articles_tags` (
+`article_id` INT,
+`tag_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` INT,
+`title` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_421966_DadosSql') AS relationships;
+relationships
+Database: db_421966_DadosSql
+
+Table Connections:
+------------------
+[Implied]  articles.user_id -> users.id
+[Implied]  articles_tags.article_id -> articles.id
+[Implied]  articles_tags.tag_id -> tags.id
+
+DROP DATABASE `db_421966_DadosSql`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 345239_hsqldb
+#
+CREATE DATABASE `db_345239_hsqldb`;
+USE `db_345239_hsqldb`;
+CREATE TABLE `cpa` (
+`cpa_id` VARCHAR(255),
+`cpa` VARCHAR(255),
+PRIMARY KEY (`cpa_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ebms_message` (
+`id` INT,
+`time_stamp` DATETIME,
+`cpa_id` VARCHAR(255),
+`conversation_id` VARCHAR(255),
+`sequence_nr` INT,
+`message_id` VARCHAR(255),
+`ref_to_message_id` VARCHAR(255),
+`from_role` VARCHAR(255),
+`to_role` VARCHAR(255),
+`service_type` VARCHAR(255),
+`service` VARCHAR(255),
+`action` VARCHAR(255),
+`original` VARCHAR(255),
+`signature` VARCHAR(255),
+`message_header` VARCHAR(255),
+`sync_reply` VARCHAR(255),
+`message_order` VARCHAR(255),
+`ack_requested` VARCHAR(255),
+`content` VARCHAR(255),
+`status` INT,
+`status_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ebms_attachment` (
+`ebms_message_id` INT,
+`name` VARCHAR(255),
+`content_type` VARCHAR(255),
+`content` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `ebms_send_event` (
+`ebms_message_id` INT,
+`time` DATETIME,
+`status` INT,
+`status_time` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_345239_hsqldb') AS relationships;
+relationships
+Database: db_345239_hsqldb
+
+Table Connections:
+------------------
+[Implied]  ebms_attachment.ebms_message_id -> ebms_message.id
+[Implied]  ebms_message.cpa_id -> cpa.cpa_id
+[Implied]  ebms_send_event.ebms_message_id -> ebms_message.id
+
+DROP DATABASE `db_345239_hsqldb`;
+UNINSTALL EXTENSION vsql_schematron;

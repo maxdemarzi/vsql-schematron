@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 194486_jsalin19_638
+--echo #
+CREATE DATABASE `db_194486_jsalin19_638`;
+USE `db_194486_jsalin19_638`;
+
+CREATE TABLE `decade` (
+  `decade_id` INT,
+  `era_type` VARCHAR(255),
+  PRIMARY KEY (`decade_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `gender` (
+  `gender_id` INT,
+  `gender_name` VARCHAR(255),
+  PRIMARY KEY (`gender_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `image` (
+  `image_id` INT,
+  `item_id` INT,
+  `fullimage_filepath` VARCHAR(255),
+  `thumb_filepath` VARCHAR(255),
+  `closeup_filepath` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `item` (
+  `item_id` INT,
+  `name` VARCHAR(255),
+  `season` INT,
+  `type_id` INT,
+  `gender_id` INT,
+  `status` VARCHAR(255),
+  `decade_id` INT,
+  `etsy_location` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `type` (
+  `type_id` INT,
+  `garment_type` INT,
+  PRIMARY KEY (`type_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_194486_jsalin19_638') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_194486_jsalin19_638') AS relationships;
+DROP DATABASE `db_194486_jsalin19_638`;
+UNINSTALL EXTENSION vsql_schematron;

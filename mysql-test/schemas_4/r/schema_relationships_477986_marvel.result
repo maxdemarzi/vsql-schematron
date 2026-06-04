@@ -1,0 +1,129 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 477986_marvel
+#
+CREATE DATABASE `db_477986_marvel`;
+USE `db_477986_marvel`;
+CREATE TABLE `attitude` (
+`park_id` INT,
+`user_id` INT,
+`attitude_rate` INT,
+`attitude_back` INT,
+`attitude_worth` INT,
+PRIMARY KEY (`user_id`, `park_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `footprints` (
+`footprint_id` INT,
+`user_id` INT,
+`park_id` INT,
+`date_visited` DATETIME,
+`user_story` VARCHAR(255),
+`is_public` VARCHAR(255),
+`created_on` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `footprint_images` (
+`footprint_id` INT,
+`image_id` INT,
+`image_src` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `gallery` (
+`id` INT,
+`park_id` INT,
+`name` VARCHAR(255),
+`src` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nav_header` (
+`id` INT,
+`path` VARCHAR(255),
+`link` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `park` (
+`id` INT,
+`google_place_id` VARCHAR(255),
+`name` VARCHAR(255),
+`banner` VARCHAR(255),
+`description` VARCHAR(255),
+`address` VARCHAR(255),
+`province` VARCHAR(255),
+`province_code` VARCHAR(255),
+`country` VARCHAR(255),
+`country_code` VARCHAR(255),
+`postal_code` VARCHAR(255),
+`latitude` VARCHAR(255),
+`longitude` VARCHAR(255),
+`phone_number` VARCHAR(255),
+`rating` DECIMAL(10,2),
+`website` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`role_id` INT,
+`role_name` VARCHAR(255),
+PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`user_id` INT,
+`user_name` VARCHAR(255),
+`user_password` VARCHAR(255),
+`user_email` VARCHAR(255),
+`user_reg` DATETIME,
+`google_id` VARCHAR(255),
+`accept_term` INT,
+`role_id` INT,
+`user_status` INT,
+`email_valid` VARCHAR(255),
+`email_subscribed` INT,
+`activation_code` VARCHAR(255),
+`activation_date` DATETIME,
+`forget_token` VARCHAR(255),
+`cookie_token` VARCHAR(255),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_details` (
+`user_id` INT,
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`gender` VARCHAR(255),
+`date_of_birth` DATETIME,
+`address` VARCHAR(255),
+`city` VARCHAR(255),
+`province` VARCHAR(255),
+`nationality` VARCHAR(255),
+`phone_number` VARCHAR(255),
+`last_trip` VARCHAR(255),
+`next_trip` VARCHAR(255),
+`favourite_places` VARCHAR(255),
+`joined_on` DATETIME,
+`image_src` VARCHAR(255),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `wishlist` (
+`wish_id` INT,
+`user_id` INT,
+`park_id` INT,
+`added_on` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_477986_marvel') AS relationships;
+relationships
+Database: db_477986_marvel
+
+Table Connections:
+------------------
+[Implied]  attitude.park_id -> park.id
+[Implied]  attitude.user_id -> user.user_id
+[Implied]  attitude.user_id -> user_details.user_id
+[Implied]  footprint_images.footprint_id -> footprints.footprint_id
+[Implied]  footprints.park_id -> park.id
+[Implied]  footprints.user_id -> user.user_id
+[Implied]  footprints.user_id -> user_details.user_id
+[Implied]  gallery.park_id -> park.id
+[Implied]  user.role_id -> role.role_id
+[Implied]  user_details.user_id -> user.user_id
+[Implied]  wishlist.park_id -> park.id
+[Implied]  wishlist.user_id -> user.user_id
+[Implied]  wishlist.user_id -> user_details.user_id
+
+DROP DATABASE `db_477986_marvel`;
+UNINSTALL EXTENSION vsql_schematron;

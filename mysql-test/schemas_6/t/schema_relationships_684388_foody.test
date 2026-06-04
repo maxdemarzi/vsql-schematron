@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 684388_foody
+--echo #
+CREATE DATABASE `db_684388_foody`;
+USE `db_684388_foody`;
+
+CREATE TABLE `customer` (
+  `customer_id` INT,
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `email_id` VARCHAR(255),
+  `password` VARCHAR(255),
+  `phone_no` VARCHAR(255),
+  `state` VARCHAR(255),
+  `city` VARCHAR(255),
+  `landmark` VARCHAR(255),
+  `pincode` INT,
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `menu` (
+  `menu_id` INT,
+  `menu_name` VARCHAR(255),
+  `price` INT,
+  PRIMARY KEY (`menu_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `order_id` INT,
+  `customer_id` INT,
+  `menu_id` INT,
+  `quantity` INT,
+  `order_status` VARCHAR(255),
+  `time_stamp` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `payment` (
+  `id` INT,
+  `order_id` INT,
+  `payment_type` VARCHAR(255),
+  `payment_status` VARCHAR(255),
+  `time_stamp` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payment_details` (
+  `payment_id` INT,
+  `customer_id` INT,
+  `card_number` VARCHAR(255),
+  `card_holder_name` VARCHAR(255),
+  `cvv` INT,
+  `exp_month` INT,
+  `exp_year` INT,
+  `time_stamp` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `restaurant` (
+  `restaurant_id` INT,
+  `password` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `designation` VARCHAR(255),
+  PRIMARY KEY (`restaurant_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_684388_foody') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_684388_foody') AS relationships;
+DROP DATABASE `db_684388_foody`;
+UNINSTALL EXTENSION vsql_schematron;

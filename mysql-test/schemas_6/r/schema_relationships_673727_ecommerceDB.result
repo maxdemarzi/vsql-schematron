@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 673727_ecommerceDB
+#
+CREATE DATABASE `db_673727_ecommerceDB`;
+USE `db_673727_ecommerceDB`;
+CREATE TABLE `customers` (
+`cus_id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`first_name` VARCHAR(255),
+`middle_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`contact_num` INT,
+`cus_street` VARCHAR(255),
+`cus_city` VARCHAR(255),
+`cus_province` VARCHAR(255),
+`cus_postal` VARCHAR(255),
+`cus_email` VARCHAR(255),
+`date_created` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `delivery` (
+`delivery_id` INT,
+`delivery_date` DATETIME,
+`delivery_status` VARCHAR(255),
+`order_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`order_id` INT,
+`cus_id` INT,
+`orderDate` DATETIME,
+`shippedDate` DATETIME,
+`isDeliver` VARCHAR(255),
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_details` (
+`order_id` INT,
+`product_id` INT,
+`quantity` INT
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`product_id` INT,
+`product_name` VARCHAR(255),
+`purchase_price` DECIMAL(10,2),
+`sell_price` DECIMAL(10,2),
+`product_image` VARCHAR(255),
+`short_desc` VARCHAR(255),
+`description` VARCHAR(255),
+`category_id` INT,
+`date_added` DATETIME,
+PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_category` (
+`category_id` INT,
+`category_name` VARCHAR(255),
+PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stock` (
+`stock_id` INT,
+`product_id` INT,
+`supplier_id` INT,
+`quantity` INT
+) CHARACTER SET latin1;
+CREATE TABLE `supplier` (
+`supplier_id` INT,
+`supplier_name` VARCHAR(255),
+`contact_number` VARCHAR(255),
+`supplier_address` VARCHAR(255),
+`supplier_phone` VARCHAR(255),
+`supplier_email` VARCHAR(255),
+PRIMARY KEY (`supplier_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `supplier_transaction` (
+`sup_transactionID` INT,
+`supplier_id` INT,
+`product_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `useraccounts` (
+`userid` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`status` INT,
+`accesslevel` INT,
+PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_673727_ecommerceDB') AS relationships;
+relationships
+Database: db_673727_ecommerceDB
+
+Table Connections:
+------------------
+[Implied]  delivery.order_id -> orders.order_id
+[Implied]  order_details.order_id -> orders.order_id
+[Implied]  order_details.product_id -> products.product_id
+[Implied]  orders.cus_id -> customers.cus_id
+[Implied]  products.category_id -> product_category.category_id
+[Implied]  stock.product_id -> products.product_id
+[Implied]  stock.supplier_id -> supplier.supplier_id
+[Implied]  supplier_transaction.product_id -> products.product_id
+[Implied]  supplier_transaction.supplier_id -> supplier.supplier_id
+
+DROP DATABASE `db_673727_ecommerceDB`;
+UNINSTALL EXTENSION vsql_schematron;

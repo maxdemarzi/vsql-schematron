@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 403719_dssp
+--echo #
+CREATE DATABASE `db_403719_dssp`;
+USE `db_403719_dssp`;
+
+CREATE TABLE `direksi` (
+  `direksi_id` VARCHAR(255),
+  `role` VARCHAR(255),
+  `email` VARCHAR(255),
+  `password` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `address` VARCHAR(255),
+  `phone_number` VARCHAR(255),
+  PRIMARY KEY (`direksi_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dokumen` (
+  `dokumen_id` VARCHAR(255),
+  `finance_id` VARCHAR(255),
+  `direksi_id` VARCHAR(255),
+  `signature_id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `location` VARCHAR(255),
+  `thumbnail` VARCHAR(255),
+  `upload_date` VARCHAR(255),
+  `due_date` VARCHAR(255),
+  `status` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `finance` (
+  `finance_id` VARCHAR(255),
+  `role` VARCHAR(255),
+  `email` VARCHAR(255),
+  `password` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `address` VARCHAR(255),
+  `phone_number` VARCHAR(255),
+  PRIMARY KEY (`finance_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `signature` (
+  `signature_id` VARCHAR(255),
+  `direksi_id` VARCHAR(255),
+  `location` VARCHAR(255),
+  PRIMARY KEY (`signature_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_403719_dssp') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_403719_dssp') AS relationships;
+DROP DATABASE `db_403719_dssp`;
+UNINSTALL EXTENSION vsql_schematron;

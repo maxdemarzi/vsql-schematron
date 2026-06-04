@@ -1,0 +1,124 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 656071_schedule
+#
+CREATE DATABASE `db_656071_schedule`;
+USE `db_656071_schedule`;
+CREATE TABLE `classroom` (
+`classroom_id` INT,
+`name` VARCHAR(255),
+`active` INT,
+PRIMARY KEY (`classroom_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `day` (
+`day_id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`day_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `gender` (
+`gender_id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`gender_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `gruppa` (
+`gruppa_id` INT,
+`name` VARCHAR(255),
+`special_id` INT,
+`date_begin` DATETIME,
+`date_end` DATETIME,
+PRIMARY KEY (`gruppa_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lesson_num` (
+`lesson_num_id` INT,
+`name` VARCHAR(255),
+`time_lesson` DATETIME,
+PRIMARY KEY (`lesson_num_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lesson_plan` (
+`lesson_plan_id` INT,
+`gruppa_id` INT,
+`subject_id` INT,
+`user_id` INT,
+PRIMARY KEY (`lesson_plan_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `otdel` (
+`otdel_id` INT,
+`name` VARCHAR(255),
+`active` INT,
+PRIMARY KEY (`otdel_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`role_id` INT,
+`sys_name` VARCHAR(255),
+`name` VARCHAR(255),
+`active` INT,
+PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schedule` (
+`schedule_id` INT,
+`lesson_plan_id` INT,
+`day_id` INT,
+`lesson_num_id` INT,
+`classroom_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `special` (
+`special_id` INT,
+`name` VARCHAR(255),
+`otdel_id` INT,
+`active` INT
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`user_id` INT,
+`gruppa_id` INT,
+`num_zach` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `subject` (
+`subject_id` INT,
+`name` VARCHAR(255),
+`otdel_id` INT,
+`hours` INT,
+`active` INT,
+PRIMARY KEY (`subject_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teacher` (
+`user_id` INT,
+`otdel_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`user_id` INT,
+`lastname` VARCHAR(255),
+`firstname` VARCHAR(255),
+`patronymic` VARCHAR(255),
+`login` VARCHAR(255),
+`pass` VARCHAR(255),
+`gender_id` INT,
+`birthday` DATETIME,
+`role_id` INT,
+`active` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_656071_schedule') AS relationships;
+relationships
+Database: db_656071_schedule
+
+Table Connections:
+------------------
+[Implied]  gruppa.special_id -> special.special_id
+[Implied]  lesson_plan.gruppa_id -> gruppa.gruppa_id
+[Implied]  lesson_plan.subject_id -> subject.subject_id
+[Implied]  lesson_plan.user_id -> user.user_id
+[Implied]  schedule.classroom_id -> classroom.classroom_id
+[Implied]  schedule.day_id -> day.day_id
+[Implied]  schedule.lesson_num_id -> lesson_num.lesson_num_id
+[Implied]  schedule.lesson_plan_id -> lesson_plan.lesson_plan_id
+[Implied]  special.otdel_id -> otdel.otdel_id
+[Implied]  student.gruppa_id -> gruppa.gruppa_id
+[Implied]  student.user_id -> user.user_id
+[Implied]  subject.otdel_id -> otdel.otdel_id
+[Implied]  teacher.otdel_id -> otdel.otdel_id
+[Implied]  teacher.user_id -> user.user_id
+[Implied]  user.gender_id -> gender.gender_id
+[Implied]  user.role_id -> role.role_id
+
+DROP DATABASE `db_656071_schedule`;
+UNINSTALL EXTENSION vsql_schematron;

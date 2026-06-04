@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 545270_digibook
+#
+CREATE DATABASE `db_545270_digibook`;
+USE `db_545270_digibook`;
+CREATE TABLE `categories` (
+`id` INT,
+`label` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`user_id` INT,
+`order_date` DATETIME,
+`total_price` INT,
+`status` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_items` (
+`id` INT,
+`order_id` INT,
+`product_id` INT,
+`qty` INT,
+`price` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`title` VARCHAR(255),
+`description` VARCHAR(255),
+`image` VARCHAR(255),
+`price` INT,
+`category_id` INT,
+`user_id` INT,
+`author` VARCHAR(255),
+`translator` VARCHAR(255),
+`page_count` INT,
+`status` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`role` VARCHAR(255),
+`first_name` VARCHAR(255),
+`last_name` VARCHAR(255),
+`mobile` VARCHAR(255),
+`address` VARCHAR(255),
+`postal_code` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_545270_digibook') AS relationships;
+relationships
+Database: db_545270_digibook
+
+Table Connections:
+------------------
+[Implied]  order_items.order_id -> orders.id
+[Implied]  order_items.product_id -> products.id
+[Implied]  orders.user_id -> users.id
+[Implied]  products.category_id -> categories.id
+[Implied]  products.user_id -> users.id
+
+DROP DATABASE `db_545270_digibook`;
+UNINSTALL EXTENSION vsql_schematron;

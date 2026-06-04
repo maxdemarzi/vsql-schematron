@@ -1,0 +1,99 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 179690_batagor_db
+#
+CREATE DATABASE `db_179690_batagor_db`;
+USE `db_179690_batagor_db`;
+CREATE TABLE `carts` (
+`id` INT,
+`status` VARCHAR(255),
+`lapangan_id` INT,
+`user_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `detail_carts` (
+`id` INT,
+`total` INT,
+`user_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `gors` (
+`id` INT,
+`nama` VARCHAR(255),
+`alamat` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `images` (
+`id` INT,
+`file_name` VARCHAR(255),
+`gor_id` INT,
+`lapangan_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `lapangans` (
+`id` INT,
+`harga` INT,
+`detail` VARCHAR(255),
+`gor_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `migrations` (
+`id` INT,
+`migration` VARCHAR(255),
+`batch` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `password_resets` (
+`id` INT,
+`email` VARCHAR(255),
+`token` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ratings` (
+`id` INT,
+`rate` INT,
+`komentar` VARCHAR(255),
+`user_id` INT,
+`gor_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`email_verified_at` DATETIME,
+`password` VARCHAR(255),
+`remember_token` VARCHAR(255),
+`phone_number` VARCHAR(255),
+`type` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_179690_batagor_db') AS relationships;
+relationships
+Database: db_179690_batagor_db
+
+Table Connections:
+------------------
+[Implied]  carts.lapangan_id -> lapangans.id
+[Implied]  carts.user_id -> users.id
+[Implied]  detail_carts.user_id -> users.id
+[Implied]  images.gor_id -> gors.id
+[Implied]  images.lapangan_id -> lapangans.id
+[Implied]  lapangans.gor_id -> gors.id
+[Implied]  ratings.gor_id -> gors.id
+[Implied]  ratings.user_id -> users.id
+
+DROP DATABASE `db_179690_batagor_db`;
+UNINSTALL EXTENSION vsql_schematron;

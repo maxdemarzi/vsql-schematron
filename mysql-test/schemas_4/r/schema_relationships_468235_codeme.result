@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 468235_codeme
+#
+CREATE DATABASE `db_468235_codeme`;
+USE `db_468235_codeme`;
+CREATE TABLE `posts` (
+`id` INT,
+`user_id` INT,
+`title` VARCHAR(255),
+`category` VARCHAR(255),
+`body` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `replies` (
+`id` INT,
+`user_id` INT,
+`post_id` INT,
+`reply` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`password` VARCHAR(255),
+`role` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_468235_codeme') AS relationships;
+relationships
+Database: db_468235_codeme
+
+Table Connections:
+------------------
+[Implied]  posts.user_id -> users.id
+[Implied]  replies.post_id -> posts.id
+[Implied]  replies.user_id -> users.id
+
+DROP DATABASE `db_468235_codeme`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 660216_pi2_penjualan_barang
+#
+CREATE DATABASE `db_660216_pi2_penjualan_barang`;
+USE `db_660216_pi2_penjualan_barang`;
+CREATE TABLE `barang` (
+`barang_id` INT,
+`nama_barang` VARCHAR(255),
+`harga_barang` INT,
+`stok` INT,
+`keterangan` VARCHAR(255),
+PRIMARY KEY (`barang_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pelanggan` (
+`pelanggan_id` INT,
+`nama_pelanggan` VARCHAR(255),
+`no_tlp` VARCHAR(255),
+`alamat` VARCHAR(255),
+PRIMARY KEY (`pelanggan_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `penjualan` (
+`penjualan_id` INT,
+`tgl_penjualan` DATETIME,
+`pelanggan_id` INT,
+`total_belanja` INT,
+`keterangan` VARCHAR(255),
+PRIMARY KEY (`penjualan_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `penjualan_detail` (
+`penjualan_detail_id` INT,
+`penjualan_id` INT,
+`barang_id` INT,
+`harga_total` INT,
+`jumlah` INT,
+`diskon` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_660216_pi2_penjualan_barang') AS relationships;
+relationships
+Database: db_660216_pi2_penjualan_barang
+
+Table Connections:
+------------------
+[Implied]  penjualan.pelanggan_id -> pelanggan.pelanggan_id
+[Implied]  penjualan_detail.barang_id -> barang.barang_id
+[Implied]  penjualan_detail.penjualan_id -> penjualan.penjualan_id
+
+DROP DATABASE `db_660216_pi2_penjualan_barang`;
+UNINSTALL EXTENSION vsql_schematron;

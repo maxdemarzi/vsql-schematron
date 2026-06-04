@@ -1,0 +1,114 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 159891_batagor_db
+#
+CREATE DATABASE `db_159891_batagor_db`;
+USE `db_159891_batagor_db`;
+CREATE TABLE `accounts` (
+`id_rek` INT,
+`user_id` INT,
+`no_rekening` INT,
+`nama_rekening` INT,
+`bank_rekening` INT,
+PRIMARY KEY (`id_rek`)
+) CHARACTER SET latin1;
+CREATE TABLE `carts` (
+`carts_id` INT,
+`status` VARCHAR(255),
+`lapangan_id` INT,
+`cust_id` INT,
+PRIMARY KEY (`carts_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `detail_carts` (
+`carts_id` INT,
+`total` INT,
+`tanggal_main` VARCHAR(255),
+`jam_main` VARCHAR(255),
+`durasi` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`bukti_upload` VARCHAR(255),
+PRIMARY KEY (`carts_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `gors` (
+`gor_id` INT,
+`user_id` INT,
+`nama_gor` VARCHAR(255),
+`alamat` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`gor_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `images` (
+`id` INT,
+`file_name` VARCHAR(255),
+`gor_id` INT,
+`lapangan_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `lapangans` (
+`lapangan_id` INT,
+`nama_lapangan` VARCHAR(255),
+`harga` INT,
+`detail` VARCHAR(255),
+`jenis` VARCHAR(255),
+`gor_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`lapangan_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `migrations` (
+`id` INT,
+`migration` VARCHAR(255),
+`batch` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `password_resets` (
+`id` INT,
+`email` VARCHAR(255),
+`token` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ratings` (
+`id` INT,
+`rate` INT,
+`komentar` VARCHAR(255),
+`user_id` INT,
+`gor_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(255),
+`email` VARCHAR(255),
+`email_verified_at` DATETIME,
+`password` VARCHAR(255),
+`remember_token` VARCHAR(255),
+`phone_number` VARCHAR(255),
+`type` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_159891_batagor_db') AS relationships;
+relationships
+Database: db_159891_batagor_db
+
+Table Connections:
+------------------
+[Implied]  accounts.user_id -> users.id
+[Implied]  carts.lapangan_id -> lapangans.lapangan_id
+[Implied]  detail_carts.carts_id -> carts.carts_id
+[Implied]  gors.user_id -> users.id
+[Implied]  images.gor_id -> gors.gor_id
+[Implied]  images.lapangan_id -> lapangans.lapangan_id
+[Implied]  lapangans.gor_id -> gors.gor_id
+[Implied]  ratings.gor_id -> gors.gor_id
+[Implied]  ratings.user_id -> users.id
+
+DROP DATABASE `db_159891_batagor_db`;
+UNINSTALL EXTENSION vsql_schematron;

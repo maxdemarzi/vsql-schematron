@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 466808_snapshot_0
+--echo #
+CREATE DATABASE `db_466808_snapshot_0`;
+USE `db_466808_snapshot_0`;
+
+CREATE TABLE `mes_types` (
+  `id` INT,
+  `user_id` INT,
+  `name` VARCHAR(255),
+  `x_par` VARCHAR(255),
+  `y_par` VARCHAR(255),
+  `t_par` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `robots` (
+  `id` INT,
+  `user_id` INT,
+  `ip_address` VARCHAR(255),
+  `port` VARCHAR(255),
+  `topic_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `topics` (
+  `id` INT,
+  `user_id` INT,
+  `name` VARCHAR(255),
+  `mes_id` INT,
+  `max_x` DECIMAL(10,2),
+  `min_x` DECIMAL(10,2),
+  `max_y` DECIMAL(10,2),
+  `min_y` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `email` VARCHAR(255),
+  `password` VARCHAR(255),
+  `activation_code` VARCHAR(255),
+  `activated` INT,
+  `forgotten_password_code` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `created` DATETIME,
+  `modified` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_466808_snapshot_0') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_466808_snapshot_0') AS relationships;
+DROP DATABASE `db_466808_snapshot_0`;
+UNINSTALL EXTENSION vsql_schematron;

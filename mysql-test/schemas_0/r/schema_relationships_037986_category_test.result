@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 037986_category_test
+#
+CREATE DATABASE `db_037986_category_test`;
+USE `db_037986_category_test`;
+CREATE TABLE `category` (
+`id` INT,
+`title` VARCHAR(255),
+`active` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `migration` (
+`version` VARCHAR(255),
+`apply_time` INT,
+PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+`id` INT,
+`session` VARCHAR(255),
+`total` INT,
+`qty` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_product` (
+`id` INT,
+`order_id` INT,
+`product_id` INT,
+`title` VARCHAR(255),
+`price` INT,
+`qty` INT,
+`total` INT
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`id` INT,
+`category_id` INT,
+`title` VARCHAR(255),
+`content` VARCHAR(255),
+`price` INT,
+`img` VARCHAR(255),
+`active` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_037986_category_test') AS relationships;
+relationships
+Database: db_037986_category_test
+
+Table Connections:
+------------------
+[Implied]  order_product.order_id -> order.id
+[Implied]  order_product.product_id -> product.id
+[Implied]  product.category_id -> category.id
+
+DROP DATABASE `db_037986_category_test`;
+UNINSTALL EXTENSION vsql_schematron;

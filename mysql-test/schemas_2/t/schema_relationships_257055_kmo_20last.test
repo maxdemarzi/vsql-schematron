@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 257055_kmo_20last
+--echo #
+CREATE DATABASE `db_257055_kmo_20last`;
+USE `db_257055_kmo_20last`;
+
+CREATE TABLE `city` (
+  `id` INT,
+  `name` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `exam` (
+  `id` INT,
+  `examtitle` VARCHAR(255),
+  `filepath` VARCHAR(255),
+  `examdate` DATETIME,
+  `starttime` DATETIME,
+  `endtime` DATETIME,
+  `description` VARCHAR(255),
+  `examstatus` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `examresult` (
+  `id` INT,
+  `userid` INT,
+  `examid` INT,
+  `filepath` VARCHAR(255),
+  `score` INT,
+  `collecttime` DATETIME,
+  `resultstatus` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payment` (
+  `id` INT,
+  `userid` INT,
+  `accountname` VARCHAR(255),
+  `bank` VARCHAR(255),
+  `paymentslip` VARCHAR(255),
+  `paymentstatus` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `nisn` VARCHAR(255),
+  `fullname` VARCHAR(255),
+  `email` VARCHAR(255),
+  `gender` VARCHAR(255),
+  `school` VARCHAR(255),
+  `address` VARCHAR(255),
+  `phoneNumber` VARCHAR(255),
+  `dateOfBirth` DATETIME,
+  `photo` VARCHAR(255),
+  `password` VARCHAR(255),
+  `salt` VARCHAR(255),
+  `privilege` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_257055_kmo_20last') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_257055_kmo_20last') AS relationships;
+DROP DATABASE `db_257055_kmo_20last`;
+UNINSTALL EXTENSION vsql_schematron;

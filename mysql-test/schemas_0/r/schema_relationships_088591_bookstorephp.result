@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 088591_bookstorephp
+#
+CREATE DATABASE `db_088591_bookstorephp`;
+USE `db_088591_bookstorephp`;
+CREATE TABLE `account` (
+`id` INT,
+`full_name` VARCHAR(255),
+`user_name` VARCHAR(255),
+`pwd` VARCHAR(255),
+`image` VARCHAR(255),
+`role_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `author` (
+`id` INT,
+`full_name` VARCHAR(255),
+`date_of_brith` DATETIME,
+`country` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book` (
+`id` INT,
+`author_id` INT,
+`title` VARCHAR(255),
+`image` VARCHAR(255),
+`price` DECIMAL(10,2),
+`publish_year` INT,
+`category_id` INT,
+`description` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cartitem` (
+`id` INT,
+`account_id` INT,
+`quantity` INT,
+`book_id` INT,
+`order_date` DATETIME,
+`status` INT,
+`shipping_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`id` INT,
+`name` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`id` INT,
+`name` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `shipping` (
+`id` INT,
+`account_id` INT,
+`card_owner` VARCHAR(255),
+`card_number` INT,
+`address` VARCHAR(255),
+`city` VARCHAR(255),
+`number_phone` INT,
+`status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_088591_bookstorephp') AS relationships;
+relationships
+Database: db_088591_bookstorephp
+
+Table Connections:
+------------------
+[Implied]  account.role_id -> role.id
+[Implied]  book.author_id -> author.id
+[Implied]  book.category_id -> category.id
+[Implied]  cartitem.account_id -> account.id
+[Implied]  cartitem.book_id -> book.id
+[Implied]  cartitem.shipping_id -> shipping.id
+[Implied]  shipping.account_id -> account.id
+
+DROP DATABASE `db_088591_bookstorephp`;
+UNINSTALL EXTENSION vsql_schematron;

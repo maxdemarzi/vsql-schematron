@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 362391_database
+#
+CREATE DATABASE `db_362391_database`;
+USE `db_362391_database`;
+CREATE TABLE `addresses` (
+`id` INT,
+`line` VARCHAR(255),
+`city` VARCHAR(255),
+`state` VARCHAR(255),
+`country` VARCHAR(255),
+`phone` VARCHAR(255),
+`user_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`title` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders_details` (
+`id` INT,
+`order_id` INT,
+`product_id` INT,
+`quantity` INT
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`title` VARCHAR(255),
+`image` VARCHAR(255),
+`images` VARCHAR(255),
+`description` VARCHAR(255),
+`price` DECIMAL(10,2),
+`quantity` INT,
+`cat_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`email` VARCHAR(255),
+`fname` VARCHAR(255),
+`lname` VARCHAR(255),
+`age` INT,
+`role` INT,
+`type` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_362391_database') AS relationships;
+relationships
+Database: db_362391_database
+
+Table Connections:
+------------------
+[Implied]  addresses.user_id -> users.id
+[Implied]  orders.user_id -> users.id
+[Implied]  orders_details.order_id -> orders.id
+[Implied]  orders_details.product_id -> products.id
+[Implied]  products.cat_id -> categories.id
+
+DROP DATABASE `db_362391_database`;
+UNINSTALL EXTENSION vsql_schematron;

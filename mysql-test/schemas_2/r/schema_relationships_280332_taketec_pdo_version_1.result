@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 280332_taketec_pdo_version_1
+#
+CREATE DATABASE `db_280332_taketec_pdo_version_1`;
+USE `db_280332_taketec_pdo_version_1`;
+CREATE TABLE `category` (
+`catId` INT,
+`description` VARCHAR(255),
+PRIMARY KEY (`catId`)
+) CHARACTER SET latin1;
+CREATE TABLE `category_has_news` (
+`catId` INT,
+`newsId` INT
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`commentId` INT,
+`content` VARCHAR(255),
+`newsId` INT,
+`userId` INT
+) CHARACTER SET latin1;
+CREATE TABLE `image` (
+`imageId` INT,
+`imagePath` VARCHAR(255),
+`copyright` VARCHAR(255),
+`newsId` INT
+) CHARACTER SET latin1;
+CREATE TABLE `news` (
+`newsId` INT,
+`creation` DATETIME,
+`updated` DATETIME,
+`userId` INT,
+`content` VARCHAR(255),
+`copyright` VARCHAR(255),
+`paidNew` INT,
+`price` DECIMAL(10,2),
+`newsTitle` VARCHAR(255),
+`newsShortDescription` VARCHAR(255),
+`likes` INT,
+PRIMARY KEY (`newsId`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment_method` (
+`paymentMethodId` INT,
+`userId` INT,
+`cardType` INT,
+`cardNumber` VARCHAR(255),
+`CVV` VARCHAR(255),
+`nameOnCard` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `purchased_article` (
+`newsId` INT,
+`userId` INT
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`userId` INT,
+`firstName` VARCHAR(255),
+`surname` VARCHAR(255),
+`password` VARCHAR(255),
+`gender` VARCHAR(255),
+`DOB` DATETIME,
+`country` VARCHAR(255),
+`phone` VARCHAR(255),
+`eMail` VARCHAR(255),
+`permission` INT,
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_280332_taketec_pdo_version_1') AS relationships;
+relationships
+Database: db_280332_taketec_pdo_version_1
+
+Table Connections:
+------------------
+[Implied]  category_has_news.catId -> category.catId
+[Implied]  category_has_news.newsId -> news.newsId
+[Implied]  comment.newsId -> news.newsId
+[Implied]  comment.userId -> user.userId
+[Implied]  image.newsId -> news.newsId
+[Implied]  news.userId -> user.userId
+[Implied]  payment_method.userId -> user.userId
+[Implied]  purchased_article.newsId -> news.newsId
+[Implied]  purchased_article.userId -> user.userId
+
+DROP DATABASE `db_280332_taketec_pdo_version_1`;
+UNINSTALL EXTENSION vsql_schematron;

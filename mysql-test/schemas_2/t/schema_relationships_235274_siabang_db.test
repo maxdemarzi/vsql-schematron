@@ -1,0 +1,123 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 235274_siabang_db
+--echo #
+CREATE DATABASE `db_235274_siabang_db`;
+USE `db_235274_siabang_db`;
+
+CREATE TABLE `migrations` (
+  `id` INT,
+  `migration` VARCHAR(255),
+  `batch` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `outlets` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `address` VARCHAR(255),
+  `latitude` VARCHAR(255),
+  `longitude` VARCHAR(255),
+  `creator_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `password_resets` (
+  `email` VARCHAR(255),
+  `token` VARCHAR(255),
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `selections` (
+  `id` INT,
+  `user_id` INT,
+  `title` VARCHAR(255),
+  `type` INT,
+  `deleted_at` DATETIME,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `settings` (
+  `id` INT,
+  `app_name` VARCHAR(255),
+  `app_full_name` VARCHAR(255),
+  `app_description` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `surveys` (
+  `id` INT,
+  `user_id` INT,
+  `kode` VARCHAR(255),
+  `latitude` VARCHAR(255),
+  `longitude` VARCHAR(255),
+  `tanggal` DATETIME,
+  `nama_gedung` VARCHAR(255),
+  `pemilik_gedung` VARCHAR(255),
+  `fungsi_gedung` VARCHAR(255),
+  `klasifikasi_gedung` VARCHAR(255),
+  `lokasi_gedung` VARCHAR(255),
+  `jumlah_lantai` INT,
+  `ketinggian` DECIMAL(10,2),
+  `luas_lantai` DECIMAL(10,2),
+  `luas_lantai_dasar` DECIMAL(10,2),
+  `luas_tanah` DECIMAL(10,2),
+  `surat_bukti` INT,
+  `pptk` VARCHAR(255),
+  `ppk` VARCHAR(255),
+  `tahun_anggaran` VARCHAR(255),
+  `cara_pelaksanaan` INT,
+  `youtube_id` VARCHAR(255),
+  `foto` VARCHAR(255),
+  `deleted_at` DATETIME,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `survey_selections` (
+  `id` INT,
+  `survey_id` INT,
+  `selection_id` INT,
+  `choice` INT,
+  `description` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `email_verified_at` DATETIME,
+  `password` VARCHAR(255),
+  `remember_token` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_235274_siabang_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_235274_siabang_db') AS relationships;
+DROP DATABASE `db_235274_siabang_db`;
+UNINSTALL EXTENSION vsql_schematron;

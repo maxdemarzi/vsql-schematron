@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 053787_postgresql
+#
+CREATE DATABASE `db_053787_postgresql`;
+USE `db_053787_postgresql`;
+CREATE TABLE `taskmanager` (
+`sequence_id` INT,
+`taskmanager_id` VARCHAR(255),
+`name` VARCHAR(255),
+`datestamp` DATETIME,
+PRIMARY KEY (`sequence_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `header` (
+`taskmanager_id` INT,
+`generation_id` INT,
+`key` VARCHAR(255),
+`create_time` INT,
+`expiration_time` INT,
+`scheduled_create_time` INT,
+`creator` VARCHAR(255),
+`schema_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `schema` (
+`schema_id` INT,
+`schema` VARCHAR(255),
+PRIMARY KEY (`schema_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `metadata` (
+`taskmanager_id` INT,
+`generation_id` INT,
+`key` VARCHAR(255),
+`state` VARCHAR(255),
+`generation_time` INT,
+`missed_update_count` INT
+) CHARACTER SET latin1;
+CREATE TABLE `dataproduct` (
+`taskmanager_id` INT,
+`generation_id` INT,
+`key` VARCHAR(255),
+`value` VARCHAR(255)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_053787_postgresql') AS relationships;
+relationships
+Database: db_053787_postgresql
+
+Table Connections:
+------------------
+[Implied]  dataproduct.taskmanager_id -> taskmanager.sequence_id
+[Implied]  header.schema_id -> schema.schema_id
+[Implied]  header.taskmanager_id -> taskmanager.sequence_id
+[Implied]  metadata.taskmanager_id -> taskmanager.sequence_id
+
+DROP DATABASE `db_053787_postgresql`;
+UNINSTALL EXTENSION vsql_schematron;

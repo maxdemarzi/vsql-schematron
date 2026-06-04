@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 624347_travel
+#
+CREATE DATABASE `db_624347_travel`;
+USE `db_624347_travel`;
+CREATE TABLE `category` (
+`id` INT,
+`category` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`id` INT,
+`name` VARCHAR(255),
+`comment` VARCHAR(255),
+`news_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `news` (
+`id` INT,
+`title` VARCHAR(255),
+`short_intro` VARCHAR(255),
+`content` VARCHAR(255),
+`created_date` DATETIME,
+`pic` VARCHAR(255),
+`author` VARCHAR(255),
+`cat_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`id` INT,
+`content` VARCHAR(255),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tagnews` (
+`id` INT,
+`tag_id` INT,
+`news_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_624347_travel') AS relationships;
+relationships
+Database: db_624347_travel
+
+Table Connections:
+------------------
+[Implied]  comment.news_id -> news.id
+[Implied]  news.cat_id -> category.id
+[Implied]  tagnews.news_id -> news.id
+[Implied]  tagnews.tag_id -> tag.id
+
+DROP DATABASE `db_624347_travel`;
+UNINSTALL EXTENSION vsql_schematron;

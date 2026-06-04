@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 488161_db_crud
+#
+CREATE DATABASE `db_488161_db_crud`;
+USE `db_488161_db_crud`;
+CREATE TABLE `customer` (
+`customer_id` INT,
+`customer_name` VARCHAR(255),
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `invoice` (
+`invoice_code` INT,
+`customer_id` INT,
+`date_created` DATETIME,
+PRIMARY KEY (`invoice_code`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_detail` (
+`invoice_code` INT,
+`product_code` VARCHAR(255),
+`quantity` INT
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`product_code` VARCHAR(255),
+`product_name` VARCHAR(255),
+`product_price` INT,
+PRIMARY KEY (`product_code`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_488161_db_crud') AS relationships;
+relationships
+Database: db_488161_db_crud
+
+Table Connections:
+------------------
+[Implied]  invoice.customer_id -> customer.customer_id
+[Implied]  order_detail.invoice_code -> invoice.invoice_code
+[Implied]  order_detail.product_code -> product.product_code
+
+DROP DATABASE `db_488161_db_crud`;
+UNINSTALL EXTENSION vsql_schematron;

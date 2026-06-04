@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 503826_postgresql_create
+#
+CREATE DATABASE `db_503826_postgresql_create`;
+USE `db_503826_postgresql_create`;
+CREATE TABLE `cpa` (
+`cpa_id` VARCHAR(255),
+`cpa` VARCHAR(255),
+PRIMARY KEY (`cpa_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `url_mapping` (
+`source` VARCHAR(255),
+`destination` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `certificate_mapping` (
+`id` VARCHAR(255),
+`source` VARCHAR(255),
+`destination` VARCHAR(255),
+`cpa_id` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `ebms_message` (
+`time_stamp` DATETIME,
+`cpa_id` VARCHAR(255),
+`conversation_id` VARCHAR(255),
+`message_id` VARCHAR(255),
+`message_nr` INT,
+`ref_to_message_id` VARCHAR(255),
+`time_to_live` DATETIME,
+`persist_time` DATETIME,
+`from_party_id` VARCHAR(255),
+`from_role` VARCHAR(255),
+`to_party_id` VARCHAR(255),
+`to_role` VARCHAR(255),
+`service` VARCHAR(255),
+`action` VARCHAR(255),
+`content` VARCHAR(255),
+`status` INT,
+`status_time` DATETIME,
+PRIMARY KEY (`message_id`, `message_nr`)
+) CHARACTER SET latin1;
+CREATE TABLE `ebms_attachment` (
+`message_id` VARCHAR(255),
+`message_nr` INT,
+`order_nr` INT,
+`name` VARCHAR(255),
+`content_id` VARCHAR(255),
+`content_type` VARCHAR(255),
+`content` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `delivery_task` (
+`cpa_id` VARCHAR(255),
+`send_channel_id` VARCHAR(255),
+`receive_channel_id` VARCHAR(255),
+`message_id` VARCHAR(255),
+`time_to_live` DATETIME,
+`time_stamp` DATETIME,
+`is_confidential` VARCHAR(255),
+`retries` INT,
+`server_id` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `delivery_log` (
+`message_id` VARCHAR(255),
+`time_stamp` DATETIME,
+`uri` VARCHAR(255),
+`status` INT,
+`error_message` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `message_event` (
+`message_id` VARCHAR(255),
+`event_type` INT,
+`time_stamp` DATETIME,
+`processed` INT,
+PRIMARY KEY (`message_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_503826_postgresql_create') AS relationships;
+relationships
+Database: db_503826_postgresql_create
+
+Table Connections:
+------------------
+[Implied]  certificate_mapping.cpa_id -> cpa.cpa_id
+[Implied]  delivery_log.message_id -> message_event.message_id
+[Implied]  delivery_task.cpa_id -> cpa.cpa_id
+[Implied]  delivery_task.message_id -> message_event.message_id
+[Implied]  ebms_attachment.message_id -> message_event.message_id
+[Implied]  ebms_message.cpa_id -> cpa.cpa_id
+[Implied]  ebms_message.message_id -> message_event.message_id
+[Implied]  ebms_message.ref_to_message_id -> message_event.message_id
+
+DROP DATABASE `db_503826_postgresql_create`;
+UNINSTALL EXTENSION vsql_schematron;

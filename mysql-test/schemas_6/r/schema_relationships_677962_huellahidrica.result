@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 677962_huellahidrica
+#
+CREATE DATABASE `db_677962_huellahidrica`;
+USE `db_677962_huellahidrica`;
+CREATE TABLE `comentarios` (
+`id` INT,
+`descripcion` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+`publicaciones_id` INT,
+`persona_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `encuesta` (
+`id` INT,
+`titulo` VARCHAR(255),
+`fecha` DATETIME,
+`created` DATETIME,
+`modified` DATETIME,
+`persona_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `persona` (
+`id` INT,
+`nombre` VARCHAR(255),
+`apellido` VARCHAR(255),
+`nickname` VARCHAR(255),
+`email` VARCHAR(255),
+`contrasena` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+`potable` INT,
+`tipo_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `preguntas` (
+`id` INT,
+`descripcion` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+`encuesta_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `publicaciones` (
+`id` INT,
+`titulo` VARCHAR(255),
+`descripcion` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+`persona_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `respuesta` (
+`id` INT,
+`descripcion` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+`preguntas_id` INT,
+`persona_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `tipo` (
+`id` INT,
+`rol` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_677962_huellahidrica') AS relationships;
+relationships
+Database: db_677962_huellahidrica
+
+Table Connections:
+------------------
+[Implied]  comentarios.persona_id -> persona.id
+[Implied]  comentarios.publicaciones_id -> publicaciones.id
+[Implied]  encuesta.persona_id -> persona.id
+[Implied]  persona.tipo_id -> tipo.id
+[Implied]  preguntas.encuesta_id -> encuesta.id
+[Implied]  publicaciones.persona_id -> persona.id
+[Implied]  respuesta.persona_id -> persona.id
+[Implied]  respuesta.preguntas_id -> preguntas.id
+
+DROP DATABASE `db_677962_huellahidrica`;
+UNINSTALL EXTENSION vsql_schematron;

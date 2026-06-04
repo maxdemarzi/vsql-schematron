@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 321510_mysql_create
+#
+CREATE DATABASE `db_321510_mysql_create`;
+USE `db_321510_mysql_create`;
+CREATE TABLE `cpa` (
+`cpa_id` VARCHAR(255),
+`cpa` VARCHAR(255),
+PRIMARY KEY (`cpa_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `url` (
+`source` VARCHAR(255),
+`destination` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `ebms_message` (
+`id` INT,
+`time_stamp` DATETIME,
+`cpa_id` VARCHAR(255),
+`conversation_id` VARCHAR(255),
+`message_id` VARCHAR(255),
+`message_nr` INT,
+`ref_to_message_id` VARCHAR(255),
+`time_to_live` DATETIME,
+`persist_time` DATETIME,
+`from_party_id` VARCHAR(255),
+`from_role` VARCHAR(255),
+`to_party_id` VARCHAR(255),
+`to_role` VARCHAR(255),
+`service` VARCHAR(255),
+`action` VARCHAR(255),
+`content` VARCHAR(255),
+`status` INT,
+`status_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ebms_attachment` (
+`ebms_message_id` INT,
+`order_nr` INT,
+`name` VARCHAR(255),
+`content_id` VARCHAR(255),
+`content_type` VARCHAR(255),
+`content` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `ebms_event` (
+`cpa_id` VARCHAR(255),
+`client_alias` VARCHAR(255),
+`channel_id` VARCHAR(255),
+`message_id` VARCHAR(255),
+`time_to_live` DATETIME,
+`time_stamp` DATETIME,
+`is_confidential` INT,
+`retries` INT,
+`server_id` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `ebms_event_log` (
+`message_id` VARCHAR(255),
+`time_stamp` DATETIME,
+`uri` VARCHAR(255),
+`status` INT,
+`error_message` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `ebms_message_event` (
+`message_id` VARCHAR(255),
+`event_type` INT,
+`time_stamp` DATETIME,
+`processed` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_321510_mysql_create') AS relationships;
+relationships
+Database: db_321510_mysql_create
+
+Table Connections:
+------------------
+[Implied]  ebms_attachment.ebms_message_id -> ebms_message.id
+[Implied]  ebms_event.cpa_id -> cpa.cpa_id
+[Implied]  ebms_message.cpa_id -> cpa.cpa_id
+
+DROP DATABASE `db_321510_mysql_create`;
+UNINSTALL EXTENSION vsql_schematron;

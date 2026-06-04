@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 488161_db_crud
+--echo #
+CREATE DATABASE `db_488161_db_crud`;
+USE `db_488161_db_crud`;
+
+CREATE TABLE `customer` (
+  `customer_id` INT,
+  `customer_name` VARCHAR(255),
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `invoice` (
+  `invoice_code` INT,
+  `customer_id` INT,
+  `date_created` DATETIME,
+  PRIMARY KEY (`invoice_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_detail` (
+  `invoice_code` INT,
+  `product_code` VARCHAR(255),
+  `quantity` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `product` (
+  `product_code` VARCHAR(255),
+  `product_name` VARCHAR(255),
+  `product_price` INT,
+  PRIMARY KEY (`product_code`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_488161_db_crud') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_488161_db_crud') AS relationships;
+DROP DATABASE `db_488161_db_crud`;
+UNINSTALL EXTENSION vsql_schematron;

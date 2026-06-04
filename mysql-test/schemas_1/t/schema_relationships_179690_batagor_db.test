@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 179690_batagor_db
+--echo #
+CREATE DATABASE `db_179690_batagor_db`;
+USE `db_179690_batagor_db`;
+
+CREATE TABLE `carts` (
+  `id` INT,
+  `status` VARCHAR(255),
+  `lapangan_id` INT,
+  `user_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `detail_carts` (
+  `id` INT,
+  `total` INT,
+  `user_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `gors` (
+  `id` INT,
+  `nama` VARCHAR(255),
+  `alamat` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `images` (
+  `id` INT,
+  `file_name` VARCHAR(255),
+  `gor_id` INT,
+  `lapangan_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `lapangans` (
+  `id` INT,
+  `harga` INT,
+  `detail` VARCHAR(255),
+  `gor_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `migrations` (
+  `id` INT,
+  `migration` VARCHAR(255),
+  `batch` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `password_resets` (
+  `id` INT,
+  `email` VARCHAR(255),
+  `token` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ratings` (
+  `id` INT,
+  `rate` INT,
+  `komentar` VARCHAR(255),
+  `user_id` INT,
+  `gor_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `email_verified_at` DATETIME,
+  `password` VARCHAR(255),
+  `remember_token` VARCHAR(255),
+  `phone_number` VARCHAR(255),
+  `type` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_179690_batagor_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_179690_batagor_db') AS relationships;
+DROP DATABASE `db_179690_batagor_db`;
+UNINSTALL EXTENSION vsql_schematron;

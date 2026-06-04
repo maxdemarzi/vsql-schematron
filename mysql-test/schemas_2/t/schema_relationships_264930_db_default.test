@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 264930_db_default
+--echo #
+CREATE DATABASE `db_264930_db_default`;
+USE `db_264930_db_default`;
+
+CREATE TABLE `answer` (
+  `id` INT,
+  `html_text` VARCHAR(255),
+  `created_date` DATETIME,
+  `question_id` INT,
+  `user_id` INT,
+  `approved` INT,
+  `comment` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `answer_attachment` (
+  `id` INT,
+  `location` VARCHAR(255),
+  `answer_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `answer_vote` (
+  `id` INT,
+  `vote` INT,
+  `answer_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `question` (
+  `id` INT,
+  `subject` VARCHAR(255),
+  `html_text` VARCHAR(255),
+  `created_date` DATETIME,
+  `category_id` INT,
+  `user_id` INT,
+  `approved` INT,
+  `comment` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `question_attachment` (
+  `id` INT,
+  `location` VARCHAR(255),
+  `question_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `question_vote` (
+  `id` INT,
+  `vote` INT,
+  `question_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_role` (
+  `user_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_264930_db_default') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_264930_db_default') AS relationships;
+DROP DATABASE `db_264930_db_default`;
+UNINSTALL EXTENSION vsql_schematron;
