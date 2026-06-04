@@ -1,0 +1,106 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 529184_database_schema
+#
+CREATE DATABASE `db_529184_database_schema`;
+USE `db_529184_database_schema`;
+CREATE TABLE `country` (
+`country_id` INT,
+`country_code` VARCHAR(64),
+`country_name` VARCHAR(64),
+PRIMARY KEY (`country_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `gender` (
+`gender_id` INT,
+`gender_name` VARCHAR(64),
+PRIMARY KEY (`gender_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`user_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`create_time` DATETIME,
+`gender_id` INT,
+`birth_date` DATETIME,
+`phone` VARCHAR(64),
+`country_id` INT,
+`billing_address` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth` (
+`auth_id` INT,
+`user_id` INT,
+`user_email` VARCHAR(64),
+`user_name` VARCHAR(64),
+`user_pass` VARCHAR(64),
+PRIMARY KEY (`auth_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`event_id` INT,
+`event_name` VARCHAR(64),
+PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `logs` (
+`log_id` INT,
+`user_id` INT,
+`user_ip` VARCHAR(64),
+`log_timestamp` DATETIME,
+`event_id` INT,
+PRIMARY KEY (`log_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shipping_address` (
+`shipping_address_id` INT,
+`user_id` INT,
+`address_data` VARCHAR(64),
+PRIMARY KEY (`shipping_address_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `accepted_method` (
+`method_id` INT,
+`method_name` VARCHAR(64),
+PRIMARY KEY (`method_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pay_method` (
+`pay_method_id` INT,
+`user_id` INT,
+`method_id` INT,
+`method_data` VARCHAR(64),
+`cvv` VARCHAR(64),
+`exp` VARCHAR(64),
+PRIMARY KEY (`pay_method_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`product_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`price` DECIMAL(10,2),
+`inventory` INT,
+PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`order_id` INT,
+`user_id` INT,
+`order_date` DATETIME,
+`pay_method_id` INT,
+`shipping_address_id` INT,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_529184_database_schema') AS relationships;
+relationships
+Database: db_529184_database_schema
+
+Table Connections:
+------------------
+[Implied]  auth.user_id -> user.user_id
+[Implied]  logs.event_id -> events.event_id
+[Implied]  logs.user_id -> user.user_id
+[Implied]  orders.pay_method_id -> pay_method.pay_method_id
+[Implied]  orders.shipping_address_id -> shipping_address.shipping_address_id
+[Implied]  orders.user_id -> user.user_id
+[Implied]  pay_method.method_id -> accepted_method.method_id
+[Implied]  pay_method.user_id -> user.user_id
+[Implied]  shipping_address.user_id -> user.user_id
+[Implied]  user.country_id -> country.country_id
+[Implied]  user.gender_id -> gender.gender_id
+
+DROP DATABASE `db_529184_database_schema`;
+UNINSTALL EXTENSION vsql_schematron;

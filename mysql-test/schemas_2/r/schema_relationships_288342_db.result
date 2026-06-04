@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 288342_db
+#
+CREATE DATABASE `db_288342_db`;
+USE `db_288342_db`;
+CREATE TABLE `client` (
+`id` INT,
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`phone` VARCHAR(64),
+`address` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `good_type` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hall` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `good` (
+`id` INT,
+`type_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`weight` INT,
+`price` INT,
+`photo` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_` (
+`id` INT,
+`client_id` INT,
+`hall_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `good_hall` (
+`id` INT,
+`good_id` INT,
+`hall_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_element` (
+`id` INT,
+`order_id` INT,
+`good_id` INT,
+`quantity` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sale` (
+`id` INT,
+`good_id` INT,
+`price` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_288342_db') AS relationships;
+relationships
+Database: db_288342_db
+
+Table Connections:
+------------------
+[Implied]  good.type_id -> good_type.id
+[Implied]  good_hall.good_id -> good.id
+[Implied]  good_hall.hall_id -> hall.id
+[Implied]  order_.client_id -> client.id
+[Implied]  order_.hall_id -> hall.id
+[Implied]  order_element.good_id -> good.id
+[Implied]  order_element.order_id -> order_.id
+[Implied]  sale.good_id -> good.id
+
+DROP DATABASE `db_288342_db`;
+UNINSTALL EXTENSION vsql_schematron;

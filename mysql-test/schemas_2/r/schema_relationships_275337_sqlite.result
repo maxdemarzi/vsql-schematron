@@ -1,0 +1,111 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 275337_sqlite
+#
+CREATE DATABASE `db_275337_sqlite`;
+USE `db_275337_sqlite`;
+CREATE TABLE `notification` (
+`id` INT,
+`tstamp` INT,
+`user_id` INT,
+`ntype` VARCHAR(64),
+`message` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ou` (
+`id` INT,
+`parent_id` INT,
+`optionset_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`idle_power` DECIMAL(10,2),
+`logging` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`ou_id` INT,
+`is_enabled` INT,
+`is_admin` INT,
+`can_control` INT,
+`name` VARCHAR(64),
+`fullname` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `host` (
+`id` INT,
+`ou_id` INT,
+`hostname` VARCHAR(64),
+`enabled` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `statelog` (
+`host_id` INT,
+`state_begin` INT,
+`open_port` INT,
+`state_amt` INT,
+`state_http` INT
+) CHARACTER SET latin1;
+CREATE TABLE `laststate` (
+`id` INT,
+`host_id` INT,
+`hostname` VARCHAR(64),
+`state_begin` INT,
+`open_port` INT,
+`state_amt` INT,
+`state_http` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `optionset` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`sw_v5` INT,
+`sw_dash` INT,
+`sw_scan22` INT,
+`sw_scan3389` INT,
+`sw_usetls` INT,
+`sw_skipcertchk` INT,
+`opt_timeout` INT,
+`opt_passfile` VARCHAR(64),
+`opt_cacertfile` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `job` (
+`id` INT,
+`job_type` INT,
+`job_status` INT,
+`createdat` INT,
+`user_id` INT,
+`amtc_cmd` VARCHAR(64),
+`amtc_delay` DECIMAL(10,2),
+`amtc_bootdevice` VARCHAR(64),
+`amtc_hosts` VARCHAR(64),
+`ou_id` INT,
+`start_time` INT,
+`repeat_interval` INT,
+`repeat_days` INT,
+`last_started` INT,
+`last_done` INT,
+`proc_pid` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_275337_sqlite') AS relationships;
+relationships
+Database: db_275337_sqlite
+
+Table Connections:
+------------------
+[Implied]  host.ou_id -> ou.id
+[Implied]  job.ou_id -> ou.id
+[Implied]  job.user_id -> user.id
+[Implied]  laststate.host_id -> host.id
+[Implied]  notification.user_id -> user.id
+[Implied]  ou.optionset_id -> optionset.id
+[Implied]  ou.parent_id -> ou.id
+[Implied]  statelog.host_id -> host.id
+[Implied]  user.ou_id -> ou.id
+
+DROP DATABASE `db_275337_sqlite`;
+UNINSTALL EXTENSION vsql_schematron;

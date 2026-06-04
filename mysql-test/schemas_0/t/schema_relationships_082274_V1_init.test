@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 082274_V1_init
+--echo #
+CREATE DATABASE `db_082274_V1_init`;
+USE `db_082274_V1_init`;
+
+CREATE TABLE `contracts` (
+  `pid` INT,
+  `id` VARCHAR(64),
+  `correlation_id` VARCHAR(64),
+  `status` VARCHAR(64),
+  `recipient_ark_address` VARCHAR(64),
+  `return_btc_address` VARCHAR(64),
+  `deposit_btc_address` VARCHAR(64),
+  `deposit_btc_address_private_key` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `transfers` (
+  `pid` INT,
+  `id` VARCHAR(64),
+  `created_at` DATETIME,
+  `contract_pid` INT,
+  `status` VARCHAR(64),
+  `btc_transaction_id` VARCHAR(64),
+  `btc_amount` DECIMAL(10,2),
+  `btc_to_ark_rate` DECIMAL(10,2),
+  `btc_flat_fee` DECIMAL(10,2),
+  `btc_percent_fee` DECIMAL(10,2),
+  `btc_total_fee` DECIMAL(10,2),
+  `ark_send_amount` DECIMAL(10,2),
+  `ark_transaction_id` VARCHAR(64),
+  `needs_ark_confirmation` VARCHAR(64),
+  `ark_confirmation_subscription_id` VARCHAR(64),
+  `needs_btc_return` VARCHAR(64),
+  `return_btc_transaction_id` VARCHAR(64),
+  PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `service_capacities` (
+  `pid` INT,
+  `available_amount` DECIMAL(10,2),
+  `unsettled_amount` DECIMAL(10,2),
+  `total_amount` DECIMAL(10,2),
+  `unit` VARCHAR(64),
+  `updated_at` DATETIME,
+  `created_at` DATETIME,
+  PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_082274_V1_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_082274_V1_init') AS relationships;
+DROP DATABASE `db_082274_V1_init`;
+UNINSTALL EXTENSION vsql_schematron;

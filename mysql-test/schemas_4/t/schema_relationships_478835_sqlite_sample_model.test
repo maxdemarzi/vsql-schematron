@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 478835_sqlite_sample_model
+--echo #
+CREATE DATABASE `db_478835_sqlite_sample_model`;
+USE `db_478835_sqlite_sample_model`;
+
+CREATE TABLE `Customer` (
+  `Id` INT,
+  `FirstName` VARCHAR(64),
+  `LastName` VARCHAR(64),
+  `City` VARCHAR(64),
+  `Country` VARCHAR(64),
+  `Phone` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Supplier` (
+  `Id` INT,
+  `CompanyName` VARCHAR(64),
+  `ContactName` VARCHAR(64),
+  `ContactTitle` VARCHAR(64),
+  `City` VARCHAR(64),
+  `Country` VARCHAR(64),
+  `Phone` VARCHAR(64),
+  `Fax` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Product` (
+  `Id` INT,
+  `ProductName` VARCHAR(64),
+  `SupplierId` INT,
+  `UnitPrice` DECIMAL(10,2),
+  `Package` VARCHAR(64),
+  `IsDiscontinued` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Order` (
+  `Id` INT,
+  `OrderDate` DATETIME,
+  `OrderNumber` VARCHAR(64),
+  `CustomerId` INT,
+  `TotalAmount` DECIMAL(10,2),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `OrderItem` (
+  `Id` INT,
+  `OrderId` INT,
+  `ProductId` INT,
+  `UnitPrice` DECIMAL(10,2),
+  `Quantity` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_478835_sqlite_sample_model') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_478835_sqlite_sample_model') AS relationships;
+DROP DATABASE `db_478835_sqlite_sample_model`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 568276_01_Database_Design
+#
+CREATE DATABASE `db_568276_01_Database_Design`;
+USE `db_568276_01_Database_Design`;
+CREATE TABLE `credentials` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `locations` (
+`id` INT,
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`nickname` VARCHAR(64),
+`gender` VARCHAR(64),
+`age` INT,
+`location_id` INT,
+`credential_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chats` (
+`id` INT,
+`title` VARCHAR(64),
+`start_date` DATETIME,
+`is_active` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_chats` (
+`user_id` INT,
+`chat_id` INT,
+PRIMARY KEY (`user_id`, `chat_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+`id` INT,
+`content` VARCHAR(64),
+`sent_on` DATETIME,
+`chat_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_568276_01_Database_Design') AS relationships;
+relationships
+Database: db_568276_01_Database_Design
+
+Table Connections:
+------------------
+[Implied]  messages.chat_id -> chats.id
+[Implied]  messages.user_id -> users.id
+[Implied]  users.credential_id -> credentials.id
+[Implied]  users.location_id -> locations.id
+[Implied]  users_chats.chat_id -> chats.id
+[Implied]  users_chats.user_id -> users.id
+
+DROP DATABASE `db_568276_01_Database_Design`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 003858_1452198349
+#
+CREATE DATABASE `db_003858_1452198349`;
+USE `db_003858_1452198349`;
+CREATE TABLE `Job` (
+`Id` INT,
+`StateId` INT,
+`StateName` VARCHAR(64),
+`InvocationData` VARCHAR(64),
+`Arguments` VARCHAR(64),
+`CreatedAt` DATETIME,
+`ExpireAt` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Counter` (
+`Id` INT,
+`Key` VARCHAR(64),
+`Value` INT,
+`ExpireAt` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `JobParameter` (
+`Id` INT,
+`JobId` INT,
+`Name` VARCHAR(64),
+`Value` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `JobState` (
+`Id` INT,
+`JobId` INT,
+`Name` VARCHAR(64),
+`Reason` VARCHAR(64),
+`CreatedAt` DATETIME,
+`Data` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Server` (
+`Id` VARCHAR(64),
+`Data` VARCHAR(64),
+`LastHeartbeat` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_003858_1452198349') AS relationships;
+relationships
+Database: db_003858_1452198349
+
+Table Connections:
+------------------
+[Implied]  JobParameter.JobId -> Job.Id
+[Implied]  JobState.JobId -> Job.Id
+
+DROP DATABASE `db_003858_1452198349`;
+UNINSTALL EXTENSION vsql_schematron;

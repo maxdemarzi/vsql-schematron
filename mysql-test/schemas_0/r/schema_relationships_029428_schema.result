@@ -1,0 +1,110 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 029428_schema
+#
+CREATE DATABASE `db_029428_schema`;
+USE `db_029428_schema`;
+CREATE TABLE `secret_question` (
+`id` INT,
+`question` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `app_user` (
+`id` INT,
+`username` VARCHAR(64),
+`secret_question_id` INT,
+`secret_question_answer` VARCHAR(64),
+`password_hash` VARCHAR(64),
+`is_password_expired` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `album` (
+`id` INT,
+`name` VARCHAR(64),
+`app_user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `file_type` (
+`id` INT,
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `photo` (
+`id` INT,
+`app_user_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`s3_bucket` VARCHAR(64),
+`s3_key` VARCHAR(64),
+`file_type_id` INT,
+`size` INT,
+`uploaded_timestamp` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `album_photo` (
+`id` INT,
+`album_id` INT,
+`photo_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `error_event` (
+`id` INT,
+`app_user_id` INT,
+`error_message` VARCHAR(64),
+`user_description` VARCHAR(64),
+`event_timestamp` DATETIME,
+`is_resolved` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_type` (
+`id` INT,
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_info` (
+`id` INT,
+`app_user_id` INT,
+`email` VARCHAR(64),
+`is_email_confirmed` VARCHAR(64),
+`use_dark_mode` VARCHAR(64),
+`account_type_id` INT,
+`twofa_code` VARCHAR(64),
+`twofa_code_expiration` DATETIME,
+`created_timestamp` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_type_limit` (
+`id` INT,
+`monthly_upload_byte_limit` INT,
+`monthly_download_byte_limit` INT,
+`account_type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_data_usage` (
+`id` INT,
+`account_info_id` INT,
+`month` VARCHAR(64),
+`upload_amount` INT,
+`download_amount` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_029428_schema') AS relationships;
+relationships
+Database: db_029428_schema
+
+Table Connections:
+------------------
+[Implied]  account_data_usage.account_info_id -> account_info.id
+[Implied]  account_info.account_type_id -> account_type.id
+[Implied]  account_info.app_user_id -> app_user.id
+[Implied]  account_type_limit.account_type_id -> account_type.id
+[Implied]  album.app_user_id -> app_user.id
+[Implied]  album_photo.album_id -> album.id
+[Implied]  album_photo.photo_id -> photo.id
+[Implied]  app_user.secret_question_id -> secret_question.id
+[Implied]  error_event.app_user_id -> app_user.id
+[Implied]  photo.app_user_id -> app_user.id
+[Implied]  photo.file_type_id -> file_type.id
+
+DROP DATABASE `db_029428_schema`;
+UNINSTALL EXTENSION vsql_schematron;

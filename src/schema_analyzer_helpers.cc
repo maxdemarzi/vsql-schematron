@@ -514,7 +514,16 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
                 std::string sfx_a = clean_a.substr(under_a + 1);
                 std::string sfx_b = clean_b.substr(under_b + 1);
                 if (sfx_a == sfx_b || singularize(sfx_a) == singularize(sfx_b)) {
-                    return true;
+                    std::string rem_a = clean_a.substr(0, under_a);
+                    std::string rem_b = clean_b.substr(0, under_b);
+                    if (rem_a.length() >= rem_b.length()) {
+                        std::string sing_rem_b = singularize(rem_b);
+                        std::string sing_rem_a = singularize(rem_a);
+                        if (sing_rem_a.rfind(sing_rem_b) == sing_rem_a.length() - sing_rem_b.length() ||
+                            rem_a.rfind(rem_b) == rem_a.length() - rem_b.length()) {
+                            return true;
+                        }
+                    }
                 }
             }
         }

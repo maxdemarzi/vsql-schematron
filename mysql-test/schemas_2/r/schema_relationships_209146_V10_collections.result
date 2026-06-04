@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 209146_V10_collections
+#
+CREATE DATABASE `db_209146_V10_collections`;
+USE `db_209146_V10_collections`;
+CREATE TABLE `shed_collections` (
+`id` INT,
+`transaction_date` DATETIME,
+`amount` DECIMAL(10,2),
+`transport_fee_amount` DECIMAL(10,2),
+`currency` VARCHAR(64),
+`remarks` VARCHAR(64),
+`account_identifier` VARCHAR(64),
+`sub_txn_type_id` VARCHAR(64),
+`status` VARCHAR(64),
+`c_reference` VARCHAR(64),
+`token` INT,
+`created_by` VARCHAR(64),
+`created_on` DATETIME,
+`last_modified_by` VARCHAR(64),
+`last_modified_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shed_collections_inidividual` (
+`id` INT,
+`collections_id` INT,
+`account_identifier` VARCHAR(64),
+`account_external_id` VARCHAR(64),
+`amount` DECIMAL(10,2),
+`i_reference` VARCHAR(64),
+`attendance` VARCHAR(64),
+`token` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shed_self_expiring_tokens` (
+`id` INT,
+`token` VARCHAR(64),
+`created_time` DATETIME,
+`token_expires_by` DATETIME,
+`status` VARCHAR(64),
+`entity_type` VARCHAR(64),
+`entity_reference` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_209146_V10_collections') AS relationships;
+relationships
+Database: db_209146_V10_collections
+
+Table Connections:
+------------------
+[Implied]  shed_collections_inidividual.collections_id -> shed_collections.id
+
+DROP DATABASE `db_209146_V10_collections`;
+UNINSTALL EXTENSION vsql_schematron;

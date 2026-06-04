@@ -1,0 +1,210 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 016342_banco
+#
+CREATE DATABASE `db_016342_banco`;
+USE `db_016342_banco`;
+CREATE TABLE `ci_sessions` (
+`id` VARCHAR(64),
+`ip_address` VARCHAR(64),
+`timestamp` INT,
+`data` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `categorias` (
+`idCategorias` INT,
+`categoria` VARCHAR(64),
+`cadastro` DATETIME,
+`status` INT,
+`tipo` VARCHAR(64),
+PRIMARY KEY (`idCategorias`)
+) CHARACTER SET latin1;
+CREATE TABLE `contas` (
+`idContas` INT,
+`conta` VARCHAR(64),
+`banco` VARCHAR(64),
+`numero` VARCHAR(64),
+`saldo` DECIMAL(10,2),
+`cadastro` DATETIME,
+`status` INT,
+`tipo` VARCHAR(64),
+PRIMARY KEY (`idContas`)
+) CHARACTER SET latin1;
+CREATE TABLE `permissoes` (
+`idPermissao` INT,
+`nome` VARCHAR(64),
+`permissoes` VARCHAR(64),
+`situacao` INT,
+`data` DATETIME,
+PRIMARY KEY (`idPermissao`)
+) CHARACTER SET latin1;
+CREATE TABLE `garantias` (
+`idGarantias` INT,
+`dataGarantia` DATETIME,
+`refGarantia` VARCHAR(64),
+`textoGarantia` VARCHAR(64),
+`usuarios_id` INT,
+PRIMARY KEY (`idGarantias`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendas` (
+`idVendas` INT,
+`dataVenda` DATETIME,
+`valorTotal` VARCHAR(64),
+`desconto` VARCHAR(64),
+`faturado` INT,
+`observacoes` VARCHAR(64),
+`observacoes_cliente` VARCHAR(64),
+`clientes_id` INT,
+`usuarios_id` INT,
+`lancamentos_id` INT,
+PRIMARY KEY (`idVendas`)
+) CHARACTER SET latin1;
+CREATE TABLE `cobrancas` (
+`idCobranca` INT,
+`charge_id` INT,
+`conditional_discount_date` DATETIME,
+`created_at` DATETIME,
+`custom_id` INT,
+`expire_at` DATETIME,
+`message` VARCHAR(64),
+`payment_method` VARCHAR(64),
+`payment_url` VARCHAR(64),
+`request_delivery_address` VARCHAR(64),
+`status` VARCHAR(64),
+`total` VARCHAR(64),
+`barcode` VARCHAR(64),
+`link` VARCHAR(64),
+`payment_gateway` VARCHAR(64),
+`payment` VARCHAR(64),
+`pdf` VARCHAR(64),
+`vendas_id` INT,
+`os_id` INT,
+`clientes_id` INT,
+PRIMARY KEY (`idCobranca`)
+) CHARACTER SET latin1;
+CREATE TABLE `itens_de_vendas` (
+`idItens` INT,
+`subTotal` VARCHAR(64),
+`quantidade` INT,
+`preco` VARCHAR(64),
+`vendas_id` INT,
+`produtos_id` INT,
+PRIMARY KEY (`idItens`)
+) CHARACTER SET latin1;
+CREATE TABLE `anexos` (
+`idAnexos` INT,
+`anexo` VARCHAR(64),
+`thumb` VARCHAR(64),
+`url` VARCHAR(64),
+`path` VARCHAR(64),
+`os_id` INT,
+PRIMARY KEY (`idAnexos`)
+) CHARACTER SET latin1;
+CREATE TABLE `documentos` (
+`idDocumentos` INT,
+`documento` VARCHAR(64),
+`descricao` VARCHAR(64),
+`file` VARCHAR(64),
+`path` VARCHAR(64),
+`url` VARCHAR(64),
+`cadastro` DATETIME,
+`categoria` VARCHAR(64),
+`tipo` VARCHAR(64),
+`tamanho` VARCHAR(64),
+PRIMARY KEY (`idDocumentos`)
+) CHARACTER SET latin1;
+CREATE TABLE `marcas` (
+`idMarcas` INT,
+`marca` VARCHAR(64),
+`cadastro` DATETIME,
+`situacao` INT,
+PRIMARY KEY (`idMarcas`)
+) CHARACTER SET latin1;
+CREATE TABLE `equipamentos` (
+`idEquipamentos` INT,
+`equipamento` VARCHAR(64),
+`num_serie` VARCHAR(64),
+`modelo` VARCHAR(64),
+`cor` VARCHAR(64),
+`descricao` VARCHAR(64),
+`tensao` VARCHAR(64),
+`potencia` VARCHAR(64),
+`voltagem` VARCHAR(64),
+`data_fabricacao` DATETIME,
+`marcas_id` INT,
+`clientes_id` INT,
+PRIMARY KEY (`idEquipamentos`)
+) CHARACTER SET latin1;
+CREATE TABLE `equipamentos_os` (
+`idEquipamentos_os` INT,
+`defeito_declarado` VARCHAR(64),
+`defeito_encontrado` VARCHAR(64),
+`solucao` VARCHAR(64),
+`equipamentos_id` INT,
+`os_id` INT,
+PRIMARY KEY (`idEquipamentos_os`)
+) CHARACTER SET latin1;
+CREATE TABLE `logs` (
+`idLogs` INT,
+`usuario` VARCHAR(64),
+`tarefa` VARCHAR(64),
+`data` DATETIME,
+`hora` DATETIME,
+`ip` VARCHAR(64),
+PRIMARY KEY (`idLogs`)
+) CHARACTER SET latin1;
+CREATE TABLE `emitente` (
+`id` INT,
+`nome` VARCHAR(64),
+`cnpj` VARCHAR(64),
+`ie` VARCHAR(64),
+`rua` VARCHAR(64),
+`numero` VARCHAR(64),
+`bairro` VARCHAR(64),
+`cidade` VARCHAR(64),
+`uf` VARCHAR(64),
+`telefone` VARCHAR(64),
+`email` VARCHAR(64),
+`url_logo` VARCHAR(64),
+`cep` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `email_queue` (
+`id` INT,
+`to` VARCHAR(64),
+`cc` VARCHAR(64),
+`bcc` VARCHAR(64),
+`message` VARCHAR(64),
+`status` VARCHAR(64),
+`date` DATETIME,
+`headers` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `anotacoes_os` (
+`idAnotacoes` INT,
+`anotacao` VARCHAR(64),
+`data_hora` DATETIME,
+`os_id` INT,
+PRIMARY KEY (`idAnotacoes`)
+) CHARACTER SET latin1;
+CREATE TABLE `configuracoes` (
+`idConfig` INT,
+`config` VARCHAR(64),
+`valor` VARCHAR(64),
+PRIMARY KEY (`idConfig`)
+) CHARACTER SET latin1;
+CREATE TABLE `migrations` (
+`version` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_016342_banco') AS relationships;
+relationships
+Database: db_016342_banco
+
+Table Connections:
+------------------
+[Implied]  cobrancas.vendas_id -> vendas.idVendas
+[Implied]  equipamentos.marcas_id -> marcas.idMarcas
+[Implied]  equipamentos_os.equipamentos_id -> equipamentos.idEquipamentos
+[Implied]  itens_de_vendas.vendas_id -> vendas.idVendas
+
+DROP DATABASE `db_016342_banco`;
+UNINSTALL EXTENSION vsql_schematron;

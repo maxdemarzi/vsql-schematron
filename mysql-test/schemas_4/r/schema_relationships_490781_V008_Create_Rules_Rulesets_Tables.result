@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 490781_V008_Create_Rules_Rulesets_Tables
+#
+CREATE DATABASE `db_490781_V008_Create_Rules_Rulesets_Tables`;
+USE `db_490781_V008_Create_Rules_Rulesets_Tables`;
+CREATE TABLE `rules` (
+`rule_id` INT,
+`author` INT,
+`name` VARCHAR(64),
+`message` VARCHAR(64),
+`external_url` VARCHAR(64),
+`priority` INT,
+PRIMARY KEY (`rule_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rulesets` (
+`ruleset_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`ruleset_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ruleset_ruleset` (
+`ruleset_id` INT,
+`inherited_ruleset_id` INT,
+PRIMARY KEY (`ruleset_id`, `inherited_ruleset_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rule_ruleset` (
+`ruleset_id` INT,
+`rule_id` INT,
+PRIMARY KEY (`ruleset_id`, `rule_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_490781_V008_Create_Rules_Rulesets_Tables') AS relationships;
+relationships
+Database: db_490781_V008_Create_Rules_Rulesets_Tables
+
+Table Connections:
+------------------
+[Implied]  rule_ruleset.rule_id -> rules.rule_id
+[Implied]  rule_ruleset.ruleset_id -> rulesets.ruleset_id
+[Implied]  ruleset_ruleset.inherited_ruleset_id -> rulesets.ruleset_id
+[Implied]  ruleset_ruleset.ruleset_id -> rulesets.ruleset_id
+
+DROP DATABASE `db_490781_V008_Create_Rules_Rulesets_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

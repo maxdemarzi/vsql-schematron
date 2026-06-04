@@ -1,0 +1,169 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 012571_070_customer_mysql
+--echo #
+CREATE DATABASE `db_012571_070_customer_mysql`;
+USE `db_012571_070_customer_mysql`;
+
+CREATE TABLE `cust_types` (
+  `cust_type_code` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`cust_type_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cust_master` (
+  `customer_id` INT,
+  `customer_code` VARCHAR(64),
+  `customer_name` VARCHAR(64),
+  `cust_type_code` VARCHAR(64),
+  `parent` INT,
+  `customer_group` VARCHAR(64),
+  `supplier_code` VARCHAR(64),
+  `primary_address` INT,
+  `billing_address` INT,
+  `gl_account_id` INT,
+  `default_terms` INT,
+  `status` VARCHAR(64),
+  `rev_enabled` VARCHAR(64),
+  `rev_number` INT,
+  `created_by` INT,
+  `creation_date` DATETIME,
+  `last_update_by` INT,
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cust_contacts` (
+  `customer_id` INT,
+  `human_id` INT,
+  `created_by` INT,
+  `creation_date` DATETIME,
+  `last_update_by` INT,
+  `last_update_date` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `cust_notes` (
+  `customer_note_id` INT,
+  `customer_id` INT,
+  `note_type_id` INT,
+  `seq` INT,
+  `note_text` VARCHAR(64),
+  `rev_enabled` VARCHAR(64),
+  `rev_number` INT,
+  `created_by` INT,
+  `creation_date` DATETIME,
+  `last_update_by` INT,
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`customer_note_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cust_attachments` (
+  `customer_id` INT,
+  `attachment_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `cust_catalog` (
+  `customer_catalog_id` INT,
+  `customer_id` INT,
+  `currency` VARCHAR(64),
+  `product_id` INT,
+  `customer_item_number` VARCHAR(64),
+  `customer_gtin` VARCHAR(64),
+  `description` VARCHAR(64),
+  `catalog_price` DECIMAL(10,2),
+  `sale_price` DECIMAL(10,2),
+  `sale_until` DATETIME,
+  `discount_percent` DECIMAL(10,2),
+  `discount_until` DATETIME,
+  `catalog_retail` DECIMAL(10,2),
+  `catalog_retail_compare` DECIMAL(10,2),
+  `catalog_retail_sale` DECIMAL(10,2),
+  `catalog_retail_sale_until` DATETIME,
+  `product_url` VARCHAR(64),
+  `status` VARCHAR(64),
+  `rev_enabled` VARCHAR(64),
+  `rev_number` INT,
+  `created_by` INT,
+  `creation_date` DATETIME,
+  `last_update_by` INT,
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`customer_catalog_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cust_dc` (
+  `customer_id` INT,
+  `dc_code` VARCHAR(64),
+  `dc_edi_code` VARCHAR(64),
+  `dc_name` VARCHAR(64),
+  `dc_address` INT,
+  `dc_contact` INT,
+  `open_date` DATETIME,
+  `close_date` DATETIME,
+  `lead_time` DECIMAL(10,2),
+  `status` VARCHAR(64),
+  `rev_enabled` VARCHAR(64),
+  `rev_number` INT,
+  `created_by` INT,
+  `creation_date` DATETIME,
+  `last_update_by` INT,
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`customer_id`, `dc_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cust_store_types` (
+  `store_type_code` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`store_type_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cust_stores` (
+  `customer_id` INT,
+  `store_code` VARCHAR(64),
+  `store_type_code` VARCHAR(64),
+  `store_edi_code` VARCHAR(64),
+  `store_name` VARCHAR(64),
+  `store_address` INT,
+  `store_contact` INT,
+  `dc_code` VARCHAR(64),
+  `next_dc_code` VARCHAR(64),
+  `dc_change_date` DATETIME,
+  `close_date` DATETIME,
+  `status` VARCHAR(64),
+  `rev_enabled` VARCHAR(64),
+  `rev_number` INT,
+  `created_by` INT,
+  `creation_date` DATETIME,
+  `last_update_by` INT,
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`customer_id`, `store_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cust_consumers` (
+  `customer_id` INT,
+  `consumer_id` INT,
+  `billing_address` INT,
+  `shipping_address` INT,
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`customer_id`, `consumer_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_012571_070_customer_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_012571_070_customer_mysql') AS relationships;
+DROP DATABASE `db_012571_070_customer_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

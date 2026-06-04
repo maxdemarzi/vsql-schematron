@@ -1,0 +1,158 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 137919_instawltdb
+#
+CREATE DATABASE `db_137919_instawltdb`;
+USE `db_137919_instawltdb`;
+CREATE TABLE `ErrorLog` (
+`ErrorLogID` INT,
+`ErrorTime` DATETIME,
+`UserName` VARCHAR(64),
+`ErrorNumber` INT,
+`ErrorSeverity` INT,
+`ErrorState` INT,
+`ErrorProcedure` VARCHAR(64),
+`ErrorLine` INT,
+`ErrorMessage` VARCHAR(64),
+PRIMARY KEY (`ErrorLogID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BuildVersion` (
+`SystemInformationID` INT,
+`Database Version` VARCHAR(64),
+`VersionDate` DATETIME,
+`ModifiedDate` DATETIME,
+PRIMARY KEY (`SystemInformationID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Address` (
+`AddressID` INT,
+`AddressLine1` VARCHAR(64),
+`AddressLine2` VARCHAR(64),
+`City` VARCHAR(64),
+`StateProvince` VARCHAR(64),
+`CountryRegion` VARCHAR(64),
+`PostalCode` VARCHAR(64),
+`rowguid` VARCHAR(64),
+`ModifiedDate` DATETIME,
+PRIMARY KEY (`AddressID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer` (
+`CustomerID` INT,
+`NameStyle` INT,
+`Title` VARCHAR(64),
+`FirstName` VARCHAR(64),
+`MiddleName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`Suffix` VARCHAR(64),
+`CompanyName` VARCHAR(64),
+`SalesPerson` VARCHAR(64),
+`EmailAddress` VARCHAR(64),
+`Phone` VARCHAR(64),
+`PasswordHash` VARCHAR(64),
+`PasswordSalt` VARCHAR(64),
+`rowguid` VARCHAR(64),
+`ModifiedDate` DATETIME,
+PRIMARY KEY (`CustomerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CustomerAddress` (
+`CustomerID` INT,
+`AddressID` INT,
+`AddressType` VARCHAR(64),
+`rowguid` VARCHAR(64),
+`ModifiedDate` DATETIME,
+PRIMARY KEY (`CustomerID`, `AddressID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Product` (
+`ProductID` INT,
+`Name` VARCHAR(64),
+`ProductNumber` VARCHAR(64),
+`Color` VARCHAR(64),
+`StandardCost` INT,
+`ListPrice` INT,
+`Size` VARCHAR(64),
+`Weight` INT,
+`ProductCategoryID` INT,
+`ProductModelID` INT,
+`SellStartDate` DATETIME,
+`SellEndDate` DATETIME,
+`DiscontinuedDate` DATETIME,
+`ThumbNailPhoto` VARCHAR(64),
+`ThumbnailPhotoFileName` VARCHAR(64),
+`rowguid` VARCHAR(64),
+`ModifiedDate` DATETIME,
+PRIMARY KEY (`ProductID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProductCategory` (
+`ProductCategoryID` INT,
+`ParentProductCategoryID` INT,
+`Name` VARCHAR(64),
+`rowguid` VARCHAR(64),
+`ModifiedDate` DATETIME,
+PRIMARY KEY (`ProductCategoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProductDescription` (
+`ProductDescriptionID` INT,
+`Description` VARCHAR(64),
+`rowguid` VARCHAR(64),
+`ModifiedDate` DATETIME,
+PRIMARY KEY (`ProductDescriptionID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProductModel` (
+`ProductModelID` INT,
+`Name` VARCHAR(64),
+`CatalogDescription` VARCHAR(64),
+`rowguid` VARCHAR(64),
+`ModifiedDate` DATETIME,
+PRIMARY KEY (`ProductModelID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProductModelProductDescription` (
+`ProductModelID` INT,
+`ProductDescriptionID` INT,
+`Culture` VARCHAR(64),
+`rowguid` VARCHAR(64),
+`ModifiedDate` DATETIME,
+PRIMARY KEY (`ProductModelID`, `ProductDescriptionID`, `Culture`)
+) CHARACTER SET latin1;
+CREATE TABLE `SalesOrderHeader` (
+`SalesOrderID` INT,
+`RevisionNumber` INT,
+`OrderDate` DATETIME,
+`DueDate` DATETIME,
+`ShipDate` DATETIME,
+`Status` INT,
+`OnlineOrderFlag` INT,
+`SalesOrderNumber` VARCHAR(64),
+`PurchaseOrderNumber` INT,
+`AccountNumber` VARCHAR(64),
+`CustomerID` INT,
+`ShipToAddressID` INT,
+`BillToAddressID` INT,
+`ShipMethod` VARCHAR(64),
+`CreditCardApprovalCode` VARCHAR(64),
+`SubTotal` INT,
+`TaxAmt` INT,
+`Freight` INT,
+`TotalDue` INT,
+`Comment` VARCHAR(64),
+`rowguid` VARCHAR(64),
+`ModifiedDate` DATETIME,
+PRIMARY KEY (`SalesOrderID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_137919_instawltdb') AS relationships;
+relationships
+Database: db_137919_instawltdb
+
+Table Connections:
+------------------
+[Implied]  CustomerAddress.AddressID -> Address.AddressID
+[Implied]  CustomerAddress.CustomerID -> Customer.CustomerID
+[Implied]  Product.ProductCategoryID -> ProductCategory.ProductCategoryID
+[Implied]  Product.ProductModelID -> ProductModel.ProductModelID
+[Implied]  ProductCategory.ParentProductCategoryID -> ProductCategory.ProductCategoryID
+[Implied]  ProductModelProductDescription.ProductDescriptionID -> ProductDescription.ProductDescriptionID
+[Implied]  ProductModelProductDescription.ProductModelID -> ProductModel.ProductModelID
+[Implied]  SalesOrderHeader.BillToAddressID -> Address.AddressID
+[Implied]  SalesOrderHeader.CustomerID -> Customer.CustomerID
+[Implied]  SalesOrderHeader.ShipToAddressID -> Address.AddressID
+
+DROP DATABASE `db_137919_instawltdb`;
+UNINSTALL EXTENSION vsql_schematron;

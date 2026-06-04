@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 578982_schema
+#
+CREATE DATABASE `db_578982_schema`;
+USE `db_578982_schema`;
+CREATE TABLE `COMMENT` (
+`ID` INT,
+`DESCRIPTION` VARCHAR(64),
+`BOOK_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `GENRE` (
+`ID` INT,
+`NAME` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `AUTHOR` (
+`ID` INT,
+`FULLNAME` VARCHAR(64),
+`ALIAS` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BOOK` (
+`ID` INT,
+`NAME` VARCHAR(64),
+`AUTHOR_ID` INT,
+`GENRE_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER` (
+`ID` INT,
+`LOGIN` VARCHAR(64),
+`NAME` VARCHAR(64),
+`PASSWORD` VARCHAR(64),
+`ROLE_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ROLE` (
+`ID` INT,
+`NAME` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_578982_schema') AS relationships;
+relationships
+Database: db_578982_schema
+
+Table Connections:
+------------------
+[Implied]  BOOK.AUTHOR_ID -> AUTHOR.ID
+[Implied]  BOOK.GENRE_ID -> GENRE.ID
+[Implied]  COMMENT.BOOK_ID -> BOOK.ID
+[Implied]  USER.ROLE_ID -> ROLE.ID
+
+DROP DATABASE `db_578982_schema`;
+UNINSTALL EXTENSION vsql_schematron;

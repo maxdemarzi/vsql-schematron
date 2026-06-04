@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 473103_schema_definition
+#
+CREATE DATABASE `db_473103_schema_definition`;
+USE `db_473103_schema_definition`;
+CREATE TABLE `customer` (
+`cust_no` INT,
+`cust_fname` VARCHAR(64),
+`cust_lname` VARCHAR(64),
+`cust_company` VARCHAR(64),
+`cust_addr` VARCHAR(64),
+`city` VARCHAR(64),
+`cust_phone` VARCHAR(64),
+PRIMARY KEY (`cust_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`order_no` INT,
+`cust_no` INT,
+`ISBN` VARCHAR(64),
+`qty` INT,
+`odate` DATETIME,
+PRIMARY KEY (`order_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `book` (
+`ISBN` VARCHAR(64),
+`title` VARCHAR(64),
+`unit_price` INT,
+`author_no` INT,
+`publisher_no` INT,
+`pub_year` INT,
+PRIMARY KEY (`ISBN`)
+) CHARACTER SET latin1;
+CREATE TABLE `author` (
+`author_no` INT,
+`author_name` VARCHAR(64),
+`country` VARCHAR(64),
+PRIMARY KEY (`author_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `publisher` (
+`publisher_no` INT,
+`publisher_name` VARCHAR(64),
+`publisher_addr` VARCHAR(64),
+`year` INT,
+PRIMARY KEY (`publisher_no`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_473103_schema_definition') AS relationships;
+relationships
+Database: db_473103_schema_definition
+
+Table Connections:
+------------------
+[Implied]  book.author_no -> author.author_no
+[Implied]  book.publisher_no -> publisher.publisher_no
+[Implied]  orders.ISBN -> book.ISBN
+[Implied]  orders.cust_no -> customer.cust_no
+
+DROP DATABASE `db_473103_schema_definition`;
+UNINSTALL EXTENSION vsql_schematron;

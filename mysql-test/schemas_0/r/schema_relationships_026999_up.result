@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 026999_up
+#
+CREATE DATABASE `db_026999_up`;
+USE `db_026999_up`;
+CREATE TABLE `notifications` (
+`id` VARCHAR(64),
+`payload_title` VARCHAR(64),
+`payload_body` VARCHAR(64),
+`created` DATETIME,
+`recipients` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notification_properties` (
+`id` INT,
+`notification_id` VARCHAR(64),
+`property` VARCHAR(64),
+`property_value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_notifications` (
+`notification_id` VARCHAR(64),
+`user_id` VARCHAR(64),
+`unread` VARCHAR(64),
+PRIMARY KEY (`notification_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_026999_up') AS relationships;
+relationships
+Database: db_026999_up
+
+Table Connections:
+------------------
+[Implied]  notification_properties.notification_id -> notifications.id
+[Implied]  user_notifications.notification_id -> notifications.id
+
+DROP DATABASE `db_026999_up`;
+UNINSTALL EXTENSION vsql_schematron;

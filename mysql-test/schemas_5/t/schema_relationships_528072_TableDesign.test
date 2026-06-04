@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 528072_TableDesign
+--echo #
+CREATE DATABASE `db_528072_TableDesign`;
+USE `db_528072_TableDesign`;
+
+CREATE TABLE `drivers` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `age` INT,
+  `rating` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cars` (
+  `id` INT,
+  `make` VARCHAR(64),
+  `model` VARCHAR(64),
+  `year` INT,
+  `mileage` INT,
+  `condition` VARCHAR(64),
+  `category_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cars_drivers` (
+  `car_id` INT,
+  `driver_id` INT,
+  PRIMARY KEY (`car_id`, `driver_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `addresses` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `clients` (
+  `id` INT,
+  `full_name` VARCHAR(64),
+  `phone_number` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `courses` (
+  `id` INT,
+  `from_address_id` INT,
+  `start` DATETIME,
+  `bill` DECIMAL(10,2),
+  `car_id` INT,
+  `client_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_528072_TableDesign') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_528072_TableDesign') AS relationships;
+DROP DATABASE `db_528072_TableDesign`;
+UNINSTALL EXTENSION vsql_schematron;

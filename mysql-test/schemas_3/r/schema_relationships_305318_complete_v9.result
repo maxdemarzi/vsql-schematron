@@ -1,0 +1,102 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 305318_complete_v9
+#
+CREATE DATABASE `db_305318_complete_v9`;
+USE `db_305318_complete_v9`;
+CREATE TABLE `DATABASE_VERSION` (
+`version` INT
+) CHARACTER SET latin1;
+CREATE TABLE `HOUSE` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `DEVICE` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`houseid` VARCHAR(64),
+`last_ping` DATETIME,
+`last_restart` DATETIME,
+`last_watchdog_reset` DATETIME,
+`active` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LOGIN_USER` (
+`id` VARCHAR(64),
+`google_sub` VARCHAR(64),
+`email` VARCHAR(64),
+`fn` VARCHAR(64),
+`ln` VARCHAR(64),
+`default_notify_using` VARCHAR(64),
+`pushover_userkey` VARCHAR(64),
+`pushover_apptoken` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER_HOUSE_ACCESS` (
+`userId` VARCHAR(64),
+`houseId` VARCHAR(64),
+`owner` VARCHAR(64),
+`is_default` VARCHAR(64),
+PRIMARY KEY (`userId`, `houseId`)
+) CHARACTER SET latin1;
+CREATE TABLE `DEVICE_WATCHDOG` (
+`userId` VARCHAR(64),
+`deviceId` VARCHAR(64),
+`notify` VARCHAR(64),
+`muted_until` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `SENSOR` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`deviceid` VARCHAR(64),
+`icon` VARCHAR(64),
+`type` VARCHAR(64),
+`label` VARCHAR(64),
+`scalefactor` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `SENSOR_DATA` (
+`id` VARCHAR(64),
+`dt` DATETIME,
+`value` DECIMAL(10,2),
+`from_dt` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `FAVORITE_SENSOR` (
+`userId` VARCHAR(64),
+`sensorId` VARCHAR(64),
+PRIMARY KEY (`userId`, `sensorId`)
+) CHARACTER SET latin1;
+CREATE TABLE `POWERMETER_DATA` (
+`id` VARCHAR(64),
+`dt` DATETIME,
+`ActiveEnergyTotalExport` DECIMAL(10,2),
+`ActiveEnergyTotalImport` DECIMAL(10,2),
+`ActivePowerPhaseL1` DECIMAL(10,2),
+`ActivePowerPhaseL2` DECIMAL(10,2),
+`ActivePowerPhaseL3` DECIMAL(10,2),
+`ActivePowerTotal` DECIMAL(10,2),
+`CurrentPhaseL1` DECIMAL(10,2),
+`CurrentPhaseL2` DECIMAL(10,2),
+`CurrentPhaseL3` DECIMAL(10,2),
+`VoltagePhaseL1` DECIMAL(10,2),
+`VoltagePhaseL2` DECIMAL(10,2),
+`VoltagePhaseL3` DECIMAL(10,2)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_305318_complete_v9') AS relationships;
+relationships
+Database: db_305318_complete_v9
+
+Table Connections:
+------------------
+[Implied]  DEVICE.houseid -> HOUSE.id
+[Implied]  DEVICE_WATCHDOG.deviceId -> DEVICE.id
+[Implied]  DEVICE_WATCHDOG.userId -> LOGIN_USER.id
+[Implied]  FAVORITE_SENSOR.sensorId -> SENSOR.id
+[Implied]  FAVORITE_SENSOR.userId -> LOGIN_USER.id
+[Implied]  SENSOR.deviceid -> DEVICE.id
+[Implied]  USER_HOUSE_ACCESS.houseId -> HOUSE.id
+[Implied]  USER_HOUSE_ACCESS.userId -> LOGIN_USER.id
+
+DROP DATABASE `db_305318_complete_v9`;
+UNINSTALL EXTENSION vsql_schematron;

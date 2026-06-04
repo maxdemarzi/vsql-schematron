@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 027406_schema
+--echo #
+CREATE DATABASE `db_027406_schema`;
+USE `db_027406_schema`;
+
+CREATE TABLE `departments` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `salary` DECIMAL(10,2),
+  `department_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `managers` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `department_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employees` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `role_id` INT,
+  `manager_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_027406_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_027406_schema') AS relationships;
+DROP DATABASE `db_027406_schema`;
+UNINSTALL EXTENSION vsql_schematron;

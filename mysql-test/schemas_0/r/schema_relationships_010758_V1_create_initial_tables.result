@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 010758_V1_create_initial_tables
+#
+CREATE DATABASE `db_010758_V1_create_initial_tables`;
+USE `db_010758_V1_create_initial_tables`;
+CREATE TABLE `customer` (
+`customer_id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`allow_duplicate_email` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer_password` (
+`customer_id` VARCHAR(64),
+`password` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer_address` (
+`address_id` VARCHAR(64),
+`customer_id` VARCHAR(64),
+`number` VARCHAR(64),
+`street` VARCHAR(64),
+`city` VARCHAR(64),
+`postcode` VARCHAR(64),
+`country` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`address_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer_card` (
+`card_id` VARCHAR(64),
+`customer_id` VARCHAR(64),
+`long_num` VARCHAR(64),
+`expires` DATETIME,
+`ccv` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`card_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_010758_V1_create_initial_tables') AS relationships;
+relationships
+Database: db_010758_V1_create_initial_tables
+
+Table Connections:
+------------------
+[Implied]  customer_address.customer_id -> customer.customer_id
+[Implied]  customer_card.customer_id -> customer.customer_id
+[Implied]  customer_password.customer_id -> customer.customer_id
+
+DROP DATABASE `db_010758_V1_create_initial_tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 361678_db
+--echo #
+CREATE DATABASE `db_361678_db`;
+USE `db_361678_db`;
+
+CREATE TABLE `services` (
+  `id` INT,
+  `uuid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `service_id` INT,
+  `uuid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event_types` (
+  `id` INT,
+  `service_id` INT,
+  `uuid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `sns_topic_arn` VARCHAR(64),
+  `created_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `endpoints` (
+  `id` INT,
+  `user_id` INT,
+  `uuid` VARCHAR(64),
+  `url` VARCHAR(64),
+  `created_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subscriptions` (
+  `id` INT,
+  `event_type_id` INT,
+  `endpoint_id` INT,
+  `uuid` VARCHAR(64),
+  `subscription_arn` VARCHAR(64),
+  `created_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `events` (
+  `id` INT,
+  `event_type_id` INT,
+  `user_id` INT,
+  `uuid` VARCHAR(64),
+  `payload` VARCHAR(64),
+  `idempotency_key` VARCHAR(64),
+  `created_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `messages` (
+  `id` INT,
+  `event_id` INT,
+  `uuid` VARCHAR(64),
+  `endpoint` VARCHAR(64),
+  `delivered` VARCHAR(64),
+  `delivered_at` DATETIME,
+  `delivery_attempt` INT,
+  `status_code` INT,
+  `created_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_361678_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_361678_db') AS relationships;
+DROP DATABASE `db_361678_db`;
+UNINSTALL EXTENSION vsql_schematron;

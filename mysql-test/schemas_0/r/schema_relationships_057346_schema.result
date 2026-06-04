@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 057346_schema
+#
+CREATE DATABASE `db_057346_schema`;
+USE `db_057346_schema`;
+CREATE TABLE `company` (
+`id` INT,
+`name` VARCHAR(64),
+`timezone` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `branch` (
+`id` INT,
+`name` VARCHAR(64),
+`timezone` VARCHAR(64),
+`company_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `car` (
+`id` INT,
+`model` VARCHAR(64),
+`chassis_number` VARCHAR(64),
+`color` VARCHAR(64),
+`registration_number` VARCHAR(64),
+`branch_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `driver` (
+`id` INT,
+`name` VARCHAR(64),
+`license_number` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `trip` (
+`id` INT,
+`timezone` VARCHAR(64),
+`start_on` DATETIME,
+`end_at` DATETIME,
+`distance` DECIMAL(10,2),
+`status` VARCHAR(64),
+`car_id` INT,
+`driver_id` INT,
+`customer_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_057346_schema') AS relationships;
+relationships
+Database: db_057346_schema
+
+Table Connections:
+------------------
+[Implied]  branch.company_id -> company.id
+[Implied]  car.branch_id -> branch.id
+[Implied]  trip.car_id -> car.id
+[Implied]  trip.customer_id -> customer.id
+[Implied]  trip.driver_id -> driver.id
+
+DROP DATABASE `db_057346_schema`;
+UNINSTALL EXTENSION vsql_schematron;

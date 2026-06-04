@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 094920_20201003180941_referrals_up
+#
+CREATE DATABASE `db_094920_20201003180941_referrals_up`;
+USE `db_094920_20201003180941_referrals_up`;
+CREATE TABLE `partners` (
+`id` INT,
+`isActive` VARCHAR(64),
+`name` VARCHAR(64),
+`dateAdded` DATETIME,
+`dateModified` DATETIME,
+`addedBy` INT,
+`modifiedBy` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `partnerServices` (
+`id` INT,
+`partnerId` INT,
+`name` VARCHAR(64),
+`isActive` VARCHAR(64),
+`dateAdded` DATETIME,
+`dateModified` DATETIME,
+`addedBy` INT,
+`modifiedBy` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `leadReferrals` (
+`id` INT,
+`leadId` INT,
+`partnerServiceId` INT,
+`addedBy` INT,
+`dateAdded` DATETIME,
+`isDeleted` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clientReferrals` (
+`id` INT,
+`clientId` INT,
+`partnerServiceId` INT,
+`isDeleted` VARCHAR(64),
+`addedBy` INT,
+`dateAdded` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_094920_20201003180941_referrals_up') AS relationships;
+relationships
+Database: db_094920_20201003180941_referrals_up
+
+Table Connections:
+------------------
+[Implied]  clientReferrals.partnerServiceId -> partnerServices.id
+[Implied]  leadReferrals.partnerServiceId -> partnerServices.id
+[Implied]  partnerServices.partnerId -> partners.id
+
+DROP DATABASE `db_094920_20201003180941_referrals_up`;
+UNINSTALL EXTENSION vsql_schematron;

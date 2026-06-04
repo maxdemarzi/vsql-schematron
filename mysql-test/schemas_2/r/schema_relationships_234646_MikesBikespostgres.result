@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 234646_MikesBikespostgres
+#
+CREATE DATABASE `db_234646_MikesBikespostgres`;
+USE `db_234646_MikesBikespostgres`;
+CREATE TABLE `customers` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`address_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `manufacturer` (
+`manufacturerID` INT,
+`name` VARCHAR(64),
+`address_id` INT,
+`supplier_id` INT,
+PRIMARY KEY (`manufacturerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `supplier` (
+`supplier_id` INT,
+`name` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`email` VARCHAR(64),
+`address_id` INT,
+`manufacturer_id` INT,
+PRIMARY KEY (`supplier_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bikes` (
+`SKU` INT,
+`brand` VARCHAR(64),
+`color` VARCHAR(64),
+`model` INT,
+`price` DECIMAL(10,2),
+`manufacturer_id` INT,
+`supplier_id` INT,
+PRIMARY KEY (`SKU`)
+) CHARACTER SET latin1;
+CREATE TABLE `SuppliedItems` (
+`available_items` VARCHAR(64),
+`supplier_id` INT,
+`manufacturer_id` INT,
+`SKU` INT
+) CHARACTER SET latin1;
+CREATE TABLE `inventory` (
+`SKU` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`price` DECIMAL(10,2),
+`manufacturer_id` INT,
+`supplier_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_234646_MikesBikespostgres') AS relationships;
+relationships
+Database: db_234646_MikesBikespostgres
+
+Table Connections:
+------------------
+[Implied]  SuppliedItems.SKU -> bikes.SKU
+[Implied]  SuppliedItems.manufacturer_id -> manufacturer.manufacturerID
+[Implied]  SuppliedItems.supplier_id -> supplier.supplier_id
+[Implied]  bikes.manufacturer_id -> manufacturer.manufacturerID
+[Implied]  bikes.supplier_id -> supplier.supplier_id
+[Implied]  inventory.SKU -> bikes.SKU
+[Implied]  inventory.manufacturer_id -> manufacturer.manufacturerID
+[Implied]  inventory.supplier_id -> supplier.supplier_id
+[Implied]  manufacturer.supplier_id -> supplier.supplier_id
+[Implied]  supplier.manufacturer_id -> manufacturer.manufacturerID
+
+DROP DATABASE `db_234646_MikesBikespostgres`;
+UNINSTALL EXTENSION vsql_schematron;

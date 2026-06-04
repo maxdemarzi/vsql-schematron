@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 571794_create_schema
+#
+CREATE DATABASE `db_571794_create_schema`;
+USE `db_571794_create_schema`;
+CREATE TABLE `organization` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`organization_id` INT,
+`id` INT,
+`role_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `asset_type` (
+`organization_id` INT,
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `manufacturer` (
+`organization_id` INT,
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `asset` (
+`organization_id` INT,
+`id` INT,
+`asset_type_id` INT,
+`asset_id` INT,
+`name` VARCHAR(64),
+`manufacturer_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `assignee` (
+`organization_id` INT,
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `assignee_asset` (
+`assignee_id` INT,
+`asset_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_571794_create_schema') AS relationships;
+relationships
+Database: db_571794_create_schema
+
+Table Connections:
+------------------
+[Implied]  asset.asset_type_id -> asset_type.id
+[Implied]  asset.manufacturer_id -> manufacturer.id
+[Implied]  asset.organization_id -> organization.id
+[Implied]  asset_type.organization_id -> organization.id
+[Implied]  assignee.organization_id -> organization.id
+[Implied]  assignee_asset.asset_id -> asset.id
+[Implied]  assignee_asset.assignee_id -> assignee.id
+[Implied]  manufacturer.organization_id -> organization.id
+[Implied]  user.organization_id -> organization.id
+[Implied]  user.role_id -> role.id
+
+DROP DATABASE `db_571794_create_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 206660_new_pizzeria
+#
+CREATE DATABASE `db_206660_new_pizzeria`;
+USE `db_206660_new_pizzeria`;
+CREATE TABLE `cliente` (
+`cliente_id` INT,
+`nombre` VARCHAR(64),
+`direccion` VARCHAR(64),
+`telefono` VARCHAR(64),
+`eliminado` INT,
+`fecha_creacion` DATETIME,
+`fecha_modificacion` DATETIME,
+PRIMARY KEY (`cliente_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `producto` (
+`producto_id` INT,
+`producto` VARCHAR(64),
+`valor` INT,
+`descripcion` VARCHAR(64),
+`eliminado` INT,
+`fecha_creacion` DATETIME,
+`fecha_modificacion` DATETIME,
+PRIMARY KEY (`producto_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido` (
+`pedido_id` INT,
+`cliente_id` INT,
+`domicilio` INT,
+`eliminado` INT,
+`fecha_creacion` DATETIME,
+`fecha_modificacion` DATETIME,
+PRIMARY KEY (`pedido_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `estado` (
+`estado_id` INT,
+`estado` VARCHAR(64),
+`eliminado` INT,
+`fecha_creacion` DATETIME,
+`fecha_modificacion` DATETIME,
+PRIMARY KEY (`estado_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `estado_pedido` (
+`ep_id` INT,
+`pedido_id` INT,
+`estado_id` INT,
+`activo` VARCHAR(64),
+`fecha_creacion` DATETIME,
+PRIMARY KEY (`ep_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `producto_pedido` (
+`pp_id` INT,
+`pedido_id` INT,
+`producto_id` INT,
+`cantidad` INT,
+`valor` INT,
+`fecha_creacion` DATETIME,
+`fecha_modificacion` DATETIME,
+PRIMARY KEY (`pp_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cuenta` (
+`cuenta_id` INT,
+`cuenta` VARCHAR(64),
+`eliminado` INT,
+`fecha_creacion` DATETIME,
+`fecha_modificacion` DATETIME,
+PRIMARY KEY (`cuenta_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movimiento` (
+`movimiento_id` INT,
+`tipo_movimiento` VARCHAR(64),
+`cuenta_id` INT,
+`desripcion` VARCHAR(64),
+`eliminado` INT,
+`valor` INT,
+`pedido_id` INT,
+`fecha_movimiento` DATETIME,
+`fecha_creacion` DATETIME,
+`fecha_modificacion` DATETIME,
+PRIMARY KEY (`movimiento_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_206660_new_pizzeria') AS relationships;
+relationships
+Database: db_206660_new_pizzeria
+
+Table Connections:
+------------------
+[Implied]  estado_pedido.estado_id -> estado.estado_id
+[Implied]  estado_pedido.pedido_id -> pedido.pedido_id
+[Implied]  movimiento.cuenta_id -> cuenta.cuenta_id
+[Implied]  movimiento.pedido_id -> pedido.pedido_id
+[Implied]  pedido.cliente_id -> cliente.cliente_id
+[Implied]  producto_pedido.pedido_id -> pedido.pedido_id
+[Implied]  producto_pedido.producto_id -> producto.producto_id
+
+DROP DATABASE `db_206660_new_pizzeria`;
+UNINSTALL EXTENSION vsql_schematron;

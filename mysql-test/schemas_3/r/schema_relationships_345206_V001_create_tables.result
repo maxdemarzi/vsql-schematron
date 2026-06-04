@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 345206_V001_create_tables
+#
+CREATE DATABASE `db_345206_V001_create_tables`;
+USE `db_345206_V001_create_tables`;
+CREATE TABLE `parent_user` (
+`id` INT,
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`email` VARCHAR(64),
+`phone` VARCHAR(64),
+`description` VARCHAR(64),
+`status` VARCHAR(64),
+`subscribe` VARCHAR(64),
+`activation_code` VARCHAR(64),
+`activated` VARCHAR(64),
+`update_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `child_user` (
+`id` INT,
+`parent_id` INT,
+`name` VARCHAR(64),
+`experience` DECIMAL(10,2),
+`ages` INT,
+`experience_in_current_school` DECIMAL(10,2),
+`update_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `video_order` (
+`id` INT,
+`name` VARCHAR(64),
+`url` VARCHAR(64),
+`price` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders_history` (
+`id` INT,
+`order_time` DATETIME,
+`order_price` INT,
+`parent_user_id` INT,
+`order_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_345206_V001_create_tables') AS relationships;
+relationships
+Database: db_345206_V001_create_tables
+
+Table Connections:
+------------------
+[Implied]  child_user.parent_id -> parent_user.id
+[Implied]  orders_history.order_id -> video_order.id
+[Implied]  orders_history.parent_user_id -> parent_user.id
+
+DROP DATABASE `db_345206_V001_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 233127_dump
+#
+CREATE DATABASE `db_233127_dump`;
+USE `db_233127_dump`;
+CREATE TABLE `nmtn_asset` (
+`id` INT,
+`mime_type` VARCHAR(64),
+`name` VARCHAR(64),
+`original_filename` VARCHAR(64),
+`filename` VARCHAR(64),
+`path` VARCHAR(64),
+`is_absolute_path` INT,
+`size` INT,
+`width` INT,
+`height` INT,
+`md5` VARCHAR(64),
+`created_at` INT,
+`updated_at` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nmtn_country` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nmtn_log_entry` (
+`id` INT,
+`action` VARCHAR(64),
+`logged_at` DATETIME,
+`object_id` VARCHAR(64),
+`object_class` VARCHAR(64),
+`version` INT,
+`data` VARCHAR(64),
+`username` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nmtn_order` (
+`id` INT,
+`master_id` INT,
+`user_id` INT,
+`restaurant_id` INT,
+`service_type_id` INT,
+`table_number` VARCHAR(64),
+`order_status_id` INT,
+`product_total` DECIMAL(10,2),
+`discount_percent` DECIMAL(10,2),
+`discount` DECIMAL(10,2),
+`tax_percent` DECIMAL(10,2),
+`sales_tax` DECIMAL(10,2),
+`tips` DECIMAL(10,2),
+`order_total` DECIMAL(10,2),
+`takeaway_pickup_time` INT,
+`created_at` INT,
+`updated_at` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nmtn_order_status` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nmtn_restaurant_checkin` (
+`id` INT,
+`restaurant_id` INT,
+`user_id` INT,
+`service_type_id` INT,
+`table_number` VARCHAR(64),
+`checked_out` INT,
+`created_at` INT,
+`updated_at` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nmtn_restaurant_operation_time` (
+`id` INT,
+`restaurant_id` INT,
+`day_of_the_week` INT,
+`time_from` INT,
+`time_to` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nmtn_restaurant_service_type` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nmtn_restaurant_staff` (
+`restaurant_id` INT,
+`user_id` INT,
+PRIMARY KEY (`restaurant_id`, `user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_233127_dump') AS relationships;
+relationships
+Database: db_233127_dump
+
+Table Connections:
+------------------
+[Implied]  nmtn_order.master_id -> nmtn_order.id
+[Implied]  nmtn_order.order_status_id -> nmtn_order_status.id
+[Implied]  nmtn_order.service_type_id -> nmtn_restaurant_service_type.id
+[Implied]  nmtn_restaurant_checkin.service_type_id -> nmtn_restaurant_service_type.id
+
+DROP DATABASE `db_233127_dump`;
+UNINSTALL EXTENSION vsql_schematron;

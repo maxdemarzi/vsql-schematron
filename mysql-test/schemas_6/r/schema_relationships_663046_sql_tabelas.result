@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 663046_sql_tabelas
+#
+CREATE DATABASE `db_663046_sql_tabelas`;
+USE `db_663046_sql_tabelas`;
+CREATE TABLE `authors` (
+`id` INT,
+`name` VARCHAR(64),
+`birth_date` DATETIME,
+`thumbnail_url` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books` (
+`id` INT,
+`title` VARCHAR(64),
+`sinopsis` VARCHAR(64),
+`release_date` DATETIME,
+`thumbnail_url` VARCHAR(64),
+`author_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`user_name` VARCHAR(64),
+`fullname` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `genres` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books_genres` (
+`book_id` INT,
+`genre_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`message` VARCHAR(64),
+`created_at` DATETIME,
+`book_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_663046_sql_tabelas') AS relationships;
+relationships
+Database: db_663046_sql_tabelas
+
+Table Connections:
+------------------
+[Implied]  books.author_id -> authors.id
+[Implied]  books_genres.book_id -> books.id
+[Implied]  books_genres.genre_id -> genres.id
+[Implied]  comments.book_id -> books.id
+[Implied]  comments.user_id -> users.id
+
+DROP DATABASE `db_663046_sql_tabelas`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 262352_schema
+#
+CREATE DATABASE `db_262352_schema`;
+USE `db_262352_schema`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`user_id` INT,
+`role_id` INT,
+PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `owners` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`address` VARCHAR(64),
+`city` VARCHAR(64),
+`phone` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pets` (
+`id` INT,
+`birth_date` DATETIME,
+`kind` VARCHAR(64),
+`name` VARCHAR(64),
+`owner_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `visits` (
+`id` INT,
+`description` VARCHAR(64),
+`pet_id` INT,
+`visit_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_262352_schema') AS relationships;
+relationships
+Database: db_262352_schema
+
+Table Connections:
+------------------
+[Implied]  pets.owner_id -> owners.id
+[Implied]  user_role.role_id -> roles.id
+[Implied]  user_role.user_id -> users.id
+[Implied]  visits.pet_id -> pets.id
+
+DROP DATABASE `db_262352_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 523615_00_ddl
+--echo #
+CREATE DATABASE `db_523615_00_ddl`;
+USE `db_523615_00_ddl`;
+
+CREATE TABLE `alumno` (
+  `alumno_id` INT,
+  `nombre` VARCHAR(64),
+  `apellidos` VARCHAR(64),
+  `correo` VARCHAR(64),
+  `contrasena` VARCHAR(64),
+  PRIMARY KEY (`alumno_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `examen` (
+  `examen_id` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`examen_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `status_evaluacion` (
+  `status_evaluacion_id` INT,
+  `nombre` VARCHAR(64),
+  `descripcion` VARCHAR(64),
+  PRIMARY KEY (`status_evaluacion_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `materia` (
+  `materia_id` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`materia_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pregunta` (
+  `pregunta_id` INT,
+  `texto_pregunta` VARCHAR(64),
+  `examen_id` INT,
+  `materia_id` INT,
+  PRIMARY KEY (`pregunta_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `opcion` (
+  `opcion_id` INT,
+  `texto_opcion` VARCHAR(64),
+  `pregunta_id` INT,
+  `es_correcta` VARCHAR(64),
+  PRIMARY KEY (`opcion_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `evaluacion_alumno` (
+  `evaluacion_id` INT,
+  `examen_id` INT,
+  `alumno_id` INT,
+  `status_evaluacion_id` INT,
+  `num_intento` INT,
+  `aciertos_totales` INT,
+  `fecha_aplicacion` DATETIME,
+  PRIMARY KEY (`evaluacion_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `respuestas_alumno` (
+  `respuestas_alumno_id` INT,
+  `opcion_id` INT,
+  `pregunta_id` INT,
+  `evaluacion_id` INT,
+  PRIMARY KEY (`respuestas_alumno_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `puntaje_materia` (
+  `puntaje_materia_id` INT,
+  `materia_id` INT,
+  `evaluacion_id` INT,
+  `puntaje` INT,
+  PRIMARY KEY (`puntaje_materia_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_523615_00_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_523615_00_ddl') AS relationships;
+DROP DATABASE `db_523615_00_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

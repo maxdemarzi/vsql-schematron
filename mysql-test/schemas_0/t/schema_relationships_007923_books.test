@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 007923_books
+--echo #
+CREATE DATABASE `db_007923_books`;
+USE `db_007923_books`;
+
+CREATE TABLE `Authors` (
+  `AuthorID` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`AuthorID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Publishers` (
+  `PublisherID` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`PublisherID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Editors` (
+  `EditorID` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`EditorID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Genres` (
+  `GenreID` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`GenreID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Books` (
+  `BookID` INT,
+  `AuthorID` INT,
+  `PublisherID` INT,
+  `EditorID` INT,
+  `GenreID` INT,
+  `Title` VARCHAR(64),
+  `AuthRoyalties` DECIMAL(10,2),
+  `PubRoyalties` DECIMAL(10,2),
+  `Year` INT,
+  `Price` DECIMAL(10,2),
+  PRIMARY KEY (`BookID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Customers` (
+  `CustomerID` INT,
+  `Name` VARCHAR(64),
+  `Location` VARCHAR(64),
+  PRIMARY KEY (`CustomerID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ORDERS` (
+  `OrderID` INT,
+  `CustomerID` INT,
+  `BookID` INT,
+  PRIMARY KEY (`OrderID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_007923_books') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_007923_books') AS relationships;
+DROP DATABASE `db_007923_books`;
+UNINSTALL EXTENSION vsql_schematron;

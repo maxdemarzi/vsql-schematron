@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 103922_script
+#
+CREATE DATABASE `db_103922_script`;
+USE `db_103922_script`;
+CREATE TABLE `Guest` (
+`guestId` VARCHAR(64),
+`guestFirstName` VARCHAR(64),
+`guestLastName` VARCHAR(64),
+`guestAddress` VARCHAR(64),
+`passportNumber` VARCHAR(64),
+`guestCountry` VARCHAR(64),
+`guestContact` VARCHAR(64),
+`guestStatus` VARCHAR(64),
+PRIMARY KEY (`guestId`)
+) CHARACTER SET latin1;
+CREATE TABLE `RoomType` (
+`typeId` INT,
+`typeName` VARCHAR(64),
+`typePrice` DECIMAL(10,2),
+PRIMARY KEY (`typeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Room` (
+`roomNumber` VARCHAR(64),
+`typeId` INT,
+`roomStatus` VARCHAR(64),
+PRIMARY KEY (`roomNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`userId` VARCHAR(64),
+`firstName` VARCHAR(64),
+`email` VARCHAR(64),
+`contact` VARCHAR(64),
+`userRole` VARCHAR(64),
+`userName` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reservation` (
+`resvId` VARCHAR(64),
+`resvDate` DATETIME,
+`guestId` VARCHAR(64),
+`checkInDate` DATETIME,
+`checkOutDate` DATETIME,
+`userId` VARCHAR(64),
+`status` VARCHAR(64),
+PRIMARY KEY (`resvId`)
+) CHARACTER SET latin1;
+CREATE TABLE `CheckOut` (
+`checkOutId` INT,
+`resvId` VARCHAR(64),
+`userId` VARCHAR(64),
+`date` DATETIME,
+`noOfNight` INT,
+`totalPrice` DECIMAL(10,2),
+PRIMARY KEY (`checkOutId`)
+) CHARACTER SET latin1;
+CREATE TABLE `ReservationDetail` (
+`resvId` VARCHAR(64),
+`roomNumber` VARCHAR(64),
+`roomPrice` DECIMAL(10,2),
+PRIMARY KEY (`resvId`, `roomNumber`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_103922_script') AS relationships;
+relationships
+Database: db_103922_script
+
+Table Connections:
+------------------
+[Implied]  CheckOut.resvId -> Reservation.resvId
+[Implied]  CheckOut.userId -> User.userId
+[Implied]  Reservation.guestId -> Guest.guestId
+[Implied]  Reservation.userId -> User.userId
+[Implied]  ReservationDetail.resvId -> Reservation.resvId
+[Implied]  ReservationDetail.roomNumber -> Room.roomNumber
+[Implied]  Room.typeId -> RoomType.typeId
+
+DROP DATABASE `db_103922_script`;
+UNINSTALL EXTENSION vsql_schematron;

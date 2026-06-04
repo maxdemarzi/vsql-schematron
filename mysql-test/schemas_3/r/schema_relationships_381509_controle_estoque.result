@@ -1,0 +1,138 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 381509_controle_estoque
+#
+CREATE DATABASE `db_381509_controle_estoque`;
+USE `db_381509_controle_estoque`;
+CREATE TABLE `empresas` (
+`empresa` INT,
+`cnpj` VARCHAR(64),
+`razao_social` VARCHAR(64),
+`rua` VARCHAR(64),
+`bairro` VARCHAR(64),
+`numero` VARCHAR(64),
+`cidade` VARCHAR(64),
+`uf` VARCHAR(64),
+`site` VARCHAR(64),
+PRIMARY KEY (`empresa`)
+) CHARACTER SET latin1;
+CREATE TABLE `clientes` (
+`cliente` INT,
+`cpf` VARCHAR(64),
+`nome` VARCHAR(64),
+`credito_liberado` VARCHAR(64),
+`data_nasc` DATETIME,
+`email` VARCHAR(64),
+PRIMARY KEY (`cliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `funcionarios` (
+`funcionario` INT,
+`cpf` VARCHAR(64),
+`nome` VARCHAR(64),
+`senha` VARCHAR(64),
+`email` VARCHAR(64),
+`data_nasc` DATETIME,
+`empresa` INT,
+PRIMARY KEY (`funcionario`)
+) CHARACTER SET latin1;
+CREATE TABLE `fornecedores` (
+`fornecedor` INT,
+`cnpj` VARCHAR(64),
+`nome` VARCHAR(64),
+`site` VARCHAR(64),
+`email` VARCHAR(64),
+`contato` VARCHAR(64),
+`telefone` VARCHAR(64),
+PRIMARY KEY (`fornecedor`)
+) CHARACTER SET latin1;
+CREATE TABLE `produtos` (
+`produto` INT,
+`descricao` VARCHAR(64),
+`unidade` VARCHAR(64),
+`data_cadastro` DATETIME,
+PRIMARY KEY (`produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `compras` (
+`compra` INT,
+`data_atualizacao` DATETIME,
+`fornecedor` INT,
+PRIMARY KEY (`compra`)
+) CHARACTER SET latin1;
+CREATE TABLE `compra_itens` (
+`item` INT,
+`compra` INT,
+`produto` INT,
+`quantidade` INT,
+`preco_unitario` DECIMAL(10,2),
+`estoque_min` INT,
+PRIMARY KEY (`item`)
+) CHARACTER SET latin1;
+CREATE TABLE `armazens` (
+`armazem` INT,
+`descricao` VARCHAR(64),
+`armario` VARCHAR(64),
+`prateleira` INT,
+PRIMARY KEY (`armazem`)
+) CHARACTER SET latin1;
+CREATE TABLE `estoque` (
+`codigo` INT,
+`quant_estoque` INT,
+`estoque_max` INT,
+`estoque_min` INT,
+`preco_venda` DECIMAL(10,2),
+`data_atualizacao` DATETIME,
+`armazem` INT,
+`compra_item` INT,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedidos` (
+`pedido` INT,
+`cliente` INT,
+`funcionario` INT,
+`data_pedido` DATETIME,
+`data_confirmacao` DATETIME,
+PRIMARY KEY (`pedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `bonus` (
+`bonus` INT,
+`valor_bonus` DECIMAL(10,2),
+`pedido` INT,
+`data_pedido` DATETIME,
+PRIMARY KEY (`bonus`)
+) CHARACTER SET latin1;
+CREATE TABLE `comissoes` (
+`comissao` INT,
+`valor_comissao` DECIMAL(10,2),
+`data_pedido` DATETIME,
+`pedido` INT,
+PRIMARY KEY (`comissao`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido_itens` (
+`item` INT,
+`estoque` INT,
+`quantidade` INT,
+`preco_venda` DECIMAL(10,2),
+`pedido` INT,
+PRIMARY KEY (`item`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_381509_controle_estoque') AS relationships;
+relationships
+Database: db_381509_controle_estoque
+
+Table Connections:
+------------------
+[Implied]  bonus.pedido -> pedidos.pedido
+[Implied]  comissoes.pedido -> pedidos.pedido
+[Implied]  compra_itens.compra -> compras.compra
+[Implied]  compra_itens.produto -> produtos.produto
+[Implied]  compras.fornecedor -> fornecedores.fornecedor
+[Implied]  estoque.armazem -> armazens.armazem
+[Implied]  estoque.compra_item -> compra_itens.item
+[Implied]  funcionarios.empresa -> empresas.empresa
+[Implied]  pedido_itens.estoque -> estoque.codigo
+[Implied]  pedido_itens.pedido -> pedidos.pedido
+[Implied]  pedidos.cliente -> clientes.cliente
+[Implied]  pedidos.funcionario -> funcionarios.funcionario
+
+DROP DATABASE `db_381509_controle_estoque`;
+UNINSTALL EXTENSION vsql_schematron;

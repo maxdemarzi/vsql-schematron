@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 586638_unit02_dml_command_insttruction
+--echo #
+CREATE DATABASE `db_586638_unit02_dml_command_insttruction`;
+USE `db_586638_unit02_dml_command_insttruction`;
+
+CREATE TABLE `JOBS` (
+  `JOB_ID` DECIMAL(10,2),
+  `JOB_NAME` VARCHAR(64),
+  PRIMARY KEY (`JOB_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DEPARTMENTS` (
+  `DEPARTMENT_ID` DECIMAL(10,2),
+  `DEPARTMENT_NAME` VARCHAR(64),
+  PRIMARY KEY (`DEPARTMENT_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MANAGERS` (
+  `MANAGER_ID` DECIMAL(10,2),
+  `DEPARTMENT_ID` DECIMAL(10,2),
+  `MANAGER_NAME` VARCHAR(64),
+  PRIMARY KEY (`MANAGER_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EMPLOYEES` (
+  `EMPLOYEE_ID` DECIMAL(10,2),
+  `FIRST_NAME` VARCHAR(64),
+  `LAST_NAME` VARCHAR(64),
+  `EMAIL` VARCHAR(64),
+  `PHONE_NUMBER` DECIMAL(10,2),
+  `HIRED_DATE` DATETIME,
+  `JOB_ID` DECIMAL(10,2),
+  `SALARY` DECIMAL(10,2),
+  `COMMISSION_PCT` DECIMAL(10,2),
+  `MANAGER_ID` DECIMAL(10,2),
+  `DEPARTMENT_ID` DECIMAL(10,2),
+  PRIMARY KEY (`EMPLOYEE_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_586638_unit02_dml_command_insttruction') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_586638_unit02_dml_command_insttruction') AS relationships;
+DROP DATABASE `db_586638_unit02_dml_command_insttruction`;
+UNINSTALL EXTENSION vsql_schematron;

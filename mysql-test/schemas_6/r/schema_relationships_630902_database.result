@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 630902_database
+#
+CREATE DATABASE `db_630902_database`;
+USE `db_630902_database`;
+CREATE TABLE `department` (
+`depid` VARCHAR(64),
+`name` VARCHAR(64),
+`py` VARCHAR(64),
+PRIMARY KEY (`depid`)
+) CHARACTER SET latin1;
+CREATE TABLE `doctor` (
+`docid` VARCHAR(64),
+`depid` VARCHAR(64),
+`name` VARCHAR(64),
+`py` VARCHAR(64),
+`password` VARCHAR(64),
+`speciallist` INT,
+`last_login_datetime` DATETIME,
+PRIMARY KEY (`docid`)
+) CHARACTER SET latin1;
+CREATE TABLE `patient` (
+`pid` VARCHAR(64),
+`name` VARCHAR(64),
+`password` VARCHAR(64),
+`balance` DECIMAL(10,2),
+`last_login_datetime` DATETIME,
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `register` (
+`reg_id` VARCHAR(64),
+`catid` VARCHAR(64),
+`docid` VARCHAR(64),
+`pid` VARCHAR(64),
+`current_reg_count` INT,
+`unreg` INT,
+`reg_fee` DECIMAL(10,2),
+`reg_datetime` DATETIME,
+PRIMARY KEY (`reg_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `register_category` (
+`catid` VARCHAR(64),
+`name` VARCHAR(64),
+`py` VARCHAR(64),
+`depid` VARCHAR(64),
+`speciallist` INT,
+`max_reg_number` INT,
+`reg_fee` DECIMAL(10,2),
+PRIMARY KEY (`catid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_630902_database') AS relationships;
+relationships
+Database: db_630902_database
+
+Table Connections:
+------------------
+[Implied]  doctor.depid -> department.depid
+[Implied]  register.catid -> register_category.catid
+[Implied]  register.docid -> doctor.docid
+[Implied]  register.pid -> patient.pid
+[Implied]  register_category.depid -> department.depid
+
+DROP DATABASE `db_630902_database`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 062602_schema
+#
+CREATE DATABASE `db_062602_schema`;
+USE `db_062602_schema`;
+CREATE TABLE `event` (
+`id` INT,
+`item_type` VARCHAR(64),
+`batch_id` INT,
+`line_id` INT,
+`process` VARCHAR(64),
+`action` VARCHAR(64),
+`operator` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `slide` (
+`id` INT,
+`label` VARCHAR(64),
+`batch_id` INT,
+`member` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `slot` (
+`id` INT,
+`slide_id` INT,
+`line_id` INT,
+`position` INT,
+`is_redo` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `queue` (
+`id` INT,
+`line` VARCHAR(64),
+`effector` VARCHAR(64),
+`queue_type` VARCHAR(64),
+`comment` VARCHAR(64),
+`priority` INT,
+`operator` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_062602_schema') AS relationships;
+relationships
+Database: db_062602_schema
+
+Table Connections:
+------------------
+[Implied]  slot.slide_id -> slide.id
+
+DROP DATABASE `db_062602_schema`;
+UNINSTALL EXTENSION vsql_schematron;

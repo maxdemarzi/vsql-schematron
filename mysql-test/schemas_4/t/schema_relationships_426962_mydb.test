@@ -1,0 +1,122 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 426962_mydb
+--echo #
+CREATE DATABASE `db_426962_mydb`;
+USE `db_426962_mydb`;
+
+CREATE TABLE `mydb.address` (
+  `address_id` INT,
+  `street_number` INT,
+  `street` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `zipcode` INT,
+  `country` VARCHAR(64),
+  `latitude` VARCHAR(64),
+  `longitude` VARCHAR(64),
+  PRIMARY KEY (`address_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.user_Add` (
+  `user` INT,
+  `address` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.accountType` (
+  `account_type_id` INT,
+  `account_type_desc` VARCHAR(64),
+  `account` INT,
+  PRIMARY KEY (`account_type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.preferences` (
+  `preferences_id` INT,
+  `min_age` VARCHAR(64),
+  `max_age` VARCHAR(64),
+  `min_location` VARCHAR(64),
+  `max_location` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `art_preference` VARCHAR(64),
+  `skill_lvl_pref` VARCHAR(64),
+  `meeting_pref` VARCHAR(64),
+  `user` INT,
+  `matches` INT,
+  PRIMARY KEY (`preferences_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.file_Path` (
+  `file_path_id` INT,
+  `profile_pic` VARCHAR(64),
+  `picture_path` VARCHAR(64),
+  `tag` VARCHAR(64),
+  `media1` VARCHAR(64),
+  `media2` VARCHAR(64),
+  `media3` VARCHAR(64),
+  `media4` VARCHAR(64),
+  `social_profile_1` VARCHAR(64),
+  `social_profile_2` VARCHAR(64),
+  `social_profile_3` VARCHAR(64),
+  `social_profile_4` VARCHAR(64),
+  `bio` VARCHAR(64),
+  `user` INT,
+  PRIMARY KEY (`file_path_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.chat_message` (
+  `chat_message_id` INT,
+  `user_id` INT,
+  `client_username` VARCHAR(64),
+  `msg_creation` DATETIME,
+  `chat_file` INT,
+  PRIMARY KEY (`chat_message_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.chat` (
+  `chat_id` INT,
+  `matches` INT,
+  `chat_message` INT,
+  PRIMARY KEY (`chat_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.communityPage` (
+  `comm_pg_id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `post_title` VARCHAR(64),
+  `post_category` VARCHAR(64),
+  `post_description` VARCHAR(64),
+  `post_file` VARCHAR(64),
+  `post_votes` INT,
+  `post_creation` DATETIME,
+  `user` INT,
+  PRIMARY KEY (`comm_pg_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.media2` (
+  `media2_id` INT,
+  `file_name` VARCHAR(64),
+  `user` INT,
+  PRIMARY KEY (`media2_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_426962_mydb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_426962_mydb') AS relationships;
+DROP DATABASE `db_426962_mydb`;
+UNINSTALL EXTENSION vsql_schematron;

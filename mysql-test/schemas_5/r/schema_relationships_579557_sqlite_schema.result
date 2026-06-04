@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 579557_sqlite_schema
+#
+CREATE DATABASE `db_579557_sqlite_schema`;
+USE `db_579557_sqlite_schema`;
+CREATE TABLE `test3` (
+`id` INT,
+`name` VARCHAR(64),
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `publisher3` (
+`id` INT,
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `publisher3_tests` (
+`id` INT,
+`publisher3_id` INT,
+`test3_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book_tag3` (
+`id` INT,
+`name` VARCHAR(64),
+`version` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book3` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`title` VARCHAR(64),
+`author_id` INT,
+`publisher_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book3_tags` (
+`id` INT,
+`book3_id` INT,
+`book_tag3_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_579557_sqlite_schema') AS relationships;
+relationships
+Database: db_579557_sqlite_schema
+
+Table Connections:
+------------------
+[Implied]  book3.publisher_id -> publisher3.id
+[Implied]  book3_tags.book3_id -> book3.id
+[Implied]  book3_tags.book_tag3_id -> book_tag3.id
+[Implied]  publisher3_tests.publisher3_id -> publisher3.id
+[Implied]  publisher3_tests.test3_id -> test3.id
+
+DROP DATABASE `db_579557_sqlite_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cctype>
 #include <unordered_set>
+#include <unordered_map>
 #include <iostream>
 
 namespace {
@@ -521,7 +522,7 @@ void findPass1ImpliedRelationships(
 
                              // Column suffix matches target table (e.g. orders.id_customer -> customers.id)
                              if (!suffix_match) {
-                                 bool allow_sub = !suffix_has_exact;
+                                 bool allow_sub = !suffix_has_exact && !prefix_has_exact;
                                  if (suffix_has_exact && !suffix_exact_match_tbl.empty() && isSubtypeTable(suffix_exact_match_tbl, tbl_b)) {
                                      allow_sub = true;
                                  }
@@ -647,10 +648,10 @@ void findPass1_5ImpliedRelationships(
                 if (tbl_a == tbl_b) continue;
                 if (isSequenceOrSystemTable(tbl_b) || isJunctionOrHistoryTable(tbl_b)) continue;
                 
-                // Skip if a relationship is already registered for this column from A to B
+                // Skip if a relationship is already registered for this column from A to ANY table
                 bool already_has_rel = false;
                 for (const auto& r : relationships) {
-                    if (r.from_table == tbl_a && to_lower(r.from_column) == col_a && r.to_table == tbl_b) {
+                    if (r.from_table == tbl_a && to_lower(r.from_column) == col_a) {
                         already_has_rel = true;
                         break;
                     }
@@ -891,6 +892,45 @@ bool isAcronymMatchRelation(const Relationship& rel) {
     return false;
 }
 
+std::string getCleanEntityPrefix(const std::string& col, const std::string& tbl) {
+    std::string col_clean = stripAcronymPrefix(col, tbl);
+    std::string prefix, suffix;
+    if (splitColumnName(col_clean, prefix, suffix)) {
+        std::string entity = prefix;
+        static const std::vector<std::string> SUFFIXES = {
+            "_id", "_uuid", "_guid", "_uid", "_key", "_code", "id", "uuid", "guid", "uid", "key", "code"
+        };
+        std::string low_entity = to_lower(entity);
+        for (const auto& sfx : SUFFIXES) {
+            if (low_entity.length() > sfx.length() && low_entity.rfind(sfx) == low_entity.length() - sfx.length()) {
+                entity = entity.substr(0, entity.length() - sfx.length());
+                break;
+            }
+        }
+        return entity;
+    }
+    return col_clean;
+}
+
+std::string getCleanExpandedName(const std::string& name) {
+    std::string exp = expandAllAbbreviations(to_lower(name));
+    exp.erase(std::remove(exp.begin(), exp.end(), '_'), exp.end());
+    return singularize(exp);
+}
+
+int getPrefixMatchScore(const std::string& ep_clean, const std::string& et_clean) {
+    if (ep_clean == et_clean) {
+        return 1000 + ep_clean.length(); // Huge bonus for exact match
+    }
+    if (ep_clean.find(et_clean) == 0) {
+        return et_clean.length(); // prefix match
+    }
+    if (et_clean.find(ep_clean) == 0) {
+        return ep_clean.length(); // suffix/prefix match from the other side
+    }
+    return 0;
+}
+
 } // namespace
 
 /**
@@ -978,6 +1018,38 @@ void findImpliedRelationships(
             it = relationships.erase(it);
         } else {
             ++it;
+        }
+    }
+
+    // Resolve overlapping prefix conflicts (prefer more specific matches)
+    std::unordered_map<std::string, std::vector<Relationship>> groups;
+    for (const auto& rel : relationships) {
+        std::string key = rel.from_table + "." + to_lower(rel.from_column);
+        groups[key].push_back(rel);
+    }
+
+    for (const auto& pair : groups) {
+        if (pair.second.size() < 2) continue;
+        
+        int max_score = -1;
+        std::vector<std::pair<Relationship, int>> scored_rels;
+        for (const auto& rel : pair.second) {
+            std::string entity = getCleanEntityPrefix(rel.from_column, rel.from_table);
+            std::string ep_clean = getCleanExpandedName(entity);
+            std::string et_clean = getCleanExpandedName(stripSchemaPrefix(rel.to_table));
+            int score = getPrefixMatchScore(ep_clean, et_clean);
+            scored_rels.push_back({rel, score});
+            if (score > max_score) {
+                max_score = score;
+            }
+        }
+        
+        if (max_score > 0) {
+            for (const auto& sr : scored_rels) {
+                if (sr.second < max_score) {
+                    relationships.erase(sr.first);
+                }
+            }
         }
     }
 

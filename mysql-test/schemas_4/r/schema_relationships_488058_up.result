@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 488058_up
+#
+CREATE DATABASE `db_488058_up`;
+USE `db_488058_up`;
+CREATE TABLE `authors` (
+`id` INT,
+`author_name` VARCHAR(64),
+`birth_date` DATETIME,
+`picture` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `publishers` (
+`id` INT,
+`publisher_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `titles` (
+`id` INT,
+`publisher_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `author_titles` (
+`id` INT,
+`author_id` INT,
+`title_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `distributions` (
+`id` INT,
+`distribution_name` VARCHAR(64),
+`publisher_id` INT,
+`title_id` INT,
+`page_count` INT,
+`max_pos` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`email_verified` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `readers` (
+`id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reader_distributions` (
+`id` INT,
+`user_id` INT,
+`distribution_id` INT,
+`last_pos` INT,
+`last_read` DATETIME,
+`finished_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_488058_up') AS relationships;
+relationships
+Database: db_488058_up
+
+Table Connections:
+------------------
+[Implied]  author_titles.author_id -> authors.id
+[Implied]  author_titles.title_id -> titles.id
+[Implied]  distributions.publisher_id -> publishers.id
+[Implied]  distributions.title_id -> titles.id
+[Implied]  reader_distributions.distribution_id -> distributions.id
+[Implied]  reader_distributions.user_id -> users.id
+[Implied]  readers.user_id -> users.id
+[Implied]  titles.publisher_id -> publishers.id
+
+DROP DATABASE `db_488058_up`;
+UNINSTALL EXTENSION vsql_schematron;

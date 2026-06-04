@@ -1,0 +1,167 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 117461_create_20database
+#
+CREATE DATABASE `db_117461_create_20database`;
+USE `db_117461_create_20database`;
+CREATE TABLE `Modules` (
+`PK` INT,
+`ID` VARCHAR(64),
+`Tag` VARCHAR(64),
+`PortID` VARCHAR(64),
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `Stations` (
+`PK` INT,
+`ID` VARCHAR(64),
+`Tag` VARCHAR(64),
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `RT_Station_Module` (
+`PK` INT,
+`FK_Station` INT,
+`FK_Module` INT,
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sites` (
+`PK` INT,
+`Coordinates` VARCHAR(64),
+`ID` VARCHAR(64),
+`Tag` VARCHAR(64),
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `RawData_Files` (
+`PK` INT,
+`FK_Station` INT,
+`FK_Site` INT,
+`Hz_Start` INT,
+`Hz_Stop` INT,
+`Time_Start` DATETIME,
+`Time_Stop` DATETIME,
+`Tag` VARCHAR(64),
+`FileName` VARCHAR(64),
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `Emissions` (
+`PK` INT,
+`Hz_Start` INT,
+`Hz_Stop` INT,
+`Time_Start` DATETIME,
+`Time_Stop` DATETIME,
+`Power_Map` VARCHAR(64),
+`Max_Power` DECIMAL(10,2),
+`Min_Power` DECIMAL(10,2),
+`On_Map` VARCHAR(64),
+`Off_Map` VARCHAR(64),
+`Tag` VARCHAR(64),
+`Emitter_ID_tag` VARCHAR(64),
+`Channel_ID_tag` VARCHAR(64),
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `RT_RawData_Emission` (
+`PK` INT,
+`FK_RawData_File` INT,
+`FK_Emission` INT,
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `Noise` (
+`PK` INT,
+`Hz_Start` INT,
+`Hz_Stop` INT,
+`Time_Start` DATETIME,
+`Time_Stop` DATETIME,
+`Power_Map` VARCHAR(64),
+`Max_Power` DECIMAL(10,2),
+`Min_Power` DECIMAL(10,2),
+`Tag` VARCHAR(64),
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `RT_RawData_Noise` (
+`PK` INT,
+`FK_RawData_File` INT,
+`FK_Noise_Block` INT,
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `Services` (
+`PK` INT,
+`ID` VARCHAR(64),
+`Designation` VARCHAR(64),
+`Tag` VARCHAR(64),
+`Icon` VARCHAR(64),
+`Colour` VARCHAR(64),
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `Emitters` (
+`PK` INT,
+`ID` VARCHAR(64),
+`Designation` VARCHAR(64),
+`Tag` VARCHAR(64),
+`FK_Site` INT,
+`FK_Service` INT,
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `RT_Emitter_Emission` (
+`PK` INT,
+`FK_Emitter` INT,
+`FK_Emission` INT,
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `Regulations` (
+`PK` INT,
+`FK_Service` INT,
+`Table_ID` VARCHAR(64),
+`TableName` VARCHAR(64),
+`Downlink` VARCHAR(64),
+`Channel_Spacing` INT,
+`Flags` VARCHAR(64),
+`Power_Limit` DECIMAL(10,2),
+`Modulation_Type` VARCHAR(64),
+`Required_Mod` VARCHAR(64),
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `Channels` (
+`PK` INT,
+`ID` VARCHAR(64),
+`Hz_Center` INT,
+`FK_Regulation` INT,
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `RT_Channel_Emission` (
+`PK` INT,
+`FK_Channel` INT,
+`FK_Emission` INT,
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+CREATE TABLE `Asignations` (
+`PK` INT,
+`Label` VARCHAR(64),
+`Icon` VARCHAR(64),
+`Hz_Start` INT,
+`Hz_Stop` INT,
+PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_117461_create_20database') AS relationships;
+relationships
+Database: db_117461_create_20database
+
+Table Connections:
+------------------
+[Implied]  Channels.FK_Regulation -> Regulations.PK
+[Implied]  Emitters.FK_Service -> Services.PK
+[Implied]  Emitters.FK_Site -> Sites.PK
+[Implied]  RT_Channel_Emission.FK_Channel -> Channels.PK
+[Implied]  RT_Channel_Emission.FK_Emission -> Emissions.PK
+[Implied]  RT_Emitter_Emission.FK_Emission -> Emissions.PK
+[Implied]  RT_Emitter_Emission.FK_Emitter -> Emitters.PK
+[Implied]  RT_RawData_Emission.FK_Emission -> Emissions.PK
+[Implied]  RT_RawData_Emission.FK_RawData_File -> RawData_Files.PK
+[Implied]  RT_RawData_Noise.FK_Noise_Block -> Noise.PK
+[Implied]  RT_RawData_Noise.FK_RawData_File -> RawData_Files.PK
+[Implied]  RT_Station_Module.FK_Module -> Modules.PK
+[Implied]  RT_Station_Module.FK_Station -> Stations.PK
+[Implied]  RawData_Files.FK_Site -> Sites.PK
+[Implied]  RawData_Files.FK_Station -> Stations.PK
+[Implied]  Regulations.FK_Service -> Services.PK
+
+DROP DATABASE `db_117461_create_20database`;
+UNINSTALL EXTENSION vsql_schematron;

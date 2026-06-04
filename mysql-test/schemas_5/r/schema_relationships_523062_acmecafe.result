@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 523062_acmecafe
+#
+CREATE DATABASE `db_523062_acmecafe`;
+USE `db_523062_acmecafe`;
+CREATE TABLE `Costumer` (
+`CostumerId` INT,
+`Name` VARCHAR(64),
+`Pin` VARCHAR(64),
+`CreditCard` VARCHAR(64),
+`Username` VARCHAR(64),
+`Password` VARCHAR(64),
+`CreditCardExpiration` DATETIME,
+PRIMARY KEY (`CostumerId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Menu` (
+`MenuId` INT,
+`Name` VARCHAR(64),
+`Active` VARCHAR(64),
+PRIMARY KEY (`MenuId`)
+) CHARACTER SET latin1;
+CREATE TABLE `MenuProduct` (
+`MenuId` INT,
+`ProductId` INT,
+PRIMARY KEY (`MenuId`, `ProductId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Product` (
+`ProductId` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`ProductId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Request` (
+`RequestId` INT,
+`CostumerId` INT,
+PRIMARY KEY (`RequestId`)
+) CHARACTER SET latin1;
+CREATE TABLE `RequestLine` (
+`RequestLineId` INT,
+`ProductId` INT,
+`Quantity` INT,
+`UnitPrice` DECIMAL(10,2),
+PRIMARY KEY (`RequestLineId`)
+) CHARACTER SET latin1;
+CREATE TABLE `RequestRequestLine` (
+`RequestId` INT,
+`RequestLineId` INT,
+PRIMARY KEY (`RequestId`, `RequestLineId`)
+) CHARACTER SET latin1;
+CREATE TABLE `RequestVoucher` (
+`VoucherId` INT,
+`RequestId` INT,
+PRIMARY KEY (`VoucherId`, `RequestId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Voucher` (
+`VoucherId` INT,
+`Key` VARCHAR(64),
+`Number` INT,
+`Type` VARCHAR(64),
+`CostumerId` INT,
+`IsUsed` VARCHAR(64),
+PRIMARY KEY (`VoucherId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_523062_acmecafe') AS relationships;
+relationships
+Database: db_523062_acmecafe
+
+Table Connections:
+------------------
+[Implied]  MenuProduct.MenuId -> Menu.MenuId
+[Implied]  MenuProduct.ProductId -> Product.ProductId
+[Implied]  Request.CostumerId -> Costumer.CostumerId
+[Implied]  RequestLine.ProductId -> Product.ProductId
+[Implied]  RequestRequestLine.RequestId -> Request.RequestId
+[Implied]  RequestRequestLine.RequestLineId -> RequestLine.RequestLineId
+[Implied]  RequestVoucher.RequestId -> Request.RequestId
+[Implied]  RequestVoucher.VoucherId -> Voucher.VoucherId
+[Implied]  Voucher.CostumerId -> Costumer.CostumerId
+
+DROP DATABASE `db_523062_acmecafe`;
+UNINSTALL EXTENSION vsql_schematron;

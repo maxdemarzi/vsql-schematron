@@ -1,0 +1,101 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 585183_schema
+--echo #
+CREATE DATABASE `db_585183_schema`;
+USE `db_585183_schema`;
+
+CREATE TABLE `Witness` (
+  `ID` INT,
+  `Name` VARCHAR(64),
+  `Rating` DECIMAL(10,2),
+  `Location` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Investigator` (
+  `ID` INT,
+  `Name` VARCHAR(64),
+  `Organization` VARCHAR(64),
+  `OrganizationType` VARCHAR(64),
+  `Rating` DECIMAL(10,2),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Report` (
+  `ID` INT,
+  `Resolved` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Time` DATETIME,
+  `Location` VARCHAR(64),
+  `WitnessID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ReportComments` (
+  `ID` INT,
+  `ReportID` INT,
+  `InvestigatorID` INT,
+  `Contents` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ReportInvestigations` (
+  `ReportID` INT,
+  `InvestigatorID` INT,
+  PRIMARY KEY (`ReportID`, `InvestigatorID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Evidence` (
+  `ID` INT,
+  `Title` VARCHAR(64),
+  `Type` VARCHAR(64),
+  `Timestamp` DATETIME,
+  `ReportID` INT,
+  `data` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Chat` (
+  `ID` INT,
+  `ReportID` INT,
+  `InvestigatorID` INT,
+  `Message` VARCHAR(64),
+  `time` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Accounts` (
+  `Username` VARCHAR(64),
+  `PasswordHash` VARCHAR(64),
+  `InvestigatorId` INT,
+  PRIMARY KEY (`Username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ApiKeys` (
+  `ApiKey` VARCHAR(64),
+  `WitnessId` INT,
+  `InvestigatorID` INT,
+  PRIMARY KEY (`ApiKey`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_585183_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_585183_schema') AS relationships;
+DROP DATABASE `db_585183_schema`;
+UNINSTALL EXTENSION vsql_schematron;

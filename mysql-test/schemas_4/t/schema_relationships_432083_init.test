@@ -1,0 +1,102 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 432083_init
+--echo #
+CREATE DATABASE `db_432083_init`;
+USE `db_432083_init`;
+
+CREATE TABLE `Books` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `titleLong` VARCHAR(64),
+  `isbn` VARCHAR(64),
+  `isbn13` VARCHAR(64),
+  `deweyDecimal` DECIMAL(10,2),
+  `publisherId` INT,
+  `format` VARCHAR(64),
+  `language` VARCHAR(64),
+  `datePublished` VARCHAR(64),
+  `edition` VARCHAR(64),
+  `pages` INT,
+  `dimensions` VARCHAR(64),
+  `overview` VARCHAR(64),
+  `image` VARCHAR(64),
+  `msrp` VARCHAR(64),
+  `excerpt` VARCHAR(64),
+  `synopsys` VARCHAR(64),
+  `notes` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Authors` (
+  `id` INT,
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Publishers` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Media` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `type` INT,
+  `number` INT,
+  `image` VARCHAR(64),
+  `runningTime` INT,
+  `releaseYear` INT,
+  `notes` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Tags` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Book_Tag` (
+  `id` INT,
+  `bookId` INT,
+  `tagId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Book_Author` (
+  `id` INT,
+  `bookId` INT,
+  `authorId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Media_Tag` (
+  `id` INT,
+  `mediaId` INT,
+  `tagId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_432083_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_432083_init') AS relationships;
+DROP DATABASE `db_432083_init`;
+UNINSTALL EXTENSION vsql_schematron;

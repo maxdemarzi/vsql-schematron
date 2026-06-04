@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 269949_schema
+--echo #
+CREATE DATABASE `db_269949_schema`;
+USE `db_269949_schema`;
+
+CREATE TABLE `customers` (
+  `customerID` INT,
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  `cusPass` VARCHAR(64),
+  PRIMARY KEY (`customerID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `manager` (
+  `managerID` INT,
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  `managerEmail` VARCHAR(64),
+  `managerPassword` VARCHAR(64),
+  PRIMARY KEY (`managerID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `events` (
+  `eventID` INT,
+  `eventName` VARCHAR(64),
+  `eventDate` DATETIME,
+  `eventDuration` VARCHAR(64),
+  `eventDescription` VARCHAR(64),
+  `venue` VARCHAR(64),
+  `price` INT,
+  PRIMARY KEY (`eventID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customer_event` (
+  `customerID` INT,
+  `eventID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `manager_event` (
+  `managerID` INT,
+  `eventID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `ticket` (
+  `ticketNO` INT,
+  `ticketID` VARCHAR(64),
+  `ticketPrice` VARCHAR(64),
+  PRIMARY KEY (`ticketNO`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ticket_event` (
+  `ticketNO` INT,
+  `eventID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `ticket_customer` (
+  `customerID` INT,
+  `ticketNO` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_269949_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_269949_schema') AS relationships;
+DROP DATABASE `db_269949_schema`;
+UNINSTALL EXTENSION vsql_schematron;

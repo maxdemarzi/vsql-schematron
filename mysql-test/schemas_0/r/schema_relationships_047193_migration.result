@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 047193_migration
+#
+CREATE DATABASE `db_047193_migration`;
+USE `db_047193_migration`;
+CREATE TABLE `RoleGrant` (
+`id` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`roleKey` VARCHAR(64),
+`profileId` VARCHAR(64),
+`subjectTable` VARCHAR(64),
+`subjectId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`username` VARCHAR(64),
+`isActive` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profile` (
+`id` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`email` VARCHAR(64),
+`displayName` VARCHAR(64),
+`picture` VARCHAR(64),
+`content` VARCHAR(64),
+`city` VARCHAR(64),
+`stateProvince` VARCHAR(64),
+`userId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Universe` (
+`id` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`picture` VARCHAR(64),
+`ownerProfileId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Series` (
+`id` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`picture` VARCHAR(64),
+`universeId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Story` (
+`id` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`name` VARCHAR(64),
+`volume` INT,
+`issue` INT,
+`summary` VARCHAR(64),
+`content` VARCHAR(64),
+`picture` VARCHAR(64),
+`seriesId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_047193_migration') AS relationships;
+relationships
+Database: db_047193_migration
+
+Table Connections:
+------------------
+[Implied]  Profile.userId -> User.id
+[Implied]  RoleGrant.profileId -> Profile.id
+[Implied]  Series.universeId -> Universe.id
+[Implied]  Story.seriesId -> Series.id
+[Implied]  Universe.ownerProfileId -> Profile.id
+
+DROP DATABASE `db_047193_migration`;
+UNINSTALL EXTENSION vsql_schematron;

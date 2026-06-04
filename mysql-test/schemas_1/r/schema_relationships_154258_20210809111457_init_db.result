@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 154258_20210809111457_init_db
+#
+CREATE DATABASE `db_154258_20210809111457_init_db`;
+USE `db_154258_20210809111457_init_db`;
+CREATE TABLE `api_service` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `api_service_key` (
+`id` VARCHAR(64),
+`service_id` VARCHAR(64),
+`key` VARCHAR(64),
+`secret` VARCHAR(64),
+`whitelist` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+`id` VARCHAR(64),
+`service_id` VARCHAR(64),
+`workchain_id` INT,
+`hex` VARCHAR(64),
+`base64url` VARCHAR(64),
+`public_key` VARCHAR(64),
+`private_key` VARCHAR(64),
+`account_type` VARCHAR(64),
+`custodians` INT,
+`confirmations` INT,
+`custodians_public_keys` VARCHAR(64),
+`balance` DECIMAL(10,2),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `api_service_callback` (
+`id` VARCHAR(64),
+`service_id` VARCHAR(64),
+`callback` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_154258_20210809111457_init_db') AS relationships;
+relationships
+Database: db_154258_20210809111457_init_db
+
+Table Connections:
+------------------
+[Implied]  address.service_id -> api_service.id
+[Implied]  api_service_callback.service_id -> api_service.id
+[Implied]  api_service_key.service_id -> api_service.id
+
+DROP DATABASE `db_154258_20210809111457_init_db`;
+UNINSTALL EXTENSION vsql_schematron;

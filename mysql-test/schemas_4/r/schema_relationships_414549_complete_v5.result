@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 414549_complete_v5
+#
+CREATE DATABASE `db_414549_complete_v5`;
+USE `db_414549_complete_v5`;
+CREATE TABLE `DATABASE_VERSION` (
+`version` INT
+) CHARACTER SET latin1;
+CREATE TABLE `HOUSE` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `DEVICE` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`houseid` VARCHAR(64),
+`last_ping` DATETIME,
+`last_restart` DATETIME,
+`last_watchdog_reset` DATETIME,
+`active` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LOGIN_USER` (
+`id` VARCHAR(64),
+`google_sub` VARCHAR(64),
+`email` VARCHAR(64),
+`fn` VARCHAR(64),
+`ln` VARCHAR(64),
+`default_notify_using` VARCHAR(64),
+`pushover_userkey` VARCHAR(64),
+`pushover_apptoken` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `DEVICE_WATCHDOG` (
+`userId` VARCHAR(64),
+`deviceId` VARCHAR(64),
+`notify` VARCHAR(64),
+`muted_until` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `SENSOR` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`deviceid` VARCHAR(64),
+`icon` VARCHAR(64),
+`type` VARCHAR(64),
+`label` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `SENSOR_DATA` (
+`id` VARCHAR(64),
+`dt` DATETIME,
+`value` DECIMAL(10,2),
+`from_dt` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `FAVORITE_SENSOR` (
+`userId` VARCHAR(64),
+`sensorId` VARCHAR(64),
+PRIMARY KEY (`userId`, `sensorId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_414549_complete_v5') AS relationships;
+relationships
+Database: db_414549_complete_v5
+
+Table Connections:
+------------------
+[Implied]  DEVICE.houseid -> HOUSE.id
+[Implied]  DEVICE_WATCHDOG.deviceId -> DEVICE.id
+[Implied]  DEVICE_WATCHDOG.userId -> LOGIN_USER.id
+[Implied]  FAVORITE_SENSOR.sensorId -> SENSOR.id
+[Implied]  FAVORITE_SENSOR.userId -> LOGIN_USER.id
+[Implied]  SENSOR.deviceid -> DEVICE.id
+
+DROP DATABASE `db_414549_complete_v5`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 351052_script
+--echo #
+CREATE DATABASE `db_351052_script`;
+USE `db_351052_script`;
+
+CREATE TABLE `HOST` (
+  `ID` INT,
+  `ADDRESS` VARCHAR(64),
+  `PORT` INT,
+  `COMMAND` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USER` (
+  `ID` INT,
+  `NAME` VARCHAR(64),
+  `EMAIL` VARCHAR(64),
+  `PASSWORD` VARCHAR(64),
+  `ACTIVE` VARCHAR(64),
+  `TIMEZONE` INT,
+  `TOKEN` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUTH_LINK` (
+  `USER_ID` INT,
+  `GENERATION_DATE` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `USER_HOST` (
+  `USER_ID` INT,
+  `HOST_ID` INT,
+  `TITLE` VARCHAR(64),
+  `PAID_UNTIL` DATETIME,
+  PRIMARY KEY (`USER_ID`, `HOST_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `HOST_STATUS` (
+  `ID` VARCHAR(64),
+  `HOST_ID` INT,
+  `START` DATETIME,
+  `FINISH` DATETIME,
+  `ONLINE` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PING` (
+  `ID` VARCHAR(64),
+  `HOST_ID` INT,
+  `WHEN` DATETIME,
+  `MS` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_351052_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_351052_script') AS relationships;
+DROP DATABASE `db_351052_script`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 364543_chat
+#
+CREATE DATABASE `db_364543_chat`;
+USE `db_364543_chat`;
+CREATE TABLE `usuario` (
+`codigo` INT,
+`nick` VARCHAR(64),
+`email` VARCHAR(64),
+`senha` VARCHAR(64),
+`avatar` VARCHAR(64),
+`musica` VARCHAR(64),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `reputacao` (
+`id_usuario` INT,
+`pontuacao` INT
+) CHARACTER SET latin1;
+CREATE TABLE `sala` (
+`codigo` INT,
+`capacidade` INT,
+`usuarios_online` INT,
+`tema` VARCHAR(64),
+`descricao` VARCHAR(64),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `mensagem` (
+`codigo` INT,
+`id_usuario` INT,
+`id_sala` INT,
+`data_envio` DATETIME,
+`texto` VARCHAR(64),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_364543_chat') AS relationships;
+relationships
+Database: db_364543_chat
+
+Table Connections:
+------------------
+[Implied]  mensagem.id_sala -> sala.codigo
+[Implied]  mensagem.id_usuario -> usuario.codigo
+[Implied]  reputacao.id_usuario -> usuario.codigo
+
+DROP DATABASE `db_364543_chat`;
+UNINSTALL EXTENSION vsql_schematron;

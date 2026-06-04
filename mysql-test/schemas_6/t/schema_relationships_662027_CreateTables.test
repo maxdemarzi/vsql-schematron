@@ -1,0 +1,125 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 662027_CreateTables
+--echo #
+CREATE DATABASE `db_662027_CreateTables`;
+USE `db_662027_CreateTables`;
+
+CREATE TABLE `etm.student` (
+  `PID` VARCHAR(64),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  PRIMARY KEY (`PID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.catalog` (
+  `year` VARCHAR(64),
+  PRIMARY KEY (`year`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.college` (
+  `name` VARCHAR(64),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.course` (
+  `tier` VARCHAR(64),
+  `longName` VARCHAR(64),
+  `shortName` VARCHAR(64),
+  `hours` DECIMAL(10,2),
+  PRIMARY KEY (`shortName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.advisor` (
+  `ID` VARCHAR(64),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.degree` (
+  `degreeCode` VARCHAR(64),
+  `type` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`degreeCode`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.advises` (
+  `advisorid` VARCHAR(64),
+  `pid` VARCHAR(64),
+  PRIMARY KEY (`advisorid`, `pid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.belongs_to` (
+  `degreeCode` VARCHAR(64),
+  `CatalogID` VARCHAR(64),
+  PRIMARY KEY (`degreeCode`, `CatalogID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.enrolled_in` (
+  `PID` VARCHAR(64),
+  `courseName` VARCHAR(64),
+  `grade` VARCHAR(64),
+  `semester` VARCHAR(64),
+  PRIMARY KEY (`PID`, `courseName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.working_towards` (
+  `PID` VARCHAR(64),
+  `degreeCode` VARCHAR(64),
+  PRIMARY KEY (`PID`, `degreeCode`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.offered_in` (
+  `catalogYear` VARCHAR(64),
+  `courseName` VARCHAR(64),
+  PRIMARY KEY (`catalogYear`, `courseName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.degreeREQS` (
+  `degreeCode` VARCHAR(64),
+  `courseName` VARCHAR(64),
+  PRIMARY KEY (`degreeCode`, `courseName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.courseREQS` (
+  `courseName` VARCHAR(64),
+  `reqCourseName` VARCHAR(64),
+  `type` VARCHAR(64),
+  PRIMARY KEY (`courseName`, `reqCourseName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.studentCatalog` (
+  `PID` VARCHAR(64),
+  `year` VARCHAR(64),
+  PRIMARY KEY (`PID`, `year`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etm.accounts` (
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  `type` VARCHAR(64),
+  PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_662027_CreateTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_662027_CreateTables') AS relationships;
+DROP DATABASE `db_662027_CreateTables`;
+UNINSTALL EXTENSION vsql_schematron;

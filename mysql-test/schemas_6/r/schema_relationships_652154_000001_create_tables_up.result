@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 652154_000001_create_tables_up
+#
+CREATE DATABASE `db_652154_000001_create_tables_up`;
+USE `db_652154_000001_create_tables_up`;
+CREATE TABLE `import_statuses` (
+`ulid` INT,
+`val` VARCHAR(64),
+PRIMARY KEY (`ulid`)
+) CHARACTER SET latin1;
+CREATE TABLE `books` (
+`ulid` VARCHAR(64),
+`title` VARCHAR(64),
+`duration` INT,
+`import_status_ulid` INT,
+PRIMARY KEY (`ulid`)
+) CHARACTER SET latin1;
+CREATE TABLE `authors` (
+`ulid` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+PRIMARY KEY (`ulid`)
+) CHARACTER SET latin1;
+CREATE TABLE `book_authors` (
+`ulid` VARCHAR(64),
+`book_ulid` VARCHAR(64),
+`author_ulid` VARCHAR(64),
+`meta` VARCHAR(64),
+PRIMARY KEY (`ulid`)
+) CHARACTER SET latin1;
+CREATE TABLE `genres` (
+`ulid` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`ulid`)
+) CHARACTER SET latin1;
+CREATE TABLE `book_genres` (
+`ulid` VARCHAR(64),
+`book_ulid` VARCHAR(64),
+`genre_ulid` VARCHAR(64),
+PRIMARY KEY (`ulid`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`ulid` VARCHAR(64),
+`username` VARCHAR(64),
+PRIMARY KEY (`ulid`)
+) CHARACTER SET latin1;
+CREATE TABLE `lists` (
+`ulid` VARCHAR(64),
+`name` VARCHAR(64),
+`user_ulid` VARCHAR(64),
+PRIMARY KEY (`ulid`)
+) CHARACTER SET latin1;
+CREATE TABLE `list_books` (
+`ulid` VARCHAR(64),
+`list_ulid` VARCHAR(64),
+`book_ulid` VARCHAR(64),
+PRIMARY KEY (`ulid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_652154_000001_create_tables_up') AS relationships;
+relationships
+Database: db_652154_000001_create_tables_up
+
+Table Connections:
+------------------
+[Implied]  book_authors.author_ulid -> authors.ulid
+[Implied]  book_authors.book_ulid -> books.ulid
+[Implied]  book_genres.book_ulid -> books.ulid
+[Implied]  book_genres.genre_ulid -> genres.ulid
+[Implied]  books.import_status_ulid -> import_statuses.ulid
+[Implied]  list_books.book_ulid -> books.ulid
+[Implied]  list_books.list_ulid -> lists.ulid
+[Implied]  lists.user_ulid -> users.ulid
+
+DROP DATABASE `db_652154_000001_create_tables_up`;
+UNINSTALL EXTENSION vsql_schematron;

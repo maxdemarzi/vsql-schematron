@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 509396_DbInit
+#
+CREATE DATABASE `db_509396_DbInit`;
+USE `db_509396_DbInit`;
+CREATE TABLE `meal` (
+`ID` INT,
+`NAME` VARCHAR(64),
+`BASE_PORTION_SIZE` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ingredient` (
+`ID` INT,
+`NAME` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `meal_ingredient` (
+`REF_ID` INT,
+`MEAL_ID` INT,
+`INGREDIENT_ID` INT,
+`AMOUNT` DECIMAL(10,2),
+`AMOUNT_UNIT` VARCHAR(64),
+PRIMARY KEY (`REF_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `linked_meal` (
+`REF_ID` INT,
+`MEAL_ID` INT,
+`LINKED_MEAL_ID` INT,
+PRIMARY KEY (`REF_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_509396_DbInit') AS relationships;
+relationships
+Database: db_509396_DbInit
+
+Table Connections:
+------------------
+[Implied]  linked_meal.LINKED_MEAL_ID -> meal.ID
+[Implied]  linked_meal.MEAL_ID -> meal.ID
+[Implied]  meal_ingredient.INGREDIENT_ID -> ingredient.ID
+[Implied]  meal_ingredient.MEAL_ID -> meal.ID
+
+DROP DATABASE `db_509396_DbInit`;
+UNINSTALL EXTENSION vsql_schematron;

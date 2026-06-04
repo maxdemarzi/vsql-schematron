@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 180064_V1_order_tables
+#
+CREATE DATABASE `db_180064_V1_order_tables`;
+USE `db_180064_V1_order_tables`;
+CREATE TABLE `buy_order` (
+`id` INT,
+`quantity` INT,
+`remain` INT,
+`price` DECIMAL(10,2),
+`created` DATETIME,
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sell_order` (
+`id` INT,
+`quantity` INT,
+`remain` INT,
+`price` DECIMAL(10,2),
+`created` DATETIME,
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `execution` (
+`id` INT,
+`buy_order_id` INT,
+`sell_order_id` INT,
+`quantity` INT,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_180064_V1_order_tables') AS relationships;
+relationships
+Database: db_180064_V1_order_tables
+
+Table Connections:
+------------------
+[Implied]  execution.buy_order_id -> buy_order.id
+[Implied]  execution.sell_order_id -> sell_order.id
+
+DROP DATABASE `db_180064_V1_order_tables`;
+UNINSTALL EXTENSION vsql_schematron;

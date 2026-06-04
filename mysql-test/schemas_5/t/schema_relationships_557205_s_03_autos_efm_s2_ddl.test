@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 557205_s_03_autos_efm_s2_ddl
+--echo #
+CREATE DATABASE `db_557205_s_03_autos_efm_s2_ddl`;
+USE `db_557205_s_03_autos_efm_s2_ddl`;
+
+CREATE TABLE `AUTO_F3_EFM_S2` (
+  `AUTO_ID` DECIMAL(10,2),
+  `FOTO` VARCHAR(64),
+  PRIMARY KEY (`AUTO_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CLIENTE_F3_EFM_S2` (
+  `CLIENTE_ID` DECIMAL(10,2),
+  `NOMBRE` VARCHAR(64),
+  `AP_PATERNO` VARCHAR(64),
+  `AP_MATERNO` VARCHAR(64),
+  `NUM_IDENTIFICACION` VARCHAR(64),
+  `EMAIL` VARCHAR(64),
+  PRIMARY KEY (`CLIENTE_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `STATUS_AUTO` (
+  `STATUS_AUTO_ID` DECIMAL(10,2),
+  `CLAVE` VARCHAR(64),
+  `DESCRIPCION` VARCHAR(64),
+  PRIMARY KEY (`STATUS_AUTO_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `historico_status_auto_F2_EFM_S2` (
+  `HISTORICO_STATUS_ID` DECIMAL(10,2),
+  `FECHA_STATUS` DATETIME,
+  `AUTO_ID` DECIMAL(10,2),
+  `STATUS_AUTO_ID` DECIMAL(10,2),
+  PRIMARY KEY (`HISTORICO_STATUS_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MARCA_R_EFM_S2` (
+  `MARCA_ID` DECIMAL(10,2),
+  `CLAVE` VARCHAR(64),
+  `DESCRIPCION` VARCHAR(64),
+  `ACTIVO` DECIMAL(10,2),
+  PRIMARY KEY (`MARCA_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MODELO_R_EFM_S2` (
+  `MODELO_ID` DECIMAL(10,2),
+  `CLAVE` VARCHAR(64),
+  `DESCRIPCION` VARCHAR(64),
+  `ACTIVO` DECIMAL(10,2),
+  `MARCA_ID` DECIMAL(10,2),
+  PRIMARY KEY (`MODELO_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_557205_s_03_autos_efm_s2_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_557205_s_03_autos_efm_s2_ddl') AS relationships;
+DROP DATABASE `db_557205_s_03_autos_efm_s2_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

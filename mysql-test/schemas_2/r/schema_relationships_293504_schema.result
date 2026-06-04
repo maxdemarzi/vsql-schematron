@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 293504_schema
+#
+CREATE DATABASE `db_293504_schema`;
+USE `db_293504_schema`;
+CREATE TABLE `api_user` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`role` INT
+) CHARACTER SET latin1;
+CREATE TABLE `chat` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `icon` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_management` (
+`id` INT,
+`name` VARCHAR(64),
+`password` VARCHAR(64),
+`language` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`id` INT,
+`name` VARCHAR(64),
+`userid` INT,
+`iconid` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction` (
+`id` INT,
+`name` VARCHAR(64),
+`amount` DECIMAL(10,2),
+`ispositive` VARCHAR(64),
+`note` VARCHAR(64),
+`categoryid` INT,
+`userid` INT,
+`chatid` INT,
+`timestamp` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_293504_schema') AS relationships;
+relationships
+Database: db_293504_schema
+
+Table Connections:
+------------------
+[Implied]  category.iconid -> icon.id
+[Implied]  category.userid -> user_management.id
+[Implied]  transaction.categoryid -> category.id
+[Implied]  transaction.chatid -> chat.id
+[Implied]  transaction.userid -> user_management.id
+
+DROP DATABASE `db_293504_schema`;
+UNINSTALL EXTENSION vsql_schematron;

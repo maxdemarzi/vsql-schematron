@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 540209_ddl
+#
+CREATE DATABASE `db_540209_ddl`;
+USE `db_540209_ddl`;
+CREATE TABLE `Bar` (
+`bar_id` INT,
+`created` INT,
+`bar_name` VARCHAR(64),
+`address` VARCHAR(64),
+`phoneNumber` VARCHAR(64),
+`comment` VARCHAR(64),
+`url` VARCHAR(64),
+`star_rating` INT,
+PRIMARY KEY (`bar_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Drink` (
+`drink_id` INT,
+`created` INT,
+`drink_name` VARCHAR(64),
+`path` VARCHAR(64),
+PRIMARY KEY (`drink_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `DrinkRating` (
+`drink_rating_id` INT,
+`created` INT,
+`drink_id` INT,
+`bar_id` INT,
+`star_rating` INT,
+`comment` VARCHAR(64),
+PRIMARY KEY (`drink_rating_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_540209_ddl') AS relationships;
+relationships
+Database: db_540209_ddl
+
+Table Connections:
+------------------
+[Implied]  DrinkRating.bar_id -> Bar.bar_id
+[Implied]  DrinkRating.drink_id -> Drink.drink_id
+
+DROP DATABASE `db_540209_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

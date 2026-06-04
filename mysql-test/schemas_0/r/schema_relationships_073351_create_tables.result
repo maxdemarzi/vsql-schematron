@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 073351_create_tables
+#
+CREATE DATABASE `db_073351_create_tables`;
+USE `db_073351_create_tables`;
+CREATE TABLE `customers` (
+`cust_id` INT,
+`cust_name` VARCHAR(64),
+`cust_address` VARCHAR(64),
+`cust_pincode` INT,
+`cust_phone` VARCHAR(64),
+`cust_email` VARCHAR(64),
+`cust_hash_pwd` VARCHAR(64),
+PRIMARY KEY (`cust_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendors` (
+`vendor_id` INT,
+`vendor_name` VARCHAR(64),
+`vendor_pincode` INT,
+`vendor_gps_lat` DECIMAL(10,2),
+`vendor_gps_long` DECIMAL(10,2),
+`vendor_email` VARCHAR(64),
+`vendor_hash_pwd` VARCHAR(64),
+`vendor_address` VARCHAR(64),
+`vendor_phone` VARCHAR(64),
+PRIMARY KEY (`vendor_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `listings` (
+`list_id` INT,
+`vendor_id` INT,
+`listing_price` INT,
+`listing_desc` VARCHAR(64),
+`listing_name` VARCHAR(64),
+PRIMARY KEY (`list_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `deliveries` (
+`delivery_id` INT,
+`cust_id` INT,
+`vendor_id` INT,
+`timeofdelivery` DATETIME,
+`drop_gps_lat` DECIMAL(10,2),
+`drop_gps_long` DECIMAL(10,2),
+`delivery_status` VARCHAR(64),
+PRIMARY KEY (`delivery_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`order_id` INT,
+`delivery_id` INT,
+`list_id` INT,
+`order_quantity` INT,
+`order_amount` INT,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_073351_create_tables') AS relationships;
+relationships
+Database: db_073351_create_tables
+
+Table Connections:
+------------------
+[Implied]  deliveries.cust_id -> customers.cust_id
+[Implied]  deliveries.vendor_id -> vendors.vendor_id
+[Implied]  listings.vendor_id -> vendors.vendor_id
+[Implied]  orders.delivery_id -> deliveries.delivery_id
+[Implied]  orders.list_id -> listings.list_id
+
+DROP DATABASE `db_073351_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

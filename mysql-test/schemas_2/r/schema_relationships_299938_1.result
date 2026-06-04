@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 299938_1
+#
+CREATE DATABASE `db_299938_1`;
+USE `db_299938_1`;
+CREATE TABLE `difficult` (
+`id` INT,
+`value` VARCHAR(64),
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ingredient` (
+`id` INT,
+`recipe_id` INT,
+`name` VARCHAR(64),
+`type_id` INT,
+`calories` DECIMAL(10,2),
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ingredient_type` (
+`id` INT,
+`value` VARCHAR(64),
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipe` (
+`id` INT,
+`user_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`duration_in_hours` DECIMAL(10,2),
+`difficult_id` INT,
+`category_id` INT,
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subcategory` (
+`id` INT,
+`recipe_id` INT,
+`value` VARCHAR(64),
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_299938_1') AS relationships;
+relationships
+Database: db_299938_1
+
+Table Connections:
+------------------
+[Implied]  ingredient.recipe_id -> recipe.id
+[Implied]  ingredient.type_id -> ingredient_type.id
+[Implied]  recipe.difficult_id -> difficult.id
+[Implied]  recipe.user_id -> user.id
+[Implied]  subcategory.recipe_id -> recipe.id
+
+DROP DATABASE `db_299938_1`;
+UNINSTALL EXTENSION vsql_schematron;

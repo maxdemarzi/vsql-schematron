@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 593661_init
+#
+CREATE DATABASE `db_593661_init`;
+USE `db_593661_init`;
+CREATE TABLE `results` (
+`run` VARCHAR(64),
+`lang` VARCHAR(64),
+`backend` VARCHAR(64),
+`benchmark` VARCHAR(64),
+`trial` INT,
+`t_compile` DECIMAL(10,2),
+`t_run` DECIMAL(10,2),
+`ans` VARCHAR(64),
+`err` VARCHAR(64),
+PRIMARY KEY (`run`, `lang`, `backend`, `benchmark`, `trial`)
+) CHARACTER SET latin1;
+CREATE TABLE `runs` (
+`run` VARCHAR(64),
+`run_timestamp` INT,
+`hostname` VARCHAR(64),
+PRIMARY KEY (`run`)
+) CHARACTER SET latin1;
+CREATE TABLE `commits` (
+`commit_hash` VARCHAR(64),
+`commit_timestamp` INT,
+PRIMARY KEY (`commit_hash`)
+) CHARACTER SET latin1;
+CREATE TABLE `ci_runs` (
+`commit_hash` VARCHAR(64),
+PRIMARY KEY (`commit_hash`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_593661_init') AS relationships;
+relationships
+Database: db_593661_init
+
+Table Connections:
+------------------
+[Implied]  results.run -> runs.run
+
+DROP DATABASE `db_593661_init`;
+UNINSTALL EXTENSION vsql_schematron;

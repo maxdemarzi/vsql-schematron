@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 098950_schema_h2
+#
+CREATE DATABASE `db_098950_schema_h2`;
+USE `db_098950_schema_h2`;
+CREATE TABLE `VOIVODESHIP` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `COUNTY` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+`voivodeship` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `BOROUGH` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+`county` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LOCALITY` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+`borough` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LOCALIZATION` (
+`id` DECIMAL(10,2),
+`address` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`locality` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `MONUMENT` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+`additional_description` VARCHAR(64),
+`creation_date` VARCHAR(64),
+`localization` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `AUTHOR` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PHOTO` (
+`id` DECIMAL(10,2),
+`creation_date` VARCHAR(64),
+`url` VARCHAR(64),
+`author` DECIMAL(10,2),
+`monument` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CATEGORY` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CATEGORY_TO_MONUMENT` (
+`category_id` DECIMAL(10,2),
+`monument_id` DECIMAL(10,2),
+PRIMARY KEY (`category_id`, `monument_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_098950_schema_h2') AS relationships;
+relationships
+Database: db_098950_schema_h2
+
+Table Connections:
+------------------
+[Implied]  BOROUGH.county -> COUNTY.id
+[Implied]  CATEGORY_TO_MONUMENT.category_id -> CATEGORY.id
+[Implied]  CATEGORY_TO_MONUMENT.monument_id -> MONUMENT.id
+[Implied]  COUNTY.voivodeship -> VOIVODESHIP.id
+[Implied]  LOCALITY.borough -> BOROUGH.id
+[Implied]  LOCALIZATION.locality -> LOCALITY.id
+[Implied]  MONUMENT.localization -> LOCALIZATION.id
+[Implied]  PHOTO.author -> AUTHOR.id
+[Implied]  PHOTO.monument -> MONUMENT.id
+
+DROP DATABASE `db_098950_schema_h2`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 541375_db_scripts2
+#
+CREATE DATABASE `db_541375_db_scripts2`;
+USE `db_541375_db_scripts2`;
+CREATE TABLE `package` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendor_role_type` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendor_role` (
+`id` INT,
+`name` VARCHAR(64),
+`vendor_role_type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `interface` (
+`id` INT,
+`name` VARCHAR(64),
+`package_id` INT,
+`proxy_flag` INT,
+`required_flag` INT,
+`vendor_role_type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `proxy_interface` (
+`id` INT,
+`interface_id` INT,
+`proxy_url` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `EpriLog` (
+`id` INT,
+`address` VARCHAR(64),
+`contentType` VARCHAR(64),
+`create_date` DATETIME,
+`data` VARCHAR(64),
+`encoding` VARCHAR(64),
+`faultCode` VARCHAR(64),
+`header` VARCHAR(64),
+`httpMethod` VARCHAR(64),
+`message` VARCHAR(64),
+`messageId` VARCHAR(64),
+`operation` VARCHAR(64),
+`payload` VARCHAR(64),
+`responseCode` VARCHAR(64),
+`resultCode` VARCHAR(64),
+`INTERFACE_ID` INT,
+`stage` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_541375_db_scripts2') AS relationships;
+relationships
+Database: db_541375_db_scripts2
+
+Table Connections:
+------------------
+[Implied]  EpriLog.INTERFACE_ID -> interface.id
+[Implied]  interface.package_id -> package.id
+[Implied]  interface.vendor_role_type_id -> vendor_role_type.id
+[Implied]  proxy_interface.interface_id -> interface.id
+[Implied]  vendor_role.vendor_role_type_id -> vendor_role_type.id
+
+DROP DATABASE `db_541375_db_scripts2`;
+UNINSTALL EXTENSION vsql_schematron;

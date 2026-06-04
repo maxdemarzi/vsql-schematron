@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 070403_EF_CreateTables
+#
+CREATE DATABASE `db_070403_EF_CreateTables`;
+USE `db_070403_EF_CreateTables`;
+CREATE TABLE `Users` (
+`userID` INT,
+`fName` VARCHAR(64),
+`lName` VARCHAR(64),
+`facebookURL` VARCHAR(64),
+`githubURL` VARCHAR(64),
+`twitterURL` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserProfile` (
+`userID` INT,
+`profileImage` VARCHAR(64),
+`profileTitle` VARCHAR(64),
+`profileBio` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `CourseTerms` (
+`courseTermID` INT,
+`courseSeason` VARCHAR(64),
+`courseYear` VARCHAR(64),
+PRIMARY KEY (`courseTermID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Skill` (
+`skillID` INT,
+`skillName` VARCHAR(64),
+PRIMARY KEY (`skillID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Industry` (
+`industryID` INT,
+`industryName` VARCHAR(64),
+PRIMARY KEY (`industryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Course` (
+`courseID` INT,
+`courseName` VARCHAR(64),
+PRIMARY KEY (`courseID`)
+) CHARACTER SET latin1;
+CREATE TABLE `User_Skill` (
+`userID` INT,
+`skillID` INT,
+`yearsExperience` INT
+) CHARACTER SET latin1;
+CREATE TABLE `User_Industry` (
+`userID` INT,
+`industryID` INT,
+`yearsExperience` INT
+) CHARACTER SET latin1;
+CREATE TABLE `User_Course` (
+`userID` INT,
+`courseID` INT,
+`courseTermID` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_070403_EF_CreateTables') AS relationships;
+relationships
+Database: db_070403_EF_CreateTables
+
+Table Connections:
+------------------
+[Implied]  UserProfile.userID -> Users.userID
+[Implied]  User_Course.courseID -> Course.courseID
+[Implied]  User_Course.courseTermID -> CourseTerms.courseTermID
+[Implied]  User_Course.userID -> Users.userID
+[Implied]  User_Industry.industryID -> Industry.industryID
+[Implied]  User_Industry.userID -> Users.userID
+[Implied]  User_Skill.skillID -> Skill.skillID
+[Implied]  User_Skill.userID -> Users.userID
+
+DROP DATABASE `db_070403_EF_CreateTables`;
+UNINSTALL EXTENSION vsql_schematron;

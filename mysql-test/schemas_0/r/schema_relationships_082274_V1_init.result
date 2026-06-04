@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 082274_V1_init
+#
+CREATE DATABASE `db_082274_V1_init`;
+USE `db_082274_V1_init`;
+CREATE TABLE `contracts` (
+`pid` INT,
+`id` VARCHAR(64),
+`correlation_id` VARCHAR(64),
+`status` VARCHAR(64),
+`recipient_ark_address` VARCHAR(64),
+`return_btc_address` VARCHAR(64),
+`deposit_btc_address` VARCHAR(64),
+`deposit_btc_address_private_key` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `transfers` (
+`pid` INT,
+`id` VARCHAR(64),
+`created_at` DATETIME,
+`contract_pid` INT,
+`status` VARCHAR(64),
+`btc_transaction_id` VARCHAR(64),
+`btc_amount` DECIMAL(10,2),
+`btc_to_ark_rate` DECIMAL(10,2),
+`btc_flat_fee` DECIMAL(10,2),
+`btc_percent_fee` DECIMAL(10,2),
+`btc_total_fee` DECIMAL(10,2),
+`ark_send_amount` DECIMAL(10,2),
+`ark_transaction_id` VARCHAR(64),
+`needs_ark_confirmation` VARCHAR(64),
+`ark_confirmation_subscription_id` VARCHAR(64),
+`needs_btc_return` VARCHAR(64),
+`return_btc_transaction_id` VARCHAR(64),
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `service_capacities` (
+`pid` INT,
+`available_amount` DECIMAL(10,2),
+`unsettled_amount` DECIMAL(10,2),
+`total_amount` DECIMAL(10,2),
+`unit` VARCHAR(64),
+`updated_at` DATETIME,
+`created_at` DATETIME,
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_082274_V1_init') AS relationships;
+relationships
+Database: db_082274_V1_init
+
+Table Connections:
+------------------
+[Implied]  transfers.contract_pid -> contracts.pid
+
+DROP DATABASE `db_082274_V1_init`;
+UNINSTALL EXTENSION vsql_schematron;

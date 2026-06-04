@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 264607_create_db
+#
+CREATE DATABASE `db_264607_create_db`;
+USE `db_264607_create_db`;
+CREATE TABLE `pilots` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `jets` (
+`id` INT,
+`pilot_id` INT,
+`age` INT,
+`name` VARCHAR(64),
+`color` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `languages` (
+`id` INT,
+`language` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pilot_languages` (
+`pilot_id` INT,
+`language_id` INT,
+PRIMARY KEY (`pilot_id`, `language_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_264607_create_db') AS relationships;
+relationships
+Database: db_264607_create_db
+
+Table Connections:
+------------------
+[Implied]  jets.pilot_id -> pilots.id
+[Implied]  pilot_languages.language_id -> languages.id
+[Implied]  pilot_languages.pilot_id -> pilots.id
+
+DROP DATABASE `db_264607_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

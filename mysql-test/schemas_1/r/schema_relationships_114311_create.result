@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 114311_create
+#
+CREATE DATABASE `db_114311_create`;
+USE `db_114311_create`;
+CREATE TABLE `pokemons` (
+`id` INT,
+`pokemon_number` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pokemon_categories` (
+`id` INT,
+`pokemon_id` INT,
+`category_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `abilities` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pokemon_abilities` (
+`id` INT,
+`pokemon_id` INT,
+`ability_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `types` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pokemon_types` (
+`id` INT,
+`pokemon_id` INT,
+`type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stats` (
+`id` INT,
+`hp` INT,
+`attack` INT,
+`defense` INT,
+`special_attack` INT,
+`special_defense` INT,
+`speed` INT,
+`pokemon_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `evolutions` (
+`id` INT,
+`pokemon_id` INT,
+`pokemon_evolution_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_114311_create') AS relationships;
+relationships
+Database: db_114311_create
+
+Table Connections:
+------------------
+[Implied]  evolutions.pokemon_evolution_id -> pokemons.id
+[Implied]  evolutions.pokemon_id -> pokemons.id
+[Implied]  pokemon_abilities.ability_id -> abilities.id
+[Implied]  pokemon_abilities.pokemon_id -> pokemons.id
+[Implied]  pokemon_categories.category_id -> categories.id
+[Implied]  pokemon_categories.pokemon_id -> pokemons.id
+[Implied]  pokemon_types.pokemon_id -> pokemons.id
+[Implied]  pokemon_types.type_id -> types.id
+[Implied]  stats.pokemon_id -> pokemons.id
+
+DROP DATABASE `db_114311_create`;
+UNINSTALL EXTENSION vsql_schematron;

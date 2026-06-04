@@ -1,0 +1,117 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 457904_DDL_DCEUMovies
+#
+CREATE DATABASE `db_457904_DDL_DCEUMovies`;
+USE `db_457904_DDL_DCEUMovies`;
+CREATE TABLE `Movie` (
+`MovieID` INT,
+`MovieTitle` VARCHAR(64),
+`USDateReleased` DATETIME,
+`ProducerName` VARCHAR(64),
+`RunningTime` VARCHAR(64),
+`Country` VARCHAR(64),
+`Budget` DECIMAL(10,2),
+`BoxOffice` DECIMAL(10,2),
+PRIMARY KEY (`MovieID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Actor` (
+`ActorID` INT,
+`ActorFirstName` VARCHAR(64),
+`ActorLastName` VARCHAR(64),
+`Gender` VARCHAR(64),
+`Remark` VARCHAR(64),
+PRIMARY KEY (`ActorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `DCEUCharacter` (
+`CharacterID` INT,
+`CharacterName` VARCHAR(64),
+`Ability` VARCHAR(64),
+`Weakness` VARCHAR(64),
+`CharacterType` VARCHAR(64),
+PRIMARY KEY (`CharacterID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Castings` (
+`MovieID` INT,
+`ActorID` INT,
+`CharacterID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Director` (
+`DirectorID` INT,
+`DirectorFirstName` VARCHAR(64),
+`DirectorLastName` VARCHAR(64),
+`Remark` VARCHAR(64),
+PRIMARY KEY (`DirectorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `IsDirectedBy` (
+`DirectorID` INT,
+`MovieID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Genre` (
+`GenreID` INT,
+`GenreTitle` VARCHAR(64),
+PRIMARY KEY (`GenreID`)
+) CHARACTER SET latin1;
+CREATE TABLE `TieInComic` (
+`TieInComicID` INT,
+`MovieID` INT,
+`ComicTitle` VARCHAR(64),
+`NumberOfIssue` INT,
+`GenreID` INT,
+`Writer` VARCHAR(64),
+`Artist` VARCHAR(64),
+`PublicationDate` DATETIME,
+PRIMARY KEY (`TieInComicID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ComicIssue` (
+`IssueID` INT,
+`IssueNumber` INT,
+`IssueTitle` VARCHAR(64),
+`GenreID` INT,
+`Remark` VARCHAR(64),
+PRIMARY KEY (`IssueID`)
+) CHARACTER SET latin1;
+CREATE TABLE `MovieGenre` (
+`MovieID` INT,
+`GenreID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Reviewer` (
+`ReviewerID` INT,
+`ReviewerName` VARCHAR(64),
+PRIMARY KEY (`ReviewerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `MovieRating` (
+`MovieID` INT,
+`ReviewerID` INT,
+`StarRating` INT,
+`ReviewDetails` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `TieInComicRating` (
+`TieInComicID` INT,
+`ReviewerID` INT,
+`StarRating` INT,
+`TieInComicReviewDetails` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_457904_DDL_DCEUMovies') AS relationships;
+relationships
+Database: db_457904_DDL_DCEUMovies
+
+Table Connections:
+------------------
+[Implied]  Castings.ActorID -> Actor.ActorID
+[Implied]  Castings.CharacterID -> DCEUCharacter.CharacterID
+[Implied]  Castings.MovieID -> Movie.MovieID
+[Implied]  ComicIssue.GenreID -> Genre.GenreID
+[Implied]  IsDirectedBy.DirectorID -> Director.DirectorID
+[Implied]  IsDirectedBy.MovieID -> Movie.MovieID
+[Implied]  MovieGenre.GenreID -> Genre.GenreID
+[Implied]  MovieGenre.MovieID -> Movie.MovieID
+[Implied]  MovieRating.MovieID -> Movie.MovieID
+[Implied]  MovieRating.ReviewerID -> Reviewer.ReviewerID
+[Implied]  TieInComic.GenreID -> Genre.GenreID
+[Implied]  TieInComic.MovieID -> Movie.MovieID
+[Implied]  TieInComicRating.ReviewerID -> Reviewer.ReviewerID
+[Implied]  TieInComicRating.TieInComicID -> TieInComic.TieInComicID
+
+DROP DATABASE `db_457904_DDL_DCEUMovies`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 201193_0_instances_users_up
+#
+CREATE DATABASE `db_201193_0_instances_users_up`;
+USE `db_201193_0_instances_users_up`;
+CREATE TABLE `instances` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`url` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`activated_at` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `profiles` (
+`id` VARCHAR(64),
+`user_id` VARCHAR(64),
+`instance_id` VARCHAR(64),
+`role` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tokens` (
+`id` INT,
+`user_id` VARCHAR(64),
+`profile_id` VARCHAR(64),
+`token` VARCHAR(64),
+`created_at` DATETIME,
+`expires_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_201193_0_instances_users_up') AS relationships;
+relationships
+Database: db_201193_0_instances_users_up
+
+Table Connections:
+------------------
+[Implied]  profiles.instance_id -> instances.id
+[Implied]  profiles.user_id -> users.id
+[Implied]  tokens.profile_id -> profiles.id
+[Implied]  tokens.user_id -> users.id
+
+DROP DATABASE `db_201193_0_instances_users_up`;
+UNINSTALL EXTENSION vsql_schematron;

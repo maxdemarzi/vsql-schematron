@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 160016_CreatAllTable
+#
+CREATE DATABASE `db_160016_CreatAllTable`;
+USE `db_160016_CreatAllTable`;
+CREATE TABLE `people` (
+`id` INT,
+`name` VARCHAR(64),
+`picture_id` INT,
+`name_for_sort` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `credit` (
+`id` INT,
+`people_id` INT,
+`credit_as` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `song` (
+`id` INT,
+`name` VARCHAR(64),
+`name_for_sort` VARCHAR(64),
+`file_path` VARCHAR(64),
+`picture_id` INT,
+`album_id` INT,
+`year` INT,
+`rating` INT,
+`bpm` DECIMAL(10,2),
+`sampleRate` INT,
+`bitRate` INT,
+`mpeg_version` VARCHAR(64),
+`mpeg_layer` VARCHAR(64),
+`channels` VARCHAR(64),
+`comments` VARCHAR(64),
+`size` INT,
+`length` INT,
+`date_modified` VARCHAR(64),
+`date_added` VARCHAR(64),
+`track_order` INT,
+`play_count` INT,
+`last_play_time` VARCHAR(64),
+`skip_count` INT,
+`last_skip_time` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `credit_with_song` (
+`credit_id` INT,
+`song_id` INT,
+`order` INT
+) CHARACTER SET latin1;
+CREATE TABLE `picture` (
+`id` INT,
+`path` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `song_has_genre` (
+`song_id` INT,
+`genre_id` INT,
+`order` INT,
+PRIMARY KEY (`song_id`, `genre_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `credit_with_album` (
+`credit_id` INT,
+`album_id` INT,
+`order` INT
+) CHARACTER SET latin1;
+CREATE TABLE `playlist_has_song` (
+`playlist_id` INT,
+`song_id` INT,
+`order` INT,
+PRIMARY KEY (`playlist_id`, `song_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `playlist` (
+`id` INT,
+`name` VARCHAR(64),
+`folder_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `folder` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_160016_CreatAllTable') AS relationships;
+relationships
+Database: db_160016_CreatAllTable
+
+Table Connections:
+------------------
+[Implied]  credit.people_id -> people.id
+[Implied]  credit_with_album.credit_id -> credit.id
+[Implied]  credit_with_song.credit_id -> credit.id
+[Implied]  credit_with_song.song_id -> song.id
+[Implied]  people.picture_id -> picture.id
+[Implied]  playlist.folder_id -> folder.id
+[Implied]  playlist_has_song.playlist_id -> playlist.id
+[Implied]  playlist_has_song.song_id -> song.id
+[Implied]  song.picture_id -> picture.id
+[Implied]  song_has_genre.song_id -> song.id
+
+DROP DATABASE `db_160016_CreatAllTable`;
+UNINSTALL EXTENSION vsql_schematron;

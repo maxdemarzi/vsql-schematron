@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 100569_Exam_input
+#
+CREATE DATABASE `db_100569_Exam_input`;
+USE `db_100569_Exam_input`;
+CREATE TABLE `Cities` (
+`Id` INT,
+`Name` VARCHAR(64),
+`CountryCode` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Hotels` (
+`Id` INT,
+`Name` VARCHAR(64),
+`CityId` INT,
+`EmployeeCount` INT,
+`BaseRate` DECIMAL(10,2),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rooms` (
+`Id` INT,
+`Price` DECIMAL(10,2),
+`Type` VARCHAR(64),
+`Beds` INT,
+`HotelId` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Trips` (
+`Id` INT,
+`RoomId` INT,
+`BookDate` DATETIME,
+`ArrivalDate` DATETIME,
+`ReturnDate` DATETIME,
+`CancelDate` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Accounts` (
+`Id` INT,
+`FirstName` VARCHAR(64),
+`MiddleName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`CityId` INT,
+`BirthDate` DATETIME,
+`Email` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `AccountsTrips` (
+`AccountId` INT,
+`TripId` INT,
+`Luggage` INT,
+PRIMARY KEY (`AccountId`, `TripId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_100569_Exam_input') AS relationships;
+relationships
+Database: db_100569_Exam_input
+
+Table Connections:
+------------------
+[Implied]  Accounts.CityId -> Cities.Id
+[Implied]  AccountsTrips.AccountId -> Accounts.Id
+[Implied]  AccountsTrips.TripId -> Trips.Id
+[Implied]  Hotels.CityId -> Cities.Id
+[Implied]  Rooms.HotelId -> Hotels.Id
+[Implied]  Trips.RoomId -> Rooms.Id
+
+DROP DATABASE `db_100569_Exam_input`;
+UNINSTALL EXTENSION vsql_schematron;

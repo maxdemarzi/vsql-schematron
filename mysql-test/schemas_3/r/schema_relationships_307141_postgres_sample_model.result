@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 307141_postgres_sample_model
+#
+CREATE DATABASE `db_307141_postgres_sample_model`;
+USE `db_307141_postgres_sample_model`;
+CREATE TABLE `Customer` (
+`Id` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`City` VARCHAR(64),
+`Country` VARCHAR(64),
+`Phone` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Order` (
+`Id` INT,
+`OrderDate` DATETIME,
+`OrderNumber` VARCHAR(64),
+`CustomerId` INT,
+`TotalAmount` DECIMAL(10,2),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderItem` (
+`Id` INT,
+`OrderId` INT,
+`ProductId` INT,
+`UnitPrice` DECIMAL(10,2),
+`Quantity` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Product` (
+`Id` INT,
+`ProductName` VARCHAR(64),
+`SupplierId` INT,
+`UnitPrice` DECIMAL(10,2),
+`Package` VARCHAR(64),
+`IsDiscontinued` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Supplier` (
+`Id` INT,
+`CompanyName` VARCHAR(64),
+`ContactName` VARCHAR(64),
+`ContactTitle` VARCHAR(64),
+`City` VARCHAR(64),
+`Country` VARCHAR(64),
+`Phone` VARCHAR(64),
+`Fax` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_307141_postgres_sample_model') AS relationships;
+relationships
+Database: db_307141_postgres_sample_model
+
+Table Connections:
+------------------
+[Implied]  Order.CustomerId -> Customer.Id
+[Implied]  OrderItem.OrderId -> Order.Id
+[Implied]  OrderItem.ProductId -> Product.Id
+[Implied]  Product.SupplierId -> Supplier.Id
+
+DROP DATABASE `db_307141_postgres_sample_model`;
+UNINSTALL EXTENSION vsql_schematron;

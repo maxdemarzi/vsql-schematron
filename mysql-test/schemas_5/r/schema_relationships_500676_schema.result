@@ -1,0 +1,110 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 500676_schema
+#
+CREATE DATABASE `db_500676_schema`;
+USE `db_500676_schema`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`status` DECIMAL(10,2),
+`avatar_url` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_changes` (
+`id` INT,
+`user_id` INT,
+`created_at` DATETIME,
+`column_name` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `interests` (
+`id` INT,
+`name` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_interests` (
+`user_id` INT,
+`interest_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`user_id`, `interest_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_old_interests` (
+`user_id` INT,
+`interest_id` INT,
+`started` DATETIME,
+`ended` DATETIME,
+PRIMARY KEY (`user_id`, `interest_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `conversations` (
+`id` INT,
+`created_at` DATETIME,
+`latlng` INT,
+`message` VARCHAR(64),
+`user_id` INT,
+`interest_id` INT,
+`parent_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `interests_summary` (
+`interest_id` INT,
+`conversations_count` INT,
+`conversations_total_count` INT,
+`followers_count` INT,
+`updated_at` DATETIME,
+PRIMARY KEY (`interest_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `conversations_summary` (
+`conversation_id` INT,
+`replies_count` INT,
+`updated_at` DATETIME,
+PRIMARY KEY (`conversation_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `conversations_users` (
+`user_id` INT,
+`conversation_id` INT,
+PRIMARY KEY (`user_id`, `conversation_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_summary` (
+`user_id` INT,
+`conversations_count` INT,
+`replies_count` INT,
+`interests_count` INT,
+`updated_at` DATETIME,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `applications` (
+`id` INT,
+`name` VARCHAR(64),
+`key` VARCHAR(64),
+`level` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_500676_schema') AS relationships;
+relationships
+Database: db_500676_schema
+
+Table Connections:
+------------------
+[Implied]  conversations.interest_id -> interests.id
+[Implied]  conversations.parent_id -> conversations.id
+[Implied]  conversations.user_id -> users.id
+[Implied]  conversations_summary.conversation_id -> conversations.id
+[Implied]  conversations_users.conversation_id -> conversations.id
+[Implied]  conversations_users.user_id -> users.id
+[Implied]  interests_summary.interest_id -> interests.id
+[Implied]  users_changes.user_id -> users.id
+[Implied]  users_interests.interest_id -> interests.id
+[Implied]  users_interests.user_id -> users.id
+[Implied]  users_old_interests.interest_id -> interests.id
+[Implied]  users_old_interests.user_id -> users.id
+[Implied]  users_summary.user_id -> users.id
+
+DROP DATABASE `db_500676_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 486352_createdb
+#
+CREATE DATABASE `db_486352_createdb`;
+USE `db_486352_createdb`;
+CREATE TABLE `userbase` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`fullname` VARCHAR(64),
+`emailaddress` VARCHAR(64),
+`enabled` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT,
+`name` VARCHAR(64),
+`lft` INT,
+`rgt` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role_map` (
+`user_id` INT,
+`role_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `authorities` (
+`id` INT,
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_authority_map` (
+`role_id` INT,
+`authority_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `settings` (
+`id` INT,
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+`sortindex` INT,
+`enabled` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_setting_map` (
+`user_id` INT,
+`setting_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `tokens` (
+`id` INT,
+`value` VARCHAR(64),
+`type` VARCHAR(64),
+`expiration` DATETIME,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_486352_createdb') AS relationships;
+relationships
+Database: db_486352_createdb
+
+Table Connections:
+------------------
+[Implied]  role_authority_map.authority_id -> authorities.id
+[Implied]  role_authority_map.role_id -> roles.id
+[Implied]  tokens.user_id -> userbase.id
+[Implied]  user_role_map.role_id -> roles.id
+[Implied]  user_role_map.user_id -> userbase.id
+[Implied]  user_setting_map.setting_id -> settings.id
+[Implied]  user_setting_map.user_id -> userbase.id
+
+DROP DATABASE `db_486352_createdb`;
+UNINSTALL EXTENSION vsql_schematron;

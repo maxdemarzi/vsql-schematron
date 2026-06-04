@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 438743_ddl
+#
+CREATE DATABASE `db_438743_ddl`;
+USE `db_438743_ddl`;
+CREATE TABLE `curso` (
+`id` INT,
+`nome` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `empresa` (
+`id` INT,
+`endereco` VARCHAR(64),
+`nome` VARCHAR(64),
+`descricao` VARCHAR(64),
+`produtos` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`tipoConta` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `empregador` (
+`id` INT,
+`nome` VARCHAR(64),
+`empresa_fk` INT,
+`usuario_fk` INT
+) CHARACTER SET latin1;
+CREATE TABLE `estagiario` (
+`id` INT,
+`nome` VARCHAR(64),
+`ano_ingresso` VARCHAR(64),
+`minicurriculo` VARCHAR(64),
+`usuario_fk` INT,
+`curso_fk` INT,
+`porcentagem_conclusao` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `interesse_empresa` (
+`id` INT,
+`estagiario_fk` INT,
+`empresa_fk` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vaga` (
+`id` INT,
+`descricao` VARCHAR(64),
+`semestre` VARCHAR(64),
+`atividades` VARCHAR(64),
+`habilidades` VARCHAR(64),
+`carga_horaria` INT,
+`remuneracao` DECIMAL(10,2),
+`empresa_fk` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_438743_ddl') AS relationships;
+relationships
+Database: db_438743_ddl
+
+Table Connections:
+------------------
+[Implied]  empregador.empresa_fk -> empresa.id
+[Implied]  empregador.usuario_fk -> usuario.id
+[Implied]  estagiario.curso_fk -> curso.id
+[Implied]  estagiario.usuario_fk -> usuario.id
+[Implied]  interesse_empresa.empresa_fk -> empresa.id
+[Implied]  interesse_empresa.estagiario_fk -> estagiario.id
+[Implied]  vaga.empresa_fk -> empresa.id
+
+DROP DATABASE `db_438743_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

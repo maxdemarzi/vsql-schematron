@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 287423_init
+--echo #
+CREATE DATABASE `db_287423_init`;
+USE `db_287423_init`;
+
+CREATE TABLE `ONE_COLUMN_GENERATED_ID_MYSQL` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ONE_COLUMN_NATURAL_ID_MYSQL` (
+  `id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DATA_TYPES_MYSQL` (
+  `id` INT,
+  `bit` VARCHAR(64),
+  `tinyint` INT,
+  `bool` VARCHAR(64),
+  `smallint` INT,
+  `mediumint` INT,
+  `int` INT,
+  `integer` INT,
+  `bigint` INT,
+  `decimal_nine_zero` DECIMAL(10,2),
+  `decimal_ten_zero` DECIMAL(10,2),
+  `decimal_eighteen_zero` DECIMAL(10,2),
+  `decimal_nineteen_zero` DECIMAL(10,2),
+  `decimal_ten_two` DECIMAL(10,2),
+  `float` DECIMAL(10,2),
+  `double` DECIMAL(10,2),
+  `date` DATETIME,
+  `datetime` DATETIME,
+  `timestamp` DATETIME,
+  `time` DATETIME,
+  `year` VARCHAR(64),
+  `blob` VARCHAR(64),
+  `varchar_10` VARCHAR(64),
+  `varchar_binary_10` VARCHAR(64),
+  `tinyblob` VARCHAR(64),
+  `text` VARCHAR(64),
+  `json` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `COLOR_ENUM_MYSQL` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BazMysql` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `color_enum_mysql_id` INT,
+  `created_at` DATETIME,
+  `changed_at` DATETIME,
+  `created_by` VARCHAR(64),
+  `changed_by` VARCHAR(64),
+  `version` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EXCLUDED_TABLE_MYSQL` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_287423_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_287423_init') AS relationships;
+DROP DATABASE `db_287423_init`;
+UNINSTALL EXTENSION vsql_schematron;

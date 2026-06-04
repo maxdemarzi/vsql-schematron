@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 365942_stock
+#
+CREATE DATABASE `db_365942_stock`;
+USE `db_365942_stock`;
+CREATE TABLE `Stock` (
+`stock_id` INT,
+`name` VARCHAR(64),
+`price` DECIMAL(10,2),
+`share` INT,
+PRIMARY KEY (`stock_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Stock_Update` (
+`update_id` INT,
+`stock_id` INT,
+`price_change` DECIMAL(10,2),
+PRIMARY KEY (`update_id`, `stock_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`user_id` VARCHAR(64),
+`balance` DECIMAL(10,2),
+`password` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User_Stock` (
+`user_id` VARCHAR(64),
+`stock_id` INT,
+`amount` INT,
+PRIMARY KEY (`user_id`, `stock_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Watchlist` (
+`user_id` VARCHAR(64),
+`stock_id` INT,
+PRIMARY KEY (`user_id`, `stock_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Group_Info` (
+`group_id` INT,
+`balance` DECIMAL(10,2),
+PRIMARY KEY (`group_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Group_Users` (
+`group_id` INT,
+`user_id` VARCHAR(64),
+PRIMARY KEY (`group_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Group_Stock` (
+`group_id` INT,
+`stock_id` INT,
+`amount` INT,
+PRIMARY KEY (`group_id`, `stock_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Transaction` (
+`transaction_id` INT,
+`amount` INT,
+`date` VARCHAR(64),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`transaction_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User_Transaction` (
+`transaction_id` INT,
+`type` VARCHAR(64),
+`user_id` VARCHAR(64),
+`stock_id` INT,
+PRIMARY KEY (`transaction_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Group_Transaction` (
+`transaction_id` INT,
+`type` VARCHAR(64),
+`group_id` INT,
+`stock_id` INT,
+PRIMARY KEY (`transaction_id`, `group_id`, `stock_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_365942_stock') AS relationships;
+relationships
+Database: db_365942_stock
+
+Table Connections:
+------------------
+[Implied]  Group_Stock.group_id -> Group_Info.group_id
+[Implied]  Group_Stock.stock_id -> Stock.stock_id
+[Implied]  Group_Transaction.group_id -> Group_Info.group_id
+[Implied]  Group_Transaction.stock_id -> Stock.stock_id
+[Implied]  Group_Transaction.transaction_id -> Transaction.transaction_id
+[Implied]  Group_Users.group_id -> Group_Info.group_id
+[Implied]  Group_Users.user_id -> User.user_id
+[Implied]  Stock_Update.stock_id -> Stock.stock_id
+[Implied]  User_Stock.stock_id -> Stock.stock_id
+[Implied]  User_Stock.user_id -> User.user_id
+[Implied]  User_Transaction.stock_id -> Stock.stock_id
+[Implied]  User_Transaction.transaction_id -> Transaction.transaction_id
+[Implied]  User_Transaction.user_id -> User.user_id
+[Implied]  Watchlist.stock_id -> Stock.stock_id
+[Implied]  Watchlist.user_id -> User.user_id
+
+DROP DATABASE `db_365942_stock`;
+UNINSTALL EXTENSION vsql_schematron;

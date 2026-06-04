@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 212571_database
+#
+CREATE DATABASE `db_212571_database`;
+USE `db_212571_database`;
+CREATE TABLE `customers` (
+`id` INT,
+`name` VARCHAR(64),
+`address` VARCHAR(64),
+`cpf` INT,
+`rg` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `agencies` (
+`id` INT,
+`name` VARCHAR(64),
+`manager` VARCHAR(64),
+`services` VARCHAR(64),
+`address_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `addresses` (
+`id` INT,
+`street` VARCHAR(64),
+`neighborhood` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`number` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cars` (
+`id` INT,
+`color` VARCHAR(64),
+`chassi` VARCHAR(64),
+`door` INT,
+`models_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `models` (
+`id` INT,
+`brand` VARCHAR(64),
+`model` VARCHAR(64),
+`manufacturer` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`date` DATETIME,
+`customer_id` INT,
+`agency_id` INT,
+`days` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cars_orders` (
+`cars_id` INT,
+`orders_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_212571_database') AS relationships;
+relationships
+Database: db_212571_database
+
+Table Connections:
+------------------
+[Implied]  agencies.address_id -> addresses.id
+[Implied]  cars.models_id -> models.id
+[Implied]  cars_orders.cars_id -> cars.id
+[Implied]  cars_orders.orders_id -> orders.id
+[Implied]  orders.agency_id -> agencies.id
+[Implied]  orders.customer_id -> customers.id
+
+DROP DATABASE `db_212571_database`;
+UNINSTALL EXTENSION vsql_schematron;

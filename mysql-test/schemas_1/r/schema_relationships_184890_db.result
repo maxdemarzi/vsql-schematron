@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 184890_db
+#
+CREATE DATABASE `db_184890_db`;
+USE `db_184890_db`;
+CREATE TABLE `Client` (
+`Id` INT,
+`Name` VARCHAR(64),
+`LastName` VARCHAR(64),
+`Phone` VARCHAR(64),
+`Address` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Invoice` (
+`Id` INT,
+`TotalPrice` DECIMAL(10,2),
+`Requisites` DECIMAL(10,2),
+`IsPaid` VARCHAR(64),
+`FinalOrderId` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Item` (
+`Id` INT,
+`Name` VARCHAR(64),
+`Image` VARCHAR(64),
+`Description` VARCHAR(64),
+`Price` DECIMAL(10,2),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Manager` (
+`Id` INT,
+`Name` VARCHAR(64),
+`LastName` VARCHAR(64),
+`Phone` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `FinalOrder` (
+`Id` INT,
+`Address` VARCHAR(64),
+`Status` VARCHAR(64),
+`HasInvoice` VARCHAR(64),
+`ClientId` INT,
+`ManagerId` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderLine` (
+`Quantity` DECIMAL(10,2),
+`FinalOrderId` INT,
+`ItemId` INT,
+PRIMARY KEY (`FinalOrderId`, `ItemId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_184890_db') AS relationships;
+relationships
+Database: db_184890_db
+
+Table Connections:
+------------------
+[Implied]  FinalOrder.ClientId -> Client.Id
+[Implied]  FinalOrder.ManagerId -> Manager.Id
+[Implied]  Invoice.FinalOrderId -> FinalOrder.Id
+[Implied]  OrderLine.FinalOrderId -> FinalOrder.Id
+[Implied]  OrderLine.ItemId -> Item.Id
+
+DROP DATABASE `db_184890_db`;
+UNINSTALL EXTENSION vsql_schematron;

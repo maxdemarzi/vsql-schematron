@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 329371_simple_library_create
+#
+CREATE DATABASE `db_329371_simple_library_create`;
+USE `db_329371_simple_library_create`;
+CREATE TABLE `libraries` (
+`library_id` INT,
+`name` VARCHAR(64),
+`address` VARCHAR(64),
+PRIMARY KEY (`library_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `readers` (
+`reader_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`patronymic` VARCHAR(64),
+PRIMARY KEY (`reader_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books` (
+`book_id` INT,
+`library_id` INT,
+`reader_id` INT,
+`title` VARCHAR(64),
+`author` VARCHAR(64),
+`year` VARCHAR(64),
+PRIMARY KEY (`book_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reader_library` (
+`link_id` INT,
+`reader_id` INT,
+`library_id` INT,
+PRIMARY KEY (`link_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_329371_simple_library_create') AS relationships;
+relationships
+Database: db_329371_simple_library_create
+
+Table Connections:
+------------------
+[Implied]  books.library_id -> libraries.library_id
+[Implied]  books.reader_id -> readers.reader_id
+[Implied]  reader_library.library_id -> libraries.library_id
+[Implied]  reader_library.reader_id -> readers.reader_id
+
+DROP DATABASE `db_329371_simple_library_create`;
+UNINSTALL EXTENSION vsql_schematron;

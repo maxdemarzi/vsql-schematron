@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 514702_baseschema
+#
+CREATE DATABASE `db_514702_baseschema`;
+USE `db_514702_baseschema`;
+CREATE TABLE `db_patch` (
+`id` INT,
+`apply_datetime` INT,
+`patch_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `client` (
+`uuid` VARCHAR(64),
+`create_datetime` INT,
+`last_datetime` INT,
+`user_agent` VARCHAR(64),
+`user_os_name` VARCHAR(64),
+`user_agent_type` VARCHAR(64),
+`user_agent_family` VARCHAR(64),
+`user_agent_name` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `game` (
+`uuid` VARCHAR(64),
+`host_uuid` VARCHAR(64),
+`invite_code` VARCHAR(64),
+`state` VARCHAR(64),
+`maxPlayers` INT,
+`mapId` INT,
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `game_player` (
+`id` INT,
+`game_uuid` VARCHAR(64),
+`client_uuid` VARCHAR(64),
+`player_idx` INT,
+`name` VARCHAR(64),
+`colour_r` INT,
+`colour_g` INT,
+`colour_b` INT,
+`population` INT,
+`wood` INT,
+`coin` INT,
+`food` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_514702_baseschema') AS relationships;
+relationships
+Database: db_514702_baseschema
+
+Table Connections:
+------------------
+[Implied]  game.host_uuid -> client.uuid
+[Implied]  game_player.client_uuid -> client.uuid
+[Implied]  game_player.game_uuid -> game.uuid
+
+DROP DATABASE `db_514702_baseschema`;
+UNINSTALL EXTENSION vsql_schematron;

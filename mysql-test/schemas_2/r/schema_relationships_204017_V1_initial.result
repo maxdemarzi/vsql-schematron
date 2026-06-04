@@ -1,0 +1,102 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 204017_V1_initial
+#
+CREATE DATABASE `db_204017_V1_initial`;
+USE `db_204017_V1_initial`;
+CREATE TABLE `collections` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`virtual` VARCHAR(64),
+`deleted` VARCHAR(64),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `collections_source_collections_assn` (
+`collection_id` INT,
+`source_collection_id` INT,
+`index` INT,
+`source_type` VARCHAR(64),
+PRIMARY KEY (`collection_id`, `source_collection_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`virtual` VARCHAR(64),
+`deleted` VARCHAR(64),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items_collections_assn` (
+`item_id` INT,
+`collection_id` INT,
+`index` INT,
+`assn_type` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `items_item_types_assn` (
+`item_id` INT,
+`item_type_id` INT,
+`index` INT,
+PRIMARY KEY (`item_id`, `item_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item_properties` (
+`item_id` INT,
+`name` VARCHAR(64),
+`version` INT,
+`created` DATETIME,
+`modified` DATETIME,
+`property_type` VARCHAR(64),
+`string_value` VARCHAR(64),
+`bigint_value` INT,
+`double_value` DECIMAL(10,2),
+`bool_value` VARCHAR(64),
+`clob_value` VARCHAR(64),
+`blob_value` VARCHAR(64),
+`uuid_value` VARCHAR(64),
+`array_value` VARCHAR(64),
+`array_type` VARCHAR(64),
+`json_value` VARCHAR(64),
+`timestamp_value` DATETIME,
+PRIMARY KEY (`item_id`, `name`, `version`)
+) CHARACTER SET latin1;
+CREATE TABLE `collection_properties` (
+`collection_id` INT,
+`name` VARCHAR(64),
+`version` INT,
+`created` DATETIME,
+`modified` DATETIME,
+`property_type` VARCHAR(64),
+`string_value` VARCHAR(64),
+`bigint_value` INT,
+`double_value` DECIMAL(10,2),
+`bool_value` VARCHAR(64),
+`clob_value` VARCHAR(64),
+`blob_value` VARCHAR(64),
+`uuid_value` VARCHAR(64),
+`array_value` VARCHAR(64),
+`array_type` VARCHAR(64),
+`json_value` VARCHAR(64),
+`timestamp_value` DATETIME,
+PRIMARY KEY (`collection_id`, `name`, `version`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_204017_V1_initial') AS relationships;
+relationships
+Database: db_204017_V1_initial
+
+Table Connections:
+------------------
+[Implied]  collection_properties.collection_id -> collections.id
+[Implied]  collections_source_collections_assn.collection_id -> collections.id
+[Implied]  collections_source_collections_assn.source_collection_id -> collections.id
+[Implied]  item_properties.item_id -> items.id
+[Implied]  items_collections_assn.collection_id -> collections.id
+[Implied]  items_collections_assn.item_id -> items.id
+[Implied]  items_item_types_assn.item_id -> items.id
+[Implied]  items_item_types_assn.item_type_id -> items.id
+
+DROP DATABASE `db_204017_V1_initial`;
+UNINSTALL EXTENSION vsql_schematron;

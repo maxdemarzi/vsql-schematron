@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 007923_books
+#
+CREATE DATABASE `db_007923_books`;
+USE `db_007923_books`;
+CREATE TABLE `Authors` (
+`AuthorID` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`AuthorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Publishers` (
+`PublisherID` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`PublisherID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Editors` (
+`EditorID` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`EditorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Genres` (
+`GenreID` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`GenreID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Books` (
+`BookID` INT,
+`AuthorID` INT,
+`PublisherID` INT,
+`EditorID` INT,
+`GenreID` INT,
+`Title` VARCHAR(64),
+`AuthRoyalties` DECIMAL(10,2),
+`PubRoyalties` DECIMAL(10,2),
+`Year` INT,
+`Price` DECIMAL(10,2),
+PRIMARY KEY (`BookID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customers` (
+`CustomerID` INT,
+`Name` VARCHAR(64),
+`Location` VARCHAR(64),
+PRIMARY KEY (`CustomerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ORDERS` (
+`OrderID` INT,
+`CustomerID` INT,
+`BookID` INT,
+PRIMARY KEY (`OrderID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_007923_books') AS relationships;
+relationships
+Database: db_007923_books
+
+Table Connections:
+------------------
+[Implied]  Books.AuthorID -> Authors.AuthorID
+[Implied]  Books.EditorID -> Editors.EditorID
+[Implied]  Books.GenreID -> Genres.GenreID
+[Implied]  Books.PublisherID -> Publishers.PublisherID
+[Implied]  ORDERS.BookID -> Books.BookID
+[Implied]  ORDERS.CustomerID -> Customers.CustomerID
+
+DROP DATABASE `db_007923_books`;
+UNINSTALL EXTENSION vsql_schematron;

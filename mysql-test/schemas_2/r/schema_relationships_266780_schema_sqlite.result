@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 266780_schema_sqlite
+#
+CREATE DATABASE `db_266780_schema_sqlite`;
+USE `db_266780_schema_sqlite`;
+CREATE TABLE `source` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sourcefeat` (
+`id` INT,
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chunk` (
+`id` INT,
+`text` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chunkfeat` (
+`id` INT,
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `batch_properties` (
+`id` INT,
+`name` VARCHAR(64),
+`properties` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `script_properties` (
+`id` INT,
+`name` VARCHAR(64),
+`properties` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chunkfeatcat` (
+`name` VARCHAR(64),
+`chunkfeat_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `source_chunk` (
+`source_id` INT,
+`chunk_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `source_sourcefeat` (
+`source_id` INT,
+`sourcefeat_id` INT,
+`freq` INT
+) CHARACTER SET latin1;
+CREATE TABLE `chunk_chunkfeat` (
+`chunk_id` INT,
+`chunkfeat_id` INT,
+`freq` INT
+) CHARACTER SET latin1;
+CREATE TABLE `batch` (
+`chunk_id` INT,
+`name` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `script` (
+`chunk_id` INT,
+`name` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `wordfreq` (
+`id` INT,
+`chunkfeat_id` INT,
+`freq` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_266780_schema_sqlite') AS relationships;
+relationships
+Database: db_266780_schema_sqlite
+
+Table Connections:
+------------------
+[Implied]  batch.chunk_id -> chunk.id
+[Implied]  chunk_chunkfeat.chunk_id -> chunk.id
+[Implied]  chunk_chunkfeat.chunkfeat_id -> chunkfeat.id
+[Implied]  chunkfeatcat.chunkfeat_id -> chunkfeat.id
+[Implied]  script.chunk_id -> chunk.id
+[Implied]  source_chunk.chunk_id -> chunk.id
+[Implied]  source_chunk.source_id -> source.id
+[Implied]  source_sourcefeat.source_id -> source.id
+[Implied]  source_sourcefeat.sourcefeat_id -> sourcefeat.id
+[Implied]  wordfreq.chunkfeat_id -> chunkfeat.id
+
+DROP DATABASE `db_266780_schema_sqlite`;
+UNINSTALL EXTENSION vsql_schematron;

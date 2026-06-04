@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 102589_MYSQL_create_database_script
+#
+CREATE DATABASE `db_102589_MYSQL_create_database_script`;
+USE `db_102589_MYSQL_create_database_script`;
+CREATE TABLE `Customers` (
+`CustomerID` INT,
+`FirstName` VARCHAR(64),
+`MiddleName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`Address` VARCHAR(64),
+`Email` VARCHAR(64),
+`Phone` VARCHAR(64),
+`Notes` VARCHAR(64),
+`BalanceNotes` VARCHAR(64),
+PRIMARY KEY (`CustomerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderItems` (
+`OrderItemID` INT,
+`OrderID` INT,
+`ProductID` INT,
+`Quantity` INT,
+`UnitPrice` DECIMAL(10,2),
+`Discount` DECIMAL(10,2),
+`Notes` VARCHAR(64),
+PRIMARY KEY (`OrderItemID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Orders` (
+`OrderID` INT,
+`CustomerID` INT,
+`OrderNumber` VARCHAR(64),
+`OrderDate` DATETIME,
+`ShipmentDate` DATETIME,
+`OrderStatus` VARCHAR(64),
+`Notes` VARCHAR(64),
+PRIMARY KEY (`OrderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Payments` (
+`PaymentID` INT,
+`OrderID` INT,
+`PaymentDate` DATETIME,
+`PaymentType` VARCHAR(64),
+`PaymentRef` VARCHAR(64),
+`Amount` DECIMAL(10,2),
+`Notes` VARCHAR(64),
+`BalanceNotes` VARCHAR(64),
+PRIMARY KEY (`PaymentID`, `OrderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProductCategories` (
+`ProductCategoryID` INT,
+`ProductCategoryName` VARCHAR(64),
+`Notes` VARCHAR(64),
+PRIMARY KEY (`ProductCategoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Products` (
+`ProductID` INT,
+`ProductCategoryID` INT,
+`SupplierID` INT,
+`ProductName` VARCHAR(64),
+`ProductImage` VARCHAR(64),
+`NetRetailPrice` DECIMAL(10,2),
+`AvailableQuantity` INT,
+`WholesalePrice` DECIMAL(10,2),
+`UnitKGWeight` DECIMAL(10,2),
+`Notes` VARCHAR(64),
+PRIMARY KEY (`ProductID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Suppliers` (
+`SupplierID` INT,
+`SupplierName` VARCHAR(64),
+`Country` VARCHAR(64),
+`Address` VARCHAR(64),
+`PhoneNumber` VARCHAR(64),
+`ContactPerson` VARCHAR(64),
+`Notes` VARCHAR(64),
+PRIMARY KEY (`SupplierID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_102589_MYSQL_create_database_script') AS relationships;
+relationships
+Database: db_102589_MYSQL_create_database_script
+
+Table Connections:
+------------------
+[Implied]  OrderItems.OrderID -> Orders.OrderID
+[Implied]  OrderItems.ProductID -> Products.ProductID
+[Implied]  Orders.CustomerID -> Customers.CustomerID
+[Implied]  Payments.OrderID -> Orders.OrderID
+[Implied]  Products.ProductCategoryID -> ProductCategories.ProductCategoryID
+[Implied]  Products.SupplierID -> Suppliers.SupplierID
+
+DROP DATABASE `db_102589_MYSQL_create_database_script`;
+UNINSTALL EXTENSION vsql_schematron;

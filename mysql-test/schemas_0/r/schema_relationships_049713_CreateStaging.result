@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 049713_CreateStaging
+#
+CREATE DATABASE `db_049713_CreateStaging`;
+USE `db_049713_CreateStaging`;
+CREATE TABLE `CONFIGURATION` (
+`configurationid` INT,
+`configurationname` VARCHAR(64),
+`configurationvalue` VARCHAR(64),
+`frequency` VARCHAR(64),
+`starttime` VARCHAR(64),
+`primarycontact` VARCHAR(64),
+`primaryemail` VARCHAR(64),
+`primaryorgname` VARCHAR(64),
+`primaryphone` VARCHAR(64),
+`secondarycontact` VARCHAR(64),
+`secondaryemail` VARCHAR(64),
+`secondaryorgname` VARCHAR(64),
+`secondaryphone` VARCHAR(64),
+`recordstatus` VARCHAR(64),
+`updatedby` VARCHAR(64),
+`inserteddate` DATETIME,
+`lastmodified` DATETIME,
+PRIMARY KEY (`configurationid`)
+) CHARACTER SET latin1;
+CREATE TABLE `IMPORT` (
+`importid` INT,
+`importname` VARCHAR(64),
+`importstartdate` DATETIME,
+`importenddate` DATETIME,
+`recordstatus` VARCHAR(64),
+`updatedby` VARCHAR(64),
+`inserteddate` DATETIME,
+`lastmodified` DATETIME,
+PRIMARY KEY (`importid`)
+) CHARACTER SET latin1;
+CREATE TABLE `IMPORTDETAIL` (
+`importdetailid` INT,
+`importid` INT,
+`failedrecords` INT,
+`importbegintime` DATETIME,
+`importendtime` DATETIME,
+`successrecords` INT,
+`totalrecords` INT,
+`recordstatus` VARCHAR(64),
+`updatedby` VARCHAR(64),
+`inserteddate` DATETIME,
+`lastmodified` DATETIME,
+PRIMARY KEY (`importdetailid`)
+) CHARACTER SET latin1;
+CREATE TABLE `SYNCRECORD` (
+`syncrecordid` INT,
+`importdetailid` INT,
+`synckey` VARCHAR(64),
+`recordstatus` VARCHAR(64),
+`updatedby` VARCHAR(64),
+`inserteddate` DATETIME,
+`lastmodified` DATETIME,
+PRIMARY KEY (`syncrecordid`)
+) CHARACTER SET latin1;
+CREATE TABLE `SYNCRECORDDETAIL` (
+`syncrecorddetailid` INT,
+`syncrecordid` INT,
+`payload` VARCHAR(64),
+`learner` VARCHAR(64),
+`recordstatus` VARCHAR(64),
+`updatedby` VARCHAR(64),
+`inserteddate` DATETIME,
+`lastmodified` DATETIME,
+PRIMARY KEY (`syncrecorddetailid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_049713_CreateStaging') AS relationships;
+relationships
+Database: db_049713_CreateStaging
+
+Table Connections:
+------------------
+[Implied]  IMPORTDETAIL.importid -> IMPORT.importid
+[Implied]  SYNCRECORD.importdetailid -> IMPORTDETAIL.importdetailid
+[Implied]  SYNCRECORDDETAIL.syncrecordid -> SYNCRECORD.syncrecordid
+
+DROP DATABASE `db_049713_CreateStaging`;
+UNINSTALL EXTENSION vsql_schematron;

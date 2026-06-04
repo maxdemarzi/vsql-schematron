@@ -1,0 +1,117 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 414186_V001_create_tables
+--echo #
+CREATE DATABASE `db_414186_V001_create_tables`;
+USE `db_414186_V001_create_tables`;
+
+CREATE TABLE `state` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `category` (
+  `id` INT,
+  `type` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `city` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `state_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `restaurant` (
+  `id` INT,
+  `address` VARCHAR(64),
+  `address_complement` VARCHAR(64),
+  `address_number` VARCHAR(64),
+  `address_province` VARCHAR(64),
+  `address_zip_code` VARCHAR(64),
+  `created` DATETIME,
+  `name` VARCHAR(64),
+  `delivery_fee` DECIMAL(10,2),
+  `updated` DATETIME,
+  `address_city_id` INT,
+  `category_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payment_method` (
+  `id` INT,
+  `method` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permission` (
+  `id` INT,
+  `role` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product` (
+  `id` INT,
+  `active` INT,
+  `description` VARCHAR(64),
+  `name` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `restaurant_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `profile` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `profile_permission` (
+  `profile_id` INT,
+  `permission_id` INT,
+  PRIMARY KEY (`profile_id`, `permission_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `restaurant_payment_method` (
+  `restaurant_id` INT,
+  `payment_method_id` INT,
+  PRIMARY KEY (`restaurant_id`, `payment_method_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `created` DATETIME,
+  `email` VARCHAR(64),
+  `name` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_profile` (
+  `user_id` INT,
+  `profile_id` INT,
+  PRIMARY KEY (`user_id`, `profile_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_414186_V001_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_414186_V001_create_tables') AS relationships;
+DROP DATABASE `db_414186_V001_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

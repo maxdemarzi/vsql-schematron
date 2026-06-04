@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 411743_complete_v2
+#
+CREATE DATABASE `db_411743_complete_v2`;
+USE `db_411743_complete_v2`;
+CREATE TABLE `database_version` (
+`version` INT
+) CHARACTER SET latin1;
+CREATE TABLE `house` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `device` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`houseid` VARCHAR(64),
+`notify` INT,
+`muted_until` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sensor` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`deviceid` VARCHAR(64),
+`type` VARCHAR(64),
+`label` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sensor_data` (
+`id` VARCHAR(64),
+`dt` DATETIME,
+`value` DECIMAL(10,2)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_411743_complete_v2') AS relationships;
+relationships
+Database: db_411743_complete_v2
+
+Table Connections:
+------------------
+[Implied]  device.houseid -> house.id
+[Implied]  sensor.deviceid -> device.id
+
+DROP DATABASE `db_411743_complete_v2`;
+UNINSTALL EXTENSION vsql_schematron;
