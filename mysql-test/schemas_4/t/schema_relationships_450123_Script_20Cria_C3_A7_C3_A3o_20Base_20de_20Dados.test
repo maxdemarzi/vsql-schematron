@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 450123_Script_20Cria_C3_A7_C3_A3o_20Base_20de_20Dados
+--echo #
+CREATE DATABASE `db_450123_Script_20Cria_C3_A7_C3_A3o_20Base_20de_20Dados`;
+USE `db_450123_Script_20Cria_C3_A7_C3_A3o_20Base_20de_20Dados`;
+
+CREATE TABLE `Armazem_Artigo` (
+  `cod_armazem` DECIMAL(10,2),
+  `cod_artigo` DECIMAL(10,2),
+  `quantidade_stock_minimo` DECIMAL(10,2),
+  `quantidade_stock` DECIMAL(10,2),
+  PRIMARY KEY (`cod_armazem`, `cod_artigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CodigoPostal` (
+  `cod_codigo_postal` VARCHAR(255),
+  `localidade` VARCHAR(255),
+  PRIMARY KEY (`cod_codigo_postal`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FielArmazem` (
+  `cod_empregado` DECIMAL(10,2),
+  PRIMARY KEY (`cod_empregado`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Motorista` (
+  `cod_empregado` DECIMAL(10,2),
+  PRIMARY KEY (`cod_empregado`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `NotaEncomenda_Zona_Artigo` (
+  `cod_nota_encomenda` DECIMAL(10,2),
+  `cod_artigo` DECIMAL(10,2),
+  `cod_zona` DECIMAL(10,2),
+  `quantidade_encomenda` DECIMAL(10,2),
+  `iva` DECIMAL(10,2),
+  `desconto` DECIMAL(10,2),
+  PRIMARY KEY (`cod_nota_encomenda`, `cod_artigo`, `cod_zona`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `NotificacaoFimServico` (
+  `cod_viagem` DECIMAL(10,2),
+  `cod_incidente` DECIMAL(10,2),
+  PRIMARY KEY (`cod_viagem`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PrecoArtigo` (
+  `cod_artigo` DECIMAL(10,2),
+  `data_inicio` DATETIME,
+  `data_fim` DATETIME,
+  `preco_venda` DECIMAL(10,2),
+  `preco_compra` DECIMAL(10,2),
+  PRIMARY KEY (`cod_artigo`, `data_inicio`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Veiculo` (
+  `matricula` VARCHAR(255),
+  `cod_modelo` DECIMAL(10,2),
+  `numero_apolice_seguro` VARCHAR(255),
+  `numero_kilometros` DECIMAL(10,2),
+  `disponibilidade` VARCHAR(255),
+  PRIMARY KEY (`matricula`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Vendedor` (
+  `cod_empregado` DECIMAL(10,2),
+  PRIMARY KEY (`cod_empregado`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Zona_Artigo` (
+  `cod_artigo` DECIMAL(10,2),
+  `cod_zona` DECIMAL(10,2),
+  `quantidade` DECIMAL(10,2),
+  PRIMARY KEY (`cod_artigo`, `cod_zona`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_450123_Script_20Cria_C3_A7_C3_A3o_20Base_20de_20Dados') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_450123_Script_20Cria_C3_A7_C3_A3o_20Base_20de_20Dados') AS relationships;
+DROP DATABASE `db_450123_Script_20Cria_C3_A7_C3_A3o_20Base_20de_20Dados`;
+UNINSTALL EXTENSION vsql_schematron;

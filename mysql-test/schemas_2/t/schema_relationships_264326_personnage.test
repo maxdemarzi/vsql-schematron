@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 264326_personnage
+--echo #
+CREATE DATABASE `db_264326_personnage`;
+USE `db_264326_personnage`;
+
+CREATE TABLE `personnage` (
+  `id_personnage` INT,
+  `id_utilisateur` INT,
+  `id_carriere` INT,
+  `deleted` INT,
+  PRIMARY KEY (`id_personnage`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `personnage_profil` (
+  `id_personnage_profil` INT,
+  `id_personnage` INT,
+  `capacite_combat` INT,
+  `capacite_tir` INT,
+  `force` INT,
+  `endurance` INT,
+  `agilite` INT,
+  `intelligence` INT,
+  `force_mentale` INT,
+  `sociabilite` INT,
+  `attaques` INT,
+  `blessures` INT,
+  `mouvement` INT,
+  `magie` INT,
+  `fortune` INT,
+  `destin` INT,
+  `deleted` INT,
+  PRIMARY KEY (`id_personnage_profil`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `personnage_information` (
+  `id_personnage_information` INT,
+  `id_personnage` INT,
+  `nom` VARCHAR(255),
+  `prenom` VARCHAR(255),
+  `id_pays` INT,
+  `age` INT,
+  `sexe` VARCHAR(255),
+  `couleur_yeux` VARCHAR(255),
+  `couleur_pilosite` VARCHAR(255),
+  `masse` INT,
+  `membre_famille` INT,
+  `statut_marital` VARCHAR(255),
+  `id_signe_astral` INT,
+  `id_lieu_naissance` INT,
+  `id_religion` INT,
+  `id_carriere` INT,
+  `id_race` INT,
+  `id_race_2` INT,
+  PRIMARY KEY (`id_personnage_information`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `personnage_equipement` (
+  `id_personnage_equipement` INT,
+  `id_personnage` INT,
+  PRIMARY KEY (`id_personnage_equipement`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_264326_personnage') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_264326_personnage') AS relationships;
+DROP DATABASE `db_264326_personnage`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 540209_ddl
+--echo #
+CREATE DATABASE `db_540209_ddl`;
+USE `db_540209_ddl`;
+
+CREATE TABLE `Bar` (
+  `bar_id` INT,
+  `created` INT,
+  `bar_name` VARCHAR(255),
+  `address` VARCHAR(255),
+  `phoneNumber` VARCHAR(255),
+  `comment` VARCHAR(255),
+  `url` VARCHAR(255),
+  `star_rating` INT,
+  PRIMARY KEY (`bar_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Drink` (
+  `drink_id` INT,
+  `created` INT,
+  `drink_name` VARCHAR(255),
+  `path` VARCHAR(255),
+  PRIMARY KEY (`drink_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DrinkRating` (
+  `drink_rating_id` INT,
+  `created` INT,
+  `drink_id` INT,
+  `bar_id` INT,
+  `star_rating` INT,
+  `comment` VARCHAR(255),
+  PRIMARY KEY (`drink_rating_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_540209_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_540209_ddl') AS relationships;
+DROP DATABASE `db_540209_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

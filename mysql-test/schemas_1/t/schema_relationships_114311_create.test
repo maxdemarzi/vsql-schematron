@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 114311_create
+--echo #
+CREATE DATABASE `db_114311_create`;
+USE `db_114311_create`;
+
+CREATE TABLE `pokemons` (
+  `id` INT,
+  `pokemon_number` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pokemon_categories` (
+  `id` INT,
+  `pokemon_id` INT,
+  `category_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `abilities` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pokemon_abilities` (
+  `id` INT,
+  `pokemon_id` INT,
+  `ability_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `types` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pokemon_types` (
+  `id` INT,
+  `pokemon_id` INT,
+  `type_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stats` (
+  `id` INT,
+  `hp` INT,
+  `attack` INT,
+  `defense` INT,
+  `special_attack` INT,
+  `special_defense` INT,
+  `speed` INT,
+  `pokemon_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `evolutions` (
+  `id` INT,
+  `pokemon_id` INT,
+  `pokemon_evolution_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_114311_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_114311_create') AS relationships;
+DROP DATABASE `db_114311_create`;
+UNINSTALL EXTENSION vsql_schematron;

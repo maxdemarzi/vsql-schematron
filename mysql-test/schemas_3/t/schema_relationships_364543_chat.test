@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 364543_chat
+--echo #
+CREATE DATABASE `db_364543_chat`;
+USE `db_364543_chat`;
+
+CREATE TABLE `usuario` (
+  `codigo` INT,
+  `nick` VARCHAR(255),
+  `email` VARCHAR(255),
+  `senha` VARCHAR(255),
+  `avatar` VARCHAR(255),
+  `musica` VARCHAR(255),
+  PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reputacao` (
+  `id_usuario` INT,
+  `pontuacao` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `sala` (
+  `codigo` INT,
+  `capacidade` INT,
+  `usuarios_online` INT,
+  `tema` VARCHAR(255),
+  `descricao` VARCHAR(255),
+  PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mensagem` (
+  `codigo` INT,
+  `id_usuario` INT,
+  `id_sala` INT,
+  `data_envio` DATETIME,
+  `texto` VARCHAR(255),
+  PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_364543_chat') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_364543_chat') AS relationships;
+DROP DATABASE `db_364543_chat`;
+UNINSTALL EXTENSION vsql_schematron;

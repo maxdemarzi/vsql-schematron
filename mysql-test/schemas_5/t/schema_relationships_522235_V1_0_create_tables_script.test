@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 522235_V1_0_create_tables_script
+--echo #
+CREATE DATABASE `db_522235_V1_0_create_tables_script`;
+USE `db_522235_V1_0_create_tables_script`;
+
+CREATE TABLE `POST` (
+  `ID` INT,
+  `TITLE` VARCHAR(255),
+  `CONTENT` VARCHAR(255),
+  `created_on` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `POST_COMMENT` (
+  `id` INT,
+  `review` VARCHAR(255),
+  `created_on` DATETIME,
+  `POST_ID` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `post_details` (
+  `created_by` VARCHAR(255),
+  `created_on` DATETIME,
+  `POST_ID` INT,
+  PRIMARY KEY (`POST_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tag` (
+  `ID` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `post_tag` (
+  `POST_ID` INT,
+  `TAG_ID` INT,
+  `created_on` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_522235_V1_0_create_tables_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_522235_V1_0_create_tables_script') AS relationships;
+DROP DATABASE `db_522235_V1_0_create_tables_script`;
+UNINSTALL EXTENSION vsql_schematron;

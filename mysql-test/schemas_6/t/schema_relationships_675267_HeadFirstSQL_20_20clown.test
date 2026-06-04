@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 675267_HeadFirstSQL_20_20clown
+--echo #
+CREATE DATABASE `db_675267_HeadFirstSQL_20_20clown`;
+USE `db_675267_HeadFirstSQL_20_20clown`;
+
+CREATE TABLE `clown_info` (
+  `name` VARCHAR(255),
+  `last_seen` VARCHAR(255),
+  `appearance` VARCHAR(255),
+  `activities` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activities` (
+  `activity_id` INT,
+  `activity` VARCHAR(255),
+  PRIMARY KEY (`activity_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `info_activities` (
+  `clown_idx` INT,
+  `activity_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `info_location` (
+  `clown_idx` INT,
+  `location_id` INT,
+  `time_info` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `location` (
+  `location_id` INT,
+  `location` VARCHAR(255),
+  PRIMARY KEY (`location_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `info_sex` (
+  `clown_idx` INT,
+  `sex` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `appearances` (
+  `appearance_id` INT,
+  `appearance` VARCHAR(255),
+  PRIMARY KEY (`appearance_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `info_appearance` (
+  `clown_idx` INT,
+  `appearance_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_675267_HeadFirstSQL_20_20clown') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_675267_HeadFirstSQL_20_20clown') AS relationships;
+DROP DATABASE `db_675267_HeadFirstSQL_20_20clown`;
+UNINSTALL EXTENSION vsql_schematron;

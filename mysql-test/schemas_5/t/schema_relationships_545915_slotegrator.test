@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 545915_slotegrator
+--echo #
+CREATE DATABASE `db_545915_slotegrator`;
+USE `db_545915_slotegrator`;
+
+CREATE TABLE `account` (
+  `id` INT,
+  `user_id` INT,
+  `dollars` INT,
+  `points` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `migration` (
+  `version` VARCHAR(255),
+  `apply_time` INT,
+  PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `number_of_points` (
+  `id` INT,
+  `min` INT,
+  `max` INT,
+  `type` VARCHAR(255),
+  `coeff` DECIMAL(10,2),
+  `status` INT,
+  `limit` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `things` (
+  `id` INT,
+  `title` VARCHAR(255),
+  `price` INT,
+  `available` INT,
+  `count` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `username` VARCHAR(255),
+  `surname` VARCHAR(255),
+  `lastName` VARCHAR(255),
+  `email` VARCHAR(255),
+  `passwordHash` VARCHAR(255),
+  `authKey` VARCHAR(255),
+  `accessToken` VARCHAR(255),
+  `is_admin` INT,
+  `status` INT,
+  `time_create` INT,
+  `time_update` INT,
+  `user_type` INT,
+  `count_chance` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_545915_slotegrator') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_545915_slotegrator') AS relationships;
+DROP DATABASE `db_545915_slotegrator`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -176,6 +176,31 @@ bool matchDomainSpecificKeys(
                 }
             }
         }
+    } else if (col_lower == "mate_prop_id") {
+        for (const auto& tbl_b : table_names) {
+            if (tbl_a == tbl_b) continue;
+            std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+            if (clean_tbl == "materials" || clean_tbl == "material") {
+                auto it_b = tables_info.find(tbl_b);
+                if (it_b != tables_info.end()) {
+                    const auto& info_b = it_b->second;
+                    for (const auto& col_b_pair : info_b.column_types) {
+                        if (to_lower(col_b_pair.first) == "id") {
+                            if (typeMatches(type_a, col_b_pair.second)) {
+                                Relationship rel;
+                                rel.from_table = tbl_a;
+                                rel.from_column = col_a;
+                                rel.to_table = tbl_b;
+                                rel.to_column = col_b_pair.first;
+                                rel.is_explicit = false;
+                                relationships.insert(rel);
+                                relationship_found = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     return relationship_found;
 }

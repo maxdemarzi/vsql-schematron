@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 509396_DbInit
+--echo #
+CREATE DATABASE `db_509396_DbInit`;
+USE `db_509396_DbInit`;
+
+CREATE TABLE `meal` (
+  `ID` INT,
+  `NAME` VARCHAR(255),
+  `BASE_PORTION_SIZE` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ingredient` (
+  `ID` INT,
+  `NAME` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `meal_ingredient` (
+  `REF_ID` INT,
+  `MEAL_ID` INT,
+  `INGREDIENT_ID` INT,
+  `AMOUNT` DECIMAL(10,2),
+  `AMOUNT_UNIT` VARCHAR(255),
+  PRIMARY KEY (`REF_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `linked_meal` (
+  `REF_ID` INT,
+  `MEAL_ID` INT,
+  `LINKED_MEAL_ID` INT,
+  PRIMARY KEY (`REF_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_509396_DbInit') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_509396_DbInit') AS relationships;
+DROP DATABASE `db_509396_DbInit`;
+UNINSTALL EXTENSION vsql_schematron;

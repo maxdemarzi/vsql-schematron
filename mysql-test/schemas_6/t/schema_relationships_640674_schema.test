@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 640674_schema
+--echo #
+CREATE DATABASE `db_640674_schema`;
+USE `db_640674_schema`;
+
+CREATE TABLE `MY_USER` (
+  `MY_USER_ID` INT,
+  `USERNAME` VARCHAR(255),
+  `ENC_PASSWORD` VARCHAR(255),
+  `IS_LOCKED` INT,
+  `IS_DISABLED` INT,
+  `FAILED_ATTEMPTS` INT,
+  `LAST_PASSWORD_DATE` DATETIME,
+  `IS_PW_EXPIRED` INT,
+  PRIMARY KEY (`MY_USER_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MY_LOGIN_ATTEMPT` (
+  `MY_LOGIN_ATTEMPT_ID` INT,
+  `USERNAME` VARCHAR(255),
+  `RECORD_DATE` DATETIME,
+  `IP_ADDRESS` VARCHAR(255),
+  PRIMARY KEY (`MY_LOGIN_ATTEMPT_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MY_PASSWORD_HIST` (
+  `MY_PASSWORD_HIST_ID` INT,
+  `MY_USER_ID` VARCHAR(255),
+  `ENC_PASSWORD` VARCHAR(255),
+  `RECORD_DATE` DATETIME,
+  PRIMARY KEY (`MY_PASSWORD_HIST_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DUMMY` (
+  `DUMMY_INT` INT,
+  `DUMMY_VARCHAR` VARCHAR(255),
+  `DUMMY_DATE` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `SPRING_SESSION` (
+  `PRIMARY_ID` VARCHAR(255),
+  `SESSION_ID` VARCHAR(255),
+  `CREATION_TIME` INT,
+  `LAST_ACCESS_TIME` INT,
+  `MAX_INACTIVE_INTERVAL` INT,
+  `EXPIRY_TIME` INT,
+  `PRINCIPAL_NAME` VARCHAR(255),
+  PRIMARY KEY (`PRIMARY_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SPRING_SESSION_ATTRIBUTES` (
+  `SESSION_PRIMARY_ID` VARCHAR(255),
+  `ATTRIBUTE_NAME` VARCHAR(255),
+  `ATTRIBUTE_BYTES` VARCHAR(255),
+  PRIMARY KEY (`SESSION_PRIMARY_ID`, `ATTRIBUTE_NAME`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_640674_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_640674_schema') AS relationships;
+DROP DATABASE `db_640674_schema`;
+UNINSTALL EXTENSION vsql_schematron;

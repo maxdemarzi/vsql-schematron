@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 101478_01_migration
+--echo #
+CREATE DATABASE `db_101478_01_migration`;
+USE `db_101478_01_migration`;
+
+CREATE TABLE `MAVEN_ARTIFACT` (
+  `GROUP_ID` VARCHAR(255),
+  `ARTIFACT_ID` VARCHAR(255),
+  `VERSION` VARCHAR(255),
+  `TYPE` VARCHAR(255),
+  `ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `JENKINS_JOB` (
+  `FULL_NAME` VARCHAR(255),
+  `ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `JENKINS_BUILD` (
+  `JOB_ID` INT,
+  `NUMBER` INT,
+  `ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MAVEN_DEPENDENCY` (
+  `ARTIFACT_ID` INT,
+  `BUILD_ID` INT,
+  `SCOPE` VARCHAR(255),
+  `ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GENERATED_MAVEN_ARTIFACT` (
+  `ARTIFACT_ID` INT,
+  `BUILD_ID` INT,
+  `ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `VERSION` (
+  `VERSION` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_101478_01_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_101478_01_migration') AS relationships;
+DROP DATABASE `db_101478_01_migration`;
+UNINSTALL EXTENSION vsql_schematron;

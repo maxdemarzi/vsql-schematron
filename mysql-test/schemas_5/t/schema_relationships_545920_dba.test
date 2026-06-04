@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 545920_dba
+--echo #
+CREATE DATABASE `db_545920_dba`;
+USE `db_545920_dba`;
+
+CREATE TABLE `ADMIN` (
+  `IDAMDMIN` INT,
+  `UTILISATEUR` VARCHAR(255),
+  `MOTDEPASSE` VARCHAR(255),
+  PRIMARY KEY (`IDAMDMIN`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACTUALITE` (
+  `IDACTUALITE` INT,
+  `REDACTEUR` VARCHAR(255),
+  `TYPE` VARCHAR(255),
+  `DATEACTUALITE` DATETIME,
+  `TITRE` VARCHAR(255),
+  `SOUSTITRE` VARCHAR(255),
+  `DETAILS` VARCHAR(255),
+  `IMG` VARCHAR(255),
+  PRIMARY KEY (`IDACTUALITE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SYMPTOME` (
+  `IDSYMPTOME` INT,
+  `TITRE` VARCHAR(255),
+  `DETAILS` VARCHAR(255),
+  PRIMARY KEY (`IDSYMPTOME`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TRAITEMENT` (
+  `IDTRAITEMENT` INT,
+  `TITRE` VARCHAR(255),
+  `DETAILS` VARCHAR(255),
+  PRIMARY KEY (`IDTRAITEMENT`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `REGION` (
+  `IDREGION` INT,
+  `IDPAYS` INT,
+  `REGION` VARCHAR(255),
+  PRIMARY KEY (`IDREGION`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CAS` (
+  `IDCAS` INT,
+  `DATECAS` DATETIME,
+  `NOMBRECAS` INT,
+  `DECES` INT,
+  `TESTFAIT` INT,
+  `GUERI` INT,
+  `CRITIQUE` INT,
+  PRIMARY KEY (`IDCAS`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CASPAYS` (
+  `IDCASPAYS` INT,
+  `IDCAS` INT,
+  `IDPAYS` INT,
+  PRIMARY KEY (`IDCASPAYS`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CASREGION` (
+  `IDCASREGION` INT,
+  `IDCAS` INT,
+  `IDREGION` INT,
+  PRIMARY KEY (`IDCASREGION`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MOTCLE` (
+  `IDMOTCLE` INT,
+  `MOTCLE` VARCHAR(255),
+  PRIMARY KEY (`IDMOTCLE`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_545920_dba') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_545920_dba') AS relationships;
+DROP DATABASE `db_545920_dba`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 451686_simple_web
+--echo #
+CREATE DATABASE `db_451686_simple_web`;
+USE `db_451686_simple_web`;
+
+CREATE TABLE `product` (
+  `prodid` INT,
+  `reference` VARCHAR(255),
+  `price` DECIMAL(10,2),
+  `state` VARCHAR(255),
+  PRIMARY KEY (`prodid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product_tag` (
+  `prodid` INT,
+  `tag` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product_data` (
+  `proddataid` INT,
+  `prodid` INT,
+  `lang` VARCHAR(255),
+  `title` VARCHAR(255),
+  `desc_short` VARCHAR(255),
+  `desc_extended` VARCHAR(255),
+  `img_small_url` VARCHAR(255),
+  `img_big_url` VARCHAR(255),
+  PRIMARY KEY (`proddataid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_data` (
+  `orderid` INT,
+  `creation_date` DATETIME,
+  PRIMARY KEY (`orderid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_state` (
+  `orderstateid` INT,
+  `orderid` INT,
+  `state` VARCHAR(255),
+  `state_date` DATETIME,
+  PRIMARY KEY (`orderstateid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_product` (
+  `orderprodid` INT,
+  `orderid` INT,
+  `prodid` INT,
+  `reference` VARCHAR(255),
+  `title` VARCHAR(255),
+  `price` DECIMAL(10,2),
+  `quantity` INT,
+  PRIMARY KEY (`orderprodid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_451686_simple_web') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_451686_simple_web') AS relationships;
+DROP DATABASE `db_451686_simple_web`;
+UNINSTALL EXTENSION vsql_schematron;

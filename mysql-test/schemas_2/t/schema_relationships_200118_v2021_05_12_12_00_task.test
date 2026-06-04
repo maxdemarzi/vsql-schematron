@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 200118_v2021_05_12_12_00_task
+--echo #
+CREATE DATABASE `db_200118_v2021_05_12_12_00_task`;
+USE `db_200118_v2021_05_12_12_00_task`;
+
+CREATE TABLE `CATGENOME.TASK` (
+  `TASK_ID` INT,
+  `TITLE` VARCHAR(255),
+  `CREATED_DATE` DATETIME,
+  `STATUS` INT,
+  `END_DATE` DATETIME,
+  `STATUS_REASON` VARCHAR(255),
+  `QUERY` VARCHAR(255),
+  `DATABASE` VARCHAR(255),
+  `EXECUTABLE` VARCHAR(255),
+  `ALGORITHM` VARCHAR(255),
+  `OPTIONS` VARCHAR(255),
+  `OWNER` VARCHAR(255),
+  PRIMARY KEY (`TASK_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CATGENOME.TASK_PARAMETER` (
+  `PARAMETER_ID` INT,
+  `TASK_ID` INT,
+  `PARAMETER` VARCHAR(255),
+  `VALUE` VARCHAR(255),
+  PRIMARY KEY (`PARAMETER_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CATGENOME.TASK_ORGANISM` (
+  `ORGANISM_ID` INT,
+  `TASK_ID` INT,
+  `ORGANISM` INT,
+  PRIMARY KEY (`ORGANISM_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CATGENOME.TASK_EXCL_ORGANISM` (
+  `ORGANISM_ID` INT,
+  `TASK_ID` INT,
+  `ORGANISM` INT,
+  PRIMARY KEY (`ORGANISM_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_200118_v2021_05_12_12_00_task') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_200118_v2021_05_12_12_00_task') AS relationships;
+DROP DATABASE `db_200118_v2021_05_12_12_00_task`;
+UNINSTALL EXTENSION vsql_schematron;

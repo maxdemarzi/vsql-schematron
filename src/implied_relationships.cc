@@ -5,25 +5,10 @@
 #include <algorithm>
 #include <cctype>
 #include <unordered_set>
+#include <iostream>
 
 namespace {
 
-bool isActivitiTable(const std::string& tbl_name) {
-    std::string t = to_lower(tbl_name);
-    size_t dot = t.find_last_of('.');
-    if (dot != std::string::npos) {
-        t = t.substr(dot + 1);
-    }
-    return (t.rfind("act_ru_", 0) == 0 ||
-            t.rfind("act_re_", 0) == 0 ||
-            t.rfind("act_ge_", 0) == 0 ||
-            t.rfind("act_hi_", 0) == 0 ||
-            t.rfind("act_id_", 0) == 0 ||
-            t.rfind("act_co_", 0) == 0 ||
-            t.rfind("act_fo_", 0) == 0 ||
-            t.rfind("act_evt_", 0) == 0 ||
-            t.rfind("act_dmn_", 0) == 0);
-}
 
 bool isDescriptiveAttribute(const std::string& s) {
     std::string l = to_lower(s);
@@ -32,7 +17,7 @@ bool isDescriptiveAttribute(const std::string& s) {
         "type", "status", "price", "cost", "value", "val", "qty", "quantity",
         "count", "num", "number", "url", "path", "file", "email", "phone",
         "mobile", "address", "date", "time", "datetime", "timestamp",
-        "rate", "amount", "amt", "size", "scale", "weight", "oid", "version", "ver"
+        "rate", "amount", "amt", "size", "scale", "weight", "oid", "version", "ver", "tenant"
     };
     return DESCRIPTIVE_WORDS.count(l) > 0;
 }
@@ -77,6 +62,13 @@ void findPass1ImpliedRelationships(
             const std::string& col_a = col_pair.first;
             const std::string& type_a = col_pair.second;
 
+
+
+            // Skip relationship_types.dbin_id
+            if (to_lower(tbl_a) == "relationship_types" && to_lower(col_a) == "dbin_id") {
+                continue;
+            }
+
             // Heuristic Rule: Skip auditing, temporal, and statistics columns (e.g. "created_date", "modified_by", "item_count")
             if (isTemporalType(type_a) || isSystemColumn(col_a) || isStatisticColumn(col_a)) {
                 continue;
@@ -100,39 +92,63 @@ void findPass1ImpliedRelationships(
                     }
                 }
             }
-            
-            // Optimization: Precompute table matching lookups to avoid O(N^3) work in the inner table loop
-            bool col_has_exact_tbl_match = false;
-            for (const auto& other_tbl : table_names) {
-                if (matchTableName(col_a_clean, other_tbl, false)) {
-                    col_has_exact_tbl_match = true;
-                    break;
-                }
-            }
 
             std::string prefix_a, suffix_a;
             bool has_split = splitColumnName(col_a_clean, prefix_a, suffix_a);
             
+            // Optimization: Precompute table matching lookups to avoid O(N^3) work in the inner table loop
+            bool col_has_exact_tbl_match = false;
+            std::string match_target = has_split ? prefix_a : col_a_clean;
+            for (const auto& other_tbl : table_names) {
+                if (matchTableName(match_target, other_tbl, false)) {
+                    col_has_exact_tbl_match = true;
+                    break;
+                }
+            }
+            
             // Check if column prefix has an exact match in the schema table names
             bool prefix_has_exact = false;
             bool prefix_is_ambiguous = false;
+            std::string prefix_exact_match_tbl = "";
             if (has_split) {
                 for (const auto& other_tbl : table_names) {
+                    if (isJunctionOrHistoryTable(other_tbl)) continue;
                     if (matchTableName(prefix_a, other_tbl, false)) {
                         prefix_has_exact = true;
+                        prefix_exact_match_tbl = other_tbl;
                         break;
                     }
                 }
                 // Mark prefix as ambiguous if it loose-matches multiple tables (to avoid incorrect guesses)
                 if (!prefix_has_exact) {
-                    int prefix_match_count = 0;
+                    std::vector<std::string> matching_tables;
                     for (const auto& other_tbl : table_names) {
                         if (other_tbl == tbl_a) continue;
+                        if (isSequenceOrSystemTable(other_tbl)) continue;
+                        if (isJunctionOrHistoryTable(other_tbl)) continue;
+                        auto it_pks = effective_pks.find(other_tbl);
+                        if (it_pks != effective_pks.end() && it_pks->second.empty()) {
+                            continue;
+                        }
                         if (matchTableName(prefix_a, other_tbl, true)) {
-                            prefix_match_count++;
+                            matching_tables.push_back(other_tbl);
                         }
                     }
-                    if (prefix_match_count > 1) {
+                    // Filter out subtype tables from the match candidates
+                    std::vector<std::string> filtered;
+                    for (const auto& t1 : matching_tables) {
+                        bool is_sub = false;
+                        for (const auto& t2 : matching_tables) {
+                            if (t1 != t2 && isSubtypeTable(t1, t2)) {
+                                is_sub = true;
+                                break;
+                            }
+                        }
+                        if (!is_sub) {
+                            filtered.push_back(t1);
+                        }
+                    }
+                    if (filtered.size() > 1) {
                         prefix_is_ambiguous = true;
                     }
                 }
@@ -141,23 +157,46 @@ void findPass1ImpliedRelationships(
             // Check if column suffix has an exact match in the schema table names
             bool suffix_has_exact = false;
             bool suffix_is_ambiguous = false;
+            std::string suffix_exact_match_tbl = "";
             if (has_split) {
                 for (const auto& other_tbl : table_names) {
+                    if (isJunctionOrHistoryTable(other_tbl)) continue;
                     if (matchTableName(suffix_a, other_tbl, false)) {
                         suffix_has_exact = true;
+                        suffix_exact_match_tbl = other_tbl;
                         break;
                     }
                 }
                 // Mark suffix as ambiguous if it loose-matches multiple tables (to avoid incorrect guesses)
                 if (!suffix_has_exact) {
-                    int suffix_match_count = 0;
+                    std::vector<std::string> matching_tables;
                     for (const auto& other_tbl : table_names) {
                         if (other_tbl == tbl_a) continue;
+                        if (isSequenceOrSystemTable(other_tbl)) continue;
+                        if (isJunctionOrHistoryTable(other_tbl)) continue;
+                        auto it_pks = effective_pks.find(other_tbl);
+                        if (it_pks != effective_pks.end() && it_pks->second.empty()) {
+                            continue;
+                        }
                         if (matchTableName(suffix_a, other_tbl, true)) {
-                            suffix_match_count++;
+                            matching_tables.push_back(other_tbl);
                         }
                     }
-                    if (suffix_match_count > 1) {
+                    // Filter out subtype tables from the match candidates
+                    std::vector<std::string> filtered;
+                    for (const auto& t1 : matching_tables) {
+                        bool is_sub = false;
+                        for (const auto& t2 : matching_tables) {
+                            if (t1 != t2 && isSubtypeTable(t1, t2)) {
+                                is_sub = true;
+                                break;
+                            }
+                        }
+                        if (!is_sub) {
+                            filtered.push_back(t1);
+                        }
+                    }
+                    if (filtered.size() > 1) {
                         suffix_is_ambiguous = true;
                     }
                 }
@@ -185,11 +224,14 @@ void findPass1ImpliedRelationships(
             }
 
             // Custom Rule: Domain-Specific Keys Matching for Amazon Vendor Central and similar datasets
-            matchDomainSpecificKeys(tbl_a, col_a, type_a, table_names, tables_info, relationships);
+            if (matchDomainSpecificKeys(tbl_a, col_a, type_a, table_names, tables_info, relationships)) {
+                continue;
+            }
 
             // Compare Table A's column against all possible target tables (Table B)
             for (const auto& tbl_b : table_names) {
-                if (isSequenceOrSystemTable(tbl_b)) continue;
+
+                if (isSequenceOrSystemTable(tbl_b) || isJunctionOrHistoryTable(tbl_b)) continue;
                 auto it_b = effective_pks.find(tbl_b);
                 if (it_b == effective_pks.end()) continue;
                 const auto& pks_b = it_b->second;
@@ -203,15 +245,30 @@ void findPass1ImpliedRelationships(
 
                 // --- Scenario 1: Self-Referencing Heuristics (e.g., employee referencing employee) ---
                 if (is_self) {
+                    bool is_junction = false;
+                    std::string clean_a_tbl = stripTablePrefix(stripTableSuffix(stripSchemaPrefix(to_lower(tbl_a))));
+                    size_t last_under = clean_a_tbl.rfind('_');
+                    std::string suffix = (last_under == std::string::npos) ? clean_a_tbl : clean_a_tbl.substr(last_under + 1);
+                    static const std::unordered_set<std::string> JUNCTION_SUFFIXES = {
+                        "map", "maps", "link", "links", "relation", "relations",
+                        "relationship", "relationships", "membership", "memberships",
+                        "association", "associations"
+                    };
+                    if (JUNCTION_SUFFIXES.count(suffix) > 0 || JUNCTION_SUFFIXES.count(clean_a_tbl) > 0) {
+                        is_junction = true;
+                    }
+                    if (is_junction) {
+                        continue;
+                    }
                     // Heuristic: Self-referencing role match
                     // Example: employees.manager_id -> employees.id
                     std::vector<std::string> self_ref_words = {
-                        "parent", "child", "prev", "previous", "next", "successor", "predecessor", "manager", "mgr", "reports", "report", "oid"
+                        "parent", "child", "prev", "previous", "next", "successor", "predecessor", "manager", "mgr", "reports", "report", "oid", "part_of", "partof"
                     };
                     std::string col_a_lower = to_lower(col_a_clean);
                     bool is_self_ref_name = false;
                     for (const auto& word : self_ref_words) {
-                        if (col_a_lower.rfind(word, 0) == 0) {
+                        if (col_a_lower.find(word) != std::string::npos) {
                             is_self_ref_name = true;
                             break;
                         }
@@ -273,6 +330,7 @@ void findPass1ImpliedRelationships(
                     }
 
                     for (const auto& pk_b : pks_b) {
+
                         std::string col_lower = to_lower(col_a);
                         if (col_lower.rfind("pay_", 0) == 0 || col_lower.rfind("receive_", 0) == 0) {
                             std::string clean_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
@@ -432,7 +490,11 @@ void findPass1ImpliedRelationships(
                         // Heuristic: Suffix matching
                         // Example: orders.customer_id -> customers.id
                         bool suffix_match = false;
-                        if (has_split) {
+                        if (col_a_clean.find("_id_") != std::string::npos) {
+                            if (matchMiddleIdConvention(col_a_clean, tbl_b, false)) {
+                                suffix_match = true;
+                            }
+                        } else if (has_split) {
                             bool suffix_matches = false;
                             if (to_lower(suffix_a) == to_lower(pk_b) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b))) {
                                 suffix_matches = true;
@@ -445,22 +507,30 @@ void findPass1ImpliedRelationships(
                                 }
                             }
 
-                            if (suffix_matches) {
-                                if (!prefix_is_ambiguous && (matchTableName(prefix_a, tbl_b, !prefix_has_exact) || isPersonMatch(prefix_a, tbl_b) || isLookupMatch(prefix_a, tbl_b, table_names))) {
-                                    if (!(isDescriptiveAttribute(prefix_a) && !same_expanded_word(prefix_a, pk_b) && !matchTableName(prefix_a, tbl_b, true) && !matchTableName(prefix_a, tbl_a, true))) {
-                                        suffix_match = true;
-                                    }
-                                }
-                            }
+                             if (suffix_matches) {
+                                 bool allow_sub = !prefix_has_exact;
+                                 if (prefix_has_exact && !prefix_exact_match_tbl.empty() && isSubtypeTable(prefix_exact_match_tbl, tbl_b)) {
+                                     allow_sub = true;
+                                 }
+                                 if (!prefix_is_ambiguous && (matchTableName(prefix_a, tbl_b, allow_sub) || isPersonMatch(prefix_a, tbl_b) || isLookupMatch(prefix_a, tbl_b, table_names))) {
+                                     if (!(isDescriptiveAttribute(prefix_a) && !same_expanded_word(prefix_a, pk_b) && !matchTableName(prefix_a, tbl_b, true) && !matchTableName(prefix_a, tbl_a, true))) {
+                                         suffix_match = true;
+                                     }
+                                 }
+                             }
 
-                            // Column suffix matches target table (e.g. orders.id_customer -> customers.id)
-                            if (!suffix_match) {
-                                if (!suffix_is_ambiguous && matchTableName(suffix_a, tbl_b, !suffix_has_exact)) {
-                                    if (!(isDescriptiveAttribute(prefix_a) && !same_expanded_word(prefix_a, pk_b) && !matchTableName(prefix_a, tbl_b, true) && !matchTableName(prefix_a, tbl_a, true))) {
-                                        suffix_match = true;
-                                    }
-                                }
-                            }
+                             // Column suffix matches target table (e.g. orders.id_customer -> customers.id)
+                             if (!suffix_match) {
+                                 bool allow_sub = !suffix_has_exact;
+                                 if (suffix_has_exact && !suffix_exact_match_tbl.empty() && isSubtypeTable(suffix_exact_match_tbl, tbl_b)) {
+                                     allow_sub = true;
+                                 }
+                                 if (!suffix_is_ambiguous && matchTableName(suffix_a, tbl_b, allow_sub)) {
+                                     if (!(isDescriptiveAttribute(prefix_a) && !same_expanded_word(prefix_a, pk_b) && !matchTableName(prefix_a, tbl_b, true) && !matchTableName(prefix_a, tbl_a, true))) {
+                                         suffix_match = true;
+                                     }
+                                 }
+                             }
 
                             // Suffix match on last word
                             if (!suffix_match) {
@@ -575,7 +645,7 @@ void findPass1_5ImpliedRelationships(
             
             for (const auto& tbl_b : table_names) {
                 if (tbl_a == tbl_b) continue;
-                if (isSequenceOrSystemTable(tbl_b)) continue;
+                if (isSequenceOrSystemTable(tbl_b) || isJunctionOrHistoryTable(tbl_b)) continue;
                 
                 // Skip if a relationship is already registered for this column from A to B
                 bool already_has_rel = false;
@@ -634,7 +704,17 @@ void findPass1_5ImpliedRelationships(
                                 }
                             }
                         } else if (pks_b.empty() && has_prefix && matchTableName(prefix_a, tbl_b)) {
-                            should_match = true;
+                            std::string clean_b = stripTablePrefix(stripTableSuffix(stripSchemaPrefix(to_lower(tbl_b))));
+                            size_t last_under = clean_b.rfind('_');
+                            std::string suffix = (last_under == std::string::npos) ? clean_b : clean_b.substr(last_under + 1);
+                            static const std::unordered_set<std::string> JUNCTION_SUFFIXES = {
+                                "map", "maps", "link", "links", "relation", "relations",
+                                "relationship", "relationships", "membership", "memberships",
+                                "association", "associations", "history"
+                            };
+                            if (JUNCTION_SUFFIXES.count(suffix) == 0 && JUNCTION_SUFFIXES.count(clean_b) == 0) {
+                                should_match = true;
+                            }
                         }
                         
                         if (should_match) {
@@ -703,7 +783,7 @@ void findPass2ImpliedRelationships(
 
             for (const auto& tbl_b : table_names) {
                 if (tbl_a == tbl_b) continue;
-                if (isSequenceOrSystemTable(tbl_b)) continue;
+                if (isSequenceOrSystemTable(tbl_b) || isJunctionOrHistoryTable(tbl_b)) continue;
 
                 auto it_b_info = tables_info.find(tbl_b);
                 if (it_b_info == tables_info.end()) continue;
@@ -799,6 +879,18 @@ void findPass2ImpliedRelationships(
     }
 }
 
+bool isAcronymMatchRelation(const Relationship& rel) {
+    std::string prefix_a, suffix_a;
+    std::string col_clean = stripAcronymPrefix(rel.from_column, rel.from_table);
+    if (splitColumnName(col_clean, prefix_a, suffix_a)) {
+        std::string ref_tbl_acronym = getTableAcronym(rel.to_table);
+        if (!ref_tbl_acronym.empty() && to_lower(prefix_a) == ref_tbl_acronym) {
+            return true;
+        }
+    }
+    return false;
+}
+
 } // namespace
 
 /**
@@ -851,9 +943,38 @@ void findImpliedRelationships(
     findPass1_5ImpliedRelationships(table_names, tables_info, effective_pks, col_is_fk_cache, relationships);
     findPass2ImpliedRelationships(table_names, tables_info, explicit_mapped_cols, effective_pks, relationships);
 
-    // Filter out implied relationships on Activiti/Camunda tables
+    // Resolve base/subtype target conflicts (prefer base table over subtype table)
     for (auto it = relationships.begin(); it != relationships.end(); ) {
-        if (isActivitiTable(it->from_table) || isActivitiTable(it->to_table)) {
+        bool to_remove = false;
+        for (const auto& other : relationships) {
+            if (it->from_table == other.from_table && it->from_column == other.from_column && it->to_table != other.to_table) {
+                if (isSubtypeTable(it->to_table, other.to_table)) {
+                    to_remove = true;
+                    break;
+                }
+            }
+        }
+        if (to_remove) {
+            it = relationships.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    // Discard acronym matches if there is any stronger (non-acronym) match for the same column
+    for (auto it = relationships.begin(); it != relationships.end(); ) {
+        bool to_remove = false;
+        if (isAcronymMatchRelation(*it)) {
+            for (const auto& other : relationships) {
+                if (it->from_table == other.from_table && it->from_column == other.from_column && it->to_table != other.to_table) {
+                    if (!isAcronymMatchRelation(other)) {
+                        to_remove = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (to_remove) {
             it = relationships.erase(it);
         } else {
             ++it;

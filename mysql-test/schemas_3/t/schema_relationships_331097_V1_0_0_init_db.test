@@ -1,0 +1,157 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 331097_V1_0_0_init_db
+--echo #
+CREATE DATABASE `db_331097_V1_0_0_init_db`;
+USE `db_331097_V1_0_0_init_db`;
+
+CREATE TABLE `principal` (
+  `id` VARCHAR(255),
+  `disabled` VARCHAR(255),
+  `deleted` VARCHAR(255),
+  `expire_date` DATETIME,
+  `locked` VARCHAR(255),
+  `create_by` VARCHAR(255),
+  `create_at` DATETIME,
+  `update_by` VARCHAR(255),
+  `update_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `principal_attempt` (
+  `id` VARCHAR(255),
+  `principal_id` VARCHAR(255),
+  `attempt_count` INT,
+  `create_by` VARCHAR(255),
+  `create_at` DATETIME,
+  `update_by` VARCHAR(255),
+  `update_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `system_role` VARCHAR(255),
+  `read_only` VARCHAR(255),
+  `create_by` VARCHAR(255),
+  `create_at` DATETIME,
+  `update_by` VARCHAR(255),
+  `update_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `principal_role` (
+  `principal_id` VARCHAR(255),
+  `role_id` VARCHAR(255),
+  PRIMARY KEY (`principal_id`, `role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `policy` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `read_only` VARCHAR(255),
+  `create_by` VARCHAR(255),
+  `create_at` DATETIME,
+  `update_by` VARCHAR(255),
+  `update_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `policy_condition` (
+  `id` VARCHAR(255),
+  `policy_id` VARCHAR(255),
+  `operator` VARCHAR(255),
+  `condition_value` VARCHAR(255),
+  `create_by` VARCHAR(255),
+  `create_at` DATETIME,
+  `update_by` VARCHAR(255),
+  `update_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `policy_permission` (
+  `id` VARCHAR(255),
+  `policy_id` VARCHAR(255),
+  `permission` VARCHAR(255),
+  `create_by` VARCHAR(255),
+  `create_at` DATETIME,
+  `update_by` VARCHAR(255),
+  `update_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_policy` (
+  `role_id` VARCHAR(255),
+  `policy_id` VARCHAR(255),
+  PRIMARY KEY (`role_id`, `policy_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `account` (
+  `id` VARCHAR(255),
+  `principal_id` VARCHAR(255),
+  `username` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `email` VARCHAR(255),
+  `title` VARCHAR(255),
+  `date_of_birth` DATETIME,
+  `avatar_url` VARCHAR(255),
+  `house_address` VARCHAR(255),
+  `work_address` VARCHAR(255),
+  `phone_number` VARCHAR(255),
+  `notification_token` VARCHAR(255),
+  `language` VARCHAR(255),
+  `create_by` VARCHAR(255),
+  `create_at` DATETIME,
+  `update_by` VARCHAR(255),
+  `update_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_method_data` (
+  `id` VARCHAR(255),
+  `auth_data_1` VARCHAR(255),
+  `auth_data_2` VARCHAR(255),
+  `auth_data_3` VARCHAR(255),
+  `expire_date` DATETIME,
+  `create_by` VARCHAR(255),
+  `create_at` DATETIME,
+  `update_by` VARCHAR(255),
+  `update_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_method` (
+  `id` VARCHAR(255),
+  `principal_id` VARCHAR(255),
+  `auth_type` VARCHAR(255),
+  `determine_id` VARCHAR(255),
+  `auth_method_data_id` VARCHAR(255),
+  `create_by` VARCHAR(255),
+  `create_at` DATETIME,
+  `update_by` VARCHAR(255),
+  `update_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_331097_V1_0_0_init_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_331097_V1_0_0_init_db') AS relationships;
+DROP DATABASE `db_331097_V1_0_0_init_db`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,179 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 117461_create_20database
+--echo #
+CREATE DATABASE `db_117461_create_20database`;
+USE `db_117461_create_20database`;
+
+CREATE TABLE `Modules` (
+  `PK` INT,
+  `ID` VARCHAR(255),
+  `Tag` VARCHAR(255),
+  `PortID` VARCHAR(255),
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Stations` (
+  `PK` INT,
+  `ID` VARCHAR(255),
+  `Tag` VARCHAR(255),
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RT_Station_Module` (
+  `PK` INT,
+  `FK_Station` INT,
+  `FK_Module` INT,
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Sites` (
+  `PK` INT,
+  `Coordinates` VARCHAR(255),
+  `ID` VARCHAR(255),
+  `Tag` VARCHAR(255),
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RawData_Files` (
+  `PK` INT,
+  `FK_Station` INT,
+  `FK_Site` INT,
+  `Hz_Start` INT,
+  `Hz_Stop` INT,
+  `Time_Start` DATETIME,
+  `Time_Stop` DATETIME,
+  `Tag` VARCHAR(255),
+  `FileName` VARCHAR(255),
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Emissions` (
+  `PK` INT,
+  `Hz_Start` INT,
+  `Hz_Stop` INT,
+  `Time_Start` DATETIME,
+  `Time_Stop` DATETIME,
+  `Power_Map` VARCHAR(255),
+  `Max_Power` DECIMAL(10,2),
+  `Min_Power` DECIMAL(10,2),
+  `On_Map` VARCHAR(255),
+  `Off_Map` VARCHAR(255),
+  `Tag` VARCHAR(255),
+  `Emitter_ID_tag` VARCHAR(255),
+  `Channel_ID_tag` VARCHAR(255),
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RT_RawData_Emission` (
+  `PK` INT,
+  `FK_RawData_File` INT,
+  `FK_Emission` INT,
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Noise` (
+  `PK` INT,
+  `Hz_Start` INT,
+  `Hz_Stop` INT,
+  `Time_Start` DATETIME,
+  `Time_Stop` DATETIME,
+  `Power_Map` VARCHAR(255),
+  `Max_Power` DECIMAL(10,2),
+  `Min_Power` DECIMAL(10,2),
+  `Tag` VARCHAR(255),
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RT_RawData_Noise` (
+  `PK` INT,
+  `FK_RawData_File` INT,
+  `FK_Noise_Block` INT,
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Services` (
+  `PK` INT,
+  `ID` VARCHAR(255),
+  `Designation` VARCHAR(255),
+  `Tag` VARCHAR(255),
+  `Icon` VARCHAR(255),
+  `Colour` VARCHAR(255),
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Emitters` (
+  `PK` INT,
+  `ID` VARCHAR(255),
+  `Designation` VARCHAR(255),
+  `Tag` VARCHAR(255),
+  `FK_Site` INT,
+  `FK_Service` INT,
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RT_Emitter_Emission` (
+  `PK` INT,
+  `FK_Emitter` INT,
+  `FK_Emission` INT,
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Regulations` (
+  `PK` INT,
+  `FK_Service` INT,
+  `Table_ID` VARCHAR(255),
+  `TableName` VARCHAR(255),
+  `Downlink` VARCHAR(255),
+  `Channel_Spacing` INT,
+  `Flags` VARCHAR(255),
+  `Power_Limit` DECIMAL(10,2),
+  `Modulation_Type` VARCHAR(255),
+  `Required_Mod` VARCHAR(255),
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Channels` (
+  `PK` INT,
+  `ID` VARCHAR(255),
+  `Hz_Center` INT,
+  `FK_Regulation` INT,
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RT_Channel_Emission` (
+  `PK` INT,
+  `FK_Channel` INT,
+  `FK_Emission` INT,
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Asignations` (
+  `PK` INT,
+  `Label` VARCHAR(255),
+  `Icon` VARCHAR(255),
+  `Hz_Start` INT,
+  `Hz_Stop` INT,
+  PRIMARY KEY (`PK`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_117461_create_20database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_117461_create_20database') AS relationships;
+DROP DATABASE `db_117461_create_20database`;
+UNINSTALL EXTENSION vsql_schematron;

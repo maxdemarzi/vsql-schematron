@@ -1,0 +1,111 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 206660_new_pizzeria
+--echo #
+CREATE DATABASE `db_206660_new_pizzeria`;
+USE `db_206660_new_pizzeria`;
+
+CREATE TABLE `cliente` (
+  `cliente_id` INT,
+  `nombre` VARCHAR(255),
+  `direccion` VARCHAR(255),
+  `telefono` VARCHAR(255),
+  `eliminado` INT,
+  `fecha_creacion` DATETIME,
+  `fecha_modificacion` DATETIME,
+  PRIMARY KEY (`cliente_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `producto` (
+  `producto_id` INT,
+  `producto` VARCHAR(255),
+  `valor` INT,
+  `descripcion` VARCHAR(255),
+  `eliminado` INT,
+  `fecha_creacion` DATETIME,
+  `fecha_modificacion` DATETIME,
+  PRIMARY KEY (`producto_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pedido` (
+  `pedido_id` INT,
+  `cliente_id` INT,
+  `domicilio` INT,
+  `eliminado` INT,
+  `fecha_creacion` DATETIME,
+  `fecha_modificacion` DATETIME,
+  PRIMARY KEY (`pedido_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `estado` (
+  `estado_id` INT,
+  `estado` VARCHAR(255),
+  `eliminado` INT,
+  `fecha_creacion` DATETIME,
+  `fecha_modificacion` DATETIME,
+  PRIMARY KEY (`estado_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `estado_pedido` (
+  `ep_id` INT,
+  `pedido_id` INT,
+  `estado_id` INT,
+  `activo` VARCHAR(255),
+  `fecha_creacion` DATETIME,
+  PRIMARY KEY (`ep_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `producto_pedido` (
+  `pp_id` INT,
+  `pedido_id` INT,
+  `producto_id` INT,
+  `cantidad` INT,
+  `valor` INT,
+  `fecha_creacion` DATETIME,
+  `fecha_modificacion` DATETIME,
+  PRIMARY KEY (`pp_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cuenta` (
+  `cuenta_id` INT,
+  `cuenta` VARCHAR(255),
+  `eliminado` INT,
+  `fecha_creacion` DATETIME,
+  `fecha_modificacion` DATETIME,
+  PRIMARY KEY (`cuenta_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `movimiento` (
+  `movimiento_id` INT,
+  `tipo_movimiento` VARCHAR(255),
+  `cuenta_id` INT,
+  `desripcion` VARCHAR(255),
+  `eliminado` INT,
+  `valor` INT,
+  `pedido_id` INT,
+  `fecha_movimiento` DATETIME,
+  `fecha_creacion` DATETIME,
+  `fecha_modificacion` DATETIME,
+  PRIMARY KEY (`movimiento_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_206660_new_pizzeria') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_206660_new_pizzeria') AS relationships;
+DROP DATABASE `db_206660_new_pizzeria`;
+UNINSTALL EXTENSION vsql_schematron;

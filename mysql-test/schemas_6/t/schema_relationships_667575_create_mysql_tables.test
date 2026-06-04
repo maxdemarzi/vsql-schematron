@@ -1,0 +1,164 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 667575_create_mysql_tables
+--echo #
+CREATE DATABASE `db_667575_create_mysql_tables`;
+USE `db_667575_create_mysql_tables`;
+
+CREATE TABLE `ipn_log` (
+  `id` INT,
+  `listener_name` VARCHAR(255),
+  `transaction_type` VARCHAR(255),
+  `transaction_id` VARCHAR(255),
+  `status` VARCHAR(255),
+  `message` VARCHAR(255),
+  `ipn_data_hash` VARCHAR(255),
+  `detail` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ipn_orders` (
+  `id` INT,
+  `notify_version` VARCHAR(255),
+  `verify_sign` VARCHAR(255),
+  `test_ipn` INT,
+  `protection_eligibility` VARCHAR(255),
+  `charset` VARCHAR(255),
+  `btn_id` VARCHAR(255),
+  `address_city` VARCHAR(255),
+  `address_country` VARCHAR(255),
+  `address_country_code` VARCHAR(255),
+  `address_name` VARCHAR(255),
+  `address_state` VARCHAR(255),
+  `address_status` VARCHAR(255),
+  `address_street` VARCHAR(255),
+  `address_zip` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `payer_business_name` VARCHAR(255),
+  `payer_email` VARCHAR(255),
+  `payer_id` VARCHAR(255),
+  `payer_status` VARCHAR(255),
+  `contact_phone` VARCHAR(255),
+  `residence_country` VARCHAR(255),
+  `business` VARCHAR(255),
+  `receiver_email` VARCHAR(255),
+  `receiver_id` VARCHAR(255),
+  `custom` VARCHAR(255),
+  `invoice` VARCHAR(255),
+  `memo` VARCHAR(255),
+  `tax` DECIMAL(10,2),
+  `auth_id` VARCHAR(255),
+  `auth_exp` VARCHAR(255),
+  `auth_amount` INT,
+  `auth_status` VARCHAR(255),
+  `num_cart_items` INT,
+  `parent_txn_id` VARCHAR(255),
+  `payment_date` VARCHAR(255),
+  `payment_status` VARCHAR(255),
+  `payment_type` VARCHAR(255),
+  `pending_reason` VARCHAR(255),
+  `reason_code` VARCHAR(255),
+  `remaining_settle` INT,
+  `shipping_method` VARCHAR(255),
+  `shipping` DECIMAL(10,2),
+  `transaction_entity` VARCHAR(255),
+  `txn_id` VARCHAR(255),
+  `txn_type` VARCHAR(255),
+  `exchange_rate` DECIMAL(10,2),
+  `mc_currency` VARCHAR(255),
+  `mc_fee` DECIMAL(10,2),
+  `mc_gross` DECIMAL(10,2),
+  `mc_handling` DECIMAL(10,2),
+  `mc_shipping` DECIMAL(10,2),
+  `payment_fee` DECIMAL(10,2),
+  `payment_gross` DECIMAL(10,2),
+  `settle_amount` DECIMAL(10,2),
+  `settle_currency` VARCHAR(255),
+  `auction_buyer_id` VARCHAR(255),
+  `auction_closing_date` VARCHAR(255),
+  `auction_multi_item` INT,
+  `for_auction` VARCHAR(255),
+  `subscr_date` VARCHAR(255),
+  `subscr_effective` VARCHAR(255),
+  `period1` VARCHAR(255),
+  `period2` VARCHAR(255),
+  `period3` VARCHAR(255),
+  `amount1` DECIMAL(10,2),
+  `amount2` DECIMAL(10,2),
+  `amount3` DECIMAL(10,2),
+  `mc_amount1` DECIMAL(10,2),
+  `mc_amount2` DECIMAL(10,2),
+  `mc_amount3` DECIMAL(10,2),
+  `recurring` VARCHAR(255),
+  `reattempt` VARCHAR(255),
+  `retry_at` VARCHAR(255),
+  `recur_times` INT,
+  `username` VARCHAR(255),
+  `password` VARCHAR(255),
+  `subscr_id` VARCHAR(255),
+  `case_id` VARCHAR(255),
+  `case_type` VARCHAR(255),
+  `case_creation_date` VARCHAR(255),
+  `order_status` VARCHAR(255),
+  `discount` DECIMAL(10,2),
+  `shipping_discount` DECIMAL(10,2),
+  `ipn_track_id` VARCHAR(255),
+  `transaction_subject` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ipn_order_items` (
+  `id` INT,
+  `order_id` INT,
+  `item_name` VARCHAR(255),
+  `item_number` VARCHAR(255),
+  `quantity` VARCHAR(255),
+  `mc_gross` DECIMAL(10,2),
+  `mc_handling` DECIMAL(10,2),
+  `mc_shipping` DECIMAL(10,2),
+  `tax` DECIMAL(10,2),
+  `cost_per_item` DECIMAL(10,2),
+  `option_name_1` VARCHAR(255),
+  `option_selection_1` VARCHAR(255),
+  `option_name_2` VARCHAR(255),
+  `option_selection_2` VARCHAR(255),
+  `option_name_3` VARCHAR(255),
+  `option_selection_3` VARCHAR(255),
+  `option_name_4` VARCHAR(255),
+  `option_selection_4` VARCHAR(255),
+  `option_name_5` VARCHAR(255),
+  `option_selection_5` VARCHAR(255),
+  `option_name_6` VARCHAR(255),
+  `option_selection_6` VARCHAR(255),
+  `option_name_7` VARCHAR(255),
+  `option_selection_7` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_667575_create_mysql_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_667575_create_mysql_tables') AS relationships;
+DROP DATABASE `db_667575_create_mysql_tables`;
+UNINSTALL EXTENSION vsql_schematron;

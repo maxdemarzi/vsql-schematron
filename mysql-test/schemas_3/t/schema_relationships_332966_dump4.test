@@ -1,0 +1,211 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 332966_dump4
+--echo #
+CREATE DATABASE `db_332966_dump4`;
+USE `db_332966_dump4`;
+
+CREATE TABLE `CDHSCategory` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `orderNumber` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CDHSCriterion` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `key` VARCHAR(255),
+  `description` VARCHAR(255),
+  `selectionType` VARCHAR(255),
+  `orderNumber` INT,
+  `CDHSCategory_id` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CDHSCriterionPossibleValue` (
+  `id` VARCHAR(255),
+  `key` VARCHAR(255),
+  `name` VARCHAR(255),
+  `type` VARCHAR(255),
+  `orderNumber` INT,
+  `scale` VARCHAR(255),
+  `CDHSCriterion_id` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CDMCriterion` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `key` VARCHAR(255),
+  `orderNumber` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CDMCriterionPossibleValue` (
+  `id` VARCHAR(255),
+  `key` VARCHAR(255),
+  `name` VARCHAR(255),
+  `orderNumber` INT,
+  `CDMCriterion_id` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CDMScenario` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  `orderNumber` INT,
+  `created` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CDMScenarioImpact` (
+  `CDMScenario_id` VARCHAR(255),
+  `Impact_id` VARCHAR(255),
+  PRIMARY KEY (`CDMScenario_id`, `Impact_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CDMScenarioProperty` (
+  `CDMScenario_id` VARCHAR(255),
+  `CDMCriterionPossibleValue_id` VARCHAR(255),
+  PRIMARY KEY (`CDMScenario_id`, `CDMCriterionPossibleValue_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CDMStrategy` (
+  `Project_id` VARCHAR(255),
+  `CDMCriterionPossibleValue_id` VARCHAR(255),
+  PRIMARY KEY (`Project_id`, `CDMCriterionPossibleValue_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CloudDataHostingSolution` (
+  `id` VARCHAR(255),
+  `Project_id` VARCHAR(255),
+  `CDHSCriterionPossibleValue_id` VARCHAR(255),
+  `value` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CloudDataStore` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `provider` VARCHAR(255),
+  `website` VARCHAR(255),
+  `description` VARCHAR(255),
+  `created` DATETIME,
+  `updated` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CloudDataStoreProperty` (
+  `id` VARCHAR(255),
+  `CloudDataStore_id` VARCHAR(255),
+  `CDHSCriterionPossibleValue_id` VARCHAR(255),
+  `inputValue` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Impact` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `key` VARCHAR(255),
+  `description` VARCHAR(255),
+  `orderNumber` INT,
+  `ImpactCategory_id` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ImpactCategory` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `orderNumber` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LocalDBLCategory` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `orderNumber` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LocalDBLCriterion` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `orderNumber` INT,
+  `LocalDBLCategory_id` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LocalDBLCriterionPossibleValue` (
+  `id` VARCHAR(255),
+  `key` VARCHAR(255),
+  `name` VARCHAR(255),
+  `orderNumber` INT,
+  `LocalDBLCriterion_id` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LocalDBLProperty` (
+  `id` VARCHAR(255),
+  `Project_id` VARCHAR(255),
+  `LocalDBLCriterionPossibleValue_id` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Project` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  `department` VARCHAR(255),
+  `url` VARCHAR(255),
+  `User_id` VARCHAR(255),
+  `CloudDataStore_id` VARCHAR(255),
+  `created` DATETIME,
+  `updated` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Project_has_CDMScenario` (
+  `Project_id` VARCHAR(255),
+  `CDMScenario_id` VARCHAR(255),
+  PRIMARY KEY (`Project_id`, `CDMScenario_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Solution` (
+  `id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  `LocalDBLCriterionPossibleValue_id` VARCHAR(255),
+  `CDHSCriterionPossibleValue_id` VARCHAR(255),
+  `CDMCriterionPossibleValue_id` VARCHAR(255),
+  `CDMCriterionPossibleValue_id1` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CDMScenario_has_CDMCriterionPossibleValue` (
+  `CDMScenario_id` VARCHAR(255),
+  `CDMCriterionPossibleValue_id` VARCHAR(255),
+  PRIMARY KEY (`CDMScenario_id`, `CDMCriterionPossibleValue_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_332966_dump4') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_332966_dump4') AS relationships;
+DROP DATABASE `db_332966_dump4`;
+UNINSTALL EXTENSION vsql_schematron;

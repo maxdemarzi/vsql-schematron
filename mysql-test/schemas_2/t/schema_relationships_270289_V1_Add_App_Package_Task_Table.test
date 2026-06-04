@@ -1,0 +1,108 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 270289_V1_Add_App_Package_Task_Table
+--echo #
+CREATE DATABASE `db_270289_V1_Add_App_Package_Task_Table`;
+USE `db_270289_V1_Add_App_Package_Task_Table`;
+
+CREATE TABLE `apppackage` (
+  `id` VARCHAR(255),
+  `app_pkg_id` VARCHAR(255),
+  `app_pkg_name` VARCHAR(255),
+  `app_pkg_version` VARCHAR(255),
+  `app_pkg_path` VARCHAR(255),
+  `app_provider` VARCHAR(255),
+  `app_pkg_desc` VARCHAR(255),
+  `app_pkg_affinity` VARCHAR(255),
+  `app_icon_url` VARCHAR(255),
+  `app_id` VARCHAR(255),
+  `tenant_id` VARCHAR(255),
+  `created_time` DATETIME,
+  `modified_time` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `apppackagehost` (
+  `id` INT,
+  `pkg_host_key` VARCHAR(255),
+  `host_ip` VARCHAR(255),
+  `app_pkg_id` VARCHAR(255),
+  `distribution_status` VARCHAR(255),
+  `tenant_id` VARCHAR(255),
+  `error` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `apmtenant` (
+  `tenant` VARCHAR(255),
+  PRIMARY KEY (`tenant`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `apppackageinfo` (
+  `id` VARCHAR(255),
+  `app_id` VARCHAR(255),
+  `appstore_ip` VARCHAR(255),
+  `package_id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `appstore_name` VARCHAR(255),
+  `appstore_endpoint` VARCHAR(255),
+  `pkg_size` VARCHAR(255),
+  `version` VARCHAR(255),
+  `type` VARCHAR(255),
+  `affinity` VARCHAR(255),
+  `industry` VARCHAR(255),
+  `contact` VARCHAR(255),
+  `user_id` VARCHAR(255),
+  `user_name` VARCHAR(255),
+  `status` VARCHAR(255),
+  `short_desc` VARCHAR(255),
+  `test_task_id` VARCHAR(255),
+  `provider` VARCHAR(255),
+  `sync_status` VARCHAR(255),
+  `created_time` DATETIME,
+  `updated_time` DATETIME,
+  `operational_info` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `apptemplate` (
+  `template_id` VARCHAR(255),
+  `app_name` VARCHAR(255),
+  `version` VARCHAR(255),
+  `app_package_id` VARCHAR(255),
+  `app_id` VARCHAR(255),
+  `tenant_id` VARCHAR(255),
+  `deploy_type` VARCHAR(255),
+  PRIMARY KEY (`template_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `apptemplateinputattr` (
+  `attr_id` INT,
+  `template_id` VARCHAR(255),
+  `name` VARCHAR(255),
+  `type` VARCHAR(255),
+  `default_value` VARCHAR(255),
+  `description` VARCHAR(255),
+  PRIMARY KEY (`attr_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_270289_V1_Add_App_Package_Task_Table') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_270289_V1_Add_App_Package_Task_Table') AS relationships;
+DROP DATABASE `db_270289_V1_Add_App_Package_Task_Table`;
+UNINSTALL EXTENSION vsql_schematron;

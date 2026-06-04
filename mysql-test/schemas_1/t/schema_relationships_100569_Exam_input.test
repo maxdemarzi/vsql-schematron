@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 100569_Exam_input
+--echo #
+CREATE DATABASE `db_100569_Exam_input`;
+USE `db_100569_Exam_input`;
+
+CREATE TABLE `Cities` (
+  `Id` INT,
+  `Name` VARCHAR(255),
+  `CountryCode` VARCHAR(255),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Hotels` (
+  `Id` INT,
+  `Name` VARCHAR(255),
+  `CityId` INT,
+  `EmployeeCount` INT,
+  `BaseRate` DECIMAL(10,2),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Rooms` (
+  `Id` INT,
+  `Price` DECIMAL(10,2),
+  `Type` VARCHAR(255),
+  `Beds` INT,
+  `HotelId` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Trips` (
+  `Id` INT,
+  `RoomId` INT,
+  `BookDate` DATETIME,
+  `ArrivalDate` DATETIME,
+  `ReturnDate` DATETIME,
+  `CancelDate` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Accounts` (
+  `Id` INT,
+  `FirstName` VARCHAR(255),
+  `MiddleName` VARCHAR(255),
+  `LastName` VARCHAR(255),
+  `CityId` INT,
+  `BirthDate` DATETIME,
+  `Email` VARCHAR(255),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AccountsTrips` (
+  `AccountId` INT,
+  `TripId` INT,
+  `Luggage` INT,
+  PRIMARY KEY (`AccountId`, `TripId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_100569_Exam_input') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_100569_Exam_input') AS relationships;
+DROP DATABASE `db_100569_Exam_input`;
+UNINSTALL EXTENSION vsql_schematron;

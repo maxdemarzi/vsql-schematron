@@ -1,0 +1,116 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 194163_h2_ddl
+--echo #
+CREATE DATABASE `db_194163_h2_ddl`;
+USE `db_194163_h2_ddl`;
+
+CREATE TABLE `apicurio` (
+  `prop_name` VARCHAR(255),
+  `prop_value` VARCHAR(255),
+  PRIMARY KEY (`prop_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `globalrules` (
+  `tenantId` VARCHAR(255),
+  `type` VARCHAR(255),
+  `configuration` VARCHAR(255),
+  PRIMARY KEY (`tenantId`, `type`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `artifacts` (
+  `tenantId` VARCHAR(255),
+  `groupId` VARCHAR(255),
+  `artifactId` VARCHAR(255),
+  `type` VARCHAR(255),
+  `createdBy` VARCHAR(255),
+  `createdOn` DATETIME,
+  `latest` INT,
+  PRIMARY KEY (`tenantId`, `groupId`, `artifactId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rules` (
+  `tenantId` VARCHAR(255),
+  `groupId` VARCHAR(255),
+  `artifactId` VARCHAR(255),
+  `type` VARCHAR(255),
+  `configuration` VARCHAR(255),
+  PRIMARY KEY (`tenantId`, `groupId`, `artifactId`, `type`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `content` (
+  `contentId` INT,
+  `canonicalHash` VARCHAR(255),
+  `contentHash` VARCHAR(255),
+  `content` VARCHAR(255),
+  PRIMARY KEY (`contentId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `versions` (
+  `globalId` INT,
+  `tenantId` VARCHAR(255),
+  `groupId` VARCHAR(255),
+  `artifactId` VARCHAR(255),
+  `version` VARCHAR(255),
+  `versionId` INT,
+  `state` VARCHAR(255),
+  `name` VARCHAR(255),
+  `description` VARCHAR(255),
+  `createdBy` VARCHAR(255),
+  `createdOn` DATETIME,
+  `labels` VARCHAR(255),
+  `properties` VARCHAR(255),
+  `contentId` INT,
+  PRIMARY KEY (`globalId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `properties` (
+  `globalId` INT,
+  `pkey` VARCHAR(255),
+  `pvalue` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `labels` (
+  `globalId` INT,
+  `label` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `logconfiguration` (
+  `logger` VARCHAR(255),
+  `loglevel` VARCHAR(255),
+  PRIMARY KEY (`logger`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `groups` (
+  `tenantId` VARCHAR(255),
+  `groupId` VARCHAR(255),
+  `description` VARCHAR(255),
+  `format` VARCHAR(255),
+  `createdBy` VARCHAR(255),
+  `createdOn` DATETIME,
+  `modifiedBy` VARCHAR(255),
+  `modifiedOn` DATETIME,
+  `properties` VARCHAR(255),
+  PRIMARY KEY (`tenantId`, `groupId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_194163_h2_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_194163_h2_ddl') AS relationships;
+DROP DATABASE `db_194163_h2_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 197294_002_06_tables_historiques
+--echo #
+CREATE DATABASE `db_197294_002_06_tables_historiques`;
+USE `db_197294_002_06_tables_historiques`;
+
+CREATE TABLE `t_historique_vente` (
+  `t_historique_vente_id` INT,
+  `t_produit_id` VARCHAR(255),
+  `mois` INT,
+  `annee` INT,
+  `quantite_vendue` INT,
+  `nombre_ventes` INT,
+  PRIMARY KEY (`t_historique_vente_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_histo_delivrance` (
+  `t_histo_delivrance_id` INT,
+  `numero_facture` INT,
+  `operateur` VARCHAR(255),
+  `t_client_id` VARCHAR(255),
+  `t_praticien_id` VARCHAR(255),
+  `prescription` DATETIME,
+  `delivrance` DATETIME,
+  `type_facturation` INT,
+  PRIMARY KEY (`t_histo_delivrance_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_histo_delivrance_ligne` (
+  `t_histo_delivrance_ligne_id` INT,
+  `t_histo_delivrance_id` INT,
+  `t_produit_id` VARCHAR(255),
+  `quantite` INT,
+  `prix_vente` DECIMAL(10,2),
+  `prix_achat` DECIMAL(10,2),
+  PRIMARY KEY (`t_histo_delivrance_ligne_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_197294_002_06_tables_historiques') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_197294_002_06_tables_historiques') AS relationships;
+DROP DATABASE `db_197294_002_06_tables_historiques`;
+UNINSTALL EXTENSION vsql_schematron;

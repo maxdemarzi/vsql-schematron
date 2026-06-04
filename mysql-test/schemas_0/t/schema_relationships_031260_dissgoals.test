@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 031260_dissgoals
+--echo #
+CREATE DATABASE `db_031260_dissgoals`;
+USE `db_031260_dissgoals`;
+
+CREATE TABLE `il` (
+  `ilPlaka` INT,
+  `ilAdi` VARCHAR(255),
+  PRIMARY KEY (`ilPlaka`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ilce` (
+  `bulunduguil` INT,
+  `ilceID` INT,
+  `ilAdi` VARCHAR(255),
+  PRIMARY KEY (`ilceID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iletisim` (
+  `bilgiID` INT,
+  `telNO` VARCHAR(255),
+  `il` INT,
+  `ilce` INT,
+  PRIMARY KEY (`bilgiID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rol` (
+  `rolID` INT,
+  `rolTipi` VARCHAR(255),
+  PRIMARY KEY (`rolID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kullanici` (
+  `kullaniciID` INT,
+  `adSoyad` VARCHAR(255),
+  `iletisimBilgisi` INT,
+  `email` VARCHAR(255),
+  `kullaniciAdi` VARCHAR(255),
+  `Bio` VARCHAR(255),
+  `rol` INT,
+  PRIMARY KEY (`kullaniciID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etiket` (
+  `etiketID` INT,
+  `etiketAdi` VARCHAR(255),
+  PRIMARY KEY (`etiketID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `spor` (
+  `sporID` INT,
+  `sporAdi` VARCHAR(255),
+  PRIMARY KEY (`sporID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `lig` (
+  `ligID` INT,
+  `ligAdi` VARCHAR(255),
+  `spor` INT,
+  PRIMARY KEY (`ligID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `takim` (
+  `takimID` INT,
+  `takimAdi` VARCHAR(255),
+  `lig` INT,
+  PRIMARY KEY (`takimID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `soru` (
+  `gonderi_id` INT,
+  `durum` VARCHAR(255),
+  PRIMARY KEY (`gonderi_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `gonderietiket` (
+  `geID` INT,
+  `gonderi` INT,
+  `etiket` INT,
+  PRIMARY KEY (`geID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `oy` (
+  `oyID` INT,
+  `oyAtanKullanici` INT,
+  `oyAtilangonderi` INT,
+  `oyTipi` VARCHAR(255),
+  PRIMARY KEY (`oyID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_031260_dissgoals') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_031260_dissgoals') AS relationships;
+DROP DATABASE `db_031260_dissgoals`;
+UNINSTALL EXTENSION vsql_schematron;

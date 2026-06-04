@@ -1,0 +1,118 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 653441_MediPi_Clinical_DDL
+--echo #
+CREATE DATABASE `db_653441_MediPi_Clinical_DDL`;
+USE `db_653441_MediPi_Clinical_DDL`;
+
+CREATE TABLE `alert` (
+  `alert_id` INT,
+  `patient_uuid` VARCHAR(255),
+  `alert_time` DATETIME,
+  `alert_text` VARCHAR(255),
+  `data_id` INT,
+  `transmit_success_date` DATETIME,
+  `retry_attempts` INT,
+  PRIMARY KEY (`alert_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `attribute_threshold` (
+  `attribute_threshold_id` INT,
+  `attribute_id` INT,
+  `patient_uuid` VARCHAR(255),
+  `threshold_type` VARCHAR(255),
+  `threshold_low_value` VARCHAR(255),
+  `threshold_high_value` VARCHAR(255),
+  `effective_date` DATETIME,
+  PRIMARY KEY (`attribute_threshold_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `patient` (
+  `patient_uuid` VARCHAR(255),
+  `patient_group_uuid` VARCHAR(255),
+  PRIMARY KEY (`patient_uuid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `patient_details` (
+  `patient_uuid` VARCHAR(255),
+  `nhs_number` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `dob` DATETIME,
+  PRIMARY KEY (`patient_uuid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `patient_group` (
+  `patient_group_uuid` VARCHAR(255),
+  `patient_group_name` VARCHAR(255),
+  PRIMARY KEY (`patient_group_uuid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recording_device_attribute` (
+  `attribute_id` INT,
+  `attribute_name` VARCHAR(255),
+  `type_id` INT,
+  `attribute_units` VARCHAR(255),
+  `attribute_type` VARCHAR(255),
+  PRIMARY KEY (`attribute_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recording_device_data` (
+  `data_id` INT,
+  `attribute_id` INT,
+  `data_value` VARCHAR(255),
+  `patient_uuid` VARCHAR(255),
+  `data_value_time` DATETIME,
+  `downloaded_time` DATETIME,
+  `schedule_effective_time` DATETIME,
+  `schedule_expiry_time` DATETIME,
+  `alert_status` VARCHAR(255),
+  PRIMARY KEY (`data_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recording_device_type` (
+  `type_id` INT,
+  `type` VARCHAR(255),
+  `make` VARCHAR(255),
+  `model` VARCHAR(255),
+  `display_name` VARCHAR(255),
+  PRIMARY KEY (`type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `clinician_details` (
+  `clinician_uuid` VARCHAR(255),
+  `clinician_username` VARCHAR(255),
+  `password` VARCHAR(255),
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `patient_group_uuid` VARCHAR(255),
+  PRIMARY KEY (`clinician_uuid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `clinician_role` (
+  `clinician_role_id` INT,
+  `clinician_uuid` VARCHAR(255),
+  `role` VARCHAR(255),
+  PRIMARY KEY (`clinician_role_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_653441_MediPi_Clinical_DDL') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_653441_MediPi_Clinical_DDL') AS relationships;
+DROP DATABASE `db_653441_MediPi_Clinical_DDL`;
+UNINSTALL EXTENSION vsql_schematron;

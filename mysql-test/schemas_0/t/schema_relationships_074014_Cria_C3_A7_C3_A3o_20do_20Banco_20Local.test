@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 074014_Cria_C3_A7_C3_A3o_20do_20Banco_20Local
+--echo #
+CREATE DATABASE `db_074014_Cria_C3_A7_C3_A3o_20do_20Banco_20Local`;
+USE `db_074014_Cria_C3_A7_C3_A3o_20do_20Banco_20Local`;
+
+CREATE TABLE `EVENTO` (
+  `CODIGO` INT,
+  `DATA` VARCHAR(255),
+  `HORARIO` VARCHAR(255),
+  `LOCAL` VARCHAR(255),
+  `NOME` VARCHAR(255),
+  PRIMARY KEY (`CODIGO`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CONVIDADO` (
+  `RG` VARCHAR(255),
+  `NOME_CONVIDADO` VARCHAR(255),
+  `EVENTO_CODIGO` INT,
+  PRIMARY KEY (`RG`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EVENTO_CONVIDADO` (
+  `EVENTO_CODIGO` INT,
+  `CONVIDADO_RG` VARCHAR(255),
+  PRIMARY KEY (`EVENTO_CODIGO`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_074014_Cria_C3_A7_C3_A3o_20do_20Banco_20Local') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_074014_Cria_C3_A7_C3_A3o_20do_20Banco_20Local') AS relationships;
+DROP DATABASE `db_074014_Cria_C3_A7_C3_A3o_20do_20Banco_20Local`;
+UNINSTALL EXTENSION vsql_schematron;

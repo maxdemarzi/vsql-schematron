@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 027132_migration_121_122
+--echo #
+CREATE DATABASE `db_027132_migration_121_122`;
+USE `db_027132_migration_121_122`;
+
+CREATE TABLE `METAPROJECTS` (
+  `ID` VARCHAR(255),
+  `NAME` VARCHAR(255),
+  `DESCRIPTION` VARCHAR(255),
+  `OWNER` VARCHAR(255),
+  `PRIVATE` VARCHAR(255),
+  `CREATION_DATE` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `METAPROJECT_ASSIGNMENTS` (
+  `ID` VARCHAR(255),
+  `MEPR_ID` VARCHAR(255),
+  `EXPE_ID` VARCHAR(255),
+  `SAMP_ID` VARCHAR(255),
+  `DATA_ID` VARCHAR(255),
+  `MATE_ID` VARCHAR(255),
+  `CREATION_DATE` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_027132_migration_121_122') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_027132_migration_121_122') AS relationships;
+DROP DATABASE `db_027132_migration_121_122`;
+UNINSTALL EXTENSION vsql_schematron;

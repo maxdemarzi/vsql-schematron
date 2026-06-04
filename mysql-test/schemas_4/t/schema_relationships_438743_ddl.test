@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 438743_ddl
+--echo #
+CREATE DATABASE `db_438743_ddl`;
+USE `db_438743_ddl`;
+
+CREATE TABLE `curso` (
+  `id` INT,
+  `nome` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `empresa` (
+  `id` INT,
+  `endereco` VARCHAR(255),
+  `nome` VARCHAR(255),
+  `descricao` VARCHAR(255),
+  `produtos` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuario` (
+  `id` INT,
+  `email` VARCHAR(255),
+  `password` VARCHAR(255),
+  `tipoConta` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `empregador` (
+  `id` INT,
+  `nome` VARCHAR(255),
+  `empresa_fk` INT,
+  `usuario_fk` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `estagiario` (
+  `id` INT,
+  `nome` VARCHAR(255),
+  `ano_ingresso` VARCHAR(255),
+  `minicurriculo` VARCHAR(255),
+  `usuario_fk` INT,
+  `curso_fk` INT,
+  `porcentagem_conclusao` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `interesse_empresa` (
+  `id` INT,
+  `estagiario_fk` INT,
+  `empresa_fk` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vaga` (
+  `id` INT,
+  `descricao` VARCHAR(255),
+  `semestre` VARCHAR(255),
+  `atividades` VARCHAR(255),
+  `habilidades` VARCHAR(255),
+  `carga_horaria` INT,
+  `remuneracao` DECIMAL(10,2),
+  `empresa_fk` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_438743_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_438743_ddl') AS relationships;
+DROP DATABASE `db_438743_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

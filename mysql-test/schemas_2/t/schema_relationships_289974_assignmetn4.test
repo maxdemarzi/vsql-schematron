@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 289974_assignmetn4
+--echo #
+CREATE DATABASE `db_289974_assignmetn4`;
+USE `db_289974_assignmetn4`;
+
+CREATE TABLE `Branch` (
+  `branchNo` VARCHAR(255),
+  `street` VARCHAR(255),
+  `city` VARCHAR(255),
+  `state` VARCHAR(255),
+  `zip` VARCHAR(255),
+  PRIMARY KEY (`branchNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BranchTel` (
+  `branchNo` VARCHAR(255),
+  `telNo` VARCHAR(255),
+  PRIMARY KEY (`branchNo`, `telNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Manager` (
+  `staffNo` VARCHAR(255),
+  `cellPhone` VARCHAR(255),
+  `eMail` VARCHAR(255),
+  PRIMARY KEY (`staffNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ActorDirector` (
+  `stageName` VARCHAR(255),
+  `name` VARCHAR(255),
+  `gender` VARCHAR(255),
+  PRIMARY KEY (`stageName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DVD` (
+  `catalogNo` VARCHAR(255),
+  `title` VARCHAR(255),
+  `category` VARCHAR(255),
+  `dailyRent` DECIMAL(10,2),
+  PRIMARY KEY (`catalogNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ChildrenDVD` (
+  `catalogNo` VARCHAR(255),
+  `ageGroup` VARCHAR(255),
+  PRIMARY KEY (`catalogNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ForeignDVD` (
+  `catalogNo` VARCHAR(255),
+  `spokenLanguage` VARCHAR(255),
+  `subtitleLanguage` VARCHAR(255),
+  PRIMARY KEY (`catalogNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Makes` (
+  `stageName` VARCHAR(255),
+  `catalogNo` VARCHAR(255),
+  `role` VARCHAR(255),
+  PRIMARY KEY (`stageName`, `catalogNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DVDCopy` (
+  `catalogNo` VARCHAR(255),
+  `copyNo` INT,
+  `condition` INT,
+  `branchNo` VARCHAR(255),
+  PRIMARY KEY (`catalogNo`, `copyNo`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_289974_assignmetn4') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_289974_assignmetn4') AS relationships;
+DROP DATABASE `db_289974_assignmetn4`;
+UNINSTALL EXTENSION vsql_schematron;

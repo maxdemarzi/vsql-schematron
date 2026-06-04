@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 365942_stock
+--echo #
+CREATE DATABASE `db_365942_stock`;
+USE `db_365942_stock`;
+
+CREATE TABLE `Stock` (
+  `stock_id` INT,
+  `name` VARCHAR(255),
+  `price` DECIMAL(10,2),
+  `share` INT,
+  PRIMARY KEY (`stock_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Stock_Update` (
+  `update_id` INT,
+  `stock_id` INT,
+  `price_change` DECIMAL(10,2),
+  PRIMARY KEY (`update_id`, `stock_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `User` (
+  `user_id` VARCHAR(255),
+  `balance` DECIMAL(10,2),
+  `password` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `User_Stock` (
+  `user_id` VARCHAR(255),
+  `stock_id` INT,
+  `amount` INT,
+  PRIMARY KEY (`user_id`, `stock_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Watchlist` (
+  `user_id` VARCHAR(255),
+  `stock_id` INT,
+  PRIMARY KEY (`user_id`, `stock_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Group_Info` (
+  `group_id` INT,
+  `balance` DECIMAL(10,2),
+  PRIMARY KEY (`group_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Group_Users` (
+  `group_id` INT,
+  `user_id` VARCHAR(255),
+  PRIMARY KEY (`group_id`, `user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Group_Stock` (
+  `group_id` INT,
+  `stock_id` INT,
+  `amount` INT,
+  PRIMARY KEY (`group_id`, `stock_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Transaction` (
+  `transaction_id` INT,
+  `amount` INT,
+  `date` VARCHAR(255),
+  `price` DECIMAL(10,2),
+  PRIMARY KEY (`transaction_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `User_Transaction` (
+  `transaction_id` INT,
+  `type` VARCHAR(255),
+  `user_id` VARCHAR(255),
+  `stock_id` INT,
+  PRIMARY KEY (`transaction_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Group_Transaction` (
+  `transaction_id` INT,
+  `type` VARCHAR(255),
+  `group_id` INT,
+  `stock_id` INT,
+  PRIMARY KEY (`transaction_id`, `group_id`, `stock_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_365942_stock') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_365942_stock') AS relationships;
+DROP DATABASE `db_365942_stock`;
+UNINSTALL EXTENSION vsql_schematron;

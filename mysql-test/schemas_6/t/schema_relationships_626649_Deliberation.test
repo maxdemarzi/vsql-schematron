@@ -1,0 +1,150 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 626649_Deliberation
+--echo #
+CREATE DATABASE `db_626649_Deliberation`;
+USE `db_626649_Deliberation`;
+
+CREATE TABLE `EC` (
+  `IDEC` INT,
+  `IDUE` INT,
+  `VALEUR` DECIMAL(10,2),
+  `COEFFICIENT` INT,
+  PRIMARY KEY (`IDEC`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ETUDIANT` (
+  `IDETUDIANT` INT,
+  `NOM` VARCHAR(255),
+  `PRENOM` VARCHAR(255),
+  `NUMERO_CARTE` VARCHAR(255),
+  `DATE` DATETIME,
+  `EMAIL` VARCHAR(255),
+  `TEL` DECIMAL(10,2),
+  `LIEU` VARCHAR(255),
+  PRIMARY KEY (`IDETUDIANT`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ETUDIANT_PROMO` (
+  `IDETUDIANTP` INT,
+  `IDPROMO` INT,
+  `IDETUDIANT` INT,
+  `MONTANT` DECIMAL(10,2),
+  PRIMARY KEY (`IDETUDIANTP`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EVALUATION` (
+  `IDEVALUATION` INT,
+  `IDEC` INT,
+  `TYPE` VARCHAR(255),
+  `DATE` DATETIME,
+  PRIMARY KEY (`IDEVALUATION`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FILIERE` (
+  `IDFILIERE` INT,
+  `ID` INT,
+  `NOM` VARCHAR(255),
+  PRIMARY KEY (`IDFILIERE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MOYENNE_EC` (
+  `IDMEC` INT,
+  `IDETUDIANTP` INT,
+  `IDEC` INT,
+  `VALEUR` DECIMAL(10,2),
+  PRIMARY KEY (`IDMEC`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MOYENNE_SE` (
+  `IDMSE` INT,
+  `IDETUDIANTP` INT,
+  `IDSEMESTRE` INT,
+  `VALEUR` INT,
+  `ATTRIBUT_42` INT,
+  PRIMARY KEY (`IDMSE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MOYENNE_UE` (
+  `IDMUE` INT,
+  `IDETUDIANTP` INT,
+  `IDUE` INT,
+  `VALEUR` DECIMAL(10,2),
+  `CREDIT` INT,
+  PRIMARY KEY (`IDMUE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `NIVEAU` (
+  `IDNIVEAU` INT,
+  `IDFILIERE` INT,
+  `NOM` VARCHAR(255),
+  PRIMARY KEY (`IDNIVEAU`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `NOTE` (
+  `IDNOTE` INT,
+  `IDETUDIANTP` INT,
+  `IDEVALUATION` INT,
+  `VALEUR` DECIMAL(10,2),
+  PRIMARY KEY (`IDNOTE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROFIL` (
+  `ID_PROFIL` INT,
+  `NOM` VARCHAR(255),
+  PRIMARY KEY (`ID_PROFIL`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROMO` (
+  `IDPROMO` INT,
+  `IDNIVEAU` INT,
+  `ANNEE_SCOLAIRE` VARCHAR(255),
+  PRIMARY KEY (`IDPROMO`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SEMESTRE` (
+  `IDSEMESTRE` INT,
+  `VALEUR` INT,
+  PRIMARY KEY (`IDSEMESTRE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UE` (
+  `IDUE` INT,
+  `IDPROMO` INT,
+  `IDSEMESTRE` INT,
+  `CODE` INT,
+  `NOM` VARCHAR(255),
+  `CREDIT` INT,
+  PRIMARY KEY (`IDUE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USER` (
+  `ID` INT,
+  `ID_PROFIL` INT,
+  `NOM` VARCHAR(255),
+  `PRENOM` VARCHAR(255),
+  `TEL` DECIMAL(10,2),
+  `EMAIL` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_626649_Deliberation') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_626649_Deliberation') AS relationships;
+DROP DATABASE `db_626649_Deliberation`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,164 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 053347_SVPModel
+--echo #
+CREATE DATABASE `db_053347_SVPModel`;
+USE `db_053347_SVPModel`;
+
+CREATE TABLE `svp.club` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `isTemporary` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.profile` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.sequence` (
+  `id` INT,
+  `date` DATETIME,
+  `member_id` INT,
+  `profile_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.competition` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `date` DATETIME,
+  `group_competition` INT,
+  `sealed` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.price` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `competition_id` INT,
+  `profile_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.shot` (
+  `id` INT,
+  `value` DECIMAL(10,2),
+  `shot_number` INT,
+  `factor_value` DECIMAL(10,2),
+  `angle` DECIMAL(10,2),
+  `valid` INT,
+  `sequence_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.award` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `competition_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.participant` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.group` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `competition_id` INT,
+  `participant_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.group_has_member` (
+  `group_id` INT,
+  `member_id` INT,
+  PRIMARY KEY (`group_id`, `member_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.participant_has_member` (
+  `participant_id` INT,
+  `member_id` INT,
+  PRIMARY KEY (`participant_id`, `member_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.price_has_winner` (
+  `price_id` INT,
+  `participant_id` INT,
+  PRIMARY KEY (`price_id`, `participant_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.evaluation` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `key` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.participant_has_sequence` (
+  `participant_id` INT,
+  `sequence_id` INT,
+  PRIMARY KEY (`participant_id`, `sequence_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.sequence_has_newSequence` (
+  `sequence_id` INT,
+  `newSequence_id` INT,
+  PRIMARY KEY (`sequence_id`, `newSequence_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.disagProfile` (
+  `id` INT,
+  `value` VARCHAR(255),
+  `profile_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.manualProfile` (
+  `id` INT,
+  `profile_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.award_has_winner` (
+  `award_id` INT,
+  `member_id` INT,
+  PRIMARY KEY (`award_id`, `member_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.price_has_evaluation` (
+  `price_id` INT,
+  `evaluation_id` INT,
+  PRIMARY KEY (`price_id`, `evaluation_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `svp.price_has_sequence` (
+  `price_id` INT,
+  `sequence_id` INT,
+  PRIMARY KEY (`price_id`, `sequence_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_053347_SVPModel') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_053347_SVPModel') AS relationships;
+DROP DATABASE `db_053347_SVPModel`;
+UNINSTALL EXTENSION vsql_schematron;

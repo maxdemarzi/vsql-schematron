@@ -1,0 +1,106 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 266780_schema_sqlite
+--echo #
+CREATE DATABASE `db_266780_schema_sqlite`;
+USE `db_266780_schema_sqlite`;
+
+CREATE TABLE `source` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sourcefeat` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `value` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chunk` (
+  `id` INT,
+  `text` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chunkfeat` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `value` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `batch_properties` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `properties` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `script_properties` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `properties` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chunkfeatcat` (
+  `name` VARCHAR(255),
+  `chunkfeat_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `source_chunk` (
+  `source_id` INT,
+  `chunk_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `source_sourcefeat` (
+  `source_id` INT,
+  `sourcefeat_id` INT,
+  `freq` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `chunk_chunkfeat` (
+  `chunk_id` INT,
+  `chunkfeat_id` INT,
+  `freq` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `batch` (
+  `chunk_id` INT,
+  `name` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `script` (
+  `chunk_id` INT,
+  `name` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wordfreq` (
+  `id` INT,
+  `chunkfeat_id` INT,
+  `freq` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_266780_schema_sqlite') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_266780_schema_sqlite') AS relationships;
+DROP DATABASE `db_266780_schema_sqlite`;
+UNINSTALL EXTENSION vsql_schematron;

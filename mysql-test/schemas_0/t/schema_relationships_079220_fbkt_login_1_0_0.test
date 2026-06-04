@@ -1,0 +1,164 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 079220_fbkt_login_1_0_0
+--echo #
+CREATE DATABASE `db_079220_fbkt_login_1_0_0`;
+USE `db_079220_fbkt_login_1_0_0`;
+
+CREATE TABLE `application` (
+  `id` INT,
+  `uid` VARCHAR(255),
+  `name` VARCHAR(255),
+  `version` VARCHAR(255),
+  `require_promo_code_for_registration` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `location` (
+  `id` INT,
+  `uid` VARCHAR(255),
+  `name` VARCHAR(255),
+  `geo_json` VARCHAR(255),
+  `geom` VARCHAR(255),
+  `address_1` VARCHAR(255),
+  `address_2` VARCHAR(255),
+  `city` VARCHAR(255),
+  `county` VARCHAR(255),
+  `state` VARCHAR(255),
+  `country` VARCHAR(255),
+  `postal_code` VARCHAR(255),
+  `attributes_json` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `license_type` (
+  `id` INT,
+  `application_id` INT,
+  `name` VARCHAR(255),
+  `license_type_key` VARCHAR(255),
+  `active` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `promo_code` (
+  `id` INT,
+  `license_type_id` INT,
+  `name` VARCHAR(255),
+  `expiration_date` DATETIME,
+  `the_promo_code` VARCHAR(255),
+  `attributes_json` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_login` (
+  `id` INT,
+  `contact_id` INT,
+  `login` VARCHAR(255),
+  `hashed_password` VARCHAR(255),
+  `entity_filters_json` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contact` (
+  `id` INT,
+  `uid` VARCHAR(255),
+  `organization_id` INT,
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `phone_number` VARCHAR(255),
+  `email` VARCHAR(255),
+  `job_title` VARCHAR(255),
+  `attributes_json` VARCHAR(255),
+  `location_id` INT,
+  `inactive` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `license` (
+  `id` INT,
+  `organization_id` INT,
+  `contact_id` INT,
+  `license_type_id` INT,
+  `status` VARCHAR(255),
+  `activation_date` DATETIME,
+  `expiration_date` DATETIME,
+  `promo_code_id` INT,
+  `attributes_json` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permission` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `license_permission` (
+  `id` INT,
+  `license_id` INT,
+  `permission_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `license_type_permission` (
+  `id` INT,
+  `license_type_id` INT,
+  `permission_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `login_token` (
+  `id` INT,
+  `user_login_id` INT,
+  `token` VARCHAR(255),
+  `expiration_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `organization` (
+  `id` INT,
+  `uid` VARCHAR(255),
+  `name` VARCHAR(255),
+  `attributes_json` VARCHAR(255),
+  `location_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `organization_reference` (
+  `id` INT,
+  `organization_reference_type` VARCHAR(255),
+  `referencing_organization_id` INT,
+  `referenced_organization_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `facility` (
+  `id` INT,
+  `organization_id` INT,
+  `name` VARCHAR(255),
+  `attributes_json` VARCHAR(255),
+  `location_id` INT,
+  `inactive` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_079220_fbkt_login_1_0_0') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_079220_fbkt_login_1_0_0') AS relationships;
+DROP DATABASE `db_079220_fbkt_login_1_0_0`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 054421_0100_create_tables
+--echo #
+CREATE DATABASE `db_054421_0100_create_tables`;
+USE `db_054421_0100_create_tables`;
+
+CREATE TABLE `ABC_MENU_CACHE` (
+  `mnc_id` INT,
+  `mnu_id` INT,
+  `cmp_id` INT,
+  `lan_id` INT,
+  `pro_id` INT,
+  `mnc_html` VARCHAR(255),
+  PRIMARY KEY (`mnc_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ABC_MENU_ITEM` (
+  `mni_id` INT,
+  `mni_id_parent` INT,
+  `mnu_id` INT,
+  `pag_id` INT,
+  `wrd_id` INT,
+  `mni_class1` VARCHAR(255),
+  `mni_class2` VARCHAR(255),
+  `mni_class3` VARCHAR(255),
+  `mni_class4` VARCHAR(255),
+  `mni_hide_anonymous` INT,
+  `mni_hide_identified` INT,
+  `mni_depth` INT,
+  `mni_weight` INT,
+  PRIMARY KEY (`mni_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ABC_MENU_ITEM_PAGE` (
+  `mip_id` INT,
+  `mni_id` INT,
+  `mnu_id` INT,
+  `pag_id` INT,
+  PRIMARY KEY (`mip_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_054421_0100_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_054421_0100_create_tables') AS relationships;
+DROP DATABASE `db_054421_0100_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

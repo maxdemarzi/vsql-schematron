@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 578422_5_1_03
+--echo #
+CREATE DATABASE `db_578422_5_1_03`;
+USE `db_578422_5_1_03`;
+
+CREATE TABLE `report_format` (
+  `report_format_name` VARCHAR(255),
+  PRIMARY KEY (`report_format_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `report_schedule_format` (
+  `report_schedule_format_name` VARCHAR(255),
+  `report_schedule_id` INT,
+  PRIMARY KEY (`report_schedule_format_name`, `report_schedule_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_578422_5_1_03') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_578422_5_1_03') AS relationships;
+DROP DATABASE `db_578422_5_1_03`;
+UNINSTALL EXTENSION vsql_schematron;

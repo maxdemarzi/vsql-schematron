@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 027102_word2vect_create
+--echo #
+CREATE DATABASE `db_027102_word2vect_create`;
+USE `db_027102_word2vect_create`;
+
+CREATE TABLE `Dict` (
+  `Id` INT,
+  `Word` VARCHAR(255),
+  `Vect` VARCHAR(255),
+  `LangId` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DictAddins` (
+  `Id` INT,
+  `Word` VARCHAR(255),
+  `Vect` VARCHAR(255),
+  `LangId` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EmbedDict` (
+  `Inx` INT,
+  `DictId` INT,
+  `DictAddinsId` INT,
+  `Freq` INT,
+  PRIMARY KEY (`Inx`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_027102_word2vect_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_027102_word2vect_create') AS relationships;
+DROP DATABASE `db_027102_word2vect_create`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 523062_acmecafe
+--echo #
+CREATE DATABASE `db_523062_acmecafe`;
+USE `db_523062_acmecafe`;
+
+CREATE TABLE `Costumer` (
+  `CostumerId` INT,
+  `Name` VARCHAR(255),
+  `Pin` VARCHAR(255),
+  `CreditCard` VARCHAR(255),
+  `Username` VARCHAR(255),
+  `Password` VARCHAR(255),
+  `CreditCardExpiration` DATETIME,
+  PRIMARY KEY (`CostumerId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Menu` (
+  `MenuId` INT,
+  `Name` VARCHAR(255),
+  `Active` VARCHAR(255),
+  PRIMARY KEY (`MenuId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MenuProduct` (
+  `MenuId` INT,
+  `ProductId` INT,
+  PRIMARY KEY (`MenuId`, `ProductId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Product` (
+  `ProductId` INT,
+  `Name` VARCHAR(255),
+  PRIMARY KEY (`ProductId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Request` (
+  `RequestId` INT,
+  `CostumerId` INT,
+  PRIMARY KEY (`RequestId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RequestLine` (
+  `RequestLineId` INT,
+  `ProductId` INT,
+  `Quantity` INT,
+  `UnitPrice` DECIMAL(10,2),
+  PRIMARY KEY (`RequestLineId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RequestRequestLine` (
+  `RequestId` INT,
+  `RequestLineId` INT,
+  PRIMARY KEY (`RequestId`, `RequestLineId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RequestVoucher` (
+  `VoucherId` INT,
+  `RequestId` INT,
+  PRIMARY KEY (`VoucherId`, `RequestId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Voucher` (
+  `VoucherId` INT,
+  `Key` VARCHAR(255),
+  `Number` INT,
+  `Type` VARCHAR(255),
+  `CostumerId` INT,
+  `IsUsed` VARCHAR(255),
+  PRIMARY KEY (`VoucherId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_523062_acmecafe') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_523062_acmecafe') AS relationships;
+DROP DATABASE `db_523062_acmecafe`;
+UNINSTALL EXTENSION vsql_schematron;

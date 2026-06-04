@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 209146_V10_collections
+--echo #
+CREATE DATABASE `db_209146_V10_collections`;
+USE `db_209146_V10_collections`;
+
+CREATE TABLE `shed_collections` (
+  `id` INT,
+  `transaction_date` DATETIME,
+  `amount` DECIMAL(10,2),
+  `transport_fee_amount` DECIMAL(10,2),
+  `currency` VARCHAR(255),
+  `remarks` VARCHAR(255),
+  `account_identifier` VARCHAR(255),
+  `sub_txn_type_id` VARCHAR(255),
+  `status` VARCHAR(255),
+  `c_reference` VARCHAR(255),
+  `token` INT,
+  `created_by` VARCHAR(255),
+  `created_on` DATETIME,
+  `last_modified_by` VARCHAR(255),
+  `last_modified_on` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `shed_collections_inidividual` (
+  `id` INT,
+  `collections_id` INT,
+  `account_identifier` VARCHAR(255),
+  `account_external_id` VARCHAR(255),
+  `amount` DECIMAL(10,2),
+  `i_reference` VARCHAR(255),
+  `attendance` VARCHAR(255),
+  `token` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `shed_self_expiring_tokens` (
+  `id` INT,
+  `token` VARCHAR(255),
+  `created_time` DATETIME,
+  `token_expires_by` DATETIME,
+  `status` VARCHAR(255),
+  `entity_type` VARCHAR(255),
+  `entity_reference` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_209146_V10_collections') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_209146_V10_collections') AS relationships;
+DROP DATABASE `db_209146_V10_collections`;
+UNINSTALL EXTENSION vsql_schematron;

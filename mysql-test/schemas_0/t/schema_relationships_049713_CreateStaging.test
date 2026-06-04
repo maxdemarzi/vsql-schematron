@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 049713_CreateStaging
+--echo #
+CREATE DATABASE `db_049713_CreateStaging`;
+USE `db_049713_CreateStaging`;
+
+CREATE TABLE `CONFIGURATION` (
+  `configurationid` INT,
+  `configurationname` VARCHAR(255),
+  `configurationvalue` VARCHAR(255),
+  `frequency` VARCHAR(255),
+  `starttime` VARCHAR(255),
+  `primarycontact` VARCHAR(255),
+  `primaryemail` VARCHAR(255),
+  `primaryorgname` VARCHAR(255),
+  `primaryphone` VARCHAR(255),
+  `secondarycontact` VARCHAR(255),
+  `secondaryemail` VARCHAR(255),
+  `secondaryorgname` VARCHAR(255),
+  `secondaryphone` VARCHAR(255),
+  `recordstatus` VARCHAR(255),
+  `updatedby` VARCHAR(255),
+  `inserteddate` DATETIME,
+  `lastmodified` DATETIME,
+  PRIMARY KEY (`configurationid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `IMPORT` (
+  `importid` INT,
+  `importname` VARCHAR(255),
+  `importstartdate` DATETIME,
+  `importenddate` DATETIME,
+  `recordstatus` VARCHAR(255),
+  `updatedby` VARCHAR(255),
+  `inserteddate` DATETIME,
+  `lastmodified` DATETIME,
+  PRIMARY KEY (`importid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `IMPORTDETAIL` (
+  `importdetailid` INT,
+  `importid` INT,
+  `failedrecords` INT,
+  `importbegintime` DATETIME,
+  `importendtime` DATETIME,
+  `successrecords` INT,
+  `totalrecords` INT,
+  `recordstatus` VARCHAR(255),
+  `updatedby` VARCHAR(255),
+  `inserteddate` DATETIME,
+  `lastmodified` DATETIME,
+  PRIMARY KEY (`importdetailid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SYNCRECORD` (
+  `syncrecordid` INT,
+  `importdetailid` INT,
+  `synckey` VARCHAR(255),
+  `recordstatus` VARCHAR(255),
+  `updatedby` VARCHAR(255),
+  `inserteddate` DATETIME,
+  `lastmodified` DATETIME,
+  PRIMARY KEY (`syncrecordid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SYNCRECORDDETAIL` (
+  `syncrecorddetailid` INT,
+  `syncrecordid` INT,
+  `payload` VARCHAR(255),
+  `learner` VARCHAR(255),
+  `recordstatus` VARCHAR(255),
+  `updatedby` VARCHAR(255),
+  `inserteddate` DATETIME,
+  `lastmodified` DATETIME,
+  PRIMARY KEY (`syncrecorddetailid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_049713_CreateStaging') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_049713_CreateStaging') AS relationships;
+DROP DATABASE `db_049713_CreateStaging`;
+UNINSTALL EXTENSION vsql_schematron;

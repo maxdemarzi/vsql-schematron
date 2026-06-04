@@ -1,0 +1,191 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 192390_V1_Base_Version
+--echo #
+CREATE DATABASE `db_192390_V1_Base_Version`;
+USE `db_192390_V1_Base_Version`;
+
+CREATE TABLE `persistent_logins` (
+  `username` VARCHAR(255),
+  `series` VARCHAR(255),
+  `token` VARCHAR(255),
+  `last_used` DATETIME,
+  PRIMARY KEY (`series`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contributions` (
+  `ID` INT,
+  `created` DATETIME,
+  `entity_version` INT,
+  `field` VARCHAR(255),
+  `status` VARCHAR(255),
+  `user_comment` VARCHAR(255),
+  `verification_comment` VARCHAR(255),
+  `verification_date` DATETIME,
+  `movie_id` INT,
+  `user_id` INT,
+  `verification_user` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `messages` (
+  `id` INT,
+  `created` DATETIME,
+  `date_of_read` DATETIME,
+  `entity_version` INT,
+  `visible_for_recipient` VARCHAR(255),
+  `visible_for_sender` VARCHAR(255),
+  `subject` VARCHAR(255),
+  `text` VARCHAR(255),
+  `unique_id` VARCHAR(255),
+  `recipient_id` INT,
+  `sender_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `movies_info` (
+  `ID` INT,
+  `dtype` VARCHAR(255),
+  `entity_version` INT,
+  `reported_for_delete` VARCHAR(255),
+  `reported_for_update` VARCHAR(255),
+  `status` VARCHAR(255),
+  `movie_id` INT,
+  `box_office` DECIMAL(10,2),
+  `box_office_country` VARCHAR(255),
+  `country` VARCHAR(255),
+  `genre` VARCHAR(255),
+  `language` VARCHAR(255),
+  `title_attribute` VARCHAR(255),
+  `title_country` VARCHAR(255),
+  `title` VARCHAR(255),
+  `outline` VARCHAR(255),
+  `file_id_in_cloud` VARCHAR(255),
+  `file_provider` VARCHAR(255),
+  `release_date_country` VARCHAR(255),
+  `release_date` DATETIME,
+  `review` VARCHAR(255),
+  `review_spoiler` VARCHAR(255),
+  `review_title` VARCHAR(255),
+  `site_official` VARCHAR(255),
+  `site` VARCHAR(255),
+  `summary` VARCHAR(255),
+  `synopsis` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `movies_ratings` (
+  `id` INT,
+  `DATE` DATETIME,
+  `rate` INT,
+  `movie_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `movies` (
+  `ID` INT,
+  `budget` VARCHAR(255),
+  `favorite_count` INT,
+  `rating` DECIMAL(10,2),
+  `status` VARCHAR(255),
+  `title` VARCHAR(255),
+  `type` VARCHAR(255),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `activation_token` VARCHAR(255),
+  `avatar_id_in_cloud` VARCHAR(255),
+  `avatar_provider` VARCHAR(255),
+  `created` DATETIME,
+  `email` VARCHAR(255),
+  `email_change_token` VARCHAR(255),
+  `enabled` VARCHAR(255),
+  `entity_version` INT,
+  `modified_date` DATETIME,
+  `new_email` VARCHAR(255),
+  `password` VARCHAR(255),
+  `unique_id` VARCHAR(255),
+  `username` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contributions_ids_to_add` (
+  `contribution_id` INT,
+  `element_id_to_add` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `contributions_ids_to_delete` (
+  `contribution_id` INT,
+  `element_id_to_delete` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `contributions_sources` (
+  `contribution_id` INT,
+  `SOURCES` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contributions_ids_to_update` (
+  `contribution_id` INT,
+  `old_element_id` INT,
+  `new_element_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_authorities` (
+  `user_id` INT,
+  `authority` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_movie_permissions` (
+  `user_id` INT,
+  `permission` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_favorites_movies` (
+  `user_id` INT,
+  `movie_id` INT,
+  PRIMARY KEY (`user_id`, `movie_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_friends` (
+  `user_id` INT,
+  `user_friend_id` INT,
+  PRIMARY KEY (`user_id`, `user_friend_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_received_invitations` (
+  `user_invited_id` INT,
+  `user_id` INT,
+  `invitation_order` INT,
+  PRIMARY KEY (`user_invited_id`, `user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_sent_invitations` (
+  `user_id` INT,
+  `user_invited_id` INT,
+  `invitation_order` INT,
+  PRIMARY KEY (`user_id`, `user_invited_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_192390_V1_Base_Version') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_192390_V1_Base_Version') AS relationships;
+DROP DATABASE `db_192390_V1_Base_Version`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 348491_schema_mysql
+--echo #
+CREATE DATABASE `db_348491_schema_mysql`;
+USE `db_348491_schema_mysql`;
+
+CREATE TABLE `lucky_moneys` (
+  `id` INT,
+  `user_id` VARCHAR(255),
+  `system_wallet_id` INT,
+  `session_chat_id` VARCHAR(255),
+  `amount` INT,
+  `rest_money` INT,
+  `number_bag` INT,
+  `rest_bag` INT,
+  `type` VARCHAR(255),
+  `wish_message` VARCHAR(255),
+  `created_at` DATETIME,
+  `expired_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `received_lucky_moneys` (
+  `id` INT,
+  `lucky_money_id` INT,
+  `receiver_id` VARCHAR(255),
+  `amount` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_348491_schema_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_348491_schema_mysql') AS relationships;
+DROP DATABASE `db_348491_schema_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

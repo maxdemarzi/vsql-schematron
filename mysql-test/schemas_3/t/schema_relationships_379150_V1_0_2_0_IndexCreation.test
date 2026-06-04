@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 379150_V1_0_2_0_IndexCreation
+--echo #
+CREATE DATABASE `db_379150_V1_0_2_0_IndexCreation`;
+USE `db_379150_V1_0_2_0_IndexCreation`;
+
+CREATE TABLE `QUERY` (
+  `QueryKey` INT,
+  `PoolKey` INT,
+  `DeviceKey` INT,
+  `DestinationPoolKey` INT,
+  `Status` VARCHAR(255),
+  PRIMARY KEY (`QueryKey`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `QUERYITEM` (
+  `QueryItemKey` INT,
+  `QueryKey` INT,
+  `Status` VARCHAR(255),
+  `PatientName` VARCHAR(255),
+  `PatientID` VARCHAR(255),
+  `AccessionNumber` VARCHAR(255),
+  `PatientBirthDate` VARCHAR(255),
+  `StudyDate` VARCHAR(255),
+  `ModalitiesInStudy` VARCHAR(255),
+  `StudyDescription` VARCHAR(255),
+  `AnonymizedName` VARCHAR(255),
+  `AnonymizedID` VARCHAR(255),
+  PRIMARY KEY (`QueryItemKey`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `QUERYRESULT` (
+  `QueryResultKey` INT,
+  `QueryItemKey` INT,
+  `Status` VARCHAR(255),
+  `DoFetch` VARCHAR(255),
+  `StudyInstanceUID` VARCHAR(255),
+  `PatientName` VARCHAR(255),
+  `PatientID` VARCHAR(255),
+  `AccessionNumber` VARCHAR(255),
+  `PatientBirthDate` VARCHAR(255),
+  `StudyDate` VARCHAR(255),
+  `ModalitiesInStudy` VARCHAR(255),
+  `StudyDescription` VARCHAR(255),
+  PRIMARY KEY (`QueryResultKey`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_379150_V1_0_2_0_IndexCreation') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_379150_V1_0_2_0_IndexCreation') AS relationships;
+DROP DATABASE `db_379150_V1_0_2_0_IndexCreation`;
+UNINSTALL EXTENSION vsql_schematron;

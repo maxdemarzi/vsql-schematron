@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 643039_staffio_3_schema_weekly
+--echo #
+CREATE DATABASE `db_643039_staffio_3_schema_weekly`;
+USE `db_643039_staffio_3_schema_weekly`;
+
+CREATE TABLE `weekly_report` (
+  `id` INT,
+  `uid` VARCHAR(255),
+  `iso_year` INT,
+  `iso_week` INT,
+  `content` VARCHAR(255),
+  `up_count` INT,
+  `created` DATETIME,
+  `updated` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `weekly_report_up` (
+  `id` INT,
+  `report_id` INT,
+  `uid` VARCHAR(255),
+  `created` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `weekly_problem` (
+  `id` INT,
+  `uid` VARCHAR(255),
+  `iso_year` INT,
+  `iso_week` INT,
+  `content` VARCHAR(255),
+  `created` DATETIME,
+  `updated` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `weekly_status` (
+  `id` INT,
+  `uid` VARCHAR(255),
+  `iso_year` INT,
+  `iso_week` INT,
+  `status` INT,
+  `created` DATETIME,
+  `updated` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_643039_staffio_3_schema_weekly') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_643039_staffio_3_schema_weekly') AS relationships;
+DROP DATABASE `db_643039_staffio_3_schema_weekly`;
+UNINSTALL EXTENSION vsql_schematron;

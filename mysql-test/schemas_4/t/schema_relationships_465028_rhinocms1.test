@@ -1,0 +1,100 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 465028_rhinocms1
+--echo #
+CREATE DATABASE `db_465028_rhinocms1`;
+USE `db_465028_rhinocms1`;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `uuid` VARCHAR(255),
+  `username` VARCHAR(255),
+  `email` VARCHAR(255),
+  `password` VARCHAR(255),
+  `role` INT,
+  `visible` INT,
+  `status` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `profile` (
+  `id` INT,
+  `uuid` VARCHAR(255),
+  `user_id` INT,
+  `dealer_id` INT,
+  `first_name` VARCHAR(255),
+  `last_name` VARCHAR(255),
+  `gender` INT,
+  `date_of_birth` DATETIME,
+  `phone_number` VARCHAR(255),
+  `mobile_number` VARCHAR(255),
+  `image` VARCHAR(255),
+  `company_name` VARCHAR(255),
+  `primary_address_street` VARCHAR(255),
+  `primary_address_street_2` VARCHAR(255),
+  `primary_address_city` VARCHAR(255),
+  `primary_address_state` VARCHAR(255),
+  `primary_address_post_code` VARCHAR(255),
+  `primary_address_country` VARCHAR(255),
+  `billing_address_street` VARCHAR(255),
+  `billing_address_city` VARCHAR(255),
+  `billing_address_state` VARCHAR(255),
+  `billing_address_post_code` VARCHAR(255),
+  `billing_address_country` VARCHAR(255),
+  `security_question_1` VARCHAR(255),
+  `security_answer_1` VARCHAR(255),
+  `security_question_2` VARCHAR(255),
+  `security_answer_2` VARCHAR(255),
+  `security_question_custom` VARCHAR(255),
+  `security_answer_custom` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subscriptions` (
+  `id` INT,
+  `uuid` VARCHAR(255),
+  `name` VARCHAR(255),
+  `number_of_websites` INT,
+  `number_of_landing_pages` INT,
+  `price` DECIMAL(10,2),
+  `description` VARCHAR(255),
+  `expiry` INT,
+  `visible` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subscription_user` (
+  `id` INT,
+  `user_id` INT,
+  `subscription_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_465028_rhinocms1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_465028_rhinocms1') AS relationships;
+DROP DATABASE `db_465028_rhinocms1`;
+UNINSTALL EXTENSION vsql_schematron;

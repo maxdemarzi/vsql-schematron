@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 277322_001_add_beatmaps_and_users
+--echo #
+CREATE DATABASE `db_277322_001_add_beatmaps_and_users`;
+USE `db_277322_001_add_beatmaps_and_users`;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `api_fetched_at` DATETIME,
+  `avatar_url` VARCHAR(255),
+  `banned` VARCHAR(255),
+  `country` VARCHAR(255),
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `beatmapsets` (
+  `id` INT,
+  `api_fetched_at` DATETIME,
+  `artist` VARCHAR(255),
+  `created_at` DATETIME,
+  `creator_id` INT,
+  `creator_name` VARCHAR(255),
+  `favorite_count` INT,
+  `play_count` INT,
+  `ranked_status` INT,
+  `submitted_at` DATETIME,
+  `title` VARCHAR(255),
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `beatmaps` (
+  `id` INT,
+  `beatmapset_id` INT,
+  `bpm` DECIMAL(10,2),
+  `game_mode` INT,
+  `key_count` INT,
+  `play_count` INT,
+  `star_rating` DECIMAL(10,2),
+  `version` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `beatmapset_creators` (
+  `beatmapset_id` INT,
+  `creator_id` INT,
+  `game_mode` INT,
+  PRIMARY KEY (`beatmapset_id`, `creator_id`, `game_mode`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_277322_001_add_beatmaps_and_users') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_277322_001_add_beatmaps_and_users') AS relationships;
+DROP DATABASE `db_277322_001_add_beatmaps_and_users`;
+UNINSTALL EXTENSION vsql_schematron;

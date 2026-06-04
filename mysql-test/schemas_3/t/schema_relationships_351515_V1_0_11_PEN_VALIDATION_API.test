@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 351515_V1_0_11_PEN_VALIDATION_API
+--echo #
+CREATE DATABASE `db_351515_V1_0_11_PEN_VALIDATION_API`;
+USE `db_351515_V1_0_11_PEN_VALIDATION_API`;
+
+CREATE TABLE `PEN_SERVICES_MACRO_TYPE_CODE` (
+  `PEN_SERVICES_MACRO_TYPE_CODE` VARCHAR(255),
+  `LABEL` VARCHAR(255),
+  `DESCRIPTION` VARCHAR(255),
+  `DISPLAY_ORDER` DECIMAL(10,2),
+  `EFFECTIVE_DATE` DATETIME,
+  `EXPIRY_DATE` DATETIME,
+  `CREATE_USER` VARCHAR(255),
+  `CREATE_DATE` DATETIME,
+  `UPDATE_USER` VARCHAR(255),
+  `UPDATE_DATE` DATETIME,
+  PRIMARY KEY (`PEN_SERVICES_MACRO_TYPE_CODE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PEN_SERVICES_MACRO` (
+  `PEN_SERVICES_MACRO_ID` VARCHAR(255),
+  `MACRO_CODE` VARCHAR(255),
+  `MACRO_TEXT` VARCHAR(255),
+  `MACRO_TYPE_CODE` VARCHAR(255),
+  `CREATE_USER` VARCHAR(255),
+  `CREATE_DATE` DATETIME,
+  `UPDATE_USER` VARCHAR(255),
+  `UPDATE_DATE` DATETIME,
+  PRIMARY KEY (`PEN_SERVICES_MACRO_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_351515_V1_0_11_PEN_VALIDATION_API') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_351515_V1_0_11_PEN_VALIDATION_API') AS relationships;
+DROP DATABASE `db_351515_V1_0_11_PEN_VALIDATION_API`;
+UNINSTALL EXTENSION vsql_schematron;

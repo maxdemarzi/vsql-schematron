@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 075754_20191100000002_requests_postgres_up
+--echo #
+CREATE DATABASE `db_075754_20191100000002_requests_postgres_up`;
+USE `db_075754_20191100000002_requests_postgres_up`;
+
+CREATE TABLE `selfservice_login_requests` (
+  `id` VARCHAR(255),
+  `request_url` VARCHAR(255),
+  `issued_at` DATETIME,
+  `expires_at` DATETIME,
+  `active_method` VARCHAR(255),
+  `csrf_token` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `selfservice_login_request_methods` (
+  `id` VARCHAR(255),
+  `method` VARCHAR(255),
+  `selfservice_login_request_id` VARCHAR(255),
+  `config` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `selfservice_registration_requests` (
+  `id` VARCHAR(255),
+  `request_url` VARCHAR(255),
+  `issued_at` DATETIME,
+  `expires_at` DATETIME,
+  `active_method` VARCHAR(255),
+  `csrf_token` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `selfservice_registration_request_methods` (
+  `id` VARCHAR(255),
+  `method` VARCHAR(255),
+  `selfservice_registration_request_id` VARCHAR(255),
+  `config` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `selfservice_profile_management_requests` (
+  `id` VARCHAR(255),
+  `request_url` VARCHAR(255),
+  `issued_at` DATETIME,
+  `expires_at` DATETIME,
+  `form` VARCHAR(255),
+  `update_successful` VARCHAR(255),
+  `identity_id` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_075754_20191100000002_requests_postgres_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_075754_20191100000002_requests_postgres_up') AS relationships;
+DROP DATABASE `db_075754_20191100000002_requests_postgres_up`;
+UNINSTALL EXTENSION vsql_schematron;

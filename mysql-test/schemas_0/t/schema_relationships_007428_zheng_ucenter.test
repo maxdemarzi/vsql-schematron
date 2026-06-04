@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 007428_zheng_ucenter
+--echo #
+CREATE DATABASE `db_007428_zheng_ucenter`;
+USE `db_007428_zheng_ucenter`;
+
+CREATE TABLE `ucenter_oauth` (
+  `oauth_id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`oauth_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ucenter_user` (
+  `user_id` INT,
+  `password` VARCHAR(255),
+  `salt` VARCHAR(255),
+  `nickname` VARCHAR(255),
+  `sex` INT,
+  `avatar` VARCHAR(255),
+  `create_time` DATETIME,
+  `create_ip` VARCHAR(255),
+  `last_login_time` DATETIME,
+  `last_login_ip` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ucenter_user_details` (
+  `user_id` INT,
+  `signature` VARCHAR(255),
+  `real_name` VARCHAR(255),
+  `birthday` DATETIME,
+  `question` VARCHAR(255),
+  `answer` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ucenter_user_log` (
+  `user_log_id` INT,
+  `user_id` INT,
+  `content` VARCHAR(255),
+  `ip` VARCHAR(255),
+  `agent` VARCHAR(255),
+  `create_time` DATETIME,
+  PRIMARY KEY (`user_log_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ucenter_user_oauth` (
+  `user_oauth_id` INT,
+  `user_id` INT,
+  `oauth_id` INT,
+  `open_id` VARCHAR(255),
+  `status` INT,
+  `create_time` DATETIME,
+  PRIMARY KEY (`user_oauth_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_007428_zheng_ucenter') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_007428_zheng_ucenter') AS relationships;
+DROP DATABASE `db_007428_zheng_ucenter`;
+UNINSTALL EXTENSION vsql_schematron;

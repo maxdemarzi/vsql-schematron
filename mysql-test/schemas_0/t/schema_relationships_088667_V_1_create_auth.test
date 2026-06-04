@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 088667_V_1_create_auth
+--echo #
+CREATE DATABASE `db_088667_V_1_create_auth`;
+USE `db_088667_V_1_create_auth`;
+
+CREATE TABLE `audit_log` (
+  `id` INT,
+  `user_id` VARCHAR(255),
+  `originatingSystem` VARCHAR(255),
+  `object_id` VARCHAR(255),
+  `operation` VARCHAR(255),
+  `description` VARCHAR(255),
+  `success` VARCHAR(255),
+  `timestamp` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `authority` (
+  `id` INT,
+  `regex` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_group` (
+  `id` INT,
+  `name` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_group_to_authority` (
+  `group_id` INT,
+  `authority_id` INT,
+  PRIMARY KEY (`group_id`, `authority_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `og_user` (
+  `id` INT,
+  `username` VARCHAR(255),
+  `password` VARCHAR(255),
+  `lastLogin` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_to_user_group` (
+  `user_id` INT,
+  `user_group_id` INT,
+  PRIMARY KEY (`user_id`, `user_group_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_088667_V_1_create_auth') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_088667_V_1_create_auth') AS relationships;
+DROP DATABASE `db_088667_V_1_create_auth`;
+UNINSTALL EXTENSION vsql_schematron;

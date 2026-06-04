@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 025920_createTableScript
+--echo #
+CREATE DATABASE `db_025920_createTableScript`;
+USE `db_025920_createTableScript`;
+
+CREATE TABLE `user` (
+  `user_id` INT,
+  `create_date` DATETIME,
+  `userName` VARCHAR(255),
+  `password` VARCHAR(255),
+  `oauthToken` VARCHAR(255),
+  `oauthSecret` VARCHAR(255),
+  `displayName` VARCHAR(255),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `menu` (
+  `menu_id` INT,
+  `create_date` DATETIME,
+  `menuName` VARCHAR(255),
+  `resturant` VARCHAR(255),
+  `menuType` VARCHAR(255),
+  PRIMARY KEY (`menu_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `menu_item` (
+  `menu_item_id` INT,
+  `create_date` DATETIME,
+  `menu_id` INT,
+  `menuItemName` VARCHAR(255),
+  `menuItemImageURL` VARCHAR(255),
+  `menuItemDesc` VARCHAR(255),
+  `menuItemSpicyLevel` VARCHAR(255),
+  `menuItemPrice` DECIMAL(10,2),
+  `menuItemCalories` INT,
+  PRIMARY KEY (`menu_item_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_025920_createTableScript') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_025920_createTableScript') AS relationships;
+DROP DATABASE `db_025920_createTableScript`;
+UNINSTALL EXTENSION vsql_schematron;

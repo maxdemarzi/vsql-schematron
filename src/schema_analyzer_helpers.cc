@@ -1,5 +1,6 @@
 #include "schema_analyzer_helpers.h"
 #include "domain_specific_matching.h"
+#include "name_matching.h"
 #include <cctype>
 #include <algorithm>
 #include <sstream>
@@ -28,7 +29,9 @@ bool isSystemColumn(const std::string& col_name) {
         "created_by", "createdby", "creation_date", "creationdate", "creation_time", "creationtime",
         "last_update_by", "last_updated_by", "lastupdateby", "lastupdatedby",
         "last_update_date", "lastupdatedate", "last_update_time", "lastupdatetime",
-        "updated_by", "updatedby"
+        "updated_by", "updatedby",
+        "pers_id_registerer", "pers_id_modifier", "pers_id_author", "last_updusr_id", "frst_register_id",
+        "pers_id", "pers_id_leader", "pers_id_grantee", "orig_del", "original_deletion", "orig_deletion"
     };
     return SYSTEM_COLUMNS.count(to_lower(col_name)) > 0;
 }
@@ -348,6 +351,22 @@ std::vector<std::string> getEffectivePKs(
         }
     }
     
+    // If the only candidate PK is a column that matches another table name exactly, it's a foreign key, not a PK!
+    if (pks.size() == 1) {
+        std::string candidate = to_lower(pks[0]);
+        if (candidate != "id" && candidate != "uuid") {
+            std::string prefix, suffix;
+            if (splitColumnName(candidate, prefix, suffix)) {
+                for (const auto& other_tbl : table_names) {
+                    if (to_lower(other_tbl) != to_lower(tbl_name) && matchTableName(prefix, other_tbl, false)) {
+                        pks.clear();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
     return pks;
 }
 
@@ -367,6 +386,9 @@ std::string detectSharedTablePrefix(const std::vector<std::string>& table_names)
         std::string clean = to_lower(stripSchemaPrefix(name));
         stripped_table_names.insert(clean);
         stripped_table_names.insert(singularize(clean));
+        std::string suffix_stripped = stripTableSuffix(clean);
+        stripped_table_names.insert(suffix_stripped);
+        stripped_table_names.insert(singularize(suffix_stripped));
     }
     
     std::unordered_map<std::string, int> prefix_counts;
@@ -437,13 +459,20 @@ bool isSequenceOrSystemTable(const std::string& tbl_name) {
     }
     static const std::unordered_set<std::string> SYSTEM_TABLES = {
         "sequelizemeta", "flyway_schema_history", "schema_version",
-        "alembic_version", "databasechangelog", "databasechangeloglock"
+        "alembic_version", "databasechangelog", "databasechangeloglock",
+        "ids", "idgen", "id_generator"
     };
     if (SYSTEM_TABLES.count(tbl) > 0) {
         return true;
     }
     if (tbl.rfind("tmp_", 0) == 0 || tbl.rfind("temp_", 0) == 0 ||
         tbl.rfind("bak_", 0) == 0 || tbl.rfind("backup_", 0) == 0) {
+        return true;
+    }
+    if (tbl.length() > 8 && tbl.rfind("_history") == tbl.length() - 8) {
+        return true;
+    }
+    if (tbl.length() > 5 && tbl.rfind("_hist") == tbl.length() - 5) {
         return true;
     }
     return false;
@@ -458,10 +487,37 @@ bool isSequenceOrSystemTable(const std::string& tbl_name) {
 bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
     std::string a = stripSchemaPrefix(to_lower(tbl_a));
     std::string b = stripSchemaPrefix(to_lower(tbl_b));
-    std::string clean_a = stripTablePrefix(a);
-    std::string clean_b = stripTablePrefix(b);
-    if (clean_a == clean_b) return a.length() > b.length();
+    std::string clean_a = stripTablePrefix(stripTableSuffix(a));
+    std::string clean_b = stripTablePrefix(stripTableSuffix(b));
+    if (clean_a == clean_b) {
+        auto endsWithCatalog = [](const std::string& name) {
+            static const std::unordered_set<std::string> CATS = {
+                "type", "types", "status", "statuses", "code", "codes", "state", "states", "group", "groups"
+            };
+            size_t under = name.rfind('_');
+            if (under != std::string::npos) {
+                return CATS.count(name.substr(under + 1)) > 0;
+            }
+            return false;
+        };
+        if (endsWithCatalog(a) != endsWithCatalog(b)) {
+            return false;
+        }
+        return a.length() > b.length();
+    }
     if (clean_a.length() > clean_b.length()) {
+        std::string sing_b = singularize(clean_b);
+        if (clean_a.rfind(sing_b + "_", 0) == 0 || clean_a.rfind(clean_b + "_", 0) == 0) {
+            size_t under_a = clean_a.rfind('_');
+            size_t under_b = clean_b.rfind('_');
+            if (under_a != std::string::npos && under_b != std::string::npos) {
+                std::string sfx_a = clean_a.substr(under_a + 1);
+                std::string sfx_b = clean_b.substr(under_b + 1);
+                if (sfx_a == sfx_b || singularize(sfx_a) == singularize(sfx_b)) {
+                    return true;
+                }
+            }
+        }
         // Exclude catalog/lookup tables from being subtypes
         size_t last_underscore = clean_a.rfind('_');
         if (last_underscore != std::string::npos && last_underscore > 0) {
@@ -471,21 +527,51 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
                 "class", "classes", "group", "groups", "genre", "genres", "role", "roles",
                 "state", "states", "level", "levels", "priority", "priorities", "lookup", "lookups",
                 "code", "codes", "mode", "modes", "action", "actions", "tag", "tags", "master", "mstr", "dict",
-                "version", "versions", "ver", "vers"
+                "version", "versions", "ver", "vers",
+                "content", "contents", "value", "values", "blob", "blobs", "data", "xml", "text", "file", "files",
+                "system", "systems", "service", "services", "assignment", "assignments", "map", "maps", "link", "links",
+                "relation", "relations", "relationship", "relationships", "membership", "memberships", "association", "associations",
+                "property", "properties", "store", "stores", "history"
             };
-            if (CATALOG_SUFFIXES.count(suffix)) {
+            if (CATALOG_SUFFIXES.count(suffix) && suffix != clean_b && suffix + "s" != clean_b && singularize(suffix) != singularize(clean_b)) {
                 return false;
             }
         }
 
+        static const std::unordered_set<std::string> CATALOG_WORDS = {
+            "type", "types", "status", "statuses", "code", "codes", "state", "states", "group", "groups",
+            "lookup", "lookups", "tag", "tags"
+        };
+        if (CATALOG_WORDS.count(clean_b) > 0) {
+            return false;
+        }
+
         size_t pos = clean_a.rfind(clean_b);
-        if (pos != std::string::npos && pos == clean_a.length() - clean_b.length()) return true;
+        if (pos != std::string::npos && pos == clean_a.length() - clean_b.length()) {
+            std::string prefix = clean_a.substr(0, pos);
+            if (prefix == "meta" || prefix == "sys" || prefix == "ref" || prefix == "ext" ||
+                prefix == "meta_" || prefix == "sys_" || prefix == "ref_" || prefix == "ext_") {
+                return false;
+            }
+            return true;
+        }
         
         // Prefix-based hierarchy (e.g. step_video -> steps)
-        std::string sb = clean_b;
-        if (sb.length() > 1 && sb.back() == 's') sb = sb.substr(0, sb.length() - 1);
-        if (clean_a.rfind(sb + "_", 0) == 0 || clean_a.rfind(clean_b + "_", 0) == 0) {
-            return true;
+        // If tbl_b is a catalog table, it cannot be a parent in a prefix-based hierarchy
+        bool b_is_catalog = false;
+        static const std::unordered_set<std::string> CATS = {
+            "type", "types", "status", "statuses", "code", "codes", "state", "states", "group", "groups"
+        };
+        size_t under_b = b.rfind('_');
+        if (under_b != std::string::npos) {
+            b_is_catalog = (CATS.count(b.substr(under_b + 1)) > 0);
+        }
+        if (!b_is_catalog) {
+            std::string sb = clean_b;
+            if (sb.length() > 1 && sb.back() == 's') sb = sb.substr(0, sb.length() - 1);
+            if (clean_a.rfind(sb + "_", 0) == 0 || clean_a.rfind(clean_b + "_", 0) == 0) {
+                return true;
+            }
         }
     }
     return false;

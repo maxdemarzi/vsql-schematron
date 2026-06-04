@@ -1,0 +1,120 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 500676_schema
+--echo #
+CREATE DATABASE `db_500676_schema`;
+USE `db_500676_schema`;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `username` VARCHAR(255),
+  `email` VARCHAR(255),
+  `password` VARCHAR(255),
+  `status` DECIMAL(10,2),
+  `avatar_url` VARCHAR(255),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_changes` (
+  `id` INT,
+  `user_id` INT,
+  `created_at` DATETIME,
+  `column_name` VARCHAR(255),
+  `value` VARCHAR(255),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `interests` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_interests` (
+  `user_id` INT,
+  `interest_id` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`user_id`, `interest_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_old_interests` (
+  `user_id` INT,
+  `interest_id` INT,
+  `started` DATETIME,
+  `ended` DATETIME,
+  PRIMARY KEY (`user_id`, `interest_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `conversations` (
+  `id` INT,
+  `created_at` DATETIME,
+  `latlng` INT,
+  `message` VARCHAR(255),
+  `user_id` INT,
+  `interest_id` INT,
+  `parent_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `interests_summary` (
+  `interest_id` INT,
+  `conversations_count` INT,
+  `conversations_total_count` INT,
+  `followers_count` INT,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`interest_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `conversations_summary` (
+  `conversation_id` INT,
+  `replies_count` INT,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`conversation_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `conversations_users` (
+  `user_id` INT,
+  `conversation_id` INT,
+  PRIMARY KEY (`user_id`, `conversation_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_summary` (
+  `user_id` INT,
+  `conversations_count` INT,
+  `replies_count` INT,
+  `interests_count` INT,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `applications` (
+  `id` INT,
+  `name` VARCHAR(255),
+  `key` VARCHAR(255),
+  `level` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_500676_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_500676_schema') AS relationships;
+DROP DATABASE `db_500676_schema`;
+UNINSTALL EXTENSION vsql_schematron;

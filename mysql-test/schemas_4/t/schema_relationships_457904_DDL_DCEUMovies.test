@@ -1,0 +1,128 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 457904_DDL_DCEUMovies
+--echo #
+CREATE DATABASE `db_457904_DDL_DCEUMovies`;
+USE `db_457904_DDL_DCEUMovies`;
+
+CREATE TABLE `Movie` (
+  `MovieID` INT,
+  `MovieTitle` VARCHAR(255),
+  `USDateReleased` DATETIME,
+  `ProducerName` VARCHAR(255),
+  `RunningTime` VARCHAR(255),
+  `Country` VARCHAR(255),
+  `Budget` DECIMAL(10,2),
+  `BoxOffice` DECIMAL(10,2),
+  PRIMARY KEY (`MovieID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Actor` (
+  `ActorID` INT,
+  `ActorFirstName` VARCHAR(255),
+  `ActorLastName` VARCHAR(255),
+  `Gender` VARCHAR(255),
+  `Remark` VARCHAR(255),
+  PRIMARY KEY (`ActorID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DCEUCharacter` (
+  `CharacterID` INT,
+  `CharacterName` VARCHAR(255),
+  `Ability` VARCHAR(255),
+  `Weakness` VARCHAR(255),
+  `CharacterType` VARCHAR(255),
+  PRIMARY KEY (`CharacterID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Castings` (
+  `MovieID` INT,
+  `ActorID` INT,
+  `CharacterID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `Director` (
+  `DirectorID` INT,
+  `DirectorFirstName` VARCHAR(255),
+  `DirectorLastName` VARCHAR(255),
+  `Remark` VARCHAR(255),
+  PRIMARY KEY (`DirectorID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `IsDirectedBy` (
+  `DirectorID` INT,
+  `MovieID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `Genre` (
+  `GenreID` INT,
+  `GenreTitle` VARCHAR(255),
+  PRIMARY KEY (`GenreID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TieInComic` (
+  `TieInComicID` INT,
+  `MovieID` INT,
+  `ComicTitle` VARCHAR(255),
+  `NumberOfIssue` INT,
+  `GenreID` INT,
+  `Writer` VARCHAR(255),
+  `Artist` VARCHAR(255),
+  `PublicationDate` DATETIME,
+  PRIMARY KEY (`TieInComicID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ComicIssue` (
+  `IssueID` INT,
+  `IssueNumber` INT,
+  `IssueTitle` VARCHAR(255),
+  `GenreID` INT,
+  `Remark` VARCHAR(255),
+  PRIMARY KEY (`IssueID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MovieGenre` (
+  `MovieID` INT,
+  `GenreID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `Reviewer` (
+  `ReviewerID` INT,
+  `ReviewerName` VARCHAR(255),
+  PRIMARY KEY (`ReviewerID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MovieRating` (
+  `MovieID` INT,
+  `ReviewerID` INT,
+  `StarRating` INT,
+  `ReviewDetails` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TieInComicRating` (
+  `TieInComicID` INT,
+  `ReviewerID` INT,
+  `StarRating` INT,
+  `TieInComicReviewDetails` VARCHAR(255)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_457904_DDL_DCEUMovies') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_457904_DDL_DCEUMovies') AS relationships;
+DROP DATABASE `db_457904_DDL_DCEUMovies`;
+UNINSTALL EXTENSION vsql_schematron;

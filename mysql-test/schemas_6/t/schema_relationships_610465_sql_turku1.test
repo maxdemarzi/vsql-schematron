@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 610465_sql_turku1
+--echo #
+CREATE DATABASE `db_610465_sql_turku1`;
+USE `db_610465_sql_turku1`;
+
+CREATE TABLE `general_ledger_accounts` (
+  `account_number` INT,
+  `account_description` VARCHAR(255),
+  PRIMARY KEY (`account_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `terms` (
+  `terms_id` INT,
+  `terms_description` VARCHAR(255),
+  `terms_due_days` INT,
+  PRIMARY KEY (`terms_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vendors` (
+  `vendor_id` INT,
+  `vendor_name` VARCHAR(255),
+  `vendor_address1` VARCHAR(255),
+  `vendor_address2` VARCHAR(255),
+  `vendor_city` VARCHAR(255),
+  `vendor_state` VARCHAR(255),
+  `vendor_zip_code` VARCHAR(255),
+  `vendor_phone` VARCHAR(255),
+  `vendor_contact_last_name` VARCHAR(255),
+  `vendor_contact_first_name` VARCHAR(255),
+  `default_terms_id` INT,
+  `default_account_number` INT,
+  PRIMARY KEY (`vendor_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `invoices` (
+  `invoice_id` INT,
+  `vendor_id` INT,
+  `invoice_number` VARCHAR(255),
+  `invoice_date` DATETIME,
+  `invoice_total` DECIMAL(10,2),
+  `payment_total` DECIMAL(10,2),
+  `credit_total` DECIMAL(10,2),
+  `terms_id` INT,
+  `invoice_due_date` DATETIME,
+  `payment_date` DATETIME,
+  PRIMARY KEY (`invoice_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `invoice_line_items` (
+  `invoice_id` INT,
+  `invoice_sequence` INT,
+  `account_number` INT,
+  `line_item_amount` DECIMAL(10,2),
+  `line_item_description` VARCHAR(255),
+  PRIMARY KEY (`invoice_id`, `invoice_sequence`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_610465_sql_turku1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_610465_sql_turku1') AS relationships;
+DROP DATABASE `db_610465_sql_turku1`;
+UNINSTALL EXTENSION vsql_schematron;

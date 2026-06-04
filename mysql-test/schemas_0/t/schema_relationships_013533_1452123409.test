@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 013533_1452123409
+--echo #
+CREATE DATABASE `db_013533_1452123409`;
+USE `db_013533_1452123409`;
+
+CREATE TABLE `Job` (
+  `Id` INT,
+  `StateId` INT,
+  `StateName` VARCHAR(255),
+  `InvocationData` VARCHAR(255),
+  `Arguments` VARCHAR(255),
+  `CreatedAt` DATETIME,
+  `ExpireAt` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Counter` (
+  `Id` INT,
+  `Key` VARCHAR(255),
+  `Value` INT,
+  `ExpireAt` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `JobParameter` (
+  `Id` INT,
+  `JobId` INT,
+  `Name` VARCHAR(255),
+  `Value` VARCHAR(255),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `JobState` (
+  `Id` INT,
+  `JobId` INT,
+  `Name` VARCHAR(255),
+  `Reason` VARCHAR(255),
+  `CreatedAt` DATETIME,
+  `Data` VARCHAR(255),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Server` (
+  `Id` VARCHAR(255),
+  `Data` VARCHAR(255),
+  `LastHeartbeat` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_013533_1452123409') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_013533_1452123409') AS relationships;
+DROP DATABASE `db_013533_1452123409`;
+UNINSTALL EXTENSION vsql_schematron;

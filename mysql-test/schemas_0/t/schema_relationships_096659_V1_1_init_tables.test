@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 096659_V1_1_init_tables
+--echo #
+CREATE DATABASE `db_096659_V1_1_init_tables`;
+USE `db_096659_V1_1_init_tables`;
+
+CREATE TABLE `judicial_user_profile` (
+  `per_Id` VARCHAR(255),
+  `personal_code` VARCHAR(255),
+  `appointment` VARCHAR(255),
+  `known_as` VARCHAR(255),
+  `surname` VARCHAR(255),
+  `full_name` VARCHAR(255),
+  `post_nominals` VARCHAR(255),
+  `appointment_type` VARCHAR(255),
+  `work_pattern` VARCHAR(255),
+  `ejudiciary_email` VARCHAR(255),
+  `joining_date` DATETIME,
+  `last_working_date` DATETIME,
+  `active_flag` VARCHAR(255),
+  `extracted_date` DATETIME,
+  `created_date` DATETIME,
+  `last_loaded_date` DATETIME,
+  PRIMARY KEY (`per_Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `judicial_office_appointment` (
+  `judicial_office_appointment_id` INT,
+  `per_Id` VARCHAR(255),
+  `personal_code` VARCHAR(255),
+  `base_location_id` VARCHAR(255),
+  `region_id` VARCHAR(255),
+  `is_prinicple_appointment` VARCHAR(255),
+  `start_date` DATETIME,
+  `end_date` DATETIME,
+  `active_flag` VARCHAR(255),
+  `extracted_date` DATETIME,
+  `created_date` DATETIME,
+  `last_loaded_date` DATETIME,
+  PRIMARY KEY (`judicial_office_appointment_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `judicial_office_authorisation` (
+  `judicial_office_auth_id` INT,
+  `per_id` VARCHAR(255),
+  `personal_code` VARCHAR(255),
+  `jurisdiction` VARCHAR(255),
+  `ticket_id` INT,
+  `start_date` DATETIME,
+  `end_date` DATETIME,
+  `created_date` DATETIME,
+  `last_updated` DATETIME,
+  `lower_level` VARCHAR(255),
+  PRIMARY KEY (`judicial_office_auth_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `base_location_type` (
+  `base_location_id` VARCHAR(255),
+  `court_name` VARCHAR(255),
+  `court_type` VARCHAR(255),
+  `circuit` VARCHAR(255),
+  `area_of_expertise` VARCHAR(255),
+  PRIMARY KEY (`base_location_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `region_type` (
+  `region_id` VARCHAR(255),
+  `region_desc_en` VARCHAR(255),
+  `region_desc_cy` VARCHAR(255),
+  PRIMARY KEY (`region_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_096659_V1_1_init_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_096659_V1_1_init_tables') AS relationships;
+DROP DATABASE `db_096659_V1_1_init_tables`;
+UNINSTALL EXTENSION vsql_schematron;

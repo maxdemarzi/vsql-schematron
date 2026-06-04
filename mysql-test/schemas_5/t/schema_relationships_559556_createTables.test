@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 559556_createTables
+--echo #
+CREATE DATABASE `db_559556_createTables`;
+USE `db_559556_createTables`;
+
+CREATE TABLE `skill` (
+  `skillid` INT,
+  `skillname` VARCHAR(255),
+  PRIMARY KEY (`skillid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `curriculum` (
+  `curriculumid` INT,
+  `createdby` VARCHAR(255),
+  `createdon` DATETIME,
+  `lastmodified` DATETIME,
+  `lastmodifiedby` VARCHAR(255),
+  `curriculumname` VARCHAR(255),
+  PRIMARY KEY (`curriculumid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trainer` (
+  `trainerid` INT,
+  `email` VARCHAR(255),
+  `trainerfirst` VARCHAR(255),
+  `trainerlast` VARCHAR(255),
+  PRIMARY KEY (`trainerid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `client` (
+  `clientid` INT,
+  `clientname` VARCHAR(255),
+  PRIMARY KEY (`clientid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `batch` (
+  `batchid` INT,
+  `batchsize` INT,
+  `enddate` DATETIME,
+  `startdate` DATETIME,
+  `trainerid` INT,
+  `clientid` INT,
+  `confirmed` VARCHAR(255),
+  `curriculumid` INT,
+  PRIMARY KEY (`batchid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `demand` (
+  `demandid` INT,
+  `clientid` INT,
+  `curriculumid` INT,
+  `needby` DATETIME,
+  `quantitydemanded` INT,
+  PRIMARY KEY (`demandid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `curriculum_skill` (
+  `skillid` INT,
+  `curriculumid` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `trainer_skill` (
+  `trainerid` INT,
+  `skillid` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `trainer_curriculum` (
+  `trainerid` INT,
+  `curriculumid` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_559556_createTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_559556_createTables') AS relationships;
+DROP DATABASE `db_559556_createTables`;
+UNINSTALL EXTENSION vsql_schematron;

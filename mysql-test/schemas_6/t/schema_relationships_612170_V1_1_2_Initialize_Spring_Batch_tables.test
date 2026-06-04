@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 612170_V1_1_2_Initialize_Spring_Batch_tables
+--echo #
+CREATE DATABASE `db_612170_V1_1_2_Initialize_Spring_Batch_tables`;
+USE `db_612170_V1_1_2_Initialize_Spring_Batch_tables`;
+
+CREATE TABLE `batch.JOB_INSTANCE` (
+  `JOB_INSTANCE_ID` INT,
+  `VERSION` INT,
+  `JOB_NAME` VARCHAR(255),
+  `JOB_KEY` VARCHAR(255),
+  PRIMARY KEY (`JOB_INSTANCE_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `batch.JOB_EXECUTION` (
+  `JOB_EXECUTION_ID` INT,
+  `VERSION` INT,
+  `JOB_INSTANCE_ID` INT,
+  `CREATE_TIME` DATETIME,
+  `START_TIME` DATETIME,
+  `END_TIME` DATETIME,
+  `STATUS` VARCHAR(255),
+  `EXIT_CODE` VARCHAR(255),
+  `EXIT_MESSAGE` VARCHAR(255),
+  `LAST_UPDATED` DATETIME,
+  `JOB_CONFIGURATION_LOCATION` VARCHAR(255),
+  PRIMARY KEY (`JOB_EXECUTION_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `batch.JOB_EXECUTION_PARAMS` (
+  `JOB_EXECUTION_ID` INT,
+  `TYPE_CD` VARCHAR(255),
+  `KEY_NAME` VARCHAR(255),
+  `STRING_VAL` VARCHAR(255),
+  `DATE_VAL` DATETIME,
+  `LONG_VAL` INT,
+  `DOUBLE_VAL` DECIMAL(10,2),
+  `IDENTIFYING` VARCHAR(255)
+) CHARACTER SET latin1;
+
+CREATE TABLE `batch.STEP_EXECUTION` (
+  `STEP_EXECUTION_ID` INT,
+  `VERSION` INT,
+  `STEP_NAME` VARCHAR(255),
+  `JOB_EXECUTION_ID` INT,
+  `START_TIME` DATETIME,
+  `END_TIME` DATETIME,
+  `STATUS` VARCHAR(255),
+  `COMMIT_COUNT` INT,
+  `READ_COUNT` INT,
+  `FILTER_COUNT` INT,
+  `WRITE_COUNT` INT,
+  `READ_SKIP_COUNT` INT,
+  `WRITE_SKIP_COUNT` INT,
+  `PROCESS_SKIP_COUNT` INT,
+  `ROLLBACK_COUNT` INT,
+  `EXIT_CODE` VARCHAR(255),
+  `EXIT_MESSAGE` VARCHAR(255),
+  `LAST_UPDATED` DATETIME,
+  PRIMARY KEY (`STEP_EXECUTION_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `batch.STEP_EXECUTION_CONTEXT` (
+  `STEP_EXECUTION_ID` INT,
+  `SHORT_CONTEXT` VARCHAR(255),
+  `SERIALIZED_CONTEXT` VARCHAR(255),
+  PRIMARY KEY (`STEP_EXECUTION_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `batch.JOB_EXECUTION_CONTEXT` (
+  `JOB_EXECUTION_ID` INT,
+  `SHORT_CONTEXT` VARCHAR(255),
+  `SERIALIZED_CONTEXT` VARCHAR(255),
+  PRIMARY KEY (`JOB_EXECUTION_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_612170_V1_1_2_Initialize_Spring_Batch_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_612170_V1_1_2_Initialize_Spring_Batch_tables') AS relationships;
+DROP DATABASE `db_612170_V1_1_2_Initialize_Spring_Batch_tables`;
+UNINSTALL EXTENSION vsql_schematron;

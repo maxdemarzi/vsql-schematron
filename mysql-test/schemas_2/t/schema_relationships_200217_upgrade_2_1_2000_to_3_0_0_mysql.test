@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 200217_upgrade_2_1_2000_to_3_0_0_mysql
+--echo #
+CREATE DATABASE `db_200217_upgrade_2_1_2000_to_3_0_0_mysql`;
+USE `db_200217_upgrade_2_1_2000_to_3_0_0_mysql`;
+
+CREATE TABLE `METASTORE_DB_PROPERTIES` (
+  `PROPERTY_KEY` VARCHAR(255),
+  `PROPERTY_VALUE` VARCHAR(255),
+  `DESCRIPTION` VARCHAR(255),
+  PRIMARY KEY (`PROPERTY_KEY`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `WM_POOL_TO_TRIGGER` (
+  `POOL_ID` INT,
+  `TRIGGER_ID` INT,
+  PRIMARY KEY (`POOL_ID`, `TRIGGER_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `I_SCHEMA` (
+  `SCHEMA_ID` INT,
+  `SCHEMA_TYPE` INT,
+  `NAME` VARCHAR(255),
+  `DB_ID` INT,
+  `COMPATIBILITY` INT,
+  `VALIDATION_LEVEL` INT,
+  `CAN_EVOLVE` VARCHAR(255),
+  `SCHEMA_GROUP` VARCHAR(255),
+  `DESCRIPTION` VARCHAR(255),
+  PRIMARY KEY (`SCHEMA_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SCHEMA_VERSION` (
+  `SCHEMA_VERSION_ID` INT,
+  `SCHEMA_ID` INT,
+  `VERSION` INT,
+  `CREATED_AT` INT,
+  `CD_ID` INT,
+  `STATE` INT,
+  `DESCRIPTION` VARCHAR(255),
+  `SCHEMA_TEXT` VARCHAR(255),
+  `FINGERPRINT` VARCHAR(255),
+  `SCHEMA_VERSION_NAME` VARCHAR(255),
+  `SERDE_ID` INT,
+  PRIMARY KEY (`SCHEMA_VERSION_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MV_TABLES_USED` (
+  `MV_CREATION_METADATA_ID` INT,
+  `TBL_ID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `TXN_TO_WRITE_ID` (
+  `T2W_TXNID` INT,
+  `T2W_DATABASE` VARCHAR(255),
+  `T2W_TABLE` VARCHAR(255),
+  `T2W_WRITEID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `NEXT_WRITE_ID` (
+  `NWI_DATABASE` VARCHAR(255),
+  `NWI_TABLE` VARCHAR(255),
+  `NWI_NEXT` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `REPL_TXN_MAP` (
+  `RTM_REPL_POLICY` VARCHAR(255),
+  `RTM_SRC_TXN_ID` INT,
+  `RTM_TARGET_TXN_ID` INT,
+  PRIMARY KEY (`RTM_REPL_POLICY`, `RTM_SRC_TXN_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MIN_HISTORY_LEVEL` (
+  `MHL_TXNID` INT,
+  `MHL_MIN_OPEN_TXNID` INT,
+  PRIMARY KEY (`MHL_TXNID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RUNTIME_STATS` (
+  `RS_ID` INT,
+  `CREATE_TIME` INT,
+  `WEIGHT` INT,
+  `PAYLOAD` VARCHAR(255),
+  PRIMARY KEY (`RS_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_200217_upgrade_2_1_2000_to_3_0_0_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_200217_upgrade_2_1_2000_to_3_0_0_mysql') AS relationships;
+DROP DATABASE `db_200217_upgrade_2_1_2000_to_3_0_0_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

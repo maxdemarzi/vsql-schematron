@@ -1,0 +1,115 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 067480_CreateMETARTables
+--echo #
+CREATE DATABASE `db_067480_CreateMETARTables`;
+USE `db_067480_CreateMETARTables`;
+
+CREATE TABLE `METAR` (
+  `METARID` INT,
+  `Type` VARCHAR(255),
+  `Mode` VARCHAR(255),
+  `StationID` VARCHAR(255),
+  `Time` DATETIME,
+  `Cycle` INT,
+  `WindDirection` DECIMAL(10,2),
+  `WindSpeed` DECIMAL(10,2),
+  `WindGust` DECIMAL(10,2),
+  `WindDirectionFrom` DECIMAL(10,2),
+  `WindDirectionTo` DECIMAL(10,2),
+  `Visibility` DECIMAL(10,2),
+  `VisibilityDirection` DECIMAL(10,2),
+  `MaxVisibility` DECIMAL(10,2),
+  `MaxVisibilityDirection` DECIMAL(10,2),
+  `Temperature` DECIMAL(10,2),
+  `DewPoint` DECIMAL(10,2),
+  `Pressure` DECIMAL(10,2),
+  `SeaLevelPressure` DECIMAL(10,2),
+  `PeakWindSpeed` DECIMAL(10,2),
+  `PeakWindDirection` DECIMAL(10,2),
+  `MaxTemperature6Hr` DECIMAL(10,2),
+  `MinTemperature6Hr` DECIMAL(10,2),
+  `MaxTemperature24Hr` DECIMAL(10,2),
+  `MinTemperature24Hr` DECIMAL(10,2),
+  `Precipitation1Hr` DECIMAL(10,2),
+  `Precipitation3Hr` DECIMAL(10,2),
+  `Precipitation6Hr` DECIMAL(10,2),
+  `Precipitation24Hr` DECIMAL(10,2),
+  `Code` VARCHAR(255),
+  PRIMARY KEY (`METARID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RunwayVisibility` (
+  `RunwayVisibilityID` INT,
+  `METARID` INT,
+  `Name` VARCHAR(255),
+  `Low` DECIMAL(10,2),
+  `High` DECIMAL(10,2),
+  PRIMARY KEY (`RunwayVisibilityID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PresentWeather` (
+  `PresentWeatherID` INT,
+  `METARID` INT,
+  `Intensity` VARCHAR(255),
+  `Descriptor` VARCHAR(255),
+  `Precipitation` VARCHAR(255),
+  `Obscuration` VARCHAR(255),
+  `Other` VARCHAR(255),
+  PRIMARY KEY (`PresentWeatherID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RecentWeather` (
+  `RecentWeatherID` INT,
+  `METARID` INT,
+  `Intensity` VARCHAR(255),
+  `Descriptor` VARCHAR(255),
+  `Precipitation` VARCHAR(255),
+  `Obscuration` VARCHAR(255),
+  `Other` VARCHAR(255),
+  PRIMARY KEY (`RecentWeatherID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SkyCondition` (
+  `SkyConditionID` INT,
+  `METARID` INT,
+  `Cover` VARCHAR(255),
+  `Height` DECIMAL(10,2),
+  `Cloud` VARCHAR(255),
+  PRIMARY KEY (`SkyConditionID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `WindShearRunway` (
+  `WindShearRunwayID` INT,
+  `METARID` INT,
+  `Runway` VARCHAR(255),
+  PRIMARY KEY (`WindShearRunwayID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Remark` (
+  `RemarkID` INT,
+  `METARID` INT,
+  `Remark` VARCHAR(255),
+  PRIMARY KEY (`RemarkID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_067480_CreateMETARTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_067480_CreateMETARTables') AS relationships;
+DROP DATABASE `db_067480_CreateMETARTables`;
+UNINSTALL EXTENSION vsql_schematron;

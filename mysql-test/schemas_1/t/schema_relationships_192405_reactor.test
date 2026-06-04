@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 192405_reactor
+--echo #
+CREATE DATABASE `db_192405_reactor`;
+USE `db_192405_reactor`;
+
+CREATE TABLE `suite_result` (
+  `SUITE_RESULT_ID` VARCHAR(255),
+  `SUITE_NAME` VARCHAR(255),
+  `PROJECT_NAME` VARCHAR(255),
+  `JOB_NAME` VARCHAR(255),
+  `JOB_BUILD_NUMBER` INT,
+  `JOB_BUILD_URL` VARCHAR(255),
+  `EXECUTION_RESULT` VARCHAR(255),
+  `START_TIME` INT,
+  `STOP_TIME` INT,
+  `NUMBER_OF_CASES` INT,
+  `NUMBER_OF_FAILURE` INT,
+  `INVISIBLE_ENTRY` INT,
+  `PRODUCT_UNDER_TASK` VARCHAR(255),
+  PRIMARY KEY (`SUITE_RESULT_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `case_result` (
+  `CASE_RESULT_ID` VARCHAR(255),
+  `SUITE_RESULT` VARCHAR(255),
+  `TASK_CASE_ID` INT,
+  `EXECUTION_RESULT` VARCHAR(255),
+  `AUT` VARCHAR(255),
+  `START_TIME` INT,
+  `STOP_TIME` INT,
+  `RETRY` INT,
+  `CASE_STATION` VARCHAR(255),
+  `LOG_DIR` VARCHAR(255),
+  `EXTERNAL_ID` VARCHAR(255),
+  `CASE_ENV` VARCHAR(255),
+  PRIMARY KEY (`CASE_RESULT_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_192405_reactor') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_192405_reactor') AS relationships;
+DROP DATABASE `db_192405_reactor`;
+UNINSTALL EXTENSION vsql_schematron;

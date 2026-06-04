@@ -91,6 +91,27 @@ std::string stripTablePrefix(const std::string& name) {
 }
 
 /**
+ * Strips common technical suffixes from table names, such as _all, _ext, _base.
+ */
+std::string stripTableSuffix(const std::string& name) {
+    std::string n = to_lower(name);
+    size_t underscore = n.find_last_of('_');
+    while (underscore != std::string::npos && underscore > 0 && underscore < n.length() - 1) {
+        std::string suffix = n.substr(underscore + 1);
+        static const std::unordered_set<std::string> TECHNICAL_SUFFIXES = {
+            "all", "ext", "base", "v", "b", "t", "all_v"
+        };
+        if (TECHNICAL_SUFFIXES.count(suffix) > 0) {
+            n = n.substr(0, underscore);
+            underscore = n.find_last_of('_');
+        } else {
+            break;
+        }
+    }
+    return n;
+}
+
+/**
  * Strips common role prefixes (like first_, secondary_, parent_, from_) from column names.
  *
  * Examples:
@@ -141,7 +162,7 @@ bool isGenericTableSuffix(const std::string& suffix) {
         "code", "codes", "mode", "modes", "action", "actions", "tag", "tags",
         "list", "lists", "table", "tables", "tbl", "tbls", "data", "datas", "ref", "refs",
         "record", "records", "item", "items", "base", "bases", "catalog", "catalogs",
-        "app", "apps", "cfg", "rel", "map", "link", "t"
+        "app", "apps", "cfg", "rel", "map", "link", "t", "all"
     };
     return SUFFIXES.count(to_lower(suffix));
 }
@@ -178,13 +199,13 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
     //      - Truncated match: p="cust", t="customer" -> true (since "cust" is >= 3 chars and starts "customer")
     if (allow_substring) {
         if (tl.rfind(pl + "_", 0) == 0 || pl.rfind(tl + "_", 0) == 0) return true;
-        if (pl.rfind(tl + "_", 0) == 0 || (tl.length() > pl.length() && tl.rfind("_" + pl) == tl.length() - pl.length() - 1)) return true;
+        if (pl.rfind(tl + "_", 0) == 0) return true;
         
         size_t underscore = tl.find('_');
         std::string first_word = (underscore == std::string::npos) ? tl : tl.substr(0, underscore);
-        if (first_word == pl) {
-            if (tl.length() > pl.length()) {
-                std::string remaining = tl.substr(pl.length() + 1);
+        if (first_word == pl || singularize(first_word) == singularize(pl) || first_word == pl + "s" || first_word + "s" == pl) {
+            if (tl.length() > first_word.length()) {
+                std::string remaining = tl.substr(first_word.length() + 1);
                 size_t next_under = remaining.find('_');
                 std::string rem_word = (next_under == std::string::npos) ? remaining : remaining.substr(0, next_under);
                 if (isGenericTableSuffix(rem_word)) return true;
@@ -217,14 +238,27 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
     //      - Prefix: p="dept", t="department_managers" (expanded ep="department", et="department_managers") -> true
     //      - Generic table descriptor suffix: p="dept", t="department_info" (expanded ep="department", et="department_info") -> true
     if (allow_substring) {
-        if (et.rfind(ep + "_", 0) == 0 || ep.rfind(et + "_", 0) == 0) return true;
-        if (ep.rfind(et + "_", 0) == 0 || (et.length() > ep.length() && et.rfind("_" + ep) == et.length() - ep.length() - 1)) return true;
+        std::string ep_sing = ep;
+        std::string et_sing = et;
+        size_t under_p = ep.rfind('_');
+        if (under_p != std::string::npos) {
+            ep_sing = ep.substr(0, under_p + 1) + singularize(ep.substr(under_p + 1));
+        } else {
+            ep_sing = singularize(ep);
+        }
+        size_t under_t = et.rfind('_');
+        if (under_t != std::string::npos) {
+            et_sing = et.substr(0, under_t + 1) + singularize(et.substr(under_t + 1));
+        } else {
+            et_sing = singularize(et);
+        }
+        if (et_sing.rfind(ep_sing + "_", 0) == 0 || ep_sing.rfind(et_sing + "_", 0) == 0) return true;
         
         size_t underscore = et.find('_');
         std::string first_word = (underscore == std::string::npos) ? et : et.substr(0, underscore);
-        if (first_word == ep) {
-            if (et.length() > ep.length()) {
-                std::string remaining = et.substr(ep.length() + 1);
+        if (first_word == ep || singularize(first_word) == singularize(ep) || first_word == ep + "s" || first_word + "s" == ep) {
+            if (et.length() > first_word.length()) {
+                std::string remaining = et.substr(first_word.length() + 1);
                 size_t next_under = remaining.find('_');
                 std::string rem_word = (next_under == std::string::npos) ? remaining : remaining.substr(0, next_under);
                 if (isGenericTableSuffix(rem_word)) return true;
@@ -258,14 +292,6 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
     if (allow_substring && p_clean.length() >= 3) {
         if (t_clean.length() >= p_clean.length()) {
             if (t_clean.find(p_clean) == 0) return true;
-            size_t pos = t_clean.rfind(p_clean);
-            if (pos != std::string::npos && pos == t_clean.length() - p_clean.length()) return true;
-            
-            size_t pos_s = t_clean.rfind(p_clean + "s");
-            if (pos_s != std::string::npos && pos_s == t_clean.length() - p_clean.length() - 1) return true;
-            
-            size_t pos_es = t_clean.rfind(p_clean + "es");
-            if (pos_es != std::string::npos && pos_es == t_clean.length() - p_clean.length() - 2) return true;
         }
         if (p_clean.length() >= t_clean.length()) {
             if (p_clean.find(t_clean) == 0) return true;
@@ -280,10 +306,6 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
         }
         
         if (p_sing.length() >= 3 && t_sing.length() >= 3) {
-            if (t_sing.length() >= p_sing.length()) {
-                size_t pos = t_sing.rfind(p_sing);
-                if (pos != std::string::npos && pos == t_sing.length() - p_sing.length()) return true;
-            }
             if (p_sing.length() >= t_sing.length()) {
                 size_t pos = p_sing.rfind(t_sing);
                 if (pos != std::string::npos && pos == p_sing.length() - t_sing.length()) return true;
@@ -305,8 +327,8 @@ bool matchTableName(const std::string& col_prefix, const std::string& tbl_name, 
     std::string prefix = to_lower(col_prefix);
     std::string tbl = stripSchemaPrefix(to_lower(tbl_name));
     
-    std::string clean_tbl = stripTablePrefix(tbl);
-    std::string clean_prefix = stripTablePrefix(prefix);
+    std::string clean_tbl = stripTablePrefix(stripTableSuffix(tbl));
+    std::string clean_prefix = stripTablePrefix(stripTableSuffix(prefix));
     
     std::string prefix_norole = stripRolePrefix(prefix);
     std::string clean_prefix_norole = stripRolePrefix(clean_prefix);
@@ -376,27 +398,15 @@ bool matchMiddleIdConvention(const std::string& col, const std::string& tbl_b, b
     size_t pos = c.find("_id_");
     if (pos != std::string::npos && pos > 0) {
         std::string entity = c.substr(0, pos);
-        bool entity_allow_substring = allow_substring;
-        if (std::islower(col[0])) {
-            entity_allow_substring = false;
-        }
-        if (matchTableName(entity, tbl_b, entity_allow_substring)) return true;
+        if (matchTableName(entity, tbl_b, false)) return true;
     }
     if (c.rfind("id_", 0) == 0 && col.length() > 3) {
         std::string entity = c.substr(3);
-        bool entity_allow_substring = allow_substring;
-        if (std::islower(col[3])) {
-            entity_allow_substring = false;
-        }
-        if (matchTableName(entity, tbl_b, entity_allow_substring)) return true;
+        if (matchTableName(entity, tbl_b, false)) return true;
     }
     if (c.rfind("id", 0) == 0 && col.length() > 2) {
         std::string entity = c.substr(2);
-        bool entity_allow_substring = allow_substring;
-        if (std::islower(col[2])) {
-            entity_allow_substring = false;
-        }
-        if (matchTableName(entity, tbl_b, entity_allow_substring)) return true;
+        if (matchTableName(entity, tbl_b, false)) return true;
     }
     return false;
 }
@@ -467,4 +477,20 @@ bool isGenericAttribute(const std::string& s) {
         "name", "value", "description", "desc", "number", "num"
     };
     return GENERIC_ATTRS.count(l) > 0;
+}
+
+bool isJunctionOrHistoryTable(const std::string& tbl_name) {
+    std::string clean = stripTablePrefix(stripTableSuffix(stripSchemaPrefix(to_lower(tbl_name))));
+    static const std::unordered_set<std::string> JUNCTION_SUFFIXES = {
+        "map", "maps", "link", "links", "relation", "relations",
+        "relationship", "relationships", "membership", "memberships",
+        "association", "associations", "history", "histories", "queue", "queues"
+    };
+    if (JUNCTION_SUFFIXES.count(clean) > 0) return true;
+    size_t underscore = clean.rfind('_');
+    if (underscore != std::string::npos) {
+        std::string suffix = clean.substr(underscore + 1);
+        if (JUNCTION_SUFFIXES.count(suffix) > 0) return true;
+    }
+    return false;
 }

@@ -1,0 +1,153 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 411775_TSM_pg_new
+--echo #
+CREATE DATABASE `db_411775_TSM_pg_new`;
+USE `db_411775_TSM_pg_new`;
+
+CREATE TABLE `tourism_management_system.user_Account` (
+  `U_ID` INT,
+  `PASSWORD` VARCHAR(255),
+  `U_NAME` VARCHAR(255),
+  `U_ADDRESS_1` VARCHAR(255),
+  `U_ADDRESS_2` VARCHAR(255),
+  `DISTRICT` VARCHAR(255),
+  `STATE` VARCHAR(255),
+  `ZIP` DECIMAL(10,2),
+  `U_EMAIL` VARCHAR(255),
+  `U_MOB` DECIMAL(10,2),
+  `ROLE` VARCHAR(255),
+  PRIMARY KEY (`U_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tourism_management_system.destination_Info` (
+  `D_ID` INT,
+  `D_NAME` VARCHAR(255),
+  `D_PROVINCE` VARCHAR(255),
+  `DESCRIPTION` VARCHAR(255),
+  `MAX_STAY_DURATION` DECIMAL(10,2),
+  PRIMARY KEY (`D_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tourism_management_system.hotel_Info` (
+  `H_ID` INT,
+  `H_NAME` VARCHAR(255),
+  `H_ADDRESS` VARCHAR(255),
+  `ZIP` DECIMAL(10,2),
+  `H_EMAIL` VARCHAR(255),
+  `H_MOB` DECIMAL(10,2),
+  `BASE_PRICE` INT,
+  `H_TYPE` VARCHAR(255),
+  `D_ID` INT,
+  PRIMARY KEY (`H_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tourism_management_system.transport_info` (
+  `T_ID` INT,
+  `T_MODE` VARCHAR(255),
+  `T_ENTITY` VARCHAR(255),
+  `T_NAME` VARCHAR(255),
+  `T_DESCRIPTION` VARCHAR(255),
+  PRIMARY KEY (`T_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tourism_management_system.tour_Package` (
+  `PKG_ID` INT,
+  `PKG_NAME` VARCHAR(255),
+  `DESCRIPTION` VARCHAR(255),
+  `ACTIVITIES` VARCHAR(255),
+  `EVENTS` VARCHAR(255),
+  PRIMARY KEY (`PKG_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tourism_management_system.package_destination_map` (
+  `PKG_ID` INT,
+  `D_ID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tourism_management_system.package_transport_map` (
+  `PKG_ID` INT,
+  `T_ID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tourism_management_system.booking_Info` (
+  `B_ID` INT,
+  `B_DATE` DATETIME,
+  `PKG_ID` INT,
+  `T_DATE` DATETIME,
+  `U_ID` INT,
+  `PASSENGER_COUNT` INT,
+  `R_TYPE` VARCHAR(255),
+  `T_PRICE` INT,
+  `B_STATUS` VARCHAR(255),
+  PRIMARY KEY (`B_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tourism_management_system.booking_transport_ticket` (
+  `TICKET_ID` VARCHAR(255),
+  `SEAT_NO` VARCHAR(255),
+  `B_ID` INT,
+  `T_ID` INT,
+  PRIMARY KEY (`TICKET_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tourism_management_system.destination_review` (
+  `D_REV_ID` INT,
+  `D_ID` INT,
+  `B_ID` INT,
+  `D_RATING` DECIMAL(10,2),
+  `D_REVIEW` VARCHAR(255),
+  PRIMARY KEY (`D_REV_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tourism_management_system.hotel_review` (
+  `H_REV_ID` INT,
+  `H_ID` INT,
+  `B_ID` INT,
+  `H_RATING` DECIMAL(10,2),
+  `H_REVIEW` VARCHAR(255),
+  PRIMARY KEY (`H_REV_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tourism_management_system.payment_Info` (
+  `P_ID` INT,
+  `B_ID` INT,
+  `MODE` VARCHAR(255),
+  `DISCOUNT` INT,
+  `NET_CHARGE` INT,
+  `GST` INT,
+  `TXN_ID` VARCHAR(255),
+  `P_STATUS` VARCHAR(255),
+  PRIMARY KEY (`P_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tourism_management_system.enquiry` (
+  `ENQ_ID` INT,
+  `B_ID` INT,
+  `T_ID` INT,
+  `ENQ_SUBJECT` VARCHAR(255),
+  `ENQ_BODY` VARCHAR(255),
+  `ENQ_OPEN` VARCHAR(255),
+  PRIMARY KEY (`ENQ_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_411775_TSM_pg_new') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_411775_TSM_pg_new') AS relationships;
+DROP DATABASE `db_411775_TSM_pg_new`;
+UNINSTALL EXTENSION vsql_schematron;
