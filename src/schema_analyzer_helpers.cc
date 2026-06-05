@@ -526,6 +526,9 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
     auto compute = [&]() -> bool {
         std::string a = stripSchemaPrefix(to_lower(camelToSnake(tbl_a)));
         std::string b = stripSchemaPrefix(to_lower(camelToSnake(tbl_b)));
+        if ((a.rfind("database", 0) == 0 && b == "data") || (b.rfind("database", 0) == 0 && a == "data")) {
+            return false;
+        }
         std::string clean_a = stripTablePrefix(stripTableSuffix(a));
         std::string clean_b = stripTablePrefix(stripTableSuffix(b));
         if (clean_a == clean_b) {

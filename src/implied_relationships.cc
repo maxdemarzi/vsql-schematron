@@ -50,8 +50,8 @@ struct AmbiguityProps {
 bool isGenericPersonTable(const std::string& tbl) {
     std::string clean = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
     static const std::unordered_set<std::string> GENERIC_PERSON_TABLES = {
-        "user", "users", "person", "people", "member", "members", "account", "accounts", "party", "parties",
-        "comtnuser", "comtnusers", "comtnperson", "comtnpeople", "comtnmember", "comtnmembers", "comtnaccount", "comtnaccounts", "comtnparty", "comtnparties"
+        "user", "users", "person", "persons", "people", "member", "members", "account", "accounts", "party", "parties",
+        "comtnuser", "comtnusers", "comtnperson", "comtnpersons", "comtnpeople", "comtnmember", "comtnmembers", "comtnaccount", "comtnaccounts", "comtnparty", "comtnparties"
     };
     return GENERIC_PERSON_TABLES.count(clean) > 0;
 }
@@ -460,6 +460,23 @@ void findPass1ImpliedRelationships(
                             is_self_ref_name = true;
                             break;
                         }
+                    }
+                    if (!is_self_ref_name && prep_b.is_person) {
+                        if (has_split && isPersonRole(to_lower(suffix_a))) {
+                            std::string p_low = to_lower(prefix_a);
+                            if (p_low != "is" && p_low != "has" && p_low != "can" && p_low != "was" &&
+                                p_low.rfind("is_", 0) != 0 && p_low.rfind("has_", 0) != 0 && p_low.rfind("can_", 0) != 0) {
+                                is_self_ref_name = true;
+                            }
+                        } else if (!has_split && isPersonRole(to_lower(col_a_clean))) {
+                            std::string c_low = to_lower(col_a_clean);
+                            if (c_low != "admin") {
+                                is_self_ref_name = true;
+                            }
+                        }
+                    }
+                    if (!is_self_ref_name && matchMiddleIdConvention(col_a_clean, tbl_b, false)) {
+                        is_self_ref_name = true;
                     }
                     if (is_self_ref_name) {
                         for (const auto& pk_b : pks_b) {
@@ -959,7 +976,7 @@ void findPass2ImpliedRelationships(
                 std::string clean_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
                 std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
                 if (isPersonTable(clean_a) && isPersonTable(clean_b)) {
-                    if (!(isGenericPersonTable(tbl_a) && !isGenericPersonTable(tbl_b))) {
+                    if (!isGenericPersonTable(tbl_a) && isGenericPersonTable(tbl_b)) {
                         subtype_parents[tbl_a].push_back(j);
                     }
                 }

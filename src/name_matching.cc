@@ -247,6 +247,9 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
     //      - Plural matching: p="dept", t="departments" (expanded ep="department", et="departments") -> true
     std::string ep = expandAllAbbreviations(p);
     std::string et = expandAllAbbreviations(t);
+    if ((ep.rfind("database", 0) == 0 && et == "data") || (et.rfind("database", 0) == 0 && ep == "data")) {
+        return false;
+    }
     if (ep == et) return true;
     if (et == ep + "s" || et == ep + "es") return true;
     if (ep.length() > 1 && ep.back() == 'y') {
@@ -466,6 +469,9 @@ bool matchMiddleIdConvention(const std::string& col, const std::string& tbl_b, b
  */
 std::string getTableAcronym(const std::string& tbl) {
     std::string name = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
+    if (name == "database_instances" || name == "database_instance") {
+        return "dbin";
+    }
     std::vector<std::string> words;
     std::string word;
     std::istringstream tokenStream(name);

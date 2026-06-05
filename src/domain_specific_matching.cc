@@ -12,7 +12,7 @@ namespace {
 
 const std::unordered_set<std::string> PERSON_TABLE_SYNONYMS = {
     "user", "users", "app_user", "app_users", "employee", "employees", "staff", 
-    "member", "members", "person", "people", "contact", "contacts", "passenger", 
+    "member", "members", "person", "persons", "people", "contact", "contacts", "passenger", 
     "passengers", "customer", "customers", "client", "clients", "student", "students", 
     "teacher", "teachers", "entity", "entities", "party", "parties", "player", "players",
     "proponent", "proponents", "proprietor", "proprietors", "investigator", "investigators"
@@ -20,6 +20,7 @@ const std::unordered_set<std::string> PERSON_TABLE_SYNONYMS = {
 
 const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
     "user", "employee", "staff", "member", "person", "officer", "agent", "manager", 
+    "registerer", "registrant", "leader", "grantee", "grantor",
     "supervisor", "operator", "contact", "author", "creator", "updater", "editor", 
     "owner", "handler", "assignee", "commenter", "accessor", "passenger", "customer", 
     "client", "visitor", "guest", "host", "student", "teacher", "driver", "worker", 
