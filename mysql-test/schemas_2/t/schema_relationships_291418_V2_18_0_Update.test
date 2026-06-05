@@ -1,0 +1,150 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 291418_V2_18_0_Update
+--echo #
+CREATE DATABASE `db_291418_V2_18_0_Update`;
+USE `db_291418_V2_18_0_Update`;
+
+CREATE TABLE `qrtz_job_details` (
+  `sched_name` VARCHAR(255),
+  `job_name` VARCHAR(255),
+  `job_group` VARCHAR(255),
+  `description` VARCHAR(255),
+  `job_class_name` VARCHAR(255),
+  `is_durable` INT,
+  `is_nonconcurrent` INT,
+  `is_update_data` INT,
+  `requests_recovery` INT,
+  `job_data` VARCHAR(255),
+  PRIMARY KEY (`sched_name`, `job_name`, `job_group`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `qrtz_triggers` (
+  `sched_name` VARCHAR(255),
+  `trigger_name` VARCHAR(255),
+  `trigger_group` VARCHAR(255),
+  `job_name` VARCHAR(255),
+  `job_group` VARCHAR(255),
+  `description` VARCHAR(255),
+  `next_fire_time` INT,
+  `prev_fire_time` INT,
+  `priority` INT,
+  `trigger_state` VARCHAR(255),
+  `trigger_type` VARCHAR(255),
+  `start_time` INT,
+  `end_time` INT,
+  `calendar_name` VARCHAR(255),
+  `misfire_instr` INT,
+  `job_data` VARCHAR(255),
+  PRIMARY KEY (`sched_name`, `trigger_name`, `trigger_group`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `qrtz_simple_triggers` (
+  `sched_name` VARCHAR(255),
+  `trigger_name` VARCHAR(255),
+  `trigger_group` VARCHAR(255),
+  `repeat_count` INT,
+  `repeat_interval` INT,
+  `times_triggered` INT,
+  PRIMARY KEY (`sched_name`, `trigger_name`, `trigger_group`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `qrtz_cron_triggers` (
+  `sched_name` VARCHAR(255),
+  `trigger_name` VARCHAR(255),
+  `trigger_group` VARCHAR(255),
+  `cron_expression` VARCHAR(255),
+  `time_zone_id` VARCHAR(255),
+  PRIMARY KEY (`sched_name`, `trigger_name`, `trigger_group`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `qrtz_simprop_triggers` (
+  `sched_name` VARCHAR(255),
+  `trigger_name` VARCHAR(255),
+  `trigger_group` VARCHAR(255),
+  `str_prop_1` VARCHAR(255),
+  `str_prop_2` VARCHAR(255),
+  `str_prop_3` VARCHAR(255),
+  `int_prop_1` INT,
+  `int_prop_2` INT,
+  `long_prop_1` INT,
+  `long_prop_2` INT,
+  `dec_prop_1` DECIMAL(10,2),
+  `dec_prop_2` DECIMAL(10,2),
+  `bool_prop_1` VARCHAR(255),
+  `bool_prop_2` VARCHAR(255),
+  PRIMARY KEY (`sched_name`, `trigger_name`, `trigger_group`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `qrtz_blob_triggers` (
+  `sched_name` VARCHAR(255),
+  `trigger_name` VARCHAR(255),
+  `trigger_group` VARCHAR(255),
+  `blob_data` VARCHAR(255),
+  PRIMARY KEY (`sched_name`, `trigger_name`, `trigger_group`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `qrtz_calendars` (
+  `sched_name` VARCHAR(255),
+  `calendar_name` VARCHAR(255),
+  `calendar` VARCHAR(255),
+  PRIMARY KEY (`calendar_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `qrtz_fired_triggers` (
+  `sched_name` VARCHAR(255),
+  `entry_id` VARCHAR(255),
+  `trigger_name` VARCHAR(255),
+  `trigger_group` VARCHAR(255),
+  `instance_name` VARCHAR(255),
+  `fired_time` INT,
+  `sched_time` INT,
+  `priority` INT,
+  `state` VARCHAR(255),
+  `job_name` VARCHAR(255),
+  `job_group` VARCHAR(255),
+  `is_nonconcurrent` INT,
+  `requests_recovery` INT,
+  PRIMARY KEY (`sched_name`, `entry_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `qrtz_paused_trigger_grps` (
+  `sched_name` VARCHAR(255),
+  `trigger_group` VARCHAR(255),
+  PRIMARY KEY (`sched_name`, `trigger_group`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `qrtz_scheduler_state` (
+  `sched_name` VARCHAR(255),
+  `instance_name` VARCHAR(255),
+  `last_checkin_time` INT,
+  `checkin_interval` INT,
+  PRIMARY KEY (`sched_name`, `instance_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `qrtz_locks` (
+  `sched_name` VARCHAR(255),
+  `lock_name` VARCHAR(255),
+  PRIMARY KEY (`sched_name`, `lock_name`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_291418_V2_18_0_Update') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_291418_V2_18_0_Update') AS relationships;
+DROP DATABASE `db_291418_V2_18_0_Update`;
+UNINSTALL EXTENSION vsql_schematron;

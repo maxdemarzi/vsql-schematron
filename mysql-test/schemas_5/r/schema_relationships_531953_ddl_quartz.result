@@ -1,0 +1,151 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 531953_ddl_quartz
+#
+CREATE DATABASE `db_531953_ddl_quartz`;
+USE `db_531953_ddl_quartz`;
+CREATE TABLE `QRTZ_JOB_DETAILS` (
+`job_name` VARCHAR(255),
+`job_group` VARCHAR(255),
+`description` VARCHAR(255),
+`job_class_name` VARCHAR(255),
+`is_durable` VARCHAR(255),
+`is_volatile` VARCHAR(255),
+`is_stateful` VARCHAR(255),
+`requests_recovery` VARCHAR(255),
+`job_data` VARCHAR(255),
+PRIMARY KEY (`job_name`, `job_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `QRTZ_JOB_LISTENERS` (
+`job_name` VARCHAR(255),
+`job_group` VARCHAR(255),
+`job_listener` VARCHAR(255),
+PRIMARY KEY (`job_name`, `job_group`, `job_listener`)
+) CHARACTER SET latin1;
+CREATE TABLE `QRTZ_TRIGGERS` (
+`trigger_name` VARCHAR(255),
+`trigger_group` VARCHAR(255),
+`job_name` VARCHAR(255),
+`job_group` VARCHAR(255),
+`is_volatile` VARCHAR(255),
+`description` VARCHAR(255),
+`next_fire_time` INT,
+`prev_fire_time` INT,
+`priority` INT,
+`trigger_state` VARCHAR(255),
+`trigger_type` VARCHAR(255),
+`start_time` INT,
+`end_time` INT,
+`calendar_name` VARCHAR(255),
+`misfire_instr` INT,
+`job_data` VARCHAR(255),
+PRIMARY KEY (`trigger_name`, `trigger_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `QRTZ_SIMPLE_TRIGGERS` (
+`trigger_name` VARCHAR(255),
+`trigger_group` VARCHAR(255),
+`repeat_count` INT,
+`repeat_interval` INT,
+`times_triggered` INT,
+PRIMARY KEY (`trigger_name`, `trigger_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `QRTZ_CRON_TRIGGERS` (
+`trigger_name` VARCHAR(255),
+`trigger_group` VARCHAR(255),
+`cron_expression` VARCHAR(255),
+`time_zone_id` VARCHAR(255),
+PRIMARY KEY (`trigger_name`, `trigger_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `QRTZ_BLOB_TRIGGERS` (
+`trigger_name` VARCHAR(255),
+`trigger_group` VARCHAR(255),
+`blob_data` VARCHAR(255),
+PRIMARY KEY (`trigger_name`, `trigger_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `QRTZ_TRIGGER_LISTENERS` (
+`trigger_name` VARCHAR(255),
+`trigger_group` VARCHAR(255),
+`trigger_listener` VARCHAR(255),
+PRIMARY KEY (`trigger_name`, `trigger_group`, `trigger_listener`)
+) CHARACTER SET latin1;
+CREATE TABLE `QRTZ_CALENDARS` (
+`calendar_name` VARCHAR(255),
+`calendar` VARCHAR(255),
+PRIMARY KEY (`calendar_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `QRTZ_PAUSED_TRIGGER_GRPS` (
+`trigger_group` VARCHAR(255),
+PRIMARY KEY (`trigger_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `QRTZ_FIRED_TRIGGERS` (
+`entry_id` VARCHAR(255),
+`trigger_name` VARCHAR(255),
+`trigger_group` VARCHAR(255),
+`is_volatile` VARCHAR(255),
+`instance_name` VARCHAR(255),
+`fired_time` INT,
+`priority` INT,
+`state` VARCHAR(255),
+`job_name` VARCHAR(255),
+`job_group` VARCHAR(255),
+`is_stateful` VARCHAR(255),
+`requests_recovery` VARCHAR(255),
+PRIMARY KEY (`entry_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `QRTZ_SCHEDULER_STATE` (
+`instance_name` VARCHAR(255),
+`last_checkin_time` INT,
+`checkin_interval` INT,
+PRIMARY KEY (`instance_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `QRTZ_LOCKS` (
+`lock_name` VARCHAR(255),
+PRIMARY KEY (`lock_name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_531953_ddl_quartz') AS relationships;
+relationships
+Database: db_531953_ddl_quartz
+
+Table Connections:
+------------------
+[Implied]  QRTZ_BLOB_TRIGGERS.trigger_group -> QRTZ_PAUSED_TRIGGER_GRPS.trigger_group
+[Implied]  QRTZ_BLOB_TRIGGERS.trigger_group -> QRTZ_TRIGGERS.trigger_group
+[Implied]  QRTZ_BLOB_TRIGGERS.trigger_name -> QRTZ_TRIGGERS.trigger_name
+[Implied]  QRTZ_CRON_TRIGGERS.trigger_group -> QRTZ_PAUSED_TRIGGER_GRPS.trigger_group
+[Implied]  QRTZ_CRON_TRIGGERS.trigger_group -> QRTZ_TRIGGERS.trigger_group
+[Implied]  QRTZ_CRON_TRIGGERS.trigger_name -> QRTZ_TRIGGERS.trigger_name
+[Implied]  QRTZ_FIRED_TRIGGERS.instance_name -> QRTZ_SCHEDULER_STATE.instance_name
+[Implied]  QRTZ_FIRED_TRIGGERS.job_group -> QRTZ_JOB_DETAILS.job_group
+[Implied]  QRTZ_FIRED_TRIGGERS.job_group -> QRTZ_JOB_LISTENERS.job_group
+[Implied]  QRTZ_FIRED_TRIGGERS.job_name -> QRTZ_JOB_DETAILS.job_name
+[Implied]  QRTZ_FIRED_TRIGGERS.job_name -> QRTZ_JOB_LISTENERS.job_name
+[Implied]  QRTZ_FIRED_TRIGGERS.trigger_group -> QRTZ_PAUSED_TRIGGER_GRPS.trigger_group
+[Implied]  QRTZ_FIRED_TRIGGERS.trigger_group -> QRTZ_TRIGGERS.trigger_group
+[Implied]  QRTZ_FIRED_TRIGGERS.trigger_name -> QRTZ_TRIGGERS.trigger_name
+[Implied]  QRTZ_JOB_DETAILS.job_group -> QRTZ_JOB_LISTENERS.job_group
+[Implied]  QRTZ_JOB_DETAILS.job_name -> QRTZ_JOB_LISTENERS.job_name
+[Implied]  QRTZ_JOB_LISTENERS.job_group -> QRTZ_JOB_DETAILS.job_group
+[Implied]  QRTZ_JOB_LISTENERS.job_name -> QRTZ_JOB_DETAILS.job_name
+[Implied]  QRTZ_SIMPLE_TRIGGERS.trigger_group -> QRTZ_PAUSED_TRIGGER_GRPS.trigger_group
+[Implied]  QRTZ_SIMPLE_TRIGGERS.trigger_group -> QRTZ_TRIGGERS.trigger_group
+[Implied]  QRTZ_SIMPLE_TRIGGERS.trigger_name -> QRTZ_TRIGGERS.trigger_name
+[Implied]  QRTZ_TRIGGERS.calendar_name -> QRTZ_CALENDARS.calendar_name
+[Implied]  QRTZ_TRIGGERS.job_group -> QRTZ_JOB_DETAILS.job_group
+[Implied]  QRTZ_TRIGGERS.job_group -> QRTZ_JOB_LISTENERS.job_group
+[Implied]  QRTZ_TRIGGERS.job_name -> QRTZ_JOB_DETAILS.job_name
+[Implied]  QRTZ_TRIGGERS.job_name -> QRTZ_JOB_LISTENERS.job_name
+[Implied]  QRTZ_TRIGGERS.trigger_group -> QRTZ_BLOB_TRIGGERS.trigger_group
+[Implied]  QRTZ_TRIGGERS.trigger_group -> QRTZ_CRON_TRIGGERS.trigger_group
+[Implied]  QRTZ_TRIGGERS.trigger_group -> QRTZ_PAUSED_TRIGGER_GRPS.trigger_group
+[Implied]  QRTZ_TRIGGERS.trigger_group -> QRTZ_SIMPLE_TRIGGERS.trigger_group
+[Implied]  QRTZ_TRIGGERS.trigger_group -> QRTZ_TRIGGER_LISTENERS.trigger_group
+[Implied]  QRTZ_TRIGGERS.trigger_name -> QRTZ_BLOB_TRIGGERS.trigger_name
+[Implied]  QRTZ_TRIGGERS.trigger_name -> QRTZ_CRON_TRIGGERS.trigger_name
+[Implied]  QRTZ_TRIGGERS.trigger_name -> QRTZ_SIMPLE_TRIGGERS.trigger_name
+[Implied]  QRTZ_TRIGGERS.trigger_name -> QRTZ_TRIGGER_LISTENERS.trigger_name
+[Implied]  QRTZ_TRIGGER_LISTENERS.trigger_group -> QRTZ_PAUSED_TRIGGER_GRPS.trigger_group
+[Implied]  QRTZ_TRIGGER_LISTENERS.trigger_group -> QRTZ_TRIGGERS.trigger_group
+[Implied]  QRTZ_TRIGGER_LISTENERS.trigger_name -> QRTZ_TRIGGERS.trigger_name
+
+DROP DATABASE `db_531953_ddl_quartz`;
+UNINSTALL EXTENSION vsql_schematron;

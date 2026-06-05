@@ -1,22 +1,12 @@
 {
   "INFO": {
-    "URL": "https://github.com/quartzdesk/quartzdesk-executor/blob/76b27e31f5228b1059cbd6e9229e12192c2bbfe4/quartzdesk-executor-dao/src/main/resources/META-INF/db/quartzdesk-executor/init/db2/02-quartz_db2.sql?raw=true\n",
+    "URL": "https://github.com/tedliang/osworkflow/blob/141873f730640118b4cbe3d3a7c9c4ccbb258776/src/etc/quartz/tables_mysql.sql?raw=true\n",
     "LICENSE": "MIT",
     "PERMISSIVE": true
   },
   "TABLES": {
     "QRTZ_JOB_DETAILS": {
       "COLUMNS": {
-        "SCHED_NAME": {
-          "TYPE": "Varchar",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": true,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
         "JOB_NAME": {
           "TYPE": "Varchar",
           "NULLABLE": false,
@@ -39,7 +29,7 @@
         },
         "DESCRIPTION": {
           "TYPE": "Varchar",
-          "NULLABLE": null,
+          "NULLABLE": true,
           "UNIQUE": null,
           "DEFAULT": null,
           "CHECKS": [],
@@ -58,7 +48,7 @@
           "COMMENT": null
         },
         "IS_DURABLE": {
-          "TYPE": "Integer",
+          "TYPE": "Varchar",
           "NULLABLE": false,
           "UNIQUE": null,
           "DEFAULT": null,
@@ -67,8 +57,8 @@
           "IS_INDEX": false,
           "COMMENT": null
         },
-        "IS_NONCONCURRENT": {
-          "TYPE": "Integer",
+        "IS_VOLATILE": {
+          "TYPE": "Varchar",
           "NULLABLE": false,
           "UNIQUE": null,
           "DEFAULT": null,
@@ -77,8 +67,8 @@
           "IS_INDEX": false,
           "COMMENT": null
         },
-        "IS_UPDATE_DATA": {
-          "TYPE": "Integer",
+        "IS_STATEFUL": {
+          "TYPE": "Varchar",
           "NULLABLE": false,
           "UNIQUE": null,
           "DEFAULT": null,
@@ -88,7 +78,7 @@
           "COMMENT": null
         },
         "REQUESTS_RECOVERY": {
-          "TYPE": "Integer",
+          "TYPE": "Varchar",
           "NULLABLE": false,
           "UNIQUE": null,
           "DEFAULT": null,
@@ -99,7 +89,7 @@
         },
         "JOB_DATA": {
           "TYPE": "Blob",
-          "NULLABLE": null,
+          "NULLABLE": true,
           "UNIQUE": null,
           "DEFAULT": null,
           "CHECKS": [],
@@ -109,18 +99,40 @@
         }
       },
       "PRIMARY_KEYS": [
-        "SCHED_NAME",
         "JOB_NAME",
         "JOB_GROUP"
       ],
-      "FOREIGN_KEYS": [],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "JOB_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_JOB_LISTENERS",
+          "REFERRED_COLUMNS": [
+            "JOB_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "JOB_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_JOB_LISTENERS",
+          "REFERRED_COLUMNS": [
+            "JOB_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
       "CHECKS": [],
       "INDEXES": [],
       "COMMENT": null
     },
-    "QRTZ_TRIGGERS": {
+    "QRTZ_JOB_LISTENERS": {
       "COLUMNS": {
-        "SCHED_NAME": {
+        "JOB_NAME": {
           "TYPE": "Varchar",
           "NULLABLE": false,
           "UNIQUE": null,
@@ -130,6 +142,75 @@
           "IS_INDEX": false,
           "COMMENT": null
         },
+        "JOB_GROUP": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "JOB_LISTENER": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "JOB_NAME",
+        "JOB_GROUP",
+        "JOB_LISTENER"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "JOB_NAME",
+            "JOB_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_JOB_DETAILS",
+          "REFERRED_COLUMNS": [
+            "JOB_NAME",
+            "JOB_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "JOB_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_JOB_DETAILS",
+          "REFERRED_COLUMNS": [
+            "JOB_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "JOB_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_JOB_DETAILS",
+          "REFERRED_COLUMNS": [
+            "JOB_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "QRTZ_TRIGGERS": {
+      "COLUMNS": {
         "TRIGGER_NAME": {
           "TYPE": "Varchar",
           "NULLABLE": false,
@@ -170,9 +251,19 @@
           "IS_INDEX": false,
           "COMMENT": null
         },
+        "IS_VOLATILE": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
         "DESCRIPTION": {
           "TYPE": "Varchar",
-          "NULLABLE": null,
+          "NULLABLE": true,
           "UNIQUE": null,
           "DEFAULT": null,
           "CHECKS": [],
@@ -182,7 +273,7 @@
         },
         "NEXT_FIRE_TIME": {
           "TYPE": "BigInt",
-          "NULLABLE": null,
+          "NULLABLE": true,
           "UNIQUE": null,
           "DEFAULT": null,
           "CHECKS": [],
@@ -192,17 +283,7 @@
         },
         "PREV_FIRE_TIME": {
           "TYPE": "BigInt",
-          "NULLABLE": null,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "PRIORITY": {
-          "TYPE": "Integer",
-          "NULLABLE": null,
+          "NULLABLE": true,
           "UNIQUE": null,
           "DEFAULT": null,
           "CHECKS": [],
@@ -242,7 +323,7 @@
         },
         "END_TIME": {
           "TYPE": "BigInt",
-          "NULLABLE": null,
+          "NULLABLE": true,
           "UNIQUE": null,
           "DEFAULT": null,
           "CHECKS": [],
@@ -252,7 +333,7 @@
         },
         "CALENDAR_NAME": {
           "TYPE": "Varchar",
-          "NULLABLE": null,
+          "NULLABLE": true,
           "UNIQUE": null,
           "DEFAULT": null,
           "CHECKS": [],
@@ -262,17 +343,7 @@
         },
         "MISFIRE_INSTR": {
           "TYPE": "SmallInt",
-          "NULLABLE": null,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "JOB_DATA": {
-          "TYPE": "Blob",
-          "NULLABLE": null,
+          "NULLABLE": true,
           "UNIQUE": null,
           "DEFAULT": null,
           "CHECKS": [],
@@ -282,21 +353,172 @@
         }
       },
       "PRIMARY_KEYS": [
-        "SCHED_NAME",
         "TRIGGER_NAME",
         "TRIGGER_GROUP"
       ],
       "FOREIGN_KEYS": [
         {
           "COLUMNS": [
-            "SCHED_NAME",
             "JOB_NAME",
             "JOB_GROUP"
           ],
           "FOREIGN_TABLE": "QRTZ_JOB_DETAILS",
           "REFERRED_COLUMNS": [
-            "SCHED_NAME",
             "JOB_NAME",
+            "JOB_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "JOB_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_JOB_LISTENERS",
+          "REFERRED_COLUMNS": [
+            "JOB_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_SIMPLE_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "CALENDAR_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_CALENDARS",
+          "REFERRED_COLUMNS": [
+            "CALENDAR_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_SIMPLE_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_PAUSED_TRIGGER_GRPS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_TRIGGER_LISTENERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_BLOB_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "JOB_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_JOB_LISTENERS",
+          "REFERRED_COLUMNS": [
+            "JOB_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_BLOB_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_CRON_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_CRON_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_TRIGGER_LISTENERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "JOB_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_JOB_DETAILS",
+          "REFERRED_COLUMNS": [
+            "JOB_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "JOB_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_JOB_DETAILS",
+          "REFERRED_COLUMNS": [
             "JOB_GROUP"
           ],
           "ON_DELETE": null,
@@ -309,16 +531,6 @@
     },
     "QRTZ_SIMPLE_TRIGGERS": {
       "COLUMNS": {
-        "SCHED_NAME": {
-          "TYPE": "Varchar",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": true,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
         "TRIGGER_NAME": {
           "TYPE": "Varchar",
           "NULLABLE": false,
@@ -371,22 +583,52 @@
         }
       },
       "PRIMARY_KEYS": [
-        "SCHED_NAME",
         "TRIGGER_NAME",
         "TRIGGER_GROUP"
       ],
       "FOREIGN_KEYS": [
         {
           "COLUMNS": [
-            "SCHED_NAME",
             "TRIGGER_NAME",
             "TRIGGER_GROUP"
           ],
           "FOREIGN_TABLE": "QRTZ_TRIGGERS",
           "REFERRED_COLUMNS": [
-            "SCHED_NAME",
             "TRIGGER_NAME",
             "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_PAUSED_TRIGGER_GRPS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_NAME"
           ],
           "ON_DELETE": null,
           "ON_UPDATE": null
@@ -398,16 +640,6 @@
     },
     "QRTZ_CRON_TRIGGERS": {
       "COLUMNS": {
-        "SCHED_NAME": {
-          "TYPE": "Varchar",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": true,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
         "TRIGGER_NAME": {
           "TYPE": "Varchar",
           "NULLABLE": false,
@@ -450,190 +682,51 @@
         }
       },
       "PRIMARY_KEYS": [
-        "SCHED_NAME",
         "TRIGGER_NAME",
         "TRIGGER_GROUP"
       ],
       "FOREIGN_KEYS": [
         {
           "COLUMNS": [
-            "SCHED_NAME",
             "TRIGGER_NAME",
             "TRIGGER_GROUP"
           ],
           "FOREIGN_TABLE": "QRTZ_TRIGGERS",
           "REFERRED_COLUMNS": [
-            "SCHED_NAME",
             "TRIGGER_NAME",
             "TRIGGER_GROUP"
           ],
           "ON_DELETE": null,
           "ON_UPDATE": null
-        }
-      ],
-      "CHECKS": [],
-      "INDEXES": [],
-      "COMMENT": null
-    },
-    "QRTZ_SIMPROP_TRIGGERS": {
-      "COLUMNS": {
-        "SCHED_NAME": {
-          "TYPE": "Varchar",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": true,
-          "IS_INDEX": false,
-          "COMMENT": null
         },
-        "TRIGGER_NAME": {
-          "TYPE": "Varchar",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": true,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "TRIGGER_GROUP": {
-          "TYPE": "Varchar",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": true,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "STR_PROP_1": {
-          "TYPE": "Varchar",
-          "NULLABLE": null,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "STR_PROP_2": {
-          "TYPE": "Varchar",
-          "NULLABLE": null,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "STR_PROP_3": {
-          "TYPE": "Varchar",
-          "NULLABLE": null,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "INT_PROP_1": {
-          "TYPE": "Int",
-          "NULLABLE": null,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "INT_PROP_2": {
-          "TYPE": "Int",
-          "NULLABLE": null,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "LONG_PROP_1": {
-          "TYPE": "BigInt",
-          "NULLABLE": null,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "LONG_PROP_2": {
-          "TYPE": "BigInt",
-          "NULLABLE": null,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "DEC_PROP_1": {
-          "TYPE": "Numeric",
-          "NULLABLE": null,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "DEC_PROP_2": {
-          "TYPE": "Numeric",
-          "NULLABLE": null,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "BOOL_PROP_1": {
-          "TYPE": "Varchar",
-          "NULLABLE": null,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "BOOL_PROP_2": {
-          "TYPE": "Varchar",
-          "NULLABLE": null,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        }
-      },
-      "PRIMARY_KEYS": [
-        "SCHED_NAME",
-        "TRIGGER_NAME",
-        "TRIGGER_GROUP"
-      ],
-      "FOREIGN_KEYS": [
         {
           "COLUMNS": [
-            "SCHED_NAME",
-            "TRIGGER_NAME",
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_PAUSED_TRIGGER_GRPS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
             "TRIGGER_GROUP"
           ],
           "FOREIGN_TABLE": "QRTZ_TRIGGERS",
           "REFERRED_COLUMNS": [
-            "SCHED_NAME",
-            "TRIGGER_NAME",
             "TRIGGER_GROUP"
           ],
           "ON_DELETE": null,
@@ -646,16 +739,6 @@
     },
     "QRTZ_BLOB_TRIGGERS": {
       "COLUMNS": {
-        "SCHED_NAME": {
-          "TYPE": "Varchar",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": true,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
         "TRIGGER_NAME": {
           "TYPE": "Varchar",
           "NULLABLE": false,
@@ -678,7 +761,7 @@
         },
         "BLOB_DATA": {
           "TYPE": "Blob",
-          "NULLABLE": null,
+          "NULLABLE": true,
           "UNIQUE": null,
           "DEFAULT": null,
           "CHECKS": [],
@@ -688,21 +771,141 @@
         }
       },
       "PRIMARY_KEYS": [
-        "SCHED_NAME",
         "TRIGGER_NAME",
         "TRIGGER_GROUP"
       ],
       "FOREIGN_KEYS": [
         {
           "COLUMNS": [
-            "SCHED_NAME",
             "TRIGGER_NAME",
             "TRIGGER_GROUP"
           ],
           "FOREIGN_TABLE": "QRTZ_TRIGGERS",
           "REFERRED_COLUMNS": [
-            "SCHED_NAME",
             "TRIGGER_NAME",
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_PAUSED_TRIGGER_GRPS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        }
+      ],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "QRTZ_TRIGGER_LISTENERS": {
+      "COLUMNS": {
+        "TRIGGER_NAME": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "TRIGGER_GROUP": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "TRIGGER_LISTENER": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": true,
+          "IS_INDEX": false,
+          "COMMENT": null
+        }
+      },
+      "PRIMARY_KEYS": [
+        "TRIGGER_NAME",
+        "TRIGGER_GROUP",
+        "TRIGGER_LISTENER"
+      ],
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "TRIGGER_NAME",
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_NAME",
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_PAUSED_TRIGGER_GRPS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_TRIGGERS",
+          "REFERRED_COLUMNS": [
             "TRIGGER_GROUP"
           ],
           "ON_DELETE": null,
@@ -715,16 +918,6 @@
     },
     "QRTZ_CALENDARS": {
       "COLUMNS": {
-        "SCHED_NAME": {
-          "TYPE": "Varchar",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
         "CALENDAR_NAME": {
           "TYPE": "Varchar",
           "NULLABLE": false,
@@ -754,22 +947,33 @@
       "INDEXES": [],
       "COMMENT": null
     },
-    "QRTZ_FIRED_TRIGGERS": {
+    "QRTZ_PAUSED_TRIGGER_GRPS": {
       "COLUMNS": {
-        "SCHED_NAME": {
+        "TRIGGER_GROUP": {
           "TYPE": "Varchar",
           "NULLABLE": false,
-          "UNIQUE": null,
+          "UNIQUE": true,
           "DEFAULT": null,
           "CHECKS": [],
           "IS_PRIMARY": true,
           "IS_INDEX": false,
           "COMMENT": null
-        },
+        }
+      },
+      "PRIMARY_KEYS": [
+        "TRIGGER_GROUP"
+      ],
+      "FOREIGN_KEYS": [],
+      "CHECKS": [],
+      "INDEXES": [],
+      "COMMENT": null
+    },
+    "QRTZ_FIRED_TRIGGERS": {
+      "COLUMNS": {
         "ENTRY_ID": {
           "TYPE": "Varchar",
           "NULLABLE": false,
-          "UNIQUE": null,
+          "UNIQUE": true,
           "DEFAULT": null,
           "CHECKS": [],
           "IS_PRIMARY": true,
@@ -787,6 +991,16 @@
           "COMMENT": null
         },
         "TRIGGER_GROUP": {
+          "TYPE": "Varchar",
+          "NULLABLE": false,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
+        },
+        "IS_VOLATILE": {
           "TYPE": "Varchar",
           "NULLABLE": false,
           "UNIQUE": null,
@@ -816,26 +1030,6 @@
           "IS_INDEX": false,
           "COMMENT": null
         },
-        "SCHED_TIME": {
-          "TYPE": "BigInt",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
-        "PRIORITY": {
-          "TYPE": "Integer",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": false,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
         "STATE": {
           "TYPE": "Varchar",
           "NULLABLE": false,
@@ -848,7 +1042,7 @@
         },
         "JOB_NAME": {
           "TYPE": "Varchar",
-          "NULLABLE": null,
+          "NULLABLE": true,
           "UNIQUE": null,
           "DEFAULT": null,
           "CHECKS": [],
@@ -858,7 +1052,7 @@
         },
         "JOB_GROUP": {
           "TYPE": "Varchar",
-          "NULLABLE": null,
+          "NULLABLE": true,
           "UNIQUE": null,
           "DEFAULT": null,
           "CHECKS": [],
@@ -866,9 +1060,9 @@
           "IS_INDEX": false,
           "COMMENT": null
         },
-        "IS_NONCONCURRENT": {
-          "TYPE": "Integer",
-          "NULLABLE": null,
+        "IS_STATEFUL": {
+          "TYPE": "Varchar",
+          "NULLABLE": true,
           "UNIQUE": null,
           "DEFAULT": null,
           "CHECKS": [],
@@ -877,8 +1071,8 @@
           "COMMENT": null
         },
         "REQUESTS_RECOVERY": {
-          "TYPE": "Integer",
-          "NULLABLE": null,
+          "TYPE": "Varchar",
+          "NULLABLE": true,
           "UNIQUE": null,
           "DEFAULT": null,
           "CHECKS": [],
@@ -888,62 +1082,108 @@
         }
       },
       "PRIMARY_KEYS": [
-        "SCHED_NAME",
         "ENTRY_ID"
       ],
-      "FOREIGN_KEYS": [],
-      "CHECKS": [],
-      "INDEXES": [],
-      "COMMENT": null
-    },
-    "QRTZ_PAUSED_TRIGGER_GRPS": {
-      "COLUMNS": {
-        "SCHED_NAME": {
-          "TYPE": "Varchar",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": true,
-          "IS_INDEX": false,
-          "COMMENT": null
+      "FOREIGN_KEYS": [
+        {
+          "COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
         },
-        "TRIGGER_GROUP": {
-          "TYPE": "Varchar",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": true,
-          "IS_INDEX": false,
-          "COMMENT": null
+        {
+          "COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_TRIGGERS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "JOB_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_JOB_DETAILS",
+          "REFERRED_COLUMNS": [
+            "JOB_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "JOB_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_JOB_DETAILS",
+          "REFERRED_COLUMNS": [
+            "JOB_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "JOB_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_JOB_LISTENERS",
+          "REFERRED_COLUMNS": [
+            "JOB_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "INSTANCE_NAME"
+          ],
+          "FOREIGN_TABLE": "QRTZ_SCHEDULER_STATE",
+          "REFERRED_COLUMNS": [
+            "INSTANCE_NAME"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "JOB_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_JOB_LISTENERS",
+          "REFERRED_COLUMNS": [
+            "JOB_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
+        },
+        {
+          "COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "FOREIGN_TABLE": "QRTZ_PAUSED_TRIGGER_GRPS",
+          "REFERRED_COLUMNS": [
+            "TRIGGER_GROUP"
+          ],
+          "ON_DELETE": null,
+          "ON_UPDATE": null
         }
-      },
-      "PRIMARY_KEYS": [
-        "SCHED_NAME",
-        "TRIGGER_GROUP"
       ],
-      "FOREIGN_KEYS": [],
       "CHECKS": [],
       "INDEXES": [],
       "COMMENT": null
     },
     "QRTZ_SCHEDULER_STATE": {
       "COLUMNS": {
-        "SCHED_NAME": {
-          "TYPE": "Varchar",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": true,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
         "INSTANCE_NAME": {
           "TYPE": "Varchar",
           "NULLABLE": false,
-          "UNIQUE": null,
+          "UNIQUE": true,
           "DEFAULT": null,
           "CHECKS": [],
           "IS_PRIMARY": true,
@@ -969,10 +1209,19 @@
           "IS_PRIMARY": false,
           "IS_INDEX": false,
           "COMMENT": null
+        },
+        "RECOVERER": {
+          "TYPE": "Varchar",
+          "NULLABLE": true,
+          "UNIQUE": null,
+          "DEFAULT": null,
+          "CHECKS": [],
+          "IS_PRIMARY": false,
+          "IS_INDEX": false,
+          "COMMENT": null
         }
       },
       "PRIMARY_KEYS": [
-        "SCHED_NAME",
         "INSTANCE_NAME"
       ],
       "FOREIGN_KEYS": [],
@@ -982,29 +1231,21 @@
     },
     "QRTZ_LOCKS": {
       "COLUMNS": {
-        "SCHED_NAME": {
-          "TYPE": "Varchar",
-          "NULLABLE": false,
-          "UNIQUE": null,
-          "DEFAULT": null,
-          "CHECKS": [],
-          "IS_PRIMARY": true,
-          "IS_INDEX": false,
-          "COMMENT": null
-        },
         "LOCK_NAME": {
           "TYPE": "Varchar",
           "NULLABLE": false,
-          "UNIQUE": null,
+          "UNIQUE": true,
           "DEFAULT": null,
           "CHECKS": [],
           "IS_PRIMARY": true,
           "IS_INDEX": false,
+          "VALUES": [
+            "MISFIRE_ACCESS"
+          ],
           "COMMENT": null
         }
       },
       "PRIMARY_KEYS": [
-        "SCHED_NAME",
         "LOCK_NAME"
       ],
       "FOREIGN_KEYS": [],

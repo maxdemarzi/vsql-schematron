@@ -1,0 +1,49 @@
+I have run a full categorization analysis across the remaining **7,018** failing JSON schemas. Here is the inventory report and breakdown of why they are currently failing.
+
+---
+
+### Failure Mode Categorization Report
+
+| Category | Count | Description |
+| :--- | :--- | :--- |
+| **Inferred is Superset of Declared** | **2,711** | The C++ engine inferred all declared relationships successfully, but also produced additional/extra relationships (possible false positives). |
+| **Partial Overlap** | **2,401** | The C++ engine found some of the declared relationships, missed some, and inferred extra ones. |
+| **Inferred is Subset of Declared** | **613** | The C++ engine successfully found some declared relationships without any false positives, but missed others. |
+| **Declared FKs, Inferred None** | **449** | The C++ engine missed all declared relationships for these schemas completely. |
+| **Disjoint / No Overlap** | **431** | Both declared and inferred lists are non-empty, but share 0 relationships in common. |
+| **Other / Parse Errors / timeouts** | **335** | Large schemas that timed out (5.0s limit) or had structure/parse issues. |
+| **No Declared FKs, Inferred Some** | **78** | The schema declared zero relationships, but the C++ engine inferred one or more. |
+
+---
+
+### Top Missed Foreign Key Patterns (Declared but Not Inferred)
+
+1. **`dbin_id -> id`** (*810 occurrences*):
+   - Often associated with target table ambiguity or skipped technical fields.
+2. **`id -> id`** (*372 occurrences*):
+   - Occurs when the engine maps an `id -> id` subtype/ISA relation to a different parent than the one declared in the schema (e.g., target table mismatches).
+3. **`user_id -> id`** (*140 occurrences*):
+   - Mismatches in mapping `user_id` when multiple user-like tables (e.g., `member`, `staff`, `admin`) are present, creating ambiguity.
+4. **`userid -> id`** (*95 occurrences*):
+   - Abbreviation or spelling variations.
+5. **`uid -> uid`** & `username -> username` (*94 and 69 occurrences*):
+   - Matching on non-primary key columns or unique constraints instead of standard PKs.
+6. **`vintage -> t_periods`** & `periods -> t_periods` (*54 and 40 occurrences*):
+   - Specialized suffix/abbreviation domains matching `t_periods` instead of standard names.
+7. **`created_by -> id`** & `pers_id_registerer -> id` (*52 and 49 occurrences*):
+   - These are frequently skipped as technical auditing/system columns (such as `pers_id_registerer` which is hardcoded in `isSystemColumn` to be ignored), but are explicitly linked in some databases.
+
+---
+
+### Top Extra Foreign Key Patterns (Inferred but Not Declared)
+
+1. **`sched_name -> sched_name`** (*4,807 occurrences*):
+   - Mostly generated from standard Quartz Scheduler schemas which contain multiple same-name relations that aren't always explicitly declared in the test JSONs.
+2. **`id -> id`** (*2,553 occurrences*):
+   - Extra subtype matching relations generated when table hierarchies overlap.
+3. **`id_game -> id_game`** (*2,364 occurrences*):
+   - Legitimate game metadata linkages that are not explicitly declared in the test JSON constraints.
+4. **`user_id -> id`** (*1,688 occurrences*):
+   - Inferred relationships mapping `user_id` to `users.id` where the database has no foreign key declared in the raw DDL.
+5. **`trigger_group -> trigger_group`** & `trigger_name -> trigger_name` (*1,571 and 1,016 occurrences*):
+   - Similar to `sched_name`, these are part of composite primary key matches on Quartz Scheduler databases.

@@ -1,0 +1,151 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 001351_tables_db2_v72
+#
+CREATE DATABASE `db_001351_tables_db2_v72`;
+USE `db_001351_tables_db2_v72`;
+CREATE TABLE `qrtz_job_details` (
+`job_name` VARCHAR(255),
+`job_group` VARCHAR(255),
+`description` VARCHAR(255),
+`job_class_name` VARCHAR(255),
+`is_durable` VARCHAR(255),
+`is_volatile` VARCHAR(255),
+`is_stateful` VARCHAR(255),
+`requests_recovery` VARCHAR(255),
+`job_data` VARCHAR(255),
+PRIMARY KEY (`job_name`, `job_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `qrtz_job_listeners` (
+`job_name` VARCHAR(255),
+`job_group` VARCHAR(255),
+`job_listener` VARCHAR(255),
+PRIMARY KEY (`job_name`, `job_group`, `job_listener`)
+) CHARACTER SET latin1;
+CREATE TABLE `qrtz_triggers` (
+`trigger_name` VARCHAR(255),
+`trigger_group` VARCHAR(255),
+`job_name` VARCHAR(255),
+`job_group` VARCHAR(255),
+`is_volatile` VARCHAR(255),
+`description` VARCHAR(255),
+`next_fire_time` INT,
+`prev_fire_time` INT,
+`priority` INT,
+`trigger_state` VARCHAR(255),
+`trigger_type` VARCHAR(255),
+`start_time` INT,
+`end_time` INT,
+`calendar_name` VARCHAR(255),
+`misfire_instr` INT,
+`job_data` VARCHAR(255),
+PRIMARY KEY (`trigger_name`, `trigger_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `qrtz_simple_triggers` (
+`trigger_name` VARCHAR(255),
+`trigger_group` VARCHAR(255),
+`repeat_count` INT,
+`repeat_interval` INT,
+`times_triggered` INT,
+PRIMARY KEY (`trigger_name`, `trigger_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `qrtz_cron_triggers` (
+`trigger_name` VARCHAR(255),
+`trigger_group` VARCHAR(255),
+`cron_expression` VARCHAR(255),
+`time_zone_id` VARCHAR(255),
+PRIMARY KEY (`trigger_name`, `trigger_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `qrtz_blob_triggers` (
+`trigger_name` VARCHAR(255),
+`trigger_group` VARCHAR(255),
+`blob_data` VARCHAR(255),
+PRIMARY KEY (`trigger_name`, `trigger_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `qrtz_trigger_listeners` (
+`trigger_name` VARCHAR(255),
+`trigger_group` VARCHAR(255),
+`trigger_listener` VARCHAR(255),
+PRIMARY KEY (`trigger_name`, `trigger_group`, `trigger_listener`)
+) CHARACTER SET latin1;
+CREATE TABLE `qrtz_calendars` (
+`calendar_name` VARCHAR(255),
+`calendar` VARCHAR(255),
+PRIMARY KEY (`calendar_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `qrtz_fired_triggers` (
+`entry_id` VARCHAR(255),
+`trigger_name` VARCHAR(255),
+`trigger_group` VARCHAR(255),
+`is_volatile` VARCHAR(255),
+`instance_name` VARCHAR(255),
+`fired_time` INT,
+`priority` INT,
+`state` VARCHAR(255),
+`job_name` VARCHAR(255),
+`job_group` VARCHAR(255),
+`is_stateful` VARCHAR(255),
+`requests_recovery` VARCHAR(255),
+PRIMARY KEY (`entry_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `qrtz_paused_trigger_grps` (
+`trigger_group` VARCHAR(255),
+PRIMARY KEY (`trigger_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `qrtz_scheduler_state` (
+`instance_name` VARCHAR(255),
+`last_checkin_time` INT,
+`checkin_interval` INT,
+PRIMARY KEY (`instance_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `qrtz_locks` (
+`lock_name` VARCHAR(255),
+PRIMARY KEY (`lock_name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_001351_tables_db2_v72') AS relationships;
+relationships
+Database: db_001351_tables_db2_v72
+
+Table Connections:
+------------------
+[Implied]  qrtz_blob_triggers.trigger_group -> qrtz_paused_trigger_grps.trigger_group
+[Implied]  qrtz_blob_triggers.trigger_group -> qrtz_triggers.trigger_group
+[Implied]  qrtz_blob_triggers.trigger_name -> qrtz_triggers.trigger_name
+[Implied]  qrtz_cron_triggers.trigger_group -> qrtz_paused_trigger_grps.trigger_group
+[Implied]  qrtz_cron_triggers.trigger_group -> qrtz_triggers.trigger_group
+[Implied]  qrtz_cron_triggers.trigger_name -> qrtz_triggers.trigger_name
+[Implied]  qrtz_fired_triggers.instance_name -> qrtz_scheduler_state.instance_name
+[Implied]  qrtz_fired_triggers.job_group -> qrtz_job_details.job_group
+[Implied]  qrtz_fired_triggers.job_group -> qrtz_job_listeners.job_group
+[Implied]  qrtz_fired_triggers.job_name -> qrtz_job_details.job_name
+[Implied]  qrtz_fired_triggers.job_name -> qrtz_job_listeners.job_name
+[Implied]  qrtz_fired_triggers.trigger_group -> qrtz_paused_trigger_grps.trigger_group
+[Implied]  qrtz_fired_triggers.trigger_group -> qrtz_triggers.trigger_group
+[Implied]  qrtz_fired_triggers.trigger_name -> qrtz_triggers.trigger_name
+[Implied]  qrtz_job_details.job_group -> qrtz_job_listeners.job_group
+[Implied]  qrtz_job_details.job_name -> qrtz_job_listeners.job_name
+[Implied]  qrtz_job_listeners.job_group -> qrtz_job_details.job_group
+[Implied]  qrtz_job_listeners.job_name -> qrtz_job_details.job_name
+[Implied]  qrtz_simple_triggers.trigger_group -> qrtz_paused_trigger_grps.trigger_group
+[Implied]  qrtz_simple_triggers.trigger_group -> qrtz_triggers.trigger_group
+[Implied]  qrtz_simple_triggers.trigger_name -> qrtz_triggers.trigger_name
+[Implied]  qrtz_trigger_listeners.trigger_group -> qrtz_paused_trigger_grps.trigger_group
+[Implied]  qrtz_trigger_listeners.trigger_group -> qrtz_triggers.trigger_group
+[Implied]  qrtz_trigger_listeners.trigger_name -> qrtz_triggers.trigger_name
+[Implied]  qrtz_triggers.calendar_name -> qrtz_calendars.calendar_name
+[Implied]  qrtz_triggers.job_group -> qrtz_job_details.job_group
+[Implied]  qrtz_triggers.job_group -> qrtz_job_listeners.job_group
+[Implied]  qrtz_triggers.job_name -> qrtz_job_details.job_name
+[Implied]  qrtz_triggers.job_name -> qrtz_job_listeners.job_name
+[Implied]  qrtz_triggers.trigger_group -> qrtz_blob_triggers.trigger_group
+[Implied]  qrtz_triggers.trigger_group -> qrtz_cron_triggers.trigger_group
+[Implied]  qrtz_triggers.trigger_group -> qrtz_paused_trigger_grps.trigger_group
+[Implied]  qrtz_triggers.trigger_group -> qrtz_simple_triggers.trigger_group
+[Implied]  qrtz_triggers.trigger_group -> qrtz_trigger_listeners.trigger_group
+[Implied]  qrtz_triggers.trigger_name -> qrtz_blob_triggers.trigger_name
+[Implied]  qrtz_triggers.trigger_name -> qrtz_cron_triggers.trigger_name
+[Implied]  qrtz_triggers.trigger_name -> qrtz_simple_triggers.trigger_name
+[Implied]  qrtz_triggers.trigger_name -> qrtz_trigger_listeners.trigger_name
+
+DROP DATABASE `db_001351_tables_db2_v72`;
+UNINSTALL EXTENSION vsql_schematron;
