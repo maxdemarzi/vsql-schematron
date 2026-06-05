@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 424020_cake_control_pg
+#
+CREATE DATABASE `db_424020_cake_control_pg`;
+USE `db_424020_cake_control_pg`;
+CREATE TABLE `groups` (
+`id` INT,
+`name` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`group_id` INT,
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `permissions` (
+`id` INT,
+`group_id` INT,
+`controller` VARCHAR(255),
+`action` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customers` (
+`id` INT,
+`name` VARCHAR(255),
+`birthday` DATETIME,
+`phone` VARCHAR(255),
+`user_id` INT,
+`observation` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`name` VARCHAR(255),
+`unity` VARCHAR(255),
+`register` DATETIME,
+`user_id` INT,
+`customer_id` INT,
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_items` (
+`id` INT,
+`product_id` INT,
+`quantity` INT,
+`price` DECIMAL(10,2),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_424020_cake_control_pg') AS relationships;
+relationships
+Database: db_424020_cake_control_pg
+
+Table Connections:
+------------------
+[Implied]  customers.user_id -> users.id
+[Implied]  permissions.group_id -> groups.id
+[Implied]  product_items.product_id -> products.id
+[Implied]  products.customer_id -> customers.id
+[Implied]  products.user_id -> users.id
+[Implied]  users.group_id -> groups.id
+
+DROP DATABASE `db_424020_cake_control_pg`;
+UNINSTALL EXTENSION vsql_schematron;

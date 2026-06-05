@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 686256_cake_control_br_pg
+#
+CREATE DATABASE `db_686256_cake_control_br_pg`;
+USE `db_686256_cake_control_br_pg`;
+CREATE TABLE `groups` (
+`id` INT,
+`name` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(255),
+`password` VARCHAR(255),
+`group_id` INT,
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `permissions` (
+`id` INT,
+`group_id` INT,
+`controller` VARCHAR(255),
+`action` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customers` (
+`id` INT,
+`name` VARCHAR(255),
+`birthday` DATETIME,
+`phone` VARCHAR(255),
+`user_id` INT,
+`observation` VARCHAR(255),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_686256_cake_control_br_pg') AS relationships;
+relationships
+Database: db_686256_cake_control_br_pg
+
+Table Connections:
+------------------
+[Implied]  customers.user_id -> users.id
+[Implied]  permissions.group_id -> groups.id
+[Implied]  users.group_id -> groups.id
+
+DROP DATABASE `db_686256_cake_control_br_pg`;
+UNINSTALL EXTENSION vsql_schematron;

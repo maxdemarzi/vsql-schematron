@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 322536_1488290962
+#
+CREATE DATABASE `db_322536_1488290962`;
+USE `db_322536_1488290962`;
+CREATE TABLE `project` (
+`id` VARCHAR(255),
+`name` VARCHAR(255),
+`state` VARCHAR(255),
+`access_key` VARCHAR(255),
+`read_token` VARCHAR(255),
+`write_token` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `environment` (
+`id` VARCHAR(255),
+`project_id` VARCHAR(255),
+`name` VARCHAR(255),
+`state` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `configuration` (
+`id` VARCHAR(255),
+`environment_id` VARCHAR(255),
+`name` VARCHAR(255),
+`state` VARCHAR(255),
+`default_format` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `version` (
+`id` VARCHAR(255),
+`configuration_id` VARCHAR(255),
+`hash` VARCHAR(255),
+`previous` VARCHAR(255),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `entry` (
+`version_id` VARCHAR(255),
+`key` VARCHAR(255),
+`value` VARCHAR(255)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`configuration_id` VARCHAR(255),
+`version_id` VARCHAR(255),
+`name` VARCHAR(255),
+`created_at` DATETIME,
+`updated_at` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_322536_1488290962') AS relationships;
+relationships
+Database: db_322536_1488290962
+
+Table Connections:
+------------------
+[Implied]  configuration.environment_id -> environment.id
+[Implied]  entry.version_id -> version.id
+[Implied]  environment.project_id -> project.id
+[Implied]  tag.configuration_id -> configuration.id
+[Implied]  tag.version_id -> version.id
+[Implied]  version.configuration_id -> configuration.id
+
+DROP DATABASE `db_322536_1488290962`;
+UNINSTALL EXTENSION vsql_schematron;
