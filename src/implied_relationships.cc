@@ -533,7 +533,8 @@ void findPass1ImpliedRelationships(
                                     "type", "status", "num", "number", "no", "date", "time", "timestamp",
                                     "sched_name", "schedname", "sched_id", "schedid", "scheduler_name", "schedulername",
                                     "tenant_id", "tenantid", "tenant_code", "tenantcode",
-                                    "game_id", "gameid", "id_game", "idgame"
+                                    "game_id", "gameid", "id_game", "idgame",
+                                    "local_language_id", "locallanguageid", "reg_tenant_id", "regtenantid", "integer_idx", "integeridx", "index_id", "indexid"
                                 };
                                 if (GENERIC_COMPOSITE_COLS.count(pk_b_lower_clean) == 0) {
                                     Relationship rel;
