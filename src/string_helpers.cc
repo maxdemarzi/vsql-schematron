@@ -9,7 +9,14 @@
  * Converts a string to lowercase.
  */
 std::string to_lower(std::string s) {
+    thread_local std::unordered_map<std::string, std::string> cache;
+    auto it = cache.find(s);
+    if (it != cache.end()) {
+        return it->second;
+    }
+    std::string orig = s;
     for (char &c : s) c = std::tolower(c);
+    cache[orig] = s;
     return s;
 }
 
@@ -183,6 +190,11 @@ std::string expandAbbreviation(const std::string& word) {
  *   expandAllAbbreviations("dept_mgr") -> "department_manager"
  */
 std::string expandAllAbbreviations(const std::string& s) {
+    thread_local std::unordered_map<std::string, std::string> cache;
+    auto it = cache.find(s);
+    if (it != cache.end()) {
+        return it->second;
+    }
     std::string result;
     std::string token;
     std::istringstream tokenStream(to_lower(s));
@@ -194,6 +206,7 @@ std::string expandAllAbbreviations(const std::string& s) {
         result += expandAbbreviation(token);
         first = false;
     }
+    cache[s] = result;
     return result;
 }
 
@@ -205,31 +218,37 @@ std::string expandAllAbbreviations(const std::string& s) {
  *   singularize("orders") -> "order"
  */
 std::string singularize(const std::string& w) {
+    thread_local std::unordered_map<std::string, std::string> cache;
+    auto it = cache.find(w);
+    if (it != cache.end()) {
+        return it->second;
+    }
+    std::string res;
     if (w.length() > 3 && w.rfind("ies") == w.length() - 3) {
-        return w.substr(0, w.length() - 3) + "y";
-    }
-    if (w.length() > 2 && w.rfind("es") == w.length() - 2) {
+        res = w.substr(0, w.length() - 3) + "y";
+    } else if (w.length() > 2 && w.rfind("es") == w.length() - 2) {
         if (w.length() > 4 && w.rfind("sses") == w.length() - 4) {
-            return w.substr(0, w.length() - 2);
+            res = w.substr(0, w.length() - 2);
+        } else if (w.length() > 4 && w.rfind("uses") == w.length() - 4) {
+            res = w.substr(0, w.length() - 2);
+        } else if (w.length() > 3 && (w.rfind("che") == w.length() - 3 || w.rfind("she") == w.length() - 3)) {
+            res = w.substr(0, w.length() - 2);
+        } else if (w.length() > 2 && (w[w.length() - 3] == 'x' || w[w.length() - 3] == 'z')) {
+            res = w.substr(0, w.length() - 2);
+        } else {
+            res = w.substr(0, w.length() - 1);
         }
-        if (w.length() > 4 && w.rfind("uses") == w.length() - 4) {
-            return w.substr(0, w.length() - 2);
-        }
-        if (w.length() > 3 && (w.rfind("che") == w.length() - 3 || w.rfind("she") == w.length() - 3)) {
-            return w.substr(0, w.length() - 2);
-        }
-        if (w.length() > 2 && (w[w.length() - 3] == 'x' || w[w.length() - 3] == 'z')) {
-            return w.substr(0, w.length() - 2);
-        }
-        return w.substr(0, w.length() - 1);
-    }
-    if (w.length() > 1 && w.back() == 's') {
+    } else if (w.length() > 1 && w.back() == 's') {
         if (w.length() > 2 && (w.rfind("ss") == w.length() - 2 || w.rfind("us") == w.length() - 2 || w.rfind("is") == w.length() - 2 || w.rfind("as") == w.length() - 2)) {
-            return w;
+            res = w;
+        } else {
+            res = w.substr(0, w.length() - 1);
         }
-        return w.substr(0, w.length() - 1);
+    } else {
+        res = w;
     }
-    return w;
+    cache[w] = res;
+    return res;
 }
 
 /**

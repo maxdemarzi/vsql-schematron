@@ -5,10 +5,24 @@
 #include <sstream>
 #include <unordered_set>
 #include <unordered_map>
+#include <cstdint>
 
 namespace {
 
 thread_local std::string g_dynamic_prefix = "";
+thread_local std::unordered_map<std::string, uint32_t> g_string_ids;
+
+uint32_t getStringId(const std::string& s) {
+    auto it = g_string_ids.find(s);
+    if (it != g_string_ids.end()) {
+        return it->second;
+    }
+    uint32_t new_id = g_string_ids.size();
+    g_string_ids[s] = new_id;
+    return new_id;
+}
+
+thread_local std::unordered_map<uint64_t, bool> g_match_table_name_cache;
 
 } // namespace
 
@@ -21,6 +35,8 @@ thread_local std::string g_dynamic_prefix = "";
  */
 void setDynamicPrefix(const std::string& prefix) {
     g_dynamic_prefix = prefix;
+    g_match_table_name_cache.clear();
+    g_string_ids.clear();
 }
 
 /**
@@ -31,6 +47,8 @@ void setDynamicPrefix(const std::string& prefix) {
  */
 void clearDynamicPrefix() {
     g_dynamic_prefix = "";
+    g_match_table_name_cache.clear();
+    g_string_ids.clear();
 }
 
 /**
@@ -332,25 +350,43 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
  *   - matchTableName("mgr", "employees") -> true (expands abbreviation mgr to manager, matches employee person table rules)
  */
 bool matchTableName(const std::string& col_prefix, const std::string& tbl_name, bool allow_substring) {
-    std::string prefix = to_lower(col_prefix);
-    std::string tbl = stripSchemaPrefix(to_lower(tbl_name));
+    std::string norm_prefix = to_lower(col_prefix);
+    std::string norm_tbl = stripSchemaPrefix(to_lower(tbl_name));
     
-    std::string clean_tbl = stripTablePrefix(stripTableSuffix(tbl));
-    std::string clean_prefix = stripTablePrefix(stripTableSuffix(prefix));
+    uint32_t prefix_id = getStringId(norm_prefix);
+    uint32_t tbl_id = getStringId(norm_tbl);
+    uint64_t key = (static_cast<uint64_t>(prefix_id) << 33) | (static_cast<uint64_t>(tbl_id) << 1) | (allow_substring ? 1 : 0);
     
-    std::string prefix_norole = stripRolePrefix(prefix);
-    std::string clean_prefix_norole = stripRolePrefix(clean_prefix);
+    auto it = g_match_table_name_cache.find(key);
+    if (it != g_match_table_name_cache.end()) {
+        return it->second;
+    }
     
-    // Check raw, stripped prefix, and role-stripped variants against clean table name variations
-    if (matchCleanTableNames(prefix, tbl, allow_substring)) return true;
-    if (matchCleanTableNames(clean_prefix, clean_tbl, allow_substring)) return true;
-    if (matchCleanTableNames(prefix, clean_tbl, allow_substring)) return true;
-    if (matchCleanTableNames(clean_prefix, tbl, allow_substring)) return true;
+    auto compute = [&]() -> bool {
+        std::string prefix = norm_prefix;
+        std::string tbl = norm_tbl;
+        
+        std::string clean_tbl = stripTablePrefix(stripTableSuffix(tbl));
+        std::string clean_prefix = stripTablePrefix(stripTableSuffix(prefix));
+        
+        std::string prefix_norole = stripRolePrefix(prefix);
+        std::string clean_prefix_norole = stripRolePrefix(clean_prefix);
+        
+        // Check raw, stripped prefix, and role-stripped variants against clean table name variations
+        if (matchCleanTableNames(prefix, tbl, allow_substring)) return true;
+        if (matchCleanTableNames(clean_prefix, clean_tbl, allow_substring)) return true;
+        if (matchCleanTableNames(prefix, clean_tbl, allow_substring)) return true;
+        if (matchCleanTableNames(clean_prefix, tbl, allow_substring)) return true;
+        
+        if (matchCleanTableNames(prefix_norole, tbl, allow_substring)) return true;
+        if (matchCleanTableNames(clean_prefix_norole, clean_tbl, allow_substring)) return true;
+        
+        return false;
+    };
     
-    if (matchCleanTableNames(prefix_norole, tbl, allow_substring)) return true;
-    if (matchCleanTableNames(clean_prefix_norole, clean_tbl, allow_substring)) return true;
-    
-    return false;
+    bool res = compute();
+    g_match_table_name_cache[key] = res;
+    return res;
 }
 
 /**

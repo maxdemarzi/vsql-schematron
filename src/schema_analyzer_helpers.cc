@@ -128,7 +128,8 @@ std::vector<std::string> getEffectivePKs(
     const std::string& tbl_name,
     const TableInfo& info,
     const std::vector<std::string>& table_names,
-    const std::unordered_map<std::string, TableInfo>& tables_info
+    const std::unordered_map<std::string, TableInfo>& tables_info,
+    const std::unordered_map<std::string, std::vector<std::string>>& pk_column_to_tables
 ) {
     if (!info.pk_columns.empty()) {
         return info.pk_columns;
@@ -201,22 +202,31 @@ std::vector<std::string> getEffectivePKs(
                     if (!entity.empty() && entity.back() == '_') entity.pop_back();
 
                     bool matches_other_table = false;
-                    for (const auto& other_tbl : table_names) {
-                        if (other_tbl != tbl_name) {
-                            auto it_other = tables_info.find(other_tbl);
-                            if (it_other != tables_info.end()) {
-                                // If other_tbl has this column in its primary keys, and other_tbl is not a subtype of tbl_name
-                                const auto& other_pks = it_other->second.pk_columns;
-                                bool is_pk_in_other = false;
-                                for (const auto& pk_oth : other_pks) {
-                                    if (to_lower(pk_oth) == col_lower) {
-                                        is_pk_in_other = true;
+                    auto it_pts = pk_column_to_tables.find(col_lower);
+                    if (it_pts != pk_column_to_tables.end()) {
+                        for (const auto& other_tbl : it_pts->second) {
+                            if (other_tbl != tbl_name && !isSubtypeTable(other_tbl, tbl_name)) {
+                                matches_other_table = true;
+                                break;
+                            }
+                        }
+                    } else if (pk_column_to_tables.empty()) {
+                        for (const auto& other_tbl : table_names) {
+                            if (other_tbl != tbl_name) {
+                                auto it_other = tables_info.find(other_tbl);
+                                if (it_other != tables_info.end()) {
+                                    const auto& other_pks = it_other->second.pk_columns;
+                                    bool is_pk_in_other = false;
+                                    for (const auto& pk_oth : other_pks) {
+                                        if (to_lower(pk_oth) == col_lower) {
+                                            is_pk_in_other = true;
+                                            break;
+                                        }
+                                    }
+                                    if (is_pk_in_other && !isSubtypeTable(other_tbl, tbl_name)) {
+                                        matches_other_table = true;
                                         break;
                                     }
-                                }
-                                if (is_pk_in_other && !isSubtypeTable(other_tbl, tbl_name)) {
-                                    matches_other_table = true;
-                                    break;
                                 }
                             }
                         }

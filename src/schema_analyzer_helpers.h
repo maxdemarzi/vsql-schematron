@@ -16,7 +16,8 @@ std::vector<std::string> getEffectivePKs(
     const std::string& tbl_name,
     const TableInfo& info,
     const std::vector<std::string>& table_names = {},
-    const std::unordered_map<std::string, TableInfo>& tables_info = {}
+    const std::unordered_map<std::string, TableInfo>& tables_info = {},
+    const std::unordered_map<std::string, std::vector<std::string>>& pk_column_to_tables = {}
 );
 std::string detectSharedTablePrefix(const std::vector<std::string>& table_names);
 bool isSequenceOrSystemTable(const std::string& tbl_name);
