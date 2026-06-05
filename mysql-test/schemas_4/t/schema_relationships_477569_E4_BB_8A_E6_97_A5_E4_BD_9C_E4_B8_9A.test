@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 477569_E4_BB_8A_E6_97_A5_E4_BD_9C_E4_B8_9A
+--echo #
+CREATE DATABASE `db_477569_E4_BB_8A_E6_97_A5_E4_BD_9C_E4_B8_9A`;
+USE `db_477569_E4_BB_8A_E6_97_A5_E4_BD_9C_E4_B8_9A`;
+
+CREATE TABLE `student` (
+  `sno` VARCHAR(64),
+  `sname` VARCHAR(64),
+  `ssex` VARCHAR(64),
+  `sbirthday` DATETIME,
+  `class` VARCHAR(64),
+  PRIMARY KEY (`sno`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `teacher` (
+  `tno` VARCHAR(64),
+  `tname` VARCHAR(64),
+  `tsex` VARCHAR(64),
+  `tbirthday` DATETIME,
+  `prof` VARCHAR(64),
+  `depart` VARCHAR(64),
+  PRIMARY KEY (`tno`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course` (
+  `cno` VARCHAR(64),
+  `cname` VARCHAR(64),
+  `tno` VARCHAR(64),
+  PRIMARY KEY (`cno`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `score` (
+  `sno` VARCHAR(64),
+  `cno` VARCHAR(64),
+  `degree` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_477569_E4_BB_8A_E6_97_A5_E4_BD_9C_E4_B8_9A') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_477569_E4_BB_8A_E6_97_A5_E4_BD_9C_E4_B8_9A') AS relationships;
+DROP DATABASE `db_477569_E4_BB_8A_E6_97_A5_E4_BD_9C_E4_B8_9A`;
+UNINSTALL EXTENSION vsql_schematron;

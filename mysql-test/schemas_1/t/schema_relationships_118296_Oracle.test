@@ -1,0 +1,106 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 118296_Oracle
+--echo #
+CREATE DATABASE `db_118296_Oracle`;
+USE `db_118296_Oracle`;
+
+CREATE TABLE `T_WMC` (
+  `wmc_Name` VARCHAR(64),
+  PRIMARY KEY (`wmc_Name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_Part` (
+  `part_PartNo` VARCHAR(64),
+  `part_description` VARCHAR(64),
+  `part_cost` INT,
+  `part_manufactureDate` DATETIME,
+  PRIMARY KEY (`part_PartNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_Customer` (
+  `customer_CNo` VARCHAR(64),
+  `customer_Name` VARCHAR(64),
+  `customer_surname` VARCHAR(64),
+  PRIMARY KEY (`customer_CNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_Machine` (
+  `machine_MNo` VARCHAR(64),
+  `machine_name` VARCHAR(64),
+  PRIMARY KEY (`machine_MNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_Employee` (
+  `employee_ENo` VARCHAR(64),
+  `employee_Name` VARCHAR(64),
+  `employee_Designation` VARCHAR(64),
+  `employee_Salary` INT,
+  PRIMARY KEY (`employee_ENo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_Product` (
+  `product_MNo` VARCHAR(64),
+  `product_PrName` VARCHAR(64),
+  `product_cost` INT,
+  `product_WMC_name` VARCHAR(64),
+  PRIMARY KEY (`product_MNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_Assembles` (
+  `assembles_product_PNo` VARCHAR(64),
+  `assembles_part_PartNo` VARCHAR(64),
+  PRIMARY KEY (`assembles_product_PNo`, `assembles_part_PartNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_Orders` (
+  `orders_product_PNo` VARCHAR(64),
+  `orders_customer_CNo` VARCHAR(64),
+  PRIMARY KEY (`orders_product_PNo`, `orders_customer_CNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_MadeOn` (
+  `madeon_machine_MNo` VARCHAR(64),
+  `madeon_part_PartNo` VARCHAR(64),
+  PRIMARY KEY (`madeon_machine_MNo`, `madeon_part_PartNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_Supervisor` (
+  `supervisor_machine_MNo` VARCHAR(64),
+  `supervisor_employee_ENo` VARCHAR(64),
+  PRIMARY KEY (`supervisor_machine_MNo`, `supervisor_employee_ENo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_MadeBy` (
+  `madeby_part_PartNo` VARCHAR(64),
+  `madeby_employee_ENo` VARCHAR(64),
+  PRIMARY KEY (`madeby_part_PartNo`, `madeby_employee_ENo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_Operator` (
+  `operator_machine_MNo` VARCHAR(64),
+  `operator_employee_ENo` VARCHAR(64),
+  `operator_NoOfParts` INT,
+  PRIMARY KEY (`operator_machine_MNo`, `operator_employee_ENo`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_118296_Oracle') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_118296_Oracle') AS relationships;
+DROP DATABASE `db_118296_Oracle`;
+UNINSTALL EXTENSION vsql_schematron;

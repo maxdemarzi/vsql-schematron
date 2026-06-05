@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 668732_CREATE_DB
+#
+CREATE DATABASE `db_668732_CREATE_DB`;
+USE `db_668732_CREATE_DB`;
+CREATE TABLE `opp_block_day` (
+`uid_day` INT,
+`day` DATETIME,
+PRIMARY KEY (`uid_day`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+`uid_group` INT,
+`group_info` VARCHAR(64),
+PRIMARY KEY (`uid_group`)
+) CHARACTER SET latin1;
+CREATE TABLE `excluded_groups` (
+`uid_day` INT,
+`uid_group` INT
+) CHARACTER SET latin1;
+CREATE TABLE `teachers` (
+`uid_teacher` INT,
+`prefix` VARCHAR(64),
+`teacher_firstname` VARCHAR(64),
+`teacher_lastname` VARCHAR(64),
+`teacher_email` VARCHAR(64),
+`teacher_info` VARCHAR(64),
+PRIMARY KEY (`uid_teacher`)
+) CHARACTER SET latin1;
+CREATE TABLE `admins` (
+`uid_admin` INT,
+`lastname` VARCHAR(64),
+`firstname` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`uid_admin`)
+) CHARACTER SET latin1;
+CREATE TABLE `students` (
+`uid_student` INT,
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`grade` INT,
+`sport` VARCHAR(64),
+`advisor` VARCHAR(64),
+`gender` VARCHAR(64),
+`email` VARCHAR(64),
+`authToken` INT,
+`phone` VARCHAR(64),
+`arrived` INT,
+PRIMARY KEY (`uid_student`)
+) CHARACTER SET latin1;
+CREATE TABLE `absent` (
+`uid_student` INT,
+`uid_day` INT
+) CHARACTER SET latin1;
+CREATE TABLE `student_groups` (
+`uid_student` INT,
+`uid_group` INT
+) CHARACTER SET latin1;
+CREATE TABLE `offerings` (
+`uid_offering` INT,
+`name` VARCHAR(64),
+`location` VARCHAR(64),
+`description` VARCHAR(64),
+`max_size` INT,
+`uid_teacher` INT,
+`recurring` INT,
+PRIMARY KEY (`uid_offering`)
+) CHARACTER SET latin1;
+CREATE TABLE `calendar` (
+`uid_day` INT,
+`uid_offering` INT
+) CHARACTER SET latin1;
+CREATE TABLE `choices` (
+`uid_day` INT,
+`uid_student` INT,
+`uid_offering` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_668732_CREATE_DB') AS relationships;
+relationships
+Database: db_668732_CREATE_DB
+
+Table Connections:
+------------------
+[Implied]  absent.uid_day -> opp_block_day.uid_day
+[Implied]  absent.uid_student -> students.uid_student
+[Implied]  calendar.uid_day -> opp_block_day.uid_day
+[Implied]  calendar.uid_offering -> offerings.uid_offering
+[Implied]  choices.uid_day -> opp_block_day.uid_day
+[Implied]  choices.uid_offering -> offerings.uid_offering
+[Implied]  choices.uid_student -> students.uid_student
+[Implied]  excluded_groups.uid_day -> opp_block_day.uid_day
+[Implied]  excluded_groups.uid_group -> groups.uid_group
+[Implied]  offerings.uid_teacher -> teachers.uid_teacher
+[Implied]  student_groups.uid_group -> groups.uid_group
+[Implied]  student_groups.uid_student -> students.uid_student
+
+DROP DATABASE `db_668732_CREATE_DB`;
+UNINSTALL EXTENSION vsql_schematron;

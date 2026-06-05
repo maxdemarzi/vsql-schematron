@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 663864_Exam_DDL
+#
+CREATE DATABASE `db_663864_Exam_DDL`;
+USE `db_663864_Exam_DDL`;
+CREATE TABLE `branches` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`salary` DECIMAL(10,2),
+`started_on` DATETIME,
+`branch_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clients` (
+`id` INT,
+`full_name` VARCHAR(64),
+`age` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees_clients` (
+`employee_id` INT,
+`client_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `bank_accounts` (
+`id` INT,
+`account_number` VARCHAR(64),
+`balance` DECIMAL(10,2),
+`client_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cards` (
+`id` INT,
+`card_number` VARCHAR(64),
+`card_status` VARCHAR(64),
+`bank_account_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_663864_Exam_DDL') AS relationships;
+relationships
+Database: db_663864_Exam_DDL
+
+Table Connections:
+------------------
+[Implied]  bank_accounts.client_id -> clients.id
+[Implied]  cards.bank_account_id -> bank_accounts.id
+[Implied]  employees.branch_id -> branches.id
+[Implied]  employees_clients.client_id -> clients.id
+[Implied]  employees_clients.employee_id -> employees.id
+
+DROP DATABASE `db_663864_Exam_DDL`;
+UNINSTALL EXTENSION vsql_schematron;

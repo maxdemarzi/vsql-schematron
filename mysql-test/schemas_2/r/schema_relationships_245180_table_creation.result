@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 245180_table_creation
+#
+CREATE DATABASE `db_245180_table_creation`;
+USE `db_245180_table_creation`;
+CREATE TABLE `teacher` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `class` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `section` (
+`id` INT,
+`name` VARCHAR(64),
+`teacher_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`id` INT,
+`name` VARCHAR(64),
+`gender` VARCHAR(64),
+`class_id` INT,
+`section_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_245180_table_creation') AS relationships;
+relationships
+Database: db_245180_table_creation
+
+Table Connections:
+------------------
+[Implied]  section.teacher_id -> teacher.id
+[Implied]  student.class_id -> class.id
+[Implied]  student.section_id -> section.id
+
+DROP DATABASE `db_245180_table_creation`;
+UNINSTALL EXTENSION vsql_schematron;

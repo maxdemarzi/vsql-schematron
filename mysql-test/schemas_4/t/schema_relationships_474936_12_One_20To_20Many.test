@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 474936_12_One_20To_20Many
+--echo #
+CREATE DATABASE `db_474936_12_One_20To_20Many`;
+USE `db_474936_12_One_20To_20Many`;
+
+CREATE TABLE `customers` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `id` INT,
+  `order_date` DATETIME,
+  `amount` DECIMAL(10,2),
+  `customer_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `students` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `papers` (
+  `title` VARCHAR(64),
+  `grade` INT,
+  `student_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_474936_12_One_20To_20Many') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_474936_12_One_20To_20Many') AS relationships;
+DROP DATABASE `db_474936_12_One_20To_20Many`;
+UNINSTALL EXTENSION vsql_schematron;

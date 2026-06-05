@@ -1,0 +1,139 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 499452_V1_1_Create
+--echo #
+CREATE DATABASE `db_499452_V1_1_Create`;
+USE `db_499452_V1_1_Create`;
+
+CREATE TABLE `office` (
+  `office_code` VARCHAR(64),
+  `city` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `address_line_first` VARCHAR(64),
+  `address_line_second` VARCHAR(64),
+  `state` VARCHAR(64),
+  `country` VARCHAR(64),
+  `postal_code` VARCHAR(64),
+  `territory` VARCHAR(64),
+  PRIMARY KEY (`office_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employee` (
+  `employee_number` INT,
+  `last_name` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `extension` VARCHAR(64),
+  `email` VARCHAR(64),
+  `office_code` VARCHAR(64),
+  `salary` INT,
+  `reports_to` INT,
+  `job_title` VARCHAR(64),
+  PRIMARY KEY (`employee_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sale` (
+  `sale_id` INT,
+  `fiscal_year` INT,
+  `sale` DECIMAL(10,2),
+  `employee_number` INT,
+  PRIMARY KEY (`sale_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customer` (
+  `customer_number` INT,
+  `customer_name` VARCHAR(64),
+  `contact_last_name` VARCHAR(64),
+  `contact_first_name` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `sales_rep_employee_number` INT,
+  `credit_limit` DECIMAL(10,2),
+  PRIMARY KEY (`customer_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customerdetail` (
+  `customer_number` INT,
+  `address_line_first` VARCHAR(64),
+  `address_line_second` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `postal_code` VARCHAR(64),
+  `country` VARCHAR(64),
+  PRIMARY KEY (`customer_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `manager` (
+  `manager_id` INT,
+  `manager_name` VARCHAR(64),
+  PRIMARY KEY (`manager_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `productline` (
+  `product_line` VARCHAR(64),
+  `text_description` VARCHAR(64),
+  `html_description` VARCHAR(64),
+  `image` VARCHAR(64),
+  PRIMARY KEY (`product_line`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product` (
+  `product_id` INT,
+  `product_name` VARCHAR(64),
+  `product_line` VARCHAR(64),
+  `product_scale` VARCHAR(64),
+  `product_vendor` VARCHAR(64),
+  `product_description` VARCHAR(64),
+  `quantity_in_stock` INT,
+  `buy_price` DECIMAL(10,2),
+  `msrp` DECIMAL(10,2),
+  PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order` (
+  `order_id` INT,
+  `order_date` DATETIME,
+  `required_date` DATETIME,
+  `shipped_date` DATETIME,
+  `status` VARCHAR(64),
+  `comments` VARCHAR(64),
+  `customer_number` INT,
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orderdetail` (
+  `order_id` INT,
+  `product_id` INT,
+  `quantity_ordered` INT,
+  `price_each` DECIMAL(10,2),
+  `order_line_number` INT,
+  PRIMARY KEY (`order_id`, `product_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payment` (
+  `customer_number` INT,
+  `check_number` VARCHAR(64),
+  `payment_date` DATETIME,
+  `invoice_amount` DECIMAL(10,2),
+  `caching_date` DATETIME,
+  PRIMARY KEY (`customer_number`, `check_number`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_499452_V1_1_Create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_499452_V1_1_Create') AS relationships;
+DROP DATABASE `db_499452_V1_1_Create`;
+UNINSTALL EXTENSION vsql_schematron;

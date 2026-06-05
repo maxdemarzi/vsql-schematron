@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 606981_create_db
+#
+CREATE DATABASE `db_606981_create_db`;
+USE `db_606981_create_db`;
+CREATE TABLE `ingredient` (
+`ingredientID` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`ingredientID`)
+) CHARACTER SET latin1;
+CREATE TABLE `pizza` (
+`pizzaID` INT,
+`name` VARCHAR(64),
+`unit_price` DECIMAL(10,2),
+`size` VARCHAR(64),
+PRIMARY KEY (`pizzaID`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipe` (
+`pizzaID` INT,
+`ingredientID` INT,
+`quantity` DECIMAL(10,2),
+PRIMARY KEY (`pizzaID`, `ingredientID`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+`addressID` INT,
+`street_number` INT,
+`street` VARCHAR(64),
+`postal_code` VARCHAR(64),
+`city` VARCHAR(64),
+`phone` VARCHAR(64),
+PRIMARY KEY (`addressID`)
+) CHARACTER SET latin1;
+CREATE TABLE `pizzeria` (
+`pizzeriaID` INT,
+`name` VARCHAR(64),
+`addressID` INT,
+PRIMARY KEY (`pizzeriaID`)
+) CHARACTER SET latin1;
+CREATE TABLE `stock` (
+`pizzeriaID` INT,
+`ingredientID` INT,
+`quantity` DECIMAL(10,2),
+PRIMARY KEY (`pizzeriaID`, `ingredientID`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`customerID` INT,
+`last_name` VARCHAR(64),
+`first_name` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`addressID` INT,
+PRIMARY KEY (`customerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer_order` (
+`orderID` INT,
+`customerID` INT,
+`pizzeriaID` INT,
+`total_price` DECIMAL(10,2),
+`to_deliver` BOOL,
+`isPaid` BOOL,
+`status` VARCHAR(64),
+`payment_type` VARCHAR(64),
+PRIMARY KEY (`orderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `basket` (
+`orderID` INT,
+`pizzaID` INT,
+`quantity` INT,
+PRIMARY KEY (`orderID`, `pizzaID`)
+) CHARACTER SET latin1;
+CREATE TABLE `staff` (
+`staffID` INT,
+`addressID` INT,
+`pizzeriaID` INT,
+`last_name` VARCHAR(64),
+`first_name` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`job_type` VARCHAR(64),
+PRIMARY KEY (`staffID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_606981_create_db') AS relationships;
+relationships
+Database: db_606981_create_db
+
+Table Connections:
+------------------
+[Implied]  basket.orderID -> customer_order.orderID
+[Implied]  basket.pizzaID -> pizza.pizzaID
+[Implied]  customer.addressID -> address.addressID
+[Implied]  customer_order.customerID -> customer.customerID
+[Implied]  customer_order.pizzeriaID -> pizzeria.pizzeriaID
+[Implied]  pizzeria.addressID -> address.addressID
+[Implied]  recipe.ingredientID -> ingredient.ingredientID
+[Implied]  recipe.pizzaID -> pizza.pizzaID
+[Implied]  staff.addressID -> address.addressID
+[Implied]  staff.pizzeriaID -> pizzeria.pizzeriaID
+[Implied]  stock.ingredientID -> ingredient.ingredientID
+[Implied]  stock.pizzeriaID -> pizzeria.pizzeriaID
+
+DROP DATABASE `db_606981_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

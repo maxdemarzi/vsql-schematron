@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 376483_schema
+#
+CREATE DATABASE `db_376483_schema`;
+USE `db_376483_schema`;
+CREATE TABLE `user` (
+`id` INT,
+`login` VARCHAR(64),
+`pass` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `person` (
+`id` INT,
+`lastname` VARCHAR(64),
+`firstname` VARCHAR(64),
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `note` (
+`id` INT,
+`title` VARCHAR(64),
+`note` VARCHAR(64),
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sub_note` (
+`id` INT,
+`note_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_376483_schema') AS relationships;
+relationships
+Database: db_376483_schema
+
+Table Connections:
+------------------
+[Implied]  note.user_id -> user.id
+[Implied]  person.user_id -> user.id
+[Implied]  sub_note.note_id -> note.id
+
+DROP DATABASE `db_376483_schema`;
+UNINSTALL EXTENSION vsql_schematron;

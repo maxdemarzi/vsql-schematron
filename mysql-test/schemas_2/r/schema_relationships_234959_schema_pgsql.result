@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 234959_schema_pgsql
+#
+CREATE DATABASE `db_234959_schema_pgsql`;
+USE `db_234959_schema_pgsql`;
+CREATE TABLE `customers` (
+`id` INT,
+`fname` VARCHAR(64),
+`lname` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `filters` (
+`id` INT,
+`name` VARCHAR(64),
+`destination_folder` VARCHAR(64),
+`customer_id` INT,
+`order_num` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `expressions` (
+`id` INT,
+`field_name` VARCHAR(64),
+`operator` VARCHAR(64),
+`expr_value` VARCHAR(64),
+`case_sensitive` BOOL,
+`filter_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mail_prefs` (
+`id` INT,
+`mail_type` VARCHAR(64),
+`wm_rows` INT,
+`customer_id` INT,
+`check_external_mail` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contacts` (
+`id` INT,
+`fname` VARCHAR(64),
+`lname` VARCHAR(64),
+`email` VARCHAR(64),
+`hphone` VARCHAR(64),
+`wphone` VARCHAR(64),
+`mobile` VARCHAR(64),
+`fax` VARCHAR(64),
+`notes` VARCHAR(64),
+`create_date` DATETIME,
+`delete_date` DATETIME,
+`customer_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contact_groups` (
+`id` INT,
+`name` VARCHAR(64),
+`customer_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contact_contact_groups` (
+`contact_id` INT,
+`contact_group_id` INT,
+PRIMARY KEY (`contact_id`, `contact_group_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`id` INT,
+`session_id` VARCHAR(64),
+`data` VARCHAR(64),
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `imap_messages` (
+`id` INT,
+`folder_name` VARCHAR(64),
+`username` VARCHAR(64),
+`msg_id` VARCHAR(64),
+`uid` INT,
+`from` VARCHAR(64),
+`from_flat` VARCHAR(64),
+`to` VARCHAR(64),
+`to_flat` VARCHAR(64),
+`subject` VARCHAR(64),
+`content_type` VARCHAR(64),
+`date` DATETIME,
+`unread` BOOL,
+`size` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_234959_schema_pgsql') AS relationships;
+relationships
+Database: db_234959_schema_pgsql
+
+Table Connections:
+------------------
+[Implied]  contact_contact_groups.contact_group_id -> contact_groups.id
+[Implied]  contact_contact_groups.contact_id -> contacts.id
+[Implied]  contact_groups.customer_id -> customers.id
+[Implied]  contacts.customer_id -> customers.id
+[Implied]  expressions.filter_id -> filters.id
+[Implied]  filters.customer_id -> customers.id
+[Implied]  mail_prefs.customer_id -> customers.id
+
+DROP DATABASE `db_234959_schema_pgsql`;
+UNINSTALL EXTENSION vsql_schematron;

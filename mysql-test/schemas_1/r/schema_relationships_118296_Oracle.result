@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 118296_Oracle
+#
+CREATE DATABASE `db_118296_Oracle`;
+USE `db_118296_Oracle`;
+CREATE TABLE `T_WMC` (
+`wmc_Name` VARCHAR(64),
+PRIMARY KEY (`wmc_Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_Part` (
+`part_PartNo` VARCHAR(64),
+`part_description` VARCHAR(64),
+`part_cost` INT,
+`part_manufactureDate` DATETIME,
+PRIMARY KEY (`part_PartNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_Customer` (
+`customer_CNo` VARCHAR(64),
+`customer_Name` VARCHAR(64),
+`customer_surname` VARCHAR(64),
+PRIMARY KEY (`customer_CNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_Machine` (
+`machine_MNo` VARCHAR(64),
+`machine_name` VARCHAR(64),
+PRIMARY KEY (`machine_MNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_Employee` (
+`employee_ENo` VARCHAR(64),
+`employee_Name` VARCHAR(64),
+`employee_Designation` VARCHAR(64),
+`employee_Salary` INT,
+PRIMARY KEY (`employee_ENo`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_Product` (
+`product_MNo` VARCHAR(64),
+`product_PrName` VARCHAR(64),
+`product_cost` INT,
+`product_WMC_name` VARCHAR(64),
+PRIMARY KEY (`product_MNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_Assembles` (
+`assembles_product_PNo` VARCHAR(64),
+`assembles_part_PartNo` VARCHAR(64),
+PRIMARY KEY (`assembles_product_PNo`, `assembles_part_PartNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_Orders` (
+`orders_product_PNo` VARCHAR(64),
+`orders_customer_CNo` VARCHAR(64),
+PRIMARY KEY (`orders_product_PNo`, `orders_customer_CNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_MadeOn` (
+`madeon_machine_MNo` VARCHAR(64),
+`madeon_part_PartNo` VARCHAR(64),
+PRIMARY KEY (`madeon_machine_MNo`, `madeon_part_PartNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_Supervisor` (
+`supervisor_machine_MNo` VARCHAR(64),
+`supervisor_employee_ENo` VARCHAR(64),
+PRIMARY KEY (`supervisor_machine_MNo`, `supervisor_employee_ENo`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_MadeBy` (
+`madeby_part_PartNo` VARCHAR(64),
+`madeby_employee_ENo` VARCHAR(64),
+PRIMARY KEY (`madeby_part_PartNo`, `madeby_employee_ENo`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_Operator` (
+`operator_machine_MNo` VARCHAR(64),
+`operator_employee_ENo` VARCHAR(64),
+`operator_NoOfParts` INT,
+PRIMARY KEY (`operator_machine_MNo`, `operator_employee_ENo`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_118296_Oracle') AS relationships;
+relationships
+Database: db_118296_Oracle
+
+Table Connections:
+------------------
+[Implied]  T_Assembles.assembles_part_PartNo -> T_Part.part_PartNo
+[Implied]  T_Assembles.assembles_product_PNo -> T_Product.product_MNo
+[Implied]  T_MadeBy.madeby_employee_ENo -> T_Employee.employee_ENo
+[Implied]  T_MadeBy.madeby_part_PartNo -> T_Part.part_PartNo
+[Implied]  T_MadeOn.madeon_machine_MNo -> T_Machine.machine_MNo
+[Implied]  T_MadeOn.madeon_part_PartNo -> T_Part.part_PartNo
+[Implied]  T_Operator.operator_employee_ENo -> T_Employee.employee_ENo
+[Implied]  T_Operator.operator_machine_MNo -> T_Machine.machine_MNo
+[Implied]  T_Orders.orders_customer_CNo -> T_Customer.customer_CNo
+[Implied]  T_Orders.orders_product_PNo -> T_Product.product_MNo
+[Implied]  T_Product.product_WMC_name -> T_WMC.wmc_Name
+[Implied]  T_Supervisor.supervisor_employee_ENo -> T_Employee.employee_ENo
+[Implied]  T_Supervisor.supervisor_machine_MNo -> T_Machine.machine_MNo
+
+DROP DATABASE `db_118296_Oracle`;
+UNINSTALL EXTENSION vsql_schematron;

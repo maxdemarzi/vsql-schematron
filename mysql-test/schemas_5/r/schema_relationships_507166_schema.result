@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 507166_schema
+#
+CREATE DATABASE `db_507166_schema`;
+USE `db_507166_schema`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `students` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teachers` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `courses` (
+`id` INT,
+`name` VARCHAR(64),
+`room` VARCHAR(64),
+`teacher_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `periods` (
+`id` INT,
+`display` VARCHAR(64),
+`start_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `enrollments` (
+`id` INT,
+`student_id` INT,
+`course_id` INT,
+`period_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `assignments` (
+`id` INT,
+`name` VARCHAR(64),
+`total_points` INT,
+`due_date` DATETIME,
+`course_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `grades` (
+`id` INT,
+`student_id` INT,
+`assignment_id` INT,
+`points` INT,
+`graded_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_507166_schema') AS relationships;
+relationships
+Database: db_507166_schema
+
+Table Connections:
+------------------
+[Implied]  assignments.course_id -> courses.id
+[Implied]  courses.teacher_id -> teachers.id
+[Implied]  enrollments.course_id -> courses.id
+[Implied]  enrollments.period_id -> periods.id
+[Implied]  enrollments.student_id -> students.id
+[Implied]  grades.assignment_id -> assignments.id
+[Implied]  grades.student_id -> students.id
+[Implied]  students.id -> users.id
+[Implied]  teachers.id -> users.id
+
+DROP DATABASE `db_507166_schema`;
+UNINSTALL EXTENSION vsql_schematron;

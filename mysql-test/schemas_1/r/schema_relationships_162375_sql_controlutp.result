@@ -1,0 +1,143 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 162375_sql_controlutp
+#
+CREATE DATABASE `db_162375_sql_controlutp`;
+USE `db_162375_sql_controlutp`;
+CREATE TABLE `degree` (
+`degree_id` INT,
+`degree` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`degree_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `specialization` (
+`specialization_id` INT,
+`specialization` VARCHAR(64),
+`degree_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`specialization_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`student_id` INT,
+`student_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`mother_last_name` VARCHAR(64),
+`date_of_birth` DATETIME,
+`high_school_mark` DECIMAL(10,2),
+`email` VARCHAR(64),
+`phone` VARCHAR(64),
+`psword` VARCHAR(64),
+`student_status` BOOL,
+`specialization_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `letter` (
+`letter_id` INT,
+`letter` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`letter_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `period` (
+`period_id` INT,
+`start_month` VARCHAR(64),
+`end_month` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`period_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `four_month_period` (
+`fmp_id` INT,
+`fmp_number` INT,
+`period_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`fmp_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `grouputp` (
+`grouputp_id` INT,
+`fmp_id` INT,
+`letter_id` INT,
+`shift` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`grouputp_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_group` (
+`student_id` INT,
+`grouputp_id` INT,
+`mark` VARCHAR(64),
+`sg_year` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `subjectutp` (
+`subjectutp_id` INT,
+`subjectutp` VARCHAR(64),
+`fmp_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`subjectutp_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `specialization_subject` (
+`specialization_id` INT,
+`subject_id` INT,
+`created_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `teacher` (
+`teacher_id` INT,
+`teacher_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`mother_last_name` VARCHAR(64),
+`date_of_birth` VARCHAR(64),
+`email` VARCHAR(64),
+`phone` VARCHAR(64),
+`teacher_status` BOOL,
+`professional_license` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`teacher_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teacher_specialization` (
+`specialization_id` INT,
+`teacher_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `teacher_subject` (
+`teacher_id` INT,
+`subjectutp_id` INT,
+`created_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `school_schedule` (
+`ss_id` INT,
+`ss_name` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`ss_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subject_school_schedule` (
+`subjectutp_id` INT,
+`ss_id` INT,
+`sc_day` VARCHAR(64),
+`start_hour` DATETIME,
+`end_hour` DATETIME,
+`created_at` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_162375_sql_controlutp') AS relationships;
+relationships
+Database: db_162375_sql_controlutp
+
+Table Connections:
+------------------
+[Implied]  four_month_period.period_id -> period.period_id
+[Implied]  grouputp.fmp_id -> four_month_period.fmp_id
+[Implied]  grouputp.letter_id -> letter.letter_id
+[Implied]  specialization.degree_id -> degree.degree_id
+[Implied]  specialization_subject.specialization_id -> specialization.specialization_id
+[Implied]  specialization_subject.subject_id -> subjectutp.subjectutp_id
+[Implied]  student.specialization_id -> specialization.specialization_id
+[Implied]  student_group.grouputp_id -> grouputp.grouputp_id
+[Implied]  student_group.student_id -> student.student_id
+[Implied]  subject_school_schedule.ss_id -> school_schedule.ss_id
+[Implied]  subject_school_schedule.subjectutp_id -> subjectutp.subjectutp_id
+[Implied]  subjectutp.fmp_id -> four_month_period.fmp_id
+[Implied]  teacher_specialization.specialization_id -> specialization.specialization_id
+[Implied]  teacher_specialization.teacher_id -> teacher.teacher_id
+[Implied]  teacher_subject.subjectutp_id -> subjectutp.subjectutp_id
+[Implied]  teacher_subject.teacher_id -> teacher.teacher_id
+
+DROP DATABASE `db_162375_sql_controlutp`;
+UNINSTALL EXTENSION vsql_schematron;

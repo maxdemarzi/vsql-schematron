@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 426436_init
+--echo #
+CREATE DATABASE `db_426436_init`;
+USE `db_426436_init`;
+
+CREATE TABLE `allyear` (
+  `yearID` INT,
+  PRIMARY KEY (`yearID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `taking` (
+  `takingID` INT,
+  `classID` INT,
+  `studentID` INT,
+  `state` BOOL,
+  PRIMARY KEY (`takingID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Manager` (
+  `managerID` VARCHAR(64),
+  `PASSWORD` VARCHAR(64),
+  PRIMARY KEY (`managerID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `class` (
+  `classID` INT,
+  `courseID` INT,
+  `teacherID` INT,
+  `studentnum` INT,
+  `education` INT,
+  `grade` INT,
+  `start_year` INT,
+  `state` BOOL,
+  `order_number` INT,
+  `maxstudentnum` INT,
+  PRIMARY KEY (`classID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course` (
+  `courseID` INT,
+  `coursename` VARCHAR(64),
+  `education` INT,
+  `price` DECIMAL(10,2),
+  `state` BOOL,
+  PRIMARY KEY (`courseID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `student` (
+  `studentID` INT,
+  `NAME` VARCHAR(64),
+  `education` INT,
+  `birthday` DATETIME,
+  `sex` VARCHAR(64),
+  `state` BOOL,
+  `PASSWORD` VARCHAR(64),
+  PRIMARY KEY (`studentID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `teacher` (
+  `teacherID` INT,
+  `NAME` VARCHAR(64),
+  `salary` DECIMAL(10,2),
+  `state` BOOL,
+  `sex` VARCHAR(64),
+  `birthday` DATETIME,
+  `PASSWORD` VARCHAR(64),
+  PRIMARY KEY (`teacherID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_426436_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_426436_init') AS relationships;
+DROP DATABASE `db_426436_init`;
+UNINSTALL EXTENSION vsql_schematron;

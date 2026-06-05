@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 482291_SqlScript
+#
+CREATE DATABASE `db_482291_SqlScript`;
+USE `db_482291_SqlScript`;
+CREATE TABLE `client` (
+`id_Client` INT,
+`nit` VARCHAR(64),
+`name` VARCHAR(64),
+`address` VARCHAR(64),
+`state` VARCHAR(64),
+PRIMARY KEY (`id_Client`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`id_Product` INT,
+`name` VARCHAR(64),
+`price` DECIMAL(10,2),
+`stock` INT,
+`state` VARCHAR(64),
+PRIMARY KEY (`id_Product`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`id_Employee` INT,
+`dpi` INT,
+`password` VARCHAR(64),
+`name` VARCHAR(64),
+`phone` VARCHAR(64),
+`state` VARCHAR(64),
+`user` VARCHAR(64),
+PRIMARY KEY (`id_Employee`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales` (
+`id_Sales` INT,
+`id_Client` INT,
+`id_Employee` INT,
+`serial_Number` VARCHAR(64),
+`sale_Date` DATETIME,
+`total_Price` DECIMAL(10,2),
+`state` VARCHAR(64),
+PRIMARY KEY (`id_Sales`)
+) CHARACTER SET latin1;
+CREATE TABLE `sale_detail` (
+`id_Sale_detail` INT,
+`id_Sales` INT,
+`id_Product` INT,
+`quantity` INT,
+`SubTotal` DECIMAL(10,2),
+PRIMARY KEY (`id_Sale_detail`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_482291_SqlScript') AS relationships;
+relationships
+Database: db_482291_SqlScript
+
+Table Connections:
+------------------
+[Implied]  sale_detail.id_Product -> product.id_Product
+[Implied]  sale_detail.id_Sales -> sales.id_Sales
+[Implied]  sales.id_Client -> client.id_Client
+[Implied]  sales.id_Employee -> employee.id_Employee
+
+DROP DATABASE `db_482291_SqlScript`;
+UNINSTALL EXTENSION vsql_schematron;

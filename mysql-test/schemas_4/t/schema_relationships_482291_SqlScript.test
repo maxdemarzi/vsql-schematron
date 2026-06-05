@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 482291_SqlScript
+--echo #
+CREATE DATABASE `db_482291_SqlScript`;
+USE `db_482291_SqlScript`;
+
+CREATE TABLE `client` (
+  `id_Client` INT,
+  `nit` VARCHAR(64),
+  `name` VARCHAR(64),
+  `address` VARCHAR(64),
+  `state` VARCHAR(64),
+  PRIMARY KEY (`id_Client`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product` (
+  `id_Product` INT,
+  `name` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `stock` INT,
+  `state` VARCHAR(64),
+  PRIMARY KEY (`id_Product`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employee` (
+  `id_Employee` INT,
+  `dpi` INT,
+  `password` VARCHAR(64),
+  `name` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `state` VARCHAR(64),
+  `user` VARCHAR(64),
+  PRIMARY KEY (`id_Employee`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sales` (
+  `id_Sales` INT,
+  `id_Client` INT,
+  `id_Employee` INT,
+  `serial_Number` VARCHAR(64),
+  `sale_Date` DATETIME,
+  `total_Price` DECIMAL(10,2),
+  `state` VARCHAR(64),
+  PRIMARY KEY (`id_Sales`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sale_detail` (
+  `id_Sale_detail` INT,
+  `id_Sales` INT,
+  `id_Product` INT,
+  `quantity` INT,
+  `SubTotal` DECIMAL(10,2),
+  PRIMARY KEY (`id_Sale_detail`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_482291_SqlScript') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_482291_SqlScript') AS relationships;
+DROP DATABASE `db_482291_SqlScript`;
+UNINSTALL EXTENSION vsql_schematron;

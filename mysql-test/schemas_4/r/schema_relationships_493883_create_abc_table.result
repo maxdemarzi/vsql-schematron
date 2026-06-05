@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 493883_create_abc_table
+#
+CREATE DATABASE `db_493883_create_abc_table`;
+USE `db_493883_create_abc_table`;
+CREATE TABLE `Employee` (
+`Employee_LastName` VARCHAR(64),
+`Employee_FirstName` VARCHAR(64),
+`Employee_Title` VARCHAR(64),
+`CompanyName` VARCHAR(64),
+PRIMARY KEY (`Employee_LastName`)
+) CHARACTER SET latin1;
+CREATE TABLE `Product` (
+`ProductName` VARCHAR(64),
+`Order_UnitPrice` DECIMAL(10,2),
+PRIMARY KEY (`ProductName`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer` (
+`Customer_ContactName` VARCHAR(64),
+`Customer_City` VARCHAR(64),
+`Customer_Country` VARCHAR(64),
+`Customer_Phone` VARCHAR(64),
+PRIMARY KEY (`Customer_ContactName`)
+) CHARACTER SET latin1;
+CREATE TABLE `Orders` (
+`OrderID` INT,
+`OrderDate` DATETIME,
+`Order_ShippedDate` DATETIME,
+`Order_Freight` DECIMAL(10,2),
+`Order_ShipCity` VARCHAR(64),
+`Order_ShipCountry` VARCHAR(64),
+`Employee_LastName` VARCHAR(64),
+`Customer_ContactName` VARCHAR(64),
+PRIMARY KEY (`OrderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Order_Products` (
+`Order_Quantity` INT,
+`Order_Amount` DECIMAL(10,2),
+`OrderID` INT,
+`ProductName` VARCHAR(64),
+PRIMARY KEY (`OrderID`, `ProductName`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_493883_create_abc_table') AS relationships;
+relationships
+Database: db_493883_create_abc_table
+
+Table Connections:
+------------------
+[Implied]  Order_Products.OrderID -> Orders.OrderID
+[Implied]  Order_Products.ProductName -> Product.ProductName
+[Implied]  Orders.Customer_ContactName -> Customer.Customer_ContactName
+[Implied]  Orders.Employee_LastName -> Employee.Employee_LastName
+
+DROP DATABASE `db_493883_create_abc_table`;
+UNINSTALL EXTENSION vsql_schematron;

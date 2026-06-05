@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 175626_ddl
+#
+CREATE DATABASE `db_175626_ddl`;
+USE `db_175626_ddl`;
+CREATE TABLE `Groups` (
+`group_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`group_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Students` (
+`student_id` INT,
+`name` VARCHAR(64),
+`group_id` INT,
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Subjects` (
+`subject_id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`subject_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Marks` (
+`student_id` INT,
+`subject_id` INT,
+`value` VARCHAR(64),
+`date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `Teachers` (
+`teacher_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`teacher_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TeachersSubjects` (
+`teacher_id` INT,
+`subject_id` INT,
+PRIMARY KEY (`teacher_id`, `subject_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_175626_ddl') AS relationships;
+relationships
+Database: db_175626_ddl
+
+Table Connections:
+------------------
+[Implied]  Marks.student_id -> Students.student_id
+[Implied]  Marks.subject_id -> Subjects.subject_id
+[Implied]  Students.group_id -> Groups.group_id
+[Implied]  TeachersSubjects.subject_id -> Subjects.subject_id
+[Implied]  TeachersSubjects.teacher_id -> Teachers.teacher_id
+
+DROP DATABASE `db_175626_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 259098_pg_create
+#
+CREATE DATABASE `db_259098_pg_create`;
+USE `db_259098_pg_create`;
+CREATE TABLE `o_address` (
+`id` INT,
+`line1` VARCHAR(64),
+`line2` VARCHAR(64),
+`city` VARCHAR(64),
+`country_code` VARCHAR(64),
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contact` (
+`id` INT,
+`customer_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`phone` VARCHAR(64),
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `country` (
+`code` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`id` INT,
+`name` VARCHAR(64),
+`registered` DATETIME,
+`comments` VARCHAR(64),
+`billing_address_id` INT,
+`shipping_address_id` INT,
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `feature` (
+`id` INT,
+`name` VARCHAR(64),
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`id` INT,
+`sku` VARCHAR(64),
+`name` VARCHAR(64),
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer_feature` (
+`customer_id` INT,
+`feature_id` INT,
+PRIMARY KEY (`customer_id`, `feature_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_259098_pg_create') AS relationships;
+relationships
+Database: db_259098_pg_create
+
+Table Connections:
+------------------
+[Implied]  contact.customer_id -> customer.id
+[Implied]  customer.billing_address_id -> o_address.id
+[Implied]  customer.shipping_address_id -> o_address.id
+[Implied]  customer_feature.customer_id -> customer.id
+[Implied]  customer_feature.feature_id -> feature.id
+[Implied]  o_address.country_code -> country.code
+
+DROP DATABASE `db_259098_pg_create`;
+UNINSTALL EXTENSION vsql_schematron;

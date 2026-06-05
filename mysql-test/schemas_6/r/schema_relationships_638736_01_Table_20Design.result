@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 638736_01_Table_20Design
+#
+CREATE DATABASE `db_638736_01_Table_20Design`;
+USE `db_638736_01_Table_20Design`;
+CREATE TABLE `employees` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`salary` DECIMAL(10,2),
+`started_on` DATETIME,
+`branch_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clients` (
+`id` INT,
+`full_name` VARCHAR(64),
+`age` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees_clients` (
+`employee_id` INT,
+`client_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `cards` (
+`id` INT,
+`card_number` VARCHAR(64),
+`card_status` VARCHAR(64),
+`bank_account_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_638736_01_Table_20Design') AS relationships;
+relationships
+Database: db_638736_01_Table_20Design
+
+Table Connections:
+------------------
+[Implied]  employees_clients.client_id -> clients.id
+[Implied]  employees_clients.employee_id -> employees.id
+
+DROP DATABASE `db_638736_01_Table_20Design`;
+UNINSTALL EXTENSION vsql_schematron;

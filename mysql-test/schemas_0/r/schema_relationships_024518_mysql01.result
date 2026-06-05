@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 024518_mysql01
+#
+CREATE DATABASE `db_024518_mysql01`;
+USE `db_024518_mysql01`;
+CREATE TABLE `class` (
+`cid` INT,
+`caption` VARCHAR(64),
+PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `teacher` (
+`tid` INT,
+`tname` VARCHAR(64),
+PRIMARY KEY (`tid`)
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`sid` INT,
+`sname` VARCHAR(64),
+`gender` VARCHAR(64),
+`class_id` INT,
+PRIMARY KEY (`sid`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`cid` INT,
+`cname` VARCHAR(64),
+`teacher_id` INT,
+PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `score` (
+`sid` INT,
+`student_id` INT,
+`course_id` INT,
+`number` INT,
+PRIMARY KEY (`sid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_024518_mysql01') AS relationships;
+relationships
+Database: db_024518_mysql01
+
+Table Connections:
+------------------
+[Implied]  course.teacher_id -> teacher.tid
+[Implied]  score.course_id -> course.cid
+[Implied]  score.student_id -> student.sid
+[Implied]  student.class_id -> class.cid
+
+DROP DATABASE `db_024518_mysql01`;
+UNINSTALL EXTENSION vsql_schematron;

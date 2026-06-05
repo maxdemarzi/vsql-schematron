@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 687683_MovieTheater_v5
+--echo #
+CREATE DATABASE `db_687683_MovieTheater_v5`;
+USE `db_687683_MovieTheater_v5`;
+
+CREATE TABLE `CUSTOMER` (
+  `CustomerID` INT,
+  `Customer_Name` VARCHAR(64),
+  `Customer_DOB` DATETIME,
+  `Customer_Address` VARCHAR(64),
+  `Customer_Membership` VARCHAR(64),
+  `Customer_Email` VARCHAR(64),
+  PRIMARY KEY (`CustomerID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MOVIE` (
+  `MovieID` INT,
+  `Movie_Title` VARCHAR(64),
+  `Movie_Director` VARCHAR(64),
+  `Movie_Cast` VARCHAR(64),
+  `Movie_Rating` VARCHAR(64),
+  `Movie_Duration` INT,
+  `Movie_Description` VARCHAR(64),
+  PRIMARY KEY (`MovieID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MOVIE_THEATER` (
+  `TheaterID` INT,
+  `Address` VARCHAR(64),
+  `Telephone` VARCHAR(64),
+  PRIMARY KEY (`TheaterID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUDITORIUM` (
+  `AuditoriumID` INT,
+  `TheaterID` INT,
+  `Auditorium_SeatNo` INT,
+  PRIMARY KEY (`AuditoriumID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Screening` (
+  `ScreeningID` INT,
+  `MovieID` INT,
+  `AuditoriumID` INT,
+  `Screening_3DMovie` BOOL,
+  `Screening_Subtitles` BOOL,
+  PRIMARY KEY (`ScreeningID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Employee` (
+  `EmployeeID` INT,
+  `TheaterID` INT,
+  `Employee_FirstName` VARCHAR(64),
+  `Employee_LastName` VARCHAR(64),
+  `Employee_DOB` DATETIME,
+  `Employee_Job` VARCHAR(64),
+  `Employee_Telephone` VARCHAR(64),
+  `Employee_Address` VARCHAR(64),
+  `Employee_City` VARCHAR(64),
+  `Employee_State` VARCHAR(64),
+  `Employee_Zip` DECIMAL(10,2),
+  PRIMARY KEY (`EmployeeID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RESERVATION` (
+  `ReservationID` INT,
+  `ScreeningID` INT,
+  `CustomerID` INT,
+  `Reservation_SeatNumber` INT,
+  PRIMARY KEY (`ReservationID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_687683_MovieTheater_v5') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_687683_MovieTheater_v5') AS relationships;
+DROP DATABASE `db_687683_MovieTheater_v5`;
+UNINSTALL EXTENSION vsql_schematron;

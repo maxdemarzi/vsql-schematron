@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 182506_TABLE_20RELATIONS
+#
+CREATE DATABASE `db_182506_TABLE_20RELATIONS`;
+USE `db_182506_TABLE_20RELATIONS`;
+CREATE TABLE `mountains` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `peaks` (
+`id` INT,
+`name` VARCHAR(64),
+`mountain_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `authors` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books` (
+`id` INT,
+`name` VARCHAR(64),
+`author_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`project_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clients` (
+`id` INT,
+`client_name` VARCHAR(64),
+`project_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `projects` (
+`id` INT,
+`client_id` INT,
+`project_lead_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_182506_TABLE_20RELATIONS') AS relationships;
+relationships
+Database: db_182506_TABLE_20RELATIONS
+
+Table Connections:
+------------------
+[Implied]  books.author_id -> authors.id
+[Implied]  clients.project_id -> projects.id
+[Implied]  employees.project_id -> projects.id
+[Implied]  peaks.mountain_id -> mountains.id
+[Implied]  projects.client_id -> clients.id
+
+DROP DATABASE `db_182506_TABLE_20RELATIONS`;
+UNINSTALL EXTENSION vsql_schematron;

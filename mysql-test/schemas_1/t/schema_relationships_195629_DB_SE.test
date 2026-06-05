@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 195629_DB_SE
+--echo #
+CREATE DATABASE `db_195629_DB_SE`;
+USE `db_195629_DB_SE`;
+
+CREATE TABLE `mydb.teacher` (
+  `teacher_id` INT,
+  `type` INT,
+  `title` VARCHAR(64),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `ability` VARCHAR(64),
+  `adviser` INT,
+  `committee` INT,
+  PRIMARY KEY (`teacher_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.lockbook` (
+  `lock_id` INT,
+  `type` VARCHAR(64),
+  PRIMARY KEY (`lock_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.student` (
+  `student_id` INT,
+  `title` VARCHAR(64),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `lockbook_lock_id` INT,
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.request` (
+  `request_id` INT,
+  `req_1` INT,
+  `req_2` VARCHAR(64),
+  `req_3` INT,
+  `req_4` INT,
+  PRIMARY KEY (`request_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_195629_DB_SE') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_195629_DB_SE') AS relationships;
+DROP DATABASE `db_195629_DB_SE`;
+UNINSTALL EXTENSION vsql_schematron;

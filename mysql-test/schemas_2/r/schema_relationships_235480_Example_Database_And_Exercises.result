@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 235480_Example_Database_And_Exercises
+#
+CREATE DATABASE `db_235480_Example_Database_And_Exercises`;
+USE `db_235480_Example_Database_And_Exercises`;
+CREATE TABLE `Courses` (
+`CourseID` INT,
+`CourseName` VARCHAR(64),
+`TeacherID` INT,
+PRIMARY KEY (`CourseID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Teachers` (
+`TeacherID` INT,
+`TeacherName` VARCHAR(64),
+PRIMARY KEY (`TeacherID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Students` (
+`StudentID` INT,
+`StudentName` VARCHAR(64),
+PRIMARY KEY (`StudentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `StudentCourses` (
+`CourseID` INT,
+`StudentID` INT,
+PRIMARY KEY (`CourseID`, `StudentID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_235480_Example_Database_And_Exercises') AS relationships;
+relationships
+Database: db_235480_Example_Database_And_Exercises
+
+Table Connections:
+------------------
+[Implied]  Courses.TeacherID -> Teachers.TeacherID
+[Implied]  StudentCourses.CourseID -> Courses.CourseID
+[Implied]  StudentCourses.StudentID -> Students.StudentID
+
+DROP DATABASE `db_235480_Example_Database_And_Exercises`;
+UNINSTALL EXTENSION vsql_schematron;

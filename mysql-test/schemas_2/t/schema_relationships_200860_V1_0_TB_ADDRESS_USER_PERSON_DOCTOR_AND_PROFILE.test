@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 200860_V1_0_TB_ADDRESS_USER_PERSON_DOCTOR_AND_PROFILE
+--echo #
+CREATE DATABASE `db_200860_V1_0_TB_ADDRESS_USER_PERSON_DOCTOR_AND_PROFILE`;
+USE `db_200860_V1_0_TB_ADDRESS_USER_PERSON_DOCTOR_AND_PROFILE`;
+
+CREATE TABLE `profile` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `address` (
+  `id` INT,
+  `street` VARCHAR(64),
+  `zip_code` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `number` VARCHAR(64),
+  `complement` VARCHAR(64),
+  `reference` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `person` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `cpf` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `rg` VARCHAR(64),
+  `birth_date` DATETIME,
+  `creation_date` DATETIME,
+  `id_address` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `login` VARCHAR(64),
+  `password` VARCHAR(64),
+  `id_person` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_profile` (
+  `id` INT,
+  `id_user` INT,
+  `id_profile` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_200860_V1_0_TB_ADDRESS_USER_PERSON_DOCTOR_AND_PROFILE') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_200860_V1_0_TB_ADDRESS_USER_PERSON_DOCTOR_AND_PROFILE') AS relationships;
+DROP DATABASE `db_200860_V1_0_TB_ADDRESS_USER_PERSON_DOCTOR_AND_PROFILE`;
+UNINSTALL EXTENSION vsql_schematron;

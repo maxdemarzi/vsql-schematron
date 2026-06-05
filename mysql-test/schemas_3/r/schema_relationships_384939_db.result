@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 384939_db
+#
+CREATE DATABASE `db_384939_db`;
+USE `db_384939_db`;
+CREATE TABLE `locations` (
+`id` INT,
+`name` VARCHAR(64),
+`address` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rooms` (
+`id` INT,
+`name` VARCHAR(64),
+`location_id` INT,
+`floor` INT,
+`number` INT,
+`capacity` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `courses` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`credit` INT,
+`language` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teachers` (
+`id` INT,
+`title` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`gender` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `classes` (
+`id` INT,
+`course_id` INT,
+`room_id` INT,
+`teacher_id` INT,
+`datetime` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `students` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`birthday` DATETIME,
+`gender` VARCHAR(64),
+`introduction` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `classes_students` (
+`id` INT,
+`class_id` INT,
+`student_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_384939_db') AS relationships;
+relationships
+Database: db_384939_db
+
+Table Connections:
+------------------
+[Implied]  classes.course_id -> courses.id
+[Implied]  classes.room_id -> rooms.id
+[Implied]  classes.teacher_id -> teachers.id
+[Implied]  classes_students.class_id -> classes.id
+[Implied]  classes_students.student_id -> students.id
+[Implied]  rooms.location_id -> locations.id
+
+DROP DATABASE `db_384939_db`;
+UNINSTALL EXTENSION vsql_schematron;

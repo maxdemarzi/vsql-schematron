@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 311923_schema
+#
+CREATE DATABASE `db_311923_schema`;
+USE `db_311923_schema`;
+CREATE TABLE `attendance` (
+`id` INT,
+`student_id` INT,
+`subject_id` INT,
+`visit` INT,
+`lateness` INT,
+`truancy` INT,
+`disease` INT,
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `classrooms` (
+`id` INT,
+`begin_year` DATETIME,
+`letter` VARCHAR(64),
+`is_graduated` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `homeworks` (
+`id` INT,
+`classroom_id` INT,
+`subject_id` INT,
+`text` VARCHAR(64),
+`until_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `marks` (
+`id` INT,
+`student_id` INT,
+`teacher_id` INT,
+`subject_id` INT,
+`mark` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `students` (
+`user_id` INT,
+`classroom_id` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subjects` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teachers` (
+`teacher_id` INT,
+PRIMARY KEY (`teacher_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_311923_schema') AS relationships;
+relationships
+Database: db_311923_schema
+
+Table Connections:
+------------------
+[Implied]  attendance.student_id -> students.user_id
+[Implied]  attendance.subject_id -> subjects.id
+[Implied]  homeworks.classroom_id -> classrooms.id
+[Implied]  homeworks.subject_id -> subjects.id
+[Implied]  marks.student_id -> students.user_id
+[Implied]  marks.subject_id -> subjects.id
+[Implied]  marks.teacher_id -> teachers.teacher_id
+[Implied]  students.classroom_id -> classrooms.id
+
+DROP DATABASE `db_311923_schema`;
+UNINSTALL EXTENSION vsql_schematron;

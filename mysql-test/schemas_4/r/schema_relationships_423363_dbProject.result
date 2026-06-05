@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 423363_dbProject
+#
+CREATE DATABASE `db_423363_dbProject`;
+USE `db_423363_dbProject`;
+CREATE TABLE `Artist` (
+`Artist_id` INT,
+`Artist_name` VARCHAR(64),
+`contact_number` INT,
+PRIMARY KEY (`Artist_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Art` (
+`Art_id` INT,
+`Artist_id` INT,
+`Art_name` VARCHAR(64),
+PRIMARY KEY (`Art_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Gallery` (
+`Gallery_id` INT,
+`Gallery_name` VARCHAR(64),
+`Location` VARCHAR(64),
+PRIMARY KEY (`Gallery_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Art_Gallery` (
+`Art_Gallery_id` INT,
+`Art_id` INT,
+`Gallery_id` INT,
+`Date` DATETIME,
+PRIMARY KEY (`Art_Gallery_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employee` (
+`Employee_id` INT,
+`Employee_name` VARCHAR(64),
+`contact_number` INT,
+PRIMARY KEY (`Employee_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer` (
+`Customer_id` INT,
+`Customer_name` VARCHAR(64),
+`Contact_number` INT,
+PRIMARY KEY (`Customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Order` (
+`Order_id` INT,
+`Art_id` INT,
+`Customer_id` INT,
+`Employee_id` INT,
+`Price` DECIMAL(10,2),
+PRIMARY KEY (`Order_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_423363_dbProject') AS relationships;
+relationships
+Database: db_423363_dbProject
+
+Table Connections:
+------------------
+[Implied]  Art.Artist_id -> Artist.Artist_id
+[Implied]  Art_Gallery.Art_id -> Art.Art_id
+[Implied]  Art_Gallery.Gallery_id -> Gallery.Gallery_id
+[Implied]  Order.Art_id -> Art.Art_id
+[Implied]  Order.Customer_id -> Customer.Customer_id
+[Implied]  Order.Employee_id -> Employee.Employee_id
+
+DROP DATABASE `db_423363_dbProject`;
+UNINSTALL EXTENSION vsql_schematron;

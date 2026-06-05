@@ -1,0 +1,110 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 561444_model
+--echo #
+CREATE DATABASE `db_561444_model`;
+USE `db_561444_model`;
+
+CREATE TABLE `Teacher` (
+  `TeacherId` VARCHAR(64),
+  `TeacherFName` VARCHAR(64),
+  `TeacherLName` VARCHAR(64),
+  `Department` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `DOB` DATETIME,
+  `TeacherAddress` VARCHAR(64),
+  `Phone` VARCHAR(64),
+  `PassHash` VARCHAR(64),
+  `Salt` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DegreePlan` (
+  `DegreePlanID` VARCHAR(64),
+  `DegreeName` VARCHAR(64),
+  `Level` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Student` (
+  `StudentId` VARCHAR(64),
+  `StudentFName` VARCHAR(64),
+  `StudentLName` VARCHAR(64),
+  `DegreePlanID` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `DOB` DATETIME,
+  `StudentAddress` VARCHAR(64),
+  `Phone` VARCHAR(64),
+  `PassHash` VARCHAR(64),
+  `Salt` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Course` (
+  `CourseId` VARCHAR(64),
+  `CourseName` VARCHAR(64),
+  `Credits` INT,
+  `CourseLevel` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Classes` (
+  `ClassId` VARCHAR(64),
+  `CourseId` VARCHAR(64),
+  `TeacherId` VARCHAR(64),
+  `CRN` VARCHAR(64),
+  `Campus` VARCHAR(64),
+  `StartDate` DATETIME,
+  `ClassDays` VARCHAR(64),
+  `StartTime` DATETIME,
+  `EndTime` DATETIME,
+  `ClassLocation` VARCHAR(64),
+  `Semester` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DegreeCourses` (
+  `DegreePlanID` VARCHAR(64),
+  `CourseId` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Registered` (
+  `RegisteredId` VARCHAR(64),
+  `ClassId` VARCHAR(64),
+  `StudentId` VARCHAR(64),
+  `Paid` BOOL,
+  `Complete` BOOL,
+  `LetterGrade` VARCHAR(64),
+  `NumberGrade` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Prerequisite` (
+  `PrerequisiteId` VARCHAR(64),
+  `CourseId` VARCHAR(64),
+  `CourseId_Prerequisite` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Proposed` (
+  `ProposedId` VARCHAR(64),
+  `StudentId` VARCHAR(64),
+  `CourseId` VARCHAR(64),
+  `StartTime` DATETIME,
+  `EndTime` DATETIME,
+  `ProposedDays` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_561444_model') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_561444_model') AS relationships;
+DROP DATABASE `db_561444_model`;
+UNINSTALL EXTENSION vsql_schematron;

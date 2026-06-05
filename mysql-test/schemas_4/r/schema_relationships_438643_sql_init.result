@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 438643_sql_init
+#
+CREATE DATABASE `db_438643_sql_init`;
+USE `db_438643_sql_init`;
+CREATE TABLE `Department` (
+`did` DECIMAL(10,2),
+`name` VARCHAR(64),
+PRIMARY KEY (`did`)
+) CHARACTER SET latin1;
+CREATE TABLE `Student` (
+`sid` DECIMAL(10,2),
+`name` VARCHAR(64),
+`birthplace` VARCHAR(64),
+`did` DECIMAL(10,2),
+PRIMARY KEY (`sid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Course` (
+`cid` DECIMAL(10,2),
+`title` VARCHAR(64),
+`credits` DECIMAL(10,2),
+`did` DECIMAL(10,2),
+PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Teacher` (
+`tid` DECIMAL(10,2),
+`name` VARCHAR(64),
+`placeOfBirth` VARCHAR(64),
+`did` DECIMAL(10,2),
+PRIMARY KEY (`tid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Take` (
+`sid` DECIMAL(10,2),
+`cid` DECIMAL(10,2),
+`grade` DECIMAL(10,2),
+PRIMARY KEY (`sid`, `cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Teach` (
+`tid` DECIMAL(10,2),
+`cid` DECIMAL(10,2),
+PRIMARY KEY (`tid`, `cid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_438643_sql_init') AS relationships;
+relationships
+Database: db_438643_sql_init
+
+Table Connections:
+------------------
+[Implied]  Course.did -> Department.did
+[Implied]  Student.did -> Department.did
+[Implied]  Take.cid -> Course.cid
+[Implied]  Take.sid -> Student.sid
+[Implied]  Teach.cid -> Course.cid
+[Implied]  Teach.tid -> Teacher.tid
+[Implied]  Teacher.did -> Department.did
+
+DROP DATABASE `db_438643_sql_init`;
+UNINSTALL EXTENSION vsql_schematron;

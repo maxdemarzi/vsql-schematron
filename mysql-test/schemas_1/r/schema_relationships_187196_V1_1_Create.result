@@ -1,0 +1,128 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 187196_V1_1_Create
+#
+CREATE DATABASE `db_187196_V1_1_Create`;
+USE `db_187196_V1_1_Create`;
+CREATE TABLE `office` (
+`office_code` VARCHAR(64),
+`city` VARCHAR(64),
+`phone` VARCHAR(64),
+`address_line_first` VARCHAR(64),
+`address_line_second` VARCHAR(64),
+`state` VARCHAR(64),
+`country` VARCHAR(64),
+`postal_code` VARCHAR(64),
+`territory` VARCHAR(64),
+PRIMARY KEY (`office_code`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`employee_number` INT,
+`last_name` VARCHAR(64),
+`first_name` VARCHAR(64),
+`extension` VARCHAR(64),
+`email` VARCHAR(64),
+`office_code` VARCHAR(64),
+`salary` INT,
+`reports_to` INT,
+`job_title` VARCHAR(64),
+PRIMARY KEY (`employee_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `sale` (
+`sale_id` INT,
+`fiscal_year` INT,
+`sale` DECIMAL(10,2),
+`employee_number` INT,
+PRIMARY KEY (`sale_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`customer_number` INT,
+`customer_name` VARCHAR(64),
+`contact_last_name` VARCHAR(64),
+`contact_first_name` VARCHAR(64),
+`phone` VARCHAR(64),
+`address_line_first` VARCHAR(64),
+`address_line_second` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`postal_code` VARCHAR(64),
+`country` VARCHAR(64),
+`sales_rep_employee_number` INT,
+`credit_limit` DECIMAL(10,2),
+PRIMARY KEY (`customer_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `manager` (
+`manager_id` INT,
+`manager_name` VARCHAR(64),
+PRIMARY KEY (`manager_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `office_has_manager` (
+`offices_office_code` VARCHAR(64),
+`managers_manager_id` INT,
+PRIMARY KEY (`offices_office_code`, `managers_manager_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `productline` (
+`product_line` VARCHAR(64),
+`text_description` VARCHAR(64),
+`html_description` VARCHAR(64),
+`image` VARCHAR(64),
+PRIMARY KEY (`product_line`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`product_id` INT,
+`product_name` VARCHAR(64),
+`product_line` VARCHAR(64),
+`product_scale` VARCHAR(64),
+`product_vendor` VARCHAR(64),
+`product_description` VARCHAR(64),
+`quantity_in_stock` INT,
+`buy_price` DECIMAL(10,2),
+`msrp` DECIMAL(10,2),
+PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+`order_id` INT,
+`order_date` DATETIME,
+`required_date` DATETIME,
+`shipped_date` DATETIME,
+`status` VARCHAR(64),
+`comments` VARCHAR(64),
+`customer_number` INT,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderdetail` (
+`order_id` INT,
+`product_id` INT,
+`quantity_ordered` INT,
+`price_each` DECIMAL(10,2),
+`order_line_number` INT,
+PRIMARY KEY (`order_id`, `product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment` (
+`customer_number` INT,
+`check_number` VARCHAR(64),
+`payment_date` DATETIME,
+`invoice_amount` DECIMAL(10,2),
+`caching_date` DATETIME,
+PRIMARY KEY (`customer_number`, `check_number`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_187196_V1_1_Create') AS relationships;
+relationships
+Database: db_187196_V1_1_Create
+
+Table Connections:
+------------------
+[Implied]  customer.sales_rep_employee_number -> employee.employee_number
+[Implied]  employee.office_code -> office.office_code
+[Implied]  employee.reports_to -> employee.employee_number
+[Implied]  office_has_manager.managers_manager_id -> manager.manager_id
+[Implied]  office_has_manager.offices_office_code -> office.office_code
+[Implied]  order.customer_number -> customer.customer_number
+[Implied]  orderdetail.order_id -> order.order_id
+[Implied]  orderdetail.product_id -> product.product_id
+[Implied]  payment.customer_number -> customer.customer_number
+[Implied]  product.product_line -> productline.product_line
+[Implied]  sale.employee_number -> employee.employee_number
+
+DROP DATABASE `db_187196_V1_1_Create`;
+UNINSTALL EXTENSION vsql_schematron;
