@@ -7,35 +7,37 @@ We have successfully refined the relationship matching heuristics in the C++ eng
 2. **Additional Person Table & Role Synonyms**: Added `"persons"` to `PERSON_TABLE_SYNONYMS`, and added `"registerer"`, `"registrant"`, `"leader"`, `"grantee"`, and `"grantor"` to `PERSON_ROLE_SYNONYMS`.
 3. **Enhanced Self-Referential Logic**: Check for person role suffixes in self-referencing tables (e.g. `persons.pers_id_registerer -> persons.id`) and match middle-ID conventions (e.g. `samples.samp_id_control_layout -> samples.id`) in the self-referencing block, excluding non-split roles like `"admin"`.
 4. **Subtype Parent Restricting**: Restricted person table subtype links to only go from specific-to-generic tables to prevent false generic-to-generic subtype parents.
+5. **Generic ID Matching & Sibling Validation**: Refined generic ID matching to validate name similarity and synonyms. Added a sibling check to prevent matching generic ID primary keys of separate concrete tables if they both reference/inherit from the same parent. Added prefix exclusion matching to filter out system and catalog prefixes from suffix overlap.
+6. **Composite PK Conflict Resolution**: Discard relationships to composite/multi-column PK target tables if a cleaner target table with a single-column primary key is also matched for the same column.
 
 ---
 
 ### Updated Discrepancy Report
 
-- **Total Failing Schemas Analysed**: **6,714** (220 additional schemas were fully resolved and migrated to `done/`, totaling 293 resolved schemas)
-- **Timeouts or Errors**: **4**
+- **Total Failing Schemas Analysed**: **6,634** (80 additional schemas were fully resolved and migrated to `done/`, totaling 373 resolved schemas)
+- **Timeouts or Errors**: **5**
 
 #### Symmetric Difference Size (Off by N Relationships):
 
 | Discrepancy | Schemas Count | Percentage |
 | :--- | :--- | :--- |
-| **Off by 1** | **1,056** | **15.72%** |
-| **Off by 2** | **887** | **13.20%** |
-| **Off by 3** | **613** | **9.12%** |
-| **Off by 4** | **496** | **7.38%** |
-| **Off by 5** | **356** | **5.30%** |
-| **Off by 6** | **298** | **4.44%** |
-| **Off by 7** | **247** | **3.68%** |
-| **Off by 8** | **255** | **3.80%** |
-| **Off by 9** | **195** | **2.90%** |
-| **Off by 10+** | **2,316** | **34.47%** |
+| **Off by 1** | **958** | **14.45%** |
+| **Off by 2** | **920** | **13.88%** |
+| **Off by 3** | **628** | **9.47%** |
+| **Off by 4** | **464** | **7.00%** |
+| **Off by 5** | **348** | **5.25%** |
+| **Off by 6** | **328** | **4.95%** |
+| **Off by 7** | **239** | **3.61%** |
+| **Off by 8** | **255** | **3.85%** |
+| **Off by 9** | **202** | **3.05%** |
+| **Off by 10+** | **2,279** | **34.38%** |
 
 > [!NOTE]
-> **2,556 schemas (38.04% of the remaining 6,719 analyzed schemas)** are off by 3 or fewer relationships.
+> **2,506 schemas (37.80% of the remaining 6,629 analyzed schemas)** are off by 3 or fewer relationships.
 
 ---
 
 ### Automated Verification Status
 
-- **MTR Test Suite**: **1,695 / 1,695 Tests Passed (100% Success)**
+- **MTR Test Suite**: **1,784 / 1,784 Tests Passed (100% Success)**
 - **Target openBIS Schema (`324917_schema-044.json`)**: **Verified: 0 missed, 0 extra relationships (Migrated to done/)**
