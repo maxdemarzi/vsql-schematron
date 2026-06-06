@@ -561,6 +561,20 @@ bool isGenericAttribute(const std::string& s) {
 
 bool isJunctionOrHistoryTable(const std::string& tbl_name) {
     std::string clean = stripTablePrefix(stripTableSuffix(stripSchemaPrefix(to_lower(tbl_name))));
+    static const std::unordered_set<std::string> CATALOG_SUFFIXES = {
+        "type", "types", "status", "statuses", "cat", "cats", "category", "categories",
+        "class", "classes", "group", "groups", "genre", "genres", "role", "roles",
+        "state", "states", "level", "levels", "priority", "priorities", "lookup", "lookups",
+        "code", "codes", "mode", "modes", "action", "actions", "tag", "tags", "master", "mstr", "dict",
+        "version", "versions", "ver", "vers", "content", "contents",
+        "value", "values", "blob", "blobs", "data", "xml", "text", "file", "files",
+        "system", "systems", "service", "services", "assignment", "assignments", "map", "maps", "link", "links",
+        "relation", "relations", "relationship", "relationships", "membership", "memberships", "association", "associations",
+        "property", "properties", "store", "stores", "history",
+        "item", "items", "payment", "payments", "log", "logs", "record", "records", "detail", "details",
+        "line", "lines", "message", "messages", "comment", "comments", "notification", "notifications",
+        "post", "posts", "token", "tokens"
+    };
     static const std::unordered_set<std::string> JUNCTION_SUFFIXES = {
         "map", "maps", "link", "links", "relation", "relations",
         "relationship", "relationships", "membership", "memberships",

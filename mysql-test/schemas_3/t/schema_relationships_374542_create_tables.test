@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 374542_create_tables
+--echo #
+CREATE DATABASE `db_374542_create_tables`;
+USE `db_374542_create_tables`;
+
+CREATE TABLE `users` (
+  `id_user` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `class` INT,
+  PRIMARY KEY (`id_user`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stocks` (
+  `id_stock` INT,
+  `ticker` VARCHAR(64),
+  `company` VARCHAR(64),
+  PRIMARY KEY (`id_stock`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `transactions` (
+  `id_transaction` INT,
+  `type` VARCHAR(64),
+  `quantity` INT,
+  `user_id` INT,
+  `stock_id` INT,
+  `cotation_id` INT,
+  `date_time` DATETIME,
+  PRIMARY KEY (`id_transaction`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cotations` (
+  `id_cotation` INT,
+  `stock_id` INT,
+  `value` DECIMAL(10,2),
+  `date_time` DATETIME,
+  PRIMARY KEY (`id_cotation`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `classes` (
+  `id_class` INT,
+  `class` VARCHAR(64),
+  PRIMARY KEY (`id_class`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_374542_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_374542_create_tables') AS relationships;
+DROP DATABASE `db_374542_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

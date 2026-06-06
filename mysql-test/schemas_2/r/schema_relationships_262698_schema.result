@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 262698_schema
+#
+CREATE DATABASE `db_262698_schema`;
+USE `db_262698_schema`;
+CREATE TABLE `role` (
+`id` VARCHAR(64),
+`code` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`deleted` INT,
+`updatedAt` DATETIME,
+`timestamp` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `resource` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`code` VARCHAR(64),
+`description` VARCHAR(64),
+`deleted` INT,
+`updatedAt` DATETIME,
+`timestamp` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `maintenance` (
+`id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`message` VARCHAR(64),
+`is_down` INT,
+`updatedAt` DATETIME,
+`timestamp` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `maintenance_history` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`message` VARCHAR(64),
+`status` VARCHAR(64),
+`timestamp` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` VARCHAR(64),
+`role_id` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`activated` INT,
+`deleted` INT,
+`updatedAt` DATETIME,
+`timestamp` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account` (
+`user_id` VARCHAR(64),
+`prefix` VARCHAR(64),
+`suffix` VARCHAR(64),
+`first_name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`avatar` VARCHAR(64),
+`avatar_url` VARCHAR(64),
+`title` VARCHAR(64),
+`position` VARCHAR(64),
+`mobile` VARCHAR(64),
+`website` VARCHAR(64),
+`updatedAt` DATETIME,
+`timestamp` DATETIME,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `audit_log` (
+`id` VARCHAR(64),
+`user_id` VARCHAR(64),
+`message` VARCHAR(64),
+`timestamp` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_262698_schema') AS relationships;
+relationships
+Database: db_262698_schema
+
+Table Connections:
+------------------
+[Implied]  account.user_id -> user.id
+[Implied]  audit_log.user_id -> user.id
+[Implied]  user.role_id -> role.id
+
+DROP DATABASE `db_262698_schema`;
+UNINSTALL EXTENSION vsql_schematron;

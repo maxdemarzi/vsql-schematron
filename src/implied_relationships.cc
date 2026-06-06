@@ -58,7 +58,9 @@ bool isCatalogSuffix(const std::string& s) {
         "mode", "modes", "action", "actions", "tag", "tags",
         "version", "versions", "value", "values", "data", "file", "files",
         "map", "maps", "link", "links", "relation", "relations", "relationship", "relationships",
-        "property", "properties", "history", "item", "items", "detail", "details", "line", "lines"
+        "property", "properties", "history", "item", "items", "detail", "details", "line", "lines",
+        "message", "messages", "comment", "comments", "notification", "notifications",
+        "post", "posts", "token", "tokens"
     };
     return CATALOG_SUFFIXES.count(l) > 0;
 }
@@ -942,9 +944,11 @@ void findPass1ImpliedRelationships(
                             }
                         } else if (has_split) {
                             bool suffix_matches = false;
+                            bool pk_is_physical = info_b.pk_columns.empty() || 
+                                                  (std::find(info_b.pk_columns.begin(), info_b.pk_columns.end(), pk_b) != info_b.pk_columns.end());
                             if (to_lower(suffix_a) == pk_b_lower_clean || 
                                 (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b)) ||
-                                (isGenericIdentifier(suffix_a) && pks_b.size() == 1)) {
+                                (isGenericIdentifier(suffix_a) && pk_is_physical && (info_b.pk_columns.empty() ? pks_b.size() == 1 : info_b.pk_columns.size() == 1))) {
                                 suffix_matches = true;
                             } else {
                                 std::string prefix_b_col, suffix_b_col;
@@ -1245,6 +1249,10 @@ void findPass2ImpliedRelationships(
 
     // Find all subtype relationships (only if no relationship between tbl_a and tbl_b via other columns already exists)
     for (const auto& tbl_a : table_names) {
+        bool dbg = (to_lower(tbl_a) == "user_details");
+        if (dbg) {
+            std::cout << "[DEBUG] tbl_a = " << tbl_a << std::endl;
+        }
         auto it_a = tables_info.find(tbl_a);
         if (it_a == tables_info.end()) continue;
         const auto& info_a = it_a->second;
@@ -1266,96 +1274,120 @@ void findPass2ImpliedRelationships(
             std::string col_a_clean = stripAcronymPrefix(col_a, tbl_a);
 
             auto parents_it = subtype_parents.find(tbl_a);
-            if (parents_it == subtype_parents.end()) continue;
+            if (parents_it == subtype_parents.end()) {
+                if (dbg) std::cout << "[DEBUG] user_details has no subtype_parents" << std::endl;
+                continue;
+            }
 
             for (size_t tbl_b_idx : parents_it->second) {
                 const std::string& tbl_b = table_names[tbl_b_idx];
-                if (isSequenceOrSystemTable(tbl_b) || isJunctionOrHistoryTable(tbl_b)) continue;
+                if (dbg) std::cout << "[DEBUG] checking parent tbl_b = " << tbl_b << std::endl;
+                if (isSequenceOrSystemTable(tbl_b) || isJunctionOrHistoryTable(tbl_b)) {
+                    if (dbg) std::cout << "[DEBUG] skipped because of seq/junction: " << tbl_b << std::endl;
+                    continue;
+                }
 
                 auto it_b_info = tables_info.find(tbl_b);
                 if (it_b_info == tables_info.end()) continue;
                 const auto& info_b = it_b_info->second;
 
                 const auto& pks_b = effective_pks.at(tbl_b);
-                if (pks_b.size() != 1) continue;
-
-                for (const auto& pk_b : pks_b) {
-                    auto it_b_col = info_b.column_types.find(pk_b);
-                    if (it_b_col == info_b.column_types.end() || !typeMatches(type_a, it_b_col->second)) {
-                        continue;
+                
+                bool is_col_a_generic_pk = false;
+                for (const auto& pk_a : pks_a) {
+                    if (to_lower(stripTrailingUnderscore(col_a_clean)) == to_lower(stripTrailingUnderscore(pk_a))) {
+                        if (isGenericIdentifier(col_a_clean)) {
+                            is_col_a_generic_pk = true;
+                        }
+                        break;
                     }
+                }
+                
+                bool b_has_single_pk = false;
+                if (is_col_a_generic_pk) {
+                    b_has_single_pk = (pks_b.size() == 1);
+                } else {
+                    b_has_single_pk = info_b.pk_columns.empty() ? (pks_b.size() == 1) : (info_b.pk_columns.size() == 1);
+                }
+                if (dbg) std::cout << "[DEBUG] pks_b size for " << tbl_b << " is " << pks_b.size() << ", b_has_single_pk=" << b_has_single_pk << std::endl;
+                if (!b_has_single_pk) continue;
 
-                    // Heuristic: Subtype match
-                    // Example: tbl_a = "customers_corporate", tbl_b = "customers"
-                    //          A primary key customer_id in tbl_a references customer_id in tbl_b.
-                    bool is_subtype = false;
-                    bool col_a_is_pk = false;
-                    for (const auto& pk_a : pks_a) {
-                        if (to_lower(stripTrailingUnderscore(col_a_clean)) == to_lower(stripTrailingUnderscore(pk_a))) {
-                            col_a_is_pk = true;
+                const std::string& pk_b = pks_b[0];
+                auto it_b_col = info_b.column_types.find(pk_b);
+                if (it_b_col == info_b.column_types.end() || !typeMatches(type_a, it_b_col->second)) {
+                    continue;
+                }
+
+                // Heuristic: Subtype match
+                // Example: tbl_a = "customers_corporate", tbl_b = "customers"
+                //          A primary key customer_id in tbl_a references customer_id in tbl_b.
+                bool is_subtype = false;
+                bool col_a_is_pk = false;
+                for (const auto& pk_a : pks_a) {
+                    if (to_lower(stripTrailingUnderscore(col_a_clean)) == to_lower(stripTrailingUnderscore(pk_a))) {
+                        col_a_is_pk = true;
+                        break;
+                    }
+                }
+                if (col_a_is_pk) {
+                    // Check if tbl_a already has a relationship to tbl_b via another column
+                    bool already_has_rel = false;
+                    for (const auto& rel : relationships) {
+                        if (rel.from_table == tbl_a && rel.to_table == tbl_b && rel.from_column != col_a) {
+                            already_has_rel = true;
                             break;
                         }
                     }
-                    if (col_a_is_pk) {
-                        // Check if tbl_a already has a relationship to tbl_b via another column
-                        bool already_has_rel = false;
-                        for (const auto& rel : relationships) {
-                            if (rel.from_table == tbl_a && rel.to_table == tbl_b && rel.from_column != col_a) {
-                                already_has_rel = true;
-                                break;
-                            }
-                        }
-                        if (!already_has_rel) {
-                            bool col_name_matches = false;
-                            if (to_lower(stripTrailingUnderscore(col_a_clean)) == to_lower(stripTrailingUnderscore(pk_b))) {
-                                col_name_matches = true;
-                            } else if (isGenericIdentifier(col_a_clean)) {
-                                col_name_matches = true;
-                            } else if (matchTableName(col_a_clean, tbl_b, false)) {
-                                col_name_matches = true;
-                            } else {
-                                std::string prefix_a, suffix_a;
-                                if (splitColumnName(col_a_clean, prefix_a, suffix_a)) {
+                    if (!already_has_rel) {
+                        bool col_name_matches = false;
+                        if (to_lower(stripTrailingUnderscore(col_a_clean)) == to_lower(stripTrailingUnderscore(pk_b))) {
+                            col_name_matches = true;
+                        } else if (isGenericIdentifier(col_a_clean)) {
+                            col_name_matches = true;
+                        } else if (matchTableName(col_a_clean, tbl_b, false)) {
+                            col_name_matches = true;
+                        } else {
+                            std::string prefix_a, suffix_a;
+                            if (splitColumnName(col_a_clean, prefix_a, suffix_a)) {
+                                if (matchTableName(prefix_a, tbl_b, false)) {
+                                    col_name_matches = true;
+                                } else if (to_lower(suffix_a) == to_lower(stripTrailingUnderscore(pk_b)) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b))) {
                                     if (matchTableName(prefix_a, tbl_b, false)) {
                                         col_name_matches = true;
-                                    } else if (to_lower(suffix_a) == to_lower(stripTrailingUnderscore(pk_b)) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b))) {
-                                        if (matchTableName(prefix_a, tbl_b, false)) {
-                                            col_name_matches = true;
-                                        }
                                     }
-                                }
-                            }
-                            if (col_name_matches) {
-                                if (isSubtypeTable(tbl_a, tbl_b)) {
-                                    bool are_siblings = false;
-                                    auto it_pa = parent_tables.find(tbl_a);
-                                    auto it_pb = parent_tables.find(tbl_b);
-                                    if (it_pa != parent_tables.end() && it_pb != parent_tables.end()) {
-                                        for (const auto& p_a : it_pa->second) {
-                                            if (p_a != tbl_b && it_pb->second.count(p_a) > 0) {
-                                                are_siblings = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    if (!are_siblings) {
-                                        is_subtype = true;
-                                    }
-                                } else {
-                                    is_subtype = true;
                                 }
                             }
                         }
+                        if (col_name_matches) {
+                            if (isSubtypeTable(tbl_a, tbl_b)) {
+                                bool are_siblings = false;
+                                auto it_pa = parent_tables.find(tbl_a);
+                                auto it_pb = parent_tables.find(tbl_b);
+                                if (it_pa != parent_tables.end() && it_pb != parent_tables.end()) {
+                                    for (const auto& p_a : it_pa->second) {
+                                        if (p_a != tbl_b && it_pb->second.count(p_a) > 0) {
+                                            are_siblings = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (!are_siblings) {
+                                    is_subtype = true;
+                                }
+                            } else {
+                                is_subtype = true;
+                            }
+                        }
                     }
-                    if (is_subtype) {
-                        Relationship rel;
-                        rel.from_table = tbl_a;
-                        rel.from_column = col_a;
-                        rel.to_table = tbl_b;
-                        rel.to_column = pk_b;
-                        rel.is_explicit = false;
-                        relationships.insert(rel);
-                    }
+                }
+                if (is_subtype) {
+                    Relationship rel;
+                    rel.from_table = tbl_a;
+                    rel.from_column = col_a;
+                    rel.to_table = tbl_b;
+                    rel.to_column = pk_b;
+                    rel.is_explicit = false;
+                    relationships.insert(rel);
                 }
             }
         }

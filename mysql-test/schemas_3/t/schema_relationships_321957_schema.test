@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 321957_schema
+--echo #
+CREATE DATABASE `db_321957_schema`;
+USE `db_321957_schema`;
+
+CREATE TABLE `MAIL2S` (
+  `ID` INT,
+  `SENDER` VARCHAR(64),
+  `DATA` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MAIL2_RECEIVERS` (
+  `ID` INT,
+  `MAIL2_ID` INT,
+  `RECEIVER` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MAIL2_TOKENS` (
+  `ID` INT,
+  `ADDRESS` VARCHAR(64),
+  `TOKEN` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_321957_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_321957_schema') AS relationships;
+DROP DATABASE `db_321957_schema`;
+UNINSTALL EXTENSION vsql_schematron;

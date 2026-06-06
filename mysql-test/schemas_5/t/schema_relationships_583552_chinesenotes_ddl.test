@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 583552_chinesenotes.ddl
+--echo #
+CREATE DATABASE `db_583552_chinesenotes_ddl`;
+USE `db_583552_chinesenotes_ddl`;
+
+CREATE TABLE `user` (
+  `UserID` INT,
+  `UserName` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `FullName` VARCHAR(64),
+  `Role` VARCHAR(64),
+  `PasswordNeedsReset` INT,
+  `Organization` VARCHAR(64),
+  `Position` VARCHAR(64),
+  `Location` VARCHAR(64),
+  PRIMARY KEY (`UserID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `passwd` (
+  `UserID` INT,
+  `Password` VARCHAR(64),
+  PRIMARY KEY (`UserID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `passwdreset` (
+  `Token` VARCHAR(64),
+  `UserID` INT,
+  `Valid` INT,
+  PRIMARY KEY (`Token`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `session` (
+  `SessionID` VARCHAR(64),
+  `UserID` INT,
+  `Active` INT,
+  `Authenticated` INT,
+  `DailyVisits` INT,
+  `Started` DATETIME,
+  `Updated` DATETIME,
+  PRIMARY KEY (`SessionID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_583552_chinesenotes_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_583552_chinesenotes_ddl') AS relationships;
+DROP DATABASE `db_583552_chinesenotes_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

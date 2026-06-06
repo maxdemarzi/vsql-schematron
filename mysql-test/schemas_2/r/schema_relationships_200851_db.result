@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 200851_db
+#
+CREATE DATABASE `db_200851_db`;
+USE `db_200851_db`;
+CREATE TABLE `student` (
+`id` INT,
+`first_name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`date_of_birth` VARCHAR(64),
+`email` VARCHAR(64),
+`category` VARCHAR(64),
+`gender` VARCHAR(64),
+`belongs_to_EWS` VARCHAR(64),
+`is_disabled` VARCHAR(64),
+`mother_tongue` VARCHAR(64),
+`caste` VARCHAR(64),
+`religion` VARCHAR(64),
+`phone` VARCHAR(64),
+`aadhar` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `academic_detail` (
+`student_id` INT,
+`CET_percentile` DECIMAL(10,2),
+`JEE_percentile` DECIMAL(10,2),
+`HSC_or_equivalent_percentage` DECIMAL(10,2),
+`SSC_or_equivalent_percentage` DECIMAL(10,2),
+`SSC_passing_year` INT,
+`HSC_passing_year` INT,
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `parent` (
+`id` INT,
+`relationship_type` VARCHAR(64),
+`first_name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`occupation_type` VARCHAR(64),
+`occupation_name` VARCHAR(64),
+`annual_income` VARCHAR(64),
+`phone` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_parents` (
+`student_id` INT,
+`parent_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_200851_db') AS relationships;
+relationships
+Database: db_200851_db
+
+Table Connections:
+------------------
+[Implied]  academic_detail.student_id -> student.id
+[Implied]  student_parents.parent_id -> parent.id
+[Implied]  student_parents.student_id -> student.id
+
+DROP DATABASE `db_200851_db`;
+UNINSTALL EXTENSION vsql_schematron;

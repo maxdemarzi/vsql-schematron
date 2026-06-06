@@ -594,7 +594,8 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
         "relation", "relations", "relationship", "relationships", "membership", "memberships", "association", "associations",
         "property", "properties", "store", "stores", "history",
         "item", "items", "payment", "payments", "log", "logs", "record", "records", "detail", "details",
-        "line", "lines"
+        "line", "lines", "message", "messages", "comment", "comments", "notification", "notifications",
+        "post", "posts", "token", "tokens"
     };
 
     auto compute = [&]() -> bool {
