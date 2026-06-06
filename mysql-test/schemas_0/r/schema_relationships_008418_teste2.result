@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 008418_teste2
+#
+CREATE DATABASE `db_008418_teste2`;
+USE `db_008418_teste2`;
+CREATE TABLE `Pais` (
+`id_pai` INT,
+`nome_pai` VARCHAR(64),
+`continente_pai` VARCHAR(64),
+PRIMARY KEY (`id_pai`)
+) CHARACTER SET latin1;
+CREATE TABLE `Estado` (
+`id_est` INT,
+`nome_est` VARCHAR(64),
+`sigla_est` VARCHAR(64),
+`regiao_est` VARCHAR(64),
+`id_pai_fk` INT,
+PRIMARY KEY (`id_est`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cidade` (
+`id_cid` INT,
+`nome_cid` VARCHAR(64),
+`data_criacao_cid` DATETIME,
+`id_est_fk` INT,
+PRIMARY KEY (`id_cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Endereco` (
+`id_end` INT,
+`rua_end` VARCHAR(64),
+`numero_end` INT,
+`bairro_end` VARCHAR(64),
+`id_cid_fk` INT,
+PRIMARY KEY (`id_end`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cliente` (
+`id_cli` INT,
+`nome_cli` VARCHAR(64),
+`cpf_cli` VARCHAR(64),
+`data_nasc_cli` DATETIME,
+`sexo_cli` VARCHAR(64),
+`email_cli` VARCHAR(64),
+`id_end_fk` INT,
+PRIMARY KEY (`id_cli`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_008418_teste2') AS relationships;
+relationships
+Database: db_008418_teste2
+
+Table Connections:
+------------------
+[Implied]  Cidade.id_est_fk -> Estado.id_est
+[Implied]  Cliente.id_end_fk -> Endereco.id_end
+[Implied]  Endereco.id_cid_fk -> Cidade.id_cid
+[Implied]  Estado.id_pai_fk -> Pais.id_pai
+
+DROP DATABASE `db_008418_teste2`;
+UNINSTALL EXTENSION vsql_schematron;

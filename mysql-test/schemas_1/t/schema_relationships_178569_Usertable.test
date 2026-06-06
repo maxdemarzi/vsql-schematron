@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 178569_Usertable
+--echo #
+CREATE DATABASE `db_178569_Usertable`;
+USE `db_178569_Usertable`;
+
+CREATE TABLE `Users` (
+  `Username` VARCHAR(64),
+  `Postalcode` VARCHAR(64),
+  `EMail` VARCHAR(64),
+  `Age` VARCHAR(64),
+  `Picture` VARCHAR(64),
+  `Target` INT,
+  `Laufniveau` INT,
+  `PasswordHash` VARCHAR(64),
+  `Salt` VARCHAR(64),
+  PRIMARY KEY (`Username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Tokens` (
+  `Token` VARCHAR(64),
+  `Username` VARCHAR(64),
+  PRIMARY KEY (`Username`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_178569_Usertable') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_178569_Usertable') AS relationships;
+DROP DATABASE `db_178569_Usertable`;
+UNINSTALL EXTENSION vsql_schematron;

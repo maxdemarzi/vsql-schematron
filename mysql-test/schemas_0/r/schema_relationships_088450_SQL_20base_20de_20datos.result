@@ -1,0 +1,128 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 088450_SQL%20base%20de%20datos
+#
+CREATE DATABASE `db_088450_SQL_20base_20de_20datos`;
+USE `db_088450_SQL_20base_20de_20datos`;
+CREATE TABLE `Usuarios` (
+`Id_usuarios` INT,
+`Nombre_usuario` VARCHAR(64),
+`Correo_usuario` VARCHAR(64),
+`Nickname` VARCHAR(64),
+`Contraseña` VARCHAR(64),
+`Diagnostico_FK` INT,
+`Bitacora_FK` INT,
+`Hoja_vida_FK` INT,
+PRIMARY KEY (`Id_usuarios`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bitacora_sucesos_incidencias` (
+`Contactos` INT,
+`Inicio` DATETIME,
+`Soporte` VARCHAR(64),
+`Documentacion` VARCHAR(64),
+PRIMARY KEY (`Contactos`)
+) CHARACTER SET latin1;
+CREATE TABLE `Diagnosticos` (
+`Id_diagnostico` INT,
+`Nombre_usuario` VARCHAR(64),
+`Marca` VARCHAR(64),
+`Fecha_salida` DATETIME,
+`Tipo_usuario` VARCHAR(64),
+`Estado_equipo` VARCHAR(64),
+`Condicion_teclado` VARCHAR(64),
+`Condicion_mouse` VARCHAR(64),
+`Estado_pantalla` VARCHAR(64),
+`Contacto` VARCHAR(64),
+`Tipo_pago` DECIMAL(10,2),
+PRIMARY KEY (`Id_diagnostico`)
+) CHARACTER SET latin1;
+CREATE TABLE `Hoja_vida_cliente` (
+`Hoja_vida` INT,
+`Telefono_cliente` VARCHAR(64),
+`Nombre_cliente` VARCHAR(64),
+`Tipo_computador` VARCHAR(64),
+`Marca` VARCHAR(64),
+`Numero_serie` INT,
+`Hardware_FK` INT,
+`Software_FK` INT,
+PRIMARY KEY (`Hoja_vida`)
+) CHARACTER SET latin1;
+CREATE TABLE `Software` (
+`Id_software` INT,
+`SO1` VARCHAR(64),
+`SO2` VARCHAR(64),
+`Controladores` VARCHAR(64),
+`SO1C` VARCHAR(64),
+`SO2C` VARCHAR(64),
+`Particiones_disco_duro` VARCHAR(64),
+`Microsoft_office` VARCHAR(64),
+`Navegadores` VARCHAR(64),
+`Lector_PDF` VARCHAR(64),
+`Compresor_archivos` VARCHAR(64),
+`Antivirus` VARCHAR(64),
+`Congelador_DD` VARCHAR(64),
+`Utilidades_grabacion` VARCHAR(64),
+`Otro_software` INT,
+`Estado_s_FK` INT,
+`Equipo_FK` INT,
+PRIMARY KEY (`Id_software`)
+) CHARACTER SET latin1;
+CREATE TABLE `Hardware` (
+`Id_hardware` INT,
+`Marca_board` VARCHAR(64),
+`Referencias` VARCHAR(64),
+`Marca_procesador` VARCHAR(64),
+`Numero_nucleos` VARCHAR(64),
+`Memoria_ram_marca` VARCHAR(64),
+`Disco_duro_marca` VARCHAR(64),
+`Lector_tarjetas` VARCHAR(64),
+`Puerto_paralelos` VARCHAR(64),
+`Serie` VARCHAR(64),
+`USB` VARCHAR(64),
+`Monitor` VARCHAR(64),
+`Tarjeta_RED` VARCHAR(64),
+`Tarjeta_video` VARCHAR(64),
+`Tarjeta_sonido` VARCHAR(64),
+`Teclado` VARCHAR(64),
+`Mouse_o_touchpad` VARCHAR(64),
+`Alimentación` VARCHAR(64),
+`Camara` VARCHAR(64),
+`Cables` VARCHAR(64),
+`Equipo_FK` INT,
+PRIMARY KEY (`Id_hardware`)
+) CHARACTER SET latin1;
+CREATE TABLE `Estado_software` (
+`Tipo_software` INT,
+`Nombre_software` VARCHAR(64),
+`Version` VARCHAR(64),
+`Caracteristicas` VARCHAR(64),
+`Licencias` VARCHAR(64),
+`Fecha_licencia` DATETIME,
+`Fecha_quiebre` DATETIME,
+`Observaciones` VARCHAR(64),
+PRIMARY KEY (`Tipo_software`)
+) CHARACTER SET latin1;
+CREATE TABLE `Equipo` (
+`Id_equipo` INT,
+`Tipo_e` VARCHAR(64),
+`Marca` VARCHAR(64),
+`Referencia_e` VARCHAR(64),
+PRIMARY KEY (`Id_equipo`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_088450_SQL_20base_20de_20datos') AS relationships;
+relationships
+Database: db_088450_SQL_20base_20de_20datos
+
+Table Connections:
+------------------
+[Implied]  Hardware.Equipo_FK -> Equipo.Id_equipo
+[Implied]  Hoja_vida_cliente.Hardware_FK -> Hardware.Id_hardware
+[Implied]  Hoja_vida_cliente.Software_FK -> Software.Id_software
+[Implied]  Software.Equipo_FK -> Equipo.Id_equipo
+[Implied]  Software.Estado_s_FK -> Estado_software.Tipo_software
+[Implied]  Usuarios.Bitacora_FK -> Bitacora_sucesos_incidencias.Contactos
+[Implied]  Usuarios.Diagnostico_FK -> Diagnosticos.Id_diagnostico
+[Implied]  Usuarios.Hoja_vida_FK -> Hoja_vida_cliente.Hoja_vida
+
+DROP DATABASE `db_088450_SQL_20base_20de_20datos`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 592948_AllTables
+#
+CREATE DATABASE `db_592948_AllTables`;
+USE `db_592948_AllTables`;
+CREATE TABLE `Accounts` (
+`userId` VARCHAR(64),
+`email` VARCHAR(64),
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `AccountCredentials` (
+`userId` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Contests` (
+`contestId` INT,
+`createdBy` VARCHAR(64),
+`startTime` DATETIME,
+`name` VARCHAR(64),
+`currentState` INT,
+PRIMARY KEY (`contestId`)
+) CHARACTER SET latin1;
+CREATE TABLE `ContestParticipants` (
+`contestParticipantsId` INT,
+`contestId` INT,
+`userId` VARCHAR(64),
+`points` INT,
+PRIMARY KEY (`contestParticipantsId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Events` (
+`eventId` INT,
+`name` VARCHAR(64),
+`startTime` DATETIME,
+`currentState` INT,
+`link` VARCHAR(64),
+PRIMARY KEY (`eventId`)
+) CHARACTER SET latin1;
+CREATE TABLE `ContestEvents` (
+`contestEventsId` INT,
+`contestId` INT,
+`eventId` INT,
+PRIMARY KEY (`contestEventsId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Players` (
+`playerId` INT,
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`displayName` VARCHAR(64),
+`image` VARCHAR(64),
+`salary` INT,
+PRIMARY KEY (`playerId`)
+) CHARACTER SET latin1;
+CREATE TABLE `ContestPlayers` (
+`contestPlayersId` INT,
+`contestId` INT,
+`playerId` INT,
+PRIMARY KEY (`contestPlayersId`)
+) CHARACTER SET latin1;
+CREATE TABLE `EventPoints` (
+`eventPointsId` INT,
+`eventId` INT,
+`playerId` INT,
+`points` INT,
+PRIMARY KEY (`eventPointsId`)
+) CHARACTER SET latin1;
+CREATE TABLE `LeagueStats` (
+`eventPointsId` INT,
+`deaths` INT,
+`assists` INT,
+`kills` INT,
+`creepScore` INT,
+PRIMARY KEY (`eventPointsId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_592948_AllTables') AS relationships;
+relationships
+Database: db_592948_AllTables
+
+Table Connections:
+------------------
+[Implied]  AccountCredentials.userId -> Accounts.userId
+[Implied]  ContestEvents.contestId -> Contests.contestId
+[Implied]  ContestEvents.eventId -> Events.eventId
+[Implied]  ContestParticipants.contestId -> Contests.contestId
+[Implied]  ContestParticipants.userId -> Accounts.userId
+[Implied]  ContestPlayers.contestId -> Contests.contestId
+[Implied]  ContestPlayers.playerId -> Players.playerId
+[Implied]  Contests.createdBy -> Accounts.userId
+[Implied]  EventPoints.eventId -> Events.eventId
+[Implied]  EventPoints.playerId -> Players.playerId
+[Implied]  LeagueStats.eventPointsId -> EventPoints.eventPointsId
+
+DROP DATABASE `db_592948_AllTables`;
+UNINSTALL EXTENSION vsql_schematron;

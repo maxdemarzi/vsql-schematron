@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 277741_migration
+#
+CREATE DATABASE `db_277741_migration`;
+USE `db_277741_migration`;
+CREATE TABLE `users` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `templates` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`content` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contacts` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+`id` VARCHAR(64),
+`subject` VARCHAR(64),
+`body` VARCHAR(64),
+`template_id` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`id` VARCHAR(64),
+`type` VARCHAR(64),
+`meta` VARCHAR(64),
+`recipient_id` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipients` (
+`id` VARCHAR(64),
+`message_id` VARCHAR(64),
+`contact_id` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_MessageToTag` (
+`A` VARCHAR(64),
+`B` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_277741_migration') AS relationships;
+relationships
+Database: db_277741_migration
+
+Table Connections:
+------------------
+[Implied]  _MessageToTag.A -> messages.id
+[Implied]  _MessageToTag.B -> tags.id
+[Implied]  events.recipient_id -> recipients.id
+[Implied]  messages.template_id -> templates.id
+[Implied]  recipients.contact_id -> contacts.id
+[Implied]  recipients.message_id -> messages.id
+
+DROP DATABASE `db_277741_migration`;
+UNINSTALL EXTENSION vsql_schematron;

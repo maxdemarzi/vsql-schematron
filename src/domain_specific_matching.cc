@@ -24,7 +24,9 @@ const std::unordered_set<std::string> PERSON_TABLE_SYNONYMS = {
     "representative", "representatives", "rep", "reps", "manager", "managers", "creator",
     "creators", "author", "authors", "advisor", "advisors", "police", "witness", "witnesses",
     "attorney", "attorneys", "lawyer", "lawyers", "judge", "judges", "prosecutor", "prosecutors",
-    "defendant", "defendants", "plaintiff", "plaintiffs"
+    "defendant", "defendants", "plaintiff", "plaintiffs",
+    "account", "accounts", "auth", "auths", "login", "logins", "credentials", "credential",
+    "instructor", "instructors", "professor", "professors"
 };
 
 const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
@@ -468,6 +470,17 @@ bool matchDomainSpecificKeys(
  */
 bool isPersonTable(const std::string& tbl) {
     return PERSON_TABLE_SYNONYMS.count(tbl);
+}
+
+bool isPersonTableOrExtension(const std::string& tbl) {
+    std::string clean = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
+    if (PERSON_TABLE_SYNONYMS.count(clean) > 0) return true;
+    std::string word;
+    std::istringstream ss(clean);
+    while (std::getline(ss, word, '_')) {
+        if (PERSON_TABLE_SYNONYMS.count(word) > 0) return true;
+    }
+    return false;
 }
 
 /**

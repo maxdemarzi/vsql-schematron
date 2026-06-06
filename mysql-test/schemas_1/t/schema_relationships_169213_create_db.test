@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 169213_create-db
+--echo #
+CREATE DATABASE `db_169213_create_db`;
+USE `db_169213_create_db`;
+
+CREATE TABLE `person` (
+  `ID` INT,
+  `birthdate` DATETIME,
+  `firstname` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `age` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `student` (
+  `ID` INT,
+  `birthdate` DATETIME,
+  `firstname` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `age` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `school` (
+  `ID` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `manufacturer` (
+  `ID` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `address` (
+  `ID` INT,
+  `person_id` INT,
+  `postal_code` INT,
+  `city` VARCHAR(64),
+  `street` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course` (
+  `ID` INT,
+  `person_id` INT,
+  `school_id` INT,
+  `name` VARCHAR(64),
+  `difficulty` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `all_types` (
+  `ID` INT,
+  `rating` INT,
+  `hash` INT,
+  `age` DECIMAL(10,2),
+  `price` DECIMAL(10,2),
+  `taxes` DECIMAL(10,2),
+  `newdate` DATETIME,
+  `clock` DATETIME,
+  `created` DATETIME,
+  `active` BOOL,
+  `country` VARCHAR(64),
+  `model` VARCHAR(64),
+  `brand` VARCHAR(64),
+  `description` VARCHAR(64),
+  `contract` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_169213_create_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_169213_create_db') AS relationships;
+DROP DATABASE `db_169213_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

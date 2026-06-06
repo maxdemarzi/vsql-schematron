@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 507621_banque
+#
+CREATE DATABASE `db_507621_banque`;
+USE `db_507621_banque`;
+CREATE TABLE `titulaire` (
+`id` INT,
+`nom` VARCHAR(64),
+`prenom` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `typecompte` (
+`id` INT,
+`nom` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `compte` (
+`id` INT,
+`numcompte` VARCHAR(64),
+`typecompte_id` INT,
+`date_ouverture` DATETIME,
+`derniere_op` DATETIME,
+`solde` DECIMAL(10,2),
+`titulaire_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `operation` (
+`id` INT,
+`compte_id` INT,
+`date_operation` DATETIME,
+`montant` DECIMAL(10,2),
+`type_operation` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_507621_banque') AS relationships;
+relationships
+Database: db_507621_banque
+
+Table Connections:
+------------------
+[Implied]  compte.titulaire_id -> titulaire.id
+[Implied]  compte.typecompte_id -> typecompte.id
+[Implied]  operation.compte_id -> compte.id
+
+DROP DATABASE `db_507621_banque`;
+UNINSTALL EXTENSION vsql_schematron;

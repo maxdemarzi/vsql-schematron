@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 538685_activiti.mssql.create.case.engine
+--echo #
+CREATE DATABASE `db_538685_activiti_mssql_create_case_engine`;
+USE `db_538685_activiti_mssql_create_case_engine`;
+
+CREATE TABLE `ACT_RE_CASE_DEF` (
+  `ID_` VARCHAR(64),
+  `REV_` INT,
+  `CATEGORY_` VARCHAR(64),
+  `NAME_` VARCHAR(64),
+  `KEY_` VARCHAR(64),
+  `VERSION_` INT,
+  `DEPLOYMENT_ID_` VARCHAR(64),
+  `RESOURCE_NAME_` VARCHAR(64),
+  `DGRM_RESOURCE_NAME_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_RU_CASE_EXECUTION` (
+  `ID_` VARCHAR(64),
+  `REV_` INT,
+  `CASE_INST_ID_` VARCHAR(64),
+  `SUPER_CASE_EXEC_` VARCHAR(64),
+  `SUPER_EXEC_` VARCHAR(64),
+  `BUSINESS_KEY_` VARCHAR(64),
+  `PARENT_ID_` VARCHAR(64),
+  `CASE_DEF_ID_` VARCHAR(64),
+  `ACT_ID_` VARCHAR(64),
+  `PREV_STATE_` INT,
+  `CURRENT_STATE_` INT,
+  `REQUIRED_` INT,
+  `REPEATABLE_` INT,
+  `REPETITION_` INT,
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_RU_CASE_SENTRY_PART` (
+  `ID_` VARCHAR(64),
+  `REV_` INT,
+  `CASE_INST_ID_` VARCHAR(64),
+  `CASE_EXEC_ID_` VARCHAR(64),
+  `SENTRY_ID_` VARCHAR(64),
+  `TYPE_` VARCHAR(64),
+  `SOURCE_CASE_EXEC_ID_` VARCHAR(64),
+  `STANDARD_EVENT_` VARCHAR(64),
+  `SOURCE_` VARCHAR(64),
+  `SATISFIED_` INT,
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_538685_activiti_mssql_create_case_engine') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_538685_activiti_mssql_create_case_engine') AS relationships;
+DROP DATABASE `db_538685_activiti_mssql_create_case_engine`;
+UNINSTALL EXTENSION vsql_schematron;

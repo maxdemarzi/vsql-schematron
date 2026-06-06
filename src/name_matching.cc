@@ -126,7 +126,7 @@ std::string stripTableSuffix(const std::string& name) {
         std::string suffix = n.substr(underscore + 1);
         static const std::unordered_set<std::string> TECHNICAL_SUFFIXES = {
             "all", "ext", "base", "v", "b", "t", "all_v",
-            "tbl", "table", "tab"
+            "tbl", "table", "tab", "pk", "fk"
         };
         if (TECHNICAL_SUFFIXES.count(suffix) > 0) {
             n = n.substr(0, underscore);

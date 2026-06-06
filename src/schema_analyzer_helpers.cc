@@ -595,7 +595,11 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
         "property", "properties", "store", "stores", "history",
         "item", "items", "payment", "payments", "log", "logs", "record", "records", "detail", "details",
         "line", "lines", "message", "messages", "comment", "comments", "notification", "notifications",
-        "post", "posts", "token", "tokens"
+        "post", "posts", "token", "tokens", "backup", "backups", "temp", "tmp",
+        "recommendation", "recommendations", "recomendation", "recomendations",
+        "metadata", "meta", "lang", "langs", "language", "languages",
+        "info", "information", "config", "configs", "configuration", "configurations",
+        "setting", "settings", "option", "options", "preference", "preferences"
     };
 
     auto compute = [&]() -> bool {
@@ -643,6 +647,12 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
             if (endsWithCatalog(a) != endsWithCatalog(b)) {
                 return false;
             }
+            if (a.length() >= 3 && a.substr(a.length() - 3) == "_fk" && b.length() >= 3 && b.substr(b.length() - 3) == "_pk") {
+                return true;
+            }
+            if (a.length() >= 3 && a.substr(a.length() - 3) == "_pk" && b.length() >= 3 && b.substr(b.length() - 3) == "_fk") {
+                return false;
+            }
             return a.length() > b.length();
         }
         if (clean_a.length() > clean_b.length()) {
@@ -688,8 +698,17 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
             size_t pos = clean_a.rfind(clean_b);
             if (pos != std::string::npos && pos == clean_a.length() - clean_b.length()) {
                 std::string prefix = clean_a.substr(0, pos);
+                if (!prefix.empty() && prefix.back() == '_') {
+                    prefix.pop_back();
+                }
+                static const std::unordered_set<std::string> CATALOG_PREFIXES = {
+                    "type", "types", "status", "statuses", "category", "categories", "genre", "genres",
+                    "role", "roles", "state", "states", "level", "levels", "priority", "priorities",
+                    "lookup", "lookups", "code", "codes", "mode", "modes", "action", "actions", "tag", "tags",
+                    "version", "versions", "detail", "details", "kind", "kinds"
+                };
                 if (prefix == "meta" || prefix == "sys" || prefix == "ref" || prefix == "ext" ||
-                    prefix == "meta_" || prefix == "sys_" || prefix == "ref_" || prefix == "ext_") {
+                    CATALOG_PREFIXES.count(prefix) > 0) {
                     return false;
                 }
                 return true;
@@ -731,8 +750,12 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
                     if (!remaining.empty() && remaining[0] == '_') {
                         remaining = remaining.substr(1);
                     }
-                    if (!remaining.empty() && CATALOG_SUFFIXES.count(remaining) > 0) {
-                        return false;
+                    if (!remaining.empty()) {
+                        size_t last_under = remaining.rfind('_');
+                        std::string last_part = (last_under != std::string::npos) ? remaining.substr(last_under + 1) : remaining;
+                        if (CATALOG_SUFFIXES.count(last_part) > 0) {
+                            return false;
+                        }
                     }
                     return true;
                 }

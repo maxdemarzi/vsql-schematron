@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 065382_killrvideo
+#
+CREATE DATABASE `db_065382_killrvideo`;
+USE `db_065382_killrvideo`;
+CREATE TABLE `users` (
+`id` DECIMAL(10,2),
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`created_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `video_metadata` (
+`id` DECIMAL(10,2),
+`height` DECIMAL(10,2),
+`width` DECIMAL(10,2),
+`video_bit_rate` VARCHAR(64),
+`encoding` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `videos` (
+`id` DECIMAL(10,2),
+`userid` DECIMAL(10,2),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`location` VARCHAR(64),
+`location_type` INT,
+`added_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `video_video_metadata` (
+`videoid` DECIMAL(10,2),
+`videometadataId` DECIMAL(10,2),
+PRIMARY KEY (`videoid`, `videometadataId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` DECIMAL(10,2),
+`tag` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `videos_tags` (
+`videoId` DECIMAL(10,2),
+`tagId` DECIMAL(10,2),
+PRIMARY KEY (`videoId`, `tagId`)
+) CHARACTER SET latin1;
+CREATE TABLE `preview_thumbnails` (
+`videoId` DECIMAL(10,2),
+`position` VARCHAR(64),
+`url` VARCHAR(64),
+PRIMARY KEY (`videoId`, `position`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` DECIMAL(10,2),
+`userId` DECIMAL(10,2),
+`videoId` DECIMAL(10,2),
+`comment_text` VARCHAR(64),
+`comment_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `video_event` (
+`id` DECIMAL(10,2),
+`userId` DECIMAL(10,2),
+`videoId` DECIMAL(10,2),
+`event` VARCHAR(64),
+`event_timestamp` DATETIME,
+`video_timestamp` DATETIME,
+PRIMARY KEY (`id`, `event_timestamp`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_065382_killrvideo') AS relationships;
+relationships
+Database: db_065382_killrvideo
+
+Table Connections:
+------------------
+[Implied]  comments.userId -> users.id
+[Implied]  comments.videoId -> videos.id
+[Implied]  preview_thumbnails.videoId -> videos.id
+[Implied]  video_event.userId -> users.id
+[Implied]  video_event.videoId -> videos.id
+[Implied]  video_video_metadata.videoid -> videos.id
+[Implied]  video_video_metadata.videometadataId -> video_metadata.id
+[Implied]  videos.userid -> users.id
+[Implied]  videos_tags.tagId -> tags.id
+[Implied]  videos_tags.videoId -> videos.id
+
+DROP DATABASE `db_065382_killrvideo`;
+UNINSTALL EXTENSION vsql_schematron;

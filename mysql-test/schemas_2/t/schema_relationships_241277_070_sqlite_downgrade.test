@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 241277_070_sqlite_downgrade
+--echo #
+CREATE DATABASE `db_241277_070_sqlite_downgrade`;
+USE `db_241277_070_sqlite_downgrade`;
+
+CREATE TABLE `fixed_ips_backup` (
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  `deleted` BOOL,
+  `id` INT,
+  `address` VARCHAR(64),
+  `virtual_interface_id` INT,
+  `network_id` INT,
+  `instance_id` INT,
+  `allocated` BOOL,
+  `leased` BOOL,
+  `reserved` BOOL,
+  `host` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `floating_ips_backup` (
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  `deleted` BOOL,
+  `id` INT,
+  `address` VARCHAR(64),
+  `fixed_ip_id` INT,
+  `project_id` VARCHAR(64),
+  `host` VARCHAR(64),
+  `auto_assigned` BOOL,
+  `pool` VARCHAR(64),
+  `interface` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `fixed_ips` (
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  `deleted` BOOL,
+  `id` INT,
+  `address` VARCHAR(64),
+  `virtual_interface_id` INT,
+  `network_id` INT,
+  `instance_id` INT,
+  `allocated` BOOL,
+  `leased` BOOL,
+  `reserved` BOOL,
+  `host` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `floating_ips` (
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  `deleted` BOOL,
+  `id` INT,
+  `address` VARCHAR(64),
+  `fixed_ip_id` INT,
+  `project_id` VARCHAR(64),
+  `host` VARCHAR(64),
+  `auto_assigned` BOOL,
+  `pool` VARCHAR(64),
+  `interface` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_241277_070_sqlite_downgrade') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_241277_070_sqlite_downgrade') AS relationships;
+DROP DATABASE `db_241277_070_sqlite_downgrade`;
+UNINSTALL EXTENSION vsql_schematron;

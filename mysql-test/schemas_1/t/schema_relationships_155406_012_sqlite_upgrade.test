@@ -1,0 +1,113 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 155406_012_sqlite_upgrade
+--echo #
+CREATE DATABASE `db_155406_012_sqlite_upgrade`;
+USE `db_155406_012_sqlite_upgrade`;
+
+CREATE TABLE `networks_backup` (
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  `deleted` BOOL,
+  `id` INT,
+  `injected` BOOL,
+  `cidr` VARCHAR(64),
+  `netmask` VARCHAR(64),
+  `bridge` VARCHAR(64),
+  `gateway` VARCHAR(64),
+  `broadcast` VARCHAR(64),
+  `dns` VARCHAR(64),
+  `vlan` INT,
+  `vpn_public_address` VARCHAR(64),
+  `vpn_public_port` INT,
+  `vpn_private_address` VARCHAR(64),
+  `dhcp_start` VARCHAR(64),
+  `project_id` VARCHAR(64),
+  `host` VARCHAR(64),
+  `cidr_v6` VARCHAR(64),
+  `ra_server` VARCHAR(64),
+  `label` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `networks` (
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  `deleted` BOOL,
+  `id` INT,
+  `injected` BOOL,
+  `cidr` VARCHAR(64),
+  `netmask` VARCHAR(64),
+  `bridge` VARCHAR(64),
+  `gateway` VARCHAR(64),
+  `broadcast` VARCHAR(64),
+  `dns` VARCHAR(64),
+  `vlan` INT,
+  `vpn_public_address` VARCHAR(64),
+  `vpn_public_port` INT,
+  `vpn_private_address` VARCHAR(64),
+  `dhcp_start` VARCHAR(64),
+  `project_id` VARCHAR(64),
+  `host` VARCHAR(64),
+  `cidr_v6` VARCHAR(64),
+  `gateway_v6` VARCHAR(64),
+  `label` VARCHAR(64),
+  `netmask_v6` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `fixed_ips_backup` (
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  `deleted` BOOL,
+  `id` INT,
+  `address` VARCHAR(64),
+  `network_id` INT,
+  `instance_id` INT,
+  `allocated` BOOL,
+  `leased` BOOL,
+  `reserved` BOOL,
+  `addressV6` VARCHAR(64),
+  `netmaskV6` VARCHAR(64),
+  `gatewayV6` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `fixed_ips` (
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  `deleted` BOOL,
+  `id` INT,
+  `address` VARCHAR(64),
+  `network_id` INT,
+  `instance_id` INT,
+  `allocated` BOOL,
+  `leased` BOOL,
+  `reserved` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_155406_012_sqlite_upgrade') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_155406_012_sqlite_upgrade') AS relationships;
+DROP DATABASE `db_155406_012_sqlite_upgrade`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,85 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 389200_modelo_dentista
+--echo #
+CREATE DATABASE `db_389200_modelo_dentista`;
+USE `db_389200_modelo_dentista`;
+
+CREATE TABLE `Paciente` (
+  `id_pac` INT,
+  `nome_pac` VARCHAR(64),
+  `cpf_pac` VARCHAR(64),
+  `telefone_pac` INT,
+  `email_pac` VARCHAR(64),
+  PRIMARY KEY (`id_pac`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Dentista` (
+  `id_den` INT,
+  `nome_den` VARCHAR(64),
+  `cpf_den` VARCHAR(64),
+  `especialidade_den` VARCHAR(64),
+  PRIMARY KEY (`id_den`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Agenda` (
+  `id_age` INT,
+  `data_age` DATETIME,
+  `hora` DATETIME,
+  `tipo_age` VARCHAR(64),
+  `id_pac_fk` INT,
+  `id_den_fk` INT,
+  PRIMARY KEY (`id_age`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Consulta` (
+  `id_con` INT,
+  `valor_con` DECIMAL(10,2),
+  `data_con` DATETIME,
+  `id_pac_fk` INT,
+  `id_den_fk` INT,
+  PRIMARY KEY (`id_con`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Recebimento` (
+  `id_rec` INT,
+  `data_rec` DATETIME,
+  `tipo_rec` VARCHAR(64),
+  `valor_rec` DECIMAL(10,2),
+  `id_con_fk` INT,
+  PRIMARY KEY (`id_rec`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Procedimento` (
+  `id_pro` INT,
+  `nome_pro` VARCHAR(64),
+  `materiais_pro` VARCHAR(64),
+  `valor_pro` DECIMAL(10,2),
+  PRIMARY KEY (`id_pro`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `consulta_procedimento` (
+  `id_con_fk` INT,
+  `id_pro_fk` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_389200_modelo_dentista') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_389200_modelo_dentista') AS relationships;
+DROP DATABASE `db_389200_modelo_dentista`;
+UNINSTALL EXTENSION vsql_schematron;

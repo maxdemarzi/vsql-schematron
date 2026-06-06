@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 008503_037_sqlite_upgrade
+#
+CREATE DATABASE `db_008503_037_sqlite_upgrade`;
+USE `db_008503_037_sqlite_upgrade`;
+CREATE TABLE `images_backup` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`size` INT,
+`status` VARCHAR(64),
+`is_public` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`deleted` BOOL,
+`disk_format` VARCHAR(64),
+`container_format` VARCHAR(64),
+`checksum` VARCHAR(64),
+`owner` VARCHAR(64),
+`min_disk` INT,
+`min_ram` INT,
+`protected` BOOL,
+`virtual_size` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `images` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`size` INT,
+`status` VARCHAR(64),
+`is_public` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`deleted` BOOL,
+`disk_format` VARCHAR(64),
+`container_format` VARCHAR(64),
+`checksum` VARCHAR(64),
+`owner` VARCHAR(64),
+`min_disk` INT,
+`min_ram` INT,
+`protected` BOOL,
+`virtual_size` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `image_members_backup` (
+`id` INT,
+`image_id` VARCHAR(64),
+`member` VARCHAR(64),
+`can_share` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`deleted` BOOL,
+`status` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `image_members` (
+`id` INT,
+`image_id` VARCHAR(64),
+`member` VARCHAR(64),
+`can_share` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`deleted` BOOL,
+`status` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `image_properties_backup` (
+`id` INT,
+`image_id` VARCHAR(64),
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`deleted` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `image_properties` (
+`id` INT,
+`image_id` VARCHAR(64),
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`deleted` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_008503_037_sqlite_upgrade') AS relationships;
+relationships
+Database: db_008503_037_sqlite_upgrade
+
+Table Connections:
+------------------
+[Implied]  image_members.image_id -> images.id
+[Implied]  image_members_backup.image_id -> images.id
+[Implied]  image_properties.image_id -> images.id
+[Implied]  image_properties_backup.image_id -> images.id
+
+DROP DATABASE `db_008503_037_sqlite_upgrade`;
+UNINSTALL EXTENSION vsql_schematron;

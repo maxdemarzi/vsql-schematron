@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 335010_windsor
+--echo #
+CREATE DATABASE `db_335010_windsor`;
+USE `db_335010_windsor`;
+
+CREATE TABLE `bill` (
+  `BillId` INT,
+  `BillCreate` DATETIME,
+  `BillDetails` VARCHAR(64),
+  `BillStatus` INT,
+  PRIMARY KEY (`BillId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bill_order` (
+  `BillId` INT,
+  `OrderId` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `employee` (
+  `EmployeeCode` VARCHAR(64),
+  `EmployeePass` VARCHAR(64),
+  `EmployeeName` VARCHAR(64),
+  `EmployeeBirth` DATETIME,
+  `EmployeeAddress` VARCHAR(64),
+  `EmployeeEmail` VARCHAR(64),
+  `EmployeeIC` VARCHAR(64),
+  `RoleId` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `feedback` (
+  `FeedbackId` INT,
+  `Username` VARCHAR(64),
+  `FeedbackCreate` DATETIME,
+  `FeedbackAddress` VARCHAR(64),
+  `FeedbackContent` VARCHAR(64),
+  `Reply` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `promotion_wine` (
+  `WineId` INT,
+  `PromotionId` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `Username` VARCHAR(64),
+  `Password` VARCHAR(64),
+  `FullName` VARCHAR(64),
+  `Sex` INT,
+  `Address` VARCHAR(64),
+  `Phone` INT,
+  `Email` VARCHAR(64),
+  `DateOfBirth` DATETIME,
+  `IC` VARCHAR(64),
+  `Status` INT,
+  `Role` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_335010_windsor') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_335010_windsor') AS relationships;
+DROP DATABASE `db_335010_windsor`;
+UNINSTALL EXTENSION vsql_schematron;

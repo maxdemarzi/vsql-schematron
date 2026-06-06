@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 256263_makeDB
+#
+CREATE DATABASE `db_256263_makeDB`;
+USE `db_256263_makeDB`;
+CREATE TABLE `Comics.Account` (
+`accountID` INT,
+`username` VARCHAR(64),
+`profileURL` VARCHAR(64),
+`email` VARCHAR(64),
+`emailVerified` BOOL,
+`banned` BOOL,
+`biography` VARCHAR(64),
+`joined` DATETIME,
+`password` VARCHAR(64),
+`salt` VARCHAR(64),
+`role` VARCHAR(64),
+PRIMARY KEY (`accountID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comics.Message` (
+`messageID` INT,
+`senderID` INT,
+`receiverID` INT,
+`subject` VARCHAR(64),
+`content` VARCHAR(64),
+`read` BOOL,
+`timeSent` DATETIME,
+PRIMARY KEY (`messageID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comics.Comic` (
+`comicID` INT,
+`accountID` INT,
+`title` VARCHAR(64),
+`comicURL` VARCHAR(64),
+`thumbnailURL` VARCHAR(64),
+`published` BOOL,
+`tagline` VARCHAR(64),
+`description` VARCHAR(64),
+`organization` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+PRIMARY KEY (`comicID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comics.Volume` (
+`volumeID` INT,
+`comicID` INT,
+`volumeNumber` INT,
+`name` VARCHAR(64),
+`published` BOOL,
+PRIMARY KEY (`volumeID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comics.Chapter` (
+`chapterID` INT,
+`volumeID` INT,
+`chapterNumber` INT,
+`name` VARCHAR(64),
+`published` BOOL,
+`comicID` INT,
+PRIMARY KEY (`chapterID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comics.Page` (
+`pageID` INT,
+`pageNumber` INT,
+`chapterID` INT,
+`comicID` INT,
+`altText` VARCHAR(64),
+`imgURL` VARCHAR(64),
+`published` BOOL,
+PRIMARY KEY (`pageID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comics.Schedule` (
+`comicID` INT,
+`updateDay` INT,
+`updateType` VARCHAR(64),
+`updateWeek` INT,
+PRIMARY KEY (`comicID`, `updateDay`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_256263_makeDB') AS relationships;
+relationships
+Database: db_256263_makeDB
+
+Table Connections:
+------------------
+[Implied]  Comics.Chapter.comicID -> Comics.Comic.comicID
+[Implied]  Comics.Chapter.volumeID -> Comics.Volume.volumeID
+[Implied]  Comics.Comic.accountID -> Comics.Account.accountID
+[Implied]  Comics.Message.receiverID -> Comics.Account.accountID
+[Implied]  Comics.Message.senderID -> Comics.Account.accountID
+[Implied]  Comics.Page.chapterID -> Comics.Chapter.chapterID
+[Implied]  Comics.Page.comicID -> Comics.Comic.comicID
+[Implied]  Comics.Schedule.comicID -> Comics.Comic.comicID
+[Implied]  Comics.Volume.comicID -> Comics.Comic.comicID
+
+DROP DATABASE `db_256263_makeDB`;
+UNINSTALL EXTENSION vsql_schematron;

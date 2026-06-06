@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 473736_taxi-sql
+#
+CREATE DATABASE `db_473736_taxi_sql`;
+USE `db_473736_taxi_sql`;
+CREATE TABLE `auto` (
+`id` INT,
+`mark` VARCHAR(64),
+`auto_number` VARCHAR(64),
+`auto_type` VARCHAR(64),
+`state` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `license` (
+`id` INT,
+`date_of_issue` VARCHAR(64),
+`place_of_issue` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `driver_taxi_info` (
+`id` INT,
+`driving_experience` DECIMAL(10,2),
+`rating_driver` DECIMAL(10,2),
+`license_id` INT,
+`auto_id` INT,
+`is_booked` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `passenger_taxi_info` (
+`id` INT,
+`date_of_registration` VARCHAR(64),
+`taxi_trip_history_id` INT,
+`rating` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `passenger` (
+`id` INT,
+`first_name` VARCHAR(64),
+`second_name` VARCHAR(64),
+`gender` VARCHAR(64),
+`date_of_birth` VARCHAR(64),
+`passenger_taxi_info_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `driver` (
+`id` INT,
+`first_name` VARCHAR(64),
+`second_name` VARCHAR(64),
+`gender` VARCHAR(64),
+`date_of_birth` VARCHAR(64),
+`driver_taxi_info_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_473736_taxi_sql') AS relationships;
+relationships
+Database: db_473736_taxi_sql
+
+Table Connections:
+------------------
+[Implied]  driver.driver_taxi_info_id -> driver_taxi_info.id
+[Implied]  driver_taxi_info.auto_id -> auto.id
+[Implied]  driver_taxi_info.license_id -> license.id
+[Implied]  driver_taxi_info.rating_driver -> driver.id
+[Implied]  passenger.passenger_taxi_info_id -> passenger_taxi_info.id
+
+DROP DATABASE `db_473736_taxi_sql`;
+UNINSTALL EXTENSION vsql_schematron;

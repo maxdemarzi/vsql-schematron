@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 029935_flowable.mysql.app-engine.create
+--echo #
+CREATE DATABASE `db_029935_flowable_mysql_app_engine_create`;
+USE `db_029935_flowable_mysql_app_engine_create`;
+
+CREATE TABLE `ACT_APP_DATABASECHANGELOGLOCK` (
+  `ID` INT,
+  `LOCKED` BOOL,
+  `LOCKGRANTED` DATETIME,
+  `LOCKEDBY` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_APP_DATABASECHANGELOG` (
+  `ID` VARCHAR(64),
+  `AUTHOR` VARCHAR(64),
+  `FILENAME` VARCHAR(64),
+  `DATEEXECUTED` DATETIME,
+  `ORDEREXECUTED` INT,
+  `EXECTYPE` VARCHAR(64),
+  `MD5SUM` VARCHAR(64),
+  `DESCRIPTION` VARCHAR(64),
+  `COMMENTS` VARCHAR(64),
+  `TAG` VARCHAR(64),
+  `LIQUIBASE` VARCHAR(64),
+  `CONTEXTS` VARCHAR(64),
+  `LABELS` VARCHAR(64),
+  `DEPLOYMENT_ID` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_APP_DEPLOYMENT` (
+  `ID_` VARCHAR(64),
+  `NAME_` VARCHAR(64),
+  `CATEGORY_` VARCHAR(64),
+  `KEY_` VARCHAR(64),
+  `DEPLOY_TIME_` DATETIME,
+  `TENANT_ID_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_APP_DEPLOYMENT_RESOURCE` (
+  `ID_` VARCHAR(64),
+  `NAME_` VARCHAR(64),
+  `DEPLOYMENT_ID_` VARCHAR(64),
+  `RESOURCE_BYTES_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_APP_APPDEF` (
+  `ID_` VARCHAR(64),
+  `REV_` INT,
+  `NAME_` VARCHAR(64),
+  `KEY_` VARCHAR(64),
+  `VERSION_` INT,
+  `CATEGORY_` VARCHAR(64),
+  `DEPLOYMENT_ID_` VARCHAR(64),
+  `RESOURCE_NAME_` VARCHAR(64),
+  `DESCRIPTION_` VARCHAR(64),
+  `TENANT_ID_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_029935_flowable_mysql_app_engine_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_029935_flowable_mysql_app_engine_create') AS relationships;
+DROP DATABASE `db_029935_flowable_mysql_app_engine_create`;
+UNINSTALL EXTENSION vsql_schematron;

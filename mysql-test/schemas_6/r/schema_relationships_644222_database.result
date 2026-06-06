@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 644222_database
+#
+CREATE DATABASE `db_644222_database`;
+USE `db_644222_database`;
+CREATE TABLE `courses` (
+`id` INT,
+`title` VARCHAR(64),
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teachers` (
+`id` INT,
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`account` VARCHAR(64),
+`password_salt` VARCHAR(64),
+`password_pepper` VARCHAR(64),
+`password_hash` VARCHAR(64),
+`password_loop` INT,
+`role` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lessons` (
+`id` INT,
+`course_id` INT,
+`user_id` INT,
+`teacher_id` INT,
+`day` INT,
+`hour` INT,
+`completed` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_tokens` (
+`token` VARCHAR(64),
+`user_id` INT,
+PRIMARY KEY (`token`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_644222_database') AS relationships;
+relationships
+Database: db_644222_database
+
+Table Connections:
+------------------
+[Implied]  lessons.course_id -> courses.id
+[Implied]  lessons.teacher_id -> teachers.id
+[Implied]  lessons.user_id -> users.id
+[Implied]  user_tokens.user_id -> users.id
+
+DROP DATABASE `db_644222_database`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 168351_referential_actions.out
+#
+CREATE DATABASE `db_168351_referential_actions_out`;
+USE `db_168351_referential_actions_out`;
+CREATE TABLE `orders` (
+`id` INT,
+`user_id` INT,
+`status` VARCHAR(64),
+`created_at` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_items` (
+`order_id` INT,
+`product_id` INT,
+`product_name` VARCHAR(64),
+`quantity` INT
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`name` VARCHAR(64),
+`price` DECIMAL(10,2),
+`created_at` DATETIME,
+PRIMARY KEY (`id`, `name`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`date_of_birth` DATETIME,
+`created_at` DATETIME,
+`country_code` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `countries` (
+`code` INT,
+`name` VARCHAR(64),
+`continent_name` VARCHAR(64),
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_168351_referential_actions_out') AS relationships;
+relationships
+Database: db_168351_referential_actions_out
+
+Table Connections:
+------------------
+[Implied]  order_items.order_id -> orders.id
+[Implied]  orders.user_id -> users.id
+[Implied]  users.country_code -> countries.code
+
+DROP DATABASE `db_168351_referential_actions_out`;
+UNINSTALL EXTENSION vsql_schematron;

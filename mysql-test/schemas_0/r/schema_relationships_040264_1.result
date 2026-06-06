@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 040264_1
+#
+CREATE DATABASE `db_040264_1`;
+USE `db_040264_1`;
+CREATE TABLE `account` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `oauth_client` (
+`id` INT,
+`owner_id` INT,
+`grant_type` VARCHAR(64),
+`client_id` VARCHAR(64),
+`client_secret` VARCHAR(64),
+`redirect_uri` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `oauth_authorization_code` (
+`id` INT,
+`account_id` INT,
+`oauth_client_id` INT,
+`code` VARCHAR(64),
+`redirect_uri` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `oauth_access_token` (
+`id` INT,
+`account_id` INT,
+`oauth_client_id` INT,
+`access_token` VARCHAR(64),
+`refresh_token` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_040264_1') AS relationships;
+relationships
+Database: db_040264_1
+
+Table Connections:
+------------------
+[Implied]  oauth_access_token.account_id -> account.id
+[Implied]  oauth_access_token.oauth_client_id -> oauth_client.id
+[Implied]  oauth_authorization_code.account_id -> account.id
+[Implied]  oauth_authorization_code.oauth_client_id -> oauth_client.id
+[Implied]  oauth_client.owner_id -> account.id
+
+DROP DATABASE `db_040264_1`;
+UNINSTALL EXTENSION vsql_schematron;

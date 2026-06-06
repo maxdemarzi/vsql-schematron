@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 377476_inventario
+--echo #
+CREATE DATABASE `db_377476_inventario`;
+USE `db_377476_inventario`;
+
+CREATE TABLE `controle_usuarios` (
+  `ID_User` INT,
+  `nome` VARCHAR(64),
+  `ID_FK_EQUIP` INT,
+  PRIMARY KEY (`ID_User`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `geral_nw` (
+  `ID_NW` INT,
+  `ID_FK_EQUIP` INT,
+  PRIMARY KEY (`ID_NW`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `impressoras_nw` (
+  `ID_NW_FK` INT,
+  `ID_FK_EQUIP` INT,
+  `IP` VARCHAR(64),
+  `MAC_ADDRESS` VARCHAR(64),
+  PRIMARY KEY (`IP`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `softwares` (
+  `ID` INT,
+  `Nome` VARCHAR(64),
+  `COD` VARCHAR(64),
+  `NOTA_FIS` VARCHAR(64),
+  `EQUIPAMENTO` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `terminais_nw` (
+  `ID_NW_FK` INT,
+  `ID_FK_EQUIP` INT,
+  `IP` VARCHAR(64),
+  `MAC_ADDRESS` VARCHAR(64),
+  `TEAMVIEWER` VARCHAR(64),
+  `ANYDESK` VARCHAR(64),
+  PRIMARY KEY (`IP`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_377476_inventario') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_377476_inventario') AS relationships;
+DROP DATABASE `db_377476_inventario`;
+UNINSTALL EXTENSION vsql_schematron;

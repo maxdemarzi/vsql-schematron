@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 300664_create
+--echo #
+CREATE DATABASE `db_300664_create`;
+USE `db_300664_create`;
+
+CREATE TABLE `xtuser` (
+  `uid` VARCHAR(64),
+  `pwd` VARCHAR(64),
+  `telno` VARCHAR(64),
+  `address` VARCHAR(64),
+  PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `modeltype` (
+  `mtid` INT,
+  `dis` VARCHAR(64),
+  PRIMARY KEY (`mtid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `model` (
+  `mid` INT,
+  `mtid` INT,
+  `uid` VARCHAR(64),
+  `filename` VARCHAR(64),
+  PRIMARY KEY (`mid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `material` (
+  `materialid` INT,
+  `filename` VARCHAR(64),
+  `mid` INT,
+  PRIMARY KEY (`materialid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `texture` (
+  `textureid` INT,
+  `filename` VARCHAR(64),
+  `mid` INT,
+  PRIMARY KEY (`textureid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `actiontype` (
+  `atid` INT,
+  `atdh` VARCHAR(64),
+  `atname` VARCHAR(64),
+  PRIMARY KEY (`atid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `action` (
+  `actionid` INT,
+  `atid` INT,
+  `mid` INT,
+  `actiondata` VARCHAR(64),
+  PRIMARY KEY (`actionid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_300664_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_300664_create') AS relationships;
+DROP DATABASE `db_300664_create`;
+UNINSTALL EXTENSION vsql_schematron;

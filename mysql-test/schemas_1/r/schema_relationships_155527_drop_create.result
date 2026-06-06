@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 155527_drop_create
+#
+CREATE DATABASE `db_155527_drop_create`;
+USE `db_155527_drop_create`;
+CREATE TABLE `Adresse` (
+`Identifiant` DECIMAL(10,2),
+`Numero` DECIMAL(10,2),
+`Rue` VARCHAR(64),
+`Pays` VARCHAR(64),
+`PositionGPS` VARCHAR(64),
+`LieuDit` VARCHAR(64),
+PRIMARY KEY (`Identifiant`)
+) CHARACTER SET latin1;
+CREATE TABLE `Hotel` (
+`Identifiant` DECIMAL(10,2),
+`Nom` VARCHAR(64),
+`NbEtoile` DECIMAL(10,2),
+`Adresse` DECIMAL(10,2),
+PRIMARY KEY (`Identifiant`)
+) CHARACTER SET latin1;
+CREATE TABLE `TypeChambre` (
+`Identifiant` DECIMAL(10,2),
+`NbLit` DECIMAL(10,2),
+PRIMARY KEY (`Identifiant`)
+) CHARACTER SET latin1;
+CREATE TABLE `Chambre` (
+`Identifiant` DECIMAL(10,2),
+`Numero` DECIMAL(10,2),
+`EstLibre` BOOL,
+`DateDisponibilite` VARCHAR(64),
+`PrixDeBase` DECIMAL(10,2),
+`UrlImage` VARCHAR(64),
+`TypeChambre` DECIMAL(10,2),
+`Image` VARCHAR(64),
+`idHotel` DECIMAL(10,2),
+PRIMARY KEY (`Identifiant`)
+) CHARACTER SET latin1;
+CREATE TABLE `Client` (
+`Identifiant` DECIMAL(10,2),
+`Nom` VARCHAR(64),
+`Prenom` VARCHAR(64),
+PRIMARY KEY (`Identifiant`)
+) CHARACTER SET latin1;
+CREATE TABLE `Agence` (
+`Identifiant` DECIMAL(10,2),
+`Nom` VARCHAR(64),
+`Login` VARCHAR(64),
+`MotDePasse` VARCHAR(64),
+`PourcentageReduction` DECIMAL(10,2),
+`Adresse` DECIMAL(10,2),
+`idHotel` DECIMAL(10,2),
+PRIMARY KEY (`Identifiant`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reservation` (
+`Identifiant` DECIMAL(10,2),
+`Reference` VARCHAR(64),
+`DateDebut` VARCHAR(64),
+`DateFin` VARCHAR(64),
+`NbPersonne` DECIMAL(10,2),
+`CarteCredit` VARCHAR(64),
+`Client` DECIMAL(10,2),
+`Agence` DECIMAL(10,2),
+`Chambre` DECIMAL(10,2),
+PRIMARY KEY (`Identifiant`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_155527_drop_create') AS relationships;
+relationships
+Database: db_155527_drop_create
+
+Table Connections:
+------------------
+[Implied]  Agence.Adresse -> Adresse.Identifiant
+[Implied]  Agence.idHotel -> Hotel.Identifiant
+[Implied]  Chambre.TypeChambre -> TypeChambre.Identifiant
+[Implied]  Chambre.idHotel -> Hotel.Identifiant
+[Implied]  Hotel.Adresse -> Adresse.Identifiant
+[Implied]  Reservation.Agence -> Agence.Identifiant
+[Implied]  Reservation.Chambre -> Chambre.Identifiant
+[Implied]  Reservation.Client -> Client.Identifiant
+
+DROP DATABASE `db_155527_drop_create`;
+UNINSTALL EXTENSION vsql_schematron;

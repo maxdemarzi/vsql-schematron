@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 577804_EMS
+#
+CREATE DATABASE `db_577804_EMS`;
+USE `db_577804_EMS`;
+CREATE TABLE `customers` (
+`id` INT,
+`full_name` VARCHAR(64),
+`mobile_number` INT,
+`pin_code` INT,
+`address` VARCHAR(64),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer_complaints` (
+`id` INT,
+`customer_id` INT,
+`problem` VARCHAR(64),
+`created` DATETIME,
+`modified` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT,
+`role_name` VARCHAR(64),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`role_id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`created` DATETIME,
+`modified` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_577804_EMS') AS relationships;
+relationships
+Database: db_577804_EMS
+
+Table Connections:
+------------------
+[Implied]  customer_complaints.customer_id -> customers.id
+[Implied]  users.role_id -> roles.id
+
+DROP DATABASE `db_577804_EMS`;
+UNINSTALL EXTENSION vsql_schematron;

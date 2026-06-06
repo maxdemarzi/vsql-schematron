@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 241277_070_sqlite_downgrade
+#
+CREATE DATABASE `db_241277_070_sqlite_downgrade`;
+USE `db_241277_070_sqlite_downgrade`;
+CREATE TABLE `fixed_ips_backup` (
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`deleted` BOOL,
+`id` INT,
+`address` VARCHAR(64),
+`virtual_interface_id` INT,
+`network_id` INT,
+`instance_id` INT,
+`allocated` BOOL,
+`leased` BOOL,
+`reserved` BOOL,
+`host` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `floating_ips_backup` (
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`deleted` BOOL,
+`id` INT,
+`address` VARCHAR(64),
+`fixed_ip_id` INT,
+`project_id` VARCHAR(64),
+`host` VARCHAR(64),
+`auto_assigned` BOOL,
+`pool` VARCHAR(64),
+`interface` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fixed_ips` (
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`deleted` BOOL,
+`id` INT,
+`address` VARCHAR(64),
+`virtual_interface_id` INT,
+`network_id` INT,
+`instance_id` INT,
+`allocated` BOOL,
+`leased` BOOL,
+`reserved` BOOL,
+`host` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `floating_ips` (
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`deleted` BOOL,
+`id` INT,
+`address` VARCHAR(64),
+`fixed_ip_id` INT,
+`project_id` VARCHAR(64),
+`host` VARCHAR(64),
+`auto_assigned` BOOL,
+`pool` VARCHAR(64),
+`interface` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_241277_070_sqlite_downgrade') AS relationships;
+relationships
+Database: db_241277_070_sqlite_downgrade
+
+Table Connections:
+------------------
+[Implied]  floating_ips.fixed_ip_id -> fixed_ips.id
+[Implied]  floating_ips_backup.fixed_ip_id -> fixed_ips.id
+
+DROP DATABASE `db_241277_070_sqlite_downgrade`;
+UNINSTALL EXTENSION vsql_schematron;

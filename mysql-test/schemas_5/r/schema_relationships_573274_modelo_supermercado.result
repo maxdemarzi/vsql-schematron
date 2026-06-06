@@ -1,0 +1,117 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 573274_modelo_supermercado
+#
+CREATE DATABASE `db_573274_modelo_supermercado`;
+USE `db_573274_modelo_supermercado`;
+CREATE TABLE `Cliente` (
+`id_cli` INT,
+`nome_cli` VARCHAR(64),
+`endereco_cli` VARCHAR(64),
+`cpf_cli` VARCHAR(64),
+PRIMARY KEY (`id_cli`)
+) CHARACTER SET latin1;
+CREATE TABLE `Produto` (
+`id_pro` INT,
+`nome_pro` VARCHAR(64),
+`valor_pro` DECIMAL(10,2),
+`estoque_pro` VARCHAR(64),
+PRIMARY KEY (`id_pro`)
+) CHARACTER SET latin1;
+CREATE TABLE `Setor` (
+`id_set` INT,
+`nome_set` VARCHAR(64),
+PRIMARY KEY (`id_set`)
+) CHARACTER SET latin1;
+CREATE TABLE `Funcionario` (
+`id_fun` INT,
+`nome_fun` VARCHAR(64),
+`funcao_fun` VARCHAR(64),
+`id_set_fk` INT,
+PRIMARY KEY (`id_fun`)
+) CHARACTER SET latin1;
+CREATE TABLE `Venda` (
+`id_ven` INT,
+`valor_ven` DECIMAL(10,2),
+`data_ven` DATETIME,
+`id_cli_fk` INT,
+`id_pro_fk` INT,
+`id_fun_fk` INT,
+PRIMARY KEY (`id_ven`)
+) CHARACTER SET latin1;
+CREATE TABLE `Entrega` (
+`id_ent` INT,
+`data_ent` DATETIME,
+`endereco_alternativo_ent` VARCHAR(64),
+`hora_ent` DATETIME,
+`id_ven_fk` INT,
+PRIMARY KEY (`id_ent`)
+) CHARACTER SET latin1;
+CREATE TABLE `Caixa` (
+`id_caixa` INT,
+`saldo_inicial_caixa` DECIMAL(10,2),
+`total_recebimentos_caixa` DECIMAL(10,2),
+`total_retiradas_caixa` DECIMAL(10,2),
+`saldo_final_caixa` DECIMAL(10,2),
+PRIMARY KEY (`id_caixa`)
+) CHARACTER SET latin1;
+CREATE TABLE `Recebimento` (
+`id_rec` INT,
+`tipo_rec` VARCHAR(64),
+`data_rec` DATETIME,
+`id_ven_fk` INT,
+`id_caixa_fk` INT,
+PRIMARY KEY (`id_rec`)
+) CHARACTER SET latin1;
+CREATE TABLE `Fornecedor` (
+`id_for` INT,
+`nome_for` VARCHAR(64),
+`cnpj_for` VARCHAR(64),
+PRIMARY KEY (`id_for`)
+) CHARACTER SET latin1;
+CREATE TABLE `Compra` (
+`id_com` INT,
+`valor_com` DECIMAL(10,2),
+`data_com` DATETIME,
+`id_pro_fk` INT,
+`id_fun_fk` INT,
+`id_for_fk` INT,
+PRIMARY KEY (`id_com`)
+) CHARACTER SET latin1;
+CREATE TABLE `Despesa` (
+`id_des` INT,
+`nome_des` VARCHAR(64),
+`valor_des` DECIMAL(10,2),
+`id_com_fk` INT,
+PRIMARY KEY (`id_des`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pagamento` (
+`id_pag` INT,
+`tipo_pag` VARCHAR(64),
+`data_pag` DATETIME,
+`id_caixa_fk` INT,
+`id_des_fk` INT,
+PRIMARY KEY (`id_pag`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_573274_modelo_supermercado') AS relationships;
+relationships
+Database: db_573274_modelo_supermercado
+
+Table Connections:
+------------------
+[Implied]  Compra.id_for_fk -> Fornecedor.id_for
+[Implied]  Compra.id_fun_fk -> Funcionario.id_fun
+[Implied]  Compra.id_pro_fk -> Produto.id_pro
+[Implied]  Despesa.id_com_fk -> Compra.id_com
+[Implied]  Entrega.id_ven_fk -> Venda.id_ven
+[Implied]  Funcionario.id_set_fk -> Setor.id_set
+[Implied]  Pagamento.id_caixa_fk -> Caixa.id_caixa
+[Implied]  Pagamento.id_des_fk -> Despesa.id_des
+[Implied]  Recebimento.id_caixa_fk -> Caixa.id_caixa
+[Implied]  Recebimento.id_ven_fk -> Venda.id_ven
+[Implied]  Venda.id_cli_fk -> Cliente.id_cli
+[Implied]  Venda.id_fun_fk -> Funcionario.id_fun
+[Implied]  Venda.id_pro_fk -> Produto.id_pro
+
+DROP DATABASE `db_573274_modelo_supermercado`;
+UNINSTALL EXTENSION vsql_schematron;

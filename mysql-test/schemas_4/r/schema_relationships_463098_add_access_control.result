@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 463098_add_access_control
+#
+CREATE DATABASE `db_463098_add_access_control`;
+USE `db_463098_add_access_control`;
+CREATE TABLE `users` (
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`email` VARCHAR(64),
+`enabled` BOOL,
+`is_ldap_account` BOOL,
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `authorities` (
+`username` VARCHAR(64),
+`authority` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `project` (
+`id` INT,
+`name` VARCHAR(64),
+`external_id` VARCHAR(64),
+`description` VARCHAR(64),
+`parent` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project_role` (
+`project_id` INT,
+`username` VARCHAR(64),
+`role` INT,
+PRIMARY KEY (`project_id`, `username`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_463098_add_access_control') AS relationships;
+relationships
+Database: db_463098_add_access_control
+
+Table Connections:
+------------------
+[Implied]  authorities.username -> users.username
+[Implied]  project.parent -> project.id
+[Implied]  project_role.project_id -> project.id
+[Implied]  project_role.username -> users.username
+
+DROP DATABASE `db_463098_add_access_control`;
+UNINSTALL EXTENSION vsql_schematron;
