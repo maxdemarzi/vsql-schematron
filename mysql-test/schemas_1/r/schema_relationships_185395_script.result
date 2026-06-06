@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 185395_script
+#
+CREATE DATABASE `db_185395_script`;
+USE `db_185395_script`;
+CREATE TABLE `typeUser` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`name` VARCHAR(64),
+`cpf` VARCHAR(64),
+`email` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`typeUserID` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book` (
+`id` INT,
+`title` VARCHAR(64),
+`author` VARCHAR(64),
+`publisher` VARCHAR(64),
+`cover` VARCHAR(64),
+`reservation` INT,
+`loan` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reservation` (
+`id` INT,
+`userID` INT,
+`booID` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `loan` (
+`id` INT,
+`userID` INT,
+`booID` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_185395_script') AS relationships;
+relationships
+Database: db_185395_script
+
+Table Connections:
+------------------
+[Implied]  book.loan -> loan.id
+[Implied]  book.reservation -> reservation.id
+[Implied]  loan.booID -> book.id
+[Implied]  loan.userID -> user.id
+[Implied]  reservation.booID -> book.id
+[Implied]  reservation.userID -> user.id
+[Implied]  user.typeUserID -> typeUser.id
+
+DROP DATABASE `db_185395_script`;
+UNINSTALL EXTENSION vsql_schematron;

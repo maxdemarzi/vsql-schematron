@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 215409_storage
+--echo #
+CREATE DATABASE `db_215409_storage`;
+USE `db_215409_storage`;
+
+CREATE TABLE `Tag` (
+  `TagName` VARCHAR(64),
+  `ScriptName` VARCHAR(64),
+  PRIMARY KEY (`TagName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Event` (
+  `EventID` INT,
+  `EventTitle` VARCHAR(64),
+  `EventDescription` VARCHAR(64),
+  PRIMARY KEY (`EventID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Terrain` (
+  `TagName` VARCHAR(64),
+  PRIMARY KEY (`TagName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Landmass` (
+  `TagName` VARCHAR(64),
+  PRIMARY KEY (`TagName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GridPoint` (
+  `x` INT,
+  `y` INT,
+  `Terrain` VARCHAR(64),
+  `Landmass` VARCHAR(64),
+  `water` INT,
+  `height` DECIMAL(10,2),
+  PRIMARY KEY (`x`, `y`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Settlement` (
+  `SettlementID` INT,
+  `SettlementName` VARCHAR(64),
+  `x` INT,
+  `y` INT,
+  PRIMARY KEY (`SettlementID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SettlementTags` (
+  `TagName` VARCHAR(64),
+  `SettlementID` INT,
+  PRIMARY KEY (`TagName`, `SettlementID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SettlementEvents` (
+  `SettlementID` INT,
+  `EventID` INT,
+  `DateOccured` INT,
+  PRIMARY KEY (`SettlementID`, `EventID`, `DateOccured`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_215409_storage') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_215409_storage') AS relationships;
+DROP DATABASE `db_215409_storage`;
+UNINSTALL EXTENSION vsql_schematron;

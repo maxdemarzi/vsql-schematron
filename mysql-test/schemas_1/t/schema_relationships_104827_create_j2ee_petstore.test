@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 104827_create_j2ee_petstore
+--echo #
+CREATE DATABASE `db_104827_create_j2ee_petstore`;
+USE `db_104827_create_j2ee_petstore`;
+
+CREATE TABLE `category` (
+  `categoryid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `imageurl` VARCHAR(64),
+  PRIMARY KEY (`categoryid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product` (
+  `productid` VARCHAR(64),
+  `categoryid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `imageurl` VARCHAR(64),
+  PRIMARY KEY (`productid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Address` (
+  `addressid` VARCHAR(64),
+  `street1` VARCHAR(64),
+  `street2` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `zip` VARCHAR(64),
+  `latitude` DECIMAL(10,2),
+  `longitude` DECIMAL(10,2),
+  PRIMARY KEY (`addressid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SellerContactInfo` (
+  `contactinfoid` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `firstname` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`contactinfoid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `item` (
+  `itemid` VARCHAR(64),
+  `productid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `imageurl` VARCHAR(64),
+  `imagethumburl` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `address_addressid` VARCHAR(64),
+  `contactinfo_contactinfoid` VARCHAR(64),
+  `totalscore` INT,
+  `numberofvotes` INT,
+  `disabled` INT,
+  PRIMARY KEY (`itemid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `id_gen` (
+  `gen_key` VARCHAR(64),
+  `gen_value` INT,
+  PRIMARY KEY (`gen_key`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ziplocation` (
+  `zipcode` INT,
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  PRIMARY KEY (`zipcode`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tag` (
+  `tagid` INT,
+  `tag` VARCHAR(64),
+  `refcount` INT,
+  PRIMARY KEY (`tagid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tag_item` (
+  `tagid` INT,
+  `itemid` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_104827_create_j2ee_petstore') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_104827_create_j2ee_petstore') AS relationships;
+DROP DATABASE `db_104827_create_j2ee_petstore`;
+UNINSTALL EXTENSION vsql_schematron;

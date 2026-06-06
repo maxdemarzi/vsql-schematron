@@ -1,0 +1,121 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 171547_tables
+--echo #
+CREATE DATABASE `db_171547_tables`;
+USE `db_171547_tables`;
+
+CREATE TABLE `users` (
+  `user_id` VARCHAR(64),
+  `user_name` VARCHAR(64),
+  `email_id` VARCHAR(64),
+  `password` VARCHAR(64),
+  `mobile_number` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `city` (
+  `city_id` VARCHAR(64),
+  `city_name` VARCHAR(64),
+  PRIMARY KEY (`city_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `address` (
+  `address_id` VARCHAR(64),
+  `city_id` VARCHAR(64),
+  `street_name` VARCHAR(64),
+  `details` VARCHAR(64),
+  PRIMARY KEY (`address_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_address` (
+  `user_id` VARCHAR(64),
+  `address_id` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `catagory` (
+  `catagory_id` VARCHAR(64),
+  `catagory_name` VARCHAR(64),
+  PRIMARY KEY (`catagory_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `suppliers` (
+  `supplier_id` VARCHAR(64),
+  `supplier_name` VARCHAR(64),
+  `image_id` VARCHAR(64),
+  `city_id` VARCHAR(64),
+  `email_id` VARCHAR(64),
+  `supplier_description` VARCHAR(64),
+  `visible` BOOL,
+  `password` VARCHAR(64),
+  `catagory_id` VARCHAR(64),
+  `contact_number` VARCHAR(64),
+  PRIMARY KEY (`supplier_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `products` (
+  `product_id` VARCHAR(64),
+  `product_name` VARCHAR(64),
+  `supplier_id` VARCHAR(64),
+  `product_description` VARCHAR(64),
+  `image_id` VARCHAR(64),
+  `available` BOOL,
+  `price` INT,
+  PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employee` (
+  `employee_id` VARCHAR(64),
+  `employee_name` VARCHAR(64),
+  `is_admin` BOOL,
+  `username` VARCHAR(64),
+  `added` DATETIME,
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`employee_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `order_id` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  `order_status` VARCHAR(64),
+  `payed` BOOL,
+  `address_id` VARCHAR(64),
+  `ordered_time` DATETIME,
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ordered_items` (
+  `ordered_item_id` VARCHAR(64),
+  `product_id` VARCHAR(64),
+  `order_id` VARCHAR(64),
+  `quantity` INT,
+  PRIMARY KEY (`ordered_item_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `delivery_cost` (
+  `order_id` VARCHAR(64),
+  `delivery_cost` INT,
+  `num_suppliers` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_171547_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_171547_tables') AS relationships;
+DROP DATABASE `db_171547_tables`;
+UNINSTALL EXTENSION vsql_schematron;

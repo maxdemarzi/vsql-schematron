@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 271378_bddPayPal
+--echo #
+CREATE DATABASE `db_271378_bddPayPal`;
+USE `db_271378_bddPayPal`;
+
+CREATE TABLE `categoria_productos` (
+  `idCatgoriaProducto` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`idCatgoriaProducto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `productos` (
+  `idProducto` INT,
+  `nombre` VARCHAR(64),
+  `precio` DECIMAL(10,2),
+  `cantidad` INT,
+  `imagen` VARCHAR(64),
+  `categoriaProductoId` INT,
+  PRIMARY KEY (`idProducto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `clientes` (
+  `idCliente` INT,
+  `correo` VARCHAR(64),
+  PRIMARY KEY (`idCliente`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `compras` (
+  `idCompra` INT,
+  `productoId` INT,
+  `cantidad` DECIMAL(10,2),
+  `clienteId` INT,
+  PRIMARY KEY (`idCompra`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_271378_bddPayPal') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_271378_bddPayPal') AS relationships;
+DROP DATABASE `db_271378_bddPayPal`;
+UNINSTALL EXTENSION vsql_schematron;

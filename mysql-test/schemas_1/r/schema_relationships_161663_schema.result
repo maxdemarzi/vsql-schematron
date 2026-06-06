@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 161663_schema
+#
+CREATE DATABASE `db_161663_schema`;
+USE `db_161663_schema`;
+CREATE TABLE `roles` (
+`id` INT,
+`type_role` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`pass` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`roles_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `room` (
+`id` INT,
+`price` DECIMAL(10,2),
+`room_capacity` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `booking` (
+`id` INT,
+`start_booking` DATETIME,
+`end_booking` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`id` INT,
+`bill` DECIMAL(10,2),
+`account_type` VARCHAR(64),
+`room_id` INT,
+`booking_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `person` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`customer_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_161663_schema') AS relationships;
+relationships
+Database: db_161663_schema
+
+Table Connections:
+------------------
+[Implied]  customer.booking_id -> booking.id
+[Implied]  customer.room_id -> room.id
+[Implied]  person.customer_id -> customer.id
+[Implied]  users.roles_id -> roles.id
+
+DROP DATABASE `db_161663_schema`;
+UNINSTALL EXTENSION vsql_schematron;

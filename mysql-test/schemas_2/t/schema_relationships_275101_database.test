@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 275101_database
+--echo #
+CREATE DATABASE `db_275101_database`;
+USE `db_275101_database`;
+
+CREATE TABLE `public.users` (
+  `pk_users` INT,
+  `id` VARCHAR(64),
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `login` VARCHAR(64),
+  `passwd` VARCHAR(64),
+  `insert_date` DATETIME,
+  `update_date` DATETIME,
+  PRIMARY KEY (`pk_users`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `public.customers` (
+  `pk_customers` INT,
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `address` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `zip_code` VARCHAR(64),
+  `insert_date` DATETIME,
+  `update_date` DATETIME,
+  PRIMARY KEY (`pk_customers`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `public.transactions` (
+  `fk_customers` INT,
+  `fk_books` INT,
+  `pk_transactions` DATETIME,
+  `id` VARCHAR(64),
+  `value` DECIMAL(10,2),
+  `status` INT,
+  `update_date` DATETIME,
+  `insert_date` DATETIME,
+  PRIMARY KEY (`fk_customers`, `fk_books`, `pk_transactions`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_275101_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_275101_database') AS relationships;
+DROP DATABASE `db_275101_database`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 601467_migration
+#
+CREATE DATABASE `db_601467_migration`;
+USE `db_601467_migration`;
+CREATE TABLE `Course` (
+`id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`courseCode` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Instructor` (
+`id` INT,
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Grade` (
+`id` INT,
+`courseId` INT,
+`studentId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Student` (
+`id` INT,
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_CourseToInstructor` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_CourseToStudent` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_601467_migration') AS relationships;
+relationships
+Database: db_601467_migration
+
+Table Connections:
+------------------
+[Implied]  Grade.courseId -> Course.id
+[Implied]  Grade.studentId -> Student.id
+[Implied]  _CourseToInstructor.A -> Course.id
+[Implied]  _CourseToInstructor.B -> Instructor.id
+[Implied]  _CourseToStudent.A -> Course.id
+[Implied]  _CourseToStudent.B -> Student.id
+
+DROP DATABASE `db_601467_migration`;
+UNINSTALL EXTENSION vsql_schematron;

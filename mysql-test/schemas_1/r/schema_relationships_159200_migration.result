@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 159200_migration
+#
+CREATE DATABASE `db_159200_migration`;
+USE `db_159200_migration`;
+CREATE TABLE `Post` (
+`id` INT,
+`title` VARCHAR(64),
+`slug` VARCHAR(64),
+`author` VARCHAR(64),
+`body` VARCHAR(64),
+`image` VARCHAR(64),
+`postedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`isAdmin` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_PostToTag` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_159200_migration') AS relationships;
+relationships
+Database: db_159200_migration
+
+Table Connections:
+------------------
+[Implied]  _PostToTag.A -> Post.id
+[Implied]  _PostToTag.B -> Tag.id
+
+DROP DATABASE `db_159200_migration`;
+UNINSTALL EXTENSION vsql_schematron;

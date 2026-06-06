@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 253021_V6__adiciona_nome
+--echo #
+CREATE DATABASE `db_253021_V6_adiciona_nome`;
+USE `db_253021_V6_adiciona_nome`;
+
+CREATE TABLE `papeis` (
+  `id` INT,
+  `nome` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuarios` (
+  `cpf` VARCHAR(64),
+  `senha` VARCHAR(64),
+  `papel_id` INT,
+  `servidor` BOOL,
+  `habilitado` BOOL,
+  `siorg` VARCHAR(64),
+  `nome` VARCHAR(64),
+  `siape` VARCHAR(64),
+  `email_primario` VARCHAR(64),
+  `email_secundario` VARCHAR(64),
+  PRIMARY KEY (`cpf`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_253021_V6_adiciona_nome') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_253021_V6_adiciona_nome') AS relationships;
+DROP DATABASE `db_253021_V6_adiciona_nome`;
+UNINSTALL EXTENSION vsql_schematron;

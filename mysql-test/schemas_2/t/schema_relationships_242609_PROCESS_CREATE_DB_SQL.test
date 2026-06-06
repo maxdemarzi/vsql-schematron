@@ -1,0 +1,164 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 242609_PROCESS_CREATE_DB_SQL
+--echo #
+CREATE DATABASE `db_242609_PROCESS_CREATE_DB_SQL`;
+USE `db_242609_PROCESS_CREATE_DB_SQL`;
+
+CREATE TABLE `personnel_table` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `surname` VARCHAR(64),
+  `tc` VARCHAR(64),
+  `workStartDate` DATETIME,
+  `birthDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `machine_table` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `brand` VARCHAR(64),
+  `modelDate` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_cut_fabric_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `personnel2_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_sew_fabric_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `machine_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_quilt_fabric_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `machine_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_cut_harboard_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `machine_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_strip_cut_harboard_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `machine_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_l_cut_harboard_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `machine_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_drill_harboard_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `machine_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_casing_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `personnel2_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_rubber_pile_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `personnel2_id` INT,
+  `personnel3_id` INT,
+  `personnel4_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_frame_cut_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `personnel2_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_whitening_sponge_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_wrapping_cardboard_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_dressing_fabric_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_furnish_fabric_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `personnel2_id` INT,
+  `personnel3_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couch_package_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_242609_PROCESS_CREATE_DB_SQL') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_242609_PROCESS_CREATE_DB_SQL') AS relationships;
+DROP DATABASE `db_242609_PROCESS_CREATE_DB_SQL`;
+UNINSTALL EXTENSION vsql_schematron;

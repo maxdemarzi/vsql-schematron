@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 456557_create-tables
+#
+CREATE DATABASE `db_456557_create_tables`;
+USE `db_456557_create_tables`;
+CREATE TABLE `weeks` (
+`time_start` INT,
+`time_end` INT,
+PRIMARY KEY (`time_start`)
+) CHARACTER SET latin1;
+CREATE TABLE `assignments` (
+`id` INT,
+`week_id` INT,
+`time_due` INT,
+`course_id` VARCHAR(64),
+`name` VARCHAR(64),
+`url` VARCHAR(64),
+`points` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `courses` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+`message_id` VARCHAR(64),
+`channel_id` VARCHAR(64),
+`week_id` INT,
+PRIMARY KEY (`message_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_456557_create_tables') AS relationships;
+relationships
+Database: db_456557_create_tables
+
+Table Connections:
+------------------
+[Implied]  assignments.course_id -> courses.id
+[Implied]  assignments.week_id -> weeks.time_start
+[Implied]  messages.week_id -> weeks.time_start
+
+DROP DATABASE `db_456557_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

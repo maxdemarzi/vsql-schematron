@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 055294_migration
+#
+CREATE DATABASE `db_055294_migration`;
+USE `db_055294_migration`;
+CREATE TABLE `User` (
+`name` VARCHAR(64),
+`id` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Guild` (
+`name` VARCHAR(64),
+`id` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Channel` (
+`name` VARCHAR(64),
+`id` VARCHAR(64),
+`createdAt` DATETIME,
+`guildId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Message` (
+`id` VARCHAR(64),
+`authorId` VARCHAR(64),
+`channelId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_GuildToUser` (
+`A` VARCHAR(64),
+`B` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_055294_migration') AS relationships;
+relationships
+Database: db_055294_migration
+
+Table Connections:
+------------------
+[Implied]  Channel.guildId -> Guild.id
+[Implied]  Message.authorId -> User.id
+[Implied]  Message.channelId -> Channel.id
+[Implied]  _GuildToUser.A -> Guild.id
+[Implied]  _GuildToUser.B -> User.id
+
+DROP DATABASE `db_055294_migration`;
+UNINSTALL EXTENSION vsql_schematron;

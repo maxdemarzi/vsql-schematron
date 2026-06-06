@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 407804_mssql_engine_6.2_to_7.0
+--echo #
+CREATE DATABASE `db_407804_mssql_engine_6_2_to_7_0`;
+USE `db_407804_mssql_engine_6_2_to_7_0`;
+
+CREATE TABLE `ACT_RU_INCIDENT` (
+  `ID_` VARCHAR(64),
+  `INCIDENT_TIMESTAMP_` DATETIME,
+  `INCIDENT_MSG_` VARCHAR(64),
+  `INCIDENT_TYPE_` VARCHAR(64),
+  `EXECUTION_ID_` VARCHAR(64),
+  `ACTIVITY_ID_` VARCHAR(64),
+  `PROC_INST_ID_` VARCHAR(64),
+  `PROC_DEF_ID_` VARCHAR(64),
+  `CAUSE_INCIDENT_ID_` VARCHAR(64),
+  `ROOT_CAUSE_INCIDENT_ID_` VARCHAR(64),
+  `CONFIGURATION_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_RU_AUTHORIZATION` (
+  `ID_` VARCHAR(64),
+  `REV_` INT,
+  `TYPE_` INT,
+  `GROUP_ID_` VARCHAR(64),
+  `USER_ID_` VARCHAR(64),
+  `RESOURCE_TYPE_` INT,
+  `RESOURCE_ID_` VARCHAR(64),
+  `PERMS_` INT,
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_407804_mssql_engine_6_2_to_7_0') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_407804_mssql_engine_6_2_to_7_0') AS relationships;
+DROP DATABASE `db_407804_mssql_engine_6_2_to_7_0`;
+UNINSTALL EXTENSION vsql_schematron;

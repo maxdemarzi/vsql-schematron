@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 181517_tables
+--echo #
+CREATE DATABASE `db_181517_tables`;
+USE `db_181517_tables`;
+
+CREATE TABLE `courses` (
+  `course_id` INT,
+  `pl_course_id` INT,
+  `pl_last_checked` DATETIME,
+  PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `students` (
+  `student_id` INT,
+  `course_id` INT,
+  `last_seen` DATETIME,
+  `pl_id` VARCHAR(64),
+  `discord_id` VARCHAR(64),
+  `piazza_id` VARCHAR(64),
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `integrations` (
+  `integration_id` VARCHAR(64),
+  PRIMARY KEY (`integration_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `points_cache` (
+  `student_id` INT,
+  `integration_id` VARCHAR(64),
+  `timestamp` DATETIME,
+  `points` INT,
+  PRIMARY KEY (`student_id`, `integration_id`, `timestamp`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `points` (
+  `student_id` INT,
+  `integration_id` VARCHAR(64),
+  `points` INT,
+  PRIMARY KEY (`student_id`, `integration_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `daily` (
+  `student_id` INT,
+  `last_daily` DATETIME,
+  `num_dailies` INT,
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_181517_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_181517_tables') AS relationships;
+DROP DATABASE `db_181517_tables`;
+UNINSTALL EXTENSION vsql_schematron;

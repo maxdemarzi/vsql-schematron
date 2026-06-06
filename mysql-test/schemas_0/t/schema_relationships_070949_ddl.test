@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 070949_ddl
+--echo #
+CREATE DATABASE `db_070949_ddl`;
+USE `db_070949_ddl`;
+
+CREATE TABLE `authentication_scopes` (
+  `authentication_scope_id` INT,
+  `authentication_scope_name` VARCHAR(64),
+  PRIMARY KEY (`authentication_scope_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `chat_id` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `alliances` (
+  `alliance_id` INT,
+  `alliance_name` VARCHAR(64),
+  `alliance_ticker` VARCHAR(64),
+  `inserted_dt` DATETIME,
+  `updated_dt` DATETIME,
+  PRIMARY KEY (`alliance_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `corporations` (
+  `corporation_id` INT,
+  `corporation_name` VARCHAR(64),
+  `alliance_id` INT,
+  `inserted_dt` DATETIME,
+  `updated_dt` DATETIME,
+  `corporation_ticker` VARCHAR(64),
+  PRIMARY KEY (`corporation_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `characters` (
+  `character_id` INT,
+  `character_name` VARCHAR(64),
+  `inserted_dt` DATETIME,
+  `updated_dt` DATETIME,
+  `corporation_id` INT,
+  `token` VARCHAR(64),
+  PRIMARY KEY (`character_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `authentication_codes` (
+  `character_id` INT,
+  `authentication_code` VARCHAR(64),
+  `is_used` BOOL,
+  PRIMARY KEY (`character_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_character_map` (
+  `user_id` INT,
+  `character_id` INT,
+  PRIMARY KEY (`user_id`, `character_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `authentication_scope_character_map` (
+  `character_id` INT,
+  `authentication_scope_id` INT,
+  PRIMARY KEY (`character_id`, `authentication_scope_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_070949_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_070949_ddl') AS relationships;
+DROP DATABASE `db_070949_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

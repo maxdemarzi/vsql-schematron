@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 382206_schema
+#
+CREATE DATABASE `db_382206_schema`;
+USE `db_382206_schema`;
+CREATE TABLE `title` (
+`title_id` VARCHAR(64),
+`title` VARCHAR(64),
+PRIMARY KEY (`title_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`employee_no` INT,
+`employee_title_id` VARCHAR(64),
+`date_of_birth` DATETIME,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`sex` VARCHAR(64),
+`hire_date` DATETIME,
+PRIMARY KEY (`employee_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `department` (
+`department_id` VARCHAR(64),
+`department_name` VARCHAR(64),
+PRIMARY KEY (`department_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dept_manager` (
+`department_id` VARCHAR(64),
+`employee_no` INT,
+PRIMARY KEY (`department_id`, `employee_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `dept_emp` (
+`employee_no` INT,
+`department_id` VARCHAR(64),
+PRIMARY KEY (`employee_no`, `department_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `emp_salary` (
+`employee_no` INT,
+`emp_salary` INT,
+PRIMARY KEY (`employee_no`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_382206_schema') AS relationships;
+relationships
+Database: db_382206_schema
+
+Table Connections:
+------------------
+[Implied]  dept_emp.department_id -> department.department_id
+[Implied]  dept_emp.employee_no -> employee.employee_no
+[Implied]  dept_manager.department_id -> department.department_id
+[Implied]  dept_manager.employee_no -> employee.employee_no
+[Implied]  emp_salary.employee_no -> employee.employee_no
+[Implied]  employee.employee_title_id -> title.title_id
+
+DROP DATABASE `db_382206_schema`;
+UNINSTALL EXTENSION vsql_schematron;

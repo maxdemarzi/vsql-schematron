@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 352269_migration
+#
+CREATE DATABASE `db_352269_migration`;
+USE `db_352269_migration`;
+CREATE TABLE `Race` (
+`id` INT,
+`name` VARCHAR(64),
+`faction` VARCHAR(64),
+`type` VARCHAR(64),
+`crestSrc` VARCHAR(64),
+`introTitle` VARCHAR(64),
+`introDescription` VARCHAR(64),
+`historyTitle` VARCHAR(64),
+`historyDescription` VARCHAR(64),
+`zoneName` VARCHAR(64),
+`zoneDescription` VARCHAR(64),
+`cityName` VARCHAR(64),
+`cityDescription` VARCHAR(64),
+`mountName` VARCHAR(64),
+`mountDescription` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Class` (
+`id` INT,
+`name` VARCHAR(64),
+`crestSrc` VARCHAR(64),
+`introTitle` VARCHAR(64),
+`introDescription` VARCHAR(64),
+`info` VARCHAR(64),
+`combatRoles` VARCHAR(64),
+`resources` VARCHAR(64),
+`armorType` VARCHAR(64),
+`weapons` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Trait` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`raceId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Specialization` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`classId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Feature` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`classId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_ClassToRace` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_352269_migration') AS relationships;
+relationships
+Database: db_352269_migration
+
+Table Connections:
+------------------
+[Implied]  Feature.classId -> Class.id
+[Implied]  Specialization.classId -> Class.id
+[Implied]  Trait.raceId -> Race.id
+[Implied]  _ClassToRace.A -> Class.id
+[Implied]  _ClassToRace.B -> Race.id
+
+DROP DATABASE `db_352269_migration`;
+UNINSTALL EXTENSION vsql_schematron;

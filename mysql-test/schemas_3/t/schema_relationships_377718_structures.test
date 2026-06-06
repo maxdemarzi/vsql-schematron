@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 377718_structures
+--echo #
+CREATE DATABASE `db_377718_structures`;
+USE `db_377718_structures`;
+
+CREATE TABLE `ComplexMember` (
+  `id` INT,
+  `complex` INT,
+  `member` VARCHAR(64),
+  `description` VARCHAR(64),
+  `coefficient` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Gene` (
+  `id` VARCHAR(64),
+  `title` VARCHAR(64),
+  `data` VARCHAR(64),
+  `_locus` VARCHAR(64),
+  `_function` VARCHAR(64),
+  `_synonyms` VARCHAR(64),
+  `_mw` DECIMAL(10,2),
+  `_pI` DECIMAL(10,2),
+  `_description` VARCHAR(64),
+  `_essential` VARCHAR(64),
+  `_ec` VARCHAR(64),
+  `_geneLength` INT,
+  `_proteinLength` INT,
+  `_strain` VARCHAR(64),
+  `count` INT,
+  `lastUpdate` DATETIME,
+  `lastAuthor` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `History` (
+  `commit` VARCHAR(64),
+  `origin` VARCHAR(64),
+  `identifier` VARCHAR(64),
+  `record` VARCHAR(64),
+  `user` VARCHAR(64),
+  `lastOperation` VARCHAR(64),
+  `time` DATETIME,
+  PRIMARY KEY (`commit`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MetaData` (
+  `className` VARCHAR(64),
+  `scheme` VARCHAR(64),
+  PRIMARY KEY (`className`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Regulon` (
+  `id` VARCHAR(64),
+  `data` VARCHAR(64),
+  `lastUpdate` DATETIME,
+  `lastAuthor` VARCHAR(64),
+  `count` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Sequence` (
+  `gene` VARCHAR(64),
+  `dna` VARCHAR(64),
+  `aminos` VARCHAR(64),
+  `strain` VARCHAR(64),
+  PRIMARY KEY (`gene`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Statistics` (
+  `item` VARCHAR(64),
+  `count` INT,
+  PRIMARY KEY (`item`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_377718_structures') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_377718_structures') AS relationships;
+DROP DATABASE `db_377718_structures`;
+UNINSTALL EXTENSION vsql_schematron;

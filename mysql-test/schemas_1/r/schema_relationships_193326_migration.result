@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 193326_migration
+#
+CREATE DATABASE `db_193326_migration`;
+USE `db_193326_migration`;
+CREATE TABLE `Conversation` (
+`id` INT,
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Message` (
+`id` INT,
+`createdAt` DATETIME,
+`userId` INT,
+`conversationId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Feedback` (
+`id` INT,
+`conversationId` INT,
+`userId` INT,
+`survey` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_ConversationToUser` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_193326_migration') AS relationships;
+relationships
+Database: db_193326_migration
+
+Table Connections:
+------------------
+[Implied]  Feedback.conversationId -> Conversation.id
+[Implied]  Message.conversationId -> Conversation.id
+[Implied]  _ConversationToUser.A -> Conversation.id
+
+DROP DATABASE `db_193326_migration`;
+UNINSTALL EXTENSION vsql_schematron;

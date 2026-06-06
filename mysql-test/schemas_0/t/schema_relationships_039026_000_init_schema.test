@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 039026_000-init-schema
+--echo #
+CREATE DATABASE `db_039026_000_init_schema`;
+USE `db_039026_000_init_schema`;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `middle_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `username` VARCHAR(64),
+  `pwd_hash` VARCHAR(64),
+  `is_admin` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `students` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `courses` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `marks` (
+  `id` INT,
+  `date` DATETIME,
+  `student_id` INT,
+  `course_id` INT,
+  `points` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course_reviews` (
+  `id` INT,
+  `date` DATETIME,
+  `course_id` INT,
+  `review_text` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_039026_000_init_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_039026_000_init_schema') AS relationships;
+DROP DATABASE `db_039026_000_init_schema`;
+UNINSTALL EXTENSION vsql_schematron;

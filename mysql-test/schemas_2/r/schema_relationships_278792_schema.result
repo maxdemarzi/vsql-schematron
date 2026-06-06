@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 278792_schema
+#
+CREATE DATABASE `db_278792_schema`;
+USE `db_278792_schema`;
+CREATE TABLE `boards` (
+`id` INT,
+`board_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_boards` (
+`user_id` INT,
+`board_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `orgs` (
+`id` INT,
+`org_name` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `org_boards` (
+`org_id` INT,
+`board_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `org_users` (
+`org_id` INT,
+`user_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `columns_in_board` (
+`id` INT,
+`title` VARCHAR(64),
+`board_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cards_in_column` (
+`id` INT,
+`content` VARCHAR(64),
+`author` INT,
+`column_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_278792_schema') AS relationships;
+relationships
+Database: db_278792_schema
+
+Table Connections:
+------------------
+[Implied]  cards_in_column.author -> users.id
+[Implied]  cards_in_column.column_id -> columns_in_board.id
+[Implied]  columns_in_board.board_id -> boards.id
+[Implied]  org_boards.board_id -> boards.id
+[Implied]  org_boards.org_id -> orgs.id
+[Implied]  org_users.org_id -> orgs.id
+[Implied]  org_users.user_id -> users.id
+[Implied]  users_boards.board_id -> boards.id
+[Implied]  users_boards.user_id -> users.id
+
+DROP DATABASE `db_278792_schema`;
+UNINSTALL EXTENSION vsql_schematron;

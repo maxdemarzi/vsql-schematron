@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 384012_migration
+#
+CREATE DATABASE `db_384012_migration`;
+USE `db_384012_migration`;
+CREATE TABLE `Article` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`published` BOOL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`authorId` VARCHAR(64),
+`issueId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Issue` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`published` BOOL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`authorId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Archive` (
+`id` VARCHAR(64),
+`userId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_ArchiveToArticle` (
+`A` VARCHAR(64),
+`B` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `_ArchiveToIssue` (
+`A` VARCHAR(64),
+`B` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_384012_migration') AS relationships;
+relationships
+Database: db_384012_migration
+
+Table Connections:
+------------------
+[Implied]  Article.issueId -> Issue.id
+[Implied]  _ArchiveToArticle.A -> Archive.id
+[Implied]  _ArchiveToArticle.B -> Article.id
+[Implied]  _ArchiveToIssue.A -> Archive.id
+[Implied]  _ArchiveToIssue.B -> Issue.id
+
+DROP DATABASE `db_384012_migration`;
+UNINSTALL EXTENSION vsql_schematron;

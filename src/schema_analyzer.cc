@@ -57,6 +57,8 @@ std::unordered_map<std::string, TableInfo> getTablesInfo(const std::string& db_n
             info.column_types[col] = type;
             if (key == "PRI") {
                 info.pk_columns.push_back(col);
+            } else if (key == "UNI") {
+                info.uni_columns.push_back(col);
             }
         }
     }

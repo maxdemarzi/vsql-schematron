@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 527597_Create_DB_AND_TABLE
+#
+CREATE DATABASE `db_527597_Create_DB_AND_TABLE`;
+USE `db_527597_Create_DB_AND_TABLE`;
+CREATE TABLE `users` (
+`id_users` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`job` VARCHAR(64),
+`role` INT,
+PRIMARY KEY (`id_users`)
+) CHARACTER SET latin1;
+CREATE TABLE `students` (
+`id_students` INT,
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+PRIMARY KEY (`id_students`)
+) CHARACTER SET latin1;
+CREATE TABLE `classes` (
+`id_classes` INT,
+`id_users` INT,
+`name` VARCHAR(64),
+`code` VARCHAR(64),
+PRIMARY KEY (`id_classes`)
+) CHARACTER SET latin1;
+CREATE TABLE `news` (
+`id_news` INT,
+`title` VARCHAR(64),
+`content` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`id_news`)
+) CHARACTER SET latin1;
+CREATE TABLE `grades` (
+`id_classes` INT,
+`id_students` INT,
+`grade` INT,
+PRIMARY KEY (`id_classes`, `id_students`)
+) CHARACTER SET latin1;
+CREATE TABLE `flags` (
+`id` INT,
+`flag` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_527597_Create_DB_AND_TABLE') AS relationships;
+relationships
+Database: db_527597_Create_DB_AND_TABLE
+
+Table Connections:
+------------------
+[Implied]  classes.id_users -> users.id_users
+[Implied]  grades.id_classes -> classes.id_classes
+[Implied]  grades.id_students -> students.id_students
+
+DROP DATABASE `db_527597_Create_DB_AND_TABLE`;
+UNINSTALL EXTENSION vsql_schematron;

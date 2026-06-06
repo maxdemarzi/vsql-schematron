@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 444320_aplikasi_kasbon
+#
+CREATE DATABASE `db_444320_aplikasi_kasbon`;
+USE `db_444320_aplikasi_kasbon`;
+CREATE TABLE `m_pegawai` (
+`nip` VARCHAR(64),
+`nama` VARCHAR(64),
+`jabatan` VARCHAR(64),
+`no_hp1` VARCHAR(64),
+`no_hp2` VARCHAR(64),
+PRIMARY KEY (`nip`)
+) CHARACTER SET latin1;
+CREATE TABLE `saldo_kasbon` (
+`id_saldo_kasbon` INT,
+`nip` VARCHAR(64),
+`saldo` DECIMAL(10,2),
+PRIMARY KEY (`id_saldo_kasbon`)
+) CHARACTER SET latin1;
+CREATE TABLE `sec_permission` (
+`id_permission` INT,
+`permission_name` VARCHAR(64),
+PRIMARY KEY (`id_permission`)
+) CHARACTER SET latin1;
+CREATE TABLE `sec_role` (
+`id_role` INT,
+`rolename` VARCHAR(64),
+PRIMARY KEY (`id_role`)
+) CHARACTER SET latin1;
+CREATE TABLE `sec_role_has_sec_permission` (
+`sec_role_id_role` INT,
+`sec_permission_id_permission` INT,
+PRIMARY KEY (`sec_role_id_role`, `sec_permission_id_permission`)
+) CHARACTER SET latin1;
+CREATE TABLE `sec_user` (
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`nip` VARCHAR(64),
+`id_role` INT,
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_pembayaran_kasbon` (
+`id_pembayaran_kasbon` INT,
+`tgl_pembayaran` DATETIME,
+`nip` VARCHAR(64),
+`nilai` DECIMAL(10,2),
+`keterangan` VARCHAR(64),
+`created_by` VARCHAR(64),
+`id_pengajuan_kasbon` INT,
+PRIMARY KEY (`id_pembayaran_kasbon`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_pencairan_kasbon` (
+`id_pencairan_kasbon` INT,
+`id_pengajuan_kasbon` INT,
+`tgl_pencairan` DATETIME,
+`nilai` DECIMAL(10,2),
+`keterangan` VARCHAR(64),
+`created_by` VARCHAR(64),
+PRIMARY KEY (`id_pencairan_kasbon`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_pengajuan_kasbon` (
+`id_pengajuan_kasbon` INT,
+`tgl_pengajuan` DATETIME,
+`nip` VARCHAR(64),
+`nilai` DECIMAL(10,2),
+`keterangan` VARCHAR(64),
+`is_approve` INT,
+`approve_date` DATETIME,
+`approved_by` VARCHAR(64),
+`created_by` VARCHAR(64),
+PRIMARY KEY (`id_pengajuan_kasbon`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_444320_aplikasi_kasbon') AS relationships;
+relationships
+Database: db_444320_aplikasi_kasbon
+
+Table Connections:
+------------------
+[Implied]  saldo_kasbon.nip -> m_pegawai.nip
+[Implied]  sec_role_has_sec_permission.sec_permission_id_permission -> sec_permission.id_permission
+[Implied]  sec_role_has_sec_permission.sec_role_id_role -> sec_role.id_role
+[Implied]  sec_user.id_role -> sec_role.id_role
+[Implied]  sec_user.nip -> m_pegawai.nip
+[Implied]  t_pembayaran_kasbon.created_by -> sec_user.username
+[Implied]  t_pembayaran_kasbon.id_pengajuan_kasbon -> t_pengajuan_kasbon.id_pengajuan_kasbon
+[Implied]  t_pembayaran_kasbon.nip -> m_pegawai.nip
+[Implied]  t_pencairan_kasbon.created_by -> sec_user.username
+[Implied]  t_pencairan_kasbon.id_pengajuan_kasbon -> t_pengajuan_kasbon.id_pengajuan_kasbon
+[Implied]  t_pengajuan_kasbon.approved_by -> sec_user.username
+[Implied]  t_pengajuan_kasbon.created_by -> sec_user.username
+[Implied]  t_pengajuan_kasbon.nip -> m_pegawai.nip
+
+DROP DATABASE `db_444320_aplikasi_kasbon`;
+UNINSTALL EXTENSION vsql_schematron;

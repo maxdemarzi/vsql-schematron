@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 153212_init
+#
+CREATE DATABASE `db_153212_init`;
+USE `db_153212_init`;
+CREATE TABLE `dict` (
+`id` INT,
+`name` VARCHAR(64),
+`language` VARCHAR(64),
+`enabled` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `word` (
+`id` INT,
+`word` VARCHAR(64),
+`bitmap` INT,
+`unique_char` INT,
+`frequency` DECIMAL(10,2),
+`definition` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `game` (
+`id` INT,
+`letters` VARCHAR(64),
+`game_key` VARCHAR(64),
+`score` INT,
+`max_score` INT,
+`created_by` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `game_word` (
+`id` INT,
+`game_id` INT,
+`word_id` INT,
+`found_by` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dict_word` (
+`id` INT,
+`word_id` INT,
+`dict_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dict_game` (
+`id` INT,
+`game_id` INT,
+`dict_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_153212_init') AS relationships;
+relationships
+Database: db_153212_init
+
+Table Connections:
+------------------
+[Implied]  dict_game.dict_id -> dict.id
+[Implied]  dict_game.game_id -> game.id
+[Implied]  dict_word.dict_id -> dict.id
+[Implied]  dict_word.word_id -> word.id
+[Implied]  game.created_by -> user.id
+[Implied]  game_word.found_by -> user.id
+[Implied]  game_word.game_id -> game.id
+[Implied]  game_word.word_id -> word.id
+
+DROP DATABASE `db_153212_init`;
+UNINSTALL EXTENSION vsql_schematron;

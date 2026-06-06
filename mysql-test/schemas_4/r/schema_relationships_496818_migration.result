@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 496818_migration
+#
+CREATE DATABASE `db_496818_migration`;
+USE `db_496818_migration`;
+CREATE TABLE `Organization` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`createdAt` DATETIME,
+`mofifyAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `HistoryUser` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`statusId` INT,
+`createsAt` DATETIME,
+`modifiedAt` DATETIME,
+`organizationId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `StatusTask` (
+`id` INT,
+`name` VARCHAR(64),
+`createdAt` DATETIME,
+`modifiedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Task` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`duration` INT,
+`assignedToId` INT,
+`historyUserId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_OrganizationToUser` (
+`A` VARCHAR(64),
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `new_User` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`createdAt` DATETIME,
+`modifiedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_496818_migration') AS relationships;
+relationships
+Database: db_496818_migration
+
+Table Connections:
+------------------
+[Implied]  HistoryUser.organizationId -> Organization.id
+[Implied]  HistoryUser.statusId -> StatusTask.id
+[Implied]  Task.historyUserId -> HistoryUser.id
+[Implied]  _OrganizationToUser.A -> Organization.id
+
+DROP DATABASE `db_496818_migration`;
+UNINSTALL EXTENSION vsql_schematron;

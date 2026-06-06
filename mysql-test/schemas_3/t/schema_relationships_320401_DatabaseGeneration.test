@@ -1,0 +1,102 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 320401_DatabaseGeneration
+--echo #
+CREATE DATABASE `db_320401_DatabaseGeneration`;
+USE `db_320401_DatabaseGeneration`;
+
+CREATE TABLE `Waiter` (
+  `WaiterId` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`WaiterId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Food` (
+  `FoodId` INT,
+  `Name` VARCHAR(64),
+  `Type` VARCHAR(64),
+  `Cost` DECIMAL(10,2),
+  PRIMARY KEY (`FoodId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Dish` (
+  `FoodId` INT,
+  PRIMARY KEY (`FoodId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Restaurant` (
+  `RestaurantId` INT,
+  `City` VARCHAR(64),
+  PRIMARY KEY (`RestaurantId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TableRestaurant` (
+  `TableId` INT,
+  `RestaurantId` INT,
+  `Seats` INT,
+  PRIMARY KEY (`TableId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `StateTimes` (
+  `StartTime` DATETIME,
+  `TableId` INT,
+  `State` VARCHAR(64),
+  PRIMARY KEY (`StartTime`, `TableId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `User` (
+  `UserId` INT,
+  `Username` VARCHAR(64),
+  `Password` VARCHAR(64),
+  `Type` VARCHAR(64),
+  `WaiterId` INT,
+  PRIMARY KEY (`UserId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Booking` (
+  `TableId` INT,
+  `Date` DATETIME,
+  `Turn` VARCHAR(64),
+  `Client` VARCHAR(64),
+  PRIMARY KEY (`TableId`, `Date`, `Turn`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `OrderRestaurant` (
+  `OrderId` INT,
+  `WaiterId` INT,
+  `TableId` INT,
+  `State` VARCHAR(64),
+  `Datetime` DATETIME,
+  `PaymentMethod` VARCHAR(64),
+  PRIMARY KEY (`OrderId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `OrderContent` (
+  `OrderId` INT,
+  `FoodId` INT,
+  `Quantity` INT,
+  `TimeReady` DATETIME,
+  `TimeDelivered` DATETIME,
+  PRIMARY KEY (`OrderId`, `FoodId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_320401_DatabaseGeneration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_320401_DatabaseGeneration') AS relationships;
+DROP DATABASE `db_320401_DatabaseGeneration`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 369837_minta
+--echo #
+CREATE DATABASE `db_369837_minta`;
+USE `db_369837_minta`;
+
+CREATE TABLE `topic` (
+  `id` INT,
+  `title` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `email` VARCHAR(64),
+  `id` INT,
+  `password` VARCHAR(64),
+  `created` DATETIME,
+  `newsletter` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `article` (
+  `id` INT,
+  `code` VARCHAR(64),
+  `filename` VARCHAR(64),
+  `created` DATETIME,
+  `points` INT,
+  `topic_id` INT,
+  `ext_link` VARCHAR(64),
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `keyword` (
+  `id` INT,
+  `article_id` INT,
+  `keyword` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comment` (
+  `id` INT,
+  `user_id` INT,
+  `article_id` INT,
+  `text` VARCHAR(64),
+  `date` DATETIME,
+  `last_edited` DATETIME,
+  `point` INT,
+  `comment_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_like` (
+  `id` INT,
+  `user_id` INT,
+  `article_id` INT,
+  `comment_id` INT,
+  `date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_saved` (
+  `id` INT,
+  `user_id` INT,
+  `article_id` INT,
+  `date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_topic` (
+  `id` INT,
+  `user_id` INT,
+  `topic_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_369837_minta') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_369837_minta') AS relationships;
+DROP DATABASE `db_369837_minta`;
+UNINSTALL EXTENSION vsql_schematron;

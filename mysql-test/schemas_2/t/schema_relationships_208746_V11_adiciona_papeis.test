@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 208746_V11__adiciona_papeis
+--echo #
+CREATE DATABASE `db_208746_V11_adiciona_papeis`;
+USE `db_208746_V11_adiciona_papeis`;
+
+CREATE TABLE `papeis` (
+  `id` INT,
+  `nome` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuarios` (
+  `id` INT,
+  `cpf` VARCHAR(64),
+  `senha` VARCHAR(64),
+  `papel_id` INT,
+  `servidor` BOOL,
+  `habilitado` BOOL,
+  `siorg` VARCHAR(64),
+  `nome` VARCHAR(64),
+  `siape` VARCHAR(64),
+  `email_primario` VARCHAR(64),
+  `email_secundario` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tokens` (
+  `id` INT,
+  `usuario_id` INT,
+  `token` VARCHAR(64),
+  `data_criacao` DATETIME,
+  `tentativas_sobrando` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_208746_V11_adiciona_papeis') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_208746_V11_adiciona_papeis') AS relationships;
+DROP DATABASE `db_208746_V11_adiciona_papeis`;
+UNINSTALL EXTENSION vsql_schematron;

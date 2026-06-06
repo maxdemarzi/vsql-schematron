@@ -1,0 +1,85 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 018783_createtable
+#
+CREATE DATABASE `db_018783_createtable`;
+USE `db_018783_createtable`;
+CREATE TABLE `platforms` (
+`id` INT,
+`platform` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `games` (
+`id` INT,
+`rank` INT,
+`name` VARCHAR(64),
+`year` VARCHAR(64),
+`globalsales` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `genres` (
+`id` INT,
+`genre` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `publishers` (
+`id` INT,
+`publisher` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `platforms_of_games` (
+`game_id` INT,
+`platform_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `publishers_of_games` (
+`game_id` INT,
+`publisher_id` INT,
+`platform_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `genres_of_games` (
+`game_id` INT,
+`genre_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `creditcards` (
+`id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`expiration` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customers` (
+`id` INT,
+`cc_id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`address` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales` (
+`id` INT,
+`customer_id` INT,
+`salesdate` DATETIME,
+`game_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_018783_createtable') AS relationships;
+relationships
+Database: db_018783_createtable
+
+Table Connections:
+------------------
+[Implied]  customers.cc_id -> creditcards.id
+[Implied]  genres_of_games.game_id -> games.id
+[Implied]  genres_of_games.genre_id -> genres.id
+[Implied]  platforms_of_games.game_id -> games.id
+[Implied]  platforms_of_games.platform_id -> platforms.id
+[Implied]  publishers_of_games.game_id -> games.id
+[Implied]  publishers_of_games.platform_id -> platforms.id
+[Implied]  publishers_of_games.publisher_id -> publishers.id
+[Implied]  sales.customer_id -> customers.id
+[Implied]  sales.game_id -> games.id
+
+DROP DATABASE `db_018783_createtable`;
+UNINSTALL EXTENSION vsql_schematron;

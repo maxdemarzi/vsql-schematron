@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 189309_database_project_one
+--echo #
+CREATE DATABASE `db_189309_database_project_one`;
+USE `db_189309_database_project_one`;
+
+CREATE TABLE `bill` (
+  `bill_id` INT,
+  `user_id` INT,
+  `total` DECIMAL(10,2),
+  `payment` VARCHAR(64),
+  `address` VARCHAR(64),
+  `date` DATETIME,
+  `name` VARCHAR(64),
+  `phone` VARCHAR(64),
+  PRIMARY KEY (`bill_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bill_detail` (
+  `bill_detail_id` INT,
+  `bill_id` INT,
+  `product_id` INT,
+  `price` DECIMAL(10,2),
+  `quantity` INT,
+  PRIMARY KEY (`bill_detail_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `category` (
+  `category_id` INT,
+  `category_name` VARCHAR(64),
+  PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contact` (
+  `contact_id` INT,
+  `contact_name` VARCHAR(64),
+  `contact_web` VARCHAR(64),
+  `contact_email` VARCHAR(64),
+  `contact_title` VARCHAR(64),
+  `contact_message` VARCHAR(64),
+  `contact_date` DATETIME,
+  PRIMARY KEY (`contact_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product` (
+  `product_id` INT,
+  `category_id` INT,
+  `product_name` VARCHAR(64),
+  `product_image` VARCHAR(64),
+  `product_price` DECIMAL(10,2),
+  `product_description` VARCHAR(64),
+  PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `user_name` VARCHAR(64),
+  `user_email` VARCHAR(64),
+  `user_pass` VARCHAR(64),
+  `user_role` BOOL,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_189309_database_project_one') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_189309_database_project_one') AS relationships;
+DROP DATABASE `db_189309_database_project_one`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 324231_sql
+#
+CREATE DATABASE `db_324231_sql`;
+USE `db_324231_sql`;
+CREATE TABLE `kandidat` (
+`kandidat_id` INT,
+`fornavn` VARCHAR(64),
+`etternavn` VARCHAR(64),
+`telefon` INT,
+`epost` VARCHAR(64),
+PRIMARY KEY (`kandidat_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bedrift` (
+`bedrift_id` INT,
+`navn` VARCHAR(64),
+`telefon` INT,
+`epost` VARCHAR(64),
+PRIMARY KEY (`bedrift_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `kvalifikasjon` (
+`kvalifikasjon_id` INT,
+`beskrivelse` VARCHAR(64),
+PRIMARY KEY (`kvalifikasjon_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `kvalkand` (
+`kandidat_id` INT,
+`kvalifikasjon_id` INT,
+PRIMARY KEY (`kandidat_id`, `kvalifikasjon_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `oppdrag` (
+`oppdrag_id` INT,
+`bedrift_id` INT,
+`kandidat_id` INT,
+`kvalifikasjon_id` INT,
+`bedriftnavn` VARCHAR(64),
+`datostart` DATETIME,
+`datoslutt` DATETIME,
+PRIMARY KEY (`oppdrag_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `jobbhistorikk` (
+`oppdrag_id` INT,
+`kandidat_id` INT,
+`datostart` DATETIME,
+`datoslutt` DATETIME,
+PRIMARY KEY (`oppdrag_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_324231_sql') AS relationships;
+relationships
+Database: db_324231_sql
+
+Table Connections:
+------------------
+[Implied]  jobbhistorikk.kandidat_id -> kandidat.kandidat_id
+[Implied]  jobbhistorikk.oppdrag_id -> oppdrag.oppdrag_id
+[Implied]  kvalkand.kandidat_id -> kandidat.kandidat_id
+[Implied]  kvalkand.kvalifikasjon_id -> kvalifikasjon.kvalifikasjon_id
+[Implied]  oppdrag.bedrift_id -> bedrift.bedrift_id
+[Implied]  oppdrag.kandidat_id -> kandidat.kandidat_id
+[Implied]  oppdrag.kvalifikasjon_id -> kvalifikasjon.kvalifikasjon_id
+
+DROP DATABASE `db_324231_sql`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 369837_minta
+#
+CREATE DATABASE `db_369837_minta`;
+USE `db_369837_minta`;
+CREATE TABLE `topic` (
+`id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`email` VARCHAR(64),
+`id` INT,
+`password` VARCHAR(64),
+`created` DATETIME,
+`newsletter` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `article` (
+`id` INT,
+`code` VARCHAR(64),
+`filename` VARCHAR(64),
+`created` DATETIME,
+`points` INT,
+`topic_id` INT,
+`ext_link` VARCHAR(64),
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `keyword` (
+`id` INT,
+`article_id` INT,
+`keyword` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`id` INT,
+`user_id` INT,
+`article_id` INT,
+`text` VARCHAR(64),
+`date` DATETIME,
+`last_edited` DATETIME,
+`point` INT,
+`comment_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_like` (
+`id` INT,
+`user_id` INT,
+`article_id` INT,
+`comment_id` INT,
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_saved` (
+`id` INT,
+`user_id` INT,
+`article_id` INT,
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_topic` (
+`id` INT,
+`user_id` INT,
+`topic_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_369837_minta') AS relationships;
+relationships
+Database: db_369837_minta
+
+Table Connections:
+------------------
+[Implied]  article.topic_id -> topic.id
+[Implied]  article.user_id -> user.id
+[Implied]  comment.article_id -> article.id
+[Implied]  comment.comment_id -> comment.id
+[Implied]  comment.user_id -> user.id
+[Implied]  keyword.article_id -> article.id
+[Implied]  user_like.article_id -> article.id
+[Implied]  user_like.comment_id -> comment.id
+[Implied]  user_like.user_id -> user.id
+[Implied]  user_saved.article_id -> article.id
+[Implied]  user_saved.user_id -> user.id
+[Implied]  user_topic.topic_id -> topic.id
+[Implied]  user_topic.user_id -> user.id
+
+DROP DATABASE `db_369837_minta`;
+UNINSTALL EXTENSION vsql_schematron;

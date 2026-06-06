@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 181559_lab6
+#
+CREATE DATABASE `db_181559_lab6`;
+USE `db_181559_lab6`;
+CREATE TABLE `client` (
+`id_client` INT,
+`full_name` VARCHAR(64),
+`passport_id` INT,
+`city` VARCHAR(64),
+PRIMARY KEY (`id_client`)
+) CHARACTER SET latin1;
+CREATE TABLE `room` (
+`id_room` INT,
+`floor` INT,
+`coat_of_living` INT,
+`room_type` VARCHAR(64),
+PRIMARY KEY (`id_room`)
+) CHARACTER SET latin1;
+CREATE TABLE `administration` (
+`id_admin` INT,
+`full_name` VARCHAR(64),
+`contact_details` VARCHAR(64),
+`experience` VARCHAR(64),
+PRIMARY KEY (`id_admin`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`id_employee` INT,
+`full_name` VARCHAR(64),
+`post` VARCHAR(64),
+PRIMARY KEY (`id_employee`)
+) CHARACTER SET latin1;
+CREATE TABLE `cleaning` (
+`id_cleaning` INT,
+`cleaning_floor` INT,
+`cleaning_day` DATETIME,
+`admin_id` INT,
+`employee_id` INT,
+PRIMARY KEY (`id_cleaning`)
+) CHARACTER SET latin1;
+CREATE TABLE `employment_contract` (
+`id_contract` INT,
+`terms_of_an_agreement` VARCHAR(64),
+`hiring_date` DATETIME,
+`admin_id` INT,
+`employee_id` INT,
+PRIMARY KEY (`id_contract`)
+) CHARACTER SET latin1;
+CREATE TABLE `inhabitation` (
+`id_inhabitation` INT,
+`accomodations` VARCHAR(64),
+`check_in_date` DATETIME,
+`check_out_date` DATETIME,
+`client_id` INT,
+`room_id` INT,
+`admin_id` INT,
+PRIMARY KEY (`id_inhabitation`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_181559_lab6') AS relationships;
+relationships
+Database: db_181559_lab6
+
+Table Connections:
+------------------
+[Implied]  cleaning.admin_id -> administration.id_admin
+[Implied]  cleaning.employee_id -> employee.id_employee
+[Implied]  employment_contract.admin_id -> administration.id_admin
+[Implied]  employment_contract.employee_id -> employee.id_employee
+[Implied]  inhabitation.admin_id -> administration.id_admin
+[Implied]  inhabitation.client_id -> client.id_client
+[Implied]  inhabitation.room_id -> room.id_room
+
+DROP DATABASE `db_181559_lab6`;
+UNINSTALL EXTENSION vsql_schematron;

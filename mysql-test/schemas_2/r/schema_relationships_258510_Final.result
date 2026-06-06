@@ -1,0 +1,121 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 258510_Final
+#
+CREATE DATABASE `db_258510_Final`;
+USE `db_258510_Final`;
+CREATE TABLE `USER_TABLE` (
+`EmailID` VARCHAR(64),
+`Username` VARCHAR(64),
+`Address_line1` VARCHAR(64),
+`Street` VARCHAR(64),
+`Pincode` INT,
+`Date_of_birth` DATETIME,
+`Phone_number` VARCHAR(64),
+PRIMARY KEY (`EmailID`)
+) CHARACTER SET latin1;
+CREATE TABLE `AGENCY` (
+`EmailID` VARCHAR(64),
+`AgencyID` VARCHAR(64),
+PRIMARY KEY (`AgencyID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CUSTOMER_DETAILS` (
+`CustomerID` VARCHAR(64),
+`EmailID` VARCHAR(64),
+`Date_of_joining` DATETIME,
+PRIMARY KEY (`CustomerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SUPPLIER` (
+`SupplierID` VARCHAR(64),
+`EmailID` VARCHAR(64),
+PRIMARY KEY (`SupplierID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BILL` (
+`Bill_number` INT,
+`Purchase_time` DATETIME,
+`Purchase_date` DATETIME,
+PRIMARY KEY (`Bill_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRODUCTS` (
+`ProductID` VARCHAR(64),
+`Price` DECIMAL(10,2),
+`Product_name` VARCHAR(64),
+`Brand` VARCHAR(64),
+PRIMARY KEY (`ProductID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CATEGORY` (
+`CategoryID` VARCHAR(64),
+PRIMARY KEY (`CategoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BELONGS_TO` (
+`ProductID` VARCHAR(64),
+`CategoryID` VARCHAR(64),
+PRIMARY KEY (`ProductID`, `CategoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `FALLS_UNDER` (
+`SuperCategoryID` VARCHAR(64),
+`SubCategoryID` VARCHAR(64),
+PRIMARY KEY (`SuperCategoryID`, `SubCategoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `DELIVERY` (
+`TrackID` VARCHAR(64),
+`Delivery_time` DATETIME,
+`AgencyID` VARCHAR(64),
+PRIMARY KEY (`TrackID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ORDERS` (
+`TrackID` VARCHAR(64),
+`Bill_number` INT,
+`CustomerID` VARCHAR(64),
+PRIMARY KEY (`TrackID`, `Bill_number`, `CustomerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PAYMENT_MODE` (
+`Company` VARCHAR(64),
+`Mode` VARCHAR(64),
+PRIMARY KEY (`Company`, `Mode`)
+) CHARACTER SET latin1;
+CREATE TABLE `SELLS` (
+`ProductID` VARCHAR(64),
+`SupplierID` VARCHAR(64),
+PRIMARY KEY (`ProductID`, `SupplierID`)
+) CHARACTER SET latin1;
+CREATE TABLE `WARRANTY` (
+`Bill_num` INT,
+`ProductId` VARCHAR(64),
+`Purchase_num` INT,
+`Applicable` BOOL,
+`Warranty_period` INT,
+PRIMARY KEY (`Bill_num`, `ProductId`, `Purchase_num`)
+) CHARACTER SET latin1;
+CREATE TABLE `CART` (
+`CustomerID` VARCHAR(64),
+`ProductID` VARCHAR(64),
+`Product_type` VARCHAR(64),
+PRIMARY KEY (`CustomerID`, `ProductID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_258510_Final') AS relationships;
+relationships
+Database: db_258510_Final
+
+Table Connections:
+------------------
+[Implied]  AGENCY.EmailID -> USER_TABLE.EmailID
+[Implied]  BELONGS_TO.CategoryID -> CATEGORY.CategoryID
+[Implied]  BELONGS_TO.ProductID -> PRODUCTS.ProductID
+[Implied]  CART.CustomerID -> CUSTOMER_DETAILS.CustomerID
+[Implied]  CART.ProductID -> PRODUCTS.ProductID
+[Implied]  CUSTOMER_DETAILS.EmailID -> USER_TABLE.EmailID
+[Implied]  DELIVERY.AgencyID -> AGENCY.AgencyID
+[Implied]  FALLS_UNDER.SubCategoryID -> CATEGORY.CategoryID
+[Implied]  FALLS_UNDER.SuperCategoryID -> CATEGORY.CategoryID
+[Implied]  ORDERS.Bill_number -> BILL.Bill_number
+[Implied]  ORDERS.CustomerID -> CUSTOMER_DETAILS.CustomerID
+[Implied]  ORDERS.TrackID -> DELIVERY.TrackID
+[Implied]  SELLS.ProductID -> PRODUCTS.ProductID
+[Implied]  SELLS.SupplierID -> SUPPLIER.SupplierID
+[Implied]  SUPPLIER.EmailID -> USER_TABLE.EmailID
+[Implied]  WARRANTY.Bill_num -> BILL.Bill_number
+[Implied]  WARRANTY.ProductId -> PRODUCTS.ProductID
+
+DROP DATABASE `db_258510_Final`;
+UNINSTALL EXTENSION vsql_schematron;

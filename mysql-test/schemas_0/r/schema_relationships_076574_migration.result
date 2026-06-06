@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 076574_migration
+#
+CREATE DATABASE `db_076574_migration`;
+USE `db_076574_migration`;
+CREATE TABLE `User` (
+`id` VARCHAR(64),
+`email` VARCHAR(64),
+`username` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Byte` (
+`id` VARCHAR(64),
+`userId` VARCHAR(64),
+`css` VARCHAR(64),
+`xml` VARCHAR(64),
+`js` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Stylesheet` (
+`id` VARCHAR(64),
+`userId` VARCHAR(64),
+`locked` BOOL,
+`css` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag` (
+`id` VARCHAR(64),
+`slug` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_ByteToStylesheet` (
+`A` VARCHAR(64),
+`B` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `_ByteToTag` (
+`A` VARCHAR(64),
+`B` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_076574_migration') AS relationships;
+relationships
+Database: db_076574_migration
+
+Table Connections:
+------------------
+[Implied]  Byte.userId -> User.id
+[Implied]  Stylesheet.userId -> User.id
+[Implied]  _ByteToStylesheet.A -> Byte.id
+[Implied]  _ByteToStylesheet.B -> Stylesheet.id
+[Implied]  _ByteToTag.A -> Byte.id
+[Implied]  _ByteToTag.B -> Tag.id
+
+DROP DATABASE `db_076574_migration`;
+UNINSTALL EXTENSION vsql_schematron;

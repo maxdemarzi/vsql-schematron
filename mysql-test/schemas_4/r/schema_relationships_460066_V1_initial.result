@@ -1,0 +1,119 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 460066_V1__initial
+#
+CREATE DATABASE `db_460066_V1_initial`;
+USE `db_460066_V1_initial`;
+CREATE TABLE `user` (
+`id` INT,
+`username` VARCHAR(64),
+`display_name` VARCHAR(64),
+`email` VARCHAR(64),
+`created` DATETIME,
+`pw` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_group` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group_users` (
+`user_id` INT,
+`group_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `group_permissions` (
+`group_id` INT,
+`perm_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`id` INT,
+`name` VARCHAR(64),
+`start` DATETIME,
+`end` DATETIME,
+`active` INT,
+`fields` INT,
+`divisions` INT,
+`music_type` INT,
+`stream_type` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_events` (
+`user_id` INT,
+`event_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `session` (
+`id` INT,
+`user_id` INT,
+`event_id` INT,
+`token` VARCHAR(64),
+`csrf` VARCHAR(64),
+`last_ip` VARCHAR(64),
+`ip_time` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `song` (
+`uri` VARCHAR(64),
+`name` VARCHAR(64),
+`length_ms` INT,
+`album_name` VARCHAR(64),
+`artist_name` VARCHAR(64),
+`acousticness` DECIMAL(10,2),
+`danceability` DECIMAL(10,2),
+`energy` DECIMAL(10,2),
+`instrumentalness` DECIMAL(10,2),
+`liveness` DECIMAL(10,2),
+`loudness` DECIMAL(10,2),
+`speechiness` DECIMAL(10,2),
+`valence` DECIMAL(10,2),
+`tempo` DECIMAL(10,2),
+`popularity` INT,
+PRIMARY KEY (`uri`)
+) CHARACTER SET latin1;
+CREATE TABLE `playlist` (
+`id` INT,
+`name` VARCHAR(64),
+`system` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `playlist_entry` (
+`song_uri` VARCHAR(64),
+`added_by` INT,
+`playlist` INT
+) CHARACTER SET latin1;
+CREATE TABLE `match` (
+`id` VARCHAR(64),
+`division` INT,
+`event` INT,
+`intro_song` VARCHAR(64),
+`warmup_song` VARCHAR(64),
+`match_song` VARCHAR(64),
+`match_ms_offset` INT,
+`finish_song` VARCHAR(64),
+`post_song` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_460066_V1_initial') AS relationships;
+relationships
+Database: db_460066_V1_initial
+
+Table Connections:
+------------------
+[Implied]  group_permissions.group_id -> user_group.id
+[Implied]  group_users.group_id -> user_group.id
+[Implied]  group_users.user_id -> user.id
+[Implied]  match.event -> event.id
+[Implied]  match.finish_song -> song.uri
+[Implied]  match.intro_song -> song.uri
+[Implied]  match.match_song -> song.uri
+[Implied]  match.post_song -> song.uri
+[Implied]  match.warmup_song -> song.uri
+[Implied]  playlist_entry.added_by -> user.id
+[Implied]  playlist_entry.playlist -> playlist.id
+[Implied]  playlist_entry.song_uri -> song.uri
+[Implied]  session.event_id -> event.id
+[Implied]  session.user_id -> user.id
+[Implied]  user_events.event_id -> event.id
+[Implied]  user_events.user_id -> user.id
+
+DROP DATABASE `db_460066_V1_initial`;
+UNINSTALL EXTENSION vsql_schematron;

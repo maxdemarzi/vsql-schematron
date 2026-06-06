@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 537286_dbSchema
+#
+CREATE DATABASE `db_537286_dbSchema`;
+USE `db_537286_dbSchema`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`login_count` INT,
+`last_login_date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`modified_by` INT,
+`modified_date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `user_groups` (
+`user_id` INT,
+`group_id` INT,
+`modified_by` INT,
+`modified_date` DATETIME,
+PRIMARY KEY (`user_id`, `group_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group_permissions` (
+`group_id` INT,
+`can_write` INT,
+`can_admin` INT,
+`modified_by` INT,
+`modified_date` DATETIME,
+PRIMARY KEY (`group_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `files` (
+`id` INT,
+`file_name` VARCHAR(64),
+`description` VARCHAR(64),
+`modified_by` INT,
+`modified_date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `projects` (
+`id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`modified_by` INT,
+`modified_date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `project_files` (
+`project_id` INT,
+`file_id` INT,
+`modified_by` INT,
+`modified_date` DATETIME,
+PRIMARY KEY (`project_id`, `file_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`id` VARCHAR(64),
+`session_data` VARCHAR(64),
+`last_accessed` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_537286_dbSchema') AS relationships;
+relationships
+Database: db_537286_dbSchema
+
+Table Connections:
+------------------
+[Implied]  files.modified_by -> users.id
+[Implied]  group_permissions.group_id -> groups.id
+[Implied]  group_permissions.modified_by -> users.id
+[Implied]  groups.modified_by -> users.id
+[Implied]  project_files.file_id -> files.id
+[Implied]  project_files.modified_by -> users.id
+[Implied]  project_files.project_id -> projects.id
+[Implied]  projects.modified_by -> users.id
+[Implied]  user_groups.group_id -> groups.id
+[Implied]  user_groups.modified_by -> users.id
+[Implied]  user_groups.user_id -> users.id
+
+DROP DATABASE `db_537286_dbSchema`;
+UNINSTALL EXTENSION vsql_schematron;

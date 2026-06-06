@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 180659_CreateScheduleTables
+--echo #
+CREATE DATABASE `db_180659_CreateScheduleTables`;
+USE `db_180659_CreateScheduleTables`;
+
+CREATE TABLE `Airline` (
+  `AirlineID` INT,
+  `Name` VARCHAR(64),
+  `ICAOCode` VARCHAR(64),
+  `IATACode` VARCHAR(64),
+  PRIMARY KEY (`AirlineID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Flight` (
+  `FlightID` INT,
+  `Number` VARCHAR(64),
+  `ICAONumber` VARCHAR(64),
+  `IATANumber` VARCHAR(64),
+  PRIMARY KEY (`FlightID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Schedule` (
+  `ScheduleID` INT,
+  `Type` VARCHAR(64),
+  `Status` VARCHAR(64),
+  `AirlineID` INT,
+  `FlightID` INT,
+  PRIMARY KEY (`ScheduleID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Departure` (
+  `ScheduleID` INT,
+  `ICAOCode` VARCHAR(64),
+  `IATACode` VARCHAR(64),
+  `Terminal` VARCHAR(64),
+  `Gate` VARCHAR(64),
+  `Delay` INT,
+  `ScheduledTime` DATETIME,
+  `EstimatedTime` DATETIME,
+  `ActualTime` DATETIME,
+  `EstimatedRunway` DATETIME,
+  `ActualRunway` DATETIME,
+  PRIMARY KEY (`ScheduleID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Arrival` (
+  `ScheduleID` INT,
+  `ICAOCode` VARCHAR(64),
+  `IATACode` VARCHAR(64),
+  `Terminal` VARCHAR(64),
+  `Gate` VARCHAR(64),
+  `Baggage` VARCHAR(64),
+  `Delay` INT,
+  `ScheduledTime` DATETIME,
+  `EstimatedTime` DATETIME,
+  `ActualTime` DATETIME,
+  `EstimatedRunway` DATETIME,
+  `ActualRunway` DATETIME,
+  PRIMARY KEY (`ScheduleID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_180659_CreateScheduleTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_180659_CreateScheduleTables') AS relationships;
+DROP DATABASE `db_180659_CreateScheduleTables`;
+UNINSTALL EXTENSION vsql_schematron;

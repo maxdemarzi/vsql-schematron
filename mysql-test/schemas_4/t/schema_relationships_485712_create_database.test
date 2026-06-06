@@ -1,0 +1,199 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 485712_create_database
+--echo #
+CREATE DATABASE `db_485712_create_database`;
+USE `db_485712_create_database`;
+
+CREATE TABLE `Category` (
+  `ID` INT,
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `CreatedAt` DATETIME,
+  `UpdatedAt` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Author` (
+  `ID` INT,
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `Image` VARCHAR(64),
+  `CreatedAt` DATETIME,
+  `UpdatedAt` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Contact` (
+  `ID` INT,
+  `Name` VARCHAR(64),
+  `Subject` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `CreatedAt` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Subscribe` (
+  `ID` INT,
+  `Email` VARCHAR(64),
+  `State` VARCHAR(64),
+  `CreatedAt` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Roles` (
+  `ID` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Account` (
+  `ID` INT,
+  `Username` VARCHAR(64),
+  `Password` VARCHAR(64),
+  `RoleID` INT,
+  `CreatedAt` DATETIME,
+  `UpdatedAt` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Users` (
+  `ID` INT,
+  `AccountID` INT,
+  `Firstname` VARCHAR(64),
+  `Lastname` VARCHAR(64),
+  `Address1` VARCHAR(64),
+  `Address2` VARCHAR(64),
+  `CompanyName` VARCHAR(64),
+  `PhoneNumber1` VARCHAR(64),
+  `PhoneNumber2` VARCHAR(64),
+  `Country` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `Image` VARCHAR(64),
+  `Facebook` VARCHAR(64),
+  `LinkedIn` VARCHAR(64),
+  `Instagram` VARCHAR(64),
+  `CreatedAt` DATETIME,
+  `UpdatedAt` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Book` (
+  `ID` INT,
+  `AuthorID` INT,
+  `Quantity` INT,
+  `Name` VARCHAR(64),
+  `CategoryID` INT,
+  `Pages` VARCHAR(64),
+  `RATE` DECIMAL(10,2),
+  `Price` VARCHAR(64),
+  `Image` VARCHAR(64),
+  `Published` VARCHAR(64),
+  `Sale` VARCHAR(64),
+  `PublishedDate` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Language` VARCHAR(64),
+  `UpdatedAt` DATETIME,
+  `CreatedAt` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Rating` (
+  `ID` INT,
+  `BookID` INT,
+  `AccountID` INT,
+  `Rating` INT,
+  `UpdatedAt` DATETIME,
+  `CreatedAt` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Review` (
+  `ID` INT,
+  `BookID` INT,
+  `AccountID` INT,
+  `Review` VARCHAR(64),
+  `Title` VARCHAR(64),
+  `CreatedAt` DATETIME,
+  `UpdatedAt` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Cart` (
+  `ID` INT,
+  `AccountID` INT,
+  `BookID` INT,
+  `Quantity` INT,
+  `Price` VARCHAR(64),
+  `State` VARCHAR(64),
+  `Total` VARCHAR(64),
+  `CreatedAt` DATETIME,
+  `UpdatedAt` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Payment` (
+  `ID` INT,
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `CreatedAt` DATETIME,
+  `UpdatedAt` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Shipping` (
+  `ID` INT,
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Price` VARCHAR(64),
+  `CreateAt` DATETIME,
+  `UpdatedAt` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Checkout` (
+  `ID` INT,
+  `AccountID` INT,
+  `Note` VARCHAR(64),
+  `Address1` VARCHAR(64),
+  `Total` VARCHAR(64),
+  `PaymentID` INT,
+  `ShippingID` INT,
+  `CreateAt` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Orders` (
+  `INT` INT,
+  `AccountID` INT,
+  `CheckoutID` INT,
+  `State` VARCHAR(64),
+  `CART` VARCHAR(64),
+  `ShippingAddress` VARCHAR(64),
+  `BillingAddress` VARCHAR(64),
+  `CreateAt` DATETIME,
+  PRIMARY KEY (`INT`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_485712_create_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_485712_create_database') AS relationships;
+DROP DATABASE `db_485712_create_database`;
+UNINSTALL EXTENSION vsql_schematron;

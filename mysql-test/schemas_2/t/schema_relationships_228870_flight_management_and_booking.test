@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 228870_flight-management-and-booking
+--echo #
+CREATE DATABASE `db_228870_flight_management_and_booking`;
+USE `db_228870_flight_management_and_booking`;
+
+CREATE TABLE `flight` (
+  `flight_id` INT,
+  `flight_name` VARCHAR(64),
+  `flight_price` DECIMAL(10,2),
+  `flight_source` VARCHAR(64),
+  `flight_destination` VARCHAR(64),
+  `flight_date` VARCHAR(64),
+  `flight_time` VARCHAR(64),
+  `flight_duration` VARCHAR(64),
+  `flight_total_seats` INT,
+  `flight_available_seats` INT,
+  PRIMARY KEY (`flight_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `passenger` (
+  `passenger_id` INT,
+  `flight_id` INT,
+  `passenger_name` VARCHAR(64),
+  `passenger_age` INT,
+  `passenger_gender` VARCHAR(64),
+  `passenger_mobile` VARCHAR(64),
+  `passenger_email` VARCHAR(64),
+  `passenger_seat` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `user_id` INT,
+  `user_name` VARCHAR(64),
+  `user_bdate` VARCHAR(64),
+  `user_gender` VARCHAR(64),
+  `user_mobile` VARCHAR(64),
+  `user_email` VARCHAR(64),
+  `user_location` VARCHAR(64),
+  `user_password` VARCHAR(64),
+  `user_category` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_228870_flight_management_and_booking') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_228870_flight_management_and_booking') AS relationships;
+DROP DATABASE `db_228870_flight_management_and_booking`;
+UNINSTALL EXTENSION vsql_schematron;

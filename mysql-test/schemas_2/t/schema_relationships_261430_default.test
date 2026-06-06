@@ -1,0 +1,187 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 261430_default
+--echo #
+CREATE DATABASE `db_261430_default`;
+USE `db_261430_default`;
+
+CREATE TABLE `sesiones` (
+  `id` VARCHAR(64),
+  `set_time` VARCHAR(64),
+  `data` VARCHAR(64),
+  `session_key` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblcategoria` (
+  `LineaId` INT,
+  `codigo` VARCHAR(64),
+  `nombre` VARCHAR(64),
+  `descripcion` VARCHAR(64),
+  PRIMARY KEY (`LineaId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblcliente` (
+  `clienteId` INT,
+  `codigo` VARCHAR(64),
+  `nombre` VARCHAR(64),
+  `direccion` VARCHAR(64),
+  `telefono` VARCHAR(64),
+  `ciudadId` INT,
+  PRIMARY KEY (`clienteId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblconfiguracion` (
+  `configuracionId` INT,
+  `nombreEmpresa` VARCHAR(64),
+  `nit` VARCHAR(64),
+  `direccion` VARCHAR(64),
+  `ciudadId` INT,
+  `telefono` VARCHAR(64),
+  `actividadEconomica` VARCHAR(64),
+  `regimen` VARCHAR(64),
+  `resolucion` VARCHAR(64),
+  PRIMARY KEY (`configuracionId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblegreso` (
+  `egresoId` INT,
+  `numero` INT,
+  `fecha` DATETIME,
+  `comentario` VARCHAR(64),
+  PRIMARY KEY (`egresoId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblegresodetalle` (
+  `egresoDetalleId` INT,
+  `egresoId` INT,
+  `productoId` INT,
+  `cantidad` DECIMAL(10,2),
+  PRIMARY KEY (`egresoDetalleId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblfactura` (
+  `facturaId` INT,
+  `numero` INT,
+  `clienteId` INT,
+  `fecha` DATETIME,
+  `estado` VARCHAR(64),
+  `usuarioId` INT,
+  `totatPagado` INT,
+  `metodoPagoId` INT,
+  PRIMARY KEY (`facturaId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblfacturadetalle` (
+  `facturaDetalleId` INT,
+  `facturaId` INT,
+  `productoId` INT,
+  `cantidad` DECIMAL(10,2),
+  `precio` DECIMAL(10,2),
+  PRIMARY KEY (`facturaDetalleId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblingreso` (
+  `ingresoId` INT,
+  `numero` INT,
+  `fecha` DATETIME,
+  `comentario` VARCHAR(64),
+  PRIMARY KEY (`ingresoId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblingresodetalle` (
+  `ingresoDetalleId` INT,
+  `ingresoId` INT,
+  `productoId` INT,
+  `cantidad` DECIMAL(10,2),
+  PRIMARY KEY (`ingresoDetalleId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblmenu` (
+  `menuId` INT,
+  `menu` VARCHAR(64),
+  `url` VARCHAR(64),
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`menuId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblmenuitens` (
+  `menuItensId` INT,
+  `item` VARCHAR(64),
+  `estado` VARCHAR(64),
+  `activo` VARCHAR(64),
+  `padre` VARCHAR(64),
+  `menuId` INT,
+  PRIMARY KEY (`menuItensId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblmetodopago` (
+  `metodopagoId` INT,
+  `nombre` VARCHAR(64),
+  `detalle` VARCHAR(64),
+  PRIMARY KEY (`metodopagoId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblproductocosto` (
+  `productoPrecioId` INT,
+  `productoId` INT,
+  `costo` DECIMAL(10,2),
+  `fecha` DATETIME,
+  PRIMARY KEY (`productoPrecioId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblproductoprecio` (
+  `productoPrecioId` INT,
+  `productoId` INT,
+  `precio` DECIMAL(10,2),
+  `fecha` DATETIME,
+  PRIMARY KEY (`productoPrecioId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblproductos` (
+  `productoId` INT,
+  `codigo` VARCHAR(64),
+  `nombre` VARCHAR(64),
+  `lineaId` INT,
+  PRIMARY KEY (`productoId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblrol` (
+  `rolId` INT,
+  `nombre` VARCHAR(64),
+  `estado` VARCHAR(64),
+  `fecha` DATETIME,
+  PRIMARY KEY (`rolId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuarios` (
+  `id_usuario` INT,
+  `nombre` VARCHAR(64),
+  `email` VARCHAR(64),
+  `nivel` VARCHAR(64),
+  `clave` VARCHAR(64),
+  `rolId` INT,
+  `menuId` INT,
+  PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_261430_default') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_261430_default') AS relationships;
+DROP DATABASE `db_261430_default`;
+UNINSTALL EXTENSION vsql_schematron;

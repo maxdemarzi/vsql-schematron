@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 497243_2
+#
+CREATE DATABASE `db_497243_2`;
+USE `db_497243_2`;
+CREATE TABLE `benchmark` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `benchmarkArgument` (
+`benchmarkId` INT,
+`arg` VARCHAR(64),
+`idx` INT,
+PRIMARY KEY (`benchmarkId`, `arg`)
+) CHARACTER SET latin1;
+CREATE TABLE `compilerBenchmarkTask` (
+`id` INT,
+`priority` INT,
+`status` VARCHAR(64),
+`scalaVersionId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `requestFailedFields` (
+`compilerBenchmarkTaskId` INT,
+`previousStatus` VARCHAR(64),
+`message` VARCHAR(64),
+PRIMARY KEY (`compilerBenchmarkTaskId`)
+) CHARACTER SET latin1;
+CREATE TABLE `compilerBenchmarkTaskBenchmark` (
+`compilerBenchmarkTaskId` INT,
+`benchmarkId` INT,
+`idx` INT,
+PRIMARY KEY (`compilerBenchmarkTaskId`, `benchmarkId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_497243_2') AS relationships;
+relationships
+Database: db_497243_2
+
+Table Connections:
+------------------
+[Implied]  benchmarkArgument.benchmarkId -> benchmark.id
+[Implied]  compilerBenchmarkTaskBenchmark.benchmarkId -> benchmark.id
+[Implied]  compilerBenchmarkTaskBenchmark.compilerBenchmarkTaskId -> compilerBenchmarkTask.id
+[Implied]  requestFailedFields.compilerBenchmarkTaskId -> compilerBenchmarkTask.id
+
+DROP DATABASE `db_497243_2`;
+UNINSTALL EXTENSION vsql_schematron;

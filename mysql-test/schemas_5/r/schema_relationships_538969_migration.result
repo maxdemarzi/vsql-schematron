@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 538969_migration
+#
+CREATE DATABASE `db_538969_migration`;
+USE `db_538969_migration`;
+CREATE TABLE `User` (
+`id` INT,
+`name` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+`status` INT,
+`createdAt` DATETIME,
+`updateAt` DATETIME,
+`deletedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Book` (
+`id` INT,
+`name` VARCHAR(64),
+`author` VARCHAR(64),
+`intro` VARCHAR(64),
+`status` INT,
+`ownerId` INT,
+`createdAt` DATETIME,
+`updateAt` DATETIME,
+`deletedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag` (
+`id` INT,
+`name` VARCHAR(64),
+`ownerId` INT,
+`createdAt` DATETIME,
+`updateAt` DATETIME,
+`deletedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_BookToTag` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_538969_migration') AS relationships;
+relationships
+Database: db_538969_migration
+
+Table Connections:
+------------------
+[Implied]  Book.ownerId -> User.id
+[Implied]  Tag.ownerId -> User.id
+[Implied]  _BookToTag.A -> Book.id
+[Implied]  _BookToTag.B -> Tag.id
+
+DROP DATABASE `db_538969_migration`;
+UNINSTALL EXTENSION vsql_schematron;

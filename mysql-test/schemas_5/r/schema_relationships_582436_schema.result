@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 582436_schema
+#
+CREATE DATABASE `db_582436_schema`;
+USE `db_582436_schema`;
+CREATE TABLE `votes` (
+`observation_id` VARCHAR(64),
+`upvotes` INT,
+`downvotes` INT,
+PRIMARY KEY (`observation_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_observations` (
+`observation_id` VARCHAR(64),
+`user_id` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`_id` VARCHAR(64),
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `puntuation` (
+`observation_id` VARCHAR(64),
+`positive` INT,
+`negative` INT,
+PRIMARY KEY (`observation_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `position` (
+`observation_id` VARCHAR(64),
+`x_position` INT,
+`y_position` INT,
+PRIMARY KEY (`observation_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `policy` (
+`_id` VARCHAR(64),
+`_Policy__formula` VARCHAR(64),
+`max_level` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `observation` (
+`_id` VARCHAR(64),
+`state` VARCHAR(64),
+`image_id` VARCHAR(64),
+`brightness` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `image` (
+`_id` VARCHAR(64),
+`x_size` INT,
+`y_size` INT,
+`probability` INT,
+`fwhm` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_582436_schema') AS relationships;
+relationships
+Database: db_582436_schema
+
+Table Connections:
+------------------
+[Implied]  observation.image_id -> image._id
+[Implied]  position.observation_id -> observation._id
+[Implied]  puntuation.observation_id -> observation._id
+[Implied]  user_observations.observation_id -> observation._id
+[Implied]  user_observations.user_id -> user._id
+[Implied]  votes.observation_id -> observation._id
+
+DROP DATABASE `db_582436_schema`;
+UNINSTALL EXTENSION vsql_schematron;

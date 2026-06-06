@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 040811_V2__Initial
+--echo #
+CREATE DATABASE `db_040811_V2_Initial`;
+USE `db_040811_V2_Initial`;
+
+CREATE TABLE `BUCKET` (
+  `ID` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `DESCRIPTION` VARCHAR(64),
+  `CREATED` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BUCKET_ITEM` (
+  `ID` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `DESCRIPTION` VARCHAR(64),
+  `CREATED` DATETIME,
+  `MODIFIED` DATETIME,
+  `ITEM_TYPE` VARCHAR(64),
+  `BUCKET_ID` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FLOW` (
+  `ID` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FLOW_SNAPSHOT` (
+  `FLOW_ID` VARCHAR(64),
+  `VERSION` INT,
+  `CREATED` DATETIME,
+  `CREATED_BY` VARCHAR(64),
+  `COMMENTS` VARCHAR(64),
+  PRIMARY KEY (`FLOW_ID`, `VERSION`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SIGNING_KEY` (
+  `ID` VARCHAR(64),
+  `TENANT_IDENTITY` VARCHAR(64),
+  `KEY_VALUE` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_040811_V2_Initial') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_040811_V2_Initial') AS relationships;
+DROP DATABASE `db_040811_V2_Initial`;
+UNINSTALL EXTENSION vsql_schematron;

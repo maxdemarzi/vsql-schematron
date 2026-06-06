@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 514959_migration
+#
+CREATE DATABASE `db_514959_migration`;
+USE `db_514959_migration`;
+CREATE TABLE `Post` (
+`id` INT,
+`title` VARCHAR(64),
+`body` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Contact` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`message` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` INT,
+`userName` VARCHAR(64),
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Ticket` (
+`id` INT,
+`number` VARCHAR(64),
+`title` VARCHAR(64),
+`userId` INT,
+`cmdbId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cmdb` (
+`id` INT,
+`number` VARCHAR(64),
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_514959_migration') AS relationships;
+relationships
+Database: db_514959_migration
+
+Table Connections:
+------------------
+[Implied]  Ticket.cmdbId -> Cmdb.id
+[Implied]  Ticket.userId -> User.id
+
+DROP DATABASE `db_514959_migration`;
+UNINSTALL EXTENSION vsql_schematron;

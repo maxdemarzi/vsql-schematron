@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 215409_storage
+#
+CREATE DATABASE `db_215409_storage`;
+USE `db_215409_storage`;
+CREATE TABLE `Tag` (
+`TagName` VARCHAR(64),
+`ScriptName` VARCHAR(64),
+PRIMARY KEY (`TagName`)
+) CHARACTER SET latin1;
+CREATE TABLE `Event` (
+`EventID` INT,
+`EventTitle` VARCHAR(64),
+`EventDescription` VARCHAR(64),
+PRIMARY KEY (`EventID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Terrain` (
+`TagName` VARCHAR(64),
+PRIMARY KEY (`TagName`)
+) CHARACTER SET latin1;
+CREATE TABLE `Landmass` (
+`TagName` VARCHAR(64),
+PRIMARY KEY (`TagName`)
+) CHARACTER SET latin1;
+CREATE TABLE `GridPoint` (
+`x` INT,
+`y` INT,
+`Terrain` VARCHAR(64),
+`Landmass` VARCHAR(64),
+`water` INT,
+`height` DECIMAL(10,2),
+PRIMARY KEY (`x`, `y`)
+) CHARACTER SET latin1;
+CREATE TABLE `Settlement` (
+`SettlementID` INT,
+`SettlementName` VARCHAR(64),
+`x` INT,
+`y` INT,
+PRIMARY KEY (`SettlementID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SettlementTags` (
+`TagName` VARCHAR(64),
+`SettlementID` INT,
+PRIMARY KEY (`TagName`, `SettlementID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SettlementEvents` (
+`SettlementID` INT,
+`EventID` INT,
+`DateOccured` INT,
+PRIMARY KEY (`SettlementID`, `EventID`, `DateOccured`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_215409_storage') AS relationships;
+relationships
+Database: db_215409_storage
+
+Table Connections:
+------------------
+[Implied]  GridPoint.Landmass -> Landmass.TagName
+[Implied]  GridPoint.Terrain -> Terrain.TagName
+[Implied]  Landmass.TagName -> Tag.TagName
+[Implied]  Settlement.x -> GridPoint.x
+[Implied]  Settlement.y -> GridPoint.y
+[Implied]  SettlementEvents.EventID -> Event.EventID
+[Implied]  SettlementEvents.SettlementID -> Settlement.SettlementID
+[Implied]  SettlementTags.SettlementID -> Settlement.SettlementID
+[Implied]  SettlementTags.TagName -> Tag.TagName
+[Implied]  Terrain.TagName -> Tag.TagName
+
+DROP DATABASE `db_215409_storage`;
+UNINSTALL EXTENSION vsql_schematron;

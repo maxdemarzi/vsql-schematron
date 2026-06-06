@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 448596_migration
+#
+CREATE DATABASE `db_448596_migration`;
+USE `db_448596_migration`;
+CREATE TABLE `users` (
+`id` INT,
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`email` VARCHAR(64),
+`username` VARCHAR(64),
+`image` VARCHAR(64),
+`password` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notes` (
+`id` INT,
+`content` VARCHAR(64),
+`authorId` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mentions` (
+`id` INT,
+`mentionedUsername` VARCHAR(64),
+`noteId` INT,
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_448596_migration') AS relationships;
+relationships
+Database: db_448596_migration
+
+Table Connections:
+------------------
+[Implied]  mentions.mentionedUsername -> users.username
+[Implied]  mentions.noteId -> notes.id
+[Implied]  notes.authorId -> users.id
+
+DROP DATABASE `db_448596_migration`;
+UNINSTALL EXTENSION vsql_schematron;

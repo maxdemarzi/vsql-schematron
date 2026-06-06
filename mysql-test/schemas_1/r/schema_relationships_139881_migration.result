@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 139881_migration
+#
+CREATE DATABASE `db_139881_migration`;
+USE `db_139881_migration`;
+CREATE TABLE `User` (
+`id` VARCHAR(64),
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Post` (
+`id` VARCHAR(64),
+`slug` VARCHAR(64),
+`authorId` VARCHAR(64),
+`title` VARCHAR(64),
+`body` VARCHAR(64),
+`published` BOOL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`slug` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Topic` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`slug` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Image` (
+`id` VARCHAR(64),
+`postId` VARCHAR(64),
+`name` VARCHAR(64),
+`url` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_PostToTag` (
+`A` VARCHAR(64),
+`B` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `_PostToTopic` (
+`A` VARCHAR(64),
+`B` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_139881_migration') AS relationships;
+relationships
+Database: db_139881_migration
+
+Table Connections:
+------------------
+[Implied]  Image.postId -> Post.id
+[Implied]  Post.authorId -> User.id
+[Implied]  _PostToTag.A -> Post.id
+[Implied]  _PostToTag.B -> Tag.id
+[Implied]  _PostToTopic.A -> Post.id
+[Implied]  _PostToTopic.B -> Topic.id
+
+DROP DATABASE `db_139881_migration`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -55,6 +55,7 @@ std::string expandAbbreviation(const std::string& word) {
         {"cust", "customer"},
         {"emp", "employee"},
         {"mgr", "manager"},
+        {"exec", "execution"},
         {"org", "organization"},
         {"dbin", "database_instance"},
         {"expe", "experiment"},
@@ -87,6 +88,7 @@ std::string expandAbbreviation(const std::string& word) {
         {"desc", "description"},
         {"prod", "product"},
         {"cat", "category"},
+        {"mov", "movie"},
         {"msg", "message"},
         {"pos", "position"},
         {"usr", "user"},
@@ -226,6 +228,8 @@ std::string singularize(const std::string& w) {
     std::string res;
     if (w.length() > 3 && w.rfind("ies") == w.length() - 3) {
         res = w.substr(0, w.length() - 3) + "y";
+    } else if (w.length() > 3 && w.rfind("eis") == w.length() - 3) {
+        res = w.substr(0, w.length() - 3) + "el";
     } else if (w.length() > 2 && w.rfind("es") == w.length() - 2) {
         if (w.length() > 4 && w.rfind("sses") == w.length() - 4) {
             res = w.substr(0, w.length() - 2);

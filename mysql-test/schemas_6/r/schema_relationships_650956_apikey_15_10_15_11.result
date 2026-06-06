@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 650956_apikey-15.10-15.11
+#
+CREATE DATABASE `db_650956_apikey_15_10_15_11`;
+USE `db_650956_apikey_15_10_15_11`;
+CREATE TABLE `apikey.apikeys` (
+`apikey` VARCHAR(64),
+`note` VARCHAR(64),
+`isSuperKey` BOOL,
+`owner` VARCHAR(64),
+`starts` DATETIME,
+`expires` DATETIME,
+PRIMARY KEY (`apikey`)
+) CHARACTER SET latin1;
+CREATE TABLE `apikey.key_revocations` (
+`apikey` VARCHAR(64),
+`revokedOn` DATETIME,
+`revokedBy` VARCHAR(64),
+`reason` VARCHAR(64),
+PRIMARY KEY (`apikey`)
+) CHARACTER SET latin1;
+CREATE TABLE `apikey.allowed_services` (
+`apikey` VARCHAR(64),
+`moduleName` VARCHAR(64),
+`serviceName` VARCHAR(64),
+PRIMARY KEY (`apikey`, `moduleName`, `serviceName`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_650956_apikey_15_10_15_11') AS relationships;
+relationships
+Database: db_650956_apikey_15_10_15_11
+
+Table Connections:
+------------------
+[Implied]  apikey.allowed_services.apikey -> apikey.apikeys.apikey
+[Implied]  apikey.key_revocations.apikey -> apikey.apikeys.apikey
+
+DROP DATABASE `db_650956_apikey_15_10_15_11`;
+UNINSTALL EXTENSION vsql_schematron;

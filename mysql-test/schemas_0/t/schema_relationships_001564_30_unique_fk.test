@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 001564_30-unique-fk
+--echo #
+CREATE DATABASE `db_001564_30_unique_fk`;
+USE `db_001564_30_unique_fk`;
+
+CREATE TABLE `aaa` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ccc1` (
+  `a` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `ddd1` (
+  `a` INT,
+  PRIMARY KEY (`a`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ccc2` (
+  `a` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `ddd2` (
+  `a` INT,
+  PRIMARY KEY (`a`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bbb3` (
+  `a` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `ddd3` (
+  `a` INT,
+  PRIMARY KEY (`a`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_001564_30_unique_fk') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_001564_30_unique_fk') AS relationships;
+DROP DATABASE `db_001564_30_unique_fk`;
+UNINSTALL EXTENSION vsql_schematron;

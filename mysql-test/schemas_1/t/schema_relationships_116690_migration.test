@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 116690_migration
+--echo #
+CREATE DATABASE `db_116690_migration`;
+USE `db_116690_migration`;
+
+CREATE TABLE `User` (
+  `id` VARCHAR(64),
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  `name` VARCHAR(64),
+  `groupId` VARCHAR(64),
+  `quotaId` VARCHAR(64),
+  `createdAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Organization` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `quotaId` VARCHAR(64),
+  `createdAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Instance` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `image` VARCHAR(64),
+  `userId` VARCHAR(64),
+  `orgId` VARCHAR(64),
+  `createdAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Group` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `permissions` VARCHAR(64),
+  `default` BOOL,
+  `createdAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Client` (
+  `clientId` VARCHAR(64),
+  `clientSecret` VARCHAR(64),
+  `clientName` VARCHAR(64),
+  `clientUri` VARCHAR(64),
+  `audience` VARCHAR(64),
+  `grantTypes` VARCHAR(64),
+  `redirectUris` VARCHAR(64),
+  `scope` VARCHAR(64),
+  `ownerId` VARCHAR(64),
+  `orgId` VARCHAR(64),
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  PRIMARY KEY (`clientId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Quota` (
+  `id` VARCHAR(64),
+  `cpu` DECIMAL(10,2),
+  `memory` INT,
+  `gpu` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LogLine` (
+  `id` VARCHAR(64),
+  `instanceId` VARCHAR(64),
+  `lineNumber` INT,
+  `content` VARCHAR(64),
+  `createdAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `_OrganizationToUser` (
+  `A` VARCHAR(64),
+  `B` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_116690_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_116690_migration') AS relationships;
+DROP DATABASE `db_116690_migration`;
+UNINSTALL EXTENSION vsql_schematron;

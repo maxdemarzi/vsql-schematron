@@ -1,0 +1,106 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 695936_create_db
+--echo #
+CREATE DATABASE `db_695936_create_db`;
+USE `db_695936_create_db`;
+
+CREATE TABLE `zamestnanec` (
+  `id` INT,
+  `jmeno` VARCHAR(64),
+  `prijmeni` VARCHAR(64),
+  `datum_narozeni` DATETIME,
+  `telefonni_cislo` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `klient` (
+  `id` INT,
+  `jmeno` VARCHAR(64),
+  `prijmeni` VARCHAR(64),
+  `datum_narozeni` DATETIME,
+  `telefonni_cislo` VARCHAR(64),
+  `adresa` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pravnicka_osoba` (
+  `klient_id` INT,
+  `ico` VARCHAR(64),
+  `dic` VARCHAR(64),
+  `fakturacni_adresa` VARCHAR(64),
+  PRIMARY KEY (`klient_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kategorie` (
+  `id` INT,
+  `nazev` VARCHAR(64),
+  `popis` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kostym` (
+  `id` INT,
+  `vyrobce` VARCHAR(64),
+  `material` VARCHAR(64),
+  `popis` VARCHAR(64),
+  `cena` DECIMAL(10,2),
+  `datum_vyroby` DATETIME,
+  `opotrebeni` VARCHAR(64),
+  `velikost` VARCHAR(64),
+  `barva` VARCHAR(64),
+  `dostupnost` VARCHAR(64),
+  `obrazek` VARCHAR(64),
+  `aktivni` INT,
+  `kategorie_id` INT,
+  `zamestnanec_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `doplnek` (
+  `id` INT,
+  `nazev` VARCHAR(64),
+  `popis` VARCHAR(64),
+  `datum_vyroby` DATETIME,
+  `cena` DECIMAL(10,2),
+  `dostupnost` VARCHAR(64),
+  `obrazek` VARCHAR(64),
+  `aktivni` INT,
+  `zamestnanec_id` INT,
+  `kostym_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `zaznam` (
+  `id` INT,
+  `nazev_akce` VARCHAR(64),
+  `datum_zapujceni` DATETIME,
+  `datum_vraceni` DATETIME,
+  `cena` DECIMAL(10,2),
+  `kostym_id` INT,
+  `doplnek_id` INT,
+  `zamestnanec_id` INT,
+  `klient_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_695936_create_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_695936_create_db') AS relationships;
+DROP DATABASE `db_695936_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

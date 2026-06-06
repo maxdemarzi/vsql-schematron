@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 289686_10-multi-pk
+--echo #
+CREATE DATABASE `db_289686_10_multi_pk`;
+USE `db_289686_10_multi_pk`;
+
+CREATE TABLE `aaa` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bbb` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ccc` (
+  `a` INT,
+  `b` INT,
+  PRIMARY KEY (`a`, `b`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_289686_10_multi_pk') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_289686_10_multi_pk') AS relationships;
+DROP DATABASE `db_289686_10_multi_pk`;
+UNINSTALL EXTENSION vsql_schematron;

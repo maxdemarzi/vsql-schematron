@@ -1,0 +1,115 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 221241_TorneoDeportivo
+#
+CREATE DATABASE `db_221241_TorneoDeportivo`;
+USE `db_221241_TorneoDeportivo`;
+CREATE TABLE `directoresAdmins` (
+`dni` INT,
+`nombre` VARCHAR(64),
+PRIMARY KEY (`dni`)
+) CHARACTER SET latin1;
+CREATE TABLE `etapas` (
+`numEtapa` INT,
+`nombreEtapa` VARCHAR(64),
+`directoresAdmins_id` INT,
+PRIMARY KEY (`numEtapa`)
+) CHARACTER SET latin1;
+CREATE TABLE `presidentes` (
+`dni` INT,
+`nombre` VARCHAR(64),
+PRIMARY KEY (`dni`)
+) CHARACTER SET latin1;
+CREATE TABLE `directoresTecnicos` (
+`dni` INT,
+`nombre` VARCHAR(64),
+PRIMARY KEY (`dni`)
+) CHARACTER SET latin1;
+CREATE TABLE `equipos` (
+`codigo` INT,
+`nombre` VARCHAR(64),
+`pais` VARCHAR(64),
+`presidente_id` INT,
+`directoresTecnicos_id` INT,
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `jugadores` (
+`dni` INT,
+`nombre` VARCHAR(64),
+`sueldo` DECIMAL(10,2),
+`sexo` VARCHAR(64),
+`numDorsal` VARCHAR(64),
+`peso` INT,
+`altura` INT,
+`f_nacimiento` DATETIME,
+`equipos_id` INT,
+PRIMARY KEY (`dni`)
+) CHARACTER SET latin1;
+CREATE TABLE `arbitros` (
+`dni` INT,
+`nombre` VARCHAR(64),
+`sueldo` DECIMAL(10,2),
+`sexo` VARCHAR(64),
+`peso` INT,
+`f_nacimiento` DATETIME,
+`altura` INT,
+PRIMARY KEY (`dni`)
+) CHARACTER SET latin1;
+CREATE TABLE `estadios` (
+`nombreEstadio` VARCHAR(64),
+`centroDeportivo` VARCHAR(64),
+PRIMARY KEY (`nombreEstadio`)
+) CHARACTER SET latin1;
+CREATE TABLE `partidos` (
+`numPartido` INT,
+`f_partido` DATETIME,
+`equiposVisitantes_id` INT,
+`equiposLocales_id` INT,
+`estadios_id` VARCHAR(64),
+PRIMARY KEY (`numPartido`)
+) CHARACTER SET latin1;
+CREATE TABLE `partidosArbitros` (
+`partidos_id` INT,
+`arbitros_id` INT,
+`rolPartido` VARCHAR(64),
+PRIMARY KEY (`partidos_id`, `arbitros_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clasifican` (
+`equipos_id` INT,
+`etapas_id` INT,
+`fecha` DATETIME,
+PRIMARY KEY (`equipos_id`, `etapas_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tipoRegistro` (
+`jugadores_id` INT,
+`partidos_id` INT,
+`posicion` VARCHAR(64),
+`numGoles` INT,
+`numAsistencias` INT,
+`minutoIncidente` INT,
+`tipoTarjeta` VARCHAR(64),
+`minutosJugados` INT,
+PRIMARY KEY (`jugadores_id`, `partidos_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_221241_TorneoDeportivo') AS relationships;
+relationships
+Database: db_221241_TorneoDeportivo
+
+Table Connections:
+------------------
+[Implied]  clasifican.equipos_id -> equipos.codigo
+[Implied]  clasifican.etapas_id -> etapas.numEtapa
+[Implied]  equipos.directoresTecnicos_id -> directoresTecnicos.dni
+[Implied]  equipos.presidente_id -> presidentes.dni
+[Implied]  etapas.directoresAdmins_id -> directoresAdmins.dni
+[Implied]  jugadores.equipos_id -> equipos.codigo
+[Implied]  partidos.equiposLocales_id -> equipos.codigo
+[Implied]  partidos.equiposVisitantes_id -> equipos.codigo
+[Implied]  partidos.estadios_id -> estadios.nombreEstadio
+[Implied]  partidosArbitros.arbitros_id -> arbitros.dni
+[Implied]  partidosArbitros.partidos_id -> partidos.numPartido
+[Implied]  tipoRegistro.jugadores_id -> jugadores.dni
+[Implied]  tipoRegistro.partidos_id -> partidos.numPartido
+
+DROP DATABASE `db_221241_TorneoDeportivo`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 116690_migration
+#
+CREATE DATABASE `db_116690_migration`;
+USE `db_116690_migration`;
+CREATE TABLE `User` (
+`id` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`groupId` VARCHAR(64),
+`quotaId` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Organization` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`quotaId` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Instance` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`image` VARCHAR(64),
+`userId` VARCHAR(64),
+`orgId` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Group` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`permissions` VARCHAR(64),
+`default` BOOL,
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Client` (
+`clientId` VARCHAR(64),
+`clientSecret` VARCHAR(64),
+`clientName` VARCHAR(64),
+`clientUri` VARCHAR(64),
+`audience` VARCHAR(64),
+`grantTypes` VARCHAR(64),
+`redirectUris` VARCHAR(64),
+`scope` VARCHAR(64),
+`ownerId` VARCHAR(64),
+`orgId` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`clientId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Quota` (
+`id` VARCHAR(64),
+`cpu` DECIMAL(10,2),
+`memory` INT,
+`gpu` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LogLine` (
+`id` VARCHAR(64),
+`instanceId` VARCHAR(64),
+`lineNumber` INT,
+`content` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_OrganizationToUser` (
+`A` VARCHAR(64),
+`B` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_116690_migration') AS relationships;
+relationships
+Database: db_116690_migration
+
+Table Connections:
+------------------
+[Implied]  Client.orgId -> Organization.id
+[Implied]  Client.ownerId -> User.id
+[Implied]  Instance.orgId -> Organization.id
+[Implied]  Instance.userId -> User.id
+[Implied]  LogLine.instanceId -> Instance.id
+[Implied]  Organization.quotaId -> Quota.id
+[Implied]  User.groupId -> Group.id
+[Implied]  User.quotaId -> Quota.id
+[Implied]  _OrganizationToUser.A -> Organization.id
+[Implied]  _OrganizationToUser.B -> User.id
+
+DROP DATABASE `db_116690_migration`;
+UNINSTALL EXTENSION vsql_schematron;

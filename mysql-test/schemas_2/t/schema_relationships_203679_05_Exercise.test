@@ -1,0 +1,109 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 203679_05_Exercise
+--echo #
+CREATE DATABASE `db_203679_05_Exercise`;
+USE `db_203679_05_Exercise`;
+
+CREATE TABLE `people` (
+  `person_id` INT,
+  `first_name` VARCHAR(64),
+  `salary` DECIMAL(10,2),
+  `passport_id` INT,
+  PRIMARY KEY (`person_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `models` (
+  `model_id` INT,
+  `name` VARCHAR(64),
+  `manufacturer_id` INT,
+  PRIMARY KEY (`model_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `students_exams` (
+  `student_id` INT,
+  `exam_id` INT,
+  PRIMARY KEY (`student_id`, `exam_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customers` (
+  `customer_id` INT,
+  `name` VARCHAR(64),
+  `birthday` DATETIME,
+  `city_id` INT,
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `order_id` INT,
+  `customer_id` INT,
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `item_types` (
+  `item_type_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`item_type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `items` (
+  `item_id` INT,
+  `name` VARCHAR(64),
+  `item_type_id` INT,
+  PRIMARY KEY (`item_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_items` (
+  `order_id` INT,
+  `item_id` INT,
+  PRIMARY KEY (`order_id`, `item_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `majors` (
+  `major_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`major_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `students` (
+  `student_id` INT,
+  `student_number` VARCHAR(64),
+  `student_name` VARCHAR(64),
+  `major_id` INT,
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payments` (
+  `payment_id` INT,
+  `payment_date` DATETIME,
+  `payment_amount` DECIMAL(10,2),
+  `student_id` INT,
+  PRIMARY KEY (`payment_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `agenda` (
+  `student_id` INT,
+  `subject_id` INT,
+  PRIMARY KEY (`student_id`, `subject_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_203679_05_Exercise') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_203679_05_Exercise') AS relationships;
+DROP DATABASE `db_203679_05_Exercise`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 191536_01-consolidated
+#
+CREATE DATABASE `db_191536_01_consolidated`;
+USE `db_191536_01_consolidated`;
+CREATE TABLE `members` (
+`id` INT,
+`role` INT,
+`pub_key` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fallback_passwords` (
+`id` INT,
+`login` VARCHAR(64),
+`password_hash` VARCHAR(64),
+`member_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `invites` (
+`id` INT,
+`hashed_token` VARCHAR(64),
+`created_by` INT,
+`created_at` DATETIME,
+`active` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `aliases` (
+`id` INT,
+`name` VARCHAR(64),
+`member_id` INT,
+`signature` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `denied_keys` (
+`id` INT,
+`pub_key` VARCHAR(64),
+`comment` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_191536_01_consolidated') AS relationships;
+relationships
+Database: db_191536_01_consolidated
+
+Table Connections:
+------------------
+[Implied]  aliases.member_id -> members.id
+[Implied]  fallback_passwords.member_id -> members.id
+[Implied]  invites.created_by -> members.id
+
+DROP DATABASE `db_191536_01_consolidated`;
+UNINSTALL EXTENSION vsql_schematron;

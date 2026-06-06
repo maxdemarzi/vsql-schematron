@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 428905_tutorial
+#
+CREATE DATABASE `db_428905_tutorial`;
+USE `db_428905_tutorial`;
+CREATE TABLE `person` (
+`id` INT,
+`name` VARCHAR(64),
+`date_of_birth` DATETIME,
+`height` INT
+) CHARACTER SET latin1;
+CREATE TABLE `reliability` (
+`person` INT,
+`score` DECIMAL(10,2),
+PRIMARY KEY (`person`)
+) CHARACTER SET latin1;
+CREATE TABLE `room` (
+`id` INT,
+`name` VARCHAR(64),
+`area` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sightings` (
+`time` DATETIME,
+`person` INT,
+`room` INT,
+`witness` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_428905_tutorial') AS relationships;
+relationships
+Database: db_428905_tutorial
+
+Table Connections:
+------------------
+[Implied]  reliability.person -> person.id
+[Implied]  sightings.person -> person.id
+[Implied]  sightings.room -> room.id
+[Implied]  sightings.witness -> person.id
+
+DROP DATABASE `db_428905_tutorial`;
+UNINSTALL EXTENSION vsql_schematron;

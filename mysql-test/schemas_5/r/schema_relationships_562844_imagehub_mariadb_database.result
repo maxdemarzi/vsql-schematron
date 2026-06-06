@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 562844_imagehub_mariadb_database
+#
+CREATE DATABASE `db_562844_imagehub_mariadb_database`;
+USE `db_562844_imagehub_mariadb_database`;
+CREATE TABLE `alpr_events` (
+`ID` INT,
+`license_id` INT,
+`datetime` DATETIME,
+`image_id` VARCHAR(64),
+`processing_time` DECIMAL(10,2),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `camera_nodes` (
+`ID` INT,
+`NodeName` VARCHAR(64),
+`ViewName` VARCHAR(64),
+`CameraType` VARCHAR(64),
+`Display` INT,
+`Chk_Objects` INT,
+`ALPR` INT,
+`ROI_name` VARCHAR(64),
+`Message` VARCHAR(64),
+`Text_Enabled` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`datetime` DATETIME,
+`hubEvent` VARCHAR(64),
+`camera_id` INT,
+`Event` VARCHAR(64),
+`Value` VARCHAR(64),
+`ROI_name` VARCHAR(64),
+PRIMARY KEY (`hubEvent`)
+) CHARACTER SET latin1;
+CREATE TABLE `images` (
+`datetime` DATETIME,
+`image` VARCHAR(64),
+`camera_id` INT,
+`ViewName` VARCHAR(64),
+`size` INT,
+PRIMARY KEY (`image`)
+) CHARACTER SET latin1;
+CREATE TABLE `objects` (
+`ID` INT,
+`ObjectName` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`id` INT,
+`title` VARCHAR(64),
+`date_posted` DATETIME,
+`content` VARCHAR(64),
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`image_file` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_562844_imagehub_mariadb_database') AS relationships;
+relationships
+Database: db_562844_imagehub_mariadb_database
+
+Table Connections:
+------------------
+[Implied]  alpr_events.image_id -> images.image
+[Implied]  camera_nodes.ALPR -> alpr_events.ID
+[Implied]  camera_nodes.Chk_Objects -> objects.ID
+[Implied]  events.camera_id -> camera_nodes.ID
+[Implied]  images.camera_id -> camera_nodes.ID
+[Implied]  post.user_id -> user.id
+
+DROP DATABASE `db_562844_imagehub_mariadb_database`;
+UNINSTALL EXTENSION vsql_schematron;

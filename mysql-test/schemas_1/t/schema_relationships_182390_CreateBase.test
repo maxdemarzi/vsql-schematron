@@ -1,0 +1,138 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 182390_CreateBase
+--echo #
+CREATE DATABASE `db_182390_CreateBase`;
+USE `db_182390_CreateBase`;
+
+CREATE TABLE `Author` (
+  `ID` INT,
+  `name` VARCHAR(64),
+  `firstname` VARCHAR(64),
+  `birthdate` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Editor` (
+  `ID` INT,
+  `name` VARCHAR(64),
+  `adress` VARCHAR(64),
+  `phoneNumber` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DocumentType` (
+  `ID` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Document` (
+  `ID` INT,
+  `title` VARCHAR(64),
+  `mainTheme` VARCHAR(64),
+  `quantity` INT,
+  `department` INT,
+  `EditorID` INT,
+  `DocumentTypeID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Book` (
+  `DocumentID` INT,
+  `nbPages` INT,
+  PRIMARY KEY (`DocumentID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DVD` (
+  `DocumentID` INT,
+  `duration` INT,
+  PRIMARY KEY (`DocumentID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CD` (
+  `DocumentID` INT,
+  `duration` INT,
+  `nbSubtitles` INT,
+  PRIMARY KEY (`DocumentID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Video` (
+  `DocumentID` INT,
+  `duration` INT,
+  `recordingFormat` VARCHAR(64),
+  PRIMARY KEY (`DocumentID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Keywords` (
+  `ID` INT,
+  `Word` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Document_Keywords` (
+  `DocumentID` INT,
+  `KeywordID` INT,
+  PRIMARY KEY (`DocumentID`, `KeywordID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Document_Author` (
+  `DocumentID` INT,
+  `AuthorID` INT,
+  PRIMARY KEY (`DocumentID`, `AuthorID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BorrowerType` (
+  `ID` INT,
+  `borrower` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BorrowerType_DocumentType` (
+  `BorrowerTypeID` INT,
+  `DocumentTypeID` INT,
+  `durationBorrowMax` INT,
+  `nbBorrowMax` INT,
+  PRIMARY KEY (`BorrowerTypeID`, `DocumentTypeID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Borrower` (
+  `ID` INT,
+  `name` VARCHAR(64),
+  `firstname` VARCHAR(64),
+  `adress` VARCHAR(64),
+  `phoneNumber` VARCHAR(64),
+  `nbBorrow` INT,
+  `BorrowerTypeID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Document_Borrower` (
+  `BorrowID` INT,
+  `DocumentID` INT,
+  `BorrowerID` INT,
+  `dateStart` DATETIME,
+  `dateReturn` DATETIME,
+  PRIMARY KEY (`BorrowID`, `DocumentID`, `BorrowerID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_182390_CreateBase') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_182390_CreateBase') AS relationships;
+DROP DATABASE `db_182390_CreateBase`;
+UNINSTALL EXTENSION vsql_schematron;

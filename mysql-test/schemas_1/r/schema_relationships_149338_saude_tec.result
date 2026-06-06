@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 149338_saude_tec
+#
+CREATE DATABASE `db_149338_saude_tec`;
+USE `db_149338_saude_tec`;
+CREATE TABLE `saude_tec.login` (
+`idlogin` INT,
+`login` VARCHAR(64),
+`senha` VARCHAR(64),
+PRIMARY KEY (`idlogin`)
+) CHARACTER SET latin1;
+CREATE TABLE `saude_tec.usuario` (
+`nome` VARCHAR(64),
+`email` VARCHAR(64),
+`peso` DECIMAL(10,2),
+`caloriasDiarias` INT,
+`login_idlogin` INT,
+PRIMARY KEY (`login_idlogin`)
+) CHARACTER SET latin1;
+CREATE TABLE `saude_tec.alimento` (
+`idalimento` INT,
+`qrcode` VARCHAR(64),
+`nome` VARCHAR(64),
+`calorias` INT,
+`foto` VARCHAR(64),
+PRIMARY KEY (`idalimento`)
+) CHARACTER SET latin1;
+CREATE TABLE `saude_tec.usuario_has_alimento` (
+`usuario_login_idlogin` INT,
+`alimento_idalimento` INT,
+`data` DATETIME,
+PRIMARY KEY (`usuario_login_idlogin`, `alimento_idalimento`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_149338_saude_tec') AS relationships;
+relationships
+Database: db_149338_saude_tec
+
+Table Connections:
+------------------
+[Implied]  saude_tec.usuario.login_idlogin -> saude_tec.login.idlogin
+[Implied]  saude_tec.usuario_has_alimento.alimento_idalimento -> saude_tec.alimento.idalimento
+[Implied]  saude_tec.usuario_has_alimento.usuario_login_idlogin -> saude_tec.usuario.login_idlogin
+
+DROP DATABASE `db_149338_saude_tec`;
+UNINSTALL EXTENSION vsql_schematron;

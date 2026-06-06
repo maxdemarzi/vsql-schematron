@@ -1,0 +1,176 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 162748_hr_kku
+--echo #
+CREATE DATABASE `db_162748_hr_kku`;
+USE `db_162748_hr_kku`;
+
+CREATE TABLE `auth` (
+  `id` INT,
+  `user_id` INT,
+  `source` VARCHAR(64),
+  `source_id` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_assignment` (
+  `item_name` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  `created_at` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_item` (
+  `name` VARCHAR(64),
+  `type` INT,
+  `description` VARCHAR(64),
+  `rule_name` VARCHAR(64),
+  `data` VARCHAR(64),
+  `created_at` INT,
+  `updated_at` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_item_child` (
+  `parent` VARCHAR(64),
+  `child` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_rule` (
+  `name` VARCHAR(64),
+  `data` VARCHAR(64),
+  `created_at` INT,
+  `updated_at` INT,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categorise` (
+  `id` INT,
+  `type` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `menu` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `parent` INT,
+  `route` VARCHAR(64),
+  `order` INT,
+  `data` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `migration` (
+  `version` VARCHAR(64),
+  `apply_time` INT,
+  PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `profile` (
+  `user_id` INT,
+  `name` VARCHAR(64),
+  `public_email` VARCHAR(64),
+  `gravatar_email` VARCHAR(64),
+  `gravatar_id` VARCHAR(64),
+  `location` VARCHAR(64),
+  `website` VARCHAR(64),
+  `bio` VARCHAR(64),
+  `timezone` VARCHAR(64),
+  `pname` VARCHAR(64),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reader` (
+  `id` INT,
+  `sex` VARCHAR(64),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `position` VARCHAR(64),
+  `major` VARCHAR(64),
+  `affiliation` VARCHAR(64),
+  `contact` VARCHAR(64),
+  `email` VARCHAR(64),
+  `phone` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `social_account` (
+  `id` INT,
+  `user_id` INT,
+  `provider` VARCHAR(64),
+  `client_id` VARCHAR(64),
+  `data` VARCHAR(64),
+  `code` VARCHAR(64),
+  `created_at` INT,
+  `email` VARCHAR(64),
+  `username` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `step_status` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `token` (
+  `user_id` INT,
+  `code` VARCHAR(64),
+  `created_at` INT,
+  `type` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tracking_position` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `uploads` (
+  `upload_id` INT,
+  `ref` VARCHAR(64),
+  `file_name` VARCHAR(64),
+  `real_filename` VARCHAR(64),
+  `create_date` DATETIME,
+  `type` INT,
+  PRIMARY KEY (`upload_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password_hash` VARCHAR(64),
+  `auth_key` VARCHAR(64),
+  `confirmed_at` INT,
+  `unconfirmed_email` VARCHAR(64),
+  `blocked_at` INT,
+  `registration_ip` VARCHAR(64),
+  `created_at` INT,
+  `updated_at` INT,
+  `flags` INT,
+  `last_login_at` INT,
+  `github` INT,
+  `line` INT,
+  `password_reset_token` VARCHAR(64),
+  `status` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_162748_hr_kku') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_162748_hr_kku') AS relationships;
+DROP DATABASE `db_162748_hr_kku`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,127 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 430853_migration
+#
+CREATE DATABASE `db_430853_migration`;
+USE `db_430853_migration`;
+CREATE TABLE `Organization` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UseClass` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Satellite` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Composition` (
+`id` INT,
+`colors` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`satelliteId` INT,
+`campaignId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Point` (
+`id` INT,
+`latitude` VARCHAR(64),
+`longitude` VARCHAR(64),
+`info` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`campaignId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Image` (
+`id` INT,
+`date` DATETIME,
+`url` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`satelliteId` INT,
+`campaignId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Campaign` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`country` VARCHAR(64),
+`numInspectors` INT,
+`typePeriod` VARCHAR(64),
+`status` VARCHAR(64),
+`initialDate` DATETIME,
+`finalDate` DATETIME,
+`publish` BOOL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`organizationId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UsersOnCampaigns` (
+`userId` INT,
+`campaignId` INT,
+`typeUserInCampaign` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`userId`, `campaignId`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`country` VARCHAR(64),
+`geeKey` VARCHAR(64),
+`password` VARCHAR(64),
+`typeUser` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`terms` BOOL,
+`picture` VARCHAR(64),
+`active` BOOL,
+`language` VARCHAR(64),
+`theme` VARCHAR(64),
+`organizationId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_CampaignToUseClass` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_430853_migration') AS relationships;
+relationships
+Database: db_430853_migration
+
+Table Connections:
+------------------
+[Implied]  Campaign.organizationId -> Organization.id
+[Implied]  Composition.campaignId -> Campaign.id
+[Implied]  Composition.satelliteId -> Satellite.id
+[Implied]  Image.campaignId -> Campaign.id
+[Implied]  Image.satelliteId -> Satellite.id
+[Implied]  Point.campaignId -> Campaign.id
+[Implied]  User.organizationId -> Organization.id
+[Implied]  User.typeUser -> User.email
+[Implied]  UsersOnCampaigns.campaignId -> Campaign.id
+[Implied]  UsersOnCampaigns.userId -> User.id
+[Implied]  _CampaignToUseClass.A -> Campaign.id
+[Implied]  _CampaignToUseClass.B -> UseClass.id
+
+DROP DATABASE `db_430853_migration`;
+UNINSTALL EXTENSION vsql_schematron;

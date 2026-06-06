@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 288382_V1__CREACION_INICIAL_BASE_DATOS
+#
+CREATE DATABASE `db_288382_V1_CREACION_INICIAL_BASE_DATOS`;
+USE `db_288382_V1_CREACION_INICIAL_BASE_DATOS`;
+CREATE TABLE `comuna` (
+`id_comuna` INT,
+`id_provincia` INT,
+`nombre` VARCHAR(64),
+PRIMARY KEY (`id_comuna`)
+) CHARACTER SET latin1;
+CREATE TABLE `perfil_usuario` (
+`id_perfil_usuario` INT,
+`nombre` VARCHAR(64),
+PRIMARY KEY (`id_perfil_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `persona` (
+`id_persona` INT,
+`id_comuna` INT,
+`run` INT,
+`nombres` VARCHAR(64),
+`apellido_paterno` VARCHAR(64),
+`apellido_materno` VARCHAR(64),
+`fechanacimiento` DATETIME,
+`telefono` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`id_persona`)
+) CHARACTER SET latin1;
+CREATE TABLE `provincia` (
+`id_provincia` INT,
+`id_region` INT,
+`nombre` VARCHAR(64),
+PRIMARY KEY (`id_provincia`)
+) CHARACTER SET latin1;
+CREATE TABLE `region` (
+`id_region` INT,
+`nombre` VARCHAR(64),
+PRIMARY KEY (`id_region`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario` (
+`id_persona` INT,
+`id_perfil_usuario` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`habilitado` BOOL,
+PRIMARY KEY (`id_persona`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_288382_V1_CREACION_INICIAL_BASE_DATOS') AS relationships;
+relationships
+Database: db_288382_V1_CREACION_INICIAL_BASE_DATOS
+
+Table Connections:
+------------------
+[Implied]  comuna.id_provincia -> provincia.id_provincia
+[Implied]  persona.id_comuna -> comuna.id_comuna
+[Implied]  provincia.id_region -> region.id_region
+[Implied]  usuario.id_perfil_usuario -> perfil_usuario.id_perfil_usuario
+[Implied]  usuario.id_persona -> persona.id_persona
+
+DROP DATABASE `db_288382_V1_CREACION_INICIAL_BASE_DATOS`;
+UNINSTALL EXTENSION vsql_schematron;

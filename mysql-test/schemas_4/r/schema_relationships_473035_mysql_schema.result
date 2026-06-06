@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 473035_mysql-schema
+#
+CREATE DATABASE `db_473035_mysql_schema`;
+USE `db_473035_mysql_schema`;
+CREATE TABLE `tb_users` (
+`cd_user` INT,
+`nm_user` VARCHAR(64),
+`vl_email` VARCHAR(64),
+`vl_password` VARCHAR(64),
+`vl_img` VARCHAR(64),
+`vl_key` VARCHAR(64),
+`checked` INT,
+`dt_creation` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `tb_proprietaries` (
+`cd_proprietary` INT,
+`nm_proprietary` VARCHAR(64),
+`vl_email` VARCHAR(64),
+`vl_password` VARCHAR(64),
+`vl_img` VARCHAR(64),
+`vl_key` VARCHAR(64),
+`checked` INT,
+`dt_creation` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `tb_signatures` (
+`cd_signature` INT,
+`id_proprietary` INT,
+`vl_code` INT,
+`vl_password` VARCHAR(64),
+`dt_creation` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `tb_signatures_check_history` (
+`cd_reg` INT,
+`id_user` INT,
+`id_signature` INT,
+`vl_valid` INT,
+`dt_reg` DATETIME,
+`vl_code` INT
+) CHARACTER SET latin1;
+CREATE TABLE `tb_signatures_prop_check_h` (
+`cd_reg` INT,
+`id_prop` INT,
+`id_signature` INT,
+`vl_valid` INT,
+`dt_reg` DATETIME,
+`vl_code` INT
+) CHARACTER SET latin1;
+CREATE TABLE `tb_clients` (
+`cd_client` INT,
+`nm_client` VARCHAR(64),
+`tk_client` VARCHAR(64),
+`id_proprietary` INT,
+`vl_root` INT
+) CHARACTER SET latin1;
+CREATE TABLE `tb_access` (
+`cd_access` INT,
+`id_client` INT,
+`dt_access` DATETIME,
+`vl_success` INT
+) CHARACTER SET latin1;
+CREATE TABLE `tb_changelog_signatures` (
+`cd_changelog` INT,
+`id_signature` INT,
+`dt_changelog` DATETIME,
+`tp_changelog` INT,
+`vl_oldname` VARCHAR(64),
+`vl_oldkey` VARCHAR(64),
+`vl_oldcode` INT
+) CHARACTER SET latin1;
+CREATE TABLE `tb_changelog_clients` (
+`cd_changelog` INT,
+`id_client` INT,
+`dt_changelog` DATETIME,
+`tp_changelog` INT,
+`vl_oldname` VARCHAR(64),
+`vl_oldtoken` VARCHAR(64),
+`vl_oldroot` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_473035_mysql_schema') AS relationships;
+relationships
+Database: db_473035_mysql_schema
+
+Table Connections:
+------------------
+[Implied]  tb_access.id_client -> tb_clients.cd_client
+[Implied]  tb_changelog_clients.id_client -> tb_clients.cd_client
+[Implied]  tb_changelog_signatures.id_signature -> tb_signatures.cd_signature
+[Implied]  tb_clients.id_proprietary -> tb_proprietaries.cd_proprietary
+[Implied]  tb_signatures.id_proprietary -> tb_proprietaries.cd_proprietary
+[Implied]  tb_signatures_check_history.id_signature -> tb_signatures.cd_signature
+[Implied]  tb_signatures_check_history.id_user -> tb_users.cd_user
+[Implied]  tb_signatures_prop_check_h.id_prop -> tb_proprietaries.cd_proprietary
+[Implied]  tb_signatures_prop_check_h.id_signature -> tb_signatures.cd_signature
+
+DROP DATABASE `db_473035_mysql_schema`;
+UNINSTALL EXTENSION vsql_schematron;

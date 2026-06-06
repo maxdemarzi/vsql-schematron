@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 028718_V1_0__Create_tables
+--echo #
+CREATE DATABASE `db_028718_V1_0_Create_tables`;
+USE `db_028718_V1_0_Create_tables`;
+
+CREATE TABLE `players` (
+  `party_id` VARCHAR(64),
+  `player_id` INT,
+  `created` INT,
+  `nick` VARCHAR(64),
+  `job` VARCHAR(64),
+  `bis_link` VARCHAR(64),
+  `priority` INT,
+  PRIMARY KEY (`player_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `loot` (
+  `loot_id` INT,
+  `player_id` INT,
+  `created` INT,
+  `piece` VARCHAR(64),
+  `is_tome` INT,
+  `job` VARCHAR(64),
+  PRIMARY KEY (`loot_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bis` (
+  `player_id` INT,
+  `created` INT,
+  `piece` VARCHAR(64),
+  `is_tome` INT,
+  `job` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `party_id` VARCHAR(64),
+  `user_id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `permission` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_028718_V1_0_Create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_028718_V1_0_Create_tables') AS relationships;
+DROP DATABASE `db_028718_V1_0_Create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

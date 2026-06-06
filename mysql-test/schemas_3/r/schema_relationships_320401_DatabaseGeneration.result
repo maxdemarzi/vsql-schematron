@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 320401_DatabaseGeneration
+#
+CREATE DATABASE `db_320401_DatabaseGeneration`;
+USE `db_320401_DatabaseGeneration`;
+CREATE TABLE `Waiter` (
+`WaiterId` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`WaiterId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Food` (
+`FoodId` INT,
+`Name` VARCHAR(64),
+`Type` VARCHAR(64),
+`Cost` DECIMAL(10,2),
+PRIMARY KEY (`FoodId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Dish` (
+`FoodId` INT,
+PRIMARY KEY (`FoodId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Restaurant` (
+`RestaurantId` INT,
+`City` VARCHAR(64),
+PRIMARY KEY (`RestaurantId`)
+) CHARACTER SET latin1;
+CREATE TABLE `TableRestaurant` (
+`TableId` INT,
+`RestaurantId` INT,
+`Seats` INT,
+PRIMARY KEY (`TableId`)
+) CHARACTER SET latin1;
+CREATE TABLE `StateTimes` (
+`StartTime` DATETIME,
+`TableId` INT,
+`State` VARCHAR(64),
+PRIMARY KEY (`StartTime`, `TableId`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`UserId` INT,
+`Username` VARCHAR(64),
+`Password` VARCHAR(64),
+`Type` VARCHAR(64),
+`WaiterId` INT,
+PRIMARY KEY (`UserId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Booking` (
+`TableId` INT,
+`Date` DATETIME,
+`Turn` VARCHAR(64),
+`Client` VARCHAR(64),
+PRIMARY KEY (`TableId`, `Date`, `Turn`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderRestaurant` (
+`OrderId` INT,
+`WaiterId` INT,
+`TableId` INT,
+`State` VARCHAR(64),
+`Datetime` DATETIME,
+`PaymentMethod` VARCHAR(64),
+PRIMARY KEY (`OrderId`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderContent` (
+`OrderId` INT,
+`FoodId` INT,
+`Quantity` INT,
+`TimeReady` DATETIME,
+`TimeDelivered` DATETIME,
+PRIMARY KEY (`OrderId`, `FoodId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_320401_DatabaseGeneration') AS relationships;
+relationships
+Database: db_320401_DatabaseGeneration
+
+Table Connections:
+------------------
+[Implied]  Booking.TableId -> TableRestaurant.TableId
+[Implied]  Dish.FoodId -> Food.FoodId
+[Implied]  OrderContent.FoodId -> Food.FoodId
+[Implied]  OrderContent.OrderId -> OrderRestaurant.OrderId
+[Implied]  OrderRestaurant.TableId -> TableRestaurant.TableId
+[Implied]  OrderRestaurant.WaiterId -> Waiter.WaiterId
+[Implied]  StateTimes.TableId -> TableRestaurant.TableId
+[Implied]  TableRestaurant.RestaurantId -> Restaurant.RestaurantId
+[Implied]  User.WaiterId -> Waiter.WaiterId
+
+DROP DATABASE `db_320401_DatabaseGeneration`;
+UNINSTALL EXTENSION vsql_schematron;

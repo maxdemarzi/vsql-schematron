@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 271378_bddPayPal
+#
+CREATE DATABASE `db_271378_bddPayPal`;
+USE `db_271378_bddPayPal`;
+CREATE TABLE `categoria_productos` (
+`idCatgoriaProducto` INT,
+`nombre` VARCHAR(64),
+PRIMARY KEY (`idCatgoriaProducto`)
+) CHARACTER SET latin1;
+CREATE TABLE `productos` (
+`idProducto` INT,
+`nombre` VARCHAR(64),
+`precio` DECIMAL(10,2),
+`cantidad` INT,
+`imagen` VARCHAR(64),
+`categoriaProductoId` INT,
+PRIMARY KEY (`idProducto`)
+) CHARACTER SET latin1;
+CREATE TABLE `clientes` (
+`idCliente` INT,
+`correo` VARCHAR(64),
+PRIMARY KEY (`idCliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `compras` (
+`idCompra` INT,
+`productoId` INT,
+`cantidad` DECIMAL(10,2),
+`clienteId` INT,
+PRIMARY KEY (`idCompra`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_271378_bddPayPal') AS relationships;
+relationships
+Database: db_271378_bddPayPal
+
+Table Connections:
+------------------
+[Implied]  compras.clienteId -> clientes.idCliente
+[Implied]  compras.productoId -> productos.idProducto
+[Implied]  productos.categoriaProductoId -> categoria_productos.idCatgoriaProducto
+
+DROP DATABASE `db_271378_bddPayPal`;
+UNINSTALL EXTENSION vsql_schematron;

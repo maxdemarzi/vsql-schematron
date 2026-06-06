@@ -25,6 +25,7 @@ struct Relationship {
 struct TableInfo {
     std::string name;
     std::vector<std::string> pk_columns;
+    std::vector<std::string> uni_columns;
     std::unordered_map<std::string, std::string> column_types;
 };
 

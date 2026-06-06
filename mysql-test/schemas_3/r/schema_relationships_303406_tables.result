@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 303406_tables
+#
+CREATE DATABASE `db_303406_tables`;
+USE `db_303406_tables`;
+CREATE TABLE `users` (
+`user_id` VARCHAR(64),
+`email` VARCHAR(64),
+`user_name` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hashes` (
+`user_id` VARCHAR(64),
+`hash` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `salts` (
+`user_id` VARCHAR(64),
+`salt` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tokens` (
+`user_id` VARCHAR(64),
+`token` VARCHAR(64),
+`expires` DATETIME,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_303406_tables') AS relationships;
+relationships
+Database: db_303406_tables
+
+Table Connections:
+------------------
+[Implied]  hashes.user_id -> users.user_id
+[Implied]  salts.user_id -> users.user_id
+[Implied]  tokens.user_id -> users.user_id
+
+DROP DATABASE `db_303406_tables`;
+UNINSTALL EXTENSION vsql_schematron;

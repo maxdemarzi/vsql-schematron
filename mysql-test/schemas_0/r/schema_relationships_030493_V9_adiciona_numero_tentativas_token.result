@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 030493_V9__adiciona_numero_tentativas_token
+#
+CREATE DATABASE `db_030493_V9_adiciona_numero_tentativas_token`;
+USE `db_030493_V9_adiciona_numero_tentativas_token`;
+CREATE TABLE `papeis` (
+`id` INT,
+`nome` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuarios` (
+`id` INT,
+`cpf` VARCHAR(64),
+`senha` VARCHAR(64),
+`papel_id` INT,
+`servidor` BOOL,
+`habilitado` BOOL,
+`siorg` VARCHAR(64),
+`nome` VARCHAR(64),
+`siape` VARCHAR(64),
+`email_primario` VARCHAR(64),
+`email_secundario` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tokens` (
+`id` INT,
+`usuario_id` INT,
+`token` VARCHAR(64),
+`data_criacao` DATETIME,
+`tentativas_sobrando` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_030493_V9_adiciona_numero_tentativas_token') AS relationships;
+relationships
+Database: db_030493_V9_adiciona_numero_tentativas_token
+
+Table Connections:
+------------------
+[Implied]  tokens.usuario_id -> usuarios.id
+[Implied]  usuarios.papel_id -> papeis.id
+
+DROP DATABASE `db_030493_V9_adiciona_numero_tentativas_token`;
+UNINSTALL EXTENSION vsql_schematron;

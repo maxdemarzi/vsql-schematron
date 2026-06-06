@@ -1,0 +1,106 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 171041_MySQL-ClassicModels-DB
+#
+CREATE DATABASE `db_171041_MySQL_ClassicModels_DB`;
+USE `db_171041_MySQL_ClassicModels_DB`;
+CREATE TABLE `offices` (
+`officeCode` VARCHAR(64),
+`city` VARCHAR(64),
+`phone` VARCHAR(64),
+`addressLine1` VARCHAR(64),
+`addressLine2` VARCHAR(64),
+`state` VARCHAR(64),
+`country` VARCHAR(64),
+`postalCode` VARCHAR(64),
+`territory` VARCHAR(64),
+PRIMARY KEY (`officeCode`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`employeeNumber` INT,
+`lastName` VARCHAR(64),
+`firstName` VARCHAR(64),
+`extension` VARCHAR(64),
+`email` VARCHAR(64),
+`officeCode` VARCHAR(64),
+`reportsTo` INT,
+`jobTitle` VARCHAR(64),
+PRIMARY KEY (`employeeNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `customers` (
+`customerNumber` INT,
+`customerName` VARCHAR(64),
+`contactLastName` VARCHAR(64),
+`contactFirstName` VARCHAR(64),
+`phone` VARCHAR(64),
+`addressLine1` VARCHAR(64),
+`addressLine2` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`postalCode` VARCHAR(64),
+`country` VARCHAR(64),
+`salesRepEmployeeNumber` INT,
+`creditLimit` DECIMAL(10,2),
+PRIMARY KEY (`customerNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `productlines` (
+`productLine` VARCHAR(64),
+`textDescription` VARCHAR(64),
+`htmlDescription` VARCHAR(64),
+`image` VARCHAR(64),
+PRIMARY KEY (`productLine`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`productCode` VARCHAR(64),
+`productName` VARCHAR(64),
+`productLine` VARCHAR(64),
+`productScale` VARCHAR(64),
+`productVendor` VARCHAR(64),
+`productDescription` VARCHAR(64),
+`quantityInStock` INT,
+`buyPrice` DECIMAL(10,2),
+`MSRP` DECIMAL(10,2),
+PRIMARY KEY (`productCode`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`orderNumber` INT,
+`orderDate` DATETIME,
+`requiredDate` DATETIME,
+`shippedDate` DATETIME,
+`status` VARCHAR(64),
+`comments` VARCHAR(64),
+`customerNumber` INT,
+PRIMARY KEY (`orderNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderdetails` (
+`orderNumber` INT,
+`productCode` VARCHAR(64),
+`quantityOrdered` INT,
+`priceEach` DECIMAL(10,2),
+`orderLineNumber` INT,
+PRIMARY KEY (`orderNumber`, `productCode`)
+) CHARACTER SET latin1;
+CREATE TABLE `payments` (
+`customerNumber` INT,
+`checkNumber` VARCHAR(64),
+`paymentDate` DATETIME,
+`amount` DECIMAL(10,2),
+PRIMARY KEY (`customerNumber`, `checkNumber`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_171041_MySQL_ClassicModels_DB') AS relationships;
+relationships
+Database: db_171041_MySQL_ClassicModels_DB
+
+Table Connections:
+------------------
+[Implied]  customers.salesRepEmployeeNumber -> employees.employeeNumber
+[Implied]  employees.officeCode -> offices.officeCode
+[Implied]  employees.reportsTo -> employees.employeeNumber
+[Implied]  orderdetails.orderNumber -> orders.orderNumber
+[Implied]  orderdetails.productCode -> products.productCode
+[Implied]  orders.customerNumber -> customers.customerNumber
+[Implied]  payments.customerNumber -> customers.customerNumber
+[Implied]  products.productLine -> productlines.productLine
+
+DROP DATABASE `db_171041_MySQL_ClassicModels_DB`;
+UNINSTALL EXTENSION vsql_schematron;

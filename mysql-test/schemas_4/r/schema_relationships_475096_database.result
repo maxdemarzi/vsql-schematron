@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 475096_database
+#
+CREATE DATABASE `db_475096_database`;
+USE `db_475096_database`;
+CREATE TABLE `USERS` (
+`Code` VARCHAR(64),
+`RUT` VARCHAR(64),
+`Firstname` VARCHAR(64),
+`Lastname` VARCHAR(64),
+`Phone` INT,
+`Street` VARCHAR(64),
+`HouseNumber` VARCHAR(64),
+`City` VARCHAR(64),
+`State` VARCHAR(64),
+`Country` VARCHAR(64),
+`Type` INT,
+`Email` VARCHAR(64),
+`Pass` VARCHAR(64),
+`Token` VARCHAR(64),
+`TokenTime` DATETIME,
+`CreatedAt` DATETIME,
+`UpdatedAt` DATETIME,
+`LoggedAt` DATETIME,
+`ParentOrg` VARCHAR(64),
+PRIMARY KEY (`Code`)
+) CHARACTER SET latin1;
+CREATE TABLE `EVENTS` (
+`EventId` VARCHAR(64),
+`SupervisorCorp` VARCHAR(64),
+`Type` INT,
+`CreatedAt` DATETIME,
+`ClosedAt` DATETIME,
+`SubmittedAt` DATETIME,
+`UserCode` VARCHAR(64),
+PRIMARY KEY (`EventId`)
+) CHARACTER SET latin1;
+CREATE TABLE `COMMENTS` (
+`CommentId` VARCHAR(64),
+`Content` VARCHAR(64),
+`Type` VARCHAR(64),
+`EventId` VARCHAR(64),
+PRIMARY KEY (`CommentId`)
+) CHARACTER SET latin1;
+CREATE TABLE `TOOLS` (
+`ToolId` VARCHAR(64),
+`Name` VARCHAR(64),
+`Status` INT,
+`EventId` VARCHAR(64),
+PRIMARY KEY (`ToolId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_475096_database') AS relationships;
+relationships
+Database: db_475096_database
+
+Table Connections:
+------------------
+[Implied]  COMMENTS.EventId -> EVENTS.EventId
+[Implied]  EVENTS.UserCode -> USERS.Code
+[Implied]  TOOLS.EventId -> EVENTS.EventId
+
+DROP DATABASE `db_475096_database`;
+UNINSTALL EXTENSION vsql_schematron;

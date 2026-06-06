@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 180659_CreateScheduleTables
+#
+CREATE DATABASE `db_180659_CreateScheduleTables`;
+USE `db_180659_CreateScheduleTables`;
+CREATE TABLE `Airline` (
+`AirlineID` INT,
+`Name` VARCHAR(64),
+`ICAOCode` VARCHAR(64),
+`IATACode` VARCHAR(64),
+PRIMARY KEY (`AirlineID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Flight` (
+`FlightID` INT,
+`Number` VARCHAR(64),
+`ICAONumber` VARCHAR(64),
+`IATANumber` VARCHAR(64),
+PRIMARY KEY (`FlightID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Schedule` (
+`ScheduleID` INT,
+`Type` VARCHAR(64),
+`Status` VARCHAR(64),
+`AirlineID` INT,
+`FlightID` INT,
+PRIMARY KEY (`ScheduleID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Departure` (
+`ScheduleID` INT,
+`ICAOCode` VARCHAR(64),
+`IATACode` VARCHAR(64),
+`Terminal` VARCHAR(64),
+`Gate` VARCHAR(64),
+`Delay` INT,
+`ScheduledTime` DATETIME,
+`EstimatedTime` DATETIME,
+`ActualTime` DATETIME,
+`EstimatedRunway` DATETIME,
+`ActualRunway` DATETIME,
+PRIMARY KEY (`ScheduleID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Arrival` (
+`ScheduleID` INT,
+`ICAOCode` VARCHAR(64),
+`IATACode` VARCHAR(64),
+`Terminal` VARCHAR(64),
+`Gate` VARCHAR(64),
+`Baggage` VARCHAR(64),
+`Delay` INT,
+`ScheduledTime` DATETIME,
+`EstimatedTime` DATETIME,
+`ActualTime` DATETIME,
+`EstimatedRunway` DATETIME,
+`ActualRunway` DATETIME,
+PRIMARY KEY (`ScheduleID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_180659_CreateScheduleTables') AS relationships;
+relationships
+Database: db_180659_CreateScheduleTables
+
+Table Connections:
+------------------
+[Implied]  Arrival.ScheduleID -> Schedule.ScheduleID
+[Implied]  Departure.ScheduleID -> Schedule.ScheduleID
+[Implied]  Schedule.AirlineID -> Airline.AirlineID
+[Implied]  Schedule.FlightID -> Flight.FlightID
+
+DROP DATABASE `db_180659_CreateScheduleTables`;
+UNINSTALL EXTENSION vsql_schematron;

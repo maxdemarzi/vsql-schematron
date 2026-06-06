@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 665420_migration
+#
+CREATE DATABASE `db_665420_migration`;
+USE `db_665420_migration`;
+CREATE TABLE `Country` (
+`id` INT,
+`name` VARCHAR(64),
+`topLevelDomain` VARCHAR(64),
+`alpha2Code` VARCHAR(64),
+`alpha3Code` VARCHAR(64),
+`callingCodes` VARCHAR(64),
+`capital` VARCHAR(64),
+`altSpellings` VARCHAR(64),
+`region` VARCHAR(64),
+`subregion` VARCHAR(64),
+`population` INT,
+`latlng` VARCHAR(64),
+`demonym` VARCHAR(64),
+`area` INT,
+`gini` DECIMAL(10,2),
+`timezones` VARCHAR(64),
+`borders` VARCHAR(64),
+`nativeName` VARCHAR(64),
+`numericCode` VARCHAR(64),
+`flag` VARCHAR(64),
+`cioc` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Translation` (
+`translateTo` VARCHAR(64),
+`translated` VARCHAR(64),
+`countryId` INT,
+PRIMARY KEY (`countryId`, `translateTo`, `translated`)
+) CHARACTER SET latin1;
+CREATE TABLE `Currency` (
+`id` INT,
+`code` VARCHAR(64),
+`symbol` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Language` (
+`id` INT,
+`iso639_1` VARCHAR(64),
+`iso639_2` VARCHAR(64),
+`name` VARCHAR(64),
+`nativeName` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RegionalBloc` (
+`id` INT,
+`acronym` VARCHAR(64),
+`name` VARCHAR(64),
+`otherAcronyms` VARCHAR(64),
+`otherNames` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_CountryToCurrency` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_CountryToLanguage` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_CountryToRegionalBloc` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_665420_migration') AS relationships;
+relationships
+Database: db_665420_migration
+
+Table Connections:
+------------------
+[Implied]  Translation.countryId -> Country.id
+[Implied]  _CountryToCurrency.A -> Country.id
+[Implied]  _CountryToCurrency.B -> Currency.id
+[Implied]  _CountryToLanguage.A -> Country.id
+[Implied]  _CountryToLanguage.B -> Language.id
+[Implied]  _CountryToRegionalBloc.A -> Country.id
+[Implied]  _CountryToRegionalBloc.B -> RegionalBloc.id
+
+DROP DATABASE `db_665420_migration`;
+UNINSTALL EXTENSION vsql_schematron;

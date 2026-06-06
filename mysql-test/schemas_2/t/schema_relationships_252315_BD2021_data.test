@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 252315_BD2021_data
+--echo #
+CREATE DATABASE `db_252315_BD2021_data`;
+USE `db_252315_BD2021_data`;
+
+CREATE TABLE `emp` (
+  `nemp` DECIMAL(10,2),
+  `nome` VARCHAR(64),
+  `funcao` VARCHAR(64),
+  `encar` DECIMAL(10,2),
+  `data_entrada` DATETIME,
+  `sal` DECIMAL(10,2),
+  `premios` DECIMAL(10,2),
+  `ndep` DECIMAL(10,2),
+  PRIMARY KEY (`nemp`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dep` (
+  `ndep` DECIMAL(10,2),
+  `nome` VARCHAR(64),
+  `local` VARCHAR(64),
+  PRIMARY KEY (`ndep`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `descontos` (
+  `escalao` DECIMAL(10,2),
+  `salinf` DECIMAL(10,2),
+  `salsup` DECIMAL(10,2),
+  PRIMARY KEY (`escalao`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_252315_BD2021_data') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_252315_BD2021_data') AS relationships;
+DROP DATABASE `db_252315_BD2021_data`;
+UNINSTALL EXTENSION vsql_schematron;

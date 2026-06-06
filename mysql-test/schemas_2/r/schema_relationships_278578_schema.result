@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 278578_schema
+#
+CREATE DATABASE `db_278578_schema`;
+USE `db_278578_schema`;
+CREATE TABLE `student` (
+`id` INT,
+`jmbag` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`date_of_birth` DATETIME,
+`number_of_ects` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`id` INT,
+`name` VARCHAR(64),
+`number_of_ects` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_course` (
+`course_id` INT,
+`student_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `authority` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_authority` (
+`user_id` INT,
+`authority_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_278578_schema') AS relationships;
+relationships
+Database: db_278578_schema
+
+Table Connections:
+------------------
+[Implied]  student_course.course_id -> course.id
+[Implied]  student_course.student_id -> student.id
+[Implied]  user_authority.authority_id -> authority.id
+[Implied]  user_authority.user_id -> user.id
+
+DROP DATABASE `db_278578_schema`;
+UNINSTALL EXTENSION vsql_schematron;

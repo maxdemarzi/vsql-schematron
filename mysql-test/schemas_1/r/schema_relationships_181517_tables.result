@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 181517_tables
+#
+CREATE DATABASE `db_181517_tables`;
+USE `db_181517_tables`;
+CREATE TABLE `courses` (
+`course_id` INT,
+`pl_course_id` INT,
+`pl_last_checked` DATETIME,
+PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `students` (
+`student_id` INT,
+`course_id` INT,
+`last_seen` DATETIME,
+`pl_id` VARCHAR(64),
+`discord_id` VARCHAR(64),
+`piazza_id` VARCHAR(64),
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `integrations` (
+`integration_id` VARCHAR(64),
+PRIMARY KEY (`integration_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `points_cache` (
+`student_id` INT,
+`integration_id` VARCHAR(64),
+`timestamp` DATETIME,
+`points` INT,
+PRIMARY KEY (`student_id`, `integration_id`, `timestamp`)
+) CHARACTER SET latin1;
+CREATE TABLE `points` (
+`student_id` INT,
+`integration_id` VARCHAR(64),
+`points` INT,
+PRIMARY KEY (`student_id`, `integration_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `daily` (
+`student_id` INT,
+`last_daily` DATETIME,
+`num_dailies` INT,
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_181517_tables') AS relationships;
+relationships
+Database: db_181517_tables
+
+Table Connections:
+------------------
+[Implied]  daily.student_id -> students.student_id
+[Implied]  points.integration_id -> integrations.integration_id
+[Implied]  points.student_id -> students.student_id
+[Implied]  points_cache.integration_id -> integrations.integration_id
+[Implied]  points_cache.student_id -> students.student_id
+[Implied]  students.course_id -> courses.course_id
+
+DROP DATABASE `db_181517_tables`;
+UNINSTALL EXTENSION vsql_schematron;

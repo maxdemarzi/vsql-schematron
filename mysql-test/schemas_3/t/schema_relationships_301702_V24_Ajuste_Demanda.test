@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 301702_V24__Ajuste_Demanda
+--echo #
+CREATE DATABASE `db_301702_V24_Ajuste_Demanda`;
+USE `db_301702_V24_Ajuste_Demanda`;
+
+CREATE TABLE `tb_demanda` (
+  `id_demanda` INT,
+  `id_atividade` INT,
+  `id_demanda_superior` INT,
+  `id_usuario` INT,
+  `dt_abertura` DATETIME,
+  `no_demanda` VARCHAR(64),
+  `ds_descricao` VARCHAR(64),
+  `no_projeto` VARCHAR(64),
+  `ds_ambiente` VARCHAR(64),
+  `ds_solucao` VARCHAR(64),
+  `vl_complexidade` VARCHAR(64),
+  `vl_impacto` VARCHAR(64),
+  `vl_criticidade` VARCHAR(64),
+  `vl_fator_ponderacao` VARCHAR(64),
+  `vl_facim` VARCHAR(64),
+  `vl_qma` VARCHAR(64),
+  `no_executor` VARCHAR(64),
+  `tp_situacao` INT,
+  `id_usuario_alteracao` INT,
+  `dt_alteracao` DATETIME,
+  PRIMARY KEY (`id_demanda`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_301702_V24_Ajuste_Demanda') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_301702_V24_Ajuste_Demanda') AS relationships;
+DROP DATABASE `db_301702_V24_Ajuste_Demanda`;
+UNINSTALL EXTENSION vsql_schematron;

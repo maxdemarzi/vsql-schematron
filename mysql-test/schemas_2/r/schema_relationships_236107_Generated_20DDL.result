@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 236107_Generated%20DDL
+#
+CREATE DATABASE `db_236107_Generated_20DDL`;
+USE `db_236107_Generated_20DDL`;
+CREATE TABLE `leilao` (
+`leilaoid` INT,
+`titulo` VARCHAR(64),
+`descricao` VARCHAR(64),
+`precominimo` DECIMAL(10,2),
+`limite` DATETIME,
+`fechado` BOOL,
+`users_userid` INT,
+`vencedorid` INT,
+`artigo_artigoid` INT,
+PRIMARY KEY (`leilaoid`)
+) CHARACTER SET latin1;
+CREATE TABLE `artigo` (
+`artigoid` INT,
+`nome_artigo` VARCHAR(64),
+`descricao` VARCHAR(64),
+`leiloado` BOOL,
+PRIMARY KEY (`artigoid`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`userid` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`authtoken` VARCHAR(64),
+PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+CREATE TABLE `mural` (
+`mensagem` VARCHAR(64),
+`leilao_leilaoid` INT,
+`users_userid` INT
+) CHARACTER SET latin1;
+CREATE TABLE `licitacao` (
+`licitacaoid` INT,
+`valor_licitado` DECIMAL(10,2),
+`users_userid` INT,
+`leilao_leilaoid` INT,
+PRIMARY KEY (`licitacaoid`)
+) CHARACTER SET latin1;
+CREATE TABLE `historico_versoes` (
+`versaoid` INT,
+`titulo` VARCHAR(64),
+`descricao` VARCHAR(64),
+`precominimo` DECIMAL(10,2),
+`limite` DATETIME,
+`leilao_leilaoid` INT,
+PRIMARY KEY (`versaoid`)
+) CHARACTER SET latin1;
+CREATE TABLE `inbox` (
+`mensagem` VARCHAR(64),
+`users_userid` INT,
+`leilao_leilaoid` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_236107_Generated_20DDL') AS relationships;
+relationships
+Database: db_236107_Generated_20DDL
+
+Table Connections:
+------------------
+[Implied]  historico_versoes.leilao_leilaoid -> leilao.leilaoid
+[Implied]  inbox.leilao_leilaoid -> leilao.leilaoid
+[Implied]  inbox.users_userid -> users.userid
+[Implied]  leilao.artigo_artigoid -> artigo.artigoid
+[Implied]  leilao.users_userid -> users.userid
+[Implied]  leilao.vencedorid -> users.userid
+[Implied]  licitacao.leilao_leilaoid -> leilao.leilaoid
+[Implied]  licitacao.users_userid -> users.userid
+[Implied]  mural.leilao_leilaoid -> leilao.leilaoid
+[Implied]  mural.users_userid -> users.userid
+
+DROP DATABASE `db_236107_Generated_20DDL`;
+UNINSTALL EXTENSION vsql_schematron;

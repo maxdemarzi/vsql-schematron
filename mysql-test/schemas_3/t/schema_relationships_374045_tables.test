@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 374045_tables
+--echo #
+CREATE DATABASE `db_374045_tables`;
+USE `db_374045_tables`;
+
+CREATE TABLE `app_user` (
+  `id` INT,
+  `email` VARCHAR(64),
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `household` VARCHAR(64),
+  `is_parent` BOOL,
+  `balance` DECIMAL(10,2),
+  `active_goal` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `household` (
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chore` (
+  `id` INT,
+  `created_by` INT,
+  `assigned_to` INT,
+  `household` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_at` DATETIME,
+  `completed_on` DATETIME,
+  `verified_on` DATETIME,
+  `reward` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `goal` (
+  `id` INT,
+  `belongs_to` INT,
+  `description` VARCHAR(64),
+  `dollar_value` DECIMAL(10,2),
+  `image` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `session` (
+  `ssid` VARCHAR(64),
+  `created_at` DATETIME,
+  `valid_until` DATETIME,
+  PRIMARY KEY (`ssid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_374045_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_374045_tables') AS relationships;
+DROP DATABASE `db_374045_tables`;
+UNINSTALL EXTENSION vsql_schematron;

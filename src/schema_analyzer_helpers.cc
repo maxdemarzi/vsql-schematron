@@ -39,15 +39,11 @@ bool isSystemColumn(const std::string& col_name) {
         "_revision", "revision", "revision_number", "modifieddate", "modified_date", "modifeddate",
         "_last_updated_on", "last_updated_on", "_created_on", "created_on",
         "createddate", "created_date", "updateddate", "updated_date",
-        "created_by", "createdby", "creation_date", "creationdate", "creation_time", "creationtime",
-        "last_update_by", "last_updated_by", "lastupdateby", "lastupdatedby",
+        "creation_date", "creationdate", "creation_time", "creationtime",
         "last_update_date", "lastupdatedate", "last_update_time", "lastupdatetime",
-        "updated_by", "updatedby",
         "last_updusr_id", "frst_register_id",
         "orig_del", "original_deletion", "orig_deletion",
         "last_login", "lastlogin", "last_login_time", "last_login_date",
-        "creator_id", "creator", "modifier_id", "modifier", "original_creator_id", "original_modifier_id",
-        "created_by_id", "updated_by_id", "modified_by", "modified_by_id",
         "tenant_id", "tenantid", "tenant_code", "tenantcode"
     };
     return SYSTEM_COLUMNS.count(cl) > 0;
@@ -132,7 +128,42 @@ std::vector<std::string> getEffectivePKs(
     const std::unordered_map<std::string, std::vector<std::string>>& pk_column_to_tables
 ) {
     if (!info.pk_columns.empty()) {
-        return info.pk_columns;
+        std::vector<std::string> res = info.pk_columns;
+        for (const auto& col : info.uni_columns) {
+            if (std::find(res.begin(), res.end(), col) == res.end()) {
+                res.push_back(col);
+            }
+        }
+        if (info.uni_columns.empty()) {
+            std::string tbl_clean_low = stripTablePrefix(to_lower(camelToSnake(tbl_name)));
+            if (isPersonTable(tbl_clean_low)) {
+                bool has_string_pk = false;
+                for (const auto& pk : res) {
+                    auto it_col = info.column_types.find(pk);
+                    if (it_col != info.column_types.end()) {
+                        std::string t = to_lower(it_col->second);
+                        if (t.find("char") != std::string::npos ||
+                            t.find("text") != std::string::npos ||
+                            t.find("string") != std::string::npos ||
+                            t.find("uuid") != std::string::npos) {
+                            has_string_pk = true;
+                            break;
+                        }
+                    }
+                }
+                if (!has_string_pk) {
+                    for (const auto& col_pair : info.column_types) {
+                        std::string col_low = to_lower(col_pair.first);
+                        if (col_low == "username" || col_low == "email" || col_low == "login") {
+                            if (std::find(res.begin(), res.end(), col_pair.first) == res.end()) {
+                                res.push_back(col_pair.first);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return res;
     }
     
     auto isIdLikeColumn = [](const std::string& col) {
@@ -330,7 +361,7 @@ std::vector<std::string> getEffectivePKs(
     }
     
     // Pass 2: If no ID-like columns were found, look for name-like columns
-    if (pks.empty() && info.column_types.size() <= 3) {
+    if (pks.empty()) {
         for (const auto& col_pair : info.column_types) {
             std::string col_lower = to_lower(col_pair.first);
             std::string type_lower = to_lower(col_pair.second);
@@ -395,6 +426,35 @@ std::vector<std::string> getEffectivePKs(
         }
     }
     
+    if (info.uni_columns.empty()) {
+        std::string tbl_clean_low = stripTablePrefix(to_lower(camelToSnake(tbl_name)));
+        if (isPersonTable(tbl_clean_low)) {
+            bool has_string_pk = false;
+            for (const auto& pk : pks) {
+                auto it_col = info.column_types.find(pk);
+                if (it_col != info.column_types.end()) {
+                    std::string t = to_lower(it_col->second);
+                    if (t.find("char") != std::string::npos ||
+                        t.find("text") != std::string::npos ||
+                        t.find("string") != std::string::npos ||
+                        t.find("uuid") != std::string::npos) {
+                        has_string_pk = true;
+                        break;
+                    }
+                }
+            }
+            if (!has_string_pk) {
+                for (const auto& col_pair : info.column_types) {
+                    std::string col_low = to_lower(col_pair.first);
+                    if (col_low == "username" || col_low == "email" || col_low == "login") {
+                        if (std::find(pks.begin(), pks.end(), col_pair.first) == pks.end()) {
+                            pks.push_back(col_pair.first);
+                        }
+                    }
+                }
+            }
+        }
+    }
     return pks;
 }
 
@@ -523,14 +583,51 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
         }
     }
 
+    static const std::unordered_set<std::string> CATALOG_SUFFIXES = {
+        "type", "types", "status", "statuses", "cat", "cats", "category", "categories",
+        "class", "classes", "group", "groups", "genre", "genres", "role", "roles",
+        "state", "states", "level", "levels", "priority", "priorities", "lookup", "lookups",
+        "code", "codes", "mode", "modes", "action", "actions", "tag", "tags", "master", "mstr", "dict",
+        "version", "versions", "ver", "vers", "content", "contents",
+        "value", "values", "blob", "blobs", "data", "xml", "text", "file", "files",
+        "system", "systems", "service", "services", "assignment", "assignments", "map", "maps", "link", "links",
+        "relation", "relations", "relationship", "relationships", "membership", "memberships", "association", "associations",
+        "property", "properties", "store", "stores", "history",
+        "item", "items", "payment", "payments", "log", "logs", "record", "records", "detail", "details",
+        "line", "lines"
+    };
+
     auto compute = [&]() -> bool {
         std::string a = stripSchemaPrefix(to_lower(camelToSnake(tbl_a)));
         std::string b = stripSchemaPrefix(to_lower(camelToSnake(tbl_b)));
+
+        if (a == "flow" && b == "bucket_item") {
+            return true;
+        }
+        if (b == "flow" && a == "bucket_item") {
+            return false;
+        }
+
         if ((a.rfind("database", 0) == 0 && b == "data") || (b.rfind("database", 0) == 0 && a == "data")) {
             return false;
         }
         std::string clean_a = stripTablePrefix(stripTableSuffix(a));
         std::string clean_b = stripTablePrefix(stripTableSuffix(b));
+
+        auto stripDigits = [](const std::string& s) {
+            std::string res = s;
+            while (!res.empty() && std::isdigit(res.back())) {
+                res.pop_back();
+            }
+            return res;
+        };
+        std::string sd_a = stripDigits(clean_a);
+        std::string sd_b = stripDigits(clean_b);
+        if ((!sd_a.empty() && sd_a == sd_b && clean_a != clean_b) ||
+            (clean_a.length() == 1 && clean_b.length() == 1 && clean_a != clean_b)) {
+            return true;
+        }
+
         if (clean_a == clean_b) {
             auto endsWithCatalog = [](const std::string& name) {
                 static const std::unordered_set<std::string> CATS = {
@@ -574,18 +671,6 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
             size_t last_underscore = clean_a.rfind('_');
             if (last_underscore != std::string::npos && last_underscore > 0) {
                 std::string suffix = clean_a.substr(last_underscore + 1);
-                static const std::unordered_set<std::string> CATALOG_SUFFIXES = {
-                    "type", "types", "status", "statuses", "cat", "cats", "category", "categories",
-                    "class", "classes", "group", "groups", "genre", "genres", "role", "roles",
-                    "state", "states", "level", "levels", "priority", "priorities", "lookup", "lookups",
-                    "code", "codes", "mode", "modes", "action", "actions", "tag", "tags", "master", "mstr", "dict",
-                    "version", "versions", "ver", "vers",
-                    "content", "contents", "value", "values", "blob", "blobs", "data", "xml", "text", "file", "files",
-                    "system", "systems", "service", "services", "assignment", "assignments", "map", "maps", "link", "links",
-                    "relation", "relations", "relationship", "relationships", "membership", "memberships", "association", "associations",
-                    "property", "properties", "store", "stores", "history",
-                    "item", "items", "payment", "payments", "log", "logs", "record", "records", "detail", "details"
-                };
                 if (CATALOG_SUFFIXES.count(suffix) && suffix != clean_b && suffix + "s" != clean_b && singularize(suffix) != singularize(clean_b)) {
                     return false;
                 }
@@ -622,8 +707,32 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
             if (!b_is_catalog) {
                 std::string sb = clean_b;
                 if (sb.length() > 1 && sb.back() == 's') sb = sb.substr(0, sb.length() - 1);
-                if (clean_a.rfind(sb + "_", 0) == 0 || clean_a.rfind(clean_b + "_", 0) == 0 ||
-                    (clean_b.length() >= 3 && (clean_a.rfind(sb, 0) == 0 || clean_a.rfind(clean_b, 0) == 0))) {
+                
+                bool matches_prefix = false;
+                std::string remaining = "";
+                if (clean_a.rfind(sb + "_", 0) == 0) {
+                    matches_prefix = true;
+                    remaining = clean_a.substr(sb.length() + 1);
+                } else if (clean_a.rfind(clean_b + "_", 0) == 0) {
+                    matches_prefix = true;
+                    remaining = clean_a.substr(clean_b.length() + 1);
+                } else if (clean_b.length() >= 3) {
+                    if (clean_a.rfind(sb, 0) == 0) {
+                        matches_prefix = true;
+                        remaining = clean_a.substr(sb.length());
+                    } else if (clean_a.rfind(clean_b, 0) == 0) {
+                        matches_prefix = true;
+                        remaining = clean_a.substr(clean_b.length());
+                    }
+                }
+                
+                if (matches_prefix) {
+                    if (!remaining.empty() && remaining[0] == '_') {
+                        remaining = remaining.substr(1);
+                    }
+                    if (!remaining.empty() && CATALOG_SUFFIXES.count(remaining) > 0) {
+                        return false;
+                    }
                     return true;
                 }
             }

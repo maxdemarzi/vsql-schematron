@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 012925_create-tables
+#
+CREATE DATABASE `db_012925_create_tables`;
+USE `db_012925_create_tables`;
+CREATE TABLE `Users` (
+`userId` VARCHAR(64),
+`username` VARCHAR(64),
+`salt` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Admins` (
+`userId` VARCHAR(64),
+`canReview` VARCHAR(64),
+`canMakeAdmin` VARCHAR(64),
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Templates` (
+`templateId` VARCHAR(64),
+`userId` VARCHAR(64),
+`filetype` VARCHAR(64),
+`overlayFiletype` VARCHAR(64),
+`positions` VARCHAR(64),
+`reviewState` VARCHAR(64),
+`timeAdded` INT,
+`timeReviewed` INT,
+`reviewedBy` VARCHAR(64),
+PRIMARY KEY (`templateId`)
+) CHARACTER SET latin1;
+CREATE TABLE `SourceImages` (
+`sourceId` VARCHAR(64),
+`userId` VARCHAR(64),
+`filetype` VARCHAR(64),
+`reviewState` VARCHAR(64),
+`timeAdded` INT,
+`timeReviewed` INT,
+`reviewedBy` VARCHAR(64),
+PRIMARY KEY (`sourceId`)
+) CHARACTER SET latin1;
+CREATE TABLE `TemplateRatings` (
+`userId` VARCHAR(64),
+`templateId` VARCHAR(64),
+`isPositive` VARCHAR(64),
+PRIMARY KEY (`userId`, `templateId`)
+) CHARACTER SET latin1;
+CREATE TABLE `SourceRatings` (
+`userId` VARCHAR(64),
+`sourceId` VARCHAR(64),
+`isPositive` VARCHAR(64),
+PRIMARY KEY (`userId`, `sourceId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_012925_create_tables') AS relationships;
+relationships
+Database: db_012925_create_tables
+
+Table Connections:
+------------------
+[Implied]  Admins.userId -> Users.userId
+[Implied]  SourceImages.reviewedBy -> Users.userId
+[Implied]  SourceImages.userId -> Users.userId
+[Implied]  SourceRatings.sourceId -> SourceImages.sourceId
+[Implied]  SourceRatings.userId -> Users.userId
+[Implied]  TemplateRatings.templateId -> Templates.templateId
+[Implied]  TemplateRatings.userId -> Users.userId
+[Implied]  Templates.reviewedBy -> Users.userId
+[Implied]  Templates.userId -> Users.userId
+
+DROP DATABASE `db_012925_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

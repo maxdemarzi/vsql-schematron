@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 379456_exp_1_2
+#
+CREATE DATABASE `db_379456_exp_1_2`;
+USE `db_379456_exp_1_2`;
+CREATE TABLE `S` (
+`Sno` VARCHAR(64),
+`Sname` VARCHAR(64),
+`Ssex` VARCHAR(64),
+`Sage` INT,
+`Sdept` VARCHAR(64),
+PRIMARY KEY (`Sno`)
+) CHARACTER SET latin1;
+CREATE TABLE `C` (
+`Cno` VARCHAR(64),
+`Cname` VARCHAR(64),
+`Cpno` VARCHAR(64),
+`Ccredit` INT,
+PRIMARY KEY (`Cno`)
+) CHARACTER SET latin1;
+CREATE TABLE `SC` (
+`Sno` VARCHAR(64),
+`Cno` VARCHAR(64),
+`Grade` INT,
+PRIMARY KEY (`Sno`, `Cno`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_379456_exp_1_2') AS relationships;
+relationships
+Database: db_379456_exp_1_2
+
+Table Connections:
+------------------
+[Implied]  C.Cpno -> C.Cno
+[Implied]  SC.Cno -> C.Cno
+[Implied]  SC.Sno -> S.Sno
+
+DROP DATABASE `db_379456_exp_1_2`;
+UNINSTALL EXTENSION vsql_schematron;

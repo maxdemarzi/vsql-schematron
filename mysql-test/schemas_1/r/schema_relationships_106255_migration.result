@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 106255_migration
+#
+CREATE DATABASE `db_106255_migration`;
+USE `db_106255_migration`;
+CREATE TABLE `User` (
+`id` INT,
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Role` (
+`id` INT,
+`name` VARCHAR(64),
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Permission` (
+`id` INT,
+`name` VARCHAR(64),
+`roleId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_RoleToUser` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_PermissionToRole` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_106255_migration') AS relationships;
+relationships
+Database: db_106255_migration
+
+Table Connections:
+------------------
+[Implied]  Permission.roleId -> Role.id
+[Implied]  Role.userId -> User.id
+[Implied]  _PermissionToRole.A -> Permission.id
+[Implied]  _PermissionToRole.B -> Role.id
+[Implied]  _RoleToUser.A -> Role.id
+[Implied]  _RoleToUser.B -> User.id
+
+DROP DATABASE `db_106255_migration`;
+UNINSTALL EXTENSION vsql_schematron;

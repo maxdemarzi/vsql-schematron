@@ -15,12 +15,21 @@ const std::unordered_set<std::string> PERSON_TABLE_SYNONYMS = {
     "member", "members", "person", "persons", "people", "contact", "contacts", "passenger", 
     "passengers", "customer", "customers", "client", "clients", "student", "students", 
     "teacher", "teachers", "entity", "entities", "party", "parties", "player", "players",
-    "proponent", "proponents", "proprietor", "proprietors", "investigator", "investigators"
+    "proponent", "proponents", "proprietor", "proprietors", "investigator", "investigators",
+    "broker", "brokers", "agent", "agents", "officer", "officers", "doctor", "doctors",
+    "patient", "patients", "driver", "drivers", "worker", "workers", "vendor", "vendors",
+    "supplier", "suppliers", "provider", "providers", "buyer", "buyers", "seller", "sellers",
+    "tenant", "tenants", "landlord", "landlords", "owner", "owners", "partner", "partners",
+    "profile", "profiles", "host", "hosts", "guest", "guests", "visitor", "visitors",
+    "representative", "representatives", "rep", "reps", "manager", "managers", "creator",
+    "creators", "author", "authors", "advisor", "advisors", "police", "witness", "witnesses",
+    "attorney", "attorneys", "lawyer", "lawyers", "judge", "judges", "prosecutor", "prosecutors",
+    "defendant", "defendants", "plaintiff", "plaintiffs"
 };
 
 const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
     "user", "employee", "staff", "member", "person", "officer", "agent", "manager", 
-    "registerer", "registrant", "leader", "grantee", "grantor",
+    "registerer", "registrant", "leader", "lead", "grantee", "grantor",
     "supervisor", "operator", "contact", "author", "creator", "updater", "editor", 
     "owner", "handler", "assignee", "commenter", "accessor", "passenger", "customer", 
     "client", "visitor", "guest", "host", "student", "teacher", "driver", "worker", 
@@ -30,7 +39,9 @@ const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
     "shipper", "carrier", "objector", "proponent", "proprietor", "advisor", "from", "to",
     "sender", "receiver", "recipient", "profile", "investigator", "invitee", "inviter",
     "judge", "prosecutor", "offender", "complainant", "police", "witness", "attorney",
-    "counsel", "lawyer", "defense_att", "oid"
+    "counsel", "lawyer", "defense_att", "oid",
+    "by", "created_by", "updated_by", "modified_by", "modifier",
+    "captain", "vencedor", "vendedor", "comprador"
 };
 
 const std::unordered_set<std::string> LOOKUP_TABLE_SYNONYMS = {

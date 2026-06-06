@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 605055_structure
+#
+CREATE DATABASE `db_605055_structure`;
+USE `db_605055_structure`;
+CREATE TABLE `category` (
+`title` VARCHAR(64),
+`product_number` INT,
+PRIMARY KEY (`title`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`stores` VARCHAR(64),
+`site_url` VARCHAR(64),
+`score` INT,
+PRIMARY KEY (`title`)
+) CHARACTER SET latin1;
+CREATE TABLE `category_per_product` (
+`category_title` VARCHAR(64),
+`product_title` VARCHAR(64),
+PRIMARY KEY (`category_title`, `product_title`)
+) CHARACTER SET latin1;
+CREATE TABLE `substitute` (
+`product_title` VARCHAR(64),
+PRIMARY KEY (`product_title`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_per_substitute` (
+`substitute_title` VARCHAR(64),
+`product_title` VARCHAR(64),
+PRIMARY KEY (`substitute_title`, `product_title`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_605055_structure') AS relationships;
+relationships
+Database: db_605055_structure
+
+Table Connections:
+------------------
+[Implied]  category_per_product.category_title -> category.title
+[Implied]  category_per_product.product_title -> product.title
+[Implied]  product_per_substitute.product_title -> product.title
+[Implied]  product_per_substitute.substitute_title -> substitute.product_title
+[Implied]  substitute.product_title -> product.title
+
+DROP DATABASE `db_605055_structure`;
+UNINSTALL EXTENSION vsql_schematron;

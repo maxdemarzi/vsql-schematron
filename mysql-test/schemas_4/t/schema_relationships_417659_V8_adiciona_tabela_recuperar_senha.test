@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 417659_V8__adiciona_tabela_recuperar_senha
+--echo #
+CREATE DATABASE `db_417659_V8_adiciona_tabela_recuperar_senha`;
+USE `db_417659_V8_adiciona_tabela_recuperar_senha`;
+
+CREATE TABLE `papeis` (
+  `id` INT,
+  `nome` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuarios` (
+  `id` INT,
+  `cpf` VARCHAR(64),
+  `senha` VARCHAR(64),
+  `papel_id` INT,
+  `servidor` BOOL,
+  `habilitado` BOOL,
+  `siorg` VARCHAR(64),
+  `nome` VARCHAR(64),
+  `siape` VARCHAR(64),
+  `email_primario` VARCHAR(64),
+  `email_secundario` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tokens` (
+  `id` INT,
+  `usuario_id` INT,
+  `token` VARCHAR(64),
+  `data_criacao` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_417659_V8_adiciona_tabela_recuperar_senha') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_417659_V8_adiciona_tabela_recuperar_senha') AS relationships;
+DROP DATABASE `db_417659_V8_adiciona_tabela_recuperar_senha`;
+UNINSTALL EXTENSION vsql_schematron;

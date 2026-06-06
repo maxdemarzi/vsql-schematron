@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 051321_schema
+#
+CREATE DATABASE `db_051321_schema`;
+USE `db_051321_schema`;
+CREATE TABLE `user` (
+`name` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`username` VARCHAR(64),
+`role` VARCHAR(64),
+PRIMARY KEY (`username`, `role`)
+) CHARACTER SET latin1;
+CREATE TABLE `todo_list` (
+`todo_list_id` DECIMAL(10,2),
+`name` VARCHAR(64),
+`is_public` BOOL,
+`owner` VARCHAR(64),
+PRIMARY KEY (`todo_list_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `todo_list_item` (
+`todo_item_id` DECIMAL(10,2),
+`todo_list_id` DECIMAL(10,2),
+`name` VARCHAR(64),
+`is_done` BOOL,
+PRIMARY KEY (`todo_item_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_051321_schema') AS relationships;
+relationships
+Database: db_051321_schema
+
+Table Connections:
+------------------
+[Implied]  todo_list.owner -> user.username
+[Implied]  todo_list_item.todo_list_id -> todo_list.todo_list_id
+[Implied]  user_role.username -> user.username
+
+DROP DATABASE `db_051321_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 036328_base
+--echo #
+CREATE DATABASE `db_036328_base`;
+USE `db_036328_base`;
+
+CREATE TABLE `probs` (
+  `id` INT,
+  `question` VARCHAR(64),
+  `answer` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `learning` (
+  `probid` INT,
+  `next` DECIMAL(10,2),
+  `interval` DECIMAL(10,2),
+  PRIMARY KEY (`probid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schema_version` (
+  `version` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `config` (
+  `key` VARCHAR(64),
+  `value` VARCHAR(64),
+  PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `log` (
+  `stamp` DECIMAL(10,2),
+  `score` INT,
+  `probid` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_036328_base') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_036328_base') AS relationships;
+DROP DATABASE `db_036328_base`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,110 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 473035_mysql-schema
+--echo #
+CREATE DATABASE `db_473035_mysql_schema`;
+USE `db_473035_mysql_schema`;
+
+CREATE TABLE `tb_users` (
+  `cd_user` INT,
+  `nm_user` VARCHAR(64),
+  `vl_email` VARCHAR(64),
+  `vl_password` VARCHAR(64),
+  `vl_img` VARCHAR(64),
+  `vl_key` VARCHAR(64),
+  `checked` INT,
+  `dt_creation` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_proprietaries` (
+  `cd_proprietary` INT,
+  `nm_proprietary` VARCHAR(64),
+  `vl_email` VARCHAR(64),
+  `vl_password` VARCHAR(64),
+  `vl_img` VARCHAR(64),
+  `vl_key` VARCHAR(64),
+  `checked` INT,
+  `dt_creation` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_signatures` (
+  `cd_signature` INT,
+  `id_proprietary` INT,
+  `vl_code` INT,
+  `vl_password` VARCHAR(64),
+  `dt_creation` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_signatures_check_history` (
+  `cd_reg` INT,
+  `id_user` INT,
+  `id_signature` INT,
+  `vl_valid` INT,
+  `dt_reg` DATETIME,
+  `vl_code` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_signatures_prop_check_h` (
+  `cd_reg` INT,
+  `id_prop` INT,
+  `id_signature` INT,
+  `vl_valid` INT,
+  `dt_reg` DATETIME,
+  `vl_code` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_clients` (
+  `cd_client` INT,
+  `nm_client` VARCHAR(64),
+  `tk_client` VARCHAR(64),
+  `id_proprietary` INT,
+  `vl_root` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_access` (
+  `cd_access` INT,
+  `id_client` INT,
+  `dt_access` DATETIME,
+  `vl_success` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_changelog_signatures` (
+  `cd_changelog` INT,
+  `id_signature` INT,
+  `dt_changelog` DATETIME,
+  `tp_changelog` INT,
+  `vl_oldname` VARCHAR(64),
+  `vl_oldkey` VARCHAR(64),
+  `vl_oldcode` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_changelog_clients` (
+  `cd_changelog` INT,
+  `id_client` INT,
+  `dt_changelog` DATETIME,
+  `tp_changelog` INT,
+  `vl_oldname` VARCHAR(64),
+  `vl_oldtoken` VARCHAR(64),
+  `vl_oldroot` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_473035_mysql_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_473035_mysql_schema') AS relationships;
+DROP DATABASE `db_473035_mysql_schema`;
+UNINSTALL EXTENSION vsql_schematron;

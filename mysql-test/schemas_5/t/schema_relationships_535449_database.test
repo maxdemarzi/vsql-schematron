@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 535449_database
+--echo #
+CREATE DATABASE `db_535449_database`;
+USE `db_535449_database`;
+
+CREATE TABLE `auth_assignment` (
+  `item_name` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  `created_at` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_item` (
+  `name` VARCHAR(64),
+  `type` INT,
+  `description` VARCHAR(64),
+  `rule_name` VARCHAR(64),
+  `data` VARCHAR(64),
+  `created_at` INT,
+  `updated_at` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_item_child` (
+  `parent` VARCHAR(64),
+  `child` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_rule` (
+  `name` VARCHAR(64),
+  `data` VARCHAR(64),
+  `created_at` INT,
+  `updated_at` INT,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `category` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `migration` (
+  `version` VARCHAR(64),
+  `apply_time` INT,
+  PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `request` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `categoryID` INT,
+  `statusID` INT,
+  `reject_msg` VARCHAR(64),
+  `img_before` VARCHAR(64),
+  `img_after` VARCHAR(64),
+  `created_by` INT,
+  `updated_by` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `status` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_535449_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_535449_database') AS relationships;
+DROP DATABASE `db_535449_database`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 087841_createExample5
+--echo #
+CREATE DATABASE `db_087841_createExample5`;
+USE `db_087841_createExample5`;
+
+CREATE TABLE `CURRENCY` (
+  `CODE` VARCHAR(64),
+  PRIMARY KEY (`CODE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `INSTRUMENT` (
+  `INSTRUMENT_ID` INT,
+  `CURRENCY` VARCHAR(64),
+  `INSTRUMENT_TYPE_ID` INT,
+  `DESCRIPTION` VARCHAR(64),
+  `VALID` VARCHAR(64),
+  `PRICE` DECIMAL(10,2),
+  PRIMARY KEY (`INSTRUMENT_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BOND` (
+  `INSTRUMENT_ID` INT,
+  `MATURITYDATE` DATETIME,
+  `PARAMOUNT` DECIMAL(10,2),
+  `COUPON` DECIMAL(10,2),
+  PRIMARY KEY (`INSTRUMENT_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_087841_createExample5') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_087841_createExample5') AS relationships;
+DROP DATABASE `db_087841_createExample5`;
+UNINSTALL EXTENSION vsql_schematron;

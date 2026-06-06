@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 169273_migration
+--echo #
+CREATE DATABASE `db_169273_migration`;
+USE `db_169273_migration`;
+
+CREATE TABLE `UserDocument` (
+  `id` VARCHAR(64),
+  `type` VARCHAR(64),
+  `citationKey` VARCHAR(64),
+  `lastModified` DATETIME,
+  `added` DATETIME,
+  `author` VARCHAR(64),
+  `editor` VARCHAR(64),
+  `title` VARCHAR(64),
+  `journal` VARCHAR(64),
+  `journaltitle` VARCHAR(64),
+  `booktitle` VARCHAR(64),
+  `date` VARCHAR(64),
+  `year` VARCHAR(64),
+  `month` VARCHAR(64),
+  `number` VARCHAR(64),
+  `volume` VARCHAR(64),
+  `edition` VARCHAR(64),
+  `series` VARCHAR(64),
+  `pages` VARCHAR(64),
+  `pagetotal` VARCHAR(64),
+  `issue` VARCHAR(64),
+  `note` VARCHAR(64),
+  `url` VARCHAR(64),
+  `urldate` VARCHAR(64),
+  `publisher` VARCHAR(64),
+  `abstract` VARCHAR(64),
+  `keywords` VARCHAR(64),
+  `groups` VARCHAR(64),
+  `priority` VARCHAR(64),
+  `doi` VARCHAR(64),
+  `eprint` VARCHAR(64),
+  `eprintclass` VARCHAR(64),
+  `eprinttype` VARCHAR(64),
+  `issn` VARCHAR(64),
+  `isbn` VARCHAR(64),
+  `other` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `_UserToUserDocument` (
+  `A` VARCHAR(64),
+  `B` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_169273_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_169273_migration') AS relationships;
+DROP DATABASE `db_169273_migration`;
+UNINSTALL EXTENSION vsql_schematron;

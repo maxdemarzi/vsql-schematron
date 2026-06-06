@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 370363_SQL_DATABASE.ddl
+--echo #
+CREATE DATABASE `db_370363_SQL_DATABASE_ddl`;
+USE `db_370363_SQL_DATABASE_ddl`;
+
+CREATE TABLE `Users` (
+  `userId` INT,
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  `email` VARCHAR(64),
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `admin` BOOL,
+  `accountStatus` VARCHAR(64),
+  `securityQuestion` VARCHAR(64),
+  `securityAnswer` VARCHAR(64),
+  PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ProfilePics` (
+  `picId` INT,
+  `file` VARCHAR(64),
+  `userId` INT,
+  PRIMARY KEY (`picId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Posts` (
+  `postId` INT,
+  `time` DATETIME,
+  `title` VARCHAR(64),
+  `content` VARCHAR(64),
+  `userId` INT,
+  `views` INT,
+  `allowAnonymousComments` BOOL,
+  `lastUpdate` DATETIME,
+  PRIMARY KEY (`postId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Comments` (
+  `commentId` INT,
+  `parentCommentId` INT,
+  `commentTime` DATETIME,
+  `time` DATETIME,
+  `postId` INT,
+  `userId` INT,
+  `comment` VARCHAR(64),
+  `commentDeleted` VARCHAR(64),
+  PRIMARY KEY (`commentId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Upvotes` (
+  `upvoteId` INT,
+  `commentId` INT,
+  `userId` INT,
+  PRIMARY KEY (`upvoteId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Downvotes` (
+  `downvoteId` INT,
+  `commentId` INT,
+  `userId` INT,
+  PRIMARY KEY (`downvoteId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_370363_SQL_DATABASE_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_370363_SQL_DATABASE_ddl') AS relationships;
+DROP DATABASE `db_370363_SQL_DATABASE_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

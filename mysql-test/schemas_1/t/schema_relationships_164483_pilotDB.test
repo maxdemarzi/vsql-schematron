@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 164483_pilotDB
+--echo #
+CREATE DATABASE `db_164483_pilotDB`;
+USE `db_164483_pilotDB`;
+
+CREATE TABLE `personnel_table` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `surnamee` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `machine_table` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `brand` VARCHAR(64),
+  `modelDate` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cut_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `personnel2_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sew_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `machine_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `knit_table` (
+  `id` INT,
+  `personnel1_id` INT,
+  `personnel2_id` INT,
+  `machine_id` INT,
+  `processDate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product` (
+  `id` INT,
+  `cut_id` INT,
+  `sew_id` INT,
+  `knit_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `test` (
+  `id` INT,
+  `tarih` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_164483_pilotDB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_164483_pilotDB') AS relationships;
+DROP DATABASE `db_164483_pilotDB`;
+UNINSTALL EXTENSION vsql_schematron;

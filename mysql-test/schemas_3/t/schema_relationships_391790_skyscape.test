@@ -1,0 +1,122 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 391790_skyscape
+--echo #
+CREATE DATABASE `db_391790_skyscape`;
+USE `db_391790_skyscape`;
+
+CREATE TABLE `authority` (
+  `Id` INT,
+  `NAME` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `category` (
+  `Id` VARCHAR(64),
+  `Name` VARCHAR(64),
+  `Order` INT,
+  `FullName` VARCHAR(64),
+  `PId` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `content` (
+  `Id` INT,
+  `Subject` VARCHAR(64),
+  `Body` VARCHAR(64),
+  `NormalBody` VARCHAR(64),
+  `UserId` VARCHAR(64),
+  `CategoryId` VARCHAR(64),
+  `SyncKey` VARCHAR(64),
+  `IsBulkDone` INT,
+  `IsPublic` INT,
+  `IsMain` INT,
+  `ViewCount` INT,
+  `CreateDate` DATETIME,
+  `UpdateDate` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `content_tag_map` (
+  `ContentId` INT,
+  `TagId` INT,
+  PRIMARY KEY (`ContentId`, `TagId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `file` (
+  `Id` VARCHAR(64),
+  `ContentId` INT,
+  `OriginFileName` VARCHAR(64),
+  `TYPE` VARCHAR(64),
+  `Path` VARCHAR(64),
+  `FileSize` INT,
+  `IsDelete` INT,
+  `CreateDate` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rsa_map` (
+  `PublicKey` VARCHAR(64),
+  `PrivateKey` VARCHAR(64),
+  `CreateDate` DATETIME,
+  PRIMARY KEY (`PublicKey`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tag` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `Id` VARCHAR(64),
+  `LoginId` VARCHAR(64),
+  `PASSWORD` VARCHAR(64),
+  `Salt` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `IsEnable` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_authority_map` (
+  `UserId` VARCHAR(64),
+  `AuthorityId` INT,
+  PRIMARY KEY (`UserId`, `AuthorityId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `content_log` (
+  `Id` VARCHAR(64),
+  `ContentId` INT,
+  `Subject` VARCHAR(64),
+  `Body` VARCHAR(64),
+  `NormalBody` VARCHAR(64),
+  `UserId` VARCHAR(64),
+  `CategoryId` VARCHAR(64),
+  `IsPublic` INT,
+  `IsMain` INT,
+  `ViewCount` INT,
+  `CreateDate` DATETIME,
+  `UpdateDate` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_391790_skyscape') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_391790_skyscape') AS relationships;
+DROP DATABASE `db_391790_skyscape`;
+UNINSTALL EXTENSION vsql_schematron;
