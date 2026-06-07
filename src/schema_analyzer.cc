@@ -122,6 +122,7 @@ bool typeMatches(const std::string& t1, const std::string& t2) {
                t.find("double") != std::string::npos ||
                t.find("float") != std::string::npos ||
                t.find("real") != std::string::npos ||
+               t.find("_id") != std::string::npos ||
                t.find("identity") != std::string::npos;
     };
     auto isFloat = [](const std::string& t) {

@@ -71,12 +71,20 @@ bool isStatisticColumn(const std::string& col_name) {
     };
     if (STAT_NAMES.count(s) > 0) return true;
     
+    static const std::unordered_set<std::string> STAT_PREFIXES = {
+        "num", "number", "count", "cnt", "total", "tot", "sum", "avg", "min", "max", "qty", "quantity", "nb"
+    };
+    
+    // Check camelCase prefixes
+    for (const auto& pref : STAT_PREFIXES) {
+        if (s.rfind(pref, 0) == 0 && s.length() > pref.length() && std::isupper(col_name[pref.length()])) {
+            return true;
+        }
+    }
+    
     size_t first_sep = s.find_first_of("_ ");
     if (first_sep != std::string::npos && first_sep > 0) {
         std::string prefix = s.substr(0, first_sep);
-        static const std::unordered_set<std::string> STAT_PREFIXES = {
-            "num", "number", "count", "cnt", "total", "tot", "sum", "avg", "min", "max", "qty", "quantity"
-        };
         if (STAT_PREFIXES.count(prefix) > 0) return true;
     }
     
@@ -595,6 +603,7 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
         "property", "properties", "store", "stores", "history",
         "item", "items", "payment", "payments", "log", "logs", "record", "records", "detail", "details",
         "line", "lines", "message", "messages", "comment", "comments", "notification", "notifications",
+        "response", "responses", "result", "results",
         "post", "posts", "token", "tokens", "backup", "backups", "temp", "tmp",
         "recommendation", "recommendations", "recomendation", "recomendations",
         "metadata", "meta", "lang", "langs", "language", "languages",
@@ -618,6 +627,93 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
         }
         std::string clean_a = stripTablePrefix(stripTableSuffix(a));
         std::string clean_b = stripTablePrefix(stripTableSuffix(b));
+
+        // 1. Super-generic bases matching (e.g. any_table -> entity)
+        static const std::unordered_set<std::string> SUPER_GENERIC_BASES = {
+            "entity", "entities", "party", "parties", "node", "nodes", "object", "objects"
+        };
+        if (SUPER_GENERIC_BASES.count(clean_b) > 0 && clean_a != clean_b) {
+            return true;
+        }
+
+        // 2. Person table specific-to-generic hierarchy matching (e.g. profile -> users)
+        if (isPersonTable(clean_a) && isPersonTable(clean_b)) {
+            if (!isGenericPersonTable(tbl_a) && isGenericPersonTable(tbl_b)) {
+                static const std::unordered_set<std::string> DEPENDENT_PERSON_SUBTYPES = {
+                    "profile", "profiles", "credential", "credentials", "auth", "auths", "login", "logins", "member", "members", "detail", "details"
+                };
+                if (DEPENDENT_PERSON_SUBTYPES.count(clean_a) > 0) {
+                    static const std::unordered_set<std::string> TRULY_GENERIC_BASES = {
+                        "user", "users", "person", "persons", "people", "party", "parties",
+                        "comtnuser", "comtnusers", "comtnperson", "comtnpersons", "comtnpeople", "comtnparty", "comtnparties"
+                    };
+                    if (TRULY_GENERIC_BASES.count(clean_b) > 0) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // 3. "my" prefix user-specific extension matching (e.g. mysports -> users)
+        if (clean_a.rfind("my", 0) == 0 && clean_a.length() > 2) {
+            std::string rem = clean_a.substr(2);
+            if (!rem.empty() && rem[0] == '_') rem = rem.substr(1);
+            if (!rem.empty() && isGenericPersonTable(tbl_b)) {
+                return true;
+            }
+        }
+
+        // 4. Shared suffix logic (e.g. apartment_balance_group -> entity_balance_group)
+        size_t last_under_a = clean_a.rfind('_');
+        size_t last_under_b = clean_b.rfind('_');
+        if (last_under_a != std::string::npos && last_under_b != std::string::npos) {
+            std::vector<std::string> words_a;
+            std::vector<std::string> words_b;
+            {
+                std::string temp = clean_a;
+                size_t pos = 0;
+                while ((pos = temp.find('_')) != std::string::npos) {
+                    words_a.push_back(temp.substr(0, pos));
+                    temp.erase(0, pos + 1);
+                }
+                words_a.push_back(temp);
+            }
+            {
+                std::string temp = clean_b;
+                size_t pos = 0;
+                while ((pos = temp.find('_')) != std::string::npos) {
+                    words_b.push_back(temp.substr(0, pos));
+                    temp.erase(0, pos + 1);
+                }
+                words_b.push_back(temp);
+            }
+            
+            size_t common_count = 0;
+            while (common_count < words_a.size() && common_count < words_b.size()) {
+                if (words_a[words_a.size() - 1 - common_count] == words_b[words_b.size() - 1 - common_count]) {
+                    common_count++;
+                } else {
+                    break;
+                }
+            }
+            
+            if (common_count > 0 && common_count < words_a.size() && common_count < words_b.size()) {
+                std::string pref_a = "";
+                for (size_t i = 0; i < words_a.size() - common_count; ++i) {
+                    if (i > 0) pref_a += "_";
+                    pref_a += words_a[i];
+                }
+                std::string pref_b = "";
+                for (size_t i = 0; i < words_b.size() - common_count; ++i) {
+                    if (i > 0) pref_b += "_";
+                    pref_b += words_b[i];
+                }
+                
+                if (isSubtypeTable(pref_a, pref_b)) {
+                    return true;
+                }
+            }
+        }
 
         auto stripDigits = [](const std::string& s) {
             std::string res = s;
@@ -683,13 +779,22 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
             if (last_underscore != std::string::npos && last_underscore > 0) {
                 std::string suffix = clean_a.substr(last_underscore + 1);
                 if (CATALOG_SUFFIXES.count(suffix) && suffix != clean_b && suffix + "s" != clean_b && singularize(suffix) != singularize(clean_b)) {
-                    return false;
+                    // Only exclude if clean_a does NOT start with clean_b
+                    std::string sb = clean_b;
+                    if (sb.length() > 1 && sb.back() == 's') sb.pop_back();
+                    if (clean_a.rfind(sb + "_", 0) != 0) {
+                        return false;
+                    }
                 }
             }
 
             static const std::unordered_set<std::string> CATALOG_WORDS = {
                 "type", "types", "status", "statuses", "code", "codes", "state", "states", "group", "groups",
-                "lookup", "lookups", "tag", "tags"
+                "lookup", "lookups", "tag", "tags", "token", "tokens", "log", "logs", "history", "detail", "details",
+                "info", "information", "config", "configs", "setting", "settings", "option", "options",
+                "preference", "preferences", "backup", "backups", "temp", "tmp", "metadata", "meta",
+                "lang", "langs", "language", "languages",
+                "password", "passwords", "execution", "executions"
             };
             if (CATALOG_WORDS.count(clean_b) > 0) {
                 return false;
@@ -751,9 +856,16 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
                         remaining = remaining.substr(1);
                     }
                     if (!remaining.empty()) {
-                        size_t last_under = remaining.rfind('_');
-                        std::string last_part = (last_under != std::string::npos) ? remaining.substr(last_under + 1) : remaining;
-                        if (CATALOG_SUFFIXES.count(last_part) > 0) {
+                        std::string temp = remaining;
+                        size_t pos = 0;
+                        while ((pos = temp.find('_')) != std::string::npos) {
+                            std::string word = temp.substr(0, pos);
+                            if (CATALOG_SUFFIXES.count(word) > 0) {
+                                return false;
+                            }
+                            temp.erase(0, pos + 1);
+                        }
+                        if (CATALOG_SUFFIXES.count(temp) > 0) {
                             return false;
                         }
                     }

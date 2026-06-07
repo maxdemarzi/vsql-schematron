@@ -68,6 +68,8 @@ std::string expandAbbreviation(const std::string& word) {
         {"mate", "material"},
         {"proj", "project"},
         {"ds", "data"},
+        {"dase", "data_set"},
+        {"dases", "data_sets"},
         {"covo", "controlled_vocabulary"},
         {"dast", "data_store"},
         {"dsty", "data_set_type"},

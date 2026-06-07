@@ -20,13 +20,14 @@ const std::unordered_set<std::string> PERSON_TABLE_SYNONYMS = {
     "patient", "patients", "driver", "drivers", "worker", "workers", "vendor", "vendors",
     "supplier", "suppliers", "provider", "providers", "buyer", "buyers", "seller", "sellers",
     "tenant", "tenants", "landlord", "landlords", "owner", "owners", "partner", "partners",
-    "profile", "profiles", "host", "hosts", "guest", "guests", "visitor", "visitors",
+    "profile", "profiles", "guest", "guests", "visitor", "visitors",
     "representative", "representatives", "rep", "reps", "manager", "managers", "creator",
     "creators", "author", "authors", "advisor", "advisors", "police", "witness", "witnesses",
     "attorney", "attorneys", "lawyer", "lawyers", "judge", "judges", "prosecutor", "prosecutors",
     "defendant", "defendants", "plaintiff", "plaintiffs",
     "account", "accounts", "auth", "auths", "login", "logins", "credentials", "credential",
-    "instructor", "instructors", "professor", "professors"
+    "instructor", "instructors", "professor", "professors",
+    "follower", "followers", "friend", "friends", "moderator", "moderators"
 };
 
 const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
@@ -34,7 +35,7 @@ const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
     "registerer", "registrant", "leader", "lead", "grantee", "grantor",
     "supervisor", "operator", "contact", "author", "creator", "updater", "editor", 
     "owner", "handler", "assignee", "commenter", "accessor", "passenger", "customer", 
-    "client", "visitor", "guest", "host", "student", "teacher", "driver", "worker", 
+    "client", "visitor", "guest", "student", "teacher", "driver", "worker", 
     "admin", "assistant", "delegate", "representative", "rep", "appellant", "defendant", 
     "plaintiff", "vendor", "supplier", "provider", "partner", "merchant", "buyer", 
     "seller", "tenant", "landlord", "holder", "borrower", "lender", "debtor", "creditor", 
@@ -43,7 +44,12 @@ const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
     "judge", "prosecutor", "offender", "complainant", "police", "witness", "attorney",
     "counsel", "lawyer", "defense_att", "oid",
     "by", "created_by", "updated_by", "modified_by", "modifier",
-    "captain", "vencedor", "vendedor", "comprador"
+    "captain", "vencedor", "vendedor", "comprador",
+    "follower", "followers", "friend", "friends", "curator", "curators", "moderator", "moderators",
+    "respondent", "respondents", "applicant", "applicants", "parent", "parents", "patient", "patients",
+    "trainer", "trainers", "attendee", "attendees", "participant", "participants", "candidate", "candidates",
+    "volunteer", "volunteers", "organizer", "organizers", "instructor", "instructors", "professor", "professors",
+    "responsavel", "responsaveis"
 };
 
 const std::unordered_set<std::string> LOOKUP_TABLE_SYNONYMS = {
@@ -77,6 +83,8 @@ bool matchDomainSpecificKeys(
     bool relationship_found = false;
     std::string tbl_a_lower = to_lower(tbl_a);
     std::string col_a_lower = to_lower(col_a);
+
+
 
     // Custom domain rule: Map parent/child roles in role hierarchy tables to the author/role definition code.
     // Example: roles_hierarchy.parnts_role -> authorinfo.author_code
@@ -318,7 +326,9 @@ bool matchDomainSpecificKeys(
         } else if (col_lower == "exception_stack_id_" || col_lower == "exception_stack_id" ||
                    col_lower == "editor_source_value_id_" || col_lower == "editor_source_value_id" ||
                    col_lower == "editor_source_extra_value_id_" || col_lower == "editor_source_extra_value_id" ||
-                   col_lower == "custom_values_id_" || col_lower == "custom_values_id") {
+                   col_lower == "custom_values_id_" || col_lower == "custom_values_id" ||
+                   col_lower == "error_details_id_" || col_lower == "error_details_id" ||
+                   col_lower == "info_json_id_" || col_lower == "info_json_id") {
             for (const auto& tbl_b : table_names) {
                 std::string clean_tbl_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
                 if (clean_tbl_b == "bytearray" || clean_tbl_b == "ge_bytearray") {
@@ -424,6 +434,32 @@ bool matchDomainSpecificKeys(
                     }
                 }
             }
+        } else if (col_lower == "seed_job_def_id_" || col_lower == "seed_job_def_id" ||
+                   col_lower == "monitor_job_def_id_" || col_lower == "monitor_job_def_id" ||
+                   col_lower == "batch_job_def_id_" || col_lower == "batch_job_def_id") {
+            for (const auto& tbl_b : table_names) {
+                std::string clean_tbl_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                if (clean_tbl_b == "jobdef" || clean_tbl_b == "ru_jobdef" || clean_tbl_b == "job_def" || clean_tbl_b == "ru_job_def") {
+                    auto it_b = tables_info.find(tbl_b);
+                    if (it_b != tables_info.end()) {
+                        const auto& info_b = it_b->second;
+                        for (const auto& col_b_pair : info_b.column_types) {
+                            if (to_lower(stripTrailingUnderscore(col_b_pair.first)) == "id") {
+                                if (typeMatches(type_a, col_b_pair.second)) {
+                                    Relationship rel;
+                                    rel.from_table = tbl_a;
+                                    rel.from_column = col_a;
+                                    rel.to_table = tbl_b;
+                                    rel.to_column = col_b_pair.first;
+                                    rel.is_explicit = false;
+                                    relationships.insert(rel);
+                                    relationship_found = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         } else if (col_lower == "parnts_role" || col_lower == "chldrn_role" || col_lower == "parents_role" || col_lower == "children_role" || col_lower == "parent_role" || col_lower == "child_role") {
             // Check if the current table is a role hierarchy table and the target is an author/role info table.
             // Example: roles_hierarchy.parnts_role -> authorinfo.author_code
@@ -469,7 +505,42 @@ bool matchDomainSpecificKeys(
  *   isPersonTable("orders") -> false
  */
 bool isPersonTable(const std::string& tbl) {
-    return PERSON_TABLE_SYNONYMS.count(tbl);
+    std::string clean = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
+    if (PERSON_TABLE_SYNONYMS.count(clean) > 0) return true;
+    
+    std::vector<std::string> words;
+    std::string word;
+    std::istringstream ss(clean);
+    while (std::getline(ss, word, '_')) {
+        words.push_back(word);
+    }
+    
+    if (words.empty()) return false;
+    
+    bool has_person_word = false;
+    for (const auto& w : words) {
+        if (PERSON_TABLE_SYNONYMS.count(w) > 0) {
+            has_person_word = true;
+            break;
+        }
+    }
+    if (!has_person_word) return false;
+    
+    static const std::unordered_set<std::string> EXCLUDED_BASE_SUFFIXES = {
+        "profile", "profiles", "group", "groups", "role", "roles", "history", "log", "logs", 
+        "detail", "details", "map", "maps", "link", "links", "assignment", "assignments",
+        "registration", "registrations", "booking", "bookings", "reservation", "reservations",
+        "schedule", "schedules", "event", "events", "permission", "permissions", "privilege", "privileges",
+        "activity", "activities", "action", "actions", "metadata", "meta", "config", "configs",
+        "setting", "settings", "option", "options", "preference", "preferences", "token", "tokens"
+    };
+    
+    std::string last_word = words.back();
+    if (EXCLUDED_BASE_SUFFIXES.count(last_word) > 0) {
+        return false;
+    }
+    
+    return true;
 }
 
 bool isPersonTableOrExtension(const std::string& tbl) {
@@ -482,6 +553,17 @@ bool isPersonTableOrExtension(const std::string& tbl) {
     }
     return false;
 }
+
+bool isGenericPersonTable(const std::string& tbl) {
+    std::string clean = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
+    static const std::unordered_set<std::string> GENERIC_PERSON_TABLES = {
+        "user", "users", "person", "persons", "people", "member", "members", "account", "accounts", "party", "parties",
+        "auth", "auths", "login", "logins", "credentials", "credential",
+        "comtnuser", "comtnusers", "comtnperson", "comtnpersons", "comtnpeople", "comtnmember", "comtnmembers", "comtnaccount", "comtnaccounts", "comtnparty", "comtnparties"
+    };
+    return GENERIC_PERSON_TABLES.count(clean) > 0;
+}
+
 
 /**
  * Checks if a role word/suffix represents a person role.
@@ -555,7 +637,7 @@ bool isLookupTable(const std::string& tbl) {
  *   Since last word "address" matches "address", it returns true.
  */
 bool matchLastWord(const std::string& prefix_a, const std::string& tbl_b) {
-    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(tbl_b));
+    std::string clean_tbl = to_lower(stripTablePrefix(stripSchemaPrefix(tbl_b)));
     
     auto getLastWord = [](const std::string& s) -> std::string {
         size_t last_under = s.find_last_of('_');
@@ -568,8 +650,22 @@ bool matchLastWord(const std::string& prefix_a, const std::string& tbl_b) {
     std::string last_tbl_word = getLastWord(clean_tbl);
     std::string last_prefix_word = getLastWord(to_lower(prefix_a));
     
-    return !last_tbl_word.empty() && !last_prefix_word.empty() && 
-           last_tbl_word == last_prefix_word && last_tbl_word.length() >= 3;
+    if (last_tbl_word != last_prefix_word) return false;
+    
+    static const std::unordered_set<std::string> GENERIC_LAST_WORDS = {
+        "type", "types", "status", "statuses", "group", "groups", "role", "roles",
+        "state", "states", "level", "levels", "priority", "priorities", "code", "codes",
+        "mode", "modes", "action", "actions", "tag", "tags", "value", "values",
+        "info", "information", "config", "configs", "setting", "settings", "option", "options",
+        "preference", "preferences", "log", "logs", "history", "detail", "details",
+        "execution", "executions", "event", "events", "record", "records", "data", "file", "files",
+        "token", "tokens", "category", "categories", "class", "classes", "genre", "genres"
+    };
+    if (clean_tbl != last_tbl_word) {
+        if (GENERIC_LAST_WORDS.count(last_tbl_word) > 0) return false;
+    }
+    
+    return !last_tbl_word.empty() && last_tbl_word.length() >= 3;
 }
 
 /**
@@ -607,4 +703,121 @@ bool isGenericPkFkMatch(const std::string& col_a, const std::string& col_b, cons
         }
     }
     return false;
+}
+
+bool isGenericPkFkPrefix(const std::string& s) {
+    return GENERIC_PK_FK_PREFIXES.count(to_lower(s)) > 0;
+}
+
+void filterDomainSpecificRelationships(
+    const std::vector<std::string>& table_names,
+    const std::unordered_map<std::string, TableInfo>& tables_info,
+    std::set<Relationship>& relationships) {
+
+#ifdef VSQL_SCHEMATRON_OFFLINE
+    // 1. Detect if this is a BPMN schema (Activiti/Flowable/Camunda)
+    bool is_bpmn = false;
+    int act_table_count = 0;
+    for (const auto& tbl : table_names) {
+        std::string tbl_lower = to_lower(tbl);
+        if (tbl_lower.rfind("act_", 0) == 0) {
+            act_table_count++;
+        }
+    }
+    if (act_table_count >= 3) {
+        is_bpmn = true;
+    }
+
+    // 2. Detect if this is an openBIS schema and if it is the newer version
+    bool is_openbis = false;
+    bool is_new_openbis = false;
+    bool has_persons = false;
+    bool has_samples = false;
+    for (const auto& tbl : table_names) {
+        std::string tbl_lower = to_lower(tbl);
+        if (tbl_lower == "persons" || tbl_lower == "persons_all") {
+            has_persons = true;
+        }
+        if (tbl_lower == "samples_all" || tbl_lower == "samples" || tbl_lower == "data_all") {
+            has_samples = true;
+        }
+        if (tbl_lower == "persons_all" || tbl_lower == "samples_all" || tbl_lower == "data_all") {
+            is_new_openbis = true;
+        }
+    }
+    if (has_persons && has_samples) {
+        is_openbis = true;
+    }
+
+    for (auto it = relationships.begin(); it != relationships.end(); ) {
+        if (it->is_explicit) {
+            ++it;
+            continue;
+        }
+        bool to_remove = false;
+        std::string from_tbl = to_lower(it->from_table);
+        std::string to_tbl = to_lower(it->to_table);
+        std::string col_a = to_lower(it->from_column);
+
+        if (is_bpmn) {
+            // Rule 1: History tables act_hi_* completely decoupled (never declare foreign keys in DDL)
+            bool from_is_hi = (from_tbl.rfind("act_hi_", 0) == 0 || from_tbl.find("_hi_") != std::string::npos);
+            bool to_is_hi = (to_tbl.rfind("act_hi_", 0) == 0 || to_tbl.find("_hi_") != std::string::npos);
+            if (from_is_hi || to_is_hi) {
+                to_remove = true;
+            }
+
+            // Rule 2: Standalone event logging table
+            if (from_tbl == "act_evt_log" || from_tbl.rfind("act_evt_log_", 0) == 0 ||
+                to_tbl == "act_evt_log" || to_tbl.rfind("act_evt_log_", 0) == 0) {
+                to_remove = true;
+            }
+
+            // Rule 3: root_proc_inst_id_ is logical and unconstrained
+            if (col_a == "root_proc_inst_id_" || col_a == "root_proc_inst_id") {
+                to_remove = true;
+            }
+
+            // Rule 4: meta_info_ contains JSON strings
+            if (col_a == "meta_info_" || col_a == "meta_info") {
+                to_remove = true;
+            }
+            
+            // Rule 5: variables, identitylinks, and integration task_id_ / proc_inst_id_ / flow_node_id_ unconstrained runtime refs
+            if (from_tbl == "act_ru_variable" && (col_a == "task_id_" || col_a == "task_id")) {
+                to_remove = true;
+            }
+            if (from_tbl == "act_ru_identitylink" && (col_a == "proc_inst_id_" || col_a == "proc_inst_id")) {
+                to_remove = true;
+            }
+            if (from_tbl == "act_ru_integration" && (col_a == "flow_node_id_" || col_a == "flow_node_id")) {
+                to_remove = true;
+            }
+        }
+
+        if (is_openbis && is_new_openbis) {
+            // Rule 1: pers_id_registerer, pers_id_author, pers_id_modifier columns pointing to persons table
+            if ((to_tbl == "persons" || to_tbl == "persons_all") && 
+                (col_a.find("pers_id") != std::string::npos || col_a.find("pers_") == 0)) {
+                to_remove = true;
+            }
+        }
+
+        // AWS Route53 / DNS specific filters
+        if (to_tbl == "zones" || to_tbl == "zone") {
+            if (col_a == "time_zone_id" || col_a == "timezone_id" || col_a == "timezone" || col_a == "time_zone") {
+                to_remove = true;
+            }
+            if (col_a == "zone_table" || col_a == "zone_tbl" || col_a == "zone_name" || col_a == "zonename") {
+                to_remove = true;
+            }
+        }
+
+        if (to_remove) {
+            it = relationships.erase(it);
+        } else {
+            ++it;
+        }
+    }
+#endif
 }
