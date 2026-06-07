@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 348669_turnosd
+#
+CREATE DATABASE `db_348669_turnosd`;
+USE `db_348669_turnosd`;
+CREATE TABLE `edificios` (
+`Id` INT,
+`Nombre` VARCHAR(64),
+`Direccion` VARCHAR(64),
+`Lat` VARCHAR(64),
+`Long` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `gerencias` (
+`Id` INT,
+`Nombre` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pisos` (
+`Id` INT,
+`Nombre` VARCHAR(64),
+`Numero` INT,
+`IdEdificio` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pisosxgerencias` (
+`Id` INT,
+`IdPiso` INT,
+`IdGerencia` INT,
+`Cupo` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuarios` (
+`DNI` INT,
+`Password` VARCHAR(64),
+`Nombre` VARCHAR(64),
+`Email` VARCHAR(64),
+`IdTipoDeUsuario` INT,
+`IdGerencia` INT,
+`IdJefeDirecto` INT,
+PRIMARY KEY (`DNI`)
+) CHARACTER SET latin1;
+CREATE TABLE `turnosd.reportes` (
+`Id` INT,
+`Nombre` VARCHAR(64),
+`Query` VARCHAR(64),
+`SelGerencia` BOOL,
+`SelUsuario` BOOL,
+`SelFecha` BOOL,
+`SelEdificio` BOOL,
+`SelPiso` BOOL,
+`SelHorario` BOOL,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `turnosd.configuraciones` (
+`Id` INT,
+`Nombre` VARCHAR(64),
+`Valor` VARCHAR(64),
+`Descripcion` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_348669_turnosd') AS relationships;
+relationships
+Database: db_348669_turnosd
+
+Table Connections:
+------------------
+[Implied]  pisos.IdEdificio -> edificios.Id
+[Implied]  pisosxgerencias.IdGerencia -> gerencias.Id
+[Implied]  pisosxgerencias.IdPiso -> pisos.Id
+[Implied]  usuarios.IdGerencia -> gerencias.Id
+
+DROP DATABASE `db_348669_turnosd`;
+UNINSTALL EXTENSION vsql_schematron;

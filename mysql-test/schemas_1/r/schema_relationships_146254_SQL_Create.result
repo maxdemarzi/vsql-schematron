@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 146254_SQL_Create
+#
+CREATE DATABASE `db_146254_SQL_Create`;
+USE `db_146254_SQL_Create`;
+CREATE TABLE `item` (
+`IdItem` INT,
+`Tipo` VARCHAR(64),
+`Nome` VARCHAR(64),
+`Quantidade` INT,
+PRIMARY KEY (`IdItem`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedinte` (
+`IdPedinte` INT,
+`Nome` VARCHAR(64),
+`Idade` INT,
+`DataEntrada` DATETIME,
+PRIMARY KEY (`IdPedinte`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido` (
+`IdPedido` INT,
+`IdPedinte` INT,
+`DataPedido` DATETIME,
+PRIMARY KEY (`IdPedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedidoxitem` (
+`IdPedidoxItem` INT,
+`IdPedido` INT,
+`IdItem` INT,
+PRIMARY KEY (`IdPedidoxItem`)
+) CHARACTER SET latin1;
+CREATE TABLE `rua` (
+`IdRua` INT,
+`Nome` VARCHAR(64),
+PRIMARY KEY (`IdRua`)
+) CHARACTER SET latin1;
+CREATE TABLE `ponto` (
+`Idponto` INT,
+`Nome` VARCHAR(64),
+PRIMARY KEY (`Idponto`)
+) CHARACTER SET latin1;
+CREATE TABLE `pontoxrua` (
+`IdPontoxRua` INT,
+`IdRua` INT,
+`IdPonto` INT,
+PRIMARY KEY (`IdPontoxRua`)
+) CHARACTER SET latin1;
+CREATE TABLE `ligacao` (
+`IdLigacao` INT,
+`IdFocal` INT,
+`IdProximo` INT,
+PRIMARY KEY (`IdLigacao`)
+) CHARACTER SET latin1;
+CREATE TABLE `local` (
+`IdLocal` INT,
+`IdPonto` INT,
+`Nome` VARCHAR(64),
+PRIMARY KEY (`IdLocal`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_146254_SQL_Create') AS relationships;
+relationships
+Database: db_146254_SQL_Create
+
+Table Connections:
+------------------
+[Implied]  local.IdPonto -> ponto.Idponto
+[Implied]  pedido.IdPedinte -> pedinte.IdPedinte
+[Implied]  pedidoxitem.IdItem -> item.IdItem
+[Implied]  pedidoxitem.IdPedido -> pedido.IdPedido
+[Implied]  pontoxrua.IdPonto -> ponto.Idponto
+[Implied]  pontoxrua.IdRua -> rua.IdRua
+
+DROP DATABASE `db_146254_SQL_Create`;
+UNINSTALL EXTENSION vsql_schematron;

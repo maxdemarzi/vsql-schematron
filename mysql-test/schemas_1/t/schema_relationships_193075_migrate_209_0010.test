@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 193075_migrate_209_0010
+--echo #
+CREATE DATABASE `db_193075_migrate_209_0010`;
+USE `db_193075_migrate_209_0010`;
+
+CREATE TABLE `tmp_unused_sets` (
+  `rack_position_set_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tmp_rps_hash_values` (
+  `hash_value` VARCHAR(64),
+  `new_rack_position_set_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tmp_rps_old_new` (
+  `old_rack_position_set_id` INT,
+  `new_rack_position_set_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_193075_migrate_209_0010') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_193075_migrate_209_0010') AS relationships;
+DROP DATABASE `db_193075_migrate_209_0010`;
+UNINSTALL EXTENSION vsql_schematron;

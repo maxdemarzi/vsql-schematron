@@ -1,0 +1,152 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 619546_dump
+--echo #
+CREATE DATABASE `db_619546_dump`;
+USE `db_619546_dump`;
+
+CREATE TABLE `teams` (
+  `id` INT,
+  `fname` VARCHAR(64),
+  `year` VARCHAR(64),
+  `city` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `website` VARCHAR(64),
+  `affiliation` VARCHAR(64),
+  `country` VARCHAR(64),
+  `bracket` VARCHAR(64),
+  `banned` BOOL,
+  `verified` BOOL,
+  `admin` BOOL,
+  `mentor` BOOL,
+  `joined` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `challenges` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `max_attempts` INT,
+  `value` INT,
+  `category` VARCHAR(64),
+  `type` INT,
+  `hidden` BOOL,
+  `hint` VARCHAR(64),
+  `level` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `config` (
+  `id` INT,
+  `key` VARCHAR(64),
+  `value` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pages` (
+  `id` INT,
+  `route` VARCHAR(64),
+  `html` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `containers` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `buildfile` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `files` (
+  `id` INT,
+  `chal` INT,
+  `location` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tracking` (
+  `id` INT,
+  `ip` INT,
+  `team` INT,
+  `date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `solves` (
+  `id` INT,
+  `chalid` INT,
+  `teamid` INT,
+  `ip` INT,
+  `flag` VARCHAR(64),
+  `date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tags` (
+  `id` INT,
+  `chal` INT,
+  `tag` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `keys` (
+  `id` INT,
+  `chal` INT,
+  `key_type` INT,
+  `flag` VARCHAR(64),
+  `data` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wrong_keys` (
+  `id` INT,
+  `chalid` INT,
+  `teamid` INT,
+  `date` DATETIME,
+  `flag` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `awards` (
+  `id` INT,
+  `teamid` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `date` DATETIME,
+  `value` INT,
+  `category` VARCHAR(64),
+  `icon` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mentor_student` (
+  `id` INT,
+  `mentorId` INT,
+  `studentId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_619546_dump') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_619546_dump') AS relationships;
+DROP DATABASE `db_619546_dump`;
+UNINSTALL EXTENSION vsql_schematron;

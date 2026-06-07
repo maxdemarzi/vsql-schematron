@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 433374_abd-proyecto-bnj
+--echo #
+CREATE DATABASE `db_433374_abd_proyecto_bnj`;
+USE `db_433374_abd_proyecto_bnj`;
+
+CREATE TABLE `hijos` (
+  `nombre_completo` VARCHAR(64),
+  `direccion` VARCHAR(64),
+  `seccion` VARCHAR(64),
+  `dni_tutor` VARCHAR(64),
+  `dni` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `monitores` (
+  `nombre_completo` VARCHAR(64),
+  `seccion` VARCHAR(64),
+  `dni_monitor` VARCHAR(64),
+  `cargo` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `remesa` (
+  `mes` VARCHAR(64),
+  `dni_hijo` VARCHAR(64),
+  `concepto` VARCHAR(64),
+  `cantidad` INT,
+  `subvencionado` VARCHAR(64),
+  `id_remesa` INT,
+  `estado` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `seccion` (
+  `nombre` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tutores` (
+  `nombre_completo` VARCHAR(64),
+  `email` VARCHAR(64),
+  `dni` VARCHAR(64),
+  `telefono` INT,
+  `numero_cuenta` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_433374_abd_proyecto_bnj') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_433374_abd_proyecto_bnj') AS relationships;
+DROP DATABASE `db_433374_abd_proyecto_bnj`;
+UNINSTALL EXTENSION vsql_schematron;

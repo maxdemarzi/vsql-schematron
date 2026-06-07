@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 554850_01_ProgressTracker_Database
+#
+CREATE DATABASE `db_554850_01_ProgressTracker_Database`;
+USE `db_554850_01_ProgressTracker_Database`;
+CREATE TABLE `Semesters` (
+`semesterID` INT,
+`semesterName` VARCHAR(64),
+`semesterStarts` DATETIME,
+`semesterEnds` DATETIME,
+PRIMARY KEY (`semesterID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Schools` (
+`schoolID` INT,
+`schoolName` VARCHAR(64),
+PRIMARY KEY (`schoolID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Divisions` (
+`divisionID` INT,
+`divisionName` VARCHAR(64),
+`schoolID` INT,
+PRIMARY KEY (`divisionID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tracks` (
+`trackID` INT,
+`trackName` VARCHAR(64),
+`validFrom` DATETIME,
+`divisionID` INT,
+PRIMARY KEY (`trackID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Courses` (
+`courseNumber` VARCHAR(64),
+`courseName` VARCHAR(64),
+`courseCredits` INT,
+`minCredits` INT,
+`divisionID` INT,
+PRIMARY KEY (`courseNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `StudentCourses` (
+`studentCourseID` INT,
+`grade` INT,
+`semesterTaken` INT,
+`studentID` INT,
+`trackCourseID` INT,
+PRIMARY KEY (`studentCourseID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_554850_01_ProgressTracker_Database') AS relationships;
+relationships
+Database: db_554850_01_ProgressTracker_Database
+
+Table Connections:
+------------------
+[Implied]  Courses.divisionID -> Divisions.divisionID
+[Implied]  Divisions.schoolID -> Schools.schoolID
+[Implied]  Tracks.divisionID -> Divisions.divisionID
+
+DROP DATABASE `db_554850_01_ProgressTracker_Database`;
+UNINSTALL EXTENSION vsql_schematron;

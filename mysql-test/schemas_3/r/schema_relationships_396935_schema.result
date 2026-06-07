@@ -1,0 +1,172 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 396935_schema
+#
+CREATE DATABASE `db_396935_schema`;
+USE `db_396935_schema`;
+CREATE TABLE `controlled_vocabulary` (
+`id` INT,
+`name` VARCHAR(64),
+`definition` VARCHAR(64),
+`version` INT,
+`is_current` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `controlled_vocabulary_term` (
+`id` INT,
+`controlled_vocabulary_id` INT,
+`name` VARCHAR(64),
+`definition` VARCHAR(64),
+`is_current` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `controlled_vocabulary_relationship` (
+`id` INT,
+`type_id` INT,
+`subject_id` INT,
+`object_id` INT,
+`is_current` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `person` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`email_address` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project` (
+`id` INT,
+`name` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project_property` (
+`id` INT,
+`project_id` INT,
+`type_id` INT,
+`value` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stack` (
+`id` INT,
+`project_id` INT,
+`name` VARCHAR(64),
+`location` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stack_property` (
+`id` INT,
+`stack_id` INT,
+`type_id` INT,
+`value` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tile` (
+`id` INT,
+`stack_id` INT,
+`name` VARCHAR(64),
+`gray_scale_name` VARCHAR(64),
+`segmented_tile_name` VARCHAR(64),
+`traces_name` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tiles` (
+`id` INT,
+`tile_id` INT,
+`region_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `superpixel` (
+`id` INT,
+`identifier` INT,
+`tile_id` INT,
+`body_id` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `region` (
+`id` INT,
+`name` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bodies` (
+`id` INT,
+`body_id` INT,
+`body_set_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `body_set` (
+`id` INT,
+`name` VARCHAR(64),
+`type_id` INT,
+`mesh_image_name` VARCHAR(64),
+`owner_id` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `body_set_property` (
+`id` INT,
+`body_set_id` INT,
+`type_id` INT,
+`value` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `body_set_relationship` (
+`id` INT,
+`relationship_id` INT,
+`subject_id` INT,
+`object_id` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `corrections` (
+`id` INT,
+`body_set_id` INT,
+`proofread_id` INT,
+`action` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `proofread` (
+`id` INT,
+`proofreader_id` INT,
+`status_id` INT,
+`note` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_396935_schema') AS relationships;
+relationships
+Database: db_396935_schema
+
+Table Connections:
+------------------
+[Implied]  bodies.body_set_id -> body_set.id
+[Implied]  body_set.owner_id -> person.id
+[Implied]  body_set_property.body_set_id -> body_set.id
+[Implied]  controlled_vocabulary_term.controlled_vocabulary_id -> controlled_vocabulary.id
+[Implied]  corrections.body_set_id -> body_set.id
+[Implied]  corrections.proofread_id -> proofread.id
+[Implied]  project_property.project_id -> project.id
+[Implied]  stack.project_id -> project.id
+[Implied]  stack_property.stack_id -> stack.id
+[Implied]  superpixel.body_id -> bodies.id
+[Implied]  superpixel.tile_id -> tile.id
+[Implied]  tile.stack_id -> stack.id
+[Implied]  tiles.region_id -> region.id
+[Implied]  tiles.tile_id -> tile.id
+
+DROP DATABASE `db_396935_schema`;
+UNINSTALL EXTENSION vsql_schematron;

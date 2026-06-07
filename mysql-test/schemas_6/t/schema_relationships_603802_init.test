@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 603802_init
+--echo #
+CREATE DATABASE `db_603802_init`;
+USE `db_603802_init`;
+
+CREATE TABLE `metadata` (
+  `id` INT,
+  `size` INT,
+  `atime` VARCHAR(64),
+  `atime_nsec` INT,
+  `mtime` VARCHAR(64),
+  `mtime_nsec` INT,
+  `ctime` VARCHAR(64),
+  `ctime_nsec` INT,
+  `crtime` VARCHAR(64),
+  `crtime_nsec` INT,
+  `kind` INT,
+  `mode` INT,
+  `nlink` INT,
+  `uid` INT,
+  `gid` INT,
+  `rdev` INT,
+  `flags` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `data` (
+  `file_id` INT,
+  `block_num` INT,
+  `data` VARCHAR(64),
+  PRIMARY KEY (`file_id`, `block_num`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dentry` (
+  `parent_id` INT,
+  `child_id` INT,
+  `file_type` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`parent_id`, `name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `xattr` (
+  `file_id` INT,
+  `name` VARCHAR(64),
+  `value` VARCHAR(64),
+  PRIMARY KEY (`file_id`, `name`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_603802_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_603802_init') AS relationships;
+DROP DATABASE `db_603802_init`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 294420_create_tables
+#
+CREATE DATABASE `db_294420_create_tables`;
+USE `db_294420_create_tables`;
+CREATE TABLE `usuario` (
+`id` INT,
+`user_name` VARCHAR(64),
+`pwd` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pessoa` (
+`id` INT,
+`nome` VARCHAR(64),
+`cpf` VARCHAR(64),
+`rg` VARCHAR(64),
+`data_nascimento` DATETIME,
+`profissao` VARCHAR(64),
+`rua` VARCHAR(64),
+`complemento` VARCHAR(64),
+`bairro` VARCHAR(64),
+`cidade` VARCHAR(64),
+`estado` VARCHAR(64),
+`cep` VARCHAR(64),
+`telefone_comercial` VARCHAR(64),
+`telefone_residencial` VARCHAR(64),
+`tipo` VARCHAR(64),
+`estado_civil` VARCHAR(64),
+`conjuge` INT,
+`renda` VARCHAR(64),
+`anotacao` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dados_bancarios` (
+`id` INT,
+`banco` VARCHAR(64),
+`tipo_conta` VARCHAR(64),
+`agencia` VARCHAR(64),
+`conta` VARCHAR(64),
+`titular` VARCHAR(64),
+`cpf_titular` VARCHAR(64),
+`cliente` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `imoveis` (
+`id` INT,
+`matricula` VARCHAR(64),
+`descricao` VARCHAR(64),
+`rua` VARCHAR(64),
+`complemento` VARCHAR(64),
+`bairro` VARCHAR(64),
+`cidade` VARCHAR(64),
+`estado` VARCHAR(64),
+`cep` VARCHAR(64),
+`proprietario` INT,
+`anotacao` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contratos` (
+`id` INT,
+`numero_contrato` VARCHAR(64),
+`imovel` INT,
+`contratante` INT,
+`contratado` INT,
+`inicio` DATETIME,
+`termino` DATETIME,
+`link` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `debitos` (
+`id` INT,
+`vencimento` DATETIME,
+`pagamento` DATETIME,
+`contrato` INT,
+`tipo` VARCHAR(64),
+`valor` DECIMAL(10,2),
+`status` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_294420_create_tables') AS relationships;
+relationships
+Database: db_294420_create_tables
+
+Table Connections:
+------------------
+[Implied]  contratos.imovel -> imoveis.id
+[Implied]  debitos.contrato -> contratos.id
+
+DROP DATABASE `db_294420_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

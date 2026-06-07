@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 159363_migration
+--echo #
+CREATE DATABASE `db_159363_migration`;
+USE `db_159363_migration`;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `bio` VARCHAR(64),
+  `location` VARCHAR(64),
+  `twitter_url` VARCHAR(64),
+  `medium_url` VARCHAR(64),
+  `stackOverflow_url` VARCHAR(64),
+  `website_url` VARCHAR(64),
+  `github_url` VARCHAR(64),
+  `github_avatar_url` VARCHAR(64),
+  `github_name` VARCHAR(64),
+  `github_email` VARCHAR(64),
+  `github_username` VARCHAR(64),
+  `github_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `role` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `posts` (
+  `id` VARCHAR(64),
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `slug` VARCHAR(64),
+  `published` BOOL,
+  `ownerId` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `_UserFollows` (
+  `A` INT,
+  `B` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_159363_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_159363_migration') AS relationships;
+DROP DATABASE `db_159363_migration`;
+UNINSTALL EXTENSION vsql_schematron;

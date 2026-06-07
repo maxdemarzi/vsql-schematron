@@ -1,0 +1,99 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 431589_V1__CreateDB
+#
+CREATE DATABASE `db_431589_V1_CreateDB`;
+USE `db_431589_V1_CreateDB`;
+CREATE TABLE `basket_items` (
+`user_id` INT,
+`item_id` INT,
+PRIMARY KEY (`user_id`, `item_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`id` INT,
+`name` VARCHAR(64),
+`parent_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `client` (
+`id` INT,
+`confirmation_code` VARCHAR(64),
+`email` VARCHAR(64),
+`first_name` VARCHAR(64),
+`is_non_locked` BOOL,
+`last_name` VARCHAR(64),
+`login` VARCHAR(64),
+`password` VARCHAR(64),
+`patronymic` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `client_item` (
+`id` INT,
+`quantity` INT,
+`item_id` INT,
+`order_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `client_roles` (
+`client_id` INT,
+`roles` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `image` (
+`id` INT,
+`image` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`id` INT,
+`characteristics` VARCHAR(64),
+`code` VARCHAR(64),
+`count` INT,
+`created_on` DATETIME,
+`description` VARCHAR(64),
+`image` VARCHAR(64),
+`name` VARCHAR(64),
+`price` DECIMAL(10,2),
+`weight` DECIMAL(10,2),
+`category_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item_additional_images` (
+`item_id` INT,
+`additional_images_id` INT,
+PRIMARY KEY (`item_id`, `additional_images_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`city` VARCHAR(64),
+`country` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`street` VARCHAR(64),
+`zip_code` VARCHAR(64),
+`created_on` DATETIME,
+`last_update` DATETIME,
+`order_status` VARCHAR(64),
+`payment_method` VARCHAR(64),
+`track_number` VARCHAR(64),
+`client_id` INT,
+`manager_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_431589_V1_CreateDB') AS relationships;
+relationships
+Database: db_431589_V1_CreateDB
+
+Table Connections:
+------------------
+[Implied]  basket_items.item_id -> item.id
+[Implied]  basket_items.user_id -> client.id
+[Implied]  category.parent_id -> category.id
+[Implied]  client_item.item_id -> item.id
+[Implied]  client_item.order_id -> orders.id
+[Implied]  client_roles.client_id -> client.id
+[Implied]  item.category_id -> category.id
+[Implied]  item_additional_images.item_id -> item.id
+[Implied]  orders.client_id -> client.id
+[Implied]  orders.manager_id -> orders.id
+
+DROP DATABASE `db_431589_V1_CreateDB`;
+UNINSTALL EXTENSION vsql_schematron;

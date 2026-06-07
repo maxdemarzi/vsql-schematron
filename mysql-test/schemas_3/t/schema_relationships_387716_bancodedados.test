@@ -1,0 +1,156 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 387716_bancodedados
+--echo #
+CREATE DATABASE `db_387716_bancodedados`;
+USE `db_387716_bancodedados`;
+
+CREATE TABLE `pessoa` (
+  `IdPessoa` INT,
+  `cpf` VARCHAR(64),
+  `nome` VARCHAR(64),
+  `endereco` VARCHAR(64),
+  `telefone` VARCHAR(64),
+  `email` VARCHAR(64),
+  `IsExcluido` BOOL,
+  PRIMARY KEY (`IdPessoa`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LoginUsuario` (
+  `IdLoginUsuario` INT,
+  `IdPessoa` INT,
+  `senha` VARCHAR(64),
+  `isBloqueado` BOOL,
+  PRIMARY KEY (`IdLoginUsuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TiposDeFuncao` (
+  `IdFuncao` INT,
+  `NomeFuncao` VARCHAR(64),
+  PRIMARY KEY (`IdFuncao`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Funcionario` (
+  `IdFuncionario` INT,
+  `IdPessoa` INT,
+  `NumeroRegistro` INT,
+  `IdFuncao` INT,
+  `IsGerente` BOOL,
+  `IsExcluido` BOOL,
+  PRIMARY KEY (`IdFuncionario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LoginFuncionario` (
+  `IdLoginFuncionario` INT,
+  `IdFuncionario` INT,
+  `senha` VARCHAR(64),
+  `NivelDeAcesso` INT,
+  `IsBloqueado` BOOL,
+  PRIMARY KEY (`IdLoginFuncionario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TipoDeProduto` (
+  `Id` INT,
+  `Nome` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ProdutoCardapio` (
+  `IdProdutoCardapio` INT,
+  `Nome` VARCHAR(64),
+  `Peso` DECIMAL(10,2),
+  `Descricao` VARCHAR(64),
+  `Valor` DECIMAL(10,2),
+  `InformacaoesNutricionais` VARCHAR(64),
+  `QuantidadeDePessoasQueServe` INT,
+  `IsExcluido` BOOL,
+  PRIMARY KEY (`IdProdutoCardapio`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Pedido` (
+  `IdPedido` INT,
+  PRIMARY KEY (`IdPedido`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ProdutoCardapioPedido` (
+  `Id` INT,
+  `IdProdutoCardapio` INT,
+  `IdPedido` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ProdutoEstoque` (
+  `IdProdutoEstoque` INT,
+  `Nome` VARCHAR(64),
+  `Peso` DECIMAL(10,2),
+  `Descricao` VARCHAR(64),
+  `InformacoesAdicionais` VARCHAR(64),
+  `IsExcluido` BOOL,
+  PRIMARY KEY (`IdProdutoEstoque`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Estoque` (
+  `IdEstoque` INT,
+  `IdProdutoEstoque` INT,
+  `Quantidade` INT,
+  PRIMARY KEY (`IdEstoque`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Mesa` (
+  `IdMesa` INT,
+  `Nome` VARCHAR(64),
+  PRIMARY KEY (`IdMesa`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MesaPedido` (
+  `IdMesaPedido` INT,
+  `IdMesa` INT,
+  `ValorTotal` DECIMAL(10,2),
+  `Data` DATETIME,
+  PRIMARY KEY (`IdMesaPedido`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PedidoMesaPedido` (
+  `Id` INT,
+  `IdPedido` INT,
+  `IdMesaPedido` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Cozinha` (
+  `IdPedidoCozinha` INT,
+  `IdPedido` INT,
+  `idMesa` INT,
+  `Status` VARCHAR(64),
+  PRIMARY KEY (`IdPedidoCozinha`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Delivery` (
+  `IdDelivery` INT,
+  `IdPessoa` INT,
+  `IdCozinha` INT,
+  `ValorTotal` DECIMAL(10,2),
+  `Data` DATETIME,
+  PRIMARY KEY (`IdDelivery`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_387716_bancodedados') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_387716_bancodedados') AS relationships;
+DROP DATABASE `db_387716_bancodedados`;
+UNINSTALL EXTENSION vsql_schematron;

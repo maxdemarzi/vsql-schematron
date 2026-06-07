@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 015442_1_create_tables
+#
+CREATE DATABASE `db_015442_1_create_tables`;
+USE `db_015442_1_create_tables`;
+CREATE TABLE `advisor_users` (
+`steamid64` VARCHAR(64),
+`joined_at` INT,
+`last_seen` INT,
+PRIMARY KEY (`steamid64`)
+) CHARACTER SET latin1;
+CREATE TABLE `advisor_user_aliases` (
+`steamid64` VARCHAR(64),
+`aliases` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `advisor_roles` (
+`id` INT,
+`name` VARCHAR(64),
+`color` INT,
+`position` INT,
+`hoisted` BOOL,
+`weight` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `advisor_role_permissions` (
+`role_id` INT,
+`permission` VARCHAR(64),
+`value` BOOL
+) CHARACTER SET latin1;
+CREATE TABLE `advisor_user_permissions` (
+`steamid64` INT,
+`permission` VARCHAR(64),
+`value` BOOL
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_015442_1_create_tables') AS relationships;
+relationships
+Database: db_015442_1_create_tables
+
+Table Connections:
+------------------
+[Implied]  advisor_role_permissions.role_id -> advisor_roles.id
+[Implied]  advisor_user_aliases.steamid64 -> advisor_users.steamid64
+
+DROP DATABASE `db_015442_1_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

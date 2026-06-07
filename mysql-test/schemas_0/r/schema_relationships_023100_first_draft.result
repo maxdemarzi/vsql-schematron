@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 023100_first_draft
+#
+CREATE DATABASE `db_023100_first_draft`;
+USE `db_023100_first_draft`;
+CREATE TABLE `users` (
+`user_id` INT,
+`user_name` VARCHAR(64),
+`user_email` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `club` (
+`club_name` VARCHAR(64),
+`nickname` VARCHAR(64),
+`found_date` DATETIME,
+`home_ground` VARCHAR(64),
+`location` VARCHAR(64),
+PRIMARY KEY (`club_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `player` (
+`player_id` INT,
+`player_name` VARCHAR(64),
+`height` INT,
+`weight` INT,
+`age` INT,
+`birth_date` DATETIME,
+`market_value` INT,
+`player_position` VARCHAR(64),
+PRIMARY KEY (`player_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contract` (
+`contract_id` INT,
+`contract_club` VARCHAR(64),
+`contract_player` INT,
+`expiration` DATETIME,
+PRIMARY KEY (`contract_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `game` (
+`game_id` INT,
+`game_home` VARCHAR(64),
+`game_guest` VARCHAR(64),
+`game_date` DATETIME,
+`result` VARCHAR(64),
+PRIMARY KEY (`game_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`event_id` INT,
+`event_player` INT,
+`event_game` INT,
+`event_date` DATETIME,
+`data_type` VARCHAR(64),
+PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`comments_id` INT,
+`comments_game` INT,
+`comments_user` INT,
+`user_comment` VARCHAR(64),
+PRIMARY KEY (`comments_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `follows` (
+`follows_id` INT,
+`follows_club` VARCHAR(64),
+`follows_user` INT,
+PRIMARY KEY (`follows_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ratings` (
+`ratings_id` INT,
+`ratings_user` INT,
+`ratings_player` INT,
+`rating_comment` VARCHAR(64),
+PRIMARY KEY (`ratings_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_023100_first_draft') AS relationships;
+relationships
+Database: db_023100_first_draft
+
+Table Connections:
+------------------
+[Implied]  comments.comments_game -> game.game_id
+[Implied]  comments.comments_user -> comments.comments_id
+[Implied]  contract.contract_club -> club.club_name
+[Implied]  contract.contract_player -> player.player_id
+[Implied]  event.event_game -> game.game_id
+[Implied]  event.event_player -> player.player_id
+[Implied]  follows.follows_club -> club.club_name
+[Implied]  follows.follows_user -> follows.follows_id
+[Implied]  ratings.ratings_player -> player.player_id
+[Implied]  ratings.ratings_user -> ratings.ratings_id
+
+DROP DATABASE `db_023100_first_draft`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 142472_20210410205752_initialize_schema.up
+#
+CREATE DATABASE `db_142472_20210410205752_initialize_schema_up`;
+USE `db_142472_20210410205752_initialize_schema_up`;
+CREATE TABLE `customers` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_items` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`description` VARCHAR(64),
+`qty` VARCHAR(64),
+`unit` VARCHAR(64),
+`unit_price` VARCHAR(64),
+`order_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`description` VARCHAR(64),
+`delivery_date` VARCHAR(64),
+`invoice_number` VARCHAR(64),
+`currency` VARCHAR(64),
+`order_number` VARCHAR(64),
+`created_by` INT,
+`customer_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `quote_items` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`description` VARCHAR(64),
+`qty` VARCHAR(64),
+`unit` VARCHAR(64),
+`unit_price` VARCHAR(64),
+`quote_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `quotes` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`description` VARCHAR(64),
+`quote_number` VARCHAR(64),
+`created_by` INT,
+`customer_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`email` VARCHAR(64),
+`userName` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_142472_20210410205752_initialize_schema_up') AS relationships;
+relationships
+Database: db_142472_20210410205752_initialize_schema_up
+
+Table Connections:
+------------------
+[Implied]  order_items.order_id -> orders.id
+[Implied]  orders.created_by -> customers.id
+[Implied]  orders.created_by -> users.id
+[Implied]  orders.customer_id -> customers.id
+[Implied]  quote_items.quote_id -> quotes.id
+[Implied]  quotes.created_by -> customers.id
+[Implied]  quotes.created_by -> users.id
+[Implied]  quotes.customer_id -> customers.id
+
+DROP DATABASE `db_142472_20210410205752_initialize_schema_up`;
+UNINSTALL EXTENSION vsql_schematron;

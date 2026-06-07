@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 500532_sqlscript
+#
+CREATE DATABASE `db_500532_sqlscript`;
+USE `db_500532_sqlscript`;
+CREATE TABLE `Users` (
+`id` INT,
+`name` VARCHAR(64),
+`pw` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Questions` (
+`id` INT,
+`header` VARCHAR(64),
+`question` VARCHAR(64),
+`userId` INT,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Answers` (
+`id` INT,
+`userId` INT,
+`questionId` INT,
+`answer` VARCHAR(64),
+`accepted` BOOL,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comments` (
+`id` INT,
+`answerId` INT,
+`userId` INT,
+`comment` VARCHAR(64),
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `QuestionTags` (
+`id` INT,
+`questionId` INT,
+`tag` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `QuestionVotes` (
+`id` INT,
+`questionId` INT,
+`voterId` INT,
+`isUpvote` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `AnswerVotes` (
+`id` INT,
+`answerId` INT,
+`voterId` INT,
+`isUpvote` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CommentVotes` (
+`id` INT,
+`commentId` INT,
+`voterId` INT,
+`isUpvote` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_500532_sqlscript') AS relationships;
+relationships
+Database: db_500532_sqlscript
+
+Table Connections:
+------------------
+[Implied]  AnswerVotes.answerId -> Answers.id
+[Implied]  Answers.questionId -> Questions.id
+[Implied]  Answers.userId -> Users.id
+[Implied]  CommentVotes.commentId -> Comments.id
+[Implied]  Comments.answerId -> Answers.id
+[Implied]  Comments.userId -> Users.id
+[Implied]  QuestionTags.questionId -> Questions.id
+[Implied]  QuestionVotes.questionId -> Questions.id
+[Implied]  Questions.userId -> Users.id
+
+DROP DATABASE `db_500532_sqlscript`;
+UNINSTALL EXTENSION vsql_schematron;

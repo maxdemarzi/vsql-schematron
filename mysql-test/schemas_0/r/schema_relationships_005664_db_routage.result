@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 005664_db_routage
+#
+CREATE DATABASE `db_005664_db_routage`;
+USE `db_005664_db_routage`;
+CREATE TABLE `instance` (
+`id` INT,
+`nom` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `point` (
+`id` INT,
+`pointtype` INT,
+`x` DECIMAL(10,2),
+`y` DECIMAL(10,2),
+`ninstance` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `depot` (
+`npoint` INT,
+PRIMARY KEY (`npoint`)
+) CHARACTER SET latin1;
+CREATE TABLE `planning` (
+`id` INT,
+`cout` DECIMAL(10,2),
+`ninstance` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vehicule` (
+`id` INT,
+`cout` DECIMAL(10,2),
+`capaciteutilisee` INT,
+`capacite` INT,
+`ndepot` INT,
+`nplanning` INT,
+`ninstance` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `client` (
+`demand` INT,
+`position` INT,
+`npoint` INT,
+`nvehicule` INT,
+PRIMARY KEY (`npoint`)
+) CHARACTER SET latin1;
+CREATE TABLE `route` (
+`id` INT,
+`ndepart` INT,
+`narrivee` INT,
+`distance` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_005664_db_routage') AS relationships;
+relationships
+Database: db_005664_db_routage
+
+Table Connections:
+------------------
+[Implied]  client.nvehicule -> vehicule.id
+[Implied]  planning.ninstance -> instance.id
+[Implied]  point.ninstance -> instance.id
+[Implied]  vehicule.ndepot -> depot.npoint
+[Implied]  vehicule.ninstance -> instance.id
+[Implied]  vehicule.nplanning -> planning.id
+
+DROP DATABASE `db_005664_db_routage`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 642740_V1_0_0__baseline
+--echo #
+CREATE DATABASE `db_642740_V1_0_0_baseline`;
+USE `db_642740_V1_0_0_baseline`;
+
+CREATE TABLE `ObjectInfo_type` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ObjectInfo` (
+  `id` INT,
+  `type_id` INT,
+  `probability` INT,
+  `worth` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Created_object` (
+  `id` INT,
+  `count` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_642740_V1_0_0_baseline') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_642740_V1_0_0_baseline') AS relationships;
+DROP DATABASE `db_642740_V1_0_0_baseline`;
+UNINSTALL EXTENSION vsql_schematron;

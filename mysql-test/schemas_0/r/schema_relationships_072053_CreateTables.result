@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 072053_CreateTables
+#
+CREATE DATABASE `db_072053_CreateTables`;
+USE `db_072053_CreateTables`;
+CREATE TABLE `customer` (
+`custid` INT,
+`custname` VARCHAR(64),
+`custusername` VARCHAR(64),
+`custpassword` VARCHAR(64),
+PRIMARY KEY (`custid`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`empid` INT,
+`empname` VARCHAR(64),
+`empusername` VARCHAR(64),
+`emppassword` VARCHAR(64),
+`isanadmin` VARCHAR(64),
+PRIMARY KEY (`empid`)
+) CHARACTER SET latin1;
+CREATE TABLE `account` (
+`accid` INT,
+`name` VARCHAR(64),
+`status` VARCHAR(64),
+`balance` INT,
+`ownerid` INT,
+`coownerid` INT,
+PRIMARY KEY (`accid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_072053_CreateTables') AS relationships;
+relationships
+Database: db_072053_CreateTables
+
+Table Connections:
+------------------
+[Implied]  account.ownerid -> account.accid
+[Implied]  account.ownerid -> customer.custid
+[Implied]  account.ownerid -> employee.empid
+
+DROP DATABASE `db_072053_CreateTables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,135 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 227565_schema
+--echo #
+CREATE DATABASE `db_227565_schema`;
+USE `db_227565_schema`;
+
+CREATE TABLE `aircraft` (
+  `identifier` VARCHAR(64),
+  `engine` VARCHAR(64),
+  `economy_seats` INT,
+  `business_seats` INT,
+  `first_seats` INT,
+  `last_check` DATETIME,
+  `aircraft_model_designator` VARCHAR(64),
+  PRIMARY KEY (`identifier`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `aircraft_model` (
+  `designator` VARCHAR(64),
+  `manufacturer` VARCHAR(64),
+  `family` VARCHAR(64),
+  `full_type` VARCHAR(64),
+  `etops_certified` VARCHAR(64),
+  `etops_rating` INT,
+  `range_nmi` INT,
+  `mtow` INT,
+  PRIMARY KEY (`designator`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `airport` (
+  `icao` VARCHAR(64),
+  `iata` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`icao`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `crew` (
+  `crew_id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `role` VARCHAR(64),
+  `seniority` VARCHAR(64),
+  PRIMARY KEY (`crew_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `crew_on_flight` (
+  `crew_id` INT,
+  `operated_id` INT,
+  PRIMARY KEY (`crew_id`, `operated_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `flight` (
+  `flight_id` VARCHAR(64),
+  `departure_time` DATETIME,
+  `arrival_time` DATETIME,
+  `aircraft_model_designator` VARCHAR(64),
+  `route_id` INT,
+  PRIMARY KEY (`flight_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `operated_flight` (
+  `operated_id` INT,
+  `actual_departure` DATETIME,
+  `actual_arrival` DATETIME,
+  `flight_id` VARCHAR(64),
+  `aircraft_identifier` VARCHAR(64),
+  `date` DATETIME,
+  PRIMARY KEY (`operated_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `passenger` (
+  `passenger_id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `preferred_meal` VARCHAR(64),
+  `preferred_seat` VARCHAR(64),
+  PRIMARY KEY (`passenger_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `flight_ticket` (
+  `ticket_id` INT,
+  `meal` VARCHAR(64),
+  `seat` VARCHAR(64),
+  `class` VARCHAR(64),
+  `baggage_allowance` INT,
+  `operated_id` INT,
+  `passenger_id` INT,
+  PRIMARY KEY (`ticket_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pilot` (
+  `pilot_id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `certification` VARCHAR(64),
+  `is_captain` BOOL,
+  PRIMARY KEY (`pilot_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pilot_on_flight` (
+  `pilot_id` INT,
+  `operated_id` INT,
+  PRIMARY KEY (`pilot_id`, `operated_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `route` (
+  `route_id` INT,
+  `distance` INT,
+  `etops_requirement` INT,
+  `origin` VARCHAR(64),
+  `destination` VARCHAR(64),
+  PRIMARY KEY (`route_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_227565_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_227565_schema') AS relationships;
+DROP DATABASE `db_227565_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 033145_db
+#
+CREATE DATABASE `db_033145_db`;
+USE `db_033145_db`;
+CREATE TABLE `account` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`salt` VARCHAR(64),
+`created_at` DATETIME,
+`last_updated` DATETIME,
+`subscribe_newsletter` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+`id` INT,
+`account_id` INT,
+`name` VARCHAR(64),
+`is_default` BOOL,
+`street` VARCHAR(64),
+`city` VARCHAR(64),
+`region` VARCHAR(64),
+`postal_code` VARCHAR(64),
+`country` VARCHAR(64),
+`created_at` DATETIME,
+`last_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment_info` (
+`id` INT,
+`account_id` INT,
+`name` VARCHAR(64),
+`is_default` BOOL,
+`number` VARCHAR(64),
+`cvv` INT,
+`exp_date` DATETIME,
+`method` INT,
+`created_at` DATETIME,
+`last_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_type` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_history` (
+`id` INT,
+`account_id` INT,
+`event_type_id` INT,
+`requested_by_id` VARCHAR(64),
+`ref_id` INT,
+`ref_type_id` INT,
+`ip` VARCHAR(64),
+`info` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_033145_db') AS relationships;
+relationships
+Database: db_033145_db
+
+Table Connections:
+------------------
+[Implied]  account_history.account_id -> account.id
+[Implied]  account_history.event_type_id -> event_type.id
+[Implied]  address.account_id -> account.id
+[Implied]  payment_info.account_id -> account.id
+
+DROP DATABASE `db_033145_db`;
+UNINSTALL EXTENSION vsql_schematron;

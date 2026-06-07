@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 659059_ex1
+#
+CREATE DATABASE `db_659059_ex1`;
+USE `db_659059_ex1`;
+CREATE TABLE `Aircraft` (
+`model` VARCHAR(64),
+`horsepower` INT,
+`topspeed` DECIMAL(10,2),
+`width` DECIMAL(10,2),
+`height` DECIMAL(10,2),
+`weight` DECIMAL(10,2),
+PRIMARY KEY (`model`)
+) CHARACTER SET latin1;
+CREATE TABLE `Race` (
+`location` VARCHAR(64),
+`edition` VARCHAR(64),
+`country` VARCHAR(64),
+`date` INT,
+`gates` VARCHAR(64),
+`eliminations` VARCHAR(64),
+PRIMARY KEY (`location`, `edition`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pilot` (
+`num` INT,
+`firstname` VARCHAR(64),
+`surname` VARCHAR(64),
+`nationality` VARCHAR(64),
+`birtgday` INT,
+`team` VARCHAR(64),
+`aircraft` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `Participation` (
+`pilot` VARCHAR(64),
+`location` VARCHAR(64),
+`edition` VARCHAR(64),
+`trainingtime` DECIMAL(10,2),
+`trainingpos` INT,
+`trainingpenalty` INT,
+`qualificationtime` DECIMAL(10,2),
+`qualificationpos` INT,
+`qualificationpenalty` INT,
+`eliminationtime` DECIMAL(10,2),
+`eliminationpos` INT,
+`eliminationpenalty` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Duel` (
+`pilot1` VARCHAR(64),
+`pilot2` VARCHAR(64),
+`location` VARCHAR(64),
+`edition` VARCHAR(64),
+`dueltype` VARCHAR(64),
+`timepilot1` DECIMAL(10,2),
+`timepilot2` DECIMAL(10,2),
+`penaltypilot1` INT,
+`penaltypilot2` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_659059_ex1') AS relationships;
+relationships
+Database: db_659059_ex1
+
+Table Connections:
+------------------
+[Implied]  Duel.edition -> Race.edition
+[Implied]  Duel.location -> Race.location
+[Implied]  Participation.edition -> Race.edition
+[Implied]  Participation.location -> Race.location
+[Implied]  Pilot.aircraft -> Aircraft.model
+
+DROP DATABASE `db_659059_ex1`;
+UNINSTALL EXTENSION vsql_schematron;

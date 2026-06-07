@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 517934_migration-002-003
+--echo #
+CREATE DATABASE `db_517934_migration_002_003`;
+USE `db_517934_migration_002_003`;
+
+CREATE TABLE `MS_QUANTIFICATIONS` (
+  `ID` INT,
+  `DS_ID` VARCHAR(64),
+  `EXPE_ID` VARCHAR(64),
+  `SOURCE` VARCHAR(64),
+  `VALID` BOOL,
+  `COMMENT` VARCHAR(64),
+  `REGISTRATOR` VARCHAR(64),
+  `REGISTRATION_DATE` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MS_QUANT_CONCENTRATIONS` (
+  `ID` INT,
+  `MS_QUANTIFICATION_ID` VARCHAR(64),
+  `PARENT_DS_PERM_ID` VARCHAR(64),
+  `AMOUNT` DECIMAL(10,2),
+  `UNIT` VARCHAR(64),
+  `VALID` BOOL,
+  `COMMENT` VARCHAR(64),
+  `RETENTION_TIME` DECIMAL(10,2),
+  `Q1` DECIMAL(10,2),
+  `Q3` DECIMAL(10,2),
+  `INTERNAL_STANDARD` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MS_QUANT_COMPOUNDS` (
+  `ID` INT,
+  `MS_QUANT_CONCENTRATION_ID` VARCHAR(64),
+  `COMPOUND_ID` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_517934_migration_002_003') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_517934_migration_002_003') AS relationships;
+DROP DATABASE `db_517934_migration_002_003`;
+UNINSTALL EXTENSION vsql_schematron;

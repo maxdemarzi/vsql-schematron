@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 347550_V20210601142825__init_database
+#
+CREATE DATABASE `db_347550_V20210601142825_init_database`;
+USE `db_347550_V20210601142825_init_database`;
+CREATE TABLE `user` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`username` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_category` (
+`id` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`id` INT,
+`user_id` VARCHAR(64),
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`brand` VARCHAR(64),
+`color` VARCHAR(64),
+`category_id` INT,
+`notes` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `activity_follows` (
+`id` VARCHAR(64),
+`source_user` VARCHAR(64),
+`target_user` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `activity_post` (
+`id` VARCHAR(64),
+`user_id` VARCHAR(64),
+`product_id` INT,
+`price` DECIMAL(10,2),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `activity_promo` (
+`id` VARCHAR(64),
+`post_id` VARCHAR(64),
+`discount` DECIMAL(10,2),
+`created_at` DATETIME,
+`active` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_347550_V20210601142825_init_database') AS relationships;
+relationships
+Database: db_347550_V20210601142825_init_database
+
+Table Connections:
+------------------
+[Implied]  activity_follows.source_user -> user.id
+[Implied]  activity_follows.target_user -> user.id
+[Implied]  activity_post.product_id -> product.id
+[Implied]  activity_post.user_id -> user.id
+[Implied]  activity_promo.post_id -> activity_post.id
+[Implied]  product.category_id -> product_category.id
+[Implied]  product.user_id -> user.id
+
+DROP DATABASE `db_347550_V20210601142825_init_database`;
+UNINSTALL EXTENSION vsql_schematron;

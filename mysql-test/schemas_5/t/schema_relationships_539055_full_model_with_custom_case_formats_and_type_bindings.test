@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 539055_full_model_with_custom_case_formats_and_type_bindings
+--echo #
+CREATE DATABASE `db_539055_full_model_with_custom_case_formats_and_type_bindi`;
+USE `db_539055_full_model_with_custom_case_formats_and_type_bindi`;
+
+CREATE TABLE `MODIFIERS_TABLE` (
+  `The_Id_Of_Modifiers_Table` INT,
+  `Not_Null_Column` INT,
+  `Unique_Column` INT,
+  PRIMARY KEY (`The_Id_Of_Modifiers_Table`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TYPES_TABLE` (
+  `The_Id_Of_Types_Table` INT,
+  `Boolean_Column` BOOL,
+  `Short_Column` VARCHAR(64),
+  `Int_Column` INT,
+  `Long_Column` VARCHAR(64),
+  `Decimal_Column` DECIMAL(10,2),
+  `Text_Column` VARCHAR(64),
+  `Date_Column` DATETIME,
+  `Time_Column` DATETIME,
+  `Datetime_Column` DATETIME,
+  `Blob_Column` VARCHAR(64),
+  PRIMARY KEY (`The_Id_Of_Types_Table`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `REFERENCES_TABLE` (
+  `The_Id_Of_References_Table` INT,
+  `Modifiers_Id` INT,
+  `Types_Id` INT,
+  `References_Id` INT,
+  PRIMARY KEY (`The_Id_Of_References_Table`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_539055_full_model_with_custom_case_formats_and_type_bindi') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_539055_full_model_with_custom_case_formats_and_type_bindi') AS relationships;
+DROP DATABASE `db_539055_full_model_with_custom_case_formats_and_type_bindi`;
+UNINSTALL EXTENSION vsql_schematron;

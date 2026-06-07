@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 080406_schema_psg
+--echo #
+CREATE DATABASE `db_080406_schema_psg`;
+USE `db_080406_schema_psg`;
+
+CREATE TABLE `product_info` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `slogan` VARCHAR(64),
+  `description` VARCHAR(64),
+  `category` VARCHAR(64),
+  `default_price` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product_styles` (
+  `id` INT,
+  `product_id` INT,
+  `name` VARCHAR(64),
+  `sale_price` VARCHAR(64),
+  `original_price` VARCHAR(64),
+  `default_style` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `style_skus` (
+  `id` INT,
+  `style_id` INT,
+  `size` VARCHAR(64),
+  `quantity` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `style_photos` (
+  `id` INT,
+  `style_id` INT,
+  `thumbnail_url` VARCHAR(64),
+  `url` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `related_products` (
+  `id` INT,
+  `product_id` INT,
+  `related_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product_features` (
+  `id` INT,
+  `product_id` INT,
+  `feature` VARCHAR(64),
+  `value` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_080406_schema_psg') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_080406_schema_psg') AS relationships;
+DROP DATABASE `db_080406_schema_psg`;
+UNINSTALL EXTENSION vsql_schematron;

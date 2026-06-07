@@ -1,0 +1,121 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 257450_easyMoveFinal
+#
+CREATE DATABASE `db_257450_easyMoveFinal`;
+USE `db_257450_easyMoveFinal`;
+CREATE TABLE `agencies` (
+`agencies_id` INT,
+`agencies_name` VARCHAR(64),
+`town` VARCHAR(64),
+`quarter` VARCHAR(64),
+PRIMARY KEY (`agencies_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bus_trips` (
+`id_` INT,
+`trips_id` INT,
+PRIMARY KEY (`id_`, `trips_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `buses` (
+`id_` INT,
+`bus_number` VARCHAR(64),
+`colour` VARCHAR(64),
+`num_of_sits` INT,
+PRIMARY KEY (`id_`)
+) CHARACTER SET latin1;
+CREATE TABLE `mails` (
+`mails_id` INT,
+`users_id` INT,
+`use_users_id` INT,
+`id_` INT,
+`trips_id` INT,
+`mails_type` VARCHAR(64),
+`receiver_name` VARCHAR(64),
+`receiver_number` VARCHAR(64),
+`mail_state` VARCHAR(64),
+`mails_name` VARCHAR(64),
+`sender_name` VARCHAR(64),
+`sender_number` VARCHAR(64),
+PRIMARY KEY (`mails_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `operations` (
+`id_operations` INT,
+`users_id` INT,
+`operations_name` VARCHAR(64),
+`operation_target` VARCHAR(64),
+`operation_date` DATETIME,
+PRIMARY KEY (`id_operations`)
+) CHARACTER SET latin1;
+CREATE TABLE `priviledges` (
+`users_id` INT,
+`idmenu` INT,
+PRIMARY KEY (`users_id`, `idmenu`)
+) CHARACTER SET latin1;
+CREATE TABLE `reservations` (
+`users_id` INT,
+`trips_id` INT,
+`reservation_date` DATETIME,
+`quantity` INT,
+PRIMARY KEY (`users_id`, `trips_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `trips` (
+`trips_id` INT,
+`agencies_id` INT,
+`users_id` INT,
+`age_agencies_id` INT,
+`departure` DATETIME,
+`arrival` DATETIME,
+`depart_agency` VARCHAR(64),
+`arrival_agency` VARCHAR(64),
+`trips_type` VARCHAR(64),
+`price` VARCHAR(64),
+PRIMARY KEY (`trips_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`users_id` INT,
+`agencies_id` INT,
+`use_users_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`lusers_ogin` VARCHAR(64),
+`users_password` VARCHAR(64),
+`users_role` VARCHAR(64),
+`users_status` VARCHAR(64),
+`email` VARCHAR(64),
+`id_card` VARCHAR(64),
+`gender` VARCHAR(64),
+`phone_num` VARCHAR(64),
+`adresse` VARCHAR(64),
+`photo` VARCHAR(64),
+PRIMARY KEY (`users_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_menu` (
+`idmenu` INT,
+`use_idmenu` INT,
+`menu_name` VARCHAR(64),
+`menu_key` VARCHAR(64),
+PRIMARY KEY (`idmenu`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_257450_easyMoveFinal') AS relationships;
+relationships
+Database: db_257450_easyMoveFinal
+
+Table Connections:
+------------------
+[Implied]  bus_trips.id_ -> buses.id_
+[Implied]  bus_trips.trips_id -> trips.trips_id
+[Implied]  mails.trips_id -> trips.trips_id
+[Implied]  mails.use_users_id -> users.users_id
+[Implied]  mails.users_id -> users.users_id
+[Implied]  operations.users_id -> users.users_id
+[Implied]  priviledges.idmenu -> users_menu.idmenu
+[Implied]  priviledges.users_id -> users.users_id
+[Implied]  reservations.trips_id -> trips.trips_id
+[Implied]  reservations.users_id -> users.users_id
+[Implied]  trips.age_agencies_id -> agencies.agencies_id
+[Implied]  trips.agencies_id -> agencies.agencies_id
+[Implied]  trips.users_id -> users.users_id
+[Implied]  users.agencies_id -> agencies.agencies_id
+
+DROP DATABASE `db_257450_easyMoveFinal`;
+UNINSTALL EXTENSION vsql_schematron;

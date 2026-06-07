@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 287991_LaptopStore
+#
+CREATE DATABASE `db_287991_LaptopStore`;
+USE `db_287991_LaptopStore`;
+CREATE TABLE `staffs` (
+`staff_id` INT,
+`staff_name` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`role` INT,
+PRIMARY KEY (`staff_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customers` (
+`customer_id` INT,
+`customer_name` VARCHAR(64),
+`address` VARCHAR(64),
+`phone` VARCHAR(64),
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`category_id` INT,
+`category_name` VARCHAR(64),
+PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `manufactories` (
+`manufactory_id` INT,
+`manufactory_name` VARCHAR(64),
+`website` VARCHAR(64),
+`address` VARCHAR(64),
+PRIMARY KEY (`manufactory_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `laptops` (
+`laptop_id` INT,
+`laptop_name` VARCHAR(64),
+`category_id` INT,
+`manufactory_id` INT,
+`CPU` VARCHAR(64),
+`Ram` VARCHAR(64),
+`hard_drive` VARCHAR(64),
+`VGA` VARCHAR(64),
+`display` VARCHAR(64),
+`battery` VARCHAR(64),
+`weight` VARCHAR(64),
+`materials` VARCHAR(64),
+`ports` VARCHAR(64),
+`network_and_connection` VARCHAR(64),
+`security` VARCHAR(64),
+`keyboard` VARCHAR(64),
+`audio` VARCHAR(64),
+`size` VARCHAR(64),
+`warranty_period` VARCHAR(64),
+`OS` VARCHAR(64),
+`price` DECIMAL(10,2),
+`quantity` INT,
+PRIMARY KEY (`laptop_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`order_id` INT,
+`customer_id` INT,
+`seller_id` INT,
+`accountance_id` INT,
+`order_date` DATETIME,
+`order_status` INT,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_details` (
+`order_id` INT,
+`laptop_id` INT,
+`unit_price` DECIMAL(10,2),
+`quantity` INT,
+PRIMARY KEY (`order_id`, `laptop_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_287991_LaptopStore') AS relationships;
+relationships
+Database: db_287991_LaptopStore
+
+Table Connections:
+------------------
+[Implied]  laptops.category_id -> categories.category_id
+[Implied]  laptops.manufactory_id -> manufactories.manufactory_id
+[Implied]  order_details.laptop_id -> laptops.laptop_id
+[Implied]  order_details.order_id -> orders.order_id
+[Implied]  orders.customer_id -> customers.customer_id
+[Implied]  orders.seller_id -> customers.customer_id
+
+DROP DATABASE `db_287991_LaptopStore`;
+UNINSTALL EXTENSION vsql_schematron;

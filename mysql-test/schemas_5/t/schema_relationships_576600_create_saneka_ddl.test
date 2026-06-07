@@ -1,0 +1,122 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 576600_create_saneka.ddl
+--echo #
+CREATE DATABASE `db_576600_create_saneka_ddl`;
+USE `db_576600_create_saneka_ddl`;
+
+CREATE TABLE `alumno` (
+  `id` INT,
+  `dni` VARCHAR(64),
+  `nombre` VARCHAR(64),
+  `apellido1` VARCHAR(64),
+  `apellido2` VARCHAR(64),
+  `num_expediente` INT,
+  `num_archivo` VARCHAR(64),
+  `email_institucional` VARCHAR(64),
+  `email_personal` VARCHAR(64),
+  `telefono` VARCHAR(64),
+  `movil` VARCHAR(64),
+  `direccion_notificacion` VARCHAR(64),
+  `localidad_notificacion` VARCHAR(64),
+  `provincia_notificacion` VARCHAR(64),
+  `cp_notificacion` INT,
+  `fecha_matricula` VARCHAR(64),
+  `turno_preferente` VARCHAR(64),
+  `grupos_asignados` VARCHAR(64),
+  `nota_media` INT,
+  `creditos_superados` INT,
+  `creditos_fb` INT,
+  `creditos_ob` INT,
+  `creditos_op` INT,
+  `creditos_cf` INT,
+  `creditos_pe` INT,
+  `creditos_tf` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `asig_matr` (
+  `matricula_curso` INT,
+  `matricula_expediente_num` INT,
+  `asignatura_referencia` INT,
+  `grupo_id` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `asignatura` (
+  `referencia` INT,
+  `ofertada` VARCHAR(64),
+  `codigo_1` INT,
+  `asignatura` VARCHAR(64),
+  `curso` INT,
+  `creditos_teoria` INT,
+  `creditos_practica` INT,
+  `total_creditos` INT,
+  `caracter` VARCHAR(64),
+  `duracion` VARCHAR(64),
+  `plazas` VARCHAR(64),
+  `otro_idioma` VARCHAR(64),
+  `titulacion_codigo` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `centro` (
+  `id` INT,
+  `nombre` VARCHAR(64),
+  `direccion` VARCHAR(64),
+  `tlf_conserjeria` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `clase` (
+  `dia` INT,
+  `hora_inicio` DATETIME,
+  `hora__fin` DATETIME,
+  `asignatura_referencia` INT,
+  `grupo_id` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `encuesta` (
+  `fecha_de_envio` DATETIME,
+  `expediente_num` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `encuesta_gpa` (
+  `encuesta_fecha_de_envio` DATETIME,
+  `gpa_asignatura_referencia` INT,
+  `gpa_id` VARCHAR(64),
+  `gpa_curso` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `optativa` (
+  `referencia` INT,
+  `mencion` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `titu_centro` (
+  `titulacion_codigo` INT,
+  `centro_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `titulacion` (
+  `codigo` INT,
+  `nombre` VARCHAR(64),
+  `creditos` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_576600_create_saneka_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_576600_create_saneka_ddl') AS relationships;
+DROP DATABASE `db_576600_create_saneka_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

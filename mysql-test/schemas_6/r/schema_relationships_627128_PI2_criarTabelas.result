@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 627128_PI2_criarTabelas
+#
+CREATE DATABASE `db_627128_PI2_criarTabelas`;
+USE `db_627128_PI2_criarTabelas`;
+CREATE TABLE `agenda` (
+`id` INT,
+`horario` VARCHAR(64),
+`dia` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario` (
+`id` INT,
+`nome` VARCHAR(64),
+`email` VARCHAR(64),
+`telefone` VARCHAR(64),
+`senha` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `medicos` (
+`idUsuario` INT,
+`especialidade` VARCHAR(64),
+`CRM` VARCHAR(64),
+PRIMARY KEY (`idUsuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `agenda_medico` (
+`id` INT,
+`idMedico` INT,
+`idAgenda` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `consulta_paciente` (
+`id` INT,
+`email` VARCHAR(64),
+`medico` VARCHAR(64),
+`especialidade` VARCHAR(64),
+`horario` VARCHAR(64),
+`dia` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pacientes` (
+`idUsuario` INT,
+`cpf` VARCHAR(64),
+`endereco` VARCHAR(64),
+PRIMARY KEY (`idUsuario`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_627128_PI2_criarTabelas') AS relationships;
+relationships
+Database: db_627128_PI2_criarTabelas
+
+Table Connections:
+------------------
+[Implied]  agenda_medico.idAgenda -> agenda.id
+[Implied]  agenda_medico.idMedico -> medicos.idUsuario
+
+DROP DATABASE `db_627128_PI2_criarTabelas`;
+UNINSTALL EXTENSION vsql_schematron;

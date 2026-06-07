@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 173193_postgre
+#
+CREATE DATABASE `db_173193_postgre`;
+USE `db_173193_postgre`;
+CREATE TABLE `0010_pk_ai` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `0020_pk_not_ai` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `0030_pk_bigint_ai` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `0040_composite_pks` (
+`foo_id` INT,
+`bar_id` INT,
+PRIMARY KEY (`foo_id`, `bar_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `0050_uks` (
+`id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `0100_types` (
+`bool` BOOL,
+`boolean` BOOL,
+`character` VARCHAR(64),
+`char` VARCHAR(64),
+`character_varying` VARCHAR(64),
+`varchar` VARCHAR(64),
+`text` VARCHAR(64),
+`binary` VARCHAR(64),
+`real` DECIMAL(10,2),
+`decimal` DECIMAL(10,2),
+`numeric` DECIMAL(10,2),
+`money_decimal` DECIMAL(10,2),
+`money` VARCHAR(64),
+`smallint` INT,
+`integer` INT,
+`bigint` INT,
+`date` DATETIME,
+`time` DATETIME,
+`timestamp` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `0200_default_values` (
+`integer` INT,
+`string` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `0300_comment` (
+`username` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `0400_fk_parent` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `0410_fk_child` (
+`id` INT,
+`parent_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_173193_postgre') AS relationships;
+relationships
+Database: db_173193_postgre
+
+Table Connections:
+------------------
+[Implied]  0410_fk_child.parent_id -> 0400_fk_parent.id
+[Implied]  0410_fk_child.parent_id -> 0410_fk_child.id
+
+DROP DATABASE `db_173193_postgre`;
+UNINSTALL EXTENSION vsql_schematron;

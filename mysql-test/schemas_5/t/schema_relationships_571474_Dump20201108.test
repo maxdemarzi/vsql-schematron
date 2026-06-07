@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 571474_Dump20201108
+--echo #
+CREATE DATABASE `db_571474_Dump20201108`;
+USE `db_571474_Dump20201108`;
+
+CREATE TABLE `compra_productos` (
+  `idcompra_productos` INT,
+  `idsupermercado` INT,
+  `idcompra` INT,
+  `idproducto` INT,
+  `precio` VARCHAR(64),
+  PRIMARY KEY (`idcompra_productos`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `lista_compra` (
+  `idlista_compra` INT,
+  `nombre` VARCHAR(64),
+  `precio_total` DECIMAL(10,2),
+  `idusuario` INT,
+  PRIMARY KEY (`idlista_compra`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `productos` (
+  `idproductos` INT,
+  `nombre` VARCHAR(64),
+  `categoria` VARCHAR(64),
+  PRIMARY KEY (`idproductos`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `productos_precio` (
+  `idproductos_precio` INT,
+  `idsupermercado` INT,
+  `precio` VARCHAR(64),
+  `descuento` VARCHAR(64),
+  `idproducto` INT,
+  PRIMARY KEY (`idproductos_precio`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `supermercado` (
+  `idsupermercado` INT,
+  `nombre` VARCHAR(64),
+  `direccion` VARCHAR(64),
+  `provincia` VARCHAR(64),
+  `codigo_postal` INT,
+  `latitud` VARCHAR(64),
+  `longitud` VARCHAR(64),
+  `cadena` VARCHAR(64),
+  PRIMARY KEY (`idsupermercado`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuario` (
+  `idusuario` INT,
+  `nombre` VARCHAR(64),
+  `usuario` VARCHAR(64),
+  `contrase√±a` VARCHAR(64),
+  `rol` VARCHAR(64),
+  PRIMARY KEY (`idusuario`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_571474_Dump20201108') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_571474_Dump20201108') AS relationships;
+DROP DATABASE `db_571474_Dump20201108`;
+UNINSTALL EXTENSION vsql_schematron;

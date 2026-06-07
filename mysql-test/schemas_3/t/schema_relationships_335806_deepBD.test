@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 335806_deepBD
+--echo #
+CREATE DATABASE `db_335806_deepBD`;
+USE `db_335806_deepBD`;
+
+CREATE TABLE `USERS` (
+  `IDUSER` INT,
+  `NICKNAME` VARCHAR(64),
+  `PASSWORD` VARCHAR(64),
+  PRIMARY KEY (`IDUSER`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FORUMS` (
+  `IDFORUM` INT,
+  `IDADM` INT,
+  `NAME` VARCHAR(64),
+  `CONTENT` VARCHAR(64),
+  PRIMARY KEY (`IDFORUM`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_335806_deepBD') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_335806_deepBD') AS relationships;
+DROP DATABASE `db_335806_deepBD`;
+UNINSTALL EXTENSION vsql_schematron;

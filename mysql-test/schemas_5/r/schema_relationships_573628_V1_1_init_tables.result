@@ -1,0 +1,115 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 573628_V1_1__init_tables
+#
+CREATE DATABASE `db_573628_V1_1_init_tables`;
+USE `db_573628_V1_1_init_tables`;
+CREATE TABLE `organisation` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`status` VARCHAR(64),
+`sra_id` VARCHAR(64),
+`sra_regulated` BOOL,
+`company_number` VARCHAR(64),
+`company_url` VARCHAR(64),
+`organisation_identifier` VARCHAR(64),
+`last_updated` DATETIME,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `professional_user` (
+`id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email_address` VARCHAR(64),
+`status` VARCHAR(64),
+`organisation_id` VARCHAR(64),
+`last_updated` DATETIME,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment_account` (
+`id` VARCHAR(64),
+`pba_number` VARCHAR(64),
+`organisation_id` VARCHAR(64),
+`last_updated` DATETIME,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contact_information` (
+`id` VARCHAR(64),
+`address_line1` VARCHAR(64),
+`address_line2` VARCHAR(64),
+`address_line3` VARCHAR(64),
+`town_city` VARCHAR(64),
+`country` VARCHAR(64),
+`county` VARCHAR(64),
+`postcode` VARCHAR(64),
+`organisation_id` VARCHAR(64),
+`last_updated` DATETIME,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dx_address` (
+`id` VARCHAR(64),
+`dx_exchange` VARCHAR(64),
+`dx_number` VARCHAR(64),
+`contact_information_id` VARCHAR(64),
+`last_updated` DATETIME,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_attribute` (
+`id` VARCHAR(64),
+`professional_user_id` VARCHAR(64),
+`prd_enum_code` INT,
+`prd_enum_type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `prd_enum` (
+`enum_code` INT,
+`enum_name` VARCHAR(64),
+`enum_type` VARCHAR(64),
+`enum_desc` VARCHAR(64),
+PRIMARY KEY (`enum_code`, `enum_type`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_account_map` (
+`professional_user_id` VARCHAR(64),
+`payment_account_id` VARCHAR(64),
+`defaulted` BOOL,
+PRIMARY KEY (`professional_user_id`, `payment_account_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_address_map` (
+`professional_user_id` VARCHAR(64),
+`contact_address_id` VARCHAR(64),
+`defaulted` BOOL,
+PRIMARY KEY (`professional_user_id`, `contact_address_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `domain` (
+`id` VARCHAR(64),
+`organisation_id` VARCHAR(64),
+`domain_identifier` VARCHAR(64),
+`domain_name` VARCHAR(64),
+`last_updated` DATETIME,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_573628_V1_1_init_tables') AS relationships;
+relationships
+Database: db_573628_V1_1_init_tables
+
+Table Connections:
+------------------
+[Implied]  contact_information.organisation_id -> organisation.id
+[Implied]  domain.organisation_id -> organisation.id
+[Implied]  dx_address.contact_information_id -> contact_information.id
+[Implied]  payment_account.organisation_id -> organisation.id
+[Implied]  professional_user.organisation_id -> organisation.id
+[Implied]  user_account_map.payment_account_id -> payment_account.id
+[Implied]  user_account_map.professional_user_id -> professional_user.id
+[Implied]  user_address_map.contact_address_id -> dx_address.id
+[Implied]  user_address_map.professional_user_id -> professional_user.id
+[Implied]  user_attribute.professional_user_id -> professional_user.id
+
+DROP DATABASE `db_573628_V1_1_init_tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 468107_create_db
+#
+CREATE DATABASE `db_468107_create_db`;
+USE `db_468107_create_db`;
+CREATE TABLE `users` (
+`nid` VARCHAR(64),
+`login` VARCHAR(64),
+`password` VARCHAR(64),
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`user_mode` BOOL,
+`dateCreated` DATETIME,
+`lastLoggedIn` DATETIME,
+PRIMARY KEY (`nid`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`nid` VARCHAR(64),
+`ip` VARCHAR(64),
+`token` VARCHAR(64),
+`dateCreated` DATETIME,
+PRIMARY KEY (`nid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tests` (
+`code` VARCHAR(64),
+`testName` VARCHAR(64),
+`numberOfQuestions` INT,
+`solutions` VARCHAR(64),
+`testOwner` VARCHAR(64),
+`expiration` DATETIME,
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+CREATE TABLE `history` (
+`id` INT,
+`nid` VARCHAR(64),
+`testCode` VARCHAR(64),
+`studentSolutions` VARCHAR(64),
+`studentScore` INT,
+`submittedImage` VARCHAR(64),
+`submissionTime` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_468107_create_db') AS relationships;
+relationships
+Database: db_468107_create_db
+
+Table Connections:
+------------------
+[Implied]  history.nid -> sessions.nid
+[Implied]  history.nid -> users.nid
+[Implied]  history.testCode -> tests.code
+
+DROP DATABASE `db_468107_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

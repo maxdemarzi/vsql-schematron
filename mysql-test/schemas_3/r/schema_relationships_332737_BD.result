@@ -1,0 +1,159 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 332737_BD
+#
+CREATE DATABASE `db_332737_BD`;
+USE `db_332737_BD`;
+CREATE TABLE `t_usuario` (
+`id_i` INT,
+`ci` VARCHAR(64),
+`login` VARCHAR(64),
+`password` VARCHAR(64),
+`nombre` VARCHAR(64),
+`email_1` VARCHAR(64),
+`email_2` VARCHAR(64),
+`bloqueo` VARCHAR(64),
+`intentos_c` INT,
+`intentos_d` INT,
+`creacion` DATETIME,
+PRIMARY KEY (`id_i`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_tipo` (
+`tipo` INT,
+`descripcion` VARCHAR(64),
+PRIMARY KEY (`tipo`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_registro` (
+`id_log` INT,
+`id_i` INT,
+`tipo` INT,
+`datos` VARCHAR(64),
+`ip` VARCHAR(64),
+`fecha` DATETIME,
+PRIMARY KEY (`id_log`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_adm` (
+`llave` VARCHAR(64),
+`llave_log` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `t_eliminados` (
+`id_i` INT,
+`ci` VARCHAR(64),
+`login` VARCHAR(64),
+`password` VARCHAR(64),
+`nombre` VARCHAR(64),
+`email_1` VARCHAR(64),
+`email_2` VARCHAR(64),
+`bloqueo` VARCHAR(64),
+`intentos_c` INT,
+`intentos_d` INT,
+`creacion` DATETIME,
+PRIMARY KEY (`id_i`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_dpf` (
+`dpf` INT,
+`apertura` VARCHAR(64),
+`plazo` INT,
+`vcto` VARCHAR(64),
+`capital` DECIMAL(10,2),
+`tasa` DECIMAL(10,2),
+`periodo` VARCHAR(64),
+`moneda` VARCHAR(64),
+`caja_a` INT,
+PRIMARY KEY (`dpf`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_dpfr` (
+`dpf` INT,
+`ci` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `t_dpfq` (
+`dpf` INT,
+`fecha` VARCHAR(64),
+`operacion` VARCHAR(64),
+`d_h` VARCHAR(64),
+`monto` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `t_dpfa` (
+`dpf` INT,
+`fecha` VARCHAR(64),
+`monto_int` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `t_cred` (
+`cred` INT,
+`monto` DECIMAL(10,2),
+`tasa` DECIMAL(10,2),
+`plazo` INT,
+`tipocuota` VARCHAR(64),
+`tipoamort` VARCHAR(64),
+`diasamort` INT,
+`f_desemb` VARCHAR(64),
+`saldo` DECIMAL(10,2),
+`caja_a` INT,
+PRIMARY KEY (`cred`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_credr` (
+`cred` INT,
+`ci` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `t_credq` (
+`cred` INT,
+`fecha` VARCHAR(64),
+`operacion` VARCHAR(64),
+`d_h` VARCHAR(64),
+`monto` DECIMAL(10,2),
+`amort` DECIMAL(10,2),
+`interes` DECIMAL(10,2),
+`otros` DECIMAL(10,2),
+`monto_pag` DECIMAL(10,2),
+`saldo_cap` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `t_creda` (
+`cred` INT,
+`fecha` VARCHAR(64),
+`capital` DECIMAL(10,2),
+`interes` DECIMAL(10,2),
+`formularios` DECIMAL(10,2),
+`total_pag` DECIMAL(10,2),
+`saldo_cap` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `t_cda` (
+`cda` INT,
+`moneda` VARCHAR(64),
+`interes` DECIMAL(10,2),
+`periodo` VARCHAR(64),
+`saldo` DECIMAL(10,2),
+`inpp` DECIMAL(10,2),
+`fecha` VARCHAR(64),
+PRIMARY KEY (`cda`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_cdar` (
+`cda` INT,
+`ci` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `t_cdaq` (
+`cda` INT,
+`fecha` VARCHAR(64),
+`operacion` VARCHAR(64),
+`d_h` VARCHAR(64),
+`monto` DECIMAL(10,2)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_332737_BD') AS relationships;
+relationships
+Database: db_332737_BD
+
+Table Connections:
+------------------
+[Implied]  t_cdaq.cda -> t_cda.cda
+[Implied]  t_cdar.cda -> t_cda.cda
+[Implied]  t_creda.cred -> t_cred.cred
+[Implied]  t_credq.cred -> t_cred.cred
+[Implied]  t_credr.cred -> t_cred.cred
+[Implied]  t_dpfa.dpf -> t_dpf.dpf
+[Implied]  t_dpfq.dpf -> t_dpf.dpf
+[Implied]  t_dpfr.dpf -> t_dpf.dpf
+[Implied]  t_registro.id_i -> t_eliminados.id_i
+[Implied]  t_registro.id_i -> t_usuario.id_i
+[Implied]  t_registro.tipo -> t_tipo.tipo
+
+DROP DATABASE `db_332737_BD`;
+UNINSTALL EXTENSION vsql_schematron;

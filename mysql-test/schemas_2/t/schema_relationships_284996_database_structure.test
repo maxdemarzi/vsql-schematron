@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 284996_database_structure
+--echo #
+CREATE DATABASE `db_284996_database_structure`;
+USE `db_284996_database_structure`;
+
+CREATE TABLE `users` (
+  `uid` INT,
+  `name` VARCHAR(64),
+  `game` VARCHAR(64),
+  `gid` INT,
+  `score` INT,
+  `turn_recency` INT,
+  `turn_order` INT,
+  `state` VARCHAR(64),
+  `guess` INT,
+  `session_id` VARCHAR(64),
+  PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `games` (
+  `gid` INT,
+  `name` VARCHAR(64),
+  `turn` INT,
+  `state` VARCHAR(64),
+  `hand_size` INT,
+  `equal_hands` BOOL,
+  `win_score` INT,
+  `round_limit` INT,
+  `round_number` INT,
+  `prompt` VARCHAR(64),
+  PRIMARY KEY (`gid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `default_cards` (
+  `filename` VARCHAR(64),
+  `artist` VARCHAR(64),
+  `date_added` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `cards` (
+  `cid` INT,
+  `filename` VARCHAR(64),
+  `artist` VARCHAR(64),
+  `uid` INT,
+  `gid` INT,
+  `state` VARCHAR(64),
+  `display_order` INT,
+  PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_284996_database_structure') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_284996_database_structure') AS relationships;
+DROP DATABASE `db_284996_database_structure`;
+UNINSTALL EXTENSION vsql_schematron;

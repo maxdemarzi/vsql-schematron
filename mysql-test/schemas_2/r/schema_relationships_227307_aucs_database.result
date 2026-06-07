@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 227307_aucs-database
+#
+CREATE DATABASE `db_227307_aucs_database`;
+USE `db_227307_aucs_database`;
+CREATE TABLE `PHONE` (
+`number_id` INT,
+`country_code` VARCHAR(64),
+`area_code` VARCHAR(64),
+`digits` VARCHAR(64),
+`extension` VARCHAR(64),
+PRIMARY KEY (`number_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ADDRESS` (
+`address_id` INT,
+`street_number` VARCHAR(64),
+`street_name` VARCHAR(64),
+`apartment_or_suite` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`ZIP` VARCHAR(64),
+PRIMARY KEY (`address_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER` (
+`user_id` INT,
+`created` DATETIME,
+`email_address` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`token_or_password` VARCHAR(64),
+`phone_number` INT,
+`address_id` INT,
+`is_organizer` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `SPONSOR` (
+`sponsor_id` INT,
+`sponsor_name` VARCHAR(64),
+`website_url` VARCHAR(64),
+`phone_number` VARCHAR(64),
+PRIMARY KEY (`sponsor_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRIZE_PACKAGE` (
+`prize_package_id` INT,
+`package_name` VARCHAR(64),
+`package_price_in_dollars` VARCHAR(64),
+`package_number` INT,
+PRIMARY KEY (`prize_package_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRIZE` (
+`prize_id` INT,
+`prize_name` VARCHAR(64),
+`prize_description` VARCHAR(64),
+`sponsor_id` INT,
+`package_id` INT,
+PRIMARY KEY (`prize_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TICKET_PACKAGE` (
+`ticket_package_id` INT,
+`actual_amount` VARCHAR(64),
+`awarded_amount` VARCHAR(64),
+PRIMARY KEY (`ticket_package_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER_ORDER` (
+`order_id` INT,
+`created` DATETIME,
+`user_id` INT,
+`ticket_package_id` INT,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PACKAGE_PICK` (
+`pick_id` INT,
+`order_id` INT,
+`prize_id` INT,
+`quantity` INT,
+PRIMARY KEY (`pick_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_227307_aucs_database') AS relationships;
+relationships
+Database: db_227307_aucs_database
+
+Table Connections:
+------------------
+[Implied]  PACKAGE_PICK.order_id -> USER_ORDER.order_id
+[Implied]  PACKAGE_PICK.prize_id -> PRIZE.prize_id
+[Implied]  PRIZE.package_id -> PRIZE_PACKAGE.prize_package_id
+[Implied]  PRIZE.package_id -> TICKET_PACKAGE.ticket_package_id
+[Implied]  PRIZE.sponsor_id -> SPONSOR.sponsor_id
+[Implied]  USER.address_id -> ADDRESS.address_id
+[Implied]  USER_ORDER.ticket_package_id -> TICKET_PACKAGE.ticket_package_id
+[Implied]  USER_ORDER.user_id -> USER.user_id
+
+DROP DATABASE `db_227307_aucs_database`;
+UNINSTALL EXTENSION vsql_schematron;

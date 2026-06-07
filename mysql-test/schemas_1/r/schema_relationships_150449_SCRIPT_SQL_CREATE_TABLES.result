@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 150449_SCRIPT_SQL_CREATE_TABLES
+#
+CREATE DATABASE `db_150449_SCRIPT_SQL_CREATE_TABLES`;
+USE `db_150449_SCRIPT_SQL_CREATE_TABLES`;
+CREATE TABLE `direcao` (
+`IdDirecao` INT,
+`Movimento` VARCHAR(64),
+PRIMARY KEY (`IdDirecao`)
+) CHARACTER SET latin1;
+CREATE TABLE `sensor` (
+`IdSensor` INT,
+`Nome` VARCHAR(64),
+`DataCriacao` DATETIME,
+`Inicial` BOOL,
+`IdSensorAnterior` INT,
+`IdDirecao` INT,
+`DirecaoRota` VARCHAR(64),
+PRIMARY KEY (`IdSensor`)
+) CHARACTER SET latin1;
+CREATE TABLE `local` (
+`IdLocal` INT,
+`Nome` VARCHAR(64),
+`IdSensor` INT,
+`DataCriacao` DATETIME,
+PRIMARY KEY (`IdLocal`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`IdItem` INT,
+`Nome` VARCHAR(64),
+`DataCriacao` DATETIME,
+PRIMARY KEY (`IdItem`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario` (
+`IdUsuario` INT,
+`Nome` VARCHAR(64),
+`DataCriacao` DATETIME,
+`Idade` INT,
+PRIMARY KEY (`IdUsuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `rota` (
+`IdRota` INT,
+`IdSensorInicial` INT,
+`IdSensorFinal` INT,
+`Rota` VARCHAR(64),
+PRIMARY KEY (`IdRota`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido` (
+`IdPedido` INT,
+`IdUsuario` INT,
+`DataCriacao` DATETIME,
+`IdRota` INT,
+PRIMARY KEY (`IdPedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `PedidoXItem` (
+`IdPedidoxItem` INT,
+`IdPedido` INT,
+`IdItem` INT,
+`Quantidade` INT,
+PRIMARY KEY (`IdPedidoxItem`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_150449_SCRIPT_SQL_CREATE_TABLES') AS relationships;
+relationships
+Database: db_150449_SCRIPT_SQL_CREATE_TABLES
+
+Table Connections:
+------------------
+[Implied]  PedidoXItem.IdItem -> item.IdItem
+[Implied]  PedidoXItem.IdPedido -> pedido.IdPedido
+[Implied]  local.IdSensor -> sensor.IdSensor
+[Implied]  pedido.IdRota -> rota.IdRota
+[Implied]  pedido.IdUsuario -> usuario.IdUsuario
+[Implied]  sensor.IdDirecao -> direcao.IdDirecao
+
+DROP DATABASE `db_150449_SCRIPT_SQL_CREATE_TABLES`;
+UNINSTALL EXTENSION vsql_schematron;

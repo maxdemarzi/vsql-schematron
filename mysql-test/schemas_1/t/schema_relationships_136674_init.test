@@ -1,0 +1,166 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 136674_init
+--echo #
+CREATE DATABASE `db_136674_init`;
+USE `db_136674_init`;
+
+CREATE TABLE `companies` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `nip` VARCHAR(64),
+  `establishment_date` DATETIME,
+  `krs` VARCHAR(64),
+  `parent_company_id` INT,
+  `hq_address_id` INT,
+  `tax_address_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `warehouses` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `capacity` DECIMAL(10,2),
+  `number_of_loading_bays` INT,
+  `is_retail` VARCHAR(64),
+  `company_id` INT,
+  `address_id` INT,
+  `manager_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employees` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  `role` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `pesel` VARCHAR(64),
+  `employment_date` DATETIME,
+  `phone_number` VARCHAR(64),
+  `company_id` INT,
+  `warehouse_id` INT,
+  `address_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `items` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `price_ranges` (
+  `item_id` INT,
+  `min_quantity` INT,
+  `price` DECIMAL(10,2),
+  PRIMARY KEY (`item_id`, `min_quantity`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customers` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `nip` VARCHAR(64),
+  `phone_number` VARCHAR(64),
+  `company_id` INT,
+  `address_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `id` INT,
+  `date` DATETIME,
+  `status` VARCHAR(64),
+  `shipping_cost` DECIMAL(10,2),
+  `customer_id` INT,
+  `assigned_employee_id` INT,
+  `address_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `items_categories` (
+  `item_id` INT,
+  `category_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders_items` (
+  `order_id` INT,
+  `item_id` INT,
+  `ordered_item_quantity` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `warehouses_items` (
+  `item_id` INT,
+  `warehouse_id` INT,
+  `item_quantity` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `addresses` (
+  `id` INT,
+  `address_line_1` VARCHAR(64),
+  `address_line_2` VARCHAR(64),
+  `zipcode` VARCHAR(64),
+  `city` VARCHAR(64),
+  `country_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `countries` (
+  `id` INT,
+  `country_name` VARCHAR(64),
+  `iso_3166_1` VARCHAR(64),
+  `phone_prefix` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `salaries` (
+  `id` INT,
+  `salary_date` DATETIME,
+  `salary` DECIMAL(10,2),
+  `employee_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `scores` (
+  `id` INT,
+  `score_year` INT,
+  `score_quarter` INT,
+  `score` DECIMAL(10,2),
+  `employee_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_136674_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_136674_init') AS relationships;
+DROP DATABASE `db_136674_init`;
+UNINSTALL EXTENSION vsql_schematron;

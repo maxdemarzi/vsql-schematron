@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 054798_question_answer.postgres
+#
+CREATE DATABASE `db_054798_question_answer_postgres`;
+USE `db_054798_question_answer_postgres`;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`username` VARCHAR(64),
+`password_digest` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questions` (
+`id` INT,
+`author_id` INT,
+`best_answer_id` INT,
+`title` VARCHAR(64),
+`body` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answers` (
+`id` INT,
+`author_id` INT,
+`question_id` INT,
+`body` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answer_votes` (
+`id` INT,
+`answer_id` INT,
+`voter_id` INT,
+`score` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_054798_question_answer_postgres') AS relationships;
+relationships
+Database: db_054798_question_answer_postgres
+
+Table Connections:
+------------------
+[Implied]  answer_votes.answer_id -> answers.id
+[Implied]  answers.author_id -> users.id
+[Implied]  answers.question_id -> questions.id
+[Implied]  questions.author_id -> users.id
+[Implied]  questions.best_answer_id -> answers.id
+
+DROP DATABASE `db_054798_question_answer_postgres`;
+UNINSTALL EXTENSION vsql_schematron;

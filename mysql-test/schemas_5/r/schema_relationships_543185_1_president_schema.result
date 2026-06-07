@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 543185_1_president_schema
+#
+CREATE DATABASE `db_543185_1_president_schema`;
+USE `db_543185_1_president_schema`;
+CREATE TABLE `admin_vpres` (
+`admin_id` INT,
+`vice_pres_name` VARCHAR(64),
+PRIMARY KEY (`admin_id`, `vice_pres_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `administration` (
+`id` INT,
+`admin_nr` INT,
+`pres_id` INT,
+`year_inaugurated` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `election` (
+`election_year` INT,
+`candidate` VARCHAR(64),
+`votes` INT,
+`winner_loser_indic` VARCHAR(64),
+PRIMARY KEY (`election_year`, `candidate`)
+) CHARACTER SET latin1;
+CREATE TABLE `pres_hobby` (
+`pres_id` INT,
+`hobby` VARCHAR(64),
+PRIMARY KEY (`pres_id`, `hobby`)
+) CHARACTER SET latin1;
+CREATE TABLE `pres_marriage` (
+`pres_id` INT,
+`spouse_name` VARCHAR(64),
+`spouse_age` INT,
+`nr_children` INT,
+`marriage_year` INT,
+PRIMARY KEY (`pres_id`, `spouse_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `president` (
+`id` INT,
+`name` VARCHAR(64),
+`birth_year` INT,
+`years_served` INT,
+`death_age` INT,
+`party` VARCHAR(64),
+`state_id_born` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `state` (
+`id` INT,
+`name` VARCHAR(64),
+`admin_id` INT,
+`year_entered` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_543185_1_president_schema') AS relationships;
+relationships
+Database: db_543185_1_president_schema
+
+Table Connections:
+------------------
+[Implied]  admin_vpres.admin_id -> administration.id
+[Implied]  administration.pres_id -> president.id
+[Implied]  pres_hobby.pres_id -> president.id
+[Implied]  pres_marriage.pres_id -> president.id
+[Implied]  president.state_id_born -> state.id
+[Implied]  state.admin_id -> administration.id
+
+DROP DATABASE `db_543185_1_president_schema`;
+UNINSTALL EXTENSION vsql_schematron;

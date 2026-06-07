@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 251088_estructura%20universidad
+#
+CREATE DATABASE `db_251088_estructura_20universidad`;
+USE `db_251088_estructura_20universidad`;
+CREATE TABLE `mydb.Universidad` (
+`idUniversidad` INT,
+`nomUniversidad` VARCHAR(64),
+PRIMARY KEY (`idUniversidad`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.Carrera` (
+`idCarrera` INT,
+`nomCarrera` VARCHAR(64),
+`idUniversidad` INT,
+`numSemestres` INT,
+`numAsignaturas` INT,
+`numProfesores` INT,
+PRIMARY KEY (`idCarrera`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.Semestre` (
+`idSemestre` INT,
+`idcarrera` INT,
+`descripcion` VARCHAR(64),
+PRIMARY KEY (`idSemestre`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.Profesor` (
+`idProfesor` INT,
+`rutProfesor` VARCHAR(64),
+`nomProfesor` VARCHAR(64),
+`apeProfesor` VARCHAR(64),
+`carreraProf` VARCHAR(64),
+`fichaProf` VARCHAR(64),
+`direccionProf` VARCHAR(64),
+`celularProf` INT,
+`fecNacimiento` DATETIME,
+`fecIngreso` DATETIME,
+PRIMARY KEY (`idProfesor`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.Asignatura` (
+`idAsignatura` INT,
+`idSemestre` INT,
+`nomAsigna` VARCHAR(64),
+`idprofesor` INT,
+`numSemestre` INT,
+`descripcion` VARCHAR(64),
+PRIMARY KEY (`idAsignatura`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.Alumnos` (
+`idAlumno` INT,
+`idCarrera` INT,
+`rutAlumno` VARCHAR(64),
+`nomAlumno` VARCHAR(64),
+`ApeAlumno` VARCHAR(64),
+`direccionAlum` VARCHAR(64),
+`celularAlum` INT,
+`fecNacimiento` DATETIME,
+`fecIngreso` DATETIME,
+`idProfesor` INT,
+PRIMARY KEY (`idAlumno`)
+) CHARACTER SET latin1;
+CREATE TABLE `mydb.Notas` (
+`idNota` INT,
+`idAlumno` INT,
+`nota` DECIMAL(10,2),
+`idProfesor` INT,
+`idAsignatura` INT,
+`IdSemestre` INT,
+`fecNota` DATETIME,
+`idCarrera` INT,
+PRIMARY KEY (`idNota`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_251088_estructura_20universidad') AS relationships;
+relationships
+Database: db_251088_estructura_20universidad
+
+Table Connections:
+------------------
+[Implied]  mydb.Alumnos.idCarrera -> mydb.Carrera.idCarrera
+[Implied]  mydb.Alumnos.idProfesor -> mydb.Profesor.idProfesor
+[Implied]  mydb.Asignatura.idSemestre -> mydb.Semestre.idSemestre
+[Implied]  mydb.Asignatura.idprofesor -> mydb.Profesor.idProfesor
+[Implied]  mydb.Carrera.idUniversidad -> mydb.Universidad.idUniversidad
+[Implied]  mydb.Notas.IdSemestre -> mydb.Semestre.idSemestre
+[Implied]  mydb.Notas.idAlumno -> mydb.Alumnos.idAlumno
+[Implied]  mydb.Notas.idAsignatura -> mydb.Asignatura.idAsignatura
+[Implied]  mydb.Notas.idCarrera -> mydb.Carrera.idCarrera
+[Implied]  mydb.Notas.idProfesor -> mydb.Profesor.idProfesor
+[Implied]  mydb.Semestre.idcarrera -> mydb.Carrera.idCarrera
+
+DROP DATABASE `db_251088_estructura_20universidad`;
+UNINSTALL EXTENSION vsql_schematron;

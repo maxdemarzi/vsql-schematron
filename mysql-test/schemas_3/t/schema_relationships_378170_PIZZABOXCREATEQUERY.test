@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 378170_PIZZABOXCREATEQUERY
+--echo #
+CREATE DATABASE `db_378170_PIZZABOXCREATEQUERY`;
+USE `db_378170_PIZZABOXCREATEQUERY`;
+
+CREATE TABLE `ATopping` (
+  `ID` INT,
+  `ToppingName` VARCHAR(64),
+  `ToppingPrice` DECIMAL(10,2),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACrust` (
+  `ID` INT,
+  `CrustName` VARCHAR(64),
+  `CrustPrice` DECIMAL(10,2),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ASize` (
+  `ID` INT,
+  `SizeName` VARCHAR(64),
+  `SizePrice` DECIMAL(10,2),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACustomer` (
+  `ID` INT,
+  `CustomerName` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AStore` (
+  `ID` INT,
+  `StoreName` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `APizza` (
+  `ID` INT,
+  `PizzaName` VARCHAR(64),
+  `Topping1` INT,
+  `Topping2` INT,
+  `Topping3` INT,
+  `Topping4` INT,
+  `Topping5` INT,
+  `Size` INT,
+  `Crust` INT,
+  `Price` DECIMAL(10,2),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AOrder` (
+  `OrderID` INT,
+  `StoreID` INT,
+  `CustomerID` INT,
+  `TimeOrdered` DATETIME,
+  `Total` DECIMAL(10,2),
+  PRIMARY KEY (`OrderID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AOrderedPizza` (
+  `ID` INT,
+  `OrderID` INT,
+  `PizzaName` VARCHAR(64),
+  `Topping1` INT,
+  `Topping2` INT,
+  `Topping3` INT,
+  `Topping4` INT,
+  `Topping5` INT,
+  `Size` INT,
+  `Crust` INT,
+  `Price` DECIMAL(10,2),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_378170_PIZZABOXCREATEQUERY') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_378170_PIZZABOXCREATEQUERY') AS relationships;
+DROP DATABASE `db_378170_PIZZABOXCREATEQUERY`;
+UNINSTALL EXTENSION vsql_schematron;

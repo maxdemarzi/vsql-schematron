@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 475746_20210331094454_more_osu
+#
+CREATE DATABASE `db_475746_20210331094454_more_osu`;
+USE `db_475746_20210331094454_more_osu`;
+CREATE TABLE `osu_last_beatmaps` (
+`channel_id` INT,
+`beatmap` VARCHAR(64),
+`mode` INT,
+PRIMARY KEY (`channel_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `osu_user_best_scores` (
+`beatmap_id` INT,
+`mode` INT,
+`user_id` INT,
+`mods` INT,
+`cached_at` DATETIME,
+`score` VARCHAR(64),
+PRIMARY KEY (`beatmap_id`, `mode`, `user_id`, `mods`)
+) CHARACTER SET latin1;
+CREATE TABLE `osu_cached_beatmaps` (
+`beatmap_id` INT,
+`mode` INT,
+`cached_at` DATETIME,
+`beatmap` VARCHAR(64),
+PRIMARY KEY (`beatmap_id`, `mode`)
+) CHARACTER SET latin1;
+CREATE TABLE `osu_cached_beatmapsets` (
+`beatmapset_id` INT,
+`beatmap_id` INT,
+`mode` INT,
+PRIMARY KEY (`beatmapset_id`, `beatmap_id`, `mode`)
+) CHARACTER SET latin1;
+CREATE TABLE `osu_cached_beatmap_contents` (
+`beatmap_id` INT,
+`cached_at` DATETIME,
+`content` VARCHAR(64),
+PRIMARY KEY (`beatmap_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_475746_20210331094454_more_osu') AS relationships;
+relationships
+Database: db_475746_20210331094454_more_osu
+
+Table Connections:
+------------------
+[Implied]  osu_cached_beatmaps.beatmap_id -> osu_cached_beatmap_contents.beatmap_id
+[Implied]  osu_cached_beatmaps.mode -> osu_cached_beatmapsets.mode
+[Implied]  osu_cached_beatmaps.mode -> osu_user_best_scores.mode
+[Implied]  osu_cached_beatmapsets.beatmap_id -> osu_cached_beatmap_contents.beatmap_id
+[Implied]  osu_cached_beatmapsets.mode -> osu_cached_beatmaps.mode
+[Implied]  osu_cached_beatmapsets.mode -> osu_user_best_scores.mode
+[Implied]  osu_last_beatmaps.mode -> osu_cached_beatmaps.mode
+[Implied]  osu_last_beatmaps.mode -> osu_user_best_scores.mode
+[Implied]  osu_user_best_scores.beatmap_id -> osu_cached_beatmap_contents.beatmap_id
+[Implied]  osu_user_best_scores.mode -> osu_cached_beatmaps.mode
+
+DROP DATABASE `db_475746_20210331094454_more_osu`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 040301_create_db
+--echo #
+CREATE DATABASE `db_040301_create_db`;
+USE `db_040301_create_db`;
+
+CREATE TABLE `users` (
+  `userid` VARCHAR(64),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `access_status` VARCHAR(64),
+  PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rfidcard` (
+  `rfcode` VARCHAR(64),
+  `usrid` VARCHAR(64),
+  PRIMARY KEY (`rfcode`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `resources` (
+  `rid` VARCHAR(64),
+  `rname` VARCHAR(64),
+  `rdesc` VARCHAR(64),
+  PRIMARY KEY (`rid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rfidscanner` (
+  `scannerid` VARCHAR(64),
+  `rsid` VARCHAR(64),
+  PRIMARY KEY (`scannerid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `resourceaccess` (
+  `num` INT,
+  `usrrid` VARCHAR(64),
+  `ressid` VARCHAR(64),
+  PRIMARY KEY (`num`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `accesslog` (
+  `num` INT,
+  `usrsid` VARCHAR(64),
+  `rfidcode` VARCHAR(64),
+  `resid` VARCHAR(64),
+  `resname` VARCHAR(64),
+  `access_time` DATETIME,
+  `approval_status` VARCHAR(64),
+  `reason` VARCHAR(64),
+  PRIMARY KEY (`num`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_040301_create_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_040301_create_db') AS relationships;
+DROP DATABASE `db_040301_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

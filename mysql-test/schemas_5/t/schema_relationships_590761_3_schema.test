@@ -1,0 +1,122 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 590761_3-schema
+--echo #
+CREATE DATABASE `db_590761_3_schema`;
+USE `db_590761_3_schema`;
+
+CREATE TABLE `health_centre` (
+  `id` INT,
+  `phone_number` VARCHAR(64),
+  `name` VARCHAR(64),
+  `location` VARCHAR(64),
+  `email` VARCHAR(64),
+  `manager_phone_number` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `role` VARCHAR(64),
+  `active` BOOL,
+  `created` DATETIME,
+  `modified` DATETIME,
+  `works_at` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `patient` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `village` VARCHAR(64),
+  `zone` VARCHAR(64),
+  `birth_year` INT,
+  `sex` INT,
+  `medical_history` VARCHAR(64),
+  `drug_history` VARCHAR(64),
+  `last_updated` DATETIME,
+  `notes` VARCHAR(64),
+  `created_by` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reading` (
+  `id` INT,
+  `pid` VARCHAR(64),
+  `systolic` INT,
+  `diastolic` INT,
+  `heart_rate` INT,
+  `is_pregnant` BOOL,
+  `gestational_age` INT,
+  `colour` INT,
+  `timestamp` DATETIME,
+  `other_symptoms` VARCHAR(64),
+  `notes` VARCHAR(64),
+  `created_by` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `diagnosis` (
+  `id` INT,
+  `patient` VARCHAR(64),
+  `description` VARCHAR(64),
+  `resolved` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `referral` (
+  `id` INT,
+  `reading_id` INT,
+  `referred_to` INT,
+  `referred_by` VARCHAR(64),
+  `patient` VARCHAR(64),
+  `timestamp` DATETIME,
+  `closed_by` INT,
+  `diagnosis` INT,
+  `closed` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `symptom` (
+  `id` INT,
+  `text` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `symptom_reading_relation` (
+  `sid` INT,
+  `rid` INT,
+  PRIMARY KEY (`sid`, `rid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `medication` (
+  `pid` VARCHAR(64),
+  `med_id` INT,
+  `medication` VARCHAR(64),
+  `dosage` VARCHAR(64),
+  `usage_frequency` VARCHAR(64),
+  PRIMARY KEY (`pid`, `med_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_590761_3_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_590761_3_schema') AS relationships;
+DROP DATABASE `db_590761_3_schema`;
+UNINSTALL EXTENSION vsql_schematron;

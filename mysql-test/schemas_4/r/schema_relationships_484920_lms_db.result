@@ -1,0 +1,109 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 484920_lms_db
+#
+CREATE DATABASE `db_484920_lms_db`;
+USE `db_484920_lms_db`;
+CREATE TABLE `Accounts` (
+`AccountID` INT,
+`CustomerID` INT,
+`Status` INT,
+`Permission` INT,
+`CreationDate` DATETIME,
+`Password` VARCHAR(64),
+PRIMARY KEY (`AccountID`)
+) CHARACTER SET latin1;
+CREATE TABLE `AuthorBios` (
+`AuthorBioID` INT,
+`BioText` VARCHAR(64),
+PRIMARY KEY (`AuthorBioID`)
+) CHARACTER SET latin1;
+CREATE TABLE `AuthorReviews` (
+`AuthorReviewID` INT,
+`AuthorID` INT,
+`AccountID` INT,
+`Rating` INT,
+`Text` VARCHAR(64),
+PRIMARY KEY (`AuthorReviewID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Authors` (
+`AuthorID` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`AuthorBioID` INT,
+PRIMARY KEY (`AuthorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BookDescriptions` (
+`BookDescriptionID` INT,
+`Description` VARCHAR(64),
+PRIMARY KEY (`BookDescriptionID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BookReviews` (
+`BookReviewID` INT,
+`BookID` INT,
+`AccountID` INT,
+`Rating` INT,
+`Text` VARCHAR(64),
+PRIMARY KEY (`BookReviewID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BookTypes` (
+`BookTypeID` INT,
+`BookType` VARCHAR(64),
+PRIMARY KEY (`BookTypeID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Books` (
+`BookID` INT,
+`Title` VARCHAR(64),
+`ISBN` INT,
+`NumPages` INT,
+`Quantity` INT,
+`AuthorID` INT,
+`BookDescriptionID` INT,
+`GenreID` INT,
+`BookTypeID` INT,
+PRIMARY KEY (`BookID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customers` (
+`CustomerID` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+PRIMARY KEY (`CustomerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Genres` (
+`GenreID` INT,
+`Genre` VARCHAR(64),
+PRIMARY KEY (`GenreID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reports` (
+`ReportID` INT,
+`AccountID` INT,
+`BookID` INT,
+`StartDate` DATETIME,
+`DueDate` DATETIME,
+`PickedUp` INT,
+`Late` INT,
+`Lost` INT,
+`Active` INT,
+PRIMARY KEY (`ReportID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_484920_lms_db') AS relationships;
+relationships
+Database: db_484920_lms_db
+
+Table Connections:
+------------------
+[Implied]  Accounts.CustomerID -> Customers.CustomerID
+[Implied]  AuthorReviews.AccountID -> Accounts.AccountID
+[Implied]  AuthorReviews.AuthorID -> Authors.AuthorID
+[Implied]  Authors.AuthorBioID -> AuthorBios.AuthorBioID
+[Implied]  BookReviews.AccountID -> Accounts.AccountID
+[Implied]  BookReviews.BookID -> Books.BookID
+[Implied]  Books.AuthorID -> Authors.AuthorID
+[Implied]  Books.BookDescriptionID -> BookDescriptions.BookDescriptionID
+[Implied]  Books.BookTypeID -> BookTypes.BookTypeID
+[Implied]  Books.GenreID -> Genres.GenreID
+[Implied]  Reports.AccountID -> Accounts.AccountID
+[Implied]  Reports.BookID -> Books.BookID
+
+DROP DATABASE `db_484920_lms_db`;
+UNINSTALL EXTENSION vsql_schematron;

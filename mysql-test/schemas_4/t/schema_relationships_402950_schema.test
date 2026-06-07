@@ -1,0 +1,111 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 402950_schema
+--echo #
+CREATE DATABASE `db_402950_schema`;
+USE `db_402950_schema`;
+
+CREATE TABLE `location` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `rank` INT,
+  `enabled` BOOL,
+  `fk_parent` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `initiative` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `enabled` BOOL,
+  `fk_root_location` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activity_group` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `rank` INT,
+  `description` VARCHAR(64),
+  `required` BOOL,
+  `allowMulti` BOOL,
+  `fk_initiative` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activity` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `enabled` BOOL,
+  `fk_activity_group` INT,
+  `rank` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `transaction` (
+  `id` INT,
+  `start` DATETIME,
+  `end` DATETIME,
+  `device` VARCHAR(64),
+  `version` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `session` (
+  `id` INT,
+  `start` DATETIME,
+  `end` DATETIME,
+  `fk_initiative` INT,
+  `fk_transaction` INT,
+  `deleted` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `count` (
+  `id` INT,
+  `occurrence` DATETIME,
+  `number` INT,
+  `fk_location` INT,
+  `fk_session` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `count_activity_join` (
+  `id` INT,
+  `fk_count` INT,
+  `fk_activity` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `note` (
+  `id` INT,
+  `occurrence` DATETIME,
+  `fk_session` INT,
+  `title` VARCHAR(64),
+  `body` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_402950_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_402950_schema') AS relationships;
+DROP DATABASE `db_402950_schema`;
+UNINSTALL EXTENSION vsql_schematron;

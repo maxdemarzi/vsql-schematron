@@ -1,0 +1,106 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 302972_loja_automovel_PT-BR
+#
+CREATE DATABASE `db_302972_loja_automovel_PT_BR`;
+USE `db_302972_loja_automovel_PT_BR`;
+CREATE TABLE `cliente` (
+`cod_cliente` INT,
+`nome_cliente` VARCHAR(64),
+`primeiro_nome_cliente` VARCHAR(64),
+`ultimo_nome_cliente` VARCHAR(64),
+`telefone_cliente` VARCHAR(64),
+`endereco_cliente` VARCHAR(64),
+`complemento_end_cliente` VARCHAR(64),
+`cidade_cliente` VARCHAR(64),
+`estado_cliente` VARCHAR(64),
+`cep_cliente` VARCHAR(64),
+`pais_cliente` VARCHAR(64),
+`cod_funcionario` INT,
+`limite_credito_cliente` DECIMAL(10,2),
+PRIMARY KEY (`cod_cliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `funcionario` (
+`cod_funcionario` INT,
+`ultimo_nome_funcionario` VARCHAR(64),
+`primeiro_nome_funcionario` VARCHAR(64),
+`matricula` VARCHAR(64),
+`email_funcionario` VARCHAR(64),
+`cod_loja` VARCHAR(64),
+`cod_gerente` INT,
+`cargo_funcionario` VARCHAR(64),
+PRIMARY KEY (`cod_funcionario`)
+) CHARACTER SET latin1;
+CREATE TABLE `loja` (
+`cod_loja` VARCHAR(64),
+`cidade_loja` VARCHAR(64),
+`telefone_loja` VARCHAR(64),
+`endereco_loja` VARCHAR(64),
+`complemento_end_loja` VARCHAR(64),
+`estado_loja` VARCHAR(64),
+`pais_loja` VARCHAR(64),
+`cep_loja` VARCHAR(64),
+`territorio_loja` VARCHAR(64),
+PRIMARY KEY (`cod_loja`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido_detalhe` (
+`cod_pedido` INT,
+`cod_produto` VARCHAR(64),
+`quantidade` INT,
+`preco_cada` DECIMAL(10,2),
+`numero_fila` INT,
+PRIMARY KEY (`cod_pedido`, `cod_produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido` (
+`cod_pedido` INT,
+`data_pedido` DATETIME,
+`data_entrega` DATETIME,
+`data_envio` DATETIME,
+`status` VARCHAR(64),
+`observacao` VARCHAR(64),
+`cod_cliente` INT,
+PRIMARY KEY (`cod_pedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `pagamento` (
+`cod_cliente` INT,
+`cod_checagem` VARCHAR(64),
+`data_pagamento` DATETIME,
+`valor` DECIMAL(10,2),
+PRIMARY KEY (`cod_cliente`, `cod_checagem`)
+) CHARACTER SET latin1;
+CREATE TABLE `produto_linha` (
+`linha` VARCHAR(64),
+`descricao` VARCHAR(64),
+`descricao_html` VARCHAR(64),
+`imagem` VARCHAR(64),
+PRIMARY KEY (`linha`)
+) CHARACTER SET latin1;
+CREATE TABLE `produto` (
+`cod_produto` VARCHAR(64),
+`nome_produto` VARCHAR(64),
+`linha_produto` VARCHAR(64),
+`escala_produto` VARCHAR(64),
+`marca_produto` VARCHAR(64),
+`descricao_produto` VARCHAR(64),
+`qtd_estoque` INT,
+`preco_compra` DECIMAL(10,2),
+`preco_venda` DECIMAL(10,2),
+PRIMARY KEY (`cod_produto`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_302972_loja_automovel_PT_BR') AS relationships;
+relationships
+Database: db_302972_loja_automovel_PT_BR
+
+Table Connections:
+------------------
+[Implied]  cliente.cod_funcionario -> funcionario.cod_funcionario
+[Implied]  funcionario.cod_gerente -> funcionario.cod_funcionario
+[Implied]  funcionario.cod_loja -> loja.cod_loja
+[Implied]  pagamento.cod_cliente -> cliente.cod_cliente
+[Implied]  pedido.cod_cliente -> cliente.cod_cliente
+[Implied]  pedido_detalhe.cod_pedido -> pedido.cod_pedido
+[Implied]  pedido_detalhe.cod_produto -> produto.cod_produto
+[Implied]  produto.linha_produto -> produto_linha.linha
+
+DROP DATABASE `db_302972_loja_automovel_PT_BR`;
+UNINSTALL EXTENSION vsql_schematron;

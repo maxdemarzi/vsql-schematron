@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 427514_initdb
+--echo #
+CREATE DATABASE `db_427514_initdb`;
+USE `db_427514_initdb`;
+
+CREATE TABLE `BA_DB_UPDATES_HISTORY` (
+  `id` INT,
+  `datetime` DATETIME,
+  `version` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BA_TODO_NOTES` (
+  `id` INT,
+  `datestamp` DATETIME,
+  `note` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BA_CASH_OPERATIONS` (
+  `id` INT,
+  `datestamp` DATETIME,
+  `summa` DECIMAL(10,2),
+  `comment` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BA_EMPLOYEES_CARDINDEX` (
+  `id` INT,
+  `hired` DATETIME,
+  `fired` DATETIME,
+  `fullname` VARCHAR(64),
+  `photo` VARCHAR(64),
+  `document` VARCHAR(64),
+  `telephone` VARCHAR(64),
+  `address` VARCHAR(64),
+  `notes` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BA_EMPLOYEES_CASH` (
+  `id` INT,
+  `emid` INT,
+  `opid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_427514_initdb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_427514_initdb') AS relationships;
+DROP DATABASE `db_427514_initdb`;
+UNINSTALL EXTENSION vsql_schematron;

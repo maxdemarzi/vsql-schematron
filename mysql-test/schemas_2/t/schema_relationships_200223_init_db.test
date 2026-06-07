@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 200223_init_db
+--echo #
+CREATE DATABASE `db_200223_init_db`;
+USE `db_200223_init_db`;
+
+CREATE TABLE `Users` (
+  `ID` INT,
+  `username` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Game` (
+  `ID` INT,
+  `phase` INT,
+  `start_date` DATETIME,
+  `end_date` DATETIME,
+  `game_duration` INT,
+  `vote_duration` INT,
+  `nb_words` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Words` (
+  `ID` INT,
+  `word` VARCHAR(64),
+  `creator_id` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Artwork` (
+  `ID` INT,
+  `title` VARCHAR(64),
+  `url` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `userToGame` (
+  `user_id` INT,
+  `game_id` INT,
+  `votes` INT,
+  `artwork_id` INT,
+  `is_host` BOOL,
+  PRIMARY KEY (`user_id`, `game_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wordToGame` (
+  `word_id` INT,
+  `game_id` INT,
+  PRIMARY KEY (`word_id`, `game_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_200223_init_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_200223_init_db') AS relationships;
+DROP DATABASE `db_200223_init_db`;
+UNINSTALL EXTENSION vsql_schematron;

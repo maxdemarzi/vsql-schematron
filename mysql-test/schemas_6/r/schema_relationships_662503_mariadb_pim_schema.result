@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 662503_mariadb-pim-schema
+#
+CREATE DATABASE `db_662503_mariadb_pim_schema`;
+USE `db_662503_mariadb_pim_schema`;
+CREATE TABLE `migration_report_logs` (
+`report_id` INT,
+`log` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `migration_reports` (
+`id` INT,
+`end_date` DATETIME,
+`migration_id` INT,
+`process_instance_id` INT,
+`start_date` DATETIME,
+`success` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `migrations` (
+`id` INT,
+`cancelled_at` DATETIME,
+`created_at` DATETIME,
+`callback_url` VARCHAR(64),
+`scheduled_start_time` DATETIME,
+`execution_type` INT,
+`kieServerId` VARCHAR(64),
+`plan_id` INT,
+`requester` VARCHAR(64),
+`error_message` VARCHAR(64),
+`finished_at` DATETIME,
+`started_at` DATETIME,
+`status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `plan_mappings` (
+`plan_id` INT,
+`target` VARCHAR(64),
+`source` VARCHAR(64),
+PRIMARY KEY (`plan_id`, `source`)
+) CHARACTER SET latin1;
+CREATE TABLE `plans` (
+`id` INT,
+`description` VARCHAR(64),
+`name` VARCHAR(64),
+`source_container_id` VARCHAR(64),
+`source_process_id` VARCHAR(64),
+`target_container_id` VARCHAR(64),
+`target_process_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `process_instance_ids` (
+`migration_definition_id` INT,
+`processInstanceIds` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_662503_mariadb_pim_schema') AS relationships;
+relationships
+Database: db_662503_mariadb_pim_schema
+
+Table Connections:
+------------------
+[Implied]  migration_reports.migration_id -> migrations.id
+[Implied]  migrations.plan_id -> plans.id
+[Implied]  plan_mappings.plan_id -> plans.id
+[Implied]  process_instance_ids.migration_definition_id -> migrations.id
+
+DROP DATABASE `db_662503_mariadb_pim_schema`;
+UNINSTALL EXTENSION vsql_schematron;

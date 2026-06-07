@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 099274_niudao20200417
+--echo #
+CREATE DATABASE `db_099274_niudao20200417`;
+USE `db_099274_niudao20200417`;
+
+CREATE TABLE `course` (
+  `course_id` VARCHAR(64),
+  `course_type_id` VARCHAR(64),
+  `course_category_id` VARCHAR(64),
+  `course_name` VARCHAR(64),
+  `course_img` VARCHAR(64),
+  `course_des` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `create_time` DATETIME,
+  `study_number` INT,
+  PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course_and_knowledge` (
+  `id` VARCHAR(64),
+  `course_id` VARCHAR(64),
+  `course_knowledge_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course_and_people` (
+  `id` VARCHAR(64),
+  `course_for_people_id` VARCHAR(64),
+  `course_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course_category` (
+  `course_category_id` VARCHAR(64),
+  `course_category_name` VARCHAR(64),
+  `course_category_sort` INT,
+  PRIMARY KEY (`course_category_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course_comment` (
+  `comment_id` VARCHAR(64),
+  `comment_text` VARCHAR(64),
+  `comment_time` DATETIME,
+  `comment_id_ref` VARCHAR(64),
+  `course_id` VARCHAR(64),
+  `user_id` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course_for_people` (
+  `course_for_people_id` VARCHAR(64),
+  `course_for_people_name` VARCHAR(64),
+  `course_for_people_sort` INT,
+  PRIMARY KEY (`course_for_people_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course_knowledge` (
+  `course_knowledge_id` VARCHAR(64),
+  `course_category_id` VARCHAR(64),
+  `course_knowledge_name` VARCHAR(64),
+  `course_knowledge_sort` INT,
+  PRIMARY KEY (`course_knowledge_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course_type` (
+  `course_type_id` VARCHAR(64),
+  `course_type_name` VARCHAR(64),
+  `course_type_sort` INT,
+  PRIMARY KEY (`course_type_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_099274_niudao20200417') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_099274_niudao20200417') AS relationships;
+DROP DATABASE `db_099274_niudao20200417`;
+UNINSTALL EXTENSION vsql_schematron;

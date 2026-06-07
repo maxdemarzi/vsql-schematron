@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 025616_bd_sica
+--echo #
+CREATE DATABASE `db_025616_bd_sica`;
+USE `db_025616_bd_sica`;
+
+CREATE TABLE `usuarios` (
+  `id` INT,
+  `nome` VARCHAR(64),
+  `email` VARCHAR(64),
+  `senha` VARCHAR(64),
+  `atividade` BOOL,
+  `root` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dispositivos` (
+  `id` INT,
+  `identificacao` VARCHAR(64),
+  `atividade` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `modelos` (
+  `id` INT,
+  `nome` VARCHAR(64),
+  `detalhe` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `materiais` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `valor` DECIMAL(10,2),
+  `contidade` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `material_modelo` (
+  `id_modelo` INT,
+  `id_material` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `modelo_dispositivo` (
+  `id_dispositivo` INT,
+  `id_modelo` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `campos` (
+  `id` INT,
+  `id_user` INT,
+  `username` VARCHAR(64),
+  `lagura` INT,
+  `distancia` INT,
+  `l_um` VARCHAR(64),
+  `d_um` VARCHAR(64),
+  `_end` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `blocos` (
+  `id` INT,
+  `id_campo` INT,
+  `username` VARCHAR(64),
+  `lagura` INT,
+  `distancia` INT,
+  `l_um` VARCHAR(64),
+  `d_um` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dispositivo_usando` (
+  `id` INT,
+  `id_bloco` INT,
+  `id_dispositivo` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dados` (
+  `id` INT,
+  `id_dispositivo_usando` INT,
+  `data_s` DATETIME,
+  `dados` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_025616_bd_sica') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_025616_bd_sica') AS relationships;
+DROP DATABASE `db_025616_bd_sica`;
+UNINSTALL EXTENSION vsql_schematron;

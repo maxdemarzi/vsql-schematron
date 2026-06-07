@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 138938_scriotdb
+#
+CREATE DATABASE `db_138938_scriotdb`;
+USE `db_138938_scriotdb`;
+CREATE TABLE `dbsistemaLaravel.categoria` (
+`idcategoria` INT,
+`nome` VARCHAR(64),
+`descricao` VARCHAR(64),
+`condicao` INT,
+PRIMARY KEY (`idcategoria`)
+) CHARACTER SET latin1;
+CREATE TABLE `dbsistemaLaravel.pessoa` (
+`idpessoa` INT,
+`tipo_pessoa` VARCHAR(64),
+`nome` VARCHAR(64),
+`tipo_documento` VARCHAR(64),
+`num_doc` VARCHAR(64),
+`endereco` VARCHAR(64),
+`telefone` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`idpessoa`)
+) CHARACTER SET latin1;
+CREATE TABLE `dbsistemaLaravel.entrada` (
+`identrada` INT,
+`idfornecedor` INT,
+`tipo_comprovante` VARCHAR(64),
+`serie_comprovante` VARCHAR(64),
+`num_comprovante` VARCHAR(64),
+`data_hora` DATETIME,
+`taxa` DECIMAL(10,2),
+`estado` VARCHAR(64),
+PRIMARY KEY (`identrada`)
+) CHARACTER SET latin1;
+CREATE TABLE `dbsistemaLaravel.detalhe_entrada` (
+`iddetalhe_entrada` INT,
+`identrada` INT,
+`idproduto` INT,
+`quantidade` INT,
+`preco_compra` DECIMAL(10,2),
+`preco_venda` DECIMAL(10,2),
+PRIMARY KEY (`iddetalhe_entrada`)
+) CHARACTER SET latin1;
+CREATE TABLE `dbsistemaLaravel.venda` (
+`idvenda` INT,
+`idcliente` INT,
+`tipo_comprovante` VARCHAR(64),
+`serie` VARCHAR(64),
+`num_comprovante` VARCHAR(64),
+`data_hora` DATETIME,
+`taxa` DECIMAL(10,2),
+`total_venda` DECIMAL(10,2),
+`estado` VARCHAR(64),
+PRIMARY KEY (`idvenda`)
+) CHARACTER SET latin1;
+CREATE TABLE `dbsistemaLaravel.detalhe_venda` (
+`iddetalhe_venda` INT,
+`idvenda` INT,
+`idproduto` INT,
+`quantidade` INT,
+`preco_venda` DECIMAL(10,2),
+`desconto` DECIMAL(10,2),
+PRIMARY KEY (`iddetalhe_venda`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_138938_scriotdb') AS relationships;
+relationships
+Database: db_138938_scriotdb
+
+Table Connections:
+------------------
+[Implied]  dbsistemaLaravel.detalhe_entrada.identrada -> dbsistemaLaravel.entrada.identrada
+[Implied]  dbsistemaLaravel.detalhe_entrada.preco_venda -> dbsistemaLaravel.venda.idvenda
+[Implied]  dbsistemaLaravel.detalhe_venda.idvenda -> dbsistemaLaravel.venda.idvenda
+[Implied]  dbsistemaLaravel.detalhe_venda.preco_venda -> dbsistemaLaravel.venda.idvenda
+
+DROP DATABASE `db_138938_scriotdb`;
+UNINSTALL EXTENSION vsql_schematron;

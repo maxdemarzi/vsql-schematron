@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 221107_V1__initial
+--echo #
+CREATE DATABASE `db_221107_V1_initial`;
+USE `db_221107_V1_initial`;
+
+CREATE TABLE `guild` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `logo` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `uuid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `team_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `is_banned` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `feed_item` (
+  `id` INT,
+  `uuid` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `user_id` INT,
+  `image` VARCHAR(64),
+  `text` VARCHAR(64),
+  `type` VARCHAR(64),
+  `action_id` INT,
+  `is_banned` BOOL,
+  `is_sticky` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `action_type` (
+  `id` INT,
+  `code` VARCHAR(64),
+  `name` VARCHAR(64),
+  `value` INT,
+  `cooldown` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `is_user_action` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `action` (
+  `id` INT,
+  `user_id` INT,
+  `action_type_id` INT,
+  `image_path` VARCHAR(64),
+  `text` VARCHAR(64),
+  `aggregated` BOOL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `is_banned` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comment` (
+  `id` INT,
+  `user_id` INT,
+  `feed_item_id` INT,
+  `text` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_221107_V1_initial') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_221107_V1_initial') AS relationships;
+DROP DATABASE `db_221107_V1_initial`;
+UNINSTALL EXTENSION vsql_schematron;

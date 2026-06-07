@@ -1,0 +1,187 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 019496_DumpWithAdmin
+#
+CREATE DATABASE `db_019496_DumpWithAdmin`;
+USE `db_019496_DumpWithAdmin`;
+CREATE TABLE `cookie_login` (
+`email` VARCHAR(64),
+`cookie_create_date` DATETIME,
+`cookie_secure_number` INT,
+PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+CREATE TABLE `course_feedback` (
+`feedback_id` INT,
+`feedback_date` DATETIME,
+`feedback_content` VARCHAR(64),
+`course_id` INT,
+`user_id` VARCHAR(64),
+PRIMARY KEY (`feedback_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course_members` (
+`member_id` INT,
+`register_date` DATETIME,
+`course_id` INT,
+`student_id` VARCHAR(64),
+PRIMARY KEY (`member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `courses` (
+`course_id` INT,
+`course_name` VARCHAR(64),
+`start_date` DATETIME,
+`end_date` DATETIME,
+`course_picture` VARCHAR(64),
+`instructor_id` VARCHAR(64),
+PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `courses_materials` (
+`material_id` INT,
+`material_date` DATETIME,
+`course_id` INT,
+`user_id` VARCHAR(64),
+PRIMARY KEY (`material_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `feedback_comments` (
+`comment_id` INT,
+`comment_date` DATETIME,
+`comment_message` VARCHAR(64),
+`feedback_id` INT,
+`user_id` VARCHAR(64),
+PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `feedback_content` (
+`feedback_id` INT,
+`content_date` DATETIME,
+`file` VARCHAR(64),
+`file_extension` VARCHAR(64),
+`post_message` VARCHAR(64),
+`feedback_type` INT,
+PRIMARY KEY (`feedback_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `instructors_details` (
+`instructors_id` VARCHAR(64),
+`headline` VARCHAR(64),
+`nickname` VARCHAR(64),
+`portfolio` VARCHAR(64),
+`profile_visibility` VARCHAR(64),
+`specialty` VARCHAR(64),
+PRIMARY KEY (`instructors_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `materials_files` (
+`material_id` INT,
+`material_name` VARCHAR(64),
+`upload_date` DATETIME,
+`material_file` VARCHAR(64),
+`file_type` VARCHAR(64),
+PRIMARY KEY (`material_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `materials_text` (
+`material_id` INT,
+`material_name` VARCHAR(64),
+`upload_date` DATETIME,
+`material_text` VARCHAR(64),
+PRIMARY KEY (`material_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notifications` (
+`notification_id` INT,
+`is_seen` INT,
+`notification_type` VARCHAR(64),
+`course_id` INT,
+`user_id` VARCHAR(64),
+`material_id` INT,
+`feedback_id` INT,
+`kind` INT,
+PRIMARY KEY (`notification_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `students_attendances` (
+`attendance_id` INT,
+`attendance_date` DATETIME,
+`course_id` INT,
+`student_id` VARCHAR(64),
+PRIMARY KEY (`attendance_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `students_details` (
+`student_id` VARCHAR(64),
+`headline` VARCHAR(64),
+`interests` VARCHAR(64),
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`email` VARCHAR(64),
+`join_date` DATETIME,
+`password` VARCHAR(64),
+PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_authentication` (
+`user_id` VARCHAR(64),
+`last_update_date` DATETIME,
+`verification_number` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_course_join` (
+`users_id` VARCHAR(64),
+`is_busy` INT,
+`join_date` DATETIME,
+PRIMARY KEY (`users_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_details` (
+`user_id` VARCHAR(64),
+`forename` VARCHAR(64),
+`surname` VARCHAR(64),
+`birthday` DATETIME,
+`gender` VARCHAR(64),
+`phone` VARCHAR(64),
+`country` VARCHAR(64),
+`state` VARCHAR(64),
+`address` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_profile_picture` (
+`user_id` VARCHAR(64),
+`picture` VARCHAR(64),
+`upload_date` DATETIME,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_sign_in_date` (
+`user_sign_in_id` INT,
+`sign_in_date` DATETIME,
+`user_id` VARCHAR(64),
+PRIMARY KEY (`user_sign_in_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_status` (
+`user_id` VARCHAR(64),
+`is_online` INT,
+`is_valid` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_019496_DumpWithAdmin') AS relationships;
+relationships
+Database: db_019496_DumpWithAdmin
+
+Table Connections:
+------------------
+[Implied]  course_feedback.course_id -> courses.course_id
+[Implied]  course_feedback.user_id -> users.email
+[Implied]  course_members.course_id -> courses.course_id
+[Implied]  course_members.student_id -> students_details.student_id
+[Implied]  courses.instructor_id -> instructors_details.instructors_id
+[Implied]  courses_materials.course_id -> courses.course_id
+[Implied]  courses_materials.user_id -> users.email
+[Implied]  feedback_comments.feedback_id -> feedback_content.feedback_id
+[Implied]  feedback_comments.user_id -> users.email
+[Implied]  notifications.course_id -> courses.course_id
+[Implied]  notifications.feedback_id -> feedback_content.feedback_id
+[Implied]  notifications.material_id -> materials_files.material_id
+[Implied]  notifications.material_id -> materials_text.material_id
+[Implied]  notifications.user_id -> users.email
+[Implied]  students_attendances.course_id -> courses.course_id
+[Implied]  students_attendances.student_id -> students_details.student_id
+[Implied]  users_authentication.user_id -> users.email
+[Implied]  users_course_join.users_id -> users.email
+[Implied]  users_details.user_id -> users.email
+[Implied]  users_profile_picture.user_id -> users.email
+[Implied]  users_sign_in_date.user_id -> users.email
+[Implied]  users_status.user_id -> users.email
+
+DROP DATABASE `db_019496_DumpWithAdmin`;
+UNINSTALL EXTENSION vsql_schematron;

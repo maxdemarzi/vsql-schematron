@@ -1,0 +1,130 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 576105_starwars
+#
+CREATE DATABASE `db_576105_starwars`;
+USE `db_576105_starwars`;
+CREATE TABLE `people` (
+`_id` INT,
+`name` VARCHAR(64),
+`mass` VARCHAR(64),
+`hair_color` VARCHAR(64),
+`skin_color` VARCHAR(64),
+`eye_color` VARCHAR(64),
+`birth_year` VARCHAR(64),
+`gender` VARCHAR(64),
+`species_id` INT,
+`homeworld_id` INT,
+`height` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `films` (
+`_id` INT,
+`title` VARCHAR(64),
+`episode_id` INT,
+`opening_crawl` VARCHAR(64),
+`director` VARCHAR(64),
+`producer` VARCHAR(64),
+`release_date` DATETIME,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `people_in_films` (
+`_id` INT,
+`person_id` INT,
+`film_id` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `planets` (
+`_id` INT,
+`name` VARCHAR(64),
+`rotation_period` INT,
+`orbital_period` INT,
+`diameter` INT,
+`climate` VARCHAR(64),
+`gravity` VARCHAR(64),
+`terrain` VARCHAR(64),
+`surface_water` VARCHAR(64),
+`population` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `species` (
+`_id` INT,
+`name` VARCHAR(64),
+`classification` VARCHAR(64),
+`average_height` VARCHAR(64),
+`average_lifespan` VARCHAR(64),
+`hair_colors` VARCHAR(64),
+`skin_colors` VARCHAR(64),
+`eye_colors` VARCHAR(64),
+`language` VARCHAR(64),
+`homeworld_id` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vessels` (
+`_id` INT,
+`name` VARCHAR(64),
+`manufacturer` VARCHAR(64),
+`model` VARCHAR(64),
+`vessel_type` VARCHAR(64),
+`vessel_class` VARCHAR(64),
+`cost_in_credits` INT,
+`length` VARCHAR(64),
+`max_atmosphering_speed` VARCHAR(64),
+`crew` INT,
+`passengers` INT,
+`cargo_capacity` VARCHAR(64),
+`consumables` VARCHAR(64),
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `species_in_films` (
+`_id` INT,
+`film_id` INT,
+`species_id` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `planets_in_films` (
+`_id` INT,
+`film_id` INT,
+`planet_id` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pilots` (
+`_id` INT,
+`person_id` INT,
+`vessel_id` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vessels_in_films` (
+`_id` INT,
+`vessel_id` INT,
+`film_id` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `starship_specs` (
+`_id` INT,
+`hyperdrive_rating` VARCHAR(64),
+`MGLT` VARCHAR(64),
+`vessel_id` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_576105_starwars') AS relationships;
+relationships
+Database: db_576105_starwars
+
+Table Connections:
+------------------
+[Implied]  people.species_id -> species._id
+[Implied]  people_in_films.film_id -> films._id
+[Implied]  people_in_films.person_id -> people._id
+[Implied]  pilots.person_id -> people._id
+[Implied]  pilots.vessel_id -> vessels._id
+[Implied]  planets_in_films.film_id -> films._id
+[Implied]  planets_in_films.planet_id -> planets._id
+[Implied]  species_in_films.film_id -> films._id
+[Implied]  species_in_films.species_id -> species._id
+[Implied]  starship_specs.vessel_id -> vessels._id
+[Implied]  vessels_in_films.film_id -> films._id
+[Implied]  vessels_in_films.vessel_id -> vessels._id
+
+DROP DATABASE `db_576105_starwars`;
+UNINSTALL EXTENSION vsql_schematron;

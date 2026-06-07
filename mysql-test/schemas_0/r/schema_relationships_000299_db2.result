@@ -1,0 +1,181 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 000299_db2
+#
+CREATE DATABASE `db_000299_db2`;
+USE `db_000299_db2`;
+CREATE TABLE `casestatus` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `casetype` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `courtlevel` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `gender` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hearingtype` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lawfirm` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notification` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `prison` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `prosecutorteam` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `region` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `district` (
+`id` INT,
+`region` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `town` (
+`id` INT,
+`district` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `court` (
+`id` INT,
+`town` INT,
+`court_level` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `policestation` (
+`id` INT,
+`town` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `person` (
+`id` INT,
+`xname` VARCHAR(64),
+`address` VARCHAR(64),
+`gender` INT,
+`classtype` VARCHAR(64),
+`service_number` VARCHAR(64),
+`reg_date` DATETIME,
+`bar_number` VARCHAR(64),
+`prosecutor_team` INT,
+`law_firm` INT,
+`phone` VARCHAR(64),
+`complaint` INT,
+`prison` INT,
+`court` INT,
+`bail` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hearing` (
+`id` INT,
+`case` INT,
+`defense_att` INT,
+`prosecutor` INT,
+`hearing_date` DATETIME,
+`judge` INT,
+`hearing_type` INT,
+`notification` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `filing` (
+`id` INT,
+`hearing` INT,
+`file_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document` (
+`id` INT,
+`filing` INT,
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `complaint` (
+`id` INT,
+`complainant` INT,
+`police` INT,
+`police_station` INT,
+`statement` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `case` (
+`id` INT,
+`complaint` INT,
+`prosecutor_team` INT,
+`complainant` INT,
+`offender` INT,
+`defense_att` INT,
+`court` INT,
+`judge` INT,
+`prison` INT,
+`case_type` INT,
+`case_status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bail` (
+`id` INT,
+`hearing` INT,
+`amount` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_000299_db2') AS relationships;
+relationships
+Database: db_000299_db2
+
+Table Connections:
+------------------
+[Implied]  bail.hearing -> hearing.id
+[Implied]  case.case_status -> casestatus.id
+[Implied]  case.case_type -> casetype.id
+[Implied]  case.complainant -> person.id
+[Implied]  case.complaint -> complaint.id
+[Implied]  case.court -> court.id
+[Implied]  case.defense_att -> person.id
+[Implied]  case.judge -> person.id
+[Implied]  case.offender -> person.id
+[Implied]  case.prison -> prison.id
+[Implied]  case.prosecutor_team -> prosecutorteam.id
+[Implied]  complaint.complainant -> person.id
+[Implied]  complaint.police -> policestation.id
+[Implied]  complaint.police_station -> policestation.id
+[Implied]  court.court_level -> courtlevel.id
+[Implied]  court.town -> town.id
+[Implied]  district.region -> region.id
+[Implied]  document.filing -> filing.id
+[Implied]  filing.hearing -> hearing.id
+[Implied]  hearing.case -> case.id
+[Implied]  hearing.defense_att -> person.id
+[Implied]  hearing.hearing_type -> hearingtype.id
+[Implied]  hearing.judge -> person.id
+[Implied]  hearing.notification -> notification.id
+[Implied]  hearing.prosecutor -> prosecutorteam.id
+[Implied]  person.bail -> bail.id
+[Implied]  person.complaint -> complaint.id
+[Implied]  person.court -> court.id
+[Implied]  person.gender -> gender.id
+[Implied]  person.law_firm -> lawfirm.id
+[Implied]  person.prison -> prison.id
+[Implied]  person.prosecutor_team -> prosecutorteam.id
+[Implied]  policestation.town -> town.id
+[Implied]  town.district -> district.id
+
+DROP DATABASE `db_000299_db2`;
+UNINSTALL EXTENSION vsql_schematron;

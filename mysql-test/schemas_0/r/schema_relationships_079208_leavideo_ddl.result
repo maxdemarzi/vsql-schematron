@@ -1,0 +1,249 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 079208_leavideo.ddl
+#
+CREATE DATABASE `db_079208_leavideo_ddl`;
+USE `db_079208_leavideo_ddl`;
+CREATE TABLE `Playlist` (
+`playlistID` INT,
+PRIMARY KEY (`playlistID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PlaylistItem` (
+`playlistItemID` INT,
+`playlistID` INT,
+`galerieID` INT,
+`videoID` INT,
+PRIMARY KEY (`playlistItemID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Galerie` (
+`galerieID` INT,
+PRIMARY KEY (`galerieID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Picture` (
+`pictureID` INT,
+`width` INT,
+`height` INT,
+`format` VARCHAR(64),
+PRIMARY KEY (`pictureID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Galerie_Picture` (
+`galerieID` INT,
+`pictureID` INT,
+PRIMARY KEY (`galerieID`, `pictureID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Video` (
+`videoID` INT,
+`lengthSeconds` INT,
+`thumbnailPictureID` INT,
+PRIMARY KEY (`videoID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Movie` (
+`videoID` INT,
+`imdbID` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag` (
+`tagID` INT,
+`parentTagID` INT,
+`defaultTag` INT,
+PRIMARY KEY (`tagID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag_Video` (
+`tagID` INT,
+`videoID` INT,
+PRIMARY KEY (`tagID`, `videoID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag_Picture` (
+`tagID` INT,
+`pictureID` INT,
+PRIMARY KEY (`tagID`, `pictureID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag_Galerie` (
+`tagID` INT,
+`galerieID` INT,
+PRIMARY KEY (`tagID`, `galerieID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag_Playlist` (
+`tagID` INT,
+`playlistID` INT,
+PRIMARY KEY (`tagID`, `playlistID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Media` (
+`mediaID` INT,
+`VideovideoID` INT,
+`hasAudio` INT,
+`audioBitrate` INT,
+`audioEncoding` VARCHAR(64),
+`hasVideo` INT,
+`videoBitrate` INT,
+`videoEncoding` VARCHAR(64),
+PRIMARY KEY (`mediaID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Snippet` (
+`startFrame` INT,
+`endFrame` INT,
+`sourceVideoID` INT,
+`videoID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Celebrity` (
+`celebrityID` INT,
+`avatarPictureID` INT,
+PRIMARY KEY (`celebrityID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Name` (
+`nameID` INT,
+`language` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`nameID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Regisseur` (
+`celebrityID` INT,
+`videoID` INT,
+PRIMARY KEY (`celebrityID`, `videoID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Actor` (
+`videoID` INT,
+`celebrityID` INT,
+PRIMARY KEY (`videoID`, `celebrityID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Playlist_Name` (
+`playlistID` INT,
+`nameID` INT,
+PRIMARY KEY (`playlistID`, `nameID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Galerie_Name` (
+`galerieID` INT,
+`nameID` INT,
+PRIMARY KEY (`galerieID`, `nameID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Picture_Name` (
+`pictureID` INT,
+`nameID` INT,
+PRIMARY KEY (`pictureID`, `nameID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag_Name` (
+`tagID` INT,
+`nameID` INT,
+PRIMARY KEY (`tagID`, `nameID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Video_Name` (
+`videoID` INT,
+`nameID` INT,
+PRIMARY KEY (`videoID`, `nameID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Name_Celebrity` (
+`nameID` INT,
+`celebrityID` INT,
+PRIMARY KEY (`nameID`, `celebrityID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Celebrity_Picture` (
+`celebrityID` INT,
+`pictureID` INT,
+PRIMARY KEY (`celebrityID`, `pictureID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Celebrity_Tag` (
+`celebrityID` INT,
+`tagID` INT,
+PRIMARY KEY (`celebrityID`, `tagID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Artist` (
+`videoID` INT,
+`celebrityID` INT,
+PRIMARY KEY (`videoID`, `celebrityID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Variation` (
+`variationID` INT,
+PRIMARY KEY (`variationID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Video_Variation` (
+`videoID` INT,
+`variationID` INT,
+`isDefaultVideo` INT,
+`isDefaultAudio` INT,
+PRIMARY KEY (`videoID`, `variationID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Variation_Name` (
+`nameID` INT,
+`variationID` INT,
+PRIMARY KEY (`nameID`, `variationID`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`userID` INT,
+`password` VARCHAR(64),
+`salt` VARCHAR(64),
+PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Group` (
+`groupID` INT,
+`parentGroupID` INT,
+PRIMARY KEY (`groupID`)
+) CHARACTER SET latin1;
+CREATE TABLE `User_Group` (
+`userID` INT,
+`groupID` INT,
+PRIMARY KEY (`userID`, `groupID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag_Group` (
+`tagID` INT,
+`groupID` INT,
+PRIMARY KEY (`tagID`, `groupID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_079208_leavideo_ddl') AS relationships;
+relationships
+Database: db_079208_leavideo_ddl
+
+Table Connections:
+------------------
+[Implied]  Actor.celebrityID -> Celebrity.celebrityID
+[Implied]  Actor.videoID -> Video.videoID
+[Implied]  Artist.celebrityID -> Celebrity.celebrityID
+[Implied]  Artist.videoID -> Video.videoID
+[Implied]  Celebrity.avatarPictureID -> Picture.pictureID
+[Implied]  Celebrity_Picture.celebrityID -> Celebrity.celebrityID
+[Implied]  Celebrity_Picture.pictureID -> Picture.pictureID
+[Implied]  Celebrity_Tag.celebrityID -> Celebrity.celebrityID
+[Implied]  Celebrity_Tag.tagID -> Tag.tagID
+[Implied]  Galerie_Name.galerieID -> Galerie.galerieID
+[Implied]  Galerie_Name.nameID -> Name.nameID
+[Implied]  Galerie_Picture.galerieID -> Galerie.galerieID
+[Implied]  Galerie_Picture.pictureID -> Picture.pictureID
+[Implied]  Media.VideovideoID -> Video.videoID
+[Implied]  Media.hasVideo -> Video.videoID
+[Implied]  Movie.videoID -> Video.videoID
+[Implied]  Name_Celebrity.celebrityID -> Celebrity.celebrityID
+[Implied]  Name_Celebrity.nameID -> Name.nameID
+[Implied]  Picture_Name.nameID -> Name.nameID
+[Implied]  Picture_Name.pictureID -> Picture.pictureID
+[Implied]  PlaylistItem.galerieID -> Galerie.galerieID
+[Implied]  PlaylistItem.playlistID -> Playlist.playlistID
+[Implied]  PlaylistItem.videoID -> Video.videoID
+[Implied]  Playlist_Name.nameID -> Name.nameID
+[Implied]  Playlist_Name.playlistID -> Playlist.playlistID
+[Implied]  Regisseur.celebrityID -> Celebrity.celebrityID
+[Implied]  Regisseur.videoID -> Video.videoID
+[Implied]  Snippet.sourceVideoID -> Video.videoID
+[Implied]  Snippet.videoID -> Video.videoID
+[Implied]  Tag_Galerie.galerieID -> Galerie.galerieID
+[Implied]  Tag_Galerie.tagID -> Tag.tagID
+[Implied]  Tag_Group.groupID -> Group.groupID
+[Implied]  Tag_Group.tagID -> Tag.tagID
+[Implied]  Tag_Name.nameID -> Name.nameID
+[Implied]  Tag_Name.tagID -> Tag.tagID
+[Implied]  Tag_Picture.pictureID -> Picture.pictureID
+[Implied]  Tag_Picture.tagID -> Tag.tagID
+[Implied]  Tag_Playlist.playlistID -> Playlist.playlistID
+[Implied]  Tag_Playlist.tagID -> Tag.tagID
+[Implied]  Tag_Video.tagID -> Tag.tagID
+[Implied]  Tag_Video.videoID -> Video.videoID
+[Implied]  User_Group.groupID -> Group.groupID
+[Implied]  User_Group.userID -> User.userID
+[Implied]  Variation_Name.nameID -> Name.nameID
+[Implied]  Variation_Name.variationID -> Variation.variationID
+[Implied]  Video.thumbnailPictureID -> Picture.pictureID
+[Implied]  Video_Name.nameID -> Name.nameID
+[Implied]  Video_Name.videoID -> Video.videoID
+[Implied]  Video_Variation.isDefaultVideo -> Video.videoID
+[Implied]  Video_Variation.variationID -> Variation.variationID
+[Implied]  Video_Variation.videoID -> Video.videoID
+
+DROP DATABASE `db_079208_leavideo_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

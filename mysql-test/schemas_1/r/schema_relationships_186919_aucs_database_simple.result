@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 186919_aucs-database-simple
+#
+CREATE DATABASE `db_186919_aucs_database_simple`;
+USE `db_186919_aucs_database_simple`;
+CREATE TABLE `USER` (
+`user_id` INT,
+`created` DATETIME,
+`email_address` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`token_or_password` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`address` VARCHAR(64),
+`is_organizer` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `SPONSOR` (
+`sponsor_id` INT,
+`sponsor_name` VARCHAR(64),
+`website_url` VARCHAR(64),
+`phone_number` VARCHAR(64),
+PRIMARY KEY (`sponsor_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRIZE_PACKAGE` (
+`prize_package_id` INT,
+`package_name` VARCHAR(64),
+`package_price_in_dollars` VARCHAR(64),
+`package_number` INT,
+PRIMARY KEY (`prize_package_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRIZE` (
+`prize_id` INT,
+`prize_name` VARCHAR(64),
+`prize_description` VARCHAR(64),
+`sponsor_id` INT,
+`package_id` INT,
+PRIMARY KEY (`prize_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TICKET_PACKAGE` (
+`ticket_package_id` INT,
+`actual_amount` VARCHAR(64),
+`awarded_amount` VARCHAR(64),
+PRIMARY KEY (`ticket_package_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER_ORDER` (
+`order_id` INT,
+`created` DATETIME,
+`user_id` INT,
+`ticket_package_id` INT,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PACKAGE_PICK` (
+`pick_id` INT,
+`order_id` INT,
+`prize_id` INT,
+`quantity` INT,
+PRIMARY KEY (`pick_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_186919_aucs_database_simple') AS relationships;
+relationships
+Database: db_186919_aucs_database_simple
+
+Table Connections:
+------------------
+[Implied]  PACKAGE_PICK.order_id -> USER_ORDER.order_id
+[Implied]  PACKAGE_PICK.prize_id -> PRIZE.prize_id
+[Implied]  PRIZE.package_id -> PRIZE_PACKAGE.prize_package_id
+[Implied]  PRIZE.package_id -> TICKET_PACKAGE.ticket_package_id
+[Implied]  PRIZE.sponsor_id -> SPONSOR.sponsor_id
+[Implied]  USER_ORDER.ticket_package_id -> TICKET_PACKAGE.ticket_package_id
+[Implied]  USER_ORDER.user_id -> USER.user_id
+
+DROP DATABASE `db_186919_aucs_database_simple`;
+UNINSTALL EXTENSION vsql_schematron;

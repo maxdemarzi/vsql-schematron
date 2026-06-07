@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 236609_Database
+--echo #
+CREATE DATABASE `db_236609_Database`;
+USE `db_236609_Database`;
+
+CREATE TABLE `Status` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Project` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `shortName` VARCHAR(64),
+  `startDate` DATETIME,
+  `endDate` DATETIME,
+  `statusId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Role` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Employee` (
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `fullName` VARCHAR(64),
+  `email` VARCHAR(64),
+  `joinDate` DATETIME,
+  `leaveDate` DATETIME,
+  `initialBalance` DECIMAL(10,2),
+  `currentBalance` DECIMAL(10,2),
+  `roleId` INT,
+  `responsible` VARCHAR(64),
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Project_Employee` (
+  `projectId` INT,
+  `employeeId` VARCHAR(64),
+  PRIMARY KEY (`projectId`, `employeeId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Vacation_Status` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Vacation` (
+  `id` INT,
+  `requestDate` DATETIME,
+  `startDate` DATETIME,
+  `endDate` DATETIME,
+  `duration` DECIMAL(10,2),
+  `COMMENT` VARCHAR(64),
+  `employeeId` VARCHAR(64),
+  `vacationStatusId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Notification` (
+  `id` INT,
+  `message` VARCHAR(64),
+  `date` DATETIME,
+  `seen` BOOL,
+  `vacationId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_236609_Database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_236609_Database') AS relationships;
+DROP DATABASE `db_236609_Database`;
+UNINSTALL EXTENSION vsql_schematron;

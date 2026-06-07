@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 382132_V1__initial_setup
+#
+CREATE DATABASE `db_382132_V1_initial_setup`;
+USE `db_382132_V1_initial_setup`;
+CREATE TABLE `user` (
+`uuid` VARCHAR(64),
+`username` VARCHAR(64),
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`passwordhash` VARCHAR(64),
+`email` VARCHAR(64),
+`enabled` BOOL,
+`meta` VARCHAR(64),
+`created` DATETIME,
+`creator_uuid` VARCHAR(64),
+`edited` DATETIME,
+`editor_uuid` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `group` (
+`uuid` VARCHAR(64),
+`name` VARCHAR(64),
+`meta` VARCHAR(64),
+`created` DATETIME,
+`creator_uuid` VARCHAR(64),
+`edited` DATETIME,
+`editor_uuid` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_group` (
+`user_uuid` VARCHAR(64),
+`group_uuid` VARCHAR(64),
+PRIMARY KEY (`user_uuid`, `group_uuid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_382132_V1_initial_setup') AS relationships;
+relationships
+Database: db_382132_V1_initial_setup
+
+Table Connections:
+------------------
+[Implied]  group.creator_uuid -> user.uuid
+[Implied]  group.editor_uuid -> user.uuid
+[Implied]  user.creator_uuid -> user.uuid
+[Implied]  user.editor_uuid -> user.uuid
+[Implied]  user_group.group_uuid -> group.uuid
+[Implied]  user_group.user_uuid -> user.uuid
+
+DROP DATABASE `db_382132_V1_initial_setup`;
+UNINSTALL EXTENSION vsql_schematron;

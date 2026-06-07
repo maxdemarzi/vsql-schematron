@@ -1,0 +1,100 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 313015_vaksin-its
+--echo #
+CREATE DATABASE `db_313015_vaksin_its`;
+USE `db_313015_vaksin_its`;
+
+CREATE TABLE `daftar-vaksinasi` (
+  `id_daftar_vaksinasi` INT,
+  `id_vaksinasi` INT,
+  `id_pegawai` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `detil-vaksinasi` (
+  `id_detil_vaksin` INT,
+  `id_vaksinator` INT,
+  `id_vaksinasi` INT,
+  `kode_vaksin` INT,
+  `pendaftaran_start` DATETIME,
+  `pendaftaran_finish` DATETIME,
+  `lokasi` VARCHAR(64),
+  `kuota` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `master-pegawai` (
+  `id_pegawai` INT,
+  `nama_pegawai` VARCHAR(64),
+  `nik` VARCHAR(64),
+  `jenis_kelamin` VARCHAR(64),
+  `tanggal_lahir` DATETIME,
+  `nip/npp` VARCHAR(64),
+  `golongan_darah` VARCHAR(64),
+  `nomor_hp` VARCHAR(64),
+  `status` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `master-penyelenggara` (
+  `id_penyelenggara` INT,
+  `nama_penyelenggara` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `master-vaksin-jenis` (
+  `kode_vaksin` INT,
+  `nama_vaksin` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `master-vaksinasi-jadwal` (
+  `id_vaksinasi` INT,
+  `tanggal_vaksinasi` DATETIME,
+  `kuota` INT,
+  `jam_buka` DATETIME,
+  `jam_tutup` DATETIME,
+  `status` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `master-vaksinator` (
+  `id_vaksinator` INT,
+  `nama_vaksinator` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `riwayat-kipi` (
+  `id_riwayat_kipi` INT,
+  `id_pegawai` INT,
+  `gejala` VARCHAR(64),
+  `tindakan` VARCHAR(64),
+  `konsul_dokter` VARCHAR(64),
+  `tanggal_kipi` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `riwayat-vaksin` (
+  `id_riwayat_vaksin` INT,
+  `id_pegawai` INT,
+  `id_vaksinator` INT,
+  `id_penyelenggara` INT,
+  `status_kehadiran` VARCHAR(64),
+  `vaksinasi_ke` VARCHAR(64),
+  `id_vaksinasi` INT,
+  `tanggal_vaksin2` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_313015_vaksin_its') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_313015_vaksin_its') AS relationships;
+DROP DATABASE `db_313015_vaksin_its`;
+UNINSTALL EXTENSION vsql_schematron;

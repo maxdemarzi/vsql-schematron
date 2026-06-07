@@ -1,0 +1,194 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 311864_tmp
+--echo #
+CREATE DATABASE `db_311864_tmp`;
+USE `db_311864_tmp`;
+
+CREATE TABLE `alembic_version` (
+  `version_num` VARCHAR(64),
+  PRIMARY KEY (`version_num`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `followers` (
+  `follower_id` INT,
+  `followed_id` INT,
+  `timestamp` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `comments_likes` (
+  `user_id` INT,
+  `comment_id` INT,
+  `timestamp` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `notifications` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `user_id` INT,
+  `timestamp` DECIMAL(10,2),
+  `payload_json` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `messages` (
+  `id` INT,
+  `body` VARCHAR(64),
+  `timestamp` DATETIME,
+  `sender_id` INT,
+  `recipient_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `blacklist` (
+  `user_id` INT,
+  `block_id` INT,
+  `timestamp` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `micropubs_likes` (
+  `user_id` INT,
+  `micropub_id` INT,
+  `timestamp` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `id` INT,
+  `slug` VARCHAR(64),
+  `name` VARCHAR(64),
+  `default` BOOL,
+  `permissions` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password_hash` VARCHAR(64),
+  `name` VARCHAR(64),
+  `location` VARCHAR(64),
+  `about_me` VARCHAR(64),
+  `member_since` DATETIME,
+  `last_seen` DATETIME,
+  `last_recived_comments_read_time` DATETIME,
+  `last_followeds_micropubs_read_time` DATETIME,
+  `last_follows_read_time` DATETIME,
+  `last_messages_read_time` DATETIME,
+  `last_comments_likes_read_time` DATETIME,
+  `last_micropubs_likes_read_time` DATETIME,
+  `confirmed` BOOL,
+  `role_id` INT,
+  `last_followeds_microcons_read_time` DATETIME,
+  `last_microcons_likes_read_time` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tasks` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `user_id` INT,
+  `complete` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `microcons` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `summary` VARCHAR(64),
+  `author_id` INT,
+  `timestamp` DATETIME,
+  `views` INT,
+  `status` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `microcons_collects` (
+  `user_id` INT,
+  `microcon_id` INT,
+  `timestamp` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `microcons_cons` (
+  `microcon_id` INT,
+  `user_id` INT,
+  `timestamp` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `microcons_likes` (
+  `user_id` INT,
+  `microcon_id` INT,
+  `timestamp` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `microcons_micropubs` (
+  `micropub_id` INT,
+  `microcon_id` INT,
+  `timestamp` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `microcons_pors` (
+  `microcon_id` INT,
+  `user_id` INT,
+  `timestamp` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `micropubs_collects` (
+  `user_id` INT,
+  `micropub_id` INT,
+  `timestamp` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `tags` (
+  `id` INT,
+  `content` VARCHAR(64),
+  `micropub_id` INT,
+  `microcon_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comments` (
+  `id` INT,
+  `body` VARCHAR(64),
+  `timestamp` DATETIME,
+  `disabled` BOOL,
+  `author_id` INT,
+  `micropub_id` INT,
+  `mark_read` BOOL,
+  `parent_id` INT,
+  `microcon_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `micropubs` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `summary` VARCHAR(64),
+  `timestamp` DATETIME,
+  `views` INT,
+  `author_id` INT,
+  `reference` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_311864_tmp') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_311864_tmp') AS relationships;
+DROP DATABASE `db_311864_tmp`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 413203_db2_spinner
+#
+CREATE DATABASE `db_413203_db2_spinner`;
+USE `db_413203_db2_spinner`;
+CREATE TABLE `spinnerDB2.class` (
+`classId` INT,
+`className` VARCHAR(64),
+`hyperLink` VARCHAR(64),
+PRIMARY KEY (`classId`)
+) CHARACTER SET latin1;
+CREATE TABLE `spinnerDB2.person` (
+`personId` INT,
+`phoneNumber` VARCHAR(64),
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`address` VARCHAR(64),
+`email` VARCHAR(64),
+`birthDate` DATETIME,
+PRIMARY KEY (`personId`, `phoneNumber`, `firstName`)
+) CHARACTER SET latin1;
+CREATE TABLE `spinnerDB2.personClass` (
+`classId` INT,
+`personId` INT,
+`type` VARCHAR(64),
+`numberOfValidRegistrations` INT
+) CHARACTER SET latin1;
+CREATE TABLE `spinnerDB2.events` (
+`eventId` INT,
+`classId` INT,
+`eventName` VARCHAR(64),
+`fromDate` DATETIME,
+`toDate` DATETIME,
+`lockTime` INT,
+`openDate` DATETIME,
+`maxCapacity` INT,
+`instructorId` INT,
+`address` VARCHAR(64),
+`comments` VARCHAR(64),
+`created` DATETIME,
+`lastUpdated` DATETIME,
+`status` VARCHAR(64),
+PRIMARY KEY (`eventId`, `classId`, `eventName`, `fromDate`)
+) CHARACTER SET latin1;
+CREATE TABLE `spinnerDB2.registration` (
+`classId` INT,
+`eventId` INT,
+`personId` INT,
+`status` VARCHAR(64),
+`lastUpdated` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_413203_db2_spinner') AS relationships;
+relationships
+Database: db_413203_db2_spinner
+
+Table Connections:
+------------------
+[Implied]  spinnerDB2.events.classId -> spinnerDB2.class.classId
+[Implied]  spinnerDB2.personClass.classId -> spinnerDB2.class.classId
+[Implied]  spinnerDB2.personClass.personId -> spinnerDB2.person.personId
+[Implied]  spinnerDB2.registration.classId -> spinnerDB2.class.classId
+[Implied]  spinnerDB2.registration.eventId -> spinnerDB2.events.eventId
+[Implied]  spinnerDB2.registration.personId -> spinnerDB2.person.personId
+
+DROP DATABASE `db_413203_db2_spinner`;
+UNINSTALL EXTENSION vsql_schematron;

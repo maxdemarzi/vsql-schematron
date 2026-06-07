@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 061804_example
+#
+CREATE DATABASE `db_061804_example`;
+USE `db_061804_example`;
+CREATE TABLE `author` (
+`authorId` VARCHAR(64),
+`authorActivationToken` VARCHAR(64),
+`authorAvatarUrl` VARCHAR(64),
+`authorEmail` VARCHAR(64),
+`authorHash` VARCHAR(64),
+`authorUsername` VARCHAR(64),
+PRIMARY KEY (`authorId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`tagId` VARCHAR(64),
+`tagName` VARCHAR(64),
+PRIMARY KEY (`tagId`)
+) CHARACTER SET latin1;
+CREATE TABLE `article` (
+`articleId` VARCHAR(64),
+`articleAuthorId` VARCHAR(64),
+`articleContent` VARCHAR(64),
+`articleDate` DATETIME,
+`articleImage` VARCHAR(64),
+PRIMARY KEY (`articleId`)
+) CHARACTER SET latin1;
+CREATE TABLE `articleTag` (
+`articleTagArticleId` VARCHAR(64),
+`articleTagTagId` VARCHAR(64),
+PRIMARY KEY (`articleTagArticleId`, `articleTagTagId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_061804_example') AS relationships;
+relationships
+Database: db_061804_example
+
+Table Connections:
+------------------
+[Implied]  article.articleAuthorId -> article.articleId
+[Implied]  articleTag.articleTagArticleId -> article.articleId
+[Implied]  articleTag.articleTagTagId -> article.articleId
+
+DROP DATABASE `db_061804_example`;
+UNINSTALL EXTENSION vsql_schematron;

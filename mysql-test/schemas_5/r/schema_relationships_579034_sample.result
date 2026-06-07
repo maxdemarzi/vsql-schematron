@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 579034_sample
+#
+CREATE DATABASE `db_579034_sample`;
+USE `db_579034_sample`;
+CREATE TABLE `Countries` (
+`country_ID` INT,
+`name` VARCHAR(64),
+`population` INT,
+PRIMARY KEY (`country_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Persons` (
+`person_ID` INT,
+`last_name` VARCHAR(64),
+`first_name` VARCHAR(64),
+`address` VARCHAR(64),
+`city_ID` INT,
+`country_ID` INT,
+PRIMARY KEY (`person_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cities` (
+`city_ID` INT,
+`city_name` VARCHAR(64),
+`country_ID` INT,
+`population` INT,
+PRIMARY KEY (`city_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_579034_sample') AS relationships;
+relationships
+Database: db_579034_sample
+
+Table Connections:
+------------------
+[Implied]  Cities.country_ID -> Countries.country_ID
+[Implied]  Persons.city_ID -> Cities.city_ID
+[Implied]  Persons.country_ID -> Countries.country_ID
+
+DROP DATABASE `db_579034_sample`;
+UNINSTALL EXTENSION vsql_schematron;

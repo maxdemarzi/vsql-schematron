@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 055612_schema
+#
+CREATE DATABASE `db_055612_schema`;
+USE `db_055612_schema`;
+CREATE TABLE `archfolio.users` (
+`id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`salt` VARCHAR(64),
+`password` VARCHAR(64),
+`pfp_url` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`location` VARCHAR(64),
+`joined_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `archfolio.followers` (
+`id` INT,
+`follower_id` INT,
+`following_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `archfolio.posts` (
+`id` INT,
+`user_id` INT,
+`pfp_url` VARCHAR(64),
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`tags` VARCHAR(64),
+`views` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `archfolio.metadatas` (
+`id` INT,
+`post_id` INT,
+`is_url` BOOL,
+`content` VARCHAR(64),
+`disposition_order` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `archfolio.likes` (
+`id` INT,
+`user_id` INT,
+`post_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `archfolio.favorites` (
+`id` INT,
+`user_id` INT,
+`post_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `archfolio.comments` (
+`id` INT,
+`user_id` INT,
+`post_id` INT,
+`content` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_055612_schema') AS relationships;
+relationships
+Database: db_055612_schema
+
+Table Connections:
+------------------
+[Implied]  archfolio.comments.post_id -> archfolio.posts.id
+[Implied]  archfolio.comments.user_id -> archfolio.followers.id
+[Implied]  archfolio.favorites.post_id -> archfolio.posts.id
+[Implied]  archfolio.favorites.user_id -> archfolio.followers.id
+[Implied]  archfolio.followers.follower_id -> archfolio.users.id
+[Implied]  archfolio.likes.post_id -> archfolio.posts.id
+[Implied]  archfolio.likes.user_id -> archfolio.followers.id
+[Implied]  archfolio.metadatas.post_id -> archfolio.posts.id
+[Implied]  archfolio.posts.user_id -> archfolio.followers.id
+
+DROP DATABASE `db_055612_schema`;
+UNINSTALL EXTENSION vsql_schematron;

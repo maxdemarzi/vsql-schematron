@@ -1,0 +1,123 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 299468_Script_NPT
+#
+CREATE DATABASE `db_299468_Script_NPT`;
+USE `db_299468_Script_NPT`;
+CREATE TABLE `usuarios` (
+`idUsuario` INT,
+`nick` VARCHAR(64),
+`nombre` VARCHAR(64),
+`correo` VARCHAR(64),
+`password` VARCHAR(64),
+`edad` VARCHAR(64),
+`perfil` VARCHAR(64),
+`diaRegistro` DATETIME,
+PRIMARY KEY (`idUsuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `jugadores` (
+`idUsuarioJugador` INT,
+`organizador` BOOL,
+PRIMARY KEY (`idUsuarioJugador`)
+) CHARACTER SET latin1;
+CREATE TABLE `torneos` (
+`idTorneo` INT,
+`nombre` VARCHAR(64),
+`precioInscripcion` DECIMAL(10,2),
+`premio` DECIMAL(10,2),
+`maxJugadores` INT,
+`numMaxJugadoresEquipo` INT,
+`inscritos` INT,
+`fechaInicio` DATETIME,
+`fechaFin` DATETIME,
+`numRondas` VARCHAR(64),
+`idOrganizador` INT,
+PRIMARY KEY (`idTorneo`)
+) CHARACTER SET latin1;
+CREATE TABLE `equipos` (
+`idEquipo` INT,
+`nombre` VARCHAR(64),
+`maxJugadores` INT,
+`numJugadores` INT,
+`idCreadorEquipo` INT,
+PRIMARY KEY (`idEquipo`)
+) CHARACTER SET latin1;
+CREATE TABLE `juegos` (
+`idJuego` INT,
+`nombre` VARCHAR(64),
+`edadMinima` VARCHAR(64),
+`tipo` VARCHAR(64),
+`descripcion` VARCHAR(64),
+`imagenJuego` VARCHAR(64),
+`idAdministrador` INT,
+PRIMARY KEY (`idJuego`)
+) CHARACTER SET latin1;
+CREATE TABLE `plataformas` (
+`idPlataforma` INT,
+`nombre` VARCHAR(64),
+`imagenPlataforma` VARCHAR(64),
+`idAdministrador` INT,
+PRIMARY KEY (`idPlataforma`)
+) CHARACTER SET latin1;
+CREATE TABLE `inscripcionJugadores` (
+`idTorneo` INT,
+`idUsuarioJugador` INT,
+PRIMARY KEY (`idTorneo`, `idUsuarioJugador`)
+) CHARACTER SET latin1;
+CREATE TABLE `equipoJugador` (
+`idEquipo` INT,
+`idUsuarioJugador` INT,
+PRIMARY KEY (`idEquipo`, `idUsuarioJugador`)
+) CHARACTER SET latin1;
+CREATE TABLE `inscripcionEquipo` (
+`idTorneo` INT,
+`idEquipo` INT,
+PRIMARY KEY (`idTorneo`, `idEquipo`)
+) CHARACTER SET latin1;
+CREATE TABLE `juegoTorneo` (
+`idTorneo` INT,
+`idJuego` INT,
+`idPlataforma` INT,
+PRIMARY KEY (`idTorneo`, `idJuego`, `idPlataforma`)
+) CHARACTER SET latin1;
+CREATE TABLE `partidas` (
+`idPartida` INT,
+`idTorneo` INT,
+`Ganador` INT,
+`Resultado` VARCHAR(64),
+`Ronda` VARCHAR(64),
+PRIMARY KEY (`idPartida`)
+) CHARACTER SET latin1;
+CREATE TABLE `partidasEquipos` (
+`idPartida` INT,
+`idEquipo1` INT,
+`idEquipo2` INT,
+PRIMARY KEY (`idPartida`, `idEquipo1`, `idEquipo2`)
+) CHARACTER SET latin1;
+CREATE TABLE `partidasIndividuales` (
+`idPartida` INT,
+`idJugador` INT,
+PRIMARY KEY (`idPartida`, `idJugador`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_299468_Script_NPT') AS relationships;
+relationships
+Database: db_299468_Script_NPT
+
+Table Connections:
+------------------
+[Implied]  equipoJugador.idEquipo -> equipos.idEquipo
+[Implied]  equipoJugador.idUsuarioJugador -> jugadores.idUsuarioJugador
+[Implied]  inscripcionEquipo.idEquipo -> equipos.idEquipo
+[Implied]  inscripcionEquipo.idTorneo -> torneos.idTorneo
+[Implied]  inscripcionJugadores.idTorneo -> torneos.idTorneo
+[Implied]  inscripcionJugadores.idUsuarioJugador -> jugadores.idUsuarioJugador
+[Implied]  juegoTorneo.idJuego -> juegos.idJuego
+[Implied]  juegoTorneo.idPlataforma -> plataformas.idPlataforma
+[Implied]  juegoTorneo.idTorneo -> torneos.idTorneo
+[Implied]  partidas.idTorneo -> torneos.idTorneo
+[Implied]  partidasEquipos.idPartida -> partidas.idPartida
+[Implied]  partidasIndividuales.idJugador -> jugadores.idUsuarioJugador
+[Implied]  partidasIndividuales.idPartida -> partidas.idPartida
+
+DROP DATABASE `db_299468_Script_NPT`;
+UNINSTALL EXTENSION vsql_schematron;

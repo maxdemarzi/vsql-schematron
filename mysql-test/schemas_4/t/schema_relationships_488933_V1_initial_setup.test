@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 488933_V1__initial_setup
+--echo #
+CREATE DATABASE `db_488933_V1_initial_setup`;
+USE `db_488933_V1_initial_setup`;
+
+CREATE TABLE `ptah_addresses` (
+  `id` INT,
+  `street` VARCHAR(64),
+  `city` VARCHAR(64),
+  `postal_code` VARCHAR(64),
+  `region` VARCHAR(64),
+  `country_code` VARCHAR(64),
+  `country` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ptah_group_definitions` (
+  `id` INT,
+  `identifier` VARCHAR(64),
+  `description` VARCHAR(64),
+  `minimal_size` INT,
+  `maximal_size` INT,
+  `number_of_meetings` INT,
+  `frequency` VARCHAR(64),
+  `adjustment` VARCHAR(64),
+  `created_on` DATETIME,
+  `created_by` VARCHAR(64),
+  `last_modified_on` DATETIME,
+  `last_modified_by` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ptah_groups` (
+  `id` INT,
+  `identifier` VARCHAR(64),
+  `group_definition_id` INT,
+  `a_name` VARCHAR(64),
+  `leaders` VARCHAR(64),
+  `members` VARCHAR(64),
+  `office` VARCHAR(64),
+  `assigned_employee` VARCHAR(64),
+  `weekday` INT,
+  `group_status` VARCHAR(64),
+  `current_cycle` INT,
+  `address_id` INT,
+  `created_on` DATETIME,
+  `created_by` VARCHAR(64),
+  `last_modified_on` DATETIME,
+  `last_modified_by` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ptah_group_commands` (
+  `id` INT,
+  `group_id` INT,
+  `a_action` VARCHAR(64),
+  `note` VARCHAR(64),
+  `created_on` DATETIME,
+  `created_by` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ptah_meetings` (
+  `id` INT,
+  `group_id` INT,
+  `meeting_sequence` INT,
+  `current_cycle` INT,
+  `scheduled_for` DATETIME,
+  `held_on` DATETIME,
+  `duration` INT,
+  `created_on` DATETIME,
+  `created_by` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ptah_attendees` (
+  `id` INT,
+  `meeting_id` INT,
+  `customer_identifier` VARCHAR(64),
+  `a_status` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_488933_V1_initial_setup') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_488933_V1_initial_setup') AS relationships;
+DROP DATABASE `db_488933_V1_initial_setup`;
+UNINSTALL EXTENSION vsql_schematron;

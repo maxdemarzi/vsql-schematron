@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 162549_V1__Init_DB
+#
+CREATE DATABASE `db_162549_V1_Init_DB`;
+USE `db_162549_V1_Init_DB`;
+CREATE TABLE `usr` (
+`id` INT,
+`email` VARCHAR(64),
+`mobile` VARCHAR(64),
+`password` VARCHAR(64),
+`role` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `client` (
+`id` INT,
+`email` VARCHAR(64),
+`mobile` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ord` (
+`id` INT,
+`number` VARCHAR(64),
+`state` INT,
+`date_delivery` DATETIME,
+`id_client` INT,
+`address` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `task_call` (
+`id` INT,
+`state` INT,
+`description` VARCHAR(64),
+`date_create` DATETIME,
+`id_ord` INT,
+`id_courier` INT,
+`id_operator` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_162549_V1_Init_DB') AS relationships;
+relationships
+Database: db_162549_V1_Init_DB
+
+Table Connections:
+------------------
+[Implied]  ord.id_client -> client.id
+[Implied]  task_call.id_operator -> client.id
+[Implied]  task_call.id_ord -> ord.id
+
+DROP DATABASE `db_162549_V1_Init_DB`;
+UNINSTALL EXTENSION vsql_schematron;

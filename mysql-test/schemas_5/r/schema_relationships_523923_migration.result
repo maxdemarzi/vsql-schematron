@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 523923_migration
+#
+CREATE DATABASE `db_523923_migration`;
+USE `db_523923_migration`;
+CREATE TABLE `organizations` (
+`id` INT,
+`name` VARCHAR(64),
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`creatorId` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`published` DATETIME,
+`creatorId` INT,
+`organizationId` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`description` VARCHAR(64),
+`creatorId` INT,
+`postId` INT,
+`issueId` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reactions` (
+`id` INT,
+`kind` VARCHAR(64),
+`creatorId` INT,
+`postId` INT,
+`issueId` INT,
+`commentId` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_orgSubscriptions` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_issueSubscriptions` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_postSubscriptions` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_523923_migration') AS relationships;
+relationships
+Database: db_523923_migration
+
+Table Connections:
+------------------
+[Implied]  comments.postId -> posts.id
+[Implied]  posts.organizationId -> organizations.id
+[Implied]  reactions.commentId -> comments.id
+[Implied]  reactions.postId -> posts.id
+
+DROP DATABASE `db_523923_migration`;
+UNINSTALL EXTENSION vsql_schematron;

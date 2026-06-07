@@ -1,0 +1,109 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 518086_20180909195455_create_initial_models
+#
+CREATE DATABASE `db_518086_20180909195455_create_initial_models`;
+USE `db_518086_20180909195455_create_initial_models`;
+CREATE TABLE `public.acc_users` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`name` VARCHAR(64),
+`encrypted_password` VARCHAR(64),
+`discord` VARCHAR(64),
+`twitch` VARCHAR(64),
+`twitter` VARCHAR(64),
+`timezone` VARCHAR(64),
+`admin` BOOL,
+`avatar_object_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.acc_organizations` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`name` VARCHAR(64),
+`owner_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.inv_series` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.inv_games` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`name` VARCHAR(64),
+`series_number` VARCHAR(64),
+`twitch_id` VARCHAR(64),
+`series_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.inv_categories` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`name` VARCHAR(64),
+`rules` VARCHAR(64),
+`game_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.ev_events` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`name` VARCHAR(64),
+`start_date` DATETIME,
+`end_date` DATETIME,
+`organization_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.ev_submissions` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`event_id` INT,
+`account_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.ev_sub_runs` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`estimate_ms` INT,
+`pb_ms` INT,
+`submission_id` INT,
+`category_id` INT,
+`game_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.ev_sub_options` (
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`string` VARCHAR(64),
+`int` INT,
+`float` DECIMAL(10,2),
+`boolean` BOOL,
+`submission_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_518086_20180909195455_create_initial_models') AS relationships;
+relationships
+Database: db_518086_20180909195455_create_initial_models
+
+Table Connections:
+------------------
+[Implied]  public.ev_sub_options.submission_id -> public.ev_submissions.id
+[Implied]  public.ev_sub_runs.submission_id -> public.ev_submissions.id
+[Implied]  public.ev_submissions.event_id -> public.ev_events.id
+[Implied]  public.inv_games.series_id -> public.inv_series.id
+
+DROP DATABASE `db_518086_20180909195455_create_initial_models`;
+UNINSTALL EXTENSION vsql_schematron;

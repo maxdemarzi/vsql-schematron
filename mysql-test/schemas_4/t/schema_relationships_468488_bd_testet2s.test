@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 468488_bd_testet2s
+--echo #
+CREATE DATABASE `db_468488_bd_testet2s`;
+USE `db_468488_bd_testet2s`;
+
+CREATE TABLE `tb_container` (
+  `cd_container` INT,
+  `nm_cliente_container` VARCHAR(64),
+  `nm_controle_container` VARCHAR(64),
+  `nm_tipo_container` VARCHAR(64),
+  `nm_status_container` VARCHAR(64),
+  `nm_categoria_container` VARCHAR(64),
+  PRIMARY KEY (`cd_container`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_movimentacao` (
+  `cd_movimentacao` INT,
+  `nm_navio_movimentacao` VARCHAR(64),
+  `nm_tipo_movimentacao` VARCHAR(64),
+  `nm_inicio_movimentacao` VARCHAR(64),
+  `nm_fim_movimentacao` VARCHAR(64),
+  `cd_container` VARCHAR(64),
+  PRIMARY KEY (`cd_movimentacao`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_468488_bd_testet2s') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_468488_bd_testet2s') AS relationships;
+DROP DATABASE `db_468488_bd_testet2s`;
+UNINSTALL EXTENSION vsql_schematron;

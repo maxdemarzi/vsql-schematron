@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 524867_migration
+#
+CREATE DATABASE `db_524867_migration`;
+USE `db_524867_migration`;
+CREATE TABLE `Match` (
+`id` INT,
+`matchResult` INT,
+`screenshotPath` VARCHAR(64),
+`teamId1` INT,
+`teamId2` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PlayerH` (
+`id` INT,
+`playerId` INT,
+`skillLevel` DECIMAL(10,2),
+`userTag` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Players` (
+`id` INT,
+`userId` VARCHAR(64),
+`skillLevel` DECIMAL(10,2),
+`userTag` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Team` (
+`id` INT,
+`teamName` VARCHAR(64),
+`playerId1` INT,
+`playerId2` INT,
+`playerId3` INT,
+`playerId4` INT,
+`playerId5` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_524867_migration') AS relationships;
+relationships
+Database: db_524867_migration
+
+Table Connections:
+------------------
+[Implied]  Match.teamId1 -> Team.id
+[Implied]  Match.teamId2 -> Team.id
+[Implied]  PlayerH.playerId -> Players.id
+
+DROP DATABASE `db_524867_migration`;
+UNINSTALL EXTENSION vsql_schematron;

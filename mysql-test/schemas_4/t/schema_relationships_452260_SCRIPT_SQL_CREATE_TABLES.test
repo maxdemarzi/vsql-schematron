@@ -1,0 +1,125 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 452260_SCRIPT_SQL_CREATE_TABLES
+--echo #
+CREATE DATABASE `db_452260_SCRIPT_SQL_CREATE_TABLES`;
+USE `db_452260_SCRIPT_SQL_CREATE_TABLES`;
+
+CREATE TABLE `direcao` (
+  `IdDirecao` INT,
+  `DataCriacao` DATETIME,
+  `Movimento` VARCHAR(64),
+  PRIMARY KEY (`IdDirecao`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sensor` (
+  `IdSensor` INT,
+  `Nome` VARCHAR(64),
+  `DataCriacao` DATETIME,
+  `Inicial` BOOL,
+  `IdSensorAnterior` INT,
+  `IdDirecao` INT,
+  `DirecaoRota` VARCHAR(64),
+  `HashNum` VARCHAR(64),
+  `Ativo` BOOL,
+  PRIMARY KEY (`IdSensor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `local` (
+  `IdLocal` INT,
+  `Nome` VARCHAR(64),
+  `IdSensor` INT,
+  `DataCriacao` DATETIME,
+  `Ativo` BOOL,
+  PRIMARY KEY (`IdLocal`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `item` (
+  `IdItem` INT,
+  `Nome` VARCHAR(64),
+  `Ativo` BOOL,
+  `DataCriacao` DATETIME,
+  PRIMARY KEY (`IdItem`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuario` (
+  `IdUsuario` INT,
+  `Nome` VARCHAR(64),
+  `DataCriacao` DATETIME,
+  `Ativo` BOOL,
+  `Idade` INT,
+  `Senha` VARCHAR(64),
+  PRIMARY KEY (`IdUsuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rota` (
+  `IdRota` INT,
+  `IdSensorInicial` INT,
+  `IdSensorFinal` INT,
+  `DataCriacao` DATETIME,
+  `Rota` VARCHAR(64),
+  PRIMARY KEY (`IdRota`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pedido` (
+  `IdPedido` INT,
+  `IdUsuario` INT,
+  `DataCriacao` DATETIME,
+  `IdRota` INT,
+  `Ativo` BOOL,
+  `PedidoEntregue` BOOL,
+  PRIMARY KEY (`IdPedido`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PedidoXItem` (
+  `IdPedidoxItem` INT,
+  `IdPedido` INT,
+  `IdItem` INT,
+  `Quantidade` INT,
+  PRIMARY KEY (`IdPedidoxItem`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `grupo` (
+  `IdGrupo` INT,
+  `Nome` VARCHAR(64),
+  PRIMARY KEY (`IdGrupo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GrupoXUsuario` (
+  `IdGrupoXUsuario` INT,
+  `IdGrupo` INT,
+  `IdUsuario` INT,
+  PRIMARY KEY (`IdGrupoXUsuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `carrinho` (
+  `IdCarrinho` INT,
+  `Nome` VARCHAR(64),
+  `IdPedido` INT,
+  `Disponivel` BOOL,
+  `IdUltimoSensor` INT,
+  `HashRota` VARCHAR(64),
+  `DataCriacao` DATETIME,
+  PRIMARY KEY (`IdCarrinho`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_452260_SCRIPT_SQL_CREATE_TABLES') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_452260_SCRIPT_SQL_CREATE_TABLES') AS relationships;
+DROP DATABASE `db_452260_SCRIPT_SQL_CREATE_TABLES`;
+UNINSTALL EXTENSION vsql_schematron;

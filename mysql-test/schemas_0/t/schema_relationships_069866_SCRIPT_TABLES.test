@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 069866_SCRIPT_TABLES
+--echo #
+CREATE DATABASE `db_069866_SCRIPT_TABLES`;
+USE `db_069866_SCRIPT_TABLES`;
+
+CREATE TABLE `AGENT` (
+  `EMP_ID` VARCHAR(64),
+  `A_NAME` VARCHAR(64),
+  `EMAIL` VARCHAR(64),
+  `A_LOC_ADD` VARCHAR(64),
+  PRIMARY KEY (`EMP_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `A_REGION` (
+  `A_LOC_ADD` VARCHAR(64),
+  `A_REG` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CUSTOMER` (
+  `C_SSN` VARCHAR(64),
+  `C_NAME` VARCHAR(64),
+  `EMAIL` VARCHAR(64),
+  `C_LOC_ADD` VARCHAR(64),
+  `EMP_ID` VARCHAR(64),
+  PRIMARY KEY (`C_SSN`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `C_REGION` (
+  `C_LOC_ADD` VARCHAR(64),
+  `C_REG` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `NOMINEE` (
+  `N_SSN` VARCHAR(64),
+  `N_NAME` VARCHAR(64),
+  `EMAIL` VARCHAR(64),
+  `N_LOC_ADD` VARCHAR(64),
+  `C_SSN` VARCHAR(64),
+  PRIMARY KEY (`N_SSN`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `N_REGION` (
+  `N_LOC_ADD` VARCHAR(64),
+  `N_REG` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `INSURANCE` (
+  `I_ID` VARCHAR(64),
+  `PREMIUM` DECIMAL(10,2),
+  `ISSUE_DT` DATETIME,
+  `EXPIRY_DT` DATETIME,
+  `C_SSN` VARCHAR(64),
+  `EMP_ID` VARCHAR(64),
+  PRIMARY KEY (`I_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `HEALTH` (
+  `I_ID` VARCHAR(64),
+  `BMI` DECIMAL(10,2),
+  `GENETIC_DIS` VARCHAR(64),
+  `GEN_PHYS` VARCHAR(64),
+  PRIMARY KEY (`I_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TRAVEL` (
+  `I_ID` VARCHAR(64),
+  `MODE_T` VARCHAR(64),
+  `REGION` VARCHAR(64),
+  `DURATION` VARCHAR(64),
+  PRIMARY KEY (`I_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_069866_SCRIPT_TABLES') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_069866_SCRIPT_TABLES') AS relationships;
+DROP DATABASE `db_069866_SCRIPT_TABLES`;
+UNINSTALL EXTENSION vsql_schematron;

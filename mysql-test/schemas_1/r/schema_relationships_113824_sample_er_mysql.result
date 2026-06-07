@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 113824_sample-er-mysql
+#
+CREATE DATABASE `db_113824_sample_er_mysql`;
+USE `db_113824_sample_er_mysql`;
+CREATE TABLE `User` (
+`userId` INT,
+`username` VARCHAR(64),
+`name` VARCHAR(64),
+`birthday` DATETIME,
+`avatar` VARCHAR(64),
+`active` BOOL,
+`countryId` INT,
+`alternativeCountryId` INT,
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Country` (
+`theCountryId` INT,
+`code` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`theCountryId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Permission` (
+`permissionId` INT,
+`code` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`permissionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tree` (
+`treeId` INT,
+`headNodeId` INT,
+PRIMARY KEY (`treeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `TreeNode` (
+`treeNodeId` INT,
+`value` INT,
+`parentId` INT,
+PRIMARY KEY (`treeNodeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserPermission` (
+`userPermissionId` INT,
+`userId` INT,
+`permissionId` INT,
+PRIMARY KEY (`userPermissionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Follows` (
+`followsId` INT,
+`followerId` INT,
+`followId` INT,
+PRIMARY KEY (`followsId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_113824_sample_er_mysql') AS relationships;
+relationships
+Database: db_113824_sample_er_mysql
+
+Table Connections:
+------------------
+[Implied]  Follows.followerId -> User.userId
+[Implied]  TreeNode.parentId -> TreeNode.treeNodeId
+[Implied]  User.alternativeCountryId -> Country.theCountryId
+[Implied]  User.countryId -> Country.theCountryId
+[Implied]  UserPermission.permissionId -> Permission.permissionId
+[Implied]  UserPermission.userId -> User.userId
+
+DROP DATABASE `db_113824_sample_er_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

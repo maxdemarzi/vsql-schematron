@@ -1,0 +1,158 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 385955_schema
+#
+CREATE DATABASE `db_385955_schema`;
+USE `db_385955_schema`;
+CREATE TABLE `user` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`provider` BOOL,
+`admin` BOOL,
+`created_at` DATETIME,
+`last_online_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `service` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`price` INT,
+`price_detail` VARCHAR(64),
+`active` BOOL,
+`available_always` BOOL,
+`visited_amount` INT,
+`created_at` DATETIME,
+`provider_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `service_review` (
+`service_id` INT,
+`user_id` INT,
+`created_at` DATETIME,
+`rating` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`service_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+`id` INT,
+`status` VARCHAR(64),
+`created_at` DATETIME,
+`last_action_at` DATETIME,
+`offer_at` DATETIME,
+`work_at` DATETIME,
+`end_at` DATETIME,
+`service_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_place` (
+`id` INT,
+`address` VARCHAR(64),
+`title` VARCHAR(64),
+`zip` VARCHAR(64),
+`country` VARCHAR(64),
+`area` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `service_image` (
+`id` INT,
+`image_url` VARCHAR(64),
+`created_at` DATETIME,
+`service_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `service_tag` (
+`tag_id` INT,
+`service_id` INT,
+PRIMARY KEY (`tag_id`, `service_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `search_tag` (
+`name` VARCHAR(64),
+`amount` INT,
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `provider_detail` (
+`user_id` INT,
+`name` VARCHAR(64),
+`business_id` VARCHAR(64),
+`logo_url` VARCHAR(64),
+`reliable` BOOL,
+`media_website` VARCHAR(64),
+`media_facebook` VARCHAR(64),
+`media_twitter` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+`user_id` INT,
+`address` VARCHAR(64),
+`zip` INT,
+`city` VARCHAR(64),
+`country` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_message` (
+`id` INT,
+`title` VARCHAR(64),
+`message` VARCHAR(64),
+`created_at` DATETIME,
+`user_id` INT,
+`order_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `search` (
+`id` INT,
+`name` VARCHAR(64),
+`search_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `service_visit` (
+`user_id` INT,
+`service_id` INT,
+PRIMARY KEY (`user_id`, `service_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_detail` (
+`user_id` INT,
+`image_url` VARCHAR(64),
+`language` VARCHAR(64),
+`contact_by_email` BOOL,
+`contact_by_phone` BOOL,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_385955_schema') AS relationships;
+relationships
+Database: db_385955_schema
+
+Table Connections:
+------------------
+[Implied]  address.user_id -> user.id
+[Implied]  order.service_id -> service.id
+[Implied]  order.user_id -> user_detail.user_id
+[Implied]  order_message.order_id -> order.id
+[Implied]  order_message.user_id -> user_detail.user_id
+[Implied]  provider_detail.user_id -> user.id
+[Implied]  service.provider_id -> provider_detail.user_id
+[Implied]  service_image.service_id -> service.id
+[Implied]  service_review.service_id -> service.id
+[Implied]  service_review.user_id -> user_detail.user_id
+[Implied]  service_tag.service_id -> service.id
+[Implied]  service_tag.tag_id -> tag.id
+[Implied]  service_visit.service_id -> service.id
+[Implied]  service_visit.user_id -> user_detail.user_id
+[Implied]  user.provider -> user.id
+[Implied]  user_detail.user_id -> user.id
+[Implied]  user_place.user_id -> user_detail.user_id
+
+DROP DATABASE `db_385955_schema`;
+UNINSTALL EXTENSION vsql_schematron;

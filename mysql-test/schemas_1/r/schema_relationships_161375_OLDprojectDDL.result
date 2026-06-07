@@ -1,0 +1,176 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 161375_OLDprojectDDL
+#
+CREATE DATABASE `db_161375_OLDprojectDDL`;
+USE `db_161375_OLDprojectDDL`;
+CREATE TABLE `Restaurant` (
+`rid` INT,
+`rname` VARCHAR(64),
+`raddress` VARCHAR(64),
+`rminCost` DECIMAL(10,2),
+`rimage` VARCHAR(64),
+PRIMARY KEY (`rid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Food` (
+`fid` INT,
+`fname` VARCHAR(64),
+`fprice` DECIMAL(10,2),
+`favailable` BOOL,
+`flimit` INT,
+`fimage` VARCHAR(64),
+`rid` INT,
+PRIMARY KEY (`fid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Category` (
+`cid` INT,
+`cname` VARCHAR(64),
+PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Order_List` (
+`ocid` INT,
+`oorder_place_time` DATETIME,
+`oorder_enroute_restaurant` DATETIME,
+`oorder_arrives_restaurant` DATETIME,
+`oorder_enroute_customer` DATETIME,
+`oorder_arrives_customer` DATETIME,
+`odelivery_fee` DECIMAL(10,2),
+`ofinal_price` DECIMAL(10,2),
+`opayment_type` VARCHAR(64),
+`orating` INT,
+`ostatus` VARCHAR(64),
+`delivery_address` VARCHAR(64),
+`zipcode` VARCHAR(64),
+`area` VARCHAR(64),
+PRIMARY KEY (`ocid`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_contains` (
+`unit_price` DECIMAL(10,2),
+`quantity` INT,
+`total_price` DECIMAL(10,2),
+`fid` INT,
+`ocid` INT
+) CHARACTER SET latin1;
+CREATE TABLE `make_order` (
+`rest_rating` INT,
+`review_text` VARCHAR(64),
+`ocid` INT,
+`rid` INT,
+`cid` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Promotion` (
+`pid` INT,
+`pisPercentage` BOOL,
+`pdatetime_active_from` DATETIME,
+`pdatetime_active_to` DATETIME,
+`pminSpend` DECIMAL(10,2),
+`pdiscount_val` DECIMAL(10,2),
+`pname` VARCHAR(64),
+`pdescription` VARCHAR(64),
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Coupon` (
+`cid` INT,
+`couponCode` VARCHAR(64),
+PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `coupon_wallet` (
+`custid` INT,
+`cid` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Campaign` (
+`pid` INT,
+`cMon` BOOL,
+`cTue` BOOL,
+`cWed` BOOL,
+`cThu` BOOL,
+`cFri` BOOL,
+`cSat` BOOL,
+`cSun` BOOL,
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Offer_On` (
+`fid` INT,
+`pid` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Customer` (
+`cid` INT,
+`cname` VARCHAR(64),
+`ccontact_number` VARCHAR(64),
+`cusername` VARCHAR(64),
+`cpassword` VARCHAR(64),
+`cjoin_time` DATETIME,
+`crewards_points` INT,
+PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Address` (
+`address_line` VARCHAR(64),
+`zipcode` INT,
+`cid` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Credit_Card` (
+`ccid` INT,
+`card_number` VARCHAR(64),
+`expiry_date` DATETIME,
+`cvv` VARCHAR(64),
+`cid` INT,
+PRIMARY KEY (`ccid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rider` (
+`rid` INT,
+`rname` VARCHAR(64),
+`rusername` VARCHAR(64),
+`rpassword` VARCHAR(64),
+`rtotal_salary` DECIMAL(10,2),
+PRIMARY KEY (`rid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Hour_Block` (
+`hid` INT,
+`start_time` INT,
+`end_time` INT,
+PRIMARY KEY (`hid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Manager` (
+`mid` INT,
+`mname` VARCHAR(64),
+`musername` VARCHAR(64),
+`mpassword` VARCHAR(64),
+PRIMARY KEY (`mid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_161375_OLDprojectDDL') AS relationships;
+relationships
+Database: db_161375_OLDprojectDDL
+
+Table Connections:
+------------------
+[Implied]  Address.cid -> Category.cid
+[Implied]  Address.cid -> Coupon.cid
+[Implied]  Address.cid -> Customer.cid
+[Implied]  Credit_Card.cid -> Category.cid
+[Implied]  Credit_Card.cid -> Coupon.cid
+[Implied]  Credit_Card.cid -> Customer.cid
+[Implied]  Food.rid -> Restaurant.rid
+[Implied]  Food.rid -> Rider.rid
+[Implied]  Offer_On.fid -> Food.fid
+[Implied]  Offer_On.pid -> Promotion.pid
+[Implied]  coupon_wallet.cid -> Category.cid
+[Implied]  coupon_wallet.cid -> Coupon.cid
+[Implied]  coupon_wallet.cid -> Customer.cid
+[Implied]  coupon_wallet.custid -> Customer.cid
+[Implied]  make_order.cid -> Category.cid
+[Implied]  make_order.cid -> Coupon.cid
+[Implied]  make_order.cid -> Customer.cid
+[Implied]  make_order.ocid -> Category.cid
+[Implied]  make_order.ocid -> Coupon.cid
+[Implied]  make_order.ocid -> Customer.cid
+[Implied]  make_order.ocid -> Order_List.ocid
+[Implied]  make_order.rid -> Restaurant.rid
+[Implied]  make_order.rid -> Rider.rid
+[Implied]  order_contains.fid -> Food.fid
+[Implied]  order_contains.ocid -> Category.cid
+[Implied]  order_contains.ocid -> Coupon.cid
+[Implied]  order_contains.ocid -> Customer.cid
+[Implied]  order_contains.ocid -> Order_List.ocid
+
+DROP DATABASE `db_161375_OLDprojectDDL`;
+UNINSTALL EXTENSION vsql_schematron;

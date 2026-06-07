@@ -1,0 +1,108 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 030443_h2-create-all
+#
+CREATE DATABASE `db_030443_h2_create_all`;
+USE `db_030443_h2_create_all`;
+CREATE TABLE `o_address` (
+`id` INT,
+`line1` VARCHAR(64),
+`line2` VARCHAR(64),
+`city` VARCHAR(64),
+`country_code` VARCHAR(64),
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `be_contact` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`phone` VARCHAR(64),
+`customer_id` INT,
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contact_note` (
+`id` INT,
+`contact_id` INT,
+`title` VARCHAR(64),
+`note` VARCHAR(64),
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `o_country` (
+`code` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+CREATE TABLE `be_customer` (
+`id` INT,
+`inactive` BOOL,
+`name` VARCHAR(64),
+`registered` DATETIME,
+`comments` VARCHAR(64),
+`billing_address_id` INT,
+`shipping_address_id` INT,
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `o_order` (
+`id` INT,
+`status` VARCHAR(64),
+`order_date` DATETIME,
+`ship_date` DATETIME,
+`customer_id` INT,
+`shipping_address_id` INT,
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `o_order_detail` (
+`id` INT,
+`order_id` INT,
+`order_qty` INT,
+`ship_qty` INT,
+`unit_price` DECIMAL(10,2),
+`product_id` INT,
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `o_product` (
+`id` INT,
+`sku` VARCHAR(64),
+`name` VARCHAR(64),
+`version` INT,
+`when_created` DATETIME,
+`when_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_030443_h2_create_all') AS relationships;
+relationships
+Database: db_030443_h2_create_all
+
+Table Connections:
+------------------
+[Implied]  be_contact.customer_id -> be_customer.id
+[Implied]  be_customer.billing_address_id -> o_address.id
+[Implied]  be_customer.shipping_address_id -> o_address.id
+[Implied]  contact_note.contact_id -> be_customer.id
+[Implied]  o_address.country_code -> o_country.code
+[Implied]  o_order.customer_id -> be_customer.id
+[Implied]  o_order.shipping_address_id -> o_address.id
+[Implied]  o_order_detail.order_id -> o_order.id
+[Implied]  o_order_detail.product_id -> o_product.id
+
+DROP DATABASE `db_030443_h2_create_all`;
+UNINSTALL EXTENSION vsql_schematron;

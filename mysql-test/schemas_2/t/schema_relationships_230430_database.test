@@ -1,0 +1,114 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 230430_database
+--echo #
+CREATE DATABASE `db_230430_database`;
+USE `db_230430_database`;
+
+CREATE TABLE `admin` (
+  `admin_id` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`admin_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `app` (
+  `student_id` VARCHAR(64),
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  `gpa` INT,
+  `degree` VARCHAR(64),
+  `phoneNumber` VARCHAR(64),
+  `email` VARCHAR(64),
+  `graduateDate` DATETIME,
+  `workPlace` VARCHAR(64),
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comment` (
+  `student_id` VARCHAR(64),
+  `faculty_id` VARCHAR(64),
+  `comment` VARCHAR(64),
+  PRIMARY KEY (`student_id`, `faculty_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course` (
+  `courseName` VARCHAR(64),
+  `deptment` VARCHAR(64),
+  PRIMARY KEY (`courseName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `curTeach` (
+  `student_id` VARCHAR(64),
+  `courseName` VARCHAR(64),
+  PRIMARY KEY (`student_id`, `courseName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `graduate` (
+  `student_id` VARCHAR(64),
+  `degree` VARCHAR(64),
+  `adviseName` VARCHAR(64),
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `instructor` (
+  `faculty_id` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`faculty_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `interStudent` (
+  `student_id` VARCHAR(64),
+  `score` VARCHAR(64),
+  `semester` VARCHAR(64),
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `likeTeach` (
+  `student_id` VARCHAR(64),
+  `courseName` VARCHAR(64),
+  `score` DECIMAL(10,2),
+  PRIMARY KEY (`student_id`, `courseName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `preTeach` (
+  `student_id` VARCHAR(64),
+  `courseName` VARCHAR(64),
+  PRIMARY KEY (`student_id`, `courseName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `undergraduate` (
+  `student_id` VARCHAR(64),
+  `program` VARCHAR(64),
+  `level` VARCHAR(64),
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `student` (
+  `student_id` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_230430_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_230430_database') AS relationships;
+DROP DATABASE `db_230430_database`;
+UNINSTALL EXTENSION vsql_schematron;

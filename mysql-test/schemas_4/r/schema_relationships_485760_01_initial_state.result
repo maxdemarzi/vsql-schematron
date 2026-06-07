@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 485760_01-initial-state
+#
+CREATE DATABASE `db_485760_01_initial_state`;
+USE `db_485760_01_initial_state`;
+CREATE TABLE `profiles` (
+`id` INT,
+`date_created` DATETIME,
+`date_updated` DATETIME,
+`username` VARCHAR(64),
+`display_name` VARCHAR(64),
+`description` VARCHAR(64),
+`profile_image_id` INT,
+`user_state` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`date_created` DATETIME,
+`date_updated` DATETIME,
+`public_id` INT,
+`content` VARCHAR(64),
+`owner_id` INT,
+`date_post_edited` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`date_created` DATETIME,
+`date_updated` DATETIME,
+`content` VARCHAR(64),
+`parent_post_id` INT,
+`owner_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mediae` (
+`id` INT,
+`data_created` DATETIME,
+`date_updated` DATETIME,
+`post_id` INT,
+`public_id` VARCHAR(64),
+`media_type` INT,
+`owner_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `accounts` (
+`id` INT,
+`data_created` DATETIME,
+`date_updated` DATETIME,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`profile_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts_liked_by_profiles` (
+`liked_posts_id` INT,
+`liking_profile_id` INT,
+PRIMARY KEY (`liked_posts_id`, `liking_profile_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `profiles_following_profile` (
+`follower_id` INT,
+`following_id` INT,
+PRIMARY KEY (`follower_id`, `following_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_485760_01_initial_state') AS relationships;
+relationships
+Database: db_485760_01_initial_state
+
+Table Connections:
+------------------
+[Implied]  accounts.profile_id -> profiles.id
+[Implied]  comments.owner_id -> accounts.id
+[Implied]  comments.owner_id -> profiles.id
+[Implied]  comments.parent_post_id -> comments.id
+[Implied]  comments.parent_post_id -> posts.id
+[Implied]  mediae.owner_id -> accounts.id
+[Implied]  mediae.owner_id -> profiles.id
+[Implied]  mediae.post_id -> posts.id
+[Implied]  posts.owner_id -> accounts.id
+[Implied]  posts.owner_id -> profiles.id
+[Implied]  posts_liked_by_profiles.liked_posts_id -> posts.id
+[Implied]  posts_liked_by_profiles.liking_profile_id -> accounts.id
+[Implied]  posts_liked_by_profiles.liking_profile_id -> profiles.id
+[Implied]  profiles_following_profile.follower_id -> accounts.id
+[Implied]  profiles_following_profile.follower_id -> profiles.id
+
+DROP DATABASE `db_485760_01_initial_state`;
+UNINSTALL EXTENSION vsql_schematron;

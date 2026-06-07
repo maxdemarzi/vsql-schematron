@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 458616_databaseFile
+#
+CREATE DATABASE `db_458616_databaseFile`;
+USE `db_458616_databaseFile`;
+CREATE TABLE `USERS` (
+`Email` VARCHAR(64),
+`Nickname` VARCHAR(64),
+`Password` VARCHAR(64),
+`Name` VARCHAR(64),
+`Surname` VARCHAR(64),
+`Banned` BOOL,
+PRIMARY KEY (`Email`)
+) CHARACTER SET latin1;
+CREATE TABLE `ROLES` (
+`RoleName` VARCHAR(64),
+PRIMARY KEY (`RoleName`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER_ROLES` (
+`UserID` VARCHAR(64),
+`RoleName` VARCHAR(64),
+PRIMARY KEY (`UserID`, `RoleName`)
+) CHARACTER SET latin1;
+CREATE TABLE `TOPICS` (
+`Id` INT,
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+`ImageLink` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `SUBTOPICS` (
+`Id` INT,
+`Title` VARCHAR(64),
+`Description` VARCHAR(64),
+`TopicID` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ARTICLES` (
+`Id` INT,
+`Title` VARCHAR(64),
+`HTMLCode` VARCHAR(64),
+`AuthorID` VARCHAR(64),
+`SubtopicID` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `COMMENTS` (
+`Id` INT,
+`Text` VARCHAR(64),
+`Date` DATETIME,
+`AuthorID` VARCHAR(64),
+`ArticleID` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `COMMENTS_VOTES` (
+`CommentID` INT,
+`AuthorID` VARCHAR(64),
+`is_like` BOOL,
+PRIMARY KEY (`CommentID`, `AuthorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `FORGOT_PASSWORD_TOKENS` (
+`Id` INT,
+`UserID` VARCHAR(64),
+`Token` VARCHAR(64),
+`expireDate` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_458616_databaseFile') AS relationships;
+relationships
+Database: db_458616_databaseFile
+
+Table Connections:
+------------------
+[Implied]  ARTICLES.AuthorID -> USERS.Email
+[Implied]  ARTICLES.SubtopicID -> SUBTOPICS.Id
+[Implied]  COMMENTS.ArticleID -> ARTICLES.Id
+[Implied]  COMMENTS.AuthorID -> USERS.Email
+[Implied]  COMMENTS_VOTES.AuthorID -> USERS.Email
+[Implied]  COMMENTS_VOTES.CommentID -> COMMENTS.Id
+[Implied]  FORGOT_PASSWORD_TOKENS.UserID -> USERS.Email
+[Implied]  SUBTOPICS.TopicID -> TOPICS.Id
+[Implied]  USER_ROLES.RoleName -> ROLES.RoleName
+[Implied]  USER_ROLES.UserID -> USERS.Email
+
+DROP DATABASE `db_458616_databaseFile`;
+UNINSTALL EXTENSION vsql_schematron;

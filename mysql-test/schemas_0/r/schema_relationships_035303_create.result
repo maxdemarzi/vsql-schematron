@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 035303_create
+#
+CREATE DATABASE `db_035303_create`;
+USE `db_035303_create`;
+CREATE TABLE `Movie` (
+`id` INT,
+`title` VARCHAR(64),
+`year` INT,
+`rating` VARCHAR(64),
+`company` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Actor` (
+`id` INT,
+`last` VARCHAR(64),
+`first` VARCHAR(64),
+`sex` VARCHAR(64),
+`dob` DATETIME,
+`dod` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Director` (
+`id` INT,
+`last` VARCHAR(64),
+`first` VARCHAR(64),
+`dob` DATETIME,
+`dod` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `MovieGenre` (
+`mid` INT,
+`genre` VARCHAR(64),
+PRIMARY KEY (`mid`, `genre`)
+) CHARACTER SET latin1;
+CREATE TABLE `MovieDirector` (
+`mid` INT,
+`did` INT,
+PRIMARY KEY (`mid`, `did`)
+) CHARACTER SET latin1;
+CREATE TABLE `MovieActor` (
+`mid` INT,
+`aid` INT,
+`role` VARCHAR(64),
+PRIMARY KEY (`mid`, `aid`, `role`)
+) CHARACTER SET latin1;
+CREATE TABLE `Review` (
+`name` VARCHAR(64),
+`time` DATETIME,
+`mid` INT,
+`rating` INT,
+`comment` VARCHAR(64),
+PRIMARY KEY (`name`, `time`)
+) CHARACTER SET latin1;
+CREATE TABLE `MaxPersonID` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `MaxMovieID` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_035303_create') AS relationships;
+relationships
+Database: db_035303_create
+
+Table Connections:
+------------------
+[Implied]  MovieActor.mid -> MovieDirector.mid
+[Implied]  MovieActor.mid -> MovieGenre.mid
+[Implied]  MovieDirector.mid -> MovieActor.mid
+[Implied]  MovieDirector.mid -> MovieGenre.mid
+[Implied]  MovieGenre.mid -> MovieActor.mid
+[Implied]  MovieGenre.mid -> MovieDirector.mid
+[Implied]  Review.mid -> MovieActor.mid
+[Implied]  Review.mid -> MovieDirector.mid
+[Implied]  Review.mid -> MovieGenre.mid
+
+DROP DATABASE `db_035303_create`;
+UNINSTALL EXTENSION vsql_schematron;

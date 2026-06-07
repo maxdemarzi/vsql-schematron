@@ -1,0 +1,119 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 688969_jwp_fossbat
+--echo #
+CREATE DATABASE `db_688969_jwp_fossbat`;
+USE `db_688969_jwp_fossbat`;
+
+CREATE TABLE `tb_akun` (
+  `id` INT,
+  `email` VARCHAR(64),
+  `nama` VARCHAR(64),
+  `password` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_berita` (
+  `id` INT,
+  `judul` VARCHAR(64),
+  `slug` VARCHAR(64),
+  `berita` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_gallery` (
+  `id` INT,
+  `nama_kegiatan` VARCHAR(64),
+  `deskripsi` VARCHAR(64),
+  `tanggal` DATETIME,
+  `foto` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_jadwal` (
+  `id` INT,
+  `tanggal` DATETIME,
+  `waktu` DATETIME,
+  `home` VARCHAR(64),
+  `away` VARCHAR(64),
+  `lokasi` VARCHAR(64),
+  `skor_home` INT,
+  `skor_away` INT,
+  `status` VARCHAR(64),
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_pemain` (
+  `id_pemain` INT,
+  `nama_lengkap` VARCHAR(64),
+  `nama_panggilan` VARCHAR(64),
+  `tempat_lahir` VARCHAR(64),
+  `tgl_lahir` DATETIME,
+  `alamat` VARCHAR(64),
+  `ssb` VARCHAR(64),
+  `nama_ayah` VARCHAR(64),
+  `nama_ibu` VARCHAR(64),
+  `gol_darah` VARCHAR(64),
+  `berat` INT,
+  `tinggi` INT,
+  `administrasi` VARCHAR(64),
+  `jenis_kelamin` VARCHAR(64),
+  `riwayat_sd` VARCHAR(64),
+  `riwayat_smp` VARCHAR(64),
+  `riwayat_ssb` VARCHAR(64),
+  `riwayat_kabupaten` VARCHAR(64),
+  `riwayat_provinsi` VARCHAR(64),
+  `riwayat_tahun` VARCHAR(64),
+  `riwayat_posisi` VARCHAR(64),
+  `prestasi_ssb` VARCHAR(64),
+  `prestasi_kompetisi` VARCHAR(64),
+  `prestasi` VARCHAR(64),
+  `prestasi_tahun` VARCHAR(64),
+  `prestasi_posisi` VARCHAR(64),
+  `foto` VARCHAR(64),
+  `qr` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_ssb` (
+  `id` INT,
+  `nama_ssb` VARCHAR(64),
+  `logo` VARCHAR(64),
+  `alamat` VARCHAR(64),
+  `tanggal_berdiri` DATETIME,
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_stadion` (
+  `id` INT,
+  `nama_stadion` VARCHAR(64),
+  `alamat` VARCHAR(64),
+  `link_map` VARCHAR(64),
+  `tanggal_berdiri` DATETIME,
+  `foto` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_688969_jwp_fossbat') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_688969_jwp_fossbat') AS relationships;
+DROP DATABASE `db_688969_jwp_fossbat`;
+UNINSTALL EXTENSION vsql_schematron;

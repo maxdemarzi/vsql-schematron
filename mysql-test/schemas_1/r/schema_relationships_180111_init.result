@@ -1,0 +1,132 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 180111_init
+#
+CREATE DATABASE `db_180111_init`;
+USE `db_180111_init`;
+CREATE TABLE `employees.employees` (
+`emp_no` INT,
+`birth_date` DATETIME,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`hire_date` DATETIME,
+`created_at` DATETIME,
+PRIMARY KEY (`emp_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees.departments` (
+`dept_no` VARCHAR(64),
+`dept_name` VARCHAR(64),
+`started_on` DATETIME,
+PRIMARY KEY (`dept_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees.dept_manager` (
+`dept_no` VARCHAR(64),
+`emp_no` INT,
+`from_date` DATETIME,
+`to_date` DATETIME,
+`extras` VARCHAR(64),
+`rating` INT,
+PRIMARY KEY (`emp_no`, `dept_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees.dept_emp` (
+`emp_no` INT,
+`dept_no` VARCHAR(64),
+`from_date` DATETIME,
+`to_date` DATETIME,
+PRIMARY KEY (`emp_no`, `dept_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderSystem.customers` (
+`customerNumber` INT,
+`customerName` VARCHAR(64),
+`contactLastName` VARCHAR(64),
+`contactFirstName` VARCHAR(64),
+`phone` VARCHAR(64),
+`addressLine1` VARCHAR(64),
+`addressLine2` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`postalCode` VARCHAR(64),
+`country` VARCHAR(64),
+`salesRepEmployeeNumber` INT,
+`creditLimit` DECIMAL(10,2),
+PRIMARY KEY (`customerNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderSystem.departments` (
+`id` INT,
+`dept_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderSystem.productLines` (
+`productLine` VARCHAR(64),
+`textDescription` VARCHAR(64),
+`htmlDescription` VARCHAR(64),
+`image` VARCHAR(64),
+PRIMARY KEY (`productLine`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderSystem.products` (
+`productCode` VARCHAR(64),
+`productName` VARCHAR(64),
+`productLine` VARCHAR(64),
+`productScale` VARCHAR(64),
+`productVendor` VARCHAR(64),
+`productDescription` VARCHAR(64),
+`quantityInStock` INT,
+`buyPrice` DECIMAL(10,2),
+`MSRP` DECIMAL(10,2),
+PRIMARY KEY (`productCode`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderSystem.orders` (
+`orderNumber` INT,
+`orderDate` DATETIME,
+`requiredDate` DATETIME,
+`shippedDate` DATETIME,
+`status` VARCHAR(64),
+`comments` VARCHAR(64),
+`customerNumber` INT,
+PRIMARY KEY (`orderNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderSystem.orderDetails` (
+`orderNumber` INT,
+`productCode` VARCHAR(64),
+`quantityOrdered` INT,
+`priceEach` DECIMAL(10,2),
+`orderLineNumber` INT,
+PRIMARY KEY (`orderNumber`, `productCode`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderSystem.payments` (
+`customerNumber` INT,
+`checkNumber` VARCHAR(64),
+`paymentDate` DATETIME,
+`amount` DECIMAL(10,2),
+PRIMARY KEY (`customerNumber`, `checkNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_service.privileges` (
+`id` INT,
+`privilege_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_service.employee_privileges` (
+`employee_id` INT,
+`privilege_id` INT,
+PRIMARY KEY (`employee_id`, `privilege_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_180111_init') AS relationships;
+relationships
+Database: db_180111_init
+
+Table Connections:
+------------------
+[Implied]  auth_service.employee_privileges.employee_id -> employees.employees.emp_no
+[Implied]  auth_service.employee_privileges.privilege_id -> auth_service.privileges.id
+[Implied]  employees.dept_emp.dept_no -> employees.departments.dept_no
+[Implied]  employees.dept_emp.emp_no -> employees.employees.emp_no
+[Implied]  employees.dept_manager.dept_no -> employees.departments.dept_no
+[Implied]  employees.dept_manager.emp_no -> employees.employees.emp_no
+[Implied]  orderSystem.orderDetails.orderNumber -> orderSystem.orders.orderNumber
+[Implied]  orderSystem.orderDetails.productCode -> orderSystem.products.productCode
+[Implied]  orderSystem.orders.customerNumber -> orderSystem.customers.customerNumber
+[Implied]  orderSystem.payments.customerNumber -> orderSystem.customers.customerNumber
+[Implied]  orderSystem.products.productLine -> orderSystem.productLines.productLine
+
+DROP DATABASE `db_180111_init`;
+UNINSTALL EXTENSION vsql_schematron;

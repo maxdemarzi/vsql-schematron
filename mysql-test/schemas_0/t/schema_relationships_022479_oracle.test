@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 022479_oracle
+--echo #
+CREATE DATABASE `db_022479_oracle`;
+USE `db_022479_oracle`;
+
+CREATE TABLE `t_gtr_departamento` (
+  `id_departamento` DECIMAL(10,2),
+  `nm_departamento` VARCHAR(64),
+  `dt_criacao` DATETIME,
+  `dt_atualizacao` DATETIME,
+  `dt_exclusao` DATETIME,
+  PRIMARY KEY (`id_departamento`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_gtr_funcionario` (
+  `id_funcionario` DECIMAL(10,2),
+  `id_departamento` DECIMAL(10,2),
+  `id_acesso` VARCHAR(64),
+  `nr_cpf_cnpj` VARCHAR(64),
+  `nm_funcionario` VARCHAR(64),
+  `ds_email` VARCHAR(64),
+  `ds_senha` VARCHAR(64),
+  `in_ativo` DECIMAL(10,2),
+  `st_primeiro_acesso` DECIMAL(10,2),
+  `dt_criacao` DATETIME,
+  `dt_atualizacao` DATETIME,
+  `dt_exclusao` DATETIME,
+  PRIMARY KEY (`id_funcionario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_gtr_reuniao` (
+  `id_reuniao` DECIMAL(10,2),
+  `id_gestor` DECIMAL(10,2),
+  `ds_reuniao` VARCHAR(64),
+  `in_status` VARCHAR(64),
+  `dt_criacao` DATETIME,
+  `dt_atualizacao` DATETIME,
+  `dt_exclusao` DATETIME,
+  PRIMARY KEY (`id_reuniao`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_gtr_tarefa` (
+  `id_tarefa` DECIMAL(10,2),
+  `id_funcionario` DECIMAL(10,2),
+  `id_reuniao` DECIMAL(10,2),
+  `ds_tarefa` VARCHAR(64),
+  `ob_tarefa` VARCHAR(64),
+  `in_status` VARCHAR(64),
+  `dt_criacao` DATETIME,
+  `dt_atualizacao` DATETIME,
+  `dt_exclusao` DATETIME,
+  PRIMARY KEY (`id_tarefa`, `id_funcionario`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_022479_oracle') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_022479_oracle') AS relationships;
+DROP DATABASE `db_022479_oracle`;
+UNINSTALL EXTENSION vsql_schematron;

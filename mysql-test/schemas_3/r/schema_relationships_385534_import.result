@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 385534_import
+#
+CREATE DATABASE `db_385534_import`;
+USE `db_385534_import`;
+CREATE TABLE `faculty` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `department` (
+`id` INT,
+`faculty` INT,
+`name` VARCHAR(64),
+`study_years` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`course_code` VARCHAR(64),
+`department` INT,
+`course_title` VARCHAR(64),
+`year` INT,
+PRIMARY KEY (`course_code`)
+) CHARACTER SET latin1;
+CREATE TABLE `lecturer` (
+`lec_no` VARCHAR(64),
+`name` VARCHAR(64),
+`department` INT,
+`password` VARCHAR(64),
+PRIMARY KEY (`lec_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `lecturer-course` (
+`lecturer` VARCHAR(64),
+`course` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`mat_no` VARCHAR(64),
+`name` VARCHAR(64),
+`department` INT,
+`year` INT,
+`password` VARCHAR(64),
+PRIMARY KEY (`mat_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `student-course` (
+`student` VARCHAR(64),
+`course` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `complaint` (
+`id` VARCHAR(64),
+`author` VARCHAR(64),
+`category` VARCHAR(64),
+`status` VARCHAR(64),
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`dateadded` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`id` INT,
+`name` VARCHAR(64),
+`category` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag-complaint` (
+`tag` INT,
+`complaint` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `student-complaint` (
+`student` VARCHAR(64),
+`complaint` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`id` INT,
+`author-s` VARCHAR(64),
+`author-r` VARCHAR(64),
+`complaint` VARCHAR(64),
+`text` VARCHAR(64),
+`dateadded` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_385534_import') AS relationships;
+relationships
+Database: db_385534_import
+
+Table Connections:
+------------------
+[Implied]  comment.complaint -> complaint.id
+[Implied]  course.department -> department.id
+[Implied]  department.faculty -> faculty.id
+[Implied]  lecturer.department -> department.id
+[Implied]  lecturer-course.course -> course.course_code
+[Implied]  lecturer-course.lecturer -> lecturer.lec_no
+[Implied]  student.department -> department.id
+[Implied]  student-complaint.complaint -> complaint.id
+[Implied]  student-complaint.student -> student.mat_no
+[Implied]  student-course.course -> course.course_code
+[Implied]  student-course.student -> student.mat_no
+[Implied]  tag-complaint.complaint -> complaint.id
+[Implied]  tag-complaint.tag -> tag.id
+
+DROP DATABASE `db_385534_import`;
+UNINSTALL EXTENSION vsql_schematron;

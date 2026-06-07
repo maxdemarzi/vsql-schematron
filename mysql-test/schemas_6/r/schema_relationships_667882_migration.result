@@ -1,0 +1,241 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 667882_migration
+#
+CREATE DATABASE `db_667882_migration`;
+USE `db_667882_migration`;
+CREATE TABLE `actor` (
+`actor_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`last_update` DATETIME,
+PRIMARY KEY (`actor_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+`address_id` INT,
+`address` VARCHAR(64),
+`address2` VARCHAR(64),
+`district` VARCHAR(64),
+`city_id` INT,
+`postal_code` VARCHAR(64),
+`phone` VARCHAR(64),
+`last_update` DATETIME,
+PRIMARY KEY (`address_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`category_id` INT,
+`name` VARCHAR(64),
+`last_update` DATETIME,
+PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `city` (
+`city_id` INT,
+`city` VARCHAR(64),
+`country_id` INT,
+`last_update` DATETIME,
+PRIMARY KEY (`city_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `country` (
+`country_id` INT,
+`country` VARCHAR(64),
+`last_update` DATETIME,
+PRIMARY KEY (`country_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`customer_id` INT,
+`store_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`address_id` INT,
+`activebool` BOOL,
+`create_date` DATETIME,
+`last_update` DATETIME,
+`active` INT,
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `film` (
+`film_id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`release_year` INT,
+`language_id` INT,
+`original_language_id` INT,
+`rental_duration` INT,
+`rental_rate` DECIMAL(10,2),
+`length` INT,
+`replacement_cost` DECIMAL(10,2),
+`rating` VARCHAR(64),
+`last_update` DATETIME,
+`special_features` VARCHAR(64),
+`fulltext` VARCHAR(64),
+PRIMARY KEY (`film_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `film_actor` (
+`actor_id` INT,
+`film_id` INT,
+`last_update` DATETIME,
+PRIMARY KEY (`actor_id`, `film_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `film_category` (
+`film_id` INT,
+`category_id` INT,
+`last_update` DATETIME,
+PRIMARY KEY (`film_id`, `category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `inventory` (
+`inventory_id` INT,
+`film_id` INT,
+`store_id` INT,
+`last_update` DATETIME,
+PRIMARY KEY (`inventory_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `language` (
+`language_id` INT,
+`name` VARCHAR(64),
+`last_update` DATETIME,
+PRIMARY KEY (`language_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment` (
+`payment_id` INT,
+`customer_id` INT,
+`staff_id` INT,
+`rental_id` INT,
+`amount` DECIMAL(10,2),
+`payment_date` DATETIME,
+PRIMARY KEY (`payment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment_p2007_01` (
+`payment_id` INT,
+`customer_id` INT,
+`staff_id` INT,
+`rental_id` INT,
+`amount` DECIMAL(10,2),
+`payment_date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `payment_p2007_02` (
+`payment_id` INT,
+`customer_id` INT,
+`staff_id` INT,
+`rental_id` INT,
+`amount` DECIMAL(10,2),
+`payment_date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `payment_p2007_03` (
+`payment_id` INT,
+`customer_id` INT,
+`staff_id` INT,
+`rental_id` INT,
+`amount` DECIMAL(10,2),
+`payment_date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `payment_p2007_04` (
+`payment_id` INT,
+`customer_id` INT,
+`staff_id` INT,
+`rental_id` INT,
+`amount` DECIMAL(10,2),
+`payment_date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `payment_p2007_05` (
+`payment_id` INT,
+`customer_id` INT,
+`staff_id` INT,
+`rental_id` INT,
+`amount` DECIMAL(10,2),
+`payment_date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `payment_p2007_06` (
+`payment_id` INT,
+`customer_id` INT,
+`staff_id` INT,
+`rental_id` INT,
+`amount` DECIMAL(10,2),
+`payment_date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `rental` (
+`rental_id` INT,
+`rental_date` DATETIME,
+`inventory_id` INT,
+`customer_id` INT,
+`return_date` DATETIME,
+`staff_id` INT,
+`last_update` DATETIME,
+PRIMARY KEY (`rental_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `staff` (
+`staff_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`address_id` INT,
+`email` VARCHAR(64),
+`store_id` INT,
+`active` BOOL,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`last_update` DATETIME,
+`picture` VARCHAR(64),
+PRIMARY KEY (`staff_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `store` (
+`store_id` INT,
+`manager_staff_id` INT,
+`address_id` INT,
+`last_update` DATETIME,
+PRIMARY KEY (`store_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_667882_migration') AS relationships;
+relationships
+Database: db_667882_migration
+
+Table Connections:
+------------------
+[Implied]  address.city_id -> city.city_id
+[Implied]  city.country_id -> country.country_id
+[Implied]  customer.address_id -> address.address_id
+[Implied]  customer.store_id -> store.store_id
+[Implied]  film.language_id -> language.language_id
+[Implied]  film.original_language_id -> language.language_id
+[Implied]  film_actor.actor_id -> actor.actor_id
+[Implied]  film_actor.film_id -> film.film_id
+[Implied]  film_category.category_id -> category.category_id
+[Implied]  film_category.film_id -> film.film_id
+[Implied]  inventory.film_id -> film.film_id
+[Implied]  inventory.store_id -> store.store_id
+[Implied]  payment.customer_id -> customer.customer_id
+[Implied]  payment.rental_id -> rental.rental_id
+[Implied]  payment.staff_id -> staff.staff_id
+[Implied]  payment_p2007_01.customer_id -> customer.customer_id
+[Implied]  payment_p2007_01.payment_id -> payment.payment_id
+[Implied]  payment_p2007_01.rental_id -> rental.rental_id
+[Implied]  payment_p2007_01.staff_id -> staff.staff_id
+[Implied]  payment_p2007_02.customer_id -> customer.customer_id
+[Implied]  payment_p2007_02.payment_id -> payment.payment_id
+[Implied]  payment_p2007_02.rental_id -> rental.rental_id
+[Implied]  payment_p2007_02.staff_id -> staff.staff_id
+[Implied]  payment_p2007_03.customer_id -> customer.customer_id
+[Implied]  payment_p2007_03.payment_id -> payment.payment_id
+[Implied]  payment_p2007_03.rental_id -> rental.rental_id
+[Implied]  payment_p2007_03.staff_id -> staff.staff_id
+[Implied]  payment_p2007_04.customer_id -> customer.customer_id
+[Implied]  payment_p2007_04.payment_id -> payment.payment_id
+[Implied]  payment_p2007_04.rental_id -> rental.rental_id
+[Implied]  payment_p2007_04.staff_id -> staff.staff_id
+[Implied]  payment_p2007_05.customer_id -> customer.customer_id
+[Implied]  payment_p2007_05.payment_id -> payment.payment_id
+[Implied]  payment_p2007_05.rental_id -> rental.rental_id
+[Implied]  payment_p2007_05.staff_id -> staff.staff_id
+[Implied]  payment_p2007_06.customer_id -> customer.customer_id
+[Implied]  payment_p2007_06.payment_id -> payment.payment_id
+[Implied]  payment_p2007_06.rental_id -> rental.rental_id
+[Implied]  payment_p2007_06.staff_id -> staff.staff_id
+[Implied]  rental.customer_id -> customer.customer_id
+[Implied]  rental.inventory_id -> inventory.inventory_id
+[Implied]  rental.staff_id -> staff.staff_id
+[Implied]  staff.address_id -> address.address_id
+[Implied]  staff.store_id -> store.store_id
+[Implied]  store.address_id -> address.address_id
+[Implied]  store.manager_staff_id -> store.store_id
+
+DROP DATABASE `db_667882_migration`;
+UNINSTALL EXTENSION vsql_schematron;

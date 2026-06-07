@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 190210_database
+#
+CREATE DATABASE `db_190210_database`;
+USE `db_190210_database`;
+CREATE TABLE `datasets` (
+`id` INT,
+`path` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `matrices` (
+`id` INT,
+`path` VARCHAR(64),
+`filename` VARCHAR(64),
+`configuration` VARCHAR(64),
+`datasetid` INT,
+`estimatorpath` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `coordinates` (
+`id` INT,
+`path` VARCHAR(64),
+`filename` VARCHAR(64),
+`k` VARCHAR(64),
+`gof` VARCHAR(64),
+`stress` VARCHAR(64),
+`matrixid` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `operators` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`path` VARCHAR(64),
+`datasetid` INT,
+`scoresfile` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `models` (
+`id` INT,
+`coordinatesid` INT,
+`operatorid` INT,
+`datasetid` INT,
+`samplingrate` DECIMAL(10,2),
+`configuration` VARCHAR(64),
+`errors` VARCHAR(64),
+`samplespath` VARCHAR(64),
+`appxvaluespath` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_190210_database') AS relationships;
+relationships
+Database: db_190210_database
+
+Table Connections:
+------------------
+[Implied]  matrices.datasetid -> datasets.id
+[Implied]  models.coordinatesid -> coordinates.id
+[Implied]  models.datasetid -> datasets.id
+[Implied]  models.operatorid -> operators.id
+[Implied]  operators.datasetid -> datasets.id
+
+DROP DATABASE `db_190210_database`;
+UNINSTALL EXTENSION vsql_schematron;

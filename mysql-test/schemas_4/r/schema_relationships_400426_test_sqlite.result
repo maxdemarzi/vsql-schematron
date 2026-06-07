@@ -1,0 +1,122 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 400426_test.sqlite
+#
+CREATE DATABASE `db_400426_test_sqlite`;
+USE `db_400426_test_sqlite`;
+CREATE TABLE `Album` (
+`AlbumId` INT,
+`Title` VARCHAR(64),
+`ArtistId` INT,
+PRIMARY KEY (`AlbumId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Artist` (
+`ArtistId` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`ArtistId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer` (
+`CustomerId` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`Company` VARCHAR(64),
+`Address` VARCHAR(64),
+`City` VARCHAR(64),
+`State` VARCHAR(64),
+`Country` VARCHAR(64),
+`PostalCode` VARCHAR(64),
+`Phone` VARCHAR(64),
+`Fax` VARCHAR(64),
+`Email` VARCHAR(64),
+`SupportRepId` INT,
+PRIMARY KEY (`CustomerId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employee` (
+`EmployeeId` INT,
+`LastName` VARCHAR(64),
+`FirstName` VARCHAR(64),
+`Title` VARCHAR(64),
+`ReportsTo` INT,
+`BirthDate` DATETIME,
+`HireDate` DATETIME,
+`Address` VARCHAR(64),
+`City` VARCHAR(64),
+`State` VARCHAR(64),
+`Country` VARCHAR(64),
+`PostalCode` VARCHAR(64),
+`Phone` VARCHAR(64),
+`Fax` VARCHAR(64),
+`Email` VARCHAR(64),
+PRIMARY KEY (`EmployeeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Genre` (
+`GenreId` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`GenreId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Invoice` (
+`InvoiceId` INT,
+`CustomerId` INT,
+`InvoiceDate` DATETIME,
+`BillingAddress` VARCHAR(64),
+`BillingCity` VARCHAR(64),
+`BillingState` VARCHAR(64),
+`BillingCountry` VARCHAR(64),
+`BillingPostalCode` VARCHAR(64),
+`Total` DECIMAL(10,2),
+PRIMARY KEY (`InvoiceId`)
+) CHARACTER SET latin1;
+CREATE TABLE `InvoiceLine` (
+`InvoiceLineId` INT,
+`InvoiceId` INT,
+`TrackId` INT,
+`UnitPrice` DECIMAL(10,2),
+`Quantity` INT,
+PRIMARY KEY (`InvoiceLineId`)
+) CHARACTER SET latin1;
+CREATE TABLE `MediaType` (
+`MediaTypeId` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`MediaTypeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Playlist` (
+`PlaylistId` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`PlaylistId`)
+) CHARACTER SET latin1;
+CREATE TABLE `PlaylistTrack` (
+`PlaylistId` INT,
+`TrackId` INT,
+PRIMARY KEY (`PlaylistId`, `TrackId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Track` (
+`TrackId` INT,
+`Name` VARCHAR(64),
+`AlbumId` INT,
+`MediaTypeId` INT,
+`GenreId` INT,
+`Composer` VARCHAR(64),
+`Milliseconds` INT,
+`Bytes` INT,
+`UnitPrice` DECIMAL(10,2),
+PRIMARY KEY (`TrackId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_400426_test_sqlite') AS relationships;
+relationships
+Database: db_400426_test_sqlite
+
+Table Connections:
+------------------
+[Implied]  Album.ArtistId -> Artist.ArtistId
+[Implied]  Employee.ReportsTo -> Employee.EmployeeId
+[Implied]  Invoice.CustomerId -> Customer.CustomerId
+[Implied]  InvoiceLine.InvoiceId -> Invoice.InvoiceId
+[Implied]  InvoiceLine.TrackId -> Track.TrackId
+[Implied]  PlaylistTrack.PlaylistId -> Playlist.PlaylistId
+[Implied]  PlaylistTrack.TrackId -> Track.TrackId
+[Implied]  Track.AlbumId -> Album.AlbumId
+[Implied]  Track.GenreId -> Genre.GenreId
+[Implied]  Track.MediaTypeId -> MediaType.MediaTypeId
+
+DROP DATABASE `db_400426_test_sqlite`;
+UNINSTALL EXTENSION vsql_schematron;

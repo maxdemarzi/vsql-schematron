@@ -1,0 +1,110 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 062649_recipes
+#
+CREATE DATABASE `db_062649_recipes`;
+USE `db_062649_recipes`;
+CREATE TABLE `RECIPE_TYPES` (
+`number` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`number`)
+) CHARACTER SET latin1;
+CREATE TABLE `STEP_TYPES` (
+`number` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`number`)
+) CHARACTER SET latin1;
+CREATE TABLE `RECIPES` (
+`id` INT,
+`name` VARCHAR(64),
+`author` VARCHAR(64),
+`description` VARCHAR(64),
+`image` VARCHAR(64),
+`type` INT,
+`cookingTime` INT,
+`servings` INT,
+`CREATED_AT` DATETIME,
+`UPDATED_AT` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `STEPS` (
+`id` INT,
+`recipe` INT,
+`type` INT,
+`content` VARCHAR(64),
+`sort` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `INGREDIENTS` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RECIPE_INGREDIENTS` (
+`recipe` INT,
+`ingredient` INT,
+`amount` DECIMAL(10,2),
+`unit` VARCHAR(64),
+`sort` INT
+) CHARACTER SET latin1;
+CREATE TABLE `TAGS` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RECIPE_TAGS` (
+`recipe` INT,
+`tag` INT
+) CHARACTER SET latin1;
+CREATE TABLE `QUANTITIES` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UNIT_SYSTEMS` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UNITS` (
+`id` INT,
+`name` VARCHAR(64),
+`quantity` INT,
+`unitSystem` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UNIT_ALIASES` (
+`unit` INT,
+`alias` VARCHAR(64),
+`locale` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `UNITS_CONVERSIONS` (
+`id` INT,
+`unitFrom` INT,
+`unitTo` INT,
+`factor` DECIMAL(10,2),
+`verified` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UNITS_LAST_UPDATE` (
+`name` VARCHAR(64),
+`time` DECIMAL(10,2),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_062649_recipes') AS relationships;
+relationships
+Database: db_062649_recipes
+
+Table Connections:
+------------------
+[Implied]  RECIPE_INGREDIENTS.ingredient -> INGREDIENTS.id
+[Implied]  RECIPE_INGREDIENTS.recipe -> RECIPES.id
+[Implied]  RECIPE_TAGS.recipe -> RECIPES.id
+[Implied]  RECIPE_TAGS.tag -> TAGS.id
+[Implied]  STEPS.recipe -> RECIPES.id
+[Implied]  UNITS.unitSystem -> UNIT_SYSTEMS.id
+[Implied]  UNITS_CONVERSIONS.id -> UNITS.id
+[Implied]  UNIT_ALIASES.unit -> UNITS.id
+
+DROP DATABASE `db_062649_recipes`;
+UNINSTALL EXTENSION vsql_schematron;

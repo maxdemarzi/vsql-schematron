@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 289480_create-tables
+--echo #
+CREATE DATABASE `db_289480_create_tables`;
+USE `db_289480_create_tables`;
+
+CREATE TABLE `admin_list` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `branch` (
+  `branch_code` INT,
+  `branch_name` VARCHAR(64),
+  `address` VARCHAR(64),
+  `hotline_number` VARCHAR(64),
+  PRIMARY KEY (`branch_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customer_account` (
+  `id` INT,
+  `phone` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `account_password` VARCHAR(64),
+  `address` VARCHAR(64),
+  `city` VARCHAR(64),
+  `country` VARCHAR(64),
+  `budget` DECIMAL(10,2),
+  `balance` DECIMAL(10,2),
+  `profile_picture` VARCHAR(64),
+  `branch_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auction_product` (
+  `id` INT,
+  `buyer_id` INT,
+  `product_name` VARCHAR(64),
+  `minimum_price` DECIMAL(10,2),
+  `closing_time` DATETIME,
+  `product_status` VARCHAR(64),
+  `current_maximum_bid_price` DECIMAL(10,2),
+  `seller_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `transaction_history` (
+  `id` INT,
+  `product_id` INT,
+  `buyer_id` INT,
+  `bid_price` DECIMAL(10,2),
+  `recorded_at` DATETIME,
+  `status` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_289480_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_289480_create_tables') AS relationships;
+DROP DATABASE `db_289480_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

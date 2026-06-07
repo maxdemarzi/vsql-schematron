@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 547016_V0_0_0_1__Schema_ISO8583_1_0
+--echo #
+CREATE DATABASE `db_547016_V0_0_0_1_Schema_ISO8583_1_0`;
+USE `db_547016_V0_0_0_1_Schema_ISO8583_1_0`;
+
+CREATE TABLE `iso8583_mapper` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iso8583_dataelement` (
+  `id` VARCHAR(64),
+  `id_mapper` VARCHAR(64),
+  `dataelement_number` INT,
+  `dataelement_name` VARCHAR(64),
+  `dataelement_type` VARCHAR(64),
+  `dataelement_length_type` VARCHAR(64),
+  `dataelement_length` INT,
+  `dataelement_length_prefix` INT,
+  `dataelement_repeated_colidx` VARCHAR(64),
+  `dataelement_repeated_colrange` VARCHAR(64),
+  `dataelement_subelement_separator` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iso8583_subelement` (
+  `id` VARCHAR(64),
+  `id_data_element` VARCHAR(64),
+  `subelement_number` INT,
+  `subelement_name` VARCHAR(64),
+  `subelement_type` VARCHAR(64),
+  `subelement_type_format` VARCHAR(64),
+  `subelement_length` INT,
+  `subelement_padding` VARCHAR(64),
+  `subelement_padding_pos` VARCHAR(64),
+  `subelement_separator` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_547016_V0_0_0_1_Schema_ISO8583_1_0') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_547016_V0_0_0_1_Schema_ISO8583_1_0') AS relationships;
+DROP DATABASE `db_547016_V0_0_0_1_Schema_ISO8583_1_0`;
+UNINSTALL EXTENSION vsql_schematron;

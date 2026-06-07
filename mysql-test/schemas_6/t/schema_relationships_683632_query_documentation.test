@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 683632_query_documentation
+--echo #
+CREATE DATABASE `db_683632_query_documentation`;
+USE `db_683632_query_documentation`;
+
+CREATE TABLE `LIBRARIAN` (
+  `Librarian_Username` VARCHAR(64),
+  `Librarian_Name` VARCHAR(64),
+  `Librarian_Password` VARCHAR(64),
+  PRIMARY KEY (`Librarian_Username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BOOK` (
+  `Book_ID` VARCHAR(64),
+  `Book_ISBN` VARCHAR(64),
+  `Book_Title` VARCHAR(64),
+  `Book_Author` VARCHAR(64),
+  `Book_Condition` VARCHAR(64),
+  `Book_Status` VARCHAR(64),
+  PRIMARY KEY (`Book_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `STUDENT` (
+  `Student_ID` VARCHAR(64),
+  `Student_LastName` VARCHAR(64),
+  `Student_FirstName` VARCHAR(64),
+  `Student_Section` VARCHAR(64),
+  `Student_YearLevel` VARCHAR(64),
+  PRIMARY KEY (`Student_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PAYMENT` (
+  `Payment_ID` VARCHAR(64),
+  `Payment_Amount` DECIMAL(10,2),
+  `Payment_Status` VARCHAR(64),
+  PRIMARY KEY (`Payment_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BORROW` (
+  `Borrow_ID` VARCHAR(64),
+  `Borrow_Date` DATETIME,
+  `Borrow_Return_Date` DATETIME,
+  `Borrow_Status` VARCHAR(64),
+  `Borrow_Overdue_Status` INT,
+  `Borrow_Issuer` VARCHAR(64),
+  `Student_ID` VARCHAR(64),
+  `Payment_ID` VARCHAR(64),
+  `Book_ID` VARCHAR(64),
+  PRIMARY KEY (`Borrow_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_683632_query_documentation') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_683632_query_documentation') AS relationships;
+DROP DATABASE `db_683632_query_documentation`;
+UNINSTALL EXTENSION vsql_schematron;

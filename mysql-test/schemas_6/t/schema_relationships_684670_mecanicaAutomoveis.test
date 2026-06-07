@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 684670_mecanicaAutomoveis
+--echo #
+CREATE DATABASE `db_684670_mecanicaAutomoveis`;
+USE `db_684670_mecanicaAutomoveis`;
+
+CREATE TABLE `ordem_servico` (
+  `numero_OS` INT,
+  `data_emissao` DATETIME,
+  `data_conclusao` DATETIME,
+  `valor` DECIMAL(10,2),
+  `descricao` VARCHAR(64),
+  PRIMARY KEY (`numero_OS`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pessoa` (
+  `codigo` INT,
+  `nome` VARCHAR(64),
+  `cpf` VARCHAR(64),
+  `endereco` VARCHAR(64),
+  PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `proprietario` (
+  `codigo_proprietario` INT,
+  `email` VARCHAR(64),
+  `telefone` VARCHAR(64),
+  PRIMARY KEY (`codigo_proprietario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mecanico` (
+  `codigo_mecanico` INT,
+  `numero_OS` INT,
+  `especialidade` VARCHAR(64),
+  PRIMARY KEY (`codigo_mecanico`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `veiculo` (
+  `codigo_veiculo` INT,
+  `descricao` VARCHAR(64),
+  `placa` VARCHAR(64),
+  `codigo_proprietario` INT,
+  `numero_OS` INT,
+  PRIMARY KEY (`codigo_veiculo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `peca` (
+  `numero_OS` INT,
+  `id` INT,
+  `tamanho` VARCHAR(64),
+  `preco` DECIMAL(10,2),
+  PRIMARY KEY (`numero_OS`, `id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `requer` (
+  `numero_OS` INT,
+  `id_peca` INT,
+  PRIMARY KEY (`numero_OS`, `id_peca`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_684670_mecanicaAutomoveis') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_684670_mecanicaAutomoveis') AS relationships;
+DROP DATABASE `db_684670_mecanicaAutomoveis`;
+UNINSTALL EXTENSION vsql_schematron;

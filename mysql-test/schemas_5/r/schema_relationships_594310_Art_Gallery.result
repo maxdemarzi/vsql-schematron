@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 594310_Art_Gallery
+#
+CREATE DATABASE `db_594310_Art_Gallery`;
+USE `db_594310_Art_Gallery`;
+CREATE TABLE `ARTIST` (
+`ArtistID` INT,
+`FName` VARCHAR(64),
+`mInit` VARCHAR(64),
+`LName` VARCHAR(64),
+`Phone` INT,
+`DateOfBirth` DATETIME,
+`StreetAddress` VARCHAR(64),
+`ApartmentNumber` VARCHAR(64),
+`City` VARCHAR(64),
+`State` VARCHAR(64),
+`ZipCode` VARCHAR(64),
+`ArtStyle` VARCHAR(64),
+PRIMARY KEY (`ArtistID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ARTWORK` (
+`Title` VARCHAR(64),
+`Artist` INT,
+`ArtType` VARCHAR(64),
+`CreationDate` VARCHAR(64),
+`DateAquired` DATETIME,
+`Price` INT,
+`Location` VARCHAR(64),
+PRIMARY KEY (`Title`)
+) CHARACTER SET latin1;
+CREATE TABLE `ART_SHOWS` (
+`ShowArtist` INT,
+`ShowDate` DATETIME,
+`Time` VARCHAR(64),
+`Location` VARCHAR(64),
+`Contact` VARCHAR(64),
+`ContactPhone` INT,
+`DateOfBirth` DATETIME,
+PRIMARY KEY (`ShowArtist`)
+) CHARACTER SET latin1;
+CREATE TABLE `CUSTOMER` (
+`CustomerNumber` INT,
+`CustomerName` VARCHAR(64),
+`PNumber` INT,
+`ArtPreferences` VARCHAR(64),
+PRIMARY KEY (`CustomerNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `INTERESTED_IN` (
+`CustomerNo` INT,
+`ArtTitle` VARCHAR(64),
+PRIMARY KEY (`CustomerNo`, `ArtTitle`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_594310_Art_Gallery') AS relationships;
+relationships
+Database: db_594310_Art_Gallery
+
+Table Connections:
+------------------
+[Implied]  ARTWORK.Artist -> ARTIST.ArtistID
+[Implied]  INTERESTED_IN.ArtTitle -> ARTWORK.Title
+[Implied]  INTERESTED_IN.CustomerNo -> CUSTOMER.CustomerNumber
+
+DROP DATABASE `db_594310_Art_Gallery`;
+UNINSTALL EXTENSION vsql_schematron;

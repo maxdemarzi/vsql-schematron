@@ -1,0 +1,140 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 172945_createtable
+--echo #
+CREATE DATABASE `db_172945_createtable`;
+USE `db_172945_createtable`;
+
+CREATE TABLE `wms_supplier` (
+  `SUPPLIER_ID` INT,
+  `SUPPLIER_NAME` VARCHAR(64),
+  `SUPPLIER_PERSON` VARCHAR(64),
+  `SUPPLIER_TEL` VARCHAR(64),
+  `SUPPLIER_EMAIL` VARCHAR(64),
+  `SUPPLIER_ADDRESS` VARCHAR(64),
+  PRIMARY KEY (`SUPPLIER_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wms_customer` (
+  `CUSTOMER_ID` INT,
+  `CUSTOMER_NAME` VARCHAR(64),
+  `CUSTOMER_PERSON` VARCHAR(64),
+  `CUSTOMER_TEL` VARCHAR(64),
+  `CUSTOMER_EMAIL` VARCHAR(64),
+  `CUSTOMER_ADDRESS` VARCHAR(64),
+  PRIMARY KEY (`CUSTOMER_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wms_goods` (
+  `GOOD_ID` INT,
+  `GOOD_NAME` VARCHAR(64),
+  `GOOD_RYPE` VARCHAR(64),
+  `GOOD_SIZE` VARCHAR(64),
+  `GOOD_VALUE` DECIMAL(10,2),
+  PRIMARY KEY (`GOOD_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wms_respository` (
+  `REPO_ID` INT,
+  `REPO_ADDRESS` VARCHAR(64),
+  `REPO_STATUS` VARCHAR(64),
+  `REPO_AREA` VARCHAR(64),
+  `REPO_DESC` VARCHAR(64),
+  PRIMARY KEY (`REPO_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wms_repo_admin` (
+  `REPO_ADMIN_ID` INT,
+  `REPO_ADMIN_NAME` VARCHAR(64),
+  `REPO_ADMIN_SEX` VARCHAR(64),
+  `REPO_ADMIN_TEL` VARCHAR(64),
+  `REPO_ADMIN_ADDRESS` VARCHAR(64),
+  `REPO_ADMIN_BIRTH` DATETIME,
+  `REPO_ADMIN_REPOID` INT,
+  PRIMARY KEY (`REPO_ADMIN_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wms_record_in` (
+  `RECORD_ID` INT,
+  `RECORD_SUPPLIERID` INT,
+  `RECORD_GOODID` INT,
+  `RECORD_NUMBER` INT,
+  `RECORD_TIME` DATETIME,
+  `RECORD_PERSON` VARCHAR(64),
+  `RECORD_REPOSITORYID` INT,
+  PRIMARY KEY (`RECORD_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wms_record_out` (
+  `RECORD_ID` INT,
+  `RECORD_CUSTOMERID` INT,
+  `RECORD_GOODID` INT,
+  `RECORD_NUMBER` INT,
+  `RECORD_TIME` DATETIME,
+  `RECORD_PERSON` VARCHAR(64),
+  `RECORD_REPOSITORYID` INT,
+  PRIMARY KEY (`RECORD_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wms_record_storage` (
+  `RECORD_GOODID` INT,
+  `RECORD_REPOSITORY` INT,
+  `RECORD_NUMBER` INT,
+  PRIMARY KEY (`RECORD_GOODID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wms_user` (
+  `USER_ID` INT,
+  `USER_USERNAME` VARCHAR(64),
+  `USER_PASSWORD` VARCHAR(64),
+  PRIMARY KEY (`USER_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wms_roles` (
+  `ROLE_ID` INT,
+  `ROLE_NAME` VARCHAR(64),
+  `ROLE_DESC` VARCHAR(64),
+  `ROLE_URL_PREFIX` VARCHAR(64),
+  PRIMARY KEY (`ROLE_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wms_action` (
+  `ACTION_ID` INT,
+  `ACTION_NAME` VARCHAR(64),
+  `ACTION_DESC` VARCHAR(64),
+  `ACTION_PARAM` VARCHAR(64),
+  PRIMARY KEY (`ACTION_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wms_user_role` (
+  `ROLE_ID` INT,
+  `USER_ID` INT,
+  PRIMARY KEY (`ROLE_ID`, `USER_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wms_role_action` (
+  `ACTION_ID` INT,
+  `ROLE_ID` INT,
+  PRIMARY KEY (`ACTION_ID`, `ROLE_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_172945_createtable') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_172945_createtable') AS relationships;
+DROP DATABASE `db_172945_createtable`;
+UNINSTALL EXTENSION vsql_schematron;

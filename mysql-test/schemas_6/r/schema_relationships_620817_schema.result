@@ -1,0 +1,109 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 620817_schema
+#
+CREATE DATABASE `db_620817_schema`;
+USE `db_620817_schema`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password_hash` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `friends` (
+`user` INT,
+`friend` INT,
+PRIMARY KEY (`user`, `friend`)
+) CHARACTER SET latin1;
+CREATE TABLE `friendrequests` (
+`id` INT,
+`receiver` INT,
+`sender` INT
+) CHARACTER SET latin1;
+CREATE TABLE `films` (
+`id` INT,
+`owner` INT,
+`Title` VARCHAR(64),
+`Published` INT,
+`Genres` VARCHAR(64),
+`Length(min)` INT,
+`Director` VARCHAR(64),
+`Writer` VARCHAR(64),
+`Star` VARCHAR(64),
+`Watched(owner)` BOOL,
+`Shared` BOOL
+) CHARACTER SET latin1;
+CREATE TABLE `music` (
+`id` INT,
+`owner` INT,
+`Title` VARCHAR(64),
+`Published` INT,
+`Genres` VARCHAR(64),
+`Inteprator` VARCHAR(64),
+`Composer` VARCHAR(64),
+`Lyricist` VARCHAR(64),
+`Shared` BOOL
+) CHARACTER SET latin1;
+CREATE TABLE `books` (
+`id` INT,
+`owner` INT,
+`Title` VARCHAR(64),
+`Published` INT,
+`Genres` VARCHAR(64),
+`Pages` INT,
+`Author` VARCHAR(64),
+`Read(owner)` BOOL,
+`Shared` BOOL
+) CHARACTER SET latin1;
+CREATE TABLE `comics` (
+`id` INT,
+`owner` INT,
+`Title` VARCHAR(64),
+`Published` INT,
+`Genres` VARCHAR(64),
+`Pages` INT,
+`Author` VARCHAR(64),
+`Illustrator` VARCHAR(64),
+`Read(owner)` BOOL,
+`Shared` BOOL
+) CHARACTER SET latin1;
+CREATE TABLE `games` (
+`id` INT,
+`owner` INT,
+`Title` VARCHAR(64),
+`Published` INT,
+`Genres` VARCHAR(64),
+`Developer` VARCHAR(64),
+`Platform` VARCHAR(64),
+`Publisher` VARCHAR(64),
+`Completed(owner)` BOOL,
+`Shared` BOOL
+) CHARACTER SET latin1;
+CREATE TABLE `other` (
+`id` INT,
+`owner` INT,
+`Title` VARCHAR(64),
+`Published` INT,
+`Genres` VARCHAR(64),
+`Information` VARCHAR(64),
+`shared` BOOL
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_620817_schema') AS relationships;
+relationships
+Database: db_620817_schema
+
+Table Connections:
+------------------
+[Implied]  books.owner -> users.id
+[Implied]  comics.owner -> users.id
+[Implied]  films.owner -> users.id
+[Implied]  friendrequests.receiver -> users.id
+[Implied]  friendrequests.sender -> users.id
+[Implied]  friends.friend -> users.id
+[Implied]  friends.user -> users.id
+[Implied]  games.owner -> users.id
+[Implied]  music.owner -> users.id
+[Implied]  other.owner -> users.id
+
+DROP DATABASE `db_620817_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 041585_usermanage
+--echo #
+CREATE DATABASE `db_041585_usermanage`;
+USE `db_041585_usermanage`;
+
+CREATE TABLE `schembl_document` (
+  `id` INT,
+  `scpn` VARCHAR(64),
+  `published` DATETIME,
+  `life_sci_relevant` INT,
+  `family_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schembl_document_class` (
+  `schembl_doc_id` INT,
+  `class` VARCHAR(64),
+  `system` INT,
+  PRIMARY KEY (`schembl_doc_id`, `class`, `system`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schembl_document_title` (
+  `schembl_doc_id` INT,
+  `lang` VARCHAR(64),
+  `text` VARCHAR(64),
+  PRIMARY KEY (`schembl_doc_id`, `lang`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schembl_chemical` (
+  `id` INT,
+  `mol_weight` DECIMAL(10,2),
+  `logp` DECIMAL(10,2),
+  `med_chem_alert` INT,
+  `is_relevant` INT,
+  `donor_count` INT,
+  `acceptor_count` INT,
+  `ring_count` INT,
+  `rot_bond_count` INT,
+  `corpus_count` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schembl_chemical_structure` (
+  `schembl_chem_id` INT,
+  `smiles` VARCHAR(64),
+  `std_inchi` VARCHAR(64),
+  `std_inchikey` VARCHAR(64),
+  PRIMARY KEY (`schembl_chem_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schembl_document_chemistry` (
+  `schembl_doc_id` INT,
+  `schembl_chem_id` INT,
+  `field` INT,
+  `frequency` INT,
+  PRIMARY KEY (`schembl_doc_id`, `schembl_chem_id`, `field`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_041585_usermanage') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_041585_usermanage') AS relationships;
+DROP DATABASE `db_041585_usermanage`;
+UNINSTALL EXTENSION vsql_schematron;

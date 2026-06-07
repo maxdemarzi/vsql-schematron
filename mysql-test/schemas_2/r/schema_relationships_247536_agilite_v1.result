@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 247536_agilite-v1
+#
+CREATE DATABASE `db_247536_agilite_v1`;
+USE `db_247536_agilite_v1`;
+CREATE TABLE `Users` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`create_date` DATETIME,
+`updated_date` DATETIME,
+`organizer` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Dogs` (
+`id` INT,
+`fullname` VARCHAR(64),
+`name` VARCHAR(64),
+`handler` INT,
+`active` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Contests` (
+`id` INT,
+`name` VARCHAR(64),
+`date` DATETIME,
+`organizer` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ContestSizes` (
+`id` INT,
+`contest` INT,
+`size` VARCHAR(64),
+`sizecm` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ContestSkill` (
+`id` INT,
+`contest` INT,
+`skill` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ContestParticipants` (
+`id` INT,
+`contest` INT,
+`dog` INT,
+`size` INT,
+`skill` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Results` (
+`id` INT,
+`contextParticipant` INT,
+`time` DATETIME,
+`faults` INT,
+`refusals` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_247536_agilite_v1') AS relationships;
+relationships
+Database: db_247536_agilite_v1
+
+Table Connections:
+------------------
+[Implied]  ContestParticipants.contest -> Contests.id
+[Implied]  ContestParticipants.dog -> Dogs.id
+[Implied]  ContestSizes.contest -> Contests.id
+[Implied]  ContestSkill.contest -> Contests.id
+[Implied]  Dogs.handler -> Users.id
+
+DROP DATABASE `db_247536_agilite_v1`;
+UNINSTALL EXTENSION vsql_schematron;

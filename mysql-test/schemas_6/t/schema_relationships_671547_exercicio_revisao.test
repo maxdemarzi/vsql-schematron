@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 671547_exercicio_revisao
+--echo #
+CREATE DATABASE `db_671547_exercicio_revisao`;
+USE `db_671547_exercicio_revisao`;
+
+CREATE TABLE `TbGenero` (
+  `PkCodGen` INT,
+  `NomeGen` VARCHAR(64),
+  PRIMARY KEY (`PkCodGen`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TbFilme` (
+  `PkCodFilme` INT,
+  `Titulo` VARCHAR(64),
+  `FkCodGen` INT,
+  `FkCodClass` INT,
+  PRIMARY KEY (`PkCodFilme`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TbClassificacao` (
+  `PkCodClass` INT,
+  `NomeClass` VARCHAR(64),
+  `ValorDiaria` DECIMAL(10,2),
+  PRIMARY KEY (`PkCodClass`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TbRelFilmeLoc` (
+  `PkCodRel` INT,
+  `FkCodFilme` INT,
+  `FkCodLoc` INT,
+  PRIMARY KEY (`PkCodRel`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TbLocacao` (
+  `PkCodLoc` INT,
+  `DataLoc` DATETIME,
+  `FkCodCli` INT,
+  PRIMARY KEY (`PkCodLoc`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TbCliente` (
+  `PkCodCli` INT,
+  `NomeCli` VARCHAR(64),
+  `EndCli` VARCHAR(64),
+  `CidadeCli` VARCHAR(64),
+  `UfCli` VARCHAR(64),
+  PRIMARY KEY (`PkCodCli`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_671547_exercicio_revisao') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_671547_exercicio_revisao') AS relationships;
+DROP DATABASE `db_671547_exercicio_revisao`;
+UNINSTALL EXTENSION vsql_schematron;

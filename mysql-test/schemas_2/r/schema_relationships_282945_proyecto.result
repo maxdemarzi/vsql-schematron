@@ -1,0 +1,124 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 282945_proyecto
+#
+CREATE DATABASE `db_282945_proyecto`;
+USE `db_282945_proyecto`;
+CREATE TABLE `usuario` (
+`idusuario` INT,
+`nombre` VARCHAR(64),
+`primerApellido` VARCHAR(64),
+`segundoApellido` VARCHAR(64),
+`ci` VARCHAR(64),
+`sexo` VARCHAR(64),
+`rol` VARCHAR(64),
+`login` VARCHAR(64),
+`password` VARCHAR(64),
+`fechaRegistro` DATETIME,
+`fechaActulizasion` DATETIME,
+`estado` BOOL,
+PRIMARY KEY (`idusuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `estudiante` (
+`idestudiante` INT,
+`nombre` VARCHAR(64),
+`primerApellido` VARCHAR(64),
+`segundoApellido` VARCHAR(64),
+`ci` VARCHAR(64),
+`sexo` VARCHAR(64),
+`curso` VARCHAR(64),
+`fechaRegistro` DATETIME,
+`fechaActulizasion` DATETIME,
+`estado` BOOL,
+PRIMARY KEY (`idestudiante`)
+) CHARACTER SET latin1;
+CREATE TABLE `asistencia` (
+`idasistencia` INT,
+`fecha` DATETIME,
+`temperaturra` DECIMAL(10,2),
+`observaciones` VARCHAR(64),
+`fechaRegistro` DATETIME,
+`fechaActulizasion` DATETIME,
+`estado` BOOL,
+`idestudiante` INT,
+PRIMARY KEY (`idasistencia`)
+) CHARACTER SET latin1;
+CREATE TABLE `aulas` (
+`idaulas` INT,
+`nombre` VARCHAR(64),
+`capacidad` INT,
+`capacidadPermitida` INT,
+`limiteCovid` INT,
+`fechaRegistro` DATETIME,
+`fechaActulizasion` DATETIME,
+`estado` BOOL,
+PRIMARY KEY (`idaulas`)
+) CHARACTER SET latin1;
+CREATE TABLE `horario` (
+`idhorario` INT,
+`horas` VARCHAR(64),
+`fechaRegistro` DATETIME,
+`fechaActulizasion` DATETIME,
+`estado` BOOL,
+`idestudiante` INT,
+`idaulas` INT,
+PRIMARY KEY (`idhorario`)
+) CHARACTER SET latin1;
+CREATE TABLE `registroDesinfeccion` (
+`idregistro` INT,
+`inicio` DATETIME,
+`fin` DATETIME,
+`observaciones` VARCHAR(64),
+`fechaRegistro` DATETIME,
+`fechaActulizasion` DATETIME,
+`estado` BOOL,
+`idaulas` INT,
+PRIMARY KEY (`idregistro`)
+) CHARACTER SET latin1;
+CREATE TABLE `tipo` (
+`idtipo` INT,
+`categoria` VARCHAR(64),
+`fechaRegistro` DATETIME,
+`fechaActulizasion` DATETIME,
+`estado` BOOL,
+PRIMARY KEY (`idtipo`)
+) CHARACTER SET latin1;
+CREATE TABLE `materialDesinfeccion` (
+`idmaterial` INT,
+`nombre` VARCHAR(64),
+`unidadMedida` VARCHAR(64),
+`fechaRegistro` DATETIME,
+`fechaActulizasion` DATETIME,
+`estado` BOOL,
+`idtipo` INT,
+PRIMARY KEY (`idmaterial`)
+) CHARACTER SET latin1;
+CREATE TABLE `detalleDesinfeccion` (
+`iddetalleD` INT,
+`cantidad` INT,
+`tipo` VARCHAR(64),
+`fechaRegistro` DATETIME,
+`fechaActulizasion` DATETIME,
+`estado` BOOL,
+`idregistro` INT,
+`idaulas` INT,
+`idmaterial` INT,
+PRIMARY KEY (`iddetalleD`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_282945_proyecto') AS relationships;
+relationships
+Database: db_282945_proyecto
+
+Table Connections:
+------------------
+[Implied]  asistencia.idestudiante -> estudiante.idestudiante
+[Implied]  detalleDesinfeccion.idaulas -> aulas.idaulas
+[Implied]  detalleDesinfeccion.idmaterial -> materialDesinfeccion.idmaterial
+[Implied]  detalleDesinfeccion.idregistro -> registroDesinfeccion.idregistro
+[Implied]  horario.idaulas -> aulas.idaulas
+[Implied]  horario.idestudiante -> estudiante.idestudiante
+[Implied]  materialDesinfeccion.idtipo -> tipo.idtipo
+[Implied]  registroDesinfeccion.idaulas -> aulas.idaulas
+
+DROP DATABASE `db_282945_proyecto`;
+UNINSTALL EXTENSION vsql_schematron;

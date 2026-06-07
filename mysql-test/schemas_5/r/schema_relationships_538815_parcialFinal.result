@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 538815_parcialFinal
+#
+CREATE DATABASE `db_538815_parcialFinal`;
+USE `db_538815_parcialFinal`;
+CREATE TABLE `Personas` (
+`codigo_id` VARCHAR(64),
+`snombre` VARCHAR(64),
+`sapellido` VARCHAR(64),
+`stelefono` VARCHAR(64),
+`sdireccion` VARCHAR(64),
+PRIMARY KEY (`codigo_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pacientes` (
+`codigo_id` VARCHAR(64),
+`gsangre` VARCHAR(64),
+PRIMARY KEY (`codigo_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Doctores` (
+`codigo_id` VARCHAR(64),
+`sespecialidad` VARCHAR(64),
+`nsalario` DECIMAL(10,2),
+`bactivo` BOOL,
+PRIMARY KEY (`codigo_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Clinicas` (
+`codigo_id` INT,
+`snombre` VARCHAR(64),
+`inivel` INT,
+`stelefono` VARCHAR(64),
+`sdireccion` VARCHAR(64),
+PRIMARY KEY (`codigo_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Consultas` (
+`codigo_id` INT,
+`clinica_id` INT,
+`doctor_id` VARCHAR(64),
+`paciente_id` VARCHAR(64),
+`dtfecha` DATETIME,
+PRIMARY KEY (`codigo_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Medicamentos` (
+`codigo_id` INT,
+`nombre` VARCHAR(64),
+`dosis` VARCHAR(64),
+`tipo` VARCHAR(64),
+PRIMARY KEY (`codigo_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Recetas` (
+`cantidad` INT,
+`consulta_id` INT,
+`medicamentos_id` INT,
+PRIMARY KEY (`consulta_id`, `medicamentos_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_538815_parcialFinal') AS relationships;
+relationships
+Database: db_538815_parcialFinal
+
+Table Connections:
+------------------
+[Implied]  Consultas.clinica_id -> Clinicas.codigo_id
+[Implied]  Consultas.doctor_id -> Doctores.codigo_id
+[Implied]  Consultas.paciente_id -> Pacientes.codigo_id
+[Implied]  Recetas.consulta_id -> Consultas.codigo_id
+[Implied]  Recetas.medicamentos_id -> Medicamentos.codigo_id
+
+DROP DATABASE `db_538815_parcialFinal`;
+UNINSTALL EXTENSION vsql_schematron;

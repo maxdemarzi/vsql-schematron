@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 607869_createTables
+#
+CREATE DATABASE `db_607869_createTables`;
+USE `db_607869_createTables`;
+CREATE TABLE `Users` (
+`id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`authority` VARCHAR(64),
+`enabled` BOOL,
+`hasProfilePic` BOOL,
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`registeredTimestamp` DATETIME,
+`profileViews` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Posts` (
+`id` INT,
+`text` VARCHAR(64),
+`likes` INT,
+`dislikes` INT,
+`total` INT,
+`timestamp` DATETIME,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Post_Comments` (
+`id` INT,
+`text` VARCHAR(64),
+`likes` INT,
+`dislikes` INT,
+`total` INT,
+`timestamp` DATETIME,
+`user_id` INT,
+`masterPost_id` INT,
+`postIndex` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Like_Records` (
+`user_id` INT,
+`post_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Like_Records_Comments` (
+`user_id` INT,
+`post_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Dislike_Records` (
+`user_id` INT,
+`post_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Dislike_Records_Comments` (
+`user_id` INT,
+`post_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Tags` (
+`tag` VARCHAR(64),
+`post_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_607869_createTables') AS relationships;
+relationships
+Database: db_607869_createTables
+
+Table Connections:
+------------------
+[Implied]  Dislike_Records.post_id -> Posts.id
+[Implied]  Dislike_Records.user_id -> Users.id
+[Implied]  Dislike_Records_Comments.post_id -> Posts.id
+[Implied]  Dislike_Records_Comments.user_id -> Users.id
+[Implied]  Like_Records.post_id -> Posts.id
+[Implied]  Like_Records.user_id -> Users.id
+[Implied]  Like_Records_Comments.post_id -> Posts.id
+[Implied]  Like_Records_Comments.user_id -> Users.id
+[Implied]  Post_Comments.masterPost_id -> Posts.id
+[Implied]  Post_Comments.user_id -> Users.id
+[Implied]  Posts.user_id -> Users.id
+[Implied]  Tags.post_id -> Posts.id
+
+DROP DATABASE `db_607869_createTables`;
+UNINSTALL EXTENSION vsql_schematron;

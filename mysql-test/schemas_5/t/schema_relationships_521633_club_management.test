@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 521633_club_management
+--echo #
+CREATE DATABASE `db_521633_club_management`;
+USE `db_521633_club_management`;
+
+CREATE TABLE `admin` (
+  `Student_ID` INT,
+  `Name` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `Password` VARCHAR(64),
+  `Phone_Number` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `Student_ID` INT,
+  `Email` VARCHAR(64),
+  `Password` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_info` (
+  `Student_ID` INT,
+  `Name` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `Phone_Number` VARCHAR(64),
+  `Address` VARCHAR(64),
+  `University_Name` VARCHAR(64),
+  `Club_Name` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_521633_club_management') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_521633_club_management') AS relationships;
+DROP DATABASE `db_521633_club_management`;
+UNINSTALL EXTENSION vsql_schematron;

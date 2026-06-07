@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 152916_lab1_create
+#
+CREATE DATABASE `db_152916_lab1_create`;
+USE `db_152916_lab1_create`;
+CREATE TABLE `skills` (
+`ID` DECIMAL(10,2),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `companies` (
+`ID` DECIMAL(10,2),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`employee_number` DECIMAL(10,2),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`ID` DECIMAL(10,2),
+`first_name` VARCHAR(64),
+`second_name` VARCHAR(64),
+`lang_level` VARCHAR(64),
+`country` VARCHAR(64),
+`company_id` DECIMAL(10,2),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `contacts` (
+`ID` DECIMAL(10,2),
+`first_id` DECIMAL(10,2),
+`second_id` DECIMAL(10,2),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `accounts` (
+`ID` DECIMAL(10,2),
+`profile_id` DECIMAL(10,2),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`is_stuff` DECIMAL(10,2),
+`is_active` DECIMAL(10,2),
+`last_login` DATETIME,
+`date_joined` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `jobs` (
+`ID` DECIMAL(10,2),
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`salary` DECIMAL(10,2),
+`company_id` DECIMAL(10,2),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `jobskills` (
+`ID` DECIMAL(10,2),
+`first_id` DECIMAL(10,2),
+`second_id` DECIMAL(10,2),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_152916_lab1_create') AS relationships;
+relationships
+Database: db_152916_lab1_create
+
+Table Connections:
+------------------
+[Implied]  accounts.profile_id -> contacts.ID
+[Implied]  accounts.profile_id -> employees.ID
+[Implied]  employees.company_id -> companies.ID
+[Implied]  jobs.company_id -> companies.ID
+[Implied]  jobskills.ID -> jobs.ID
+[Implied]  jobskills.ID -> skills.ID
+
+DROP DATABASE `db_152916_lab1_create`;
+UNINSTALL EXTENSION vsql_schematron;

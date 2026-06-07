@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 510233_crewSchema
+#
+CREATE DATABASE `db_510233_crewSchema`;
+USE `db_510233_crewSchema`;
+CREATE TABLE `departments` (
+`id` INT,
+`dept` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT,
+`title` VARCHAR(64),
+`salary` DECIMAL(10,2),
+`dept_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`dept_id` INT,
+`role_id` INT,
+`mangr_id` INT,
+`is_mangr` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_510233_crewSchema') AS relationships;
+relationships
+Database: db_510233_crewSchema
+
+Table Connections:
+------------------
+[Implied]  employees.dept_id -> departments.id
+[Implied]  employees.role_id -> roles.id
+[Implied]  roles.dept_id -> departments.id
+
+DROP DATABASE `db_510233_crewSchema`;
+UNINSTALL EXTENSION vsql_schematron;

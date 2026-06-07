@@ -1,0 +1,133 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 482277_Schema
+--echo #
+CREATE DATABASE `db_482277_Schema`;
+USE `db_482277_Schema`;
+
+CREATE TABLE `estado` (
+  `uf` VARCHAR(64),
+  `nome` VARCHAR(64),
+  PRIMARY KEY (`uf`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cidade` (
+  `id_cidade` INT,
+  `uf` VARCHAR(64),
+  `nome` VARCHAR(64),
+  PRIMARY KEY (`id_cidade`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bairro` (
+  `id_bairro` INT,
+  `id_cidade` INT,
+  `nome` VARCHAR(64),
+  PRIMARY KEY (`id_bairro`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuario` (
+  `id_usuario` INT,
+  `id_bairro` INT,
+  `primeiro_nome` VARCHAR(64),
+  `segundo_nome` VARCHAR(64),
+  `sexo` VARCHAR(64),
+  `data_nascimento` DATETIME,
+  `cpf` INT,
+  `rg` INT,
+  PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `telefone` (
+  `id_telefone` INT,
+  `id_usuario` INT,
+  `tipo` VARCHAR(64),
+  `numero` INT,
+  PRIMARY KEY (`id_telefone`, `id_usuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `paciente` (
+  `id_usuario` INT,
+  `num_sus` INT,
+  PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `funcionario` (
+  `id_usuario` INT,
+  `email` VARCHAR(64),
+  `senha` VARCHAR(64),
+  PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `medico` (
+  `id_funcionario` INT,
+  `crm` VARCHAR(64),
+  PRIMARY KEY (`id_funcionario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `enfermeira` (
+  `id_funcionario` INT,
+  `coren` VARCHAR(64),
+  PRIMARY KEY (`id_funcionario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `agendamento` (
+  `id_agendamento` INT,
+  `id_paciente` INT,
+  `data_hora` DATETIME,
+  PRIMARY KEY (`id_agendamento`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `consulta` (
+  `id_agendamento` INT,
+  `id_medico` INT,
+  PRIMARY KEY (`id_agendamento`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `receita` (
+  `id_receita` INT,
+  `id_consulta` INT,
+  PRIMARY KEY (`id_receita`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `remedio` (
+  `id_remedio` INT,
+  `miligrama` INT,
+  `nome` VARCHAR(64),
+  `tarja` VARCHAR(64),
+  PRIMARY KEY (`id_remedio`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `receita_remedio` (
+  `id_receita` INT,
+  `id_remedio` INT,
+  `orientacao` VARCHAR(64),
+  PRIMARY KEY (`id_receita`, `id_remedio`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `estoque` (
+  `id_remedio` INT,
+  `id_enfermeira` INT,
+  `quantidade` INT,
+  PRIMARY KEY (`id_remedio`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_482277_Schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_482277_Schema') AS relationships;
+DROP DATABASE `db_482277_Schema`;
+UNINSTALL EXTENSION vsql_schematron;

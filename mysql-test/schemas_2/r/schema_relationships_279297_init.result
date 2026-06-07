@@ -1,0 +1,148 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 279297_init
+#
+CREATE DATABASE `db_279297_init`;
+USE `db_279297_init`;
+CREATE TABLE `state_type` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `activity_type` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `action_type` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `target_type` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `process` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`external_id` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `admin` (
+`id` VARCHAR(64),
+`user_id` VARCHAR(64),
+`process_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `state` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`state_type_id` VARCHAR(64),
+`pro_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transition` (
+`id` VARCHAR(64),
+`curr_state` VARCHAR(64),
+`next_state` VARCHAR(64),
+`process_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`process_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group_member` (
+`id` VARCHAR(64),
+`group_id` VARCHAR(64),
+`user_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `action` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`type_id` VARCHAR(64),
+`process_id` VARCHAR(64),
+`transition_id` VARCHAR(64),
+`group_id` VARCHAR(64),
+`target_type_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `request` (
+`id` VARCHAR(64),
+`process_id` VARCHAR(64),
+`name` VARCHAR(64),
+`request_time` DATETIME,
+`requester_user_id` VARCHAR(64),
+`current_state` VARCHAR(64),
+`blocked` BOOL,
+`blocker_external_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `request_data` (
+`id` VARCHAR(64),
+`request_id` VARCHAR(64),
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `request_action` (
+`id` VARCHAR(64),
+`request_id` VARCHAR(64),
+`transition_id` VARCHAR(64),
+`action_id` VARCHAR(64),
+`active` BOOL,
+`completed` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stakeholder` (
+`id` VARCHAR(64),
+`request_id` VARCHAR(64),
+`user_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_279297_init') AS relationships;
+relationships
+Database: db_279297_init
+
+Table Connections:
+------------------
+[Implied]  action.group_id -> group.id
+[Implied]  action.process_id -> process.id
+[Implied]  action.target_type_id -> target_type.id
+[Implied]  action.transition_id -> transition.id
+[Implied]  admin.process_id -> process.id
+[Implied]  admin.user_id -> user.id
+[Implied]  group.process_id -> process.id
+[Implied]  group_member.group_id -> group.id
+[Implied]  group_member.user_id -> user.id
+[Implied]  request.current_state -> state.id
+[Implied]  request.current_state -> state_type.id
+[Implied]  request.process_id -> process.id
+[Implied]  request.requester_user_id -> user.id
+[Implied]  request_action.action_id -> action.id
+[Implied]  request_action.request_id -> request.id
+[Implied]  request_action.transition_id -> transition.id
+[Implied]  request_data.request_id -> request.id
+[Implied]  stakeholder.request_id -> request.id
+[Implied]  stakeholder.user_id -> user.id
+[Implied]  state.pro_id -> process.id
+[Implied]  state.state_type_id -> state_type.id
+[Implied]  transition.curr_state -> state.id
+[Implied]  transition.curr_state -> state_type.id
+[Implied]  transition.next_state -> state.id
+[Implied]  transition.next_state -> state_type.id
+[Implied]  transition.process_id -> process.id
+
+DROP DATABASE `db_279297_init`;
+UNINSTALL EXTENSION vsql_schematron;

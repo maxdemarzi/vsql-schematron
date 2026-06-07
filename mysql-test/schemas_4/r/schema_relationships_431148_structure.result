@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 431148_structure
+#
+CREATE DATABASE `db_431148_structure`;
+USE `db_431148_structure`;
+CREATE TABLE `gestion_test_covid.Personne` (
+`idPersonne` INT,
+`Nom_personne` VARCHAR(64),
+`Prenom_personne` VARCHAR(64),
+`Age` INT,
+`Adresse` VARCHAR(64),
+`Tel` VARCHAR(64),
+PRIMARY KEY (`idPersonne`)
+) CHARACTER SET latin1;
+CREATE TABLE `gestion_test_covid.Test` (
+`idTest` INT,
+`Nom_test` VARCHAR(64),
+`Lieu` VARCHAR(64),
+`Nb_dispo` INT,
+PRIMARY KEY (`idTest`)
+) CHARACTER SET latin1;
+CREATE TABLE `gestion_test_covid.Encadrant` (
+`idEncadrant` INT,
+`Nom_encadrant` VARCHAR(64),
+`Prenom_encadrant` VARCHAR(64),
+`Poste` VARCHAR(64),
+`Tel_pro` VARCHAR(64),
+PRIMARY KEY (`idEncadrant`)
+) CHARACTER SET latin1;
+CREATE TABLE `gestion_test_covid.RDV` (
+`idRDV` INT,
+`date_rdv` DATETIME,
+`heure_rdv` DATETIME,
+`avec_ordonnance` VARCHAR(64),
+`lieu` VARCHAR(64),
+`Personne_idPersonne` INT,
+`Test_idTest` INT,
+`Encadrant_idEncadrant` INT,
+PRIMARY KEY (`idRDV`, `Personne_idPersonne`, `Test_idTest`, `Encadrant_idEncadrant`)
+) CHARACTER SET latin1;
+CREATE TABLE `gestion_test_covid.Resultat` (
+`idResultat` INT,
+`pos_ou_neg` VARCHAR(64),
+`Commentaire` VARCHAR(64),
+`RDV_idRDV` INT,
+PRIMARY KEY (`idResultat`, `RDV_idRDV`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_431148_structure') AS relationships;
+relationships
+Database: db_431148_structure
+
+Table Connections:
+------------------
+[Implied]  gestion_test_covid.RDV.Encadrant_idEncadrant -> gestion_test_covid.Encadrant.idEncadrant
+[Implied]  gestion_test_covid.RDV.Personne_idPersonne -> gestion_test_covid.Personne.idPersonne
+[Implied]  gestion_test_covid.RDV.Test_idTest -> gestion_test_covid.Test.idTest
+
+DROP DATABASE `db_431148_structure`;
+UNINSTALL EXTENSION vsql_schematron;

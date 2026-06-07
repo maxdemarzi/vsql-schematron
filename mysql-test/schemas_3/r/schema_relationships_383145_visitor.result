@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 383145_visitor
+#
+CREATE DATABASE `db_383145_visitor`;
+USE `db_383145_visitor`;
+CREATE TABLE `canton` (
+`id` INT,
+`nombre` VARCHAR(64),
+`siglas` VARCHAR(64),
+`id_provincia` INT,
+`activo` INT
+) CHARACTER SET latin1;
+CREATE TABLE `entidad` (
+`id` INT,
+`nombre` VARCHAR(64),
+`siglas` VARCHAR(64),
+`id_parroquia` INT,
+`activo` INT,
+`fecha_ingreso` DATETIME,
+`fecha_edicion` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `pais` (
+`id` INT,
+`nombre` VARCHAR(64),
+`siglas` VARCHAR(64),
+`activo` INT,
+`fecha_ingreso` DATETIME,
+`fecha_edicion` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `parroquia` (
+`id` INT,
+`nombre` VARCHAR(64),
+`siglas` VARCHAR(64),
+`id_canton` INT,
+`activo` INT,
+`fecha_ingreso` DATETIME,
+`fecha_edicion` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `provincia` (
+`id` INT,
+`nombre` VARCHAR(64),
+`siglas` VARCHAR(64),
+`id_pais` INT,
+`activo` INT,
+`fecha_ingreso` DATETIME,
+`fecha_edicion` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `unidad` (
+`id` INT,
+`nombre` VARCHAR(64),
+`siglas` VARCHAR(64),
+`activo` INT,
+`fecha_ingreso` DATETIME,
+`fecha_edicion` DATETIME,
+`id_entidad` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_383145_visitor') AS relationships;
+relationships
+Database: db_383145_visitor
+
+Table Connections:
+------------------
+[Implied]  canton.id_provincia -> provincia.id
+[Implied]  entidad.id_parroquia -> parroquia.id
+[Implied]  parroquia.id_canton -> canton.id
+[Implied]  provincia.id_pais -> pais.id
+[Implied]  unidad.id_entidad -> entidad.id
+
+DROP DATABASE `db_383145_visitor`;
+UNINSTALL EXTENSION vsql_schematron;

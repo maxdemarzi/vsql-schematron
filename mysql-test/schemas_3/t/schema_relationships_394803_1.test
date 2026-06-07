@@ -1,0 +1,175 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 394803_1
+--echo #
+CREATE DATABASE `db_394803_1`;
+USE `db_394803_1`;
+
+CREATE TABLE `abilities` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `natures` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ev_spreads` (
+  `id` INT,
+  `hp` INT,
+  `attack` INT,
+  `defence` INT,
+  `spa` INT,
+  `spd` INT,
+  `speed` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `moves` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `items` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pokemon` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `generations` (
+  `id` INT,
+  `number` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tiers` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `generation_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `years` (
+  `id` INT,
+  `number` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `months` (
+  `id` INT,
+  `number` INT,
+  `year_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tier_months` (
+  `id` INT,
+  `month_id` INT,
+  `tier_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tier_ratings` (
+  `id` INT,
+  `no_of_battles` INT,
+  `rating` INT,
+  `tier_month_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stat_records` (
+  `id` INT,
+  `raw_usage` INT,
+  `pokemon_id` INT,
+  `tier_rating_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ability_records` (
+  `id` INT,
+  `number` DECIMAL(10,2),
+  `ability_id` INT,
+  `stat_record_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `check_records` (
+  `id` INT,
+  `matchup_occurences` INT,
+  `kos_or_switches_caused` DECIMAL(10,2),
+  `kos_or_switches_stddev` DECIMAL(10,2),
+  `pokemon_id` INT,
+  `stat_record_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `item_records` (
+  `id` INT,
+  `number` DECIMAL(10,2),
+  `item_id` INT,
+  `stat_record_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `lead_records` (
+  `id` INT,
+  `number` DECIMAL(10,2),
+  `stat_record_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `move_records` (
+  `id` INT,
+  `number` DECIMAL(10,2),
+  `move_id` INT,
+  `stat_record_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `spread_records` (
+  `id` INT,
+  `number` DECIMAL(10,2),
+  `ev_spread_id` INT,
+  `nature_id` INT,
+  `stat_record_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `teammate_records` (
+  `id` INT,
+  `number` DECIMAL(10,2),
+  `pokemon_id` INT,
+  `stat_record_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_394803_1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_394803_1') AS relationships;
+DROP DATABASE `db_394803_1`;
+UNINSTALL EXTENSION vsql_schematron;

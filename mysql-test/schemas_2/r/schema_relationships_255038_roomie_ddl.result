@@ -1,0 +1,109 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 255038_roomie.ddl
+#
+CREATE DATABASE `db_255038_roomie_ddl`;
+USE `db_255038_roomie_ddl`;
+CREATE TABLE `Tenant` (
+`ID` INT,
+`AvatarID` INT,
+`Name` VARCHAR(64),
+`Email` VARCHAR(64),
+`Username` VARCHAR(64),
+`Phone` VARCHAR(64),
+`BirthDate` DATETIME,
+`Sex` VARCHAR(64),
+`Nif` VARCHAR(64),
+`Nationality` VARCHAR(64),
+`Occupation` VARCHAR(64),
+`Password` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `House` (
+`ID` INT,
+`LandlordID` INT,
+`Address` VARCHAR(64),
+`Title` VARCHAR(64),
+`Rooms` INT,
+`AvailableRooms` INT,
+`BathRooms` INT,
+`MinPrice` DECIMAL(10,2),
+`MaxPrice` DECIMAL(10,2),
+`Description` VARCHAR(64),
+`Features` VARCHAR(64),
+`LandlordIndex` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Photo` (
+`ID` INT,
+`HouseID` INT,
+`Path` VARCHAR(64),
+`HouseIndex` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Landlord` (
+`ID` INT,
+`AvatarID` INT,
+`Name` VARCHAR(64),
+`Email` VARCHAR(64),
+`Username` VARCHAR(64),
+`BirthDate` DATETIME,
+`Sex` VARCHAR(64),
+`Nif` VARCHAR(64),
+`Address` VARCHAR(64),
+`Password` VARCHAR(64),
+`Phone` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `RentHistory` (
+`HouseID` INT,
+`TenantID` INT,
+`BDate` DATETIME,
+`EDate` DATETIME,
+PRIMARY KEY (`HouseID`, `TenantID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Application` (
+`TenantID` INT,
+`HouseID` INT,
+`ToBeAssessed` BOOL,
+`Accepted` BOOL,
+PRIMARY KEY (`TenantID`, `HouseID`)
+) CHARACTER SET latin1;
+CREATE TABLE `LandlordEvaluation` (
+`LandlordID` INT,
+`TenantID` INT,
+`Cleanliness` DECIMAL(10,2),
+`Payment` DECIMAL(10,2),
+`Care` DECIMAL(10,2),
+PRIMARY KEY (`LandlordID`, `TenantID`)
+) CHARACTER SET latin1;
+CREATE TABLE `TenantEvaluation` (
+`EvaluatorID` INT,
+`EvaluatedID` INT,
+`Tidiness` DECIMAL(10,2),
+`Cleanliness` DECIMAL(10,2),
+`Privacy` DECIMAL(10,2),
+`Friendliness` DECIMAL(10,2),
+PRIMARY KEY (`EvaluatorID`, `EvaluatedID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Avatar` (
+`ID` INT,
+`Path` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_255038_roomie_ddl') AS relationships;
+relationships
+Database: db_255038_roomie_ddl
+
+Table Connections:
+------------------
+[Implied]  Application.HouseID -> House.ID
+[Implied]  House.LandlordID -> Landlord.ID
+[Implied]  Landlord.AvatarID -> Avatar.ID
+[Implied]  LandlordEvaluation.LandlordID -> Landlord.ID
+[Implied]  Photo.HouseID -> House.ID
+[Implied]  RentHistory.HouseID -> House.ID
+[Implied]  Tenant.AvatarID -> Avatar.ID
+
+DROP DATABASE `db_255038_roomie_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

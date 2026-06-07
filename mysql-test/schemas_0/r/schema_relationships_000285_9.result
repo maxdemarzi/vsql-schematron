@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 000285_9
+#
+CREATE DATABASE `db_000285_9`;
+USE `db_000285_9`;
+CREATE TABLE `car` (
+`_id` INT,
+`car__name` VARCHAR(64),
+`color` INT,
+`suspended_since` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `other_cost` (
+`_id` INT,
+`title` VARCHAR(64),
+`date` INT,
+`mileage` INT,
+`price` DECIMAL(10,2),
+`recurrence_interval` INT,
+`recurrence_multiplier` INT,
+`end_date` INT,
+`note` VARCHAR(64),
+`car_id` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `refueling` (
+`_id` INT,
+`date` INT,
+`mileage` INT,
+`volume` DECIMAL(10,2),
+`price` DECIMAL(10,2),
+`partial` INT,
+`note` VARCHAR(64),
+`fuel_type_id` INT,
+`car_id` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reminder` (
+`_id` INT,
+`title` VARCHAR(64),
+`after_time_span_unit` INT,
+`after_time_span_count` INT,
+`after_distance` INT,
+`start_date` INT,
+`start_mileage` INT,
+`notification_dismissed` INT,
+`snoozed_until` INT,
+`car_id` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_000285_9') AS relationships;
+relationships
+Database: db_000285_9
+
+Table Connections:
+------------------
+[Implied]  other_cost.car_id -> car._id
+[Implied]  refueling.car_id -> car._id
+[Implied]  reminder.car_id -> car._id
+
+DROP DATABASE `db_000285_9`;
+UNINSTALL EXTENSION vsql_schematron;

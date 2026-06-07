@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 371250_TABLES
+#
+CREATE DATABASE `db_371250_TABLES`;
+USE `db_371250_TABLES`;
+CREATE TABLE `USERS` (
+`user_id` INT,
+`full_name` VARCHAR(64),
+`email_address` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`user_password` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RECIPES` (
+`recipe_id` INT,
+`recipe_name` VARCHAR(64),
+`recipe_cuisine` VARCHAR(64),
+`recipe_description` VARCHAR(64),
+`recipe_ingredients` VARCHAR(64),
+`recipe_steps` VARCHAR(64),
+`user_id` INT,
+`rejection_reason` VARCHAR(64),
+`recipe_lastupdate_time` DATETIME,
+`status` VARCHAR(64),
+PRIMARY KEY (`recipe_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RATINGS` (
+`user_id` INT,
+`recipe_id` INT,
+`recipe_rating` INT
+) CHARACTER SET latin1;
+CREATE TABLE `CATEGORIES` (
+`category_id` INT,
+`category_name` VARCHAR(64),
+PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `RECIPE_CATEGORIES` (
+`recipe_id` INT,
+`category_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `FOLLOWERS` (
+`user_id` INT,
+`follower_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `SEARCHSUGGESTIONS` (
+`user_id` INT,
+`search` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `RECIPE_IMAGES` (
+`recipe_id` INT,
+`image_path` VARCHAR(64),
+`image_name` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `LOGINFORMATION` (
+`log_time` VARCHAR(64),
+`log_level` VARCHAR(64),
+`log_message` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `PASSWORD_CONFIG` (
+`password_Length` INT,
+`have_Lowercase_Character` BOOL,
+`have_Uppercase_Character` BOOL,
+`have_Number` BOOL,
+`have_Special_Symbol` BOOL
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_371250_TABLES') AS relationships;
+relationships
+Database: db_371250_TABLES
+
+Table Connections:
+------------------
+[Implied]  FOLLOWERS.follower_id -> USERS.user_id
+[Implied]  FOLLOWERS.user_id -> USERS.user_id
+[Implied]  RATINGS.recipe_id -> RECIPES.recipe_id
+[Implied]  RATINGS.user_id -> USERS.user_id
+[Implied]  RECIPES.user_id -> USERS.user_id
+[Implied]  RECIPE_CATEGORIES.category_id -> CATEGORIES.category_id
+[Implied]  RECIPE_CATEGORIES.recipe_id -> RECIPES.recipe_id
+[Implied]  RECIPE_IMAGES.recipe_id -> RECIPES.recipe_id
+[Implied]  SEARCHSUGGESTIONS.user_id -> USERS.user_id
+
+DROP DATABASE `db_371250_TABLES`;
+UNINSTALL EXTENSION vsql_schematron;

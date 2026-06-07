@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 670978_31102018
+--echo #
+CREATE DATABASE `db_670978_31102018`;
+USE `db_670978_31102018`;
+
+CREATE TABLE `DBLINKS` (
+  `DATAB_ID` INT,
+  `ABBREVIATION` VARCHAR(64),
+  `WEBLINK` VARCHAR(64),
+  PRIMARY KEY (`DATAB_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DISEASE` (
+  `DISEASE_ID` INT,
+  `DISEASE_NAME` VARCHAR(64),
+  `DISEASE_DESCRIPTION` VARCHAR(64),
+  `DISEASE_TYPE` VARCHAR(64),
+  `DISEASE_ASSOCIATION` VARCHAR(64),
+  `DISEASE_TISSUE` VARCHAR(64),
+  `DISEASE_ISA_NAME` VARCHAR(64),
+  PRIMARY KEY (`DISEASE_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROTEIN` (
+  `PROTEIN_ID` INT,
+  `AC` VARCHAR(64),
+  `UNIPROT_ID` VARCHAR(64),
+  `PRIMARY_NAME` VARCHAR(64),
+  `SIPE_NAME` VARCHAR(64),
+  `PROTEIN_NAMES` VARCHAR(64),
+  `SEQ_LENGTH` INT,
+  `GENENAME` VARCHAR(64),
+  `SEQUENCE` VARCHAR(64),
+  `FUNCTION_` VARCHAR(64),
+  PRIMARY KEY (`PROTEIN_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROTEIN_TO_DISEASE` (
+  `ID` INT,
+  `DIS_ID` INT,
+  `PR_ID` INT,
+  `RELATIONSHIP` VARCHAR(64),
+  `PUBMED_ID` VARCHAR(64),
+  `AMYPRO_ID` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ALTERNATIVE_NAMES` (
+  `ID` INT,
+  `DIS_ID` INT,
+  `ALTERNATIVE_NAME` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CROSSREFERENCES` (
+  `ID` INT,
+  `DIS_ID` INT,
+  `CROSSREF_ID` VARCHAR(64),
+  `DATAB_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DISEASE_MAPPINGS` (
+  `ID` INT,
+  `DIS_FROM_ID` INT,
+  `DIS_TO_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_670978_31102018') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_670978_31102018') AS relationships;
+DROP DATABASE `db_670978_31102018`;
+UNINSTALL EXTENSION vsql_schematron;

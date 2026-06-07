@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 238208_tables
+#
+CREATE DATABASE `db_238208_tables`;
+USE `db_238208_tables`;
+CREATE TABLE `pharmacies` (
+`id` INT,
+`title` VARCHAR(64),
+`phones` VARCHAR(64),
+`address` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `drugs` (
+`id` INT,
+`title` VARCHAR(64),
+`status` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `drugs_to_ph` (
+`id` INT,
+`ph_id` INT,
+`drug_id` INT,
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `drugs_analogs` (
+`id` INT,
+`drug_id` INT,
+`analog_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_238208_tables') AS relationships;
+relationships
+Database: db_238208_tables
+
+Table Connections:
+------------------
+[Implied]  drugs_analogs.drug_id -> drugs.id
+[Implied]  drugs_to_ph.drug_id -> drugs.id
+
+DROP DATABASE `db_238208_tables`;
+UNINSTALL EXTENSION vsql_schematron;

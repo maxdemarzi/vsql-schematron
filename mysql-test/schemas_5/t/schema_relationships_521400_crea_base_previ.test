@@ -1,0 +1,189 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 521400_crea_base_previ
+--echo #
+CREATE DATABASE `db_521400_crea_base_previ`;
+USE `db_521400_crea_base_previ`;
+
+CREATE TABLE `ORGANISATION` (
+  `or_id` INT,
+  `or_code` VARCHAR(64),
+  `or_designation` VARCHAR(64),
+  `or_inactif` BOOL,
+  PRIMARY KEY (`or_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MODELE` (
+  `mo_id` INT,
+  `mo_code` VARCHAR(64),
+  `mo_designation` VARCHAR(64),
+  `mo_or_id` INT,
+  `mo_inactif` BOOL,
+  PRIMARY KEY (`mo_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `OUTIL` (
+  `ou_id` INT,
+  `ou_code` VARCHAR(64),
+  `ou_designation` VARCHAR(64),
+  `ou_mo_id` INT,
+  `ou_inactif` BOOL,
+  PRIMARY KEY (`ou_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EMPLOYE` (
+  `em_id` INT,
+  `em_code` VARCHAR(64),
+  `em_prenom` VARCHAR(64),
+  `em_nom` VARCHAR(64),
+  `em_status` VARCHAR(64),
+  `em_mdp` VARCHAR(64),
+  `em_inactif` BOOL,
+  PRIMARY KEY (`em_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EPI` (
+  `epi_id` INT,
+  `epi_designation` VARCHAR(64),
+  PRIMARY KEY (`epi_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `VISITE` (
+  `vi_id` INT,
+  `vi_designation` VARCHAR(64),
+  `vi_num_vers` VARCHAR(64),
+  `vi_type` INT,
+  `vi_inactif` BOOL,
+  PRIMARY KEY (`vi_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FICHE` (
+  `fi_id` INT,
+  `fi_designation` VARCHAR(64),
+  `fi_num_vers` VARCHAR(64),
+  `fi_inactif` BOOL,
+  PRIMARY KEY (`fi_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `OPERATION` (
+  `op_id` INT,
+  `op_contenu` VARCHAR(64),
+  `op_type` INT,
+  `op_inactif` BOOL,
+  PRIMARY KEY (`op_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `COMPO_OPERATION` (
+  `co_op_id` INT,
+  `co_epi_id` INT,
+  PRIMARY KEY (`co_op_id`, `co_epi_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `COMPO_FICHE` (
+  `cf_fi_id` INT,
+  `cf_op_id` INT,
+  `cf_ordre` INT,
+  PRIMARY KEY (`cf_fi_id`, `cf_op_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `COMPO_VISITE` (
+  `cv_vi_id` INT,
+  `cv_fi_id` INT,
+  PRIMARY KEY (`cv_vi_id`, `cv_fi_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `VISITE_ATTACHEMENT` (
+  `va_vi_id` INT,
+  `va_mo_id` INT,
+  PRIMARY KEY (`va_vi_id`, `va_mo_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `REALISATION_VISITE` (
+  `rv_id` INT,
+  `rv_vi_id` INT,
+  `rv_ou_id` INT,
+  `rv_debut` DATETIME,
+  `rv_fin` DATETIME,
+  `rv_etat` BOOL,
+  PRIMARY KEY (`rv_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `REALISATION_FICHE` (
+  `rf_id` INT,
+  `rf_fi_id` INT,
+  `rf_rv_id` INT,
+  `rf_em_id` INT,
+  `rf_debut` DATETIME,
+  `rf_fin` DATETIME,
+  `rf_etat` BOOL,
+  PRIMARY KEY (`rf_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `REALISATION_OPERATION` (
+  `ro_id` INT,
+  `ro_op_id` INT,
+  `ro_rf_id` INT,
+  `ro_res` VARCHAR(64),
+  PRIMARY KEY (`ro_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `HISTO_REALISATION_VISITE` (
+  `h_rv_id` INT,
+  `h_rv_vi_id` INT,
+  `h_rv_ou_id` INT,
+  `h_rv_debut` DATETIME,
+  `h_rv_fin` DATETIME,
+  `h_rv_etat` BOOL,
+  PRIMARY KEY (`h_rv_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `HISTO_REALISATION_FICHE` (
+  `h_rf_id` INT,
+  `h_rf_fi_id` INT,
+  `h_rf_rv_id` INT,
+  `h_rf_em_id` INT,
+  `h_rf_debut` DATETIME,
+  `h_rf_fin` DATETIME,
+  `h_rf_etat` BOOL,
+  PRIMARY KEY (`h_rf_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `HISTO_REALISATION_OPERATION` (
+  `h_ro_id` INT,
+  `h_ro_op_id` INT,
+  `h_ro_rf_id` INT,
+  `h_ro_res` VARCHAR(64),
+  PRIMARY KEY (`h_ro_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `admin_parameters` (
+  `ap_KEY` INT,
+  `ap_pslvl1` VARCHAR(64),
+  `ap_pslvl2` VARCHAR(64),
+  `ap_pslvl3` VARCHAR(64),
+  `ap_eqlvl1` VARCHAR(64),
+  `ap_eqlvl2` VARCHAR(64),
+  `ap_eqlvl3` VARCHAR(64),
+  PRIMARY KEY (`ap_KEY`, `ap_pslvl1`, `ap_pslvl2`, `ap_pslvl3`, `ap_eqlvl1`, `ap_eqlvl2`, `ap_eqlvl3`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_521400_crea_base_previ') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_521400_crea_base_previ') AS relationships;
+DROP DATABASE `db_521400_crea_base_previ`;
+UNINSTALL EXTENSION vsql_schematron;

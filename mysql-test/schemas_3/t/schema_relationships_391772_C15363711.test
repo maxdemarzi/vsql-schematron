@@ -1,0 +1,130 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 391772_C15363711
+--echo #
+CREATE DATABASE `db_391772_C15363711`;
+USE `db_391772_C15363711`;
+
+CREATE TABLE `StaffRole` (
+  `roleID` DECIMAL(10,2),
+  `roleDesc` VARCHAR(64),
+  PRIMARY KEY (`roleID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Staff` (
+  `staffID` DECIMAL(10,2),
+  `staffName` VARCHAR(64),
+  `staffAddress` VARCHAR(64),
+  `staffPhone` VARCHAR(64),
+  `staffEmail` VARCHAR(64),
+  `staffPPSN` VARCHAR(64),
+  `roleID` DECIMAL(10,2),
+  PRIMARY KEY (`staffID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Customer` (
+  `custId` DECIMAL(10,2),
+  `custname` VARCHAR(64),
+  `custaddress` VARCHAR(64),
+  `mednum` VARCHAR(64),
+  `custEmail` VARCHAR(64),
+  `custPhone` VARCHAR(64),
+  PRIMARY KEY (`custId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Doctor` (
+  `doctorId` DECIMAL(10,2),
+  `dname` VARCHAR(64),
+  `surgDetails` VARCHAR(64),
+  `surgName` VARCHAR(64),
+  `surgAddress` VARCHAR(64),
+  PRIMARY KEY (`doctorId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Prescription` (
+  `prescriptionID` DECIMAL(10,2),
+  `doctorId` DECIMAL(10,2),
+  `staffID` DECIMAL(10,2),
+  `custId` DECIMAL(10,2),
+  `numofdays` DECIMAL(10,2),
+  `specificProd` VARCHAR(64),
+  PRIMARY KEY (`prescriptionID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DrugType` (
+  `drugTypeName` VARCHAR(64),
+  `dosage` VARCHAR(64),
+  `prescription` VARCHAR(64),
+  `pinstructions` VARCHAR(64),
+  `cinstructions` VARCHAR(64),
+  `prescriptionID` DECIMAL(10,2),
+  PRIMARY KEY (`drugTypeName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Brand` (
+  `brandID` DECIMAL(10,2),
+  `brandName` VARCHAR(64),
+  `drugTypeName` VARCHAR(64),
+  PRIMARY KEY (`brandID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Supplier` (
+  `suppID` DECIMAL(10,2),
+  `suppName` VARCHAR(64),
+  `suppAddress` VARCHAR(64),
+  `suppPhone` VARCHAR(64),
+  PRIMARY KEY (`suppID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Product` (
+  `stockcode` DECIMAL(10,2),
+  `prodDesc` VARCHAR(64),
+  `prodCostPrice` DECIMAL(10,2),
+  `prodRetailPrice` DECIMAL(10,2),
+  `brandID` DECIMAL(10,2),
+  `suppID` DECIMAL(10,2),
+  `collected` VARCHAR(64),
+  `drugTypeName` VARCHAR(64),
+  PRIMARY KEY (`stockcode`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PackSize` (
+  `sizeID` DECIMAL(10,2),
+  `sizeDesc` VARCHAR(64),
+  PRIMARY KEY (`sizeID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Product_PackSize` (
+  `stockcode` DECIMAL(10,2),
+  `sizeID` DECIMAL(10,2),
+  PRIMARY KEY (`stockcode`, `sizeID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `NonDrugSale` (
+  `stockcode` DECIMAL(10,2),
+  `staffID` DECIMAL(10,2),
+  `datetimeofSale` DATETIME,
+  `qtySold` DECIMAL(10,2),
+  PRIMARY KEY (`stockcode`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_391772_C15363711') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_391772_C15363711') AS relationships;
+DROP DATABASE `db_391772_C15363711`;
+UNINSTALL EXTENSION vsql_schematron;

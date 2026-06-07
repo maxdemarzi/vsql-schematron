@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 370038_migration
+--echo #
+CREATE DATABASE `db_370038_migration`;
+USE `db_370038_migration`;
+
+CREATE TABLE `User` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `issuer` VARCHAR(64),
+  `imageUrl` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Entry` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `userId` INT,
+  `title` VARCHAR(64),
+  `tagsText` VARCHAR(64),
+  `body` VARCHAR(64),
+  `code` VARCHAR(64),
+  `dateUpdated` DATETIME,
+  `teamId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Tag` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `entryId` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EntryHistory` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `entryId` INT,
+  `title` VARCHAR(64),
+  `tagsText` VARCHAR(64),
+  `body` VARCHAR(64),
+  `code` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Log` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `userId` INT,
+  `historyId` INT,
+  `entryId` INT,
+  `note` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Team` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `name` VARCHAR(64),
+  `handle` VARCHAR(64),
+  `imageUrl` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Member` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `teamId` INT,
+  `userId` INT,
+  `memberType` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_370038_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_370038_migration') AS relationships;
+DROP DATABASE `db_370038_migration`;
+UNINSTALL EXTENSION vsql_schematron;

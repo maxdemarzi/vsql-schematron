@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 087397_cmr_monitor
+--echo #
+CREATE DATABASE `db_087397_cmr_monitor`;
+USE `db_087397_cmr_monitor`;
+
+CREATE TABLE `config` (
+  `param` VARCHAR(64),
+  `value` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `links` (
+  `linkid` INT,
+  `osdd` VARCHAR(64),
+  `granule` VARCHAR(64),
+  `fk_source` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `monitor` (
+  `id` INT,
+  `request_type` VARCHAR(64),
+  `http_status` INT,
+  `total_time` DECIMAL(10,2),
+  `elapsed_time` DECIMAL(10,2),
+  `http_message` VARCHAR(64),
+  `parsed` VARCHAR(64),
+  `error` VARCHAR(64),
+  `timestamp` DATETIME,
+  `fk_source` VARCHAR(64),
+  `url` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `source` (
+  `sourceid` INT,
+  `source` VARCHAR(64),
+  `label` VARCHAR(64),
+  `status` VARCHAR(64),
+  `ping` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_087397_cmr_monitor') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_087397_cmr_monitor') AS relationships;
+DROP DATABASE `db_087397_cmr_monitor`;
+UNINSTALL EXTENSION vsql_schematron;

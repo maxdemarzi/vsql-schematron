@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 032850_LAPR3_criacao_base_dados
+#
+CREATE DATABASE `db_032850_LAPR3_criacao_base_dados`;
+USE `db_032850_LAPR3_criacao_base_dados`;
+CREATE TABLE `Place` (
+`id_place` VARCHAR(64),
+`latitude_place` DECIMAL(10,2),
+`longitude_place` DECIMAL(10,2),
+`elevation` DECIMAL(10,2),
+`description` VARCHAR(64),
+PRIMARY KEY (`id_place`)
+) CHARACTER SET latin1;
+CREATE TABLE `Vehicle` (
+`id_vehicle` VARCHAR(64),
+`weight_vehicle` DECIMAL(10,2),
+`latitude_vehicle` DECIMAL(10,2),
+`longitude_vehicle` DECIMAL(10,2),
+`aerodynamic_coefficient_vehicle` DECIMAL(10,2),
+`frontal_area_vehicle` DECIMAL(10,2),
+PRIMARY KEY (`id_vehicle`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bicycle` (
+`id_bicycle` VARCHAR(64),
+`wheel_size` DECIMAL(10,2),
+PRIMARY KEY (`id_bicycle`)
+) CHARACTER SET latin1;
+CREATE TABLE `Electric_Scooter` (
+`id_escooter` VARCHAR(64),
+`type_escooter` VARCHAR(64),
+`max_battery` DECIMAL(10,2),
+`actual_battery` DECIMAL(10,2),
+`motor` DECIMAL(10,2),
+PRIMARY KEY (`id_escooter`)
+) CHARACTER SET latin1;
+CREATE TABLE `Park` (
+`id_park` VARCHAR(64),
+`max_numbicycles` DECIMAL(10,2),
+`max_numescooters` DECIMAL(10,2),
+`available_bicycles` DECIMAL(10,2),
+`available_escooters` DECIMAL(10,2),
+`input_voltage_park` DECIMAL(10,2),
+`input_current_park` DECIMAL(10,2),
+PRIMARY KEY (`id_park`)
+) CHARACTER SET latin1;
+CREATE TABLE `Point_Of_Interest` (
+`id_poi` VARCHAR(64),
+PRIMARY KEY (`id_poi`)
+) CHARACTER SET latin1;
+CREATE TABLE `App_User` (
+`user_name` VARCHAR(64),
+`user_email` VARCHAR(64),
+`user_pass` VARCHAR(64),
+`height` DECIMAL(10,2),
+`weight` DECIMAL(10,2),
+`gender` VARCHAR(64),
+`cyclingAvgSpeed` DECIMAL(10,2),
+`visaCardNumber` DECIMAL(10,2),
+`points` DECIMAL(10,2),
+PRIMARY KEY (`user_email`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rent` (
+`id_rent` VARCHAR(64),
+`user_email` VARCHAR(64),
+`id_vehicle` VARCHAR(64),
+`id_park_start` VARCHAR(64),
+`id_park_end` VARCHAR(64),
+`date_hour_start` DATETIME,
+`date_hour_finish` DATETIME,
+`rent_cost` DECIMAL(10,2),
+`distance` DECIMAL(10,2),
+`points_rent` DECIMAL(10,2),
+PRIMARY KEY (`id_rent`)
+) CHARACTER SET latin1;
+CREATE TABLE `Travel_Path` (
+`id_place_start` VARCHAR(64),
+`id_place_end` VARCHAR(64),
+`kinetic_coefficient` DECIMAL(10,2),
+`wind_direction` DECIMAL(10,2),
+`wind_speed` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `Invoice` (
+`id_invoice` VARCHAR(64),
+`user_email` VARCHAR(64),
+`invoice_date` DATETIME,
+`total_cost` DECIMAL(10,2),
+PRIMARY KEY (`id_invoice`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_032850_LAPR3_criacao_base_dados') AS relationships;
+relationships
+Database: db_032850_LAPR3_criacao_base_dados
+
+Table Connections:
+------------------
+[Implied]  Invoice.user_email -> App_User.user_email
+[Implied]  Rent.id_park_end -> Park.id_park
+[Implied]  Rent.id_park_start -> Park.id_park
+[Implied]  Rent.id_vehicle -> Vehicle.id_vehicle
+[Implied]  Rent.user_email -> App_User.user_email
+[Implied]  Travel_Path.id_place_end -> Place.id_place
+[Implied]  Travel_Path.id_place_start -> Place.id_place
+
+DROP DATABASE `db_032850_LAPR3_criacao_base_dados`;
+UNINSTALL EXTENSION vsql_schematron;

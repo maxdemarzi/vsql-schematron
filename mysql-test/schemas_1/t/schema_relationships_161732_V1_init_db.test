@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 161732_V1__init_db
+--echo #
+CREATE DATABASE `db_161732_V1_init_db`;
+USE `db_161732_V1_init_db`;
+
+CREATE TABLE `boards` (
+  `id` INT,
+  `path` VARCHAR(64),
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `flag_hidden` BOOL,
+  `flag_nsfw` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `anons` (
+  `ipv4_addr` INT,
+  `timestamp_created_thread` DATETIME,
+  `timestamp_created_post` DATETIME,
+  `timestamp_created_report` DATETIME,
+  PRIMARY KEY (`ipv4_addr`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `posts` (
+  `id` INT,
+  `board_id` INT,
+  `thread_id` INT,
+  `data_message` VARCHAR(64),
+  `data_filepath` VARCHAR(64),
+  `data_thumbpath` VARCHAR(64),
+  `datetime_created` DATETIME,
+  `timestamp_edited` DATETIME,
+  `timestamp_bumped` DATETIME,
+  `ipv4_addr` INT,
+  `deleted` BOOL,
+  `delete_reason` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reports` (
+  `id` INT,
+  `post_id` INT,
+  `data_reason` VARCHAR(64),
+  `datetime_created` DATETIME,
+  `timestamp_processed` DATETIME,
+  `ipv4_addr` INT,
+  `processed` BOOL,
+  `admin_notes` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bans` (
+  `id` INT,
+  `report_id` INT,
+  `post_id` INT,
+  `data_reason` VARCHAR(64),
+  `datetime_created` DATETIME,
+  `datetime_starts` DATETIME,
+  `datetime_ends` DATETIME,
+  `ipv4_addr` INT,
+  `banned_ipv4_addr` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_161732_V1_init_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_161732_V1_init_db') AS relationships;
+DROP DATABASE `db_161732_V1_init_db`;
+UNINSTALL EXTENSION vsql_schematron;

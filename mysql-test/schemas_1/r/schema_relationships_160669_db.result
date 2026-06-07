@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 160669_db
+#
+CREATE DATABASE `db_160669_db`;
+USE `db_160669_db`;
+CREATE TABLE `orders` (
+`id` INT,
+`number` VARCHAR(64),
+`account_id` INT,
+`currency` VARCHAR(64),
+`price` DECIMAL(10,2),
+`tax` DECIMAL(10,2),
+`shipping_price` DECIMAL(10,2),
+`total_price` DECIMAL(10,2),
+`status` INT,
+`pmt_status` INT,
+`shipping_status` INT,
+`created_at` DATETIME,
+`last_modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lineitem` (
+`id` INT,
+`order_id` INT,
+`name` VARCHAR(64),
+`slug` VARCHAR(64),
+`price` DECIMAL(10,2),
+`qty` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment_info` (
+`id` INT,
+`order_id` INT,
+`name` VARCHAR(64),
+`number` VARCHAR(64),
+`cvv` INT,
+`exp_date` DATETIME,
+`method` INT,
+`created_at` DATETIME,
+`last_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shipping_info` (
+`id` INT,
+`order_id` INT,
+`payment_info_id` INT,
+`name` VARCHAR(64),
+`street` VARCHAR(64),
+`city` VARCHAR(64),
+`region` VARCHAR(64),
+`postal_code` VARCHAR(64),
+`country` VARCHAR(64),
+`created_at` DATETIME,
+`last_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_type` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_history` (
+`id` INT,
+`order_id` INT,
+`event_type_id` INT,
+`requested_by_id` VARCHAR(64),
+`ref_id` INT,
+`ref_type_id` INT,
+`ip` VARCHAR(64),
+`info` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_160669_db') AS relationships;
+relationships
+Database: db_160669_db
+
+Table Connections:
+------------------
+[Implied]  lineitem.order_id -> orders.id
+[Implied]  order_history.event_type_id -> event_type.id
+[Implied]  order_history.order_id -> orders.id
+[Implied]  payment_info.order_id -> orders.id
+[Implied]  shipping_info.order_id -> orders.id
+[Implied]  shipping_info.payment_info_id -> payment_info.id
+
+DROP DATABASE `db_160669_db`;
+UNINSTALL EXTENSION vsql_schematron;

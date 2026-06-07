@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 644021_execute_seq_b_create_tables
+#
+CREATE DATABASE `db_644021_execute_seq_b_create_tables`;
+USE `db_644021_execute_seq_b_create_tables`;
+CREATE TABLE `product` (
+`id` VARCHAR(64),
+`model_number` VARCHAR(64),
+`name` VARCHAR(64),
+`product_type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_description` (
+`product_id` VARCHAR(64),
+`subtitle` VARCHAR(64),
+`text` VARCHAR(64),
+`title` VARCHAR(64),
+PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_meta_data` (
+`product_id` VARCHAR(64),
+`canonical` VARCHAR(64),
+`description` VARCHAR(64),
+`page_title` VARCHAR(64),
+`site_name` VARCHAR(64),
+PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_meta_data_keywords` (
+`metadata_product_id` VARCHAR(64),
+`keywords` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `product_pricing` (
+`product_id` VARCHAR(64),
+`current_price` DECIMAL(10,2),
+`standard_price` DECIMAL(10,2),
+`standard_price_no_vat` DECIMAL(10,2),
+PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_644021_execute_seq_b_create_tables') AS relationships;
+relationships
+Database: db_644021_execute_seq_b_create_tables
+
+Table Connections:
+------------------
+[Implied]  product_description.product_id -> product.id
+[Implied]  product_meta_data.product_id -> product.id
+[Implied]  product_meta_data_keywords.metadata_product_id -> product.id
+[Implied]  product_meta_data_keywords.metadata_product_id -> product_meta_data.product_id
+[Implied]  product_pricing.product_id -> product.id
+
+DROP DATABASE `db_644021_execute_seq_b_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

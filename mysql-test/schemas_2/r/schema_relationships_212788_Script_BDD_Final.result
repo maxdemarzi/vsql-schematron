@@ -1,0 +1,99 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 212788_Script_BDD_Final
+#
+CREATE DATABASE `db_212788_Script_BDD_Final`;
+USE `db_212788_Script_BDD_Final`;
+CREATE TABLE `Persona` (
+`dni` VARCHAR(64),
+`nombre` VARCHAR(64),
+`apellido` VARCHAR(64),
+`calle` VARCHAR(64),
+`nro` VARCHAR(64),
+`piso` VARCHAR(64),
+`ciudad` VARCHAR(64),
+`cp` VARCHAR(64),
+`pais` VARCHAR(64),
+`tipo_persona` VARCHAR(64),
+`tlfo` VARCHAR(64),
+PRIMARY KEY (`dni`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cuenta` (
+`id` VARCHAR(64),
+`pass` VARCHAR(64),
+`Persona_dni` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Dueno` (
+`dni` VARCHAR(64),
+PRIMARY KEY (`dni`)
+) CHARACTER SET latin1;
+CREATE TABLE `Equipo` (
+`cod` DECIMAL(10,2),
+`nombre` VARCHAR(64),
+`desripcion` VARCHAR(64),
+`puntos` VARCHAR(64),
+`puesto` VARCHAR(64),
+`tipo` VARCHAR(64),
+`Dueno_dni` VARCHAR(64),
+PRIMARY KEY (`cod`)
+) CHARACTER SET latin1;
+CREATE TABLE `Liga` (
+`cod` DECIMAL(10,2),
+`nombre` VARCHAR(64),
+PRIMARY KEY (`cod`)
+) CHARACTER SET latin1;
+CREATE TABLE `Jornadas` (
+`cod` DECIMAL(10,2),
+`fechaI` DATETIME,
+`fechaF` DATETIME,
+`Liga_cod` DECIMAL(10,2),
+PRIMARY KEY (`cod`)
+) CHARACTER SET latin1;
+CREATE TABLE `Partido` (
+`cod` DECIMAL(10,2),
+`lugar` VARCHAR(64),
+`codGanador` DECIMAL(10,2),
+`empate` VARCHAR(64),
+`fecha` DATETIME,
+`resultado` VARCHAR(64),
+`Jornadas_cod` DECIMAL(10,2),
+PRIMARY KEY (`cod`)
+) CHARACTER SET latin1;
+CREATE TABLE `Equipo_juega` (
+`Equipo_cod` DECIMAL(10,2),
+`Partido_cod` DECIMAL(10,2),
+PRIMARY KEY (`Equipo_cod`, `Partido_cod`)
+) CHARACTER SET latin1;
+CREATE TABLE `Jugador` (
+`dni` VARCHAR(64),
+`nickname` VARCHAR(64),
+`sueldo` DECIMAL(10,2),
+`nombre` VARCHAR(64),
+`apellido` VARCHAR(64),
+`calle` VARCHAR(64),
+`nro` VARCHAR(64),
+`piso` VARCHAR(64),
+`ciudad` VARCHAR(64),
+`cp` VARCHAR(64),
+`pais` VARCHAR(64),
+`tlfo` VARCHAR(64),
+`Equipo_cod` DECIMAL(10,2),
+PRIMARY KEY (`dni`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_212788_Script_BDD_Final') AS relationships;
+relationships
+Database: db_212788_Script_BDD_Final
+
+Table Connections:
+------------------
+[Implied]  Cuenta.Persona_dni -> Persona.dni
+[Implied]  Equipo.Dueno_dni -> Dueno.dni
+[Implied]  Equipo_juega.Equipo_cod -> Equipo.cod
+[Implied]  Equipo_juega.Partido_cod -> Partido.cod
+[Implied]  Jornadas.Liga_cod -> Liga.cod
+[Implied]  Jugador.Equipo_cod -> Equipo.cod
+[Implied]  Partido.Jornadas_cod -> Jornadas.cod
+
+DROP DATABASE `db_212788_Script_BDD_Final`;
+UNINSTALL EXTENSION vsql_schematron;

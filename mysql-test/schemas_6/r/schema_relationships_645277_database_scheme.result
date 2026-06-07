@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 645277_database_scheme
+#
+CREATE DATABASE `db_645277_database_scheme`;
+USE `db_645277_database_scheme`;
+CREATE TABLE `users` (
+`id` INT,
+`role` VARCHAR(64),
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`password` VARCHAR(64),
+`nick` VARCHAR(64),
+`bio` VARCHAR(64),
+`active` VARCHAR(64),
+`image` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `publications` (
+`id` INT,
+`user_id` INT,
+`text` VARCHAR(64),
+`document` VARCHAR(64),
+`image` VARCHAR(64),
+`status` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `following` (
+`id` INT,
+`user` INT,
+`followed` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `private_messages` (
+`id` INT,
+`message` VARCHAR(64),
+`emitter` INT,
+`receiver` INT,
+`file` VARCHAR(64),
+`image` VARCHAR(64),
+`readed` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `likes` (
+`id` INT,
+`user` INT,
+`publication` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notifications` (
+`id` INT,
+`user_id` INT,
+`type` VARCHAR(64),
+`type_id` INT,
+`readed` VARCHAR(64),
+`created_at` DATETIME,
+`extra` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_645277_database_scheme') AS relationships;
+relationships
+Database: db_645277_database_scheme
+
+Table Connections:
+------------------
+[Implied]  following.user -> users.id
+[Implied]  likes.publication -> publications.id
+[Implied]  likes.user -> users.id
+[Implied]  notifications.user_id -> following.id
+[Implied]  notifications.user_id -> likes.id
+[Implied]  private_messages.receiver -> users.id
+[Implied]  publications.user_id -> following.id
+[Implied]  publications.user_id -> likes.id
+
+DROP DATABASE `db_645277_database_scheme`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 162630_create_tables
+#
+CREATE DATABASE `db_162630_create_tables`;
+USE `db_162630_create_tables`;
+CREATE TABLE `University` (
+`name` VARCHAR(64),
+`uid` INT,
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`url` VARCHAR(64),
+PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Degree` (
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`did` INT,
+PRIMARY KEY (`did`)
+) CHARACTER SET latin1;
+CREATE TABLE `Country` (
+`name` VARCHAR(64),
+`cid` INT,
+PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Agent` (
+`fname` VARCHAR(64),
+`lname` VARCHAR(64),
+`aid` INT,
+`phone` VARCHAR(64),
+`email` VARCHAR(64),
+`commission` DECIMAL(10,2),
+`resides_in_city` VARCHAR(64),
+`cid` INT,
+`uid` INT,
+PRIMARY KEY (`aid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Degree_Offered` (
+`uid` INT,
+`did` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Recruits_From` (
+`uid` INT,
+`cid` INT,
+`numstudents` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_162630_create_tables') AS relationships;
+relationships
+Database: db_162630_create_tables
+
+Table Connections:
+------------------
+[Implied]  Agent.cid -> Country.cid
+[Implied]  Degree_Offered.did -> Degree.did
+[Implied]  Recruits_From.cid -> Country.cid
+
+DROP DATABASE `db_162630_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

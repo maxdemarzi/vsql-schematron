@@ -1,0 +1,173 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 224147_V1__initial
+#
+CREATE DATABASE `db_224147_V1_initial`;
+USE `db_224147_V1_initial`;
+CREATE TABLE `ldap_registration` (
+`id` DECIMAL(10,2),
+`distinguished_name` VARCHAR(64),
+`common_name` VARCHAR(64),
+`existing` VARCHAR(64),
+`sentry_role` VARCHAR(64),
+`group_created` DATETIME,
+`role_created` DATETIME,
+`group_associated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hive_grant` (
+`id` DECIMAL(10,2),
+`ldap_registration_id` DECIMAL(10,2),
+`location_access` DATETIME,
+`database_access` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hive_database` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+`location` VARCHAR(64),
+`size_in_gb` DECIMAL(10,2),
+`directory_created` DATETIME,
+`quota_set` DATETIME,
+`database_created` DATETIME,
+`manager_group_id` DECIMAL(10,2),
+`readonly_group_id` DECIMAL(10,2),
+`readwrite_group_id` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `resource_pool` (
+`id` DECIMAL(10,2),
+`pool_name` VARCHAR(64),
+`max_cores` DECIMAL(10,2),
+`max_memory_in_gb` DECIMAL(10,2),
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `compliance` (
+`id` DECIMAL(10,2),
+`phi_data` VARCHAR(64),
+`pii_data` VARCHAR(64),
+`pci_data` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `workspace_request` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+`compliance_id` DECIMAL(10,2),
+`requested_by` VARCHAR(64),
+`request_date` DATETIME,
+`single_user` VARCHAR(64),
+`summary` VARCHAR(64),
+`description` VARCHAR(64),
+`behavior` VARCHAR(64),
+`workspace_created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `approval` (
+`id` DECIMAL(10,2),
+`role` VARCHAR(64),
+`approver` VARCHAR(64),
+`approval_time` DATETIME,
+`workspace_request_id` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `member` (
+`id` DECIMAL(10,2),
+`distinguished_name` VARCHAR(64),
+`ldap_registration_id` DECIMAL(10,2),
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `provision_task` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+`completed` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `task_log` (
+`id` DECIMAL(10,2),
+`message` VARCHAR(64),
+`provision_task_id` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `topic_grant` (
+`id` DECIMAL(10,2),
+`ldap_registration_id` DECIMAL(10,2),
+`topic_access` DATETIME,
+`actions` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `kafka_topic` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+`partitions` DECIMAL(10,2),
+`replication_factor` DECIMAL(10,2),
+`manager_role_id` DECIMAL(10,2),
+`readonly_role_id` DECIMAL(10,2),
+`topic_created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `application` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+`consumer_group_name` VARCHAR(64),
+`ldap_registration_id` DECIMAL(10,2),
+`application_type` VARCHAR(64),
+`logo` VARCHAR(64),
+`language` VARCHAR(64),
+`repository` VARCHAR(64),
+`consumer_group_access` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `workspace_topic` (
+`workspace_request_id` DECIMAL(10,2),
+`kafka_topic_id` DECIMAL(10,2),
+`workspace_created` DATETIME,
+PRIMARY KEY (`workspace_request_id`, `kafka_topic_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `workspace_database` (
+`workspace_request_id` DECIMAL(10,2),
+`hive_database_id` DECIMAL(10,2),
+PRIMARY KEY (`workspace_request_id`, `hive_database_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `workspace_pool` (
+`workspace_request_id` DECIMAL(10,2),
+`resource_pool_id` DECIMAL(10,2),
+PRIMARY KEY (`workspace_request_id`, `resource_pool_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `workspace_application` (
+`application_id` DECIMAL(10,2),
+`workspace_request_id` DECIMAL(10,2),
+PRIMARY KEY (`application_id`, `workspace_request_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `heimdali_config` (
+`config_key` VARCHAR(64),
+`config_value` VARCHAR(64),
+PRIMARY KEY (`config_key`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_224147_V1_initial') AS relationships;
+relationships
+Database: db_224147_V1_initial
+
+Table Connections:
+------------------
+[Implied]  application.ldap_registration_id -> ldap_registration.id
+[Implied]  approval.workspace_request_id -> workspace_request.id
+[Implied]  hive_database.manager_group_id -> hive_database.id
+[Implied]  hive_grant.ldap_registration_id -> ldap_registration.id
+[Implied]  kafka_topic.manager_role_id -> kafka_topic.id
+[Implied]  member.ldap_registration_id -> ldap_registration.id
+[Implied]  task_log.provision_task_id -> provision_task.id
+[Implied]  topic_grant.ldap_registration_id -> ldap_registration.id
+[Implied]  workspace_application.application_id -> application.id
+[Implied]  workspace_application.workspace_request_id -> workspace_request.id
+[Implied]  workspace_database.hive_database_id -> hive_database.id
+[Implied]  workspace_database.workspace_request_id -> workspace_request.id
+[Implied]  workspace_pool.resource_pool_id -> resource_pool.id
+[Implied]  workspace_pool.workspace_request_id -> workspace_request.id
+[Implied]  workspace_request.compliance_id -> compliance.id
+[Implied]  workspace_topic.kafka_topic_id -> kafka_topic.id
+[Implied]  workspace_topic.workspace_request_id -> workspace_request.id
+
+DROP DATABASE `db_224147_V1_initial`;
+UNINSTALL EXTENSION vsql_schematron;

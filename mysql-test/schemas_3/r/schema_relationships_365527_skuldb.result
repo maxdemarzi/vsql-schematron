@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 365527_skuldb
+#
+CREATE DATABASE `db_365527_skuldb`;
+USE `db_365527_skuldb`;
+CREATE TABLE `USUARIOS` (
+`id_usuario` INT,
+`nickname` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+`nombre` VARCHAR(64),
+`apellidos` VARCHAR(64),
+PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `TEMAS` (
+`id_tema` INT,
+`titulo` VARCHAR(64),
+`texto` VARCHAR(64),
+`fecha` DATETIME,
+`etiqueta` VARCHAR(64),
+`id_usuario` INT,
+PRIMARY KEY (`id_tema`)
+) CHARACTER SET latin1;
+CREATE TABLE `RESPUESTAS` (
+`id_respuesta` INT,
+`texto` VARCHAR(64),
+`fecha` DATETIME,
+`id_usuario` INT,
+`id_tema` INT,
+PRIMARY KEY (`id_respuesta`)
+) CHARACTER SET latin1;
+CREATE TABLE `VALORACIONES` (
+`id_valoracion` INT,
+`id_usuario` INT,
+`id_tema` INT,
+`id_respuesta` INT,
+PRIMARY KEY (`id_valoracion`)
+) CHARACTER SET latin1;
+CREATE TABLE `ARCHIVOSADJUNTOS` (
+`id_archivo` INT,
+`nombre` VARCHAR(64),
+`src` VARCHAR(64),
+`id_tema` INT,
+`id_respuesta` INT,
+PRIMARY KEY (`id_archivo`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_365527_skuldb') AS relationships;
+relationships
+Database: db_365527_skuldb
+
+Table Connections:
+------------------
+[Implied]  ARCHIVOSADJUNTOS.id_respuesta -> RESPUESTAS.id_respuesta
+[Implied]  ARCHIVOSADJUNTOS.id_tema -> TEMAS.id_tema
+[Implied]  RESPUESTAS.id_tema -> TEMAS.id_tema
+[Implied]  RESPUESTAS.id_usuario -> USUARIOS.id_usuario
+[Implied]  TEMAS.id_usuario -> USUARIOS.id_usuario
+[Implied]  VALORACIONES.id_respuesta -> RESPUESTAS.id_respuesta
+[Implied]  VALORACIONES.id_tema -> TEMAS.id_tema
+[Implied]  VALORACIONES.id_usuario -> USUARIOS.id_usuario
+
+DROP DATABASE `db_365527_skuldb`;
+UNINSTALL EXTENSION vsql_schematron;

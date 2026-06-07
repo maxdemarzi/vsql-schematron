@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 689225_schema
+--echo #
+CREATE DATABASE `db_689225_schema`;
+USE `db_689225_schema`;
+
+CREATE TABLE `students` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `phoneNumber` VARCHAR(64),
+  `createdAt` DATETIME,
+  `modifiedAt` DATETIME,
+  `deletedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `exercises` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `createdAt` DATETIME,
+  `modifiedAt` DATETIME,
+  `deletedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trainings` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `status` VARCHAR(64),
+  `createdAt` DATETIME,
+  `modifiedAt` DATETIME,
+  `deletedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trainingExercises` (
+  `id` INT,
+  `trainingId` INT,
+  `exerciseId` INT,
+  `numberOfSessions` INT,
+  `createdAt` DATETIME,
+  `modifiedAt` DATETIME,
+  `deletedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `studentTrainings` (
+  `id` INT,
+  `studentId` INT,
+  `trainingId` INT,
+  `status` VARCHAR(64),
+  `createdAt` DATETIME,
+  `modifiedAt` DATETIME,
+  `deletedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `studentTrainingExercises` (
+  `id` INT,
+  `studentTrainingId` INT,
+  `trainingExerciseId` INT,
+  `status` VARCHAR(64),
+  `createdAt` DATETIME,
+  `modifiedAt` DATETIME,
+  `deletedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_689225_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_689225_schema') AS relationships;
+DROP DATABASE `db_689225_schema`;
+UNINSTALL EXTENSION vsql_schematron;

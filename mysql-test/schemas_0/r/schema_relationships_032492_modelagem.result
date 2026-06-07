@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 032492_modelagem
+#
+CREATE DATABASE `db_032492_modelagem`;
+USE `db_032492_modelagem`;
+CREATE TABLE `clientes` (
+`id_cliente` INT,
+`nome_cliente` VARCHAR(64),
+`endereco_cliente` VARCHAR(64),
+`cpf_cliente` VARCHAR(64),
+PRIMARY KEY (`id_cliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `conta` (
+`agencia_cliente` VARCHAR(64),
+`saldo_cliente` DECIMAL(10,2),
+`cliente_id` INT,
+`conta_cliente` VARCHAR(64),
+PRIMARY KEY (`conta_cliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `login_cliente` (
+`id_login` INT,
+`password` VARCHAR(64),
+`username` VARCHAR(64),
+PRIMARY KEY (`id_login`)
+) CHARACTER SET latin1;
+CREATE TABLE `transacao` (
+`id_transacao` INT,
+`cliente_conta` VARCHAR(64),
+`data_transacao` DATETIME,
+`valor_transacao` DECIMAL(10,2),
+`banco_transacao` VARCHAR(64),
+`agencia_transacao` VARCHAR(64),
+`conta_transacao` VARCHAR(64),
+`digito_transacao` VARCHAR(64),
+`tipo_transacao` VARCHAR(64),
+PRIMARY KEY (`id_transacao`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_032492_modelagem') AS relationships;
+relationships
+Database: db_032492_modelagem
+
+Table Connections:
+------------------
+[Implied]  conta.cliente_id -> clientes.id_cliente
+[Implied]  conta.saldo_cliente -> clientes.id_cliente
+[Implied]  transacao.cliente_conta -> conta.conta_cliente
+
+DROP DATABASE `db_032492_modelagem`;
+UNINSTALL EXTENSION vsql_schematron;

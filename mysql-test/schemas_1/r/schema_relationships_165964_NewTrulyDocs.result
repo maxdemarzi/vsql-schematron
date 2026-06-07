@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 165964_NewTrulyDocs
+#
+CREATE DATABASE `db_165964_NewTrulyDocs`;
+USE `db_165964_NewTrulyDocs`;
+CREATE TABLE `file` (
+`file_id` INT,
+`document_id` INT,
+`file_st` VARCHAR(64),
+`uuid_fn` VARCHAR(64),
+`content_tp` VARCHAR(64),
+`file_ds` VARCHAR(64),
+`first_upload_dt` DATETIME,
+`first_upload_user_id` INT,
+`last_upload_dt` DATETIME,
+`last_upload_user_id` INT,
+`original_fn` VARCHAR(64),
+`original_dt` DATETIME,
+PRIMARY KEY (`file_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `file_extension` (
+`extension_cd` VARCHAR(64),
+`type_cd` VARCHAR(64),
+`extension_fn` VARCHAR(64),
+PRIMARY KEY (`extension_cd`)
+) CHARACTER SET latin1;
+CREATE TABLE `file_type` (
+`type_cd` VARCHAR(64),
+`type_ds` VARCHAR(64),
+`acceptable_fl` INT,
+`previewable_fl` INT,
+`file_cmd_regex` VARCHAR(64),
+`changed_dt` DATETIME,
+PRIMARY KEY (`type_cd`)
+) CHARACTER SET latin1;
+CREATE TABLE `version` (
+`version_id` INT,
+`file_id` INT,
+`uuid_fn` VARCHAR(64),
+`content_tp` VARCHAR(64),
+`upload_dt` DATETIME,
+`upload_user_id` INT,
+`original_fn` VARCHAR(64),
+`original_dt` DATETIME,
+PRIMARY KEY (`version_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_165964_NewTrulyDocs') AS relationships;
+relationships
+Database: db_165964_NewTrulyDocs
+
+Table Connections:
+------------------
+[Implied]  file_extension.type_cd -> file_type.type_cd
+[Implied]  version.file_id -> file.file_id
+
+DROP DATABASE `db_165964_NewTrulyDocs`;
+UNINSTALL EXTENSION vsql_schematron;

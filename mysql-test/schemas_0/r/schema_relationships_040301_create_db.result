@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 040301_create_db
+#
+CREATE DATABASE `db_040301_create_db`;
+USE `db_040301_create_db`;
+CREATE TABLE `users` (
+`userid` VARCHAR(64),
+`fname` VARCHAR(64),
+`lname` VARCHAR(64),
+`access_status` VARCHAR(64),
+PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+CREATE TABLE `rfidcard` (
+`rfcode` VARCHAR(64),
+`usrid` VARCHAR(64),
+PRIMARY KEY (`rfcode`)
+) CHARACTER SET latin1;
+CREATE TABLE `resources` (
+`rid` VARCHAR(64),
+`rname` VARCHAR(64),
+`rdesc` VARCHAR(64),
+PRIMARY KEY (`rid`)
+) CHARACTER SET latin1;
+CREATE TABLE `rfidscanner` (
+`scannerid` VARCHAR(64),
+`rsid` VARCHAR(64),
+PRIMARY KEY (`scannerid`)
+) CHARACTER SET latin1;
+CREATE TABLE `resourceaccess` (
+`num` INT,
+`usrrid` VARCHAR(64),
+`ressid` VARCHAR(64),
+PRIMARY KEY (`num`)
+) CHARACTER SET latin1;
+CREATE TABLE `accesslog` (
+`num` INT,
+`usrsid` VARCHAR(64),
+`rfidcode` VARCHAR(64),
+`resid` VARCHAR(64),
+`resname` VARCHAR(64),
+`access_time` DATETIME,
+`approval_status` VARCHAR(64),
+`reason` VARCHAR(64),
+PRIMARY KEY (`num`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_040301_create_db') AS relationships;
+relationships
+Database: db_040301_create_db
+
+Table Connections:
+------------------
+[Implied]  accesslog.resid -> resources.rid
+[Implied]  accesslog.usrsid -> users.userid
+[Implied]  resourceaccess.ressid -> resources.rid
+[Implied]  resourceaccess.usrrid -> resources.rid
+[Implied]  rfidcard.usrid -> users.userid
+
+DROP DATABASE `db_040301_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

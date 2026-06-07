@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 627738_V1_12__utvider_tabeller_og_kodeverk
+--echo #
+CREATE DATABASE `db_627738_V1_12_utvider_tabeller_og_kodeverk`;
+USE `db_627738_V1_12_utvider_tabeller_og_kodeverk`;
+
+CREATE TABLE `BRUKER_PROFILERING_KODEVERK` (
+  `PROFILERING_KODE_ID` DECIMAL(10,2),
+  `PROFILERING_KODE` VARCHAR(64),
+  PRIMARY KEY (`PROFILERING_KODE_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BRUKER_PROFILERING` (
+  `BRUKER_REGISTRERING_ID` DECIMAL(10,2),
+  `PROFILERING_TYPE` VARCHAR(64),
+  `VERDI` VARCHAR(64),
+  PRIMARY KEY (`BRUKER_REGISTRERING_ID`, `PROFILERING_TYPE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BRUKER_REAKTIVERING` (
+  `BRUKER_REAKTIVERING_ID` DECIMAL(10,2),
+  `AKTOR_ID` VARCHAR(64),
+  `REAKTIVERING_DATO` DATETIME,
+  PRIMARY KEY (`BRUKER_REAKTIVERING_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BEGRUNNELSE_KODEVERK` (
+  `BEGRUNNELSE_ID` DECIMAL(10,2),
+  `BEGRUNNELSE_KODE` VARCHAR(64),
+  PRIMARY KEY (`BEGRUNNELSE_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_627738_V1_12_utvider_tabeller_og_kodeverk') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_627738_V1_12_utvider_tabeller_og_kodeverk') AS relationships;
+DROP DATABASE `db_627738_V1_12_utvider_tabeller_og_kodeverk`;
+UNINSTALL EXTENSION vsql_schematron;

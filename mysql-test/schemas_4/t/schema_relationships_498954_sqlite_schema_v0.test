@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 498954_sqlite_schema_v0
+--echo #
+CREATE DATABASE `db_498954_sqlite_schema_v0`;
+USE `db_498954_sqlite_schema_v0`;
+
+CREATE TABLE `OSP_MASTER` (
+  `uid` VARCHAR(64),
+  `oclass` DECIMAL(10,2),
+  `first_level` BOOL,
+  PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `OSP_RELATIONSHIPS` (
+  `origin` VARCHAR(64),
+  `target` VARCHAR(64),
+  `name` DECIMAL(10,2),
+  `target_oclass` DECIMAL(10,2),
+  PRIMARY KEY (`origin`, `target`, `name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CUDS_city___City` (
+  `coordinates___0` INT,
+  `coordinates___1` INT,
+  `name` VARCHAR(64),
+  `uid` VARCHAR(64),
+  PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CUDS_city___Citizen` (
+  `age` INT,
+  `name` VARCHAR(64),
+  `uid` VARCHAR(64),
+  PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CUDS_city___Neighborhood` (
+  `name` VARCHAR(64),
+  `coordinates___0` INT,
+  `coordinates___1` INT,
+  `uid` VARCHAR(64),
+  PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CUDS_city___Street` (
+  `name` VARCHAR(64),
+  `coordinates___0` INT,
+  `coordinates___1` INT,
+  `uid` VARCHAR(64),
+  PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CUDS_city___Building` (
+  `name` VARCHAR(64),
+  `uid` VARCHAR(64),
+  PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CUDS_city___Address` (
+  `postalCode` INT,
+  `name` VARCHAR(64),
+  `number` INT,
+  `uid` VARCHAR(64),
+  PRIMARY KEY (`uid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_498954_sqlite_schema_v0') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_498954_sqlite_schema_v0') AS relationships;
+DROP DATABASE `db_498954_sqlite_schema_v0`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 496788_createTables_00
+#
+CREATE DATABASE `db_496788_createTables_00`;
+USE `db_496788_createTables_00`;
+CREATE TABLE `Culturas` (
+`Cultura_ID` INT,
+`Cultura_Nome` VARCHAR(64),
+PRIMARY KEY (`Cultura_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Regiao` (
+`Regiao_ID` INT,
+`Regiao_Nome` VARCHAR(64),
+`Regiao_Sigla` VARCHAR(64),
+PRIMARY KEY (`Regiao_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Estados` (
+`Estado_ID` INT,
+`Estado_Nome` VARCHAR(64),
+`Estado_Sigla` VARCHAR(64),
+`Regiao_ID` INT,
+PRIMARY KEY (`Estado_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Mesorregiao` (
+`Mesorregiao_ID` INT,
+`Mesorregiao_Nome` VARCHAR(64),
+`Estado_ID` INT,
+PRIMARY KEY (`Mesorregiao_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Microrregiao` (
+`Microrregiao_ID` INT,
+`Microrregiao_Nome` VARCHAR(64),
+`Mesorregiao_ID` INT,
+PRIMARY KEY (`Microrregiao_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Municipios` (
+`Municipio_ID` INT,
+`Municipios_Nome` VARCHAR(64),
+`Microrregiao_ID` INT,
+PRIMARY KEY (`Municipio_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pib_Municipal` (
+`PIB_ID` INT,
+`ANO` INT,
+`PIB` DECIMAL(10,2),
+`Populacao` DECIMAL(10,2),
+`Per_Capita` DECIMAL(10,2),
+`Municipio_ID` INT,
+PRIMARY KEY (`PIB_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Prod_Municipal` (
+`Prod_ID` INT,
+`Cultura_ID` INT,
+`ANO` INT,
+`AreaPlant` DECIMAL(10,2),
+`AreaHarv` DECIMAL(10,2),
+`Producao` DECIMAL(10,2),
+`Rendimento` DECIMAL(10,2),
+`Valor` DECIMAL(10,2),
+`Municipio_ID` INT,
+PRIMARY KEY (`Prod_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_496788_createTables_00') AS relationships;
+relationships
+Database: db_496788_createTables_00
+
+Table Connections:
+------------------
+[Implied]  Estados.Regiao_ID -> Regiao.Regiao_ID
+[Implied]  Mesorregiao.Estado_ID -> Estados.Estado_ID
+[Implied]  Microrregiao.Mesorregiao_ID -> Mesorregiao.Mesorregiao_ID
+[Implied]  Municipios.Microrregiao_ID -> Microrregiao.Microrregiao_ID
+[Implied]  Pib_Municipal.Municipio_ID -> Municipios.Municipio_ID
+[Implied]  Prod_Municipal.Cultura_ID -> Culturas.Cultura_ID
+[Implied]  Prod_Municipal.Municipio_ID -> Municipios.Municipio_ID
+
+DROP DATABASE `db_496788_createTables_00`;
+UNINSTALL EXTENSION vsql_schematron;

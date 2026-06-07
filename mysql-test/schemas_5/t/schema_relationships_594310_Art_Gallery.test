@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 594310_Art_Gallery
+--echo #
+CREATE DATABASE `db_594310_Art_Gallery`;
+USE `db_594310_Art_Gallery`;
+
+CREATE TABLE `ARTIST` (
+  `ArtistID` INT,
+  `FName` VARCHAR(64),
+  `mInit` VARCHAR(64),
+  `LName` VARCHAR(64),
+  `Phone` INT,
+  `DateOfBirth` DATETIME,
+  `StreetAddress` VARCHAR(64),
+  `ApartmentNumber` VARCHAR(64),
+  `City` VARCHAR(64),
+  `State` VARCHAR(64),
+  `ZipCode` VARCHAR(64),
+  `ArtStyle` VARCHAR(64),
+  PRIMARY KEY (`ArtistID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ARTWORK` (
+  `Title` VARCHAR(64),
+  `Artist` INT,
+  `ArtType` VARCHAR(64),
+  `CreationDate` VARCHAR(64),
+  `DateAquired` DATETIME,
+  `Price` INT,
+  `Location` VARCHAR(64),
+  PRIMARY KEY (`Title`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ART_SHOWS` (
+  `ShowArtist` INT,
+  `ShowDate` DATETIME,
+  `Time` VARCHAR(64),
+  `Location` VARCHAR(64),
+  `Contact` VARCHAR(64),
+  `ContactPhone` INT,
+  `DateOfBirth` DATETIME,
+  PRIMARY KEY (`ShowArtist`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CUSTOMER` (
+  `CustomerNumber` INT,
+  `CustomerName` VARCHAR(64),
+  `PNumber` INT,
+  `ArtPreferences` VARCHAR(64),
+  PRIMARY KEY (`CustomerNumber`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `INTERESTED_IN` (
+  `CustomerNo` INT,
+  `ArtTitle` VARCHAR(64),
+  PRIMARY KEY (`CustomerNo`, `ArtTitle`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_594310_Art_Gallery') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_594310_Art_Gallery') AS relationships;
+DROP DATABASE `db_594310_Art_Gallery`;
+UNINSTALL EXTENSION vsql_schematron;

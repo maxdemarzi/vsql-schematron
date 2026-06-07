@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 444884_createList
+--echo #
+CREATE DATABASE `db_444884_createList`;
+USE `db_444884_createList`;
+
+CREATE TABLE `Students` (
+  `Sno` VARCHAR(64),
+  `Sname` VARCHAR(64),
+  `Ssex` VARCHAR(64),
+  `Sage` INT,
+  `Sdept` VARCHAR(64),
+  PRIMARY KEY (`Sno`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Course` (
+  `Cno` VARCHAR(64),
+  `Cname` VARCHAR(64),
+  `Cpno` VARCHAR(64),
+  `Ccredit` INT,
+  PRIMARY KEY (`Cno`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SC` (
+  `Sno` VARCHAR(64),
+  `Cno` VARCHAR(64),
+  `Grade` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_444884_createList') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_444884_createList') AS relationships;
+DROP DATABASE `db_444884_createList`;
+UNINSTALL EXTENSION vsql_schematron;

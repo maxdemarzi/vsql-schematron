@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 524247_pokedb
+--echo #
+CREATE DATABASE `db_524247_pokedb`;
+USE `db_524247_pokedb`;
+
+CREATE TABLE `pokemon_t` (
+  `pokemon_id` INT,
+  `pokemon_name` VARCHAR(64),
+  `pokemon_species_id` INT,
+  `pokemon_height` INT,
+  `pokemon_weight` INT,
+  `pokemon_base_exp` INT,
+  PRIMARY KEY (`pokemon_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `type_t` (
+  `type_id` INT,
+  `type_name` VARCHAR(64),
+  `type_generation` INT,
+  `type_damage_class_id` INT,
+  `type_hexcolor` VARCHAR(64),
+  PRIMARY KEY (`type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pokemon_type_t` (
+  `pokemon_id` INT,
+  `type_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_pokemons` (
+  `userPokeId` INT,
+  `nickname` VARCHAR(64),
+  `userId` INT,
+  `pokeNo` INT,
+  `pokeName` VARCHAR(64),
+  PRIMARY KEY (`userPokeId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_524247_pokedb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_524247_pokedb') AS relationships;
+DROP DATABASE `db_524247_pokedb`;
+UNINSTALL EXTENSION vsql_schematron;

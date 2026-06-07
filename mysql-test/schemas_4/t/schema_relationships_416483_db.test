@@ -1,0 +1,115 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 416483_db
+--echo #
+CREATE DATABASE `db_416483_db`;
+USE `db_416483_db`;
+
+CREATE TABLE `accounts_user` (
+  `id` INT,
+  `last_login` DATETIME,
+  `password` VARCHAR(64),
+  `date_joined` DATETIME,
+  `email` VARCHAR(64),
+  `is_superadmin` BOOL,
+  `university_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `location` (
+  `location_id` INT,
+  `latitude` DECIMAL(10,2),
+  `longitude` DECIMAL(10,2),
+  `image` VARCHAR(64),
+  PRIMARY KEY (`location_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `university` (
+  `university_id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `avatar_image` VARCHAR(64),
+  `email_domain` VARCHAR(64),
+  `student_count` INT,
+  `location_id` INT,
+  PRIMARY KEY (`university_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rso` (
+  `rso_id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `admin_id` INT,
+  `university_id` INT,
+  `is_active` BOOL,
+  PRIMARY KEY (`rso_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event` (
+  `event_id` INT,
+  `summary` VARCHAR(64),
+  `privacy_level` INT,
+  `description` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `email` VARCHAR(64),
+  `dtstart` DATETIME,
+  `dtend` DATETIME,
+  `until` DATETIME,
+  `byday` VARCHAR(64),
+  `freq` VARCHAR(64),
+  `location_id` INT,
+  `rso_id` INT,
+  `university_id` INT,
+  PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comment` (
+  `comment_id` INT,
+  `text` VARCHAR(64),
+  `rating` INT,
+  `postdate` DATETIME,
+  `event_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tag` (
+  `tag_id` INT,
+  `text` VARCHAR(64),
+  PRIMARY KEY (`tag_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tag_events` (
+  `id` INT,
+  `tag_id` INT,
+  `event_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rso_members` (
+  `id` INT,
+  `rso_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_416483_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_416483_db') AS relationships;
+DROP DATABASE `db_416483_db`;
+UNINSTALL EXTENSION vsql_schematron;

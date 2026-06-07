@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 138261_create_hdfs_schema
+--echo #
+CREATE DATABASE `db_138261_create_hdfs_schema`;
+USE `db_138261_create_hdfs_schema`;
+
+CREATE TABLE `AIRLINES` (
+  `AIRLINE` VARCHAR(64),
+  `AIRLINE_FULL` VARCHAR(64),
+  `BASIC_RATE` DECIMAL(10,2),
+  `DISTANCE_DISCOUNT` DECIMAL(10,2),
+  `BUSINESS_LEVEL_FACTOR` DECIMAL(10,2),
+  `FIRSTCLASS_LEVEL_FACTOR` DECIMAL(10,2),
+  `ECONOMY_SEATS` INT,
+  `BUSINESS_SEATS` INT,
+  `FIRSTCLASS_SEATS` INT,
+  PRIMARY KEY (`AIRLINE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `COUNTRIES` (
+  `COUNTRY` VARCHAR(64),
+  `COUNTRY_ISO_CODE` VARCHAR(64),
+  `REGION` VARCHAR(64),
+  PRIMARY KEY (`COUNTRY_ISO_CODE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CITIES` (
+  `CITY_ID` INT,
+  `CITY_NAME` VARCHAR(64),
+  `COUNTRY` VARCHAR(64),
+  `AIRPORT` VARCHAR(64),
+  `LANGUAGE` VARCHAR(64),
+  `COUNTRY_ISO_CODE` VARCHAR(64),
+  PRIMARY KEY (`CITY_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FLIGHTS` (
+  `FLIGHT_ID` VARCHAR(64),
+  `SEGMENT_NUMBER` INT,
+  `ORIG_AIRPORT` VARCHAR(64),
+  `DEPART_TIME` DATETIME,
+  `DEST_AIRPORT` VARCHAR(64),
+  `ARRIVE_TIME` DATETIME,
+  `MEAL` VARCHAR(64),
+  `FLYING_TIME` DECIMAL(10,2),
+  `MILES` INT,
+  `AIRCRAFT` VARCHAR(64),
+  PRIMARY KEY (`FLIGHT_ID`, `SEGMENT_NUMBER`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MAPS` (
+  `MAP_ID` INT,
+  `MAP_NAME` VARCHAR(64),
+  `REGION` VARCHAR(64),
+  `AREA` DECIMAL(10,2),
+  `PHOTO_FORMAT` VARCHAR(64),
+  `PICTURE` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BUSY_AIRPORT` (
+  `AIRPORT` VARCHAR(64),
+  `FLIGHTS` INT,
+  `STAMP` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_138261_create_hdfs_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_138261_create_hdfs_schema') AS relationships;
+DROP DATABASE `db_138261_create_hdfs_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 554037_EntityScript
+--echo #
+CREATE DATABASE `db_554037_EntityScript`;
+USE `db_554037_EntityScript`;
+
+CREATE TABLE `FE_ENTITE` (
+  `CODE_ENTITE` VARCHAR(64),
+  `LIBELLE` VARCHAR(64),
+  `RH` BOOL,
+  `COMPTABLE` BOOL,
+  `VOIE_PHYSIQUE` VARCHAR(64),
+  `CP_PHYSIQUE` VARCHAR(64),
+  `VOIE_POSTALE` VARCHAR(64),
+  `CP_POSTALE` VARCHAR(64),
+  `ID_SITE` INT,
+  `CODE_METIER` INT,
+  `CODE_ENTITE_MERE` VARCHAR(64),
+  `ID_VILLE_PHYSIQUE` INT,
+  `ID_VILLE_POSTALE` INT,
+  PRIMARY KEY (`CODE_ENTITE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FR_ENTITE_ACTIVITE` (
+  `ID_ACTIVITE` INT,
+  `CODE_ENTITE` VARCHAR(64),
+  PRIMARY KEY (`ID_ACTIVITE`, `CODE_ENTITE`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_554037_EntityScript') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_554037_EntityScript') AS relationships;
+DROP DATABASE `db_554037_EntityScript`;
+UNINSTALL EXTENSION vsql_schematron;

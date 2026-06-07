@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 599051_create_db
+#
+CREATE DATABASE `db_599051_create_db`;
+USE `db_599051_create_db`;
+CREATE TABLE `User` (
+`id` INT,
+`name` VARCHAR(64),
+`username` VARCHAR(64),
+`age` INT,
+`gender` VARCHAR(64),
+`city` VARCHAR(64),
+`x` DECIMAL(10,2),
+`y` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Activity` (
+`id` INT,
+`type` VARCHAR(64),
+`distance` DECIMAL(10,2),
+`date` DATETIME,
+`x` DECIMAL(10,2),
+`y` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Activities` (
+`activity_id` INT,
+`user_id` INT,
+PRIMARY KEY (`activity_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Buddies` (
+`buddy1` INT,
+`buddy2` INT,
+PRIMARY KEY (`buddy1`, `buddy2`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_599051_create_db') AS relationships;
+relationships
+Database: db_599051_create_db
+
+Table Connections:
+------------------
+[Implied]  Activities.activity_id -> Activity.id
+[Implied]  Activities.user_id -> User.id
+
+DROP DATABASE `db_599051_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

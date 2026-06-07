@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 096135_wellbores-canonical-iri
+--echo #
+CREATE DATABASE `db_096135_wellbores_canonical_iri`;
+USE `db_096135_wellbores_canonical_iri`;
+
+CREATE TABLE `T1` (
+  `id` INT,
+  `well` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T2` (
+  `id` INT,
+  `well` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T3` (
+  `id` INT,
+  `well` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_can_link` (
+  `can_id` INT,
+  `can_prov` INT,
+  `id1` INT,
+  `id2` INT,
+  `id3` INT,
+  PRIMARY KEY (`can_id`, `can_prov`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_096135_wellbores_canonical_iri') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_096135_wellbores_canonical_iri') AS relationships;
+DROP DATABASE `db_096135_wellbores_canonical_iri`;
+UNINSTALL EXTENSION vsql_schematron;

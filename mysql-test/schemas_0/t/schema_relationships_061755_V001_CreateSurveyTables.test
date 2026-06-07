@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 061755_V001__CreateSurveyTables
+--echo #
+CREATE DATABASE `db_061755_V001_CreateSurveyTables`;
+USE `db_061755_V001_CreateSurveyTables`;
+
+CREATE TABLE `survey` (
+  `survey_id` INT,
+  `survey_name` VARCHAR(64),
+  PRIMARY KEY (`survey_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `measure` (
+  `measure_id` INT,
+  `function` VARCHAR(64),
+  `practice` VARCHAR(64),
+  `level` INT,
+  `bsimm_measure_id` VARCHAR(64),
+  `bsimm_measure_title` VARCHAR(64),
+  `bsimm_measure_detail` VARCHAR(64),
+  `owning_survey` INT,
+  PRIMARY KEY (`measure_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `survey_response` (
+  `survey_response_id` INT,
+  `date_filed` DATETIME,
+  `author` VARCHAR(64),
+  `original_survey` INT,
+  `survey_target` INT,
+  PRIMARY KEY (`survey_response_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `measure_response` (
+  `measure_response_id` INT,
+  `status` VARCHAR(64),
+  `responsible` VARCHAR(64),
+  `response` VARCHAR(64),
+  `related_measure` INT,
+  `survey_response_id` INT,
+  PRIMARY KEY (`measure_response_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `survey_comparison` (
+  `survey_compare_id` INT,
+  `original_survey` INT,
+  `comparison_name` VARCHAR(64),
+  `function_name` VARCHAR(64),
+  `practice_name` VARCHAR(64),
+  `practice_score` DECIMAL(10,2),
+  PRIMARY KEY (`survey_compare_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_061755_V001_CreateSurveyTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_061755_V001_CreateSurveyTables') AS relationships;
+DROP DATABASE `db_061755_V001_CreateSurveyTables`;
+UNINSTALL EXTENSION vsql_schematron;

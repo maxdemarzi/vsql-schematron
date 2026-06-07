@@ -1,0 +1,155 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 675990_EsquemaFinal
+--echo #
+CREATE DATABASE `db_675990_EsquemaFinal`;
+USE `db_675990_EsquemaFinal`;
+
+CREATE TABLE `cargos` (
+  `id` DECIMAL(10,2),
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `asignaturas` (
+  `id` DECIMAL(10,2),
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuarios` (
+  `id` DECIMAL(10,2),
+  `email` VARCHAR(64),
+  `contrasena` VARCHAR(64),
+  `nombre` VARCHAR(64),
+  `habilitado` VARCHAR(64),
+  `username` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `administradores` (
+  `id` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `funcionarios` (
+  `id` DECIMAL(10,2),
+  `codigo` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `plantillas` (
+  `id` DECIMAL(10,2),
+  `nombre` VARCHAR(64),
+  `modificable` VARCHAR(64),
+  `eliminada` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `preguntas` (
+  `id` DECIMAL(10,2),
+  `pregunta` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `plantillas_preguntas` (
+  `plantilla_id` DECIMAL(10,2),
+  `pregunta_id` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `grupos` (
+  `asignatura_id` DECIMAL(10,2),
+  `id` DECIMAL(10,2),
+  `docente_id` DECIMAL(10,2),
+  `periodo` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cargos_historicos` (
+  `fecha_inicio` DATETIME,
+  `fecha_fin` DATETIME,
+  `funcionario_id` DECIMAL(10,2),
+  `cargo_id` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `estudiantes` (
+  `id` DECIMAL(10,2),
+  `codigo` DECIMAL(10,2),
+  `estructura_id` DECIMAL(10,2),
+  `tesis_id` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tesis` (
+  `id` DECIMAL(10,2),
+  `jurado_id` DECIMAL(10,2),
+  `director_id` DECIMAL(10,2),
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `estudiantes_grupos` (
+  `estudiante_id` DECIMAL(10,2),
+  `grupo_id` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `evaluaciones` (
+  `id` DECIMAL(10,2),
+  `periodo` DECIMAL(10,2),
+  `fecha_final` DATETIME,
+  `fecha_inicial` DATETIME,
+  `tiempo_maximo` DECIMAL(10,2),
+  `plantilla_id` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `resultados_evaluaciones` (
+  `id` DECIMAL(10,2),
+  `evaluador_id` DECIMAL(10,2),
+  `evaluado_id` DECIMAL(10,2),
+  `fecha` DATETIME,
+  `promedio` DECIMAL(10,2),
+  `evaluacion_id` DECIMAL(10,2),
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `evaluacion_usuario` (
+  `evaluado_id` DECIMAL(10,2),
+  `evaluacion_id` DECIMAL(10,2),
+  `evaluador_id` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `estructuras` (
+  `id` DECIMAL(10,2),
+  `dependencia_id` DECIMAL(10,2),
+  `director_id` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `resultados_preguntas` (
+  `resultado_id` DECIMAL(10,2),
+  `pregunta_id` DECIMAL(10,2),
+  `nota` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_675990_EsquemaFinal') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_675990_EsquemaFinal') AS relationships;
+DROP DATABASE `db_675990_EsquemaFinal`;
+UNINSTALL EXTENSION vsql_schematron;

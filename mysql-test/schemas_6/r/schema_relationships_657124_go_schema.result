@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 657124_go_schema
+#
+CREATE DATABASE `db_657124_go_schema`;
+USE `db_657124_go_schema`;
+CREATE TABLE `TERM` (
+`ID` DECIMAL(10,2),
+`NAME` VARCHAR(64),
+`TERM_TYPE` VARCHAR(64),
+`ACC` VARCHAR(64),
+`IS_OBSOLETE` DECIMAL(10,2),
+`IS_ROOT` DECIMAL(10,2),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `TERM2TERM` (
+`ID` DECIMAL(10,2),
+`RELATIONSHIP_TYPE_ID` DECIMAL(10,2),
+`TERM1_ID` DECIMAL(10,2),
+`TERM2_ID` DECIMAL(10,2),
+`COMPLETE` DECIMAL(10,2),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `GRAPH_PATH` (
+`ID` DECIMAL(10,2),
+`TERM1_ID` DECIMAL(10,2),
+`TERM2_ID` DECIMAL(10,2),
+`DISTANCE` DECIMAL(10,2),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_657124_go_schema') AS relationships;
+relationships
+Database: db_657124_go_schema
+
+Table Connections:
+------------------
+[Implied]  GRAPH_PATH.TERM1_ID -> TERM.ID
+[Implied]  GRAPH_PATH.TERM2_ID -> TERM2TERM.ID
+[Implied]  TERM2TERM.TERM1_ID -> TERM.ID
+[Implied]  TERM2TERM.TERM2_ID -> TERM.ID
+
+DROP DATABASE `db_657124_go_schema`;
+UNINSTALL EXTENSION vsql_schematron;

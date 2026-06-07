@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 073296_schema
+--echo #
+CREATE DATABASE `db_073296_schema`;
+USE `db_073296_schema`;
+
+CREATE TABLE `t_lookup_value` (
+  `lv_id` INT,
+  `lv_entity_type` VARCHAR(64),
+  `lv_entity_id` DECIMAL(10,2),
+  `lv_value_type` VARCHAR(64),
+  `lv_value` VARCHAR(64),
+  PRIMARY KEY (`lv_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_document` (
+  `do_id` INT,
+  `do_guid` VARCHAR(64),
+  `do_name` VARCHAR(64),
+  `do_type` VARCHAR(64),
+  `do_created_by` VARCHAR(64),
+  `do_created_on` DATETIME,
+  `do_modified_by` VARCHAR(64),
+  `do_modified_on` DATETIME,
+  PRIMARY KEY (`do_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_document_section` (
+  `ds_id` INT,
+  `ds_guid` VARCHAR(64),
+  `ds_do_id` DECIMAL(10,2),
+  `ds_name` VARCHAR(64),
+  `ds_type` VARCHAR(64),
+  `ds_created_by` VARCHAR(64),
+  `ds_created_on` DATETIME,
+  `ds_modified_by` VARCHAR(64),
+  `ds_modified_on` DATETIME,
+  PRIMARY KEY (`ds_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_073296_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_073296_schema') AS relationships;
+DROP DATABASE `db_073296_schema`;
+UNINSTALL EXTENSION vsql_schematron;

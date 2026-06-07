@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 537822_add-inst-colls
+--echo #
+CREATE DATABASE `db_537822_add_inst_colls`;
+USE `db_537822_add_inst_colls`;
+
+CREATE TABLE `inst_colls` (
+  `name` VARCHAR(64),
+  `is_pool` BOOL,
+  `boot_disk_size_gb` INT,
+  `max_instances` INT,
+  `max_live_instances` INT,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pools` (
+  `name` VARCHAR(64),
+  `worker_type` VARCHAR(64),
+  `worker_cores` INT,
+  `worker_local_ssd_data_disk` BOOL,
+  `worker_pd_ssd_data_disk_size_gb` INT,
+  `enable_standing_worker` BOOL,
+  `standing_worker_cores` INT,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_537822_add_inst_colls') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_537822_add_inst_colls') AS relationships;
+DROP DATABASE `db_537822_add_inst_colls`;
+UNINSTALL EXTENSION vsql_schematron;

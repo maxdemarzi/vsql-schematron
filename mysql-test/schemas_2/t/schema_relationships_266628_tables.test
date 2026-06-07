@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 266628_tables
+--echo #
+CREATE DATABASE `db_266628_tables`;
+USE `db_266628_tables`;
+
+CREATE TABLE `users` (
+  `username` VARCHAR(64),
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  `birthDate` DATETIME,
+  `registery_date` DATETIME,
+  `bio` VARCHAR(64),
+  `followers` INT,
+  `following` INT,
+  `password` VARCHAR(64),
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tweet` (
+  `tweetid` INT,
+  `type` VARCHAR(64),
+  `username` VARCHAR(64),
+  `tweet_content` VARCHAR(64),
+  `ref_id` INT,
+  `timestamp_t` DATETIME,
+  `likes` INT,
+  PRIMARY KEY (`tweetid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `message` (
+  `mess_id` INT,
+  `type` VARCHAR(64),
+  `s_id` VARCHAR(64),
+  `r_id` VARCHAR(64),
+  `content` VARCHAR(64),
+  `ref_id` INT,
+  `timestamp_t` DATETIME,
+  PRIMARY KEY (`mess_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `login_record` (
+  `username` VARCHAR(64),
+  `timestamp_t` DATETIME,
+  PRIMARY KEY (`username`, `timestamp_t`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `follow` (
+  `follower` VARCHAR(64),
+  `following` VARCHAR(64),
+  PRIMARY KEY (`follower`, `following`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hashtag` (
+  `hashtag` VARCHAR(64),
+  `tweetid` INT,
+  PRIMARY KEY (`hashtag`, `tweetid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `likes` (
+  `username` VARCHAR(64),
+  `tweetid` INT,
+  `timeStamp_l` DATETIME,
+  PRIMARY KEY (`tweetid`, `username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `block` (
+  `username` VARCHAR(64),
+  `blocked_user` VARCHAR(64),
+  PRIMARY KEY (`username`, `blocked_user`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_266628_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_266628_tables') AS relationships;
+DROP DATABASE `db_266628_tables`;
+UNINSTALL EXTENSION vsql_schematron;

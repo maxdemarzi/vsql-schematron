@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 487752_script1
+--echo #
+CREATE DATABASE `db_487752_script1`;
+USE `db_487752_script1`;
+
+CREATE TABLE `cloud.concursos` (
+  `idconcursos` INT,
+  `fecha_inicio` DATETIME,
+  `fecha_fin` DATETIME,
+  `valor` DECIMAL(10,2),
+  `guion` VARCHAR(64),
+  `recomendaciones` VARCHAR(64),
+  `url` VARCHAR(64),
+  `banner` VARCHAR(64),
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`idconcursos`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cloud.cuenta` (
+  `idcuenta` INT,
+  `nombre` VARCHAR(64),
+  `segundo_nombre` VARCHAR(64),
+  `apellido` VARCHAR(64),
+  `correo` VARCHAR(64),
+  `contrasena` VARCHAR(64),
+  `segundo_apellido` VARCHAR(64),
+  PRIMARY KEY (`idcuenta`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cloud.gestion_concurso` (
+  `idgestion_concurso` INT,
+  `concursos` INT,
+  `creador` INT,
+  PRIMARY KEY (`idgestion_concurso`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cloud.usuario` (
+  `idusuario` INT,
+  `nombre` VARCHAR(64),
+  `segundo_nombre` VARCHAR(64),
+  `apellido` VARCHAR(64),
+  `segundo_apellido` VARCHAR(64),
+  `correo` VARCHAR(64),
+  PRIMARY KEY (`idusuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cloud.estado` (
+  `idestado` INT,
+  `nombre` VARCHAR(64),
+  `descripcion` VARCHAR(64),
+  PRIMARY KEY (`idestado`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cloud.archivos` (
+  `idarchivos` INT,
+  `observaciones` VARCHAR(64),
+  `usuario` INT,
+  `estado` INT,
+  `voz_inicial` VARCHAR(64),
+  `concurso` INT,
+  `fecha` DATETIME,
+  `voz_mp3` VARCHAR(64),
+  `extension` VARCHAR(64),
+  PRIMARY KEY (`idarchivos`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_487752_script1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_487752_script1') AS relationships;
+DROP DATABASE `db_487752_script1`;
+UNINSTALL EXTENSION vsql_schematron;

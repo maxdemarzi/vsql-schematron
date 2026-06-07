@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 333515_sqlite
+#
+CREATE DATABASE `db_333515_sqlite`;
+USE `db_333515_sqlite`;
+CREATE TABLE `profile` (
+`id` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`id` INT,
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`address` VARCHAR(64),
+`status` INT,
+`profile_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`id` INT,
+`language_code` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category_photo` (
+`id` INT,
+`category_id` INT,
+`display_number` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `supplier` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `attribute` (
+`id` INT,
+`supplier_id` INT,
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`id` INT,
+`supplier_id` INT,
+`category_language_code` VARCHAR(64),
+`category_id` INT,
+`internal_name` VARCHAR(64),
+PRIMARY KEY (`id`, `supplier_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_language` (
+`id` INT,
+`supplier_id` INT,
+`language_code` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`, `supplier_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `organization` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `identity_provider` (
+`id` INT,
+`organization_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_rtl` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `blog_rtl` (
+`id` INT,
+`id_user` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_333515_sqlite') AS relationships;
+relationships
+Database: db_333515_sqlite
+
+Table Connections:
+------------------
+[Implied]  attribute.supplier_id -> supplier.id
+[Implied]  blog_rtl.id_user -> user_rtl.id
+[Implied]  category_photo.category_id -> category.id
+[Implied]  customer.profile_id -> profile.id
+[Implied]  identity_provider.organization_id -> organization.id
+[Implied]  product.category_id -> category.id
+[Implied]  product.supplier_id -> supplier.id
+[Implied]  product_language.supplier_id -> supplier.id
+
+DROP DATABASE `db_333515_sqlite`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 235276_zadatak4
+--echo #
+CREATE DATABASE `db_235276_zadatak4`;
+USE `db_235276_zadatak4`;
+
+CREATE TABLE `TIM` (
+  `SifT` INT,
+  `Naziv` VARCHAR(64),
+  `Mesto` VARCHAR(64),
+  PRIMARY KEY (`SifT`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UTAKMICA` (
+  `SifU` INT,
+  `SifTDomaci` INT,
+  `SifTGost` INT,
+  `Kolo` INT,
+  `Ishod` VARCHAR(64),
+  `Godina` INT,
+  PRIMARY KEY (`SifU`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_235276_zadatak4') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_235276_zadatak4') AS relationships;
+DROP DATABASE `db_235276_zadatak4`;
+UNINSTALL EXTENSION vsql_schematron;

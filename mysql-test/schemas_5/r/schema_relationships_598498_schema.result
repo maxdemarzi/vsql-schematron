@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 598498_schema
+#
+CREATE DATABASE `db_598498_schema`;
+USE `db_598498_schema`;
+CREATE TABLE `connector` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`icon` VARCHAR(64),
+`tags` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `connector_property` (
+`id` INT,
+`connector_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`secret` BOOL,
+`type` VARCHAR(64),
+`default_value` VARCHAR(64),
+`required` BOOL,
+`property_index` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `action` (
+`id` INT,
+`connector_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`tags` VARCHAR(64),
+`camel_connector_gav` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `action_property` (
+`id` INT,
+`action_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`secret` BOOL,
+`type` VARCHAR(64),
+`default_value` VARCHAR(64),
+`property_index` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `configured_connector` (
+`id` INT,
+`connector_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`properties` VARCHAR(64),
+`tags` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `action_instance` (
+`id` INT,
+`action_id` INT,
+`configured_connector_id` INT,
+`properties` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `integration` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`tags` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `integration_step` (
+`id` INT,
+`integration_id` INT,
+`action_instance_id` INT,
+`step_index` INT,
+`step_type` VARCHAR(64),
+`properties` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_598498_schema') AS relationships;
+relationships
+Database: db_598498_schema
+
+Table Connections:
+------------------
+[Implied]  action.connector_id -> connector.id
+[Implied]  action_instance.action_id -> action.id
+[Implied]  action_instance.configured_connector_id -> configured_connector.id
+[Implied]  action_property.action_id -> action.id
+[Implied]  configured_connector.connector_id -> connector.id
+[Implied]  connector_property.connector_id -> connector.id
+[Implied]  integration_step.action_instance_id -> action_instance.id
+[Implied]  integration_step.integration_id -> integration.id
+
+DROP DATABASE `db_598498_schema`;
+UNINSTALL EXTENSION vsql_schematron;

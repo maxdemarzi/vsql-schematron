@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 522655_migration
+#
+CREATE DATABASE `db_522655_migration`;
+USE `db_522655_migration`;
+CREATE TABLE `User` (
+`id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`bio` VARCHAR(64),
+`profilePictureUrl` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Article` (
+`id` INT,
+`slug` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`markdownContent` VARCHAR(64),
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comment` (
+`id` INT,
+`createdAt` DATETIME,
+`content` VARCHAR(64),
+`userId` INT,
+`articleId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ArticleTag` (
+`name` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `_FavoritedArticles` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_FollowedUser` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_ArticleToArticleTag` (
+`A` INT,
+`B` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_522655_migration') AS relationships;
+relationships
+Database: db_522655_migration
+
+Table Connections:
+------------------
+[Implied]  Article.userId -> User.id
+[Implied]  Comment.articleId -> Article.id
+[Implied]  Comment.userId -> User.id
+[Implied]  _ArticleToArticleTag.A -> Article.id
+
+DROP DATABASE `db_522655_migration`;
+UNINSTALL EXTENSION vsql_schematron;

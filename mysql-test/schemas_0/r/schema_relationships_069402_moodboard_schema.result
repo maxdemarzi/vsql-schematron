@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 069402_moodboard_schema
+#
+CREATE DATABASE `db_069402_moodboard_schema`;
+USE `db_069402_moodboard_schema`;
+CREATE TABLE `mb_image` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mb_mode` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`code` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mb_size` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`code` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mb_section` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`modeID` INT,
+`position` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mb_section_image` (
+`id` INT,
+`sectionID` INT,
+`imageID` INT,
+`position` INT,
+`sizeID` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mb_comment` (
+`id` INT,
+`text` VARCHAR(64),
+`postTime` DATETIME,
+`commentReplyingToID` INT,
+`sectionImageID` INT,
+`userID` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_069402_moodboard_schema') AS relationships;
+relationships
+Database: db_069402_moodboard_schema
+
+Table Connections:
+------------------
+[Implied]  mb_comment.sectionImageID -> mb_section_image.id
+[Implied]  mb_section.modeID -> mb_mode.id
+[Implied]  mb_section_image.imageID -> mb_image.id
+[Implied]  mb_section_image.sectionID -> mb_section.id
+[Implied]  mb_section_image.sizeID -> mb_size.id
+
+DROP DATABASE `db_069402_moodboard_schema`;
+UNINSTALL EXTENSION vsql_schematron;

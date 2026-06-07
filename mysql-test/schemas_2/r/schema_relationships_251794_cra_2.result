@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 251794_cra_2
+#
+CREATE DATABASE `db_251794_cra_2`;
+USE `db_251794_cra_2`;
+CREATE TABLE `type` (
+`id` VARCHAR(64),
+`designation` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `utilisateur` (
+`matricule` INT,
+`nom` VARCHAR(64),
+`prenom` VARCHAR(64),
+`admin` INT,
+PRIMARY KEY (`matricule`)
+) CHARACTER SET latin1;
+CREATE TABLE `cellule` (
+`id` INT,
+`designation` VARCHAR(64),
+`type_c` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `etat_incident` (
+`id` INT,
+`designation` VARCHAR(64),
+`abreviation` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `etat_demande` (
+`id` INT,
+`designation` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `incident` (
+`id` VARCHAR(64),
+`cellule_i` INT,
+`etat_i` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `demande` (
+`id` VARCHAR(64),
+`cellule_d` INT,
+`etat_d` INT,
+`date_soumission` DATETIME,
+`date_maj` DATETIME,
+`date_livraison` DATETIME,
+`charge` DECIMAL(10,2),
+`projet` VARCHAR(64),
+`priorite` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `suivi` (
+`id` INT,
+`matricule_s` INT,
+`temps_passe` DECIMAL(10,2),
+`cellule_s` INT,
+`demande_s` VARCHAR(64),
+`incident_s` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_251794_cra_2') AS relationships;
+relationships
+Database: db_251794_cra_2
+
+Table Connections:
+------------------
+[Implied]  cellule.type_c -> type.id
+[Implied]  demande.cellule_d -> cellule.id
+[Implied]  demande.etat_d -> etat_demande.id
+[Implied]  incident.cellule_i -> cellule.id
+[Implied]  incident.etat_i -> etat_incident.id
+[Implied]  suivi.cellule_s -> cellule.id
+[Implied]  suivi.demande_s -> demande.id
+[Implied]  suivi.incident_s -> incident.id
+
+DROP DATABASE `db_251794_cra_2`;
+UNINSTALL EXTENSION vsql_schematron;

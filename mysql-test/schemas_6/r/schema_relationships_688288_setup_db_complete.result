@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 688288_setup_db_complete
+#
+CREATE DATABASE `db_688288_setup_db_complete`;
+USE `db_688288_setup_db_complete`;
+CREATE TABLE `Branches` (
+`ID` INT,
+`BranchName` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customers` (
+`ID` INT,
+`Firstname` VARCHAR(64),
+`Lastname` VARCHAR(64),
+`Address` VARCHAR(64),
+`Deleted` INT,
+`Version` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Films` (
+`ID` INT,
+`Name` VARCHAR(64),
+`ReleaseYear` INT,
+`Rating` DECIMAL(10,2),
+`Picture` VARCHAR(64),
+`Version` INT,
+`ExternalLink` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `MediaItems` (
+`ID` INT,
+`FilmID` INT,
+`BranchID` INT,
+`Available` INT,
+`Version` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Loans` (
+`ID` INT,
+`MediaItemID` INT,
+`CustomerID` INT,
+`StartDate` DATETIME,
+`EndDate` DATETIME,
+`IsOpen` INT,
+`Version` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Clanky` (
+`ID` INT,
+`Nazev` VARCHAR(64),
+`Autor` VARCHAR(64),
+`Datum` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `HerniPlochy` (
+`ID` INT,
+`Stav` VARCHAR(64),
+`CasPoslednihoTahu` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Karty` (
+`ID` INT,
+`HerniPlochaID` INT,
+`CisloKarty` INT,
+`Stav` VARCHAR(64),
+`PoradiKarty` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Kontakt` (
+`ID` INT,
+`Jmeno` VARCHAR(64),
+`TelefonniCislo` VARCHAR(64),
+`Email` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_688288_setup_db_complete') AS relationships;
+relationships
+Database: db_688288_setup_db_complete
+
+Table Connections:
+------------------
+[Implied]  Loans.CustomerID -> Customers.ID
+[Implied]  Loans.MediaItemID -> MediaItems.ID
+[Implied]  MediaItems.BranchID -> Branches.ID
+[Implied]  MediaItems.FilmID -> Films.ID
+
+DROP DATABASE `db_688288_setup_db_complete`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 427317_speedstats
+#
+CREATE DATABASE `db_427317_speedstats`;
+USE `db_427317_speedstats`;
+CREATE TABLE `User` (
+`UserID` VARCHAR(64),
+`Hostname` VARCHAR(64),
+`Machine` VARCHAR(64),
+`City` VARCHAR(64),
+`Country` VARCHAR(64),
+PRIMARY KEY (`UserID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ISP` (
+`ID` INT,
+`Name` VARCHAR(64),
+`ISP_Rating` DECIMAL(10,2),
+`Latitude` DECIMAL(10,2),
+`Longtitude` DECIMAL(10,2),
+`City` VARCHAR(64),
+`Country` VARCHAR(64),
+`IP` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sponsor` (
+`ID` INT,
+`Host` VARCHAR(64),
+`Sponsor` VARCHAR(64),
+`Latitude` DECIMAL(10,2),
+`Longtitude` DECIMAL(10,2),
+`City` VARCHAR(64),
+`Country` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Client` (
+`UserID` VARCHAR(64),
+`ISP` VARCHAR(64),
+`Sponsor` VARCHAR(64),
+`Distanse` DECIMAL(10,2),
+`Timestamp` DATETIME,
+PRIMARY KEY (`UserID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Countries` (
+`code` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_427317_speedstats') AS relationships;
+relationships
+Database: db_427317_speedstats
+
+Table Connections:
+------------------
+[Implied]  Client.UserID -> User.UserID
+[Implied]  ISP.Country -> Countries.code
+[Implied]  Sponsor.Country -> Countries.code
+[Implied]  User.Country -> Countries.code
+
+DROP DATABASE `db_427317_speedstats`;
+UNINSTALL EXTENSION vsql_schematron;

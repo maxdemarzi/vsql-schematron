@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 047390_migration
+--echo #
+CREATE DATABASE `db_047390_migration`;
+USE `db_047390_migration`;
+
+CREATE TABLE `User` (
+  `userId` INT,
+  `stravaUserId` INT,
+  `email` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `firstname` VARCHAR(64),
+  `password` VARCHAR(64),
+  `active` BOOL,
+  PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Activity` (
+  `activityId` INT,
+  `stravaActivityId` INT,
+  `stravaUserId` INT,
+  `distance` DECIMAL(10,2),
+  `movingTime` INT,
+  `type` VARCHAR(64),
+  `start_date` DATETIME,
+  `start_date_local` DATETIME,
+  `timezone` VARCHAR(64),
+  PRIMARY KEY (`activityId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EmailHash` (
+  `hashId` INT,
+  `email` VARCHAR(64),
+  `hash` VARCHAR(64),
+  `createAt` DATETIME,
+  PRIMARY KEY (`hashId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PasswordHash` (
+  `hashId` INT,
+  `email` VARCHAR(64),
+  `hash` VARCHAR(64),
+  `createAt` DATETIME,
+  PRIMARY KEY (`hashId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_047390_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_047390_migration') AS relationships;
+DROP DATABASE `db_047390_migration`;
+UNINSTALL EXTENSION vsql_schematron;

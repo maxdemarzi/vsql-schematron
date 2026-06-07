@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 028747_general_schema.in
+#
+CREATE DATABASE `db_028747_general_schema_in`;
+USE `db_028747_general_schema_in`;
+CREATE TABLE `orders` (
+`id` INT,
+`user_id` INT,
+`status` VARCHAR(64),
+`created_at` VARCHAR(64),
+`modified_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_items` (
+`order_id` INT,
+`product_id` INT,
+`quantity` INT,
+`created_at` DATETIME,
+`modified_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`name` VARCHAR(64),
+`merchant_id` INT,
+`price` INT,
+`status` VARCHAR(64),
+`created_at` DATETIME,
+`modified_at` DATETIME,
+PRIMARY KEY (`id`, `name`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`full_name` VARCHAR(64),
+`email` VARCHAR(64),
+`gender` VARCHAR(64),
+`date_of_birth` VARCHAR(64),
+`created_at` VARCHAR(64),
+`modified_at` DATETIME,
+`country_code` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `merchants` (
+`id` INT,
+`merchant_name` VARCHAR(64),
+`country_code` INT,
+`created_at` VARCHAR(64),
+`modified_at` DATETIME,
+`admin_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `countries` (
+`code` INT,
+`name` VARCHAR(64),
+`continent_name` VARCHAR(64),
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_028747_general_schema_in') AS relationships;
+relationships
+Database: db_028747_general_schema_in
+
+Table Connections:
+------------------
+[Implied]  merchants.admin_id -> users.id
+[Implied]  merchants.country_code -> countries.code
+[Implied]  order_items.order_id -> orders.id
+[Implied]  orders.user_id -> users.id
+[Implied]  products.merchant_id -> merchants.id
+[Implied]  users.country_code -> countries.code
+
+DROP DATABASE `db_028747_general_schema_in`;
+UNINSTALL EXTENSION vsql_schematron;

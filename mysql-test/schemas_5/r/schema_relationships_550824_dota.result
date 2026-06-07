@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 550824_dota
+#
+CREATE DATABASE `db_550824_dota`;
+USE `db_550824_dota`;
+CREATE TABLE `dota_user` (
+`user_id` INT,
+`user_name` VARCHAR(64),
+`user_email` VARCHAR(64),
+`user_username` VARCHAR(64),
+`user_password` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dota_admin` (
+`admin_id` INT,
+`admin_registration_number` VARCHAR(64),
+PRIMARY KEY (`admin_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dota_gamer` (
+`gamer_id` INT,
+`gamer_ign` VARCHAR(64),
+PRIMARY KEY (`gamer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dota_premiumuser` (
+`premiumuser_Gamer_ID` INT,
+`premiumuser_Registration_Number` INT,
+`premiumuser_RegistrationExpiryDate` VARCHAR(64),
+PRIMARY KEY (`premiumuser_Registration_Number`)
+) CHARACTER SET latin1;
+CREATE TABLE `dota_mmr` (
+`mmr_Id` INT,
+`mmr_score` INT,
+`mmr_medal` VARCHAR(64),
+PRIMARY KEY (`mmr_Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dota_match` (
+`match_ID` INT,
+`match_Status` VARCHAR(64),
+`match_Duration` VARCHAR(64),
+PRIMARY KEY (`match_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `dota_tournament` (
+`Tournament_ID` INT,
+`Tournament_name` VARCHAR(64),
+`Tournament_starting_timedate` DATETIME,
+`Tournament_end_timedate` DATETIME,
+`Tournament_prize` VARCHAR(64),
+PRIMARY KEY (`Tournament_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `dota_gamer_match` (
+`matchid` INT,
+`gamerid` INT,
+`match_GPM` INT,
+`match_Kills` INT,
+`match_XPM` INT,
+`match_death` INT,
+`match_assist` INT,
+PRIMARY KEY (`matchid`)
+) CHARACTER SET latin1;
+CREATE TABLE `dota_tournament_match` (
+`Tournamentid` INT,
+`Matchid` INT,
+PRIMARY KEY (`Matchid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_550824_dota') AS relationships;
+relationships
+Database: db_550824_dota
+
+Table Connections:
+------------------
+[Implied]  dota_gamer_match.gamerid -> dota_gamer.gamer_id
+[Implied]  dota_gamer_match.matchid -> dota_match.match_ID
+[Implied]  dota_premiumuser.premiumuser_Gamer_ID -> dota_gamer.gamer_id
+[Implied]  dota_tournament_match.Matchid -> dota_match.match_ID
+[Implied]  dota_tournament_match.Tournamentid -> dota_tournament.Tournament_ID
+
+DROP DATABASE `db_550824_dota`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 193544_Modelo_F%C3%ADsico
+--echo #
+CREATE DATABASE `db_193544_Modelo_F_C3_ADsico`;
+USE `db_193544_Modelo_F_C3_ADsico`;
+
+CREATE TABLE `CL_USUARIO` (
+  `ID` INT,
+  `NOME` VARCHAR(64),
+  `SOBRENOME` VARCHAR(64),
+  `DATA_DE_NASCIMENTO` DATETIME,
+  `GENERO` VARCHAR(64),
+  `N_CELULAR` VARCHAR(64),
+  `TIPO_USUARIO` VARCHAR(64),
+  `MATRICULA` VARCHAR(64),
+  `E_MAIL` VARCHAR(64),
+  `SENHA` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CL_CURSO` (
+  `ID` INT,
+  `DESC_CURSO` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CL_DISCIPLINA` (
+  `ID` INT,
+  `CODIGO` VARCHAR(64),
+  `NOME` VARCHAR(64),
+  `CUR_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CL_DISCIPLINA_OFERTADA` (
+  `ID` INT,
+  `ANO` VARCHAR(64),
+  `SEMESTRE` VARCHAR(64),
+  `COR_DISC` VARCHAR(64),
+  `DIS_ID` INT,
+  `USU_ID_PROFESSOR` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CL_REUNI√ÉO_MARCADA` (
+  `ID` INT,
+  `NOME` VARCHAR(64),
+  `D_DATA` DATETIME,
+  `H_INICIO` DATETIME,
+  `H_FIM` DATETIME,
+  `DIO_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CL_MATRICULA` (
+  `USU_ID` INT,
+  `DIO_ID` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_193544_Modelo_F_C3_ADsico') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_193544_Modelo_F_C3_ADsico') AS relationships;
+DROP DATABASE `db_193544_Modelo_F_C3_ADsico`;
+UNINSTALL EXTENSION vsql_schematron;

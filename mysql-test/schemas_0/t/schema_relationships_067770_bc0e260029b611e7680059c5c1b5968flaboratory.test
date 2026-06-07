@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 067770_bc0e260029b611e7680059c5c1b5968flaboratory
+--echo #
+CREATE DATABASE `db_067770_bc0e260029b611e7680059c5c1b5968flaboratory`;
+USE `db_067770_bc0e260029b611e7680059c5c1b5968flaboratory`;
+
+CREATE TABLE `t_brand` (
+  `id` INT,
+  `isDelete` INT,
+  `name` VARCHAR(64),
+  `Category_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_category` (
+  `id` INT,
+  `isDelete` INT,
+  `name` VARCHAR(64),
+  `photo` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_introduction` (
+  `id` INT,
+  `gg` VARCHAR(64),
+  `isDelete` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_message` (
+  `id` INT,
+  `count` VARCHAR(64),
+  `isDelete` INT,
+  `msg` VARCHAR(64),
+  `time` DATETIME,
+  `User_Fsr` INT,
+  `User_Jsr` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_photo` (
+  `id` INT,
+  `count` INT,
+  `fileName1` VARCHAR(64),
+  `fileName2` VARCHAR(64),
+  `fileName3` VARCHAR(64),
+  `fileName4` VARCHAR(64),
+  `isDelete` INT,
+  `jg` DECIMAL(10,2),
+  `js` VARCHAR(64),
+  `name` VARCHAR(64),
+  `brand_id` INT,
+  `category_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_purchase` (
+  `id` INT,
+  `count` INT,
+  `isDelete` INT,
+  `money` DECIMAL(10,2),
+  `price` DECIMAL(10,2),
+  `time` DATETIME,
+  `photo_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_067770_bc0e260029b611e7680059c5c1b5968flaboratory') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_067770_bc0e260029b611e7680059c5c1b5968flaboratory') AS relationships;
+DROP DATABASE `db_067770_bc0e260029b611e7680059c5c1b5968flaboratory`;
+UNINSTALL EXTENSION vsql_schematron;

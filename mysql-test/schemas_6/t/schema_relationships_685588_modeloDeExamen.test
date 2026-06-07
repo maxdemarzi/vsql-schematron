@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 685588_modeloDeExamen
+--echo #
+CREATE DATABASE `db_685588_modeloDeExamen`;
+USE `db_685588_modeloDeExamen`;
+
+CREATE TABLE `tblProducto` (
+  `codigo_producto` INT,
+  `precio` DECIMAL(10,2),
+  PRIMARY KEY (`codigo_producto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblCd` (
+  `codigo_cd` INT,
+  `interprete` VARCHAR(64),
+  `productor` VARCHAR(64),
+  `nombre_cd` VARCHAR(64),
+  `año` VARCHAR(64),
+  PRIMARY KEY (`codigo_cd`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblInstrumento` (
+  `codigo_ins` INT,
+  `instrumento` VARCHAR(64),
+  `tipo` VARCHAR(64),
+  `marca` VARCHAR(64),
+  `modelo` VARCHAR(64),
+  PRIMARY KEY (`codigo_ins`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblCanciones` (
+  `codigo_song` INT,
+  `autor` VARCHAR(64),
+  `titulo` VARCHAR(64),
+  `numero_pista` INT,
+  PRIMARY KEY (`numero_pista`, `titulo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblEmpleado` (
+  `ci_id` INT,
+  `snombre` VARCHAR(64),
+  `sapellido` VARCHAR(64),
+  `edireccion` VARCHAR(64),
+  `dtNacimiento` DATETIME,
+  `activo` VARCHAR(64),
+  `año_ingreso` VARCHAR(64),
+  PRIMARY KEY (`ci_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblCliente` (
+  `nit_id` INT,
+  `nombre` VARCHAR(64),
+  `sexo` VARCHAR(64),
+  `fecha_nacimiento` DATETIME,
+  `cdireccion` VARCHAR(64),
+  `correoE` VARCHAR(64),
+  `telf` INT,
+  PRIMARY KEY (`nit_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblVenta_Compra` (
+  `codigo_venta` INT,
+  `tipo_pago` VARCHAR(64),
+  `fecha` DATETIME,
+  `hora` DATETIME,
+  `cliente` INT,
+  `empleado` INT,
+  PRIMARY KEY (`codigo_venta`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblProducto_venta` (
+  `codigo_venta` INT,
+  `codigo_producto` INT,
+  PRIMARY KEY (`codigo_venta`, `codigo_producto`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_685588_modeloDeExamen') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_685588_modeloDeExamen') AS relationships;
+DROP DATABASE `db_685588_modeloDeExamen`;
+UNINSTALL EXTENSION vsql_schematron;

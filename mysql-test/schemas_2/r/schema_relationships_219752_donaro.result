@@ -1,0 +1,118 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 219752_donaro
+#
+CREATE DATABASE `db_219752_donaro`;
+USE `db_219752_donaro`;
+CREATE TABLE `usuario` (
+`cd_usuario` INT,
+`nm_usuario` VARCHAR(64),
+`cd_cpf_usuario` VARCHAR(64),
+`cd_cnpj_usuario` VARCHAR(64),
+`dt_nascimento_usuario` DATETIME,
+`cd_celular_usuario` VARCHAR(64),
+`sg_estado_usuario` VARCHAR(64),
+`nm_cidade_usuario` VARCHAR(64),
+`cd_foto_usuario` VARCHAR(64),
+`cd_senha_usuario` VARCHAR(64),
+`cd_email_usuario` VARCHAR(64),
+`cd_deletado_usuario` INT,
+`cd_isAdmin_usuario` INT,
+`qt_advertencias_usuario` INT,
+PRIMARY KEY (`cd_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedido` (
+`cd_pedido` INT,
+`cd_usuario_pedido` INT,
+`nm_titulo_pedido` VARCHAR(64),
+`dt_encerramento_pedido` DATETIME,
+`dt_createdAt_pedido` DATETIME,
+`nm_cidade_pedido` VARCHAR(64),
+`sg_estado_pedido` VARCHAR(64),
+`ds_acao_pedido` VARCHAR(64),
+`cd_deletado_pedido` INT,
+`qt_total_pedido` INT,
+`cd_imagem_pedido` VARCHAR(64),
+`qt_doacoes_pedido` INT,
+PRIMARY KEY (`cd_pedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `solicitacao` (
+`cd_solicitacao` INT,
+`cd_pedido_solicitacao` INT,
+`ds_comentario_solicitacao` VARCHAR(64),
+`dt_createdAt_solicitacao` DATETIME,
+`dt_deliveredAt_solicitacao` DATETIME,
+`cd_situacao_solicitacao` VARCHAR(64),
+`cd_usuario_solicitacao` INT,
+PRIMARY KEY (`cd_solicitacao`)
+) CHARACTER SET latin1;
+CREATE TABLE `donation` (
+`cd_donation` INT,
+`nm_alimento_donation` VARCHAR(64),
+`qt_contribuicao_donation` INT,
+`cd_solicitacao_donation` INT,
+`cd_pedido_donation` INT,
+PRIMARY KEY (`cd_donation`, `cd_solicitacao_donation`)
+) CHARACTER SET latin1;
+CREATE TABLE `notificacao` (
+`cd_notificacao` INT,
+`cd_usuario_notificacao` INT,
+`ds_notificacao` VARCHAR(64),
+`dt_createdAt_notificacao` DATETIME,
+`cd_solicitacao_notificacao` INT,
+PRIMARY KEY (`cd_notificacao`)
+) CHARACTER SET latin1;
+CREATE TABLE `chat` (
+`cd_chat` INT,
+`cd_pedido_chat` INT,
+`cd_solicitacao_chat` INT,
+`cd_userPedido_chat` INT,
+`cd_userSoli_chat` INT,
+PRIMARY KEY (`cd_chat`)
+) CHARACTER SET latin1;
+CREATE TABLE `mensagem` (
+`cd_mensagem` INT,
+`ds_conteudo_mensagem` VARCHAR(64),
+`cd_chat_mensagem` INT,
+`cd_usuario_mensagem` INT,
+`dt_time_mensagem` DATETIME,
+PRIMARY KEY (`cd_mensagem`)
+) CHARACTER SET latin1;
+CREATE TABLE `produto` (
+`cd_produto` INT,
+`nm_produto` VARCHAR(64),
+`sg_medida_produto` VARCHAR(64),
+`nm_tipoFisico_produto` VARCHAR(64),
+PRIMARY KEY (`cd_produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `alimento` (
+`nm_alimento` VARCHAR(64),
+`cd_pedido_alimento` INT,
+`nm_medida_alimento` VARCHAR(64),
+`qt_alimento` INT,
+`qt_doada_alimento` INT,
+PRIMARY KEY (`nm_alimento`, `cd_pedido_alimento`)
+) CHARACTER SET latin1;
+CREATE TABLE `denuncia` (
+`cd_denuncia` INT,
+`cd_usuario_denuncia` INT,
+`nm_motivo_denuncia` VARCHAR(64),
+`nm_situacao_denuncia` VARCHAR(64),
+`dt_createdAt_denuncia` DATETIME,
+`ds_descricao_denuncia` VARCHAR(64),
+`cd_pedido_denunciado` INT,
+`cd_usuario_denunciado` INT,
+`cd_solicitacao_denunciada` INT,
+PRIMARY KEY (`cd_denuncia`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_219752_donaro') AS relationships;
+relationships
+Database: db_219752_donaro
+
+Table Connections:
+------------------
+[Implied]  alimento.cd_pedido_alimento -> pedido.cd_pedido
+[Implied]  donation.cd_solicitacao_donation -> solicitacao.cd_solicitacao
+
+DROP DATABASE `db_219752_donaro`;
+UNINSTALL EXTENSION vsql_schematron;

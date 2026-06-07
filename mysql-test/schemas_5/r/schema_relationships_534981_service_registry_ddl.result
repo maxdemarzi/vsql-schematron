@@ -1,0 +1,102 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 534981_service-registry.ddl
+#
+CREATE DATABASE `db_534981_service_registry_ddl`;
+USE `db_534981_service_registry_ddl`;
+CREATE TABLE `cost` (
+`id` INT,
+`unit` VARCHAR(64),
+`planmetadata_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cost_amounts` (
+`cost_amounts_id` INT,
+`value` DECIMAL(10,2),
+`currency` VARCHAR(64),
+PRIMARY KEY (`cost_amounts_id`, `currency`)
+) CHARACTER SET latin1;
+CREATE TABLE `credentials` (
+`id` VARCHAR(64),
+`password` VARCHAR(64),
+`uri` VARCHAR(64),
+`username` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `creds_other_attributes` (
+`creds_other_attrib_id` VARCHAR(64),
+`value` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`creds_other_attrib_id`, `name`)
+) CHARACTER SET latin1;
+CREATE TABLE `plan_metadata_bullets` (
+`plan_metadata_id` INT,
+`bullets` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `planmetadata` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `plans` (
+`id` VARCHAR(64),
+`description` VARCHAR(64),
+`is_free` BOOL,
+`name` VARCHAR(64),
+`plan_cred_id` VARCHAR(64),
+`metadata_id` INT,
+`service_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `service_bindings` (
+`id` VARCHAR(64),
+`app_guid` VARCHAR(64),
+`instance_id` VARCHAR(64),
+`plan_id` VARCHAR(64),
+`service_id` VARCHAR(64),
+`service_binding_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `service_instances` (
+`id` VARCHAR(64),
+`org_guid` VARCHAR(64),
+`plan_id` VARCHAR(64),
+`service_id` VARCHAR(64),
+`space_guid` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `servicemetadata` (
+`id` INT,
+`display_name` VARCHAR(64),
+`documentation_url` VARCHAR(64),
+`image_url` VARCHAR(64),
+`long_description` VARCHAR(64),
+`provider_display_name` VARCHAR(64),
+`support_url` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `services` (
+`id` VARCHAR(64),
+`bindable` BOOL,
+`description` VARCHAR(64),
+`name` VARCHAR(64),
+`metadata_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_534981_service_registry_ddl') AS relationships;
+relationships
+Database: db_534981_service_registry_ddl
+
+Table Connections:
+------------------
+[Implied]  cost.planmetadata_id -> planmetadata.id
+[Implied]  cost_amounts.cost_amounts_id -> cost.id
+[Implied]  plan_metadata_bullets.plan_metadata_id -> planmetadata.id
+[Implied]  plans.service_id -> services.id
+[Implied]  service_bindings.plan_id -> plans.id
+[Implied]  service_bindings.service_binding_id -> services.id
+[Implied]  service_bindings.service_id -> services.id
+[Implied]  service_instances.plan_id -> plans.id
+[Implied]  service_instances.service_id -> services.id
+
+DROP DATABASE `db_534981_service_registry_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,109 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 352233_init
+#
+CREATE DATABASE `db_352233_init`;
+USE `db_352233_init`;
+CREATE TABLE `language` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_type` (
+`id` INT,
+`type_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`login` VARCHAR(64),
+`password` VARCHAR(64),
+`type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `entrant_state` (
+`id` INT,
+`state_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `entrant` (
+`id` INT,
+`full_name` VARCHAR(64),
+`email` VARCHAR(64),
+`city` VARCHAR(64),
+`region` VARCHAR(64),
+`school_name` VARCHAR(64),
+`state_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subject_type` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subject` (
+`id` INT,
+`name` VARCHAR(64),
+`subject_type` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `exams_type` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `coefficient` (
+`id` INT,
+`name` VARCHAR(64),
+`value` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `faculty` (
+`id` INT,
+`students_fin_by_gov` INT,
+`commercial_students` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `faculty_translation` (
+`faculty_id` INT,
+`language_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `faculty_exams` (
+`id` INT,
+`faculty_id` INT,
+`subject_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `entrant_exams` (
+`id` INT,
+`entrant_id` INT,
+`subject_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `acceptance` (
+`faculty_id` INT,
+`entrant_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_352233_init') AS relationships;
+relationships
+Database: db_352233_init
+
+Table Connections:
+------------------
+[Implied]  acceptance.entrant_id -> entrant.id
+[Implied]  acceptance.faculty_id -> faculty.id
+[Implied]  entrant.state_id -> entrant_state.id
+[Implied]  entrant.user_id -> user.id
+[Implied]  entrant_exams.entrant_id -> entrant.id
+[Implied]  entrant_exams.subject_id -> subject.id
+[Implied]  faculty_exams.faculty_id -> faculty.id
+[Implied]  faculty_exams.subject_id -> subject.id
+[Implied]  faculty_translation.faculty_id -> faculty.id
+[Implied]  faculty_translation.language_id -> language.id
+[Implied]  subject.subject_type -> subject_type.id
+
+DROP DATABASE `db_352233_init`;
+UNINSTALL EXTENSION vsql_schematron;

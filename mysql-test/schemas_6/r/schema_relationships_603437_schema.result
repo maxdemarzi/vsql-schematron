@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 603437_schema
+#
+CREATE DATABASE `db_603437_schema`;
+USE `db_603437_schema`;
+CREATE TABLE `user` (
+`id` INT,
+`user_name` VARCHAR(64),
+`about` VARCHAR(64),
+`picture` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tweets` (
+`id` INT,
+`user_id` INT,
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `faves` (
+`id` INT,
+`favoriter_user_id` INT,
+`author_user_id` INT,
+`tweet_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `retweets` (
+`id` INT,
+`retweeter_id` INT,
+`author_user_id` INT,
+`tweet_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `follows` (
+`follower_user_id` INT,
+`followed_user_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_603437_schema') AS relationships;
+relationships
+Database: db_603437_schema
+
+Table Connections:
+------------------
+[Implied]  faves.author_user_id -> user.id
+[Implied]  faves.favoriter_user_id -> user.id
+[Implied]  faves.tweet_id -> tweets.id
+[Implied]  follows.followed_user_id -> user.id
+[Implied]  follows.follower_user_id -> user.id
+[Implied]  retweets.author_user_id -> user.id
+[Implied]  retweets.tweet_id -> tweets.id
+[Implied]  tweets.user_id -> user.id
+
+DROP DATABASE `db_603437_schema`;
+UNINSTALL EXTENSION vsql_schematron;

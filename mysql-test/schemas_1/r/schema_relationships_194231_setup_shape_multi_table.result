@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 194231_setup-shape-multi-table
+#
+CREATE DATABASE `db_194231_setup_shape_multi_table`;
+USE `db_194231_setup_shape_multi_table`;
+CREATE TABLE `drawing` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shape` (
+`id` INT,
+`type` VARCHAR(64),
+`color` VARCHAR(64),
+`drawingId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shapecolorhistory` (
+`id` INT,
+`shapeId` INT,
+`dateChanged` DATETIME,
+`colorName` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `circle` (
+`id` INT,
+`radius` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rectangle` (
+`id` INT,
+`width` INT,
+`height` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cornercoordinates` (
+`id` INT,
+`shapeId` INT,
+`x` INT,
+`y` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_194231_setup_shape_multi_table') AS relationships;
+relationships
+Database: db_194231_setup_shape_multi_table
+
+Table Connections:
+------------------
+[Implied]  cornercoordinates.shapeId -> shape.id
+[Implied]  shape.drawingId -> drawing.id
+[Implied]  shapecolorhistory.shapeId -> shape.id
+
+DROP DATABASE `db_194231_setup_shape_multi_table`;
+UNINSTALL EXTENSION vsql_schematron;

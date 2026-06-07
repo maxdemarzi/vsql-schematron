@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 059572_V0.1.2__create_decision_and_decision_version
+#
+CREATE DATABASE `db_059572_V0_1_2_create_decision_and_decision_version`;
+USE `db_059572_V0_1_2_create_decision_and_decision_version`;
+CREATE TABLE `DECISION` (
+`id` VARCHAR(64),
+`customer_id` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`lock_version` INT,
+`current_version_id` VARCHAR(64),
+`next_version_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `DECISION_VERSION` (
+`id` VARCHAR(64),
+`version` INT,
+`submitted_at` DATETIME,
+`published_at` DATETIME,
+`dmn_location` VARCHAR(64),
+`dmn_md5` VARCHAR(64),
+`kafka_source_topic` VARCHAR(64),
+`kafka_sink_topic` VARCHAR(64),
+`status` VARCHAR(64),
+`status_message` VARCHAR(64),
+`ccp_namespace` VARCHAR(64),
+`ccp_name` VARCHAR(64),
+`ccp_version_name` VARCHAR(64),
+`ccp_exposed_url` VARCHAR(64),
+`decision_id` VARCHAR(64),
+`lock_version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `DECISION_VERSION_TAG` (
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+`decision_version_id` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `DECISION_VERSION_CONFIG` (
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+`decision_version_id` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_059572_V0_1_2_create_decision_and_decision_version') AS relationships;
+relationships
+Database: db_059572_V0_1_2_create_decision_and_decision_version
+
+Table Connections:
+------------------
+[Implied]  DECISION.current_version_id -> DECISION_VERSION.id
+[Implied]  DECISION.next_version_id -> DECISION.id
+[Implied]  DECISION.next_version_id -> DECISION_VERSION.id
+[Implied]  DECISION_VERSION.decision_id -> DECISION.id
+[Implied]  DECISION_VERSION_CONFIG.decision_version_id -> DECISION_VERSION.id
+[Implied]  DECISION_VERSION_TAG.decision_version_id -> DECISION_VERSION.id
+
+DROP DATABASE `db_059572_V0_1_2_create_decision_and_decision_version`;
+UNINSTALL EXTENSION vsql_schematron;

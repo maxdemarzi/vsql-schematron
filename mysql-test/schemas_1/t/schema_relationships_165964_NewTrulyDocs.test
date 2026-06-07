@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 165964_NewTrulyDocs
+--echo #
+CREATE DATABASE `db_165964_NewTrulyDocs`;
+USE `db_165964_NewTrulyDocs`;
+
+CREATE TABLE `file` (
+  `file_id` INT,
+  `document_id` INT,
+  `file_st` VARCHAR(64),
+  `uuid_fn` VARCHAR(64),
+  `content_tp` VARCHAR(64),
+  `file_ds` VARCHAR(64),
+  `first_upload_dt` DATETIME,
+  `first_upload_user_id` INT,
+  `last_upload_dt` DATETIME,
+  `last_upload_user_id` INT,
+  `original_fn` VARCHAR(64),
+  `original_dt` DATETIME,
+  PRIMARY KEY (`file_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `file_extension` (
+  `extension_cd` VARCHAR(64),
+  `type_cd` VARCHAR(64),
+  `extension_fn` VARCHAR(64),
+  PRIMARY KEY (`extension_cd`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `file_type` (
+  `type_cd` VARCHAR(64),
+  `type_ds` VARCHAR(64),
+  `acceptable_fl` INT,
+  `previewable_fl` INT,
+  `file_cmd_regex` VARCHAR(64),
+  `changed_dt` DATETIME,
+  PRIMARY KEY (`type_cd`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `version` (
+  `version_id` INT,
+  `file_id` INT,
+  `uuid_fn` VARCHAR(64),
+  `content_tp` VARCHAR(64),
+  `upload_dt` DATETIME,
+  `upload_user_id` INT,
+  `original_fn` VARCHAR(64),
+  `original_dt` DATETIME,
+  PRIMARY KEY (`version_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_165964_NewTrulyDocs') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_165964_NewTrulyDocs') AS relationships;
+DROP DATABASE `db_165964_NewTrulyDocs`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,85 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 686644_postgresql-schema
+#
+CREATE DATABASE `db_686644_postgresql_schema`;
+USE `db_686644_postgresql_schema`;
+CREATE TABLE `categories` (
+`category_id` INT,
+`category_name` VARCHAR(64),
+`category_group` VARCHAR(64),
+PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `episodes` (
+`episode_id` INT,
+`show_id` INT,
+`season_number` INT,
+`episode_number` INT,
+`title` VARCHAR(64),
+`summary` VARCHAR(64),
+`explicit` BOOL,
+`guid` VARCHAR(64),
+`media_id` INT,
+`show_notes` VARCHAR(64),
+`created_ts` DATETIME,
+`created_by` INT,
+`publish_ts` DATETIME,
+PRIMARY KEY (`episode_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `media` (
+`media_id` INT,
+`fname_nice` VARCHAR(64),
+`fname_on_disk` VARCHAR(64),
+`media_bytes` INT,
+`mime_type` VARCHAR(64),
+`download_count` INT,
+`duration` INT,
+PRIMARY KEY (`media_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shows` (
+`show_id` INT,
+`title` VARCHAR(64),
+`short_description` VARCHAR(64),
+`full_description` VARCHAR(64),
+`author` VARCHAR(64),
+`explicit` BOOL,
+`active` BOOL,
+`cover_art_id` INT,
+`license_id` VARCHAR(64),
+`category_id` INT,
+`title_template` VARCHAR(64),
+`summary_template` VARCHAR(64),
+`notes_template` VARCHAR(64),
+PRIMARY KEY (`show_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `licenses` (
+`license_id` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`license_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `settings` (
+`setting` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`setting`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`username` VARCHAR(64),
+`passwd` VARCHAR(64),
+`user_id` INT,
+`last_login_ts` DATETIME,
+`last_login_ip` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_686644_postgresql_schema') AS relationships;
+relationships
+Database: db_686644_postgresql_schema
+
+Table Connections:
+------------------
+[Implied]  episodes.media_id -> media.media_id
+[Implied]  episodes.show_id -> shows.show_id
+[Implied]  shows.category_id -> categories.category_id
+[Implied]  shows.license_id -> licenses.license_id
+
+DROP DATABASE `db_686644_postgresql_schema`;
+UNINSTALL EXTENSION vsql_schematron;

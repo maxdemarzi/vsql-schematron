@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 147940_query
+--echo #
+CREATE DATABASE `db_147940_query`;
+USE `db_147940_query`;
+
+CREATE TABLE `Doctor_Detail` (
+  `D_Ssn` VARCHAR(64),
+  `D_Name` VARCHAR(64),
+  `Gender` VARCHAR(64),
+  `Position` VARCHAR(64),
+  `Phone` VARCHAR(64),
+  `Office` VARCHAR(64),
+  `Address` VARCHAR(64),
+  `city` VARCHAR(64),
+  `Zip` INT,
+  PRIMARY KEY (`D_Ssn`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Beneficiary` (
+  `ssn` VARCHAR(64),
+  `name` VARCHAR(64),
+  `position` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `DOB` DATETIME,
+  `address` VARCHAR(64),
+  `city` VARCHAR(64),
+  `pincode` INT,
+  PRIMARY KEY (`ssn`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `patient_entry` (
+  `patient_no` INT,
+  `P_Ssn` VARCHAR(64),
+  `D_Ssn` VARCHAR(64),
+  `Age` INT,
+  `visit_date` DATETIME,
+  PRIMARY KEY (`patient_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `medicines` (
+  `m_name` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `in_stock` INT,
+  PRIMARY KEY (`m_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Prescription` (
+  `p_no` INT,
+  `drug_name` VARCHAR(64),
+  `quantity` INT,
+  PRIMARY KEY (`p_no`, `drug_name`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_147940_query') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_147940_query') AS relationships;
+DROP DATABASE `db_147940_query`;
+UNINSTALL EXTENSION vsql_schematron;

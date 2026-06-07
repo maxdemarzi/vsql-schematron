@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 242412_create-tables
+#
+CREATE DATABASE `db_242412_create_tables`;
+USE `db_242412_create_tables`;
+CREATE TABLE `drs_object` (
+`id` VARCHAR(64),
+`description` VARCHAR(64),
+`created_time` DATETIME,
+`mime_type` VARCHAR(64),
+`name` VARCHAR(64),
+`size` INT,
+`updated_time` DATETIME,
+`version` VARCHAR(64),
+`is_bundle` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `file_access_object` (
+`id` INT,
+`drs_object_id` VARCHAR(64),
+`path` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `aws_s3_access_object` (
+`id` INT,
+`drs_object_id` VARCHAR(64),
+`region` VARCHAR(64),
+`bucket` VARCHAR(64),
+`key` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `drs_object_alias` (
+`drs_object_id` VARCHAR(64),
+`alias` VARCHAR(64),
+PRIMARY KEY (`drs_object_id`, `alias`)
+) CHARACTER SET latin1;
+CREATE TABLE `drs_object_checksum` (
+`id` INT,
+`drs_object_id` VARCHAR(64),
+`checksum` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `drs_object_bundle` (
+`parent_id` VARCHAR(64),
+`child_id` VARCHAR(64),
+PRIMARY KEY (`parent_id`, `child_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_242412_create_tables') AS relationships;
+relationships
+Database: db_242412_create_tables
+
+Table Connections:
+------------------
+[Implied]  aws_s3_access_object.drs_object_id -> drs_object.id
+[Implied]  drs_object_alias.drs_object_id -> drs_object.id
+[Implied]  drs_object_checksum.drs_object_id -> drs_object.id
+[Implied]  file_access_object.drs_object_id -> drs_object.id
+
+DROP DATABASE `db_242412_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

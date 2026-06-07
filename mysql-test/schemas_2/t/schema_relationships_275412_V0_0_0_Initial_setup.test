@@ -1,0 +1,127 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 275412_V0.0.0__Initial_setup
+--echo #
+CREATE DATABASE `db_275412_V0_0_0_Initial_setup`;
+USE `db_275412_V0_0_0_Initial_setup`;
+
+CREATE TABLE `ms_akun` (
+  `id_akun` VARCHAR(64),
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id_akun`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ms_pelanggan` (
+  `id_pelanggan` VARCHAR(64),
+  `nama` VARCHAR(64),
+  `no_telp` VARCHAR(64),
+  PRIMARY KEY (`id_pelanggan`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ms_penjual` (
+  `id_penjual` VARCHAR(64),
+  `nama` VARCHAR(64),
+  `no_telp` VARCHAR(64),
+  PRIMARY KEY (`id_penjual`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ms_kurir` (
+  `id_kurir` VARCHAR(64),
+  `nama` VARCHAR(64),
+  `no_telp` VARCHAR(64),
+  PRIMARY KEY (`id_kurir`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ms_barang` (
+  `id_barang` VARCHAR(64),
+  `id_penjual` VARCHAR(64),
+  `nama` VARCHAR(64),
+  `keterangan` VARCHAR(64),
+  `harga` INT,
+  `foto` VARCHAR(64),
+  `stok` INT,
+  `tersedia` INT,
+  PRIMARY KEY (`id_barang`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tr_keranjang` (
+  `id_keranjang` VARCHAR(64),
+  `id_pelanggan` VARCHAR(64),
+  `id_penjual` VARCHAR(64),
+  `alamat` VARCHAR(64),
+  `total_barang` INT,
+  `total_harga` INT,
+  PRIMARY KEY (`id_keranjang`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tr_barang_keranjang` (
+  `id_keranjang` VARCHAR(64),
+  `id_barang` VARCHAR(64),
+  `jumlah` INT,
+  PRIMARY KEY (`id_keranjang`, `id_barang`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tr_pesanan` (
+  `id_pesanan` VARCHAR(64),
+  `id_pelanggan` VARCHAR(64),
+  `id_penjual` VARCHAR(64),
+  `id_kurir` VARCHAR(64),
+  `tanggal` DATETIME,
+  `alamat_asal` VARCHAR(64),
+  `alamat_tujuan` VARCHAR(64),
+  `total_barang` INT,
+  `total_harga_barang` INT,
+  `biaya_pesan` INT,
+  `biaya_kirim` INT,
+  `potongan_harga` INT,
+  `total_harga` INT,
+  `status` VARCHAR(64),
+  PRIMARY KEY (`id_pesanan`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tr_barang_pesanan` (
+  `id_pesanan` VARCHAR(64),
+  `id_barang` VARCHAR(64),
+  `jumlah` INT,
+  `nama` VARCHAR(64),
+  `keterangan` VARCHAR(64),
+  `harga` INT,
+  `foto` VARCHAR(64),
+  PRIMARY KEY (`id_pesanan`, `id_barang`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tr_log_status_pesanan` (
+  `id_pesanan` VARCHAR(64),
+  `cap_waktu` DATETIME,
+  `status` VARCHAR(64),
+  PRIMARY KEY (`id_pesanan`, `cap_waktu`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tr_log_pengiriman` (
+  `id_pesanan` VARCHAR(64),
+  `cap_waktu` DATETIME,
+  `lokasi` VARCHAR(64),
+  PRIMARY KEY (`id_pesanan`, `cap_waktu`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_275412_V0_0_0_Initial_setup') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_275412_V0_0_0_Initial_setup') AS relationships;
+DROP DATABASE `db_275412_V0_0_0_Initial_setup`;
+UNINSTALL EXTENSION vsql_schematron;

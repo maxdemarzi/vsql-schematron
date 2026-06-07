@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 651261_V1_1__predictor_scores
+--echo #
+CREATE DATABASE `db_651261_V1_1_predictor_scores`;
+USE `db_651261_V1_1_predictor_scores`;
+
+CREATE TABLE `offender_predictors_history` (
+  `offender_predictor_id` INT,
+  `offender_predictor_uuid` VARCHAR(64),
+  `predictor_type` VARCHAR(64),
+  `algorithm_version` VARCHAR(64),
+  `calculated_at` DATETIME,
+  `crn` VARCHAR(64),
+  `predictor_trigger_source` VARCHAR(64),
+  `source_id` VARCHAR(64),
+  `source_answers` VARCHAR(64),
+  `created_by` VARCHAR(64),
+  `created_date` DATETIME,
+  PRIMARY KEY (`offender_predictor_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `predictors` (
+  `predictor_id` INT,
+  `predictor_uuid` VARCHAR(64),
+  `offender_predictor_uuid` VARCHAR(64),
+  `predictor_subtype` VARCHAR(64),
+  `predictor_score` VARCHAR(64),
+  `predictor_level` VARCHAR(64),
+  `created_date` DATETIME,
+  PRIMARY KEY (`predictor_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_651261_V1_1_predictor_scores') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_651261_V1_1_predictor_scores') AS relationships;
+DROP DATABASE `db_651261_V1_1_predictor_scores`;
+UNINSTALL EXTENSION vsql_schematron;

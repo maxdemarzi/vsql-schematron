@@ -1,0 +1,122 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 086135_database
+--echo #
+CREATE DATABASE `db_086135_database`;
+USE `db_086135_database`;
+
+CREATE TABLE `person` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `birth_date` DATETIME,
+  `cpf` VARCHAR(64),
+  `address` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `country` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `fullName` VARCHAR(64),
+  `short` VARCHAR(64),
+  `flag` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genre` (
+  `id` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `style` (
+  `id` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `idiom` (
+  `id` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `publisher` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `country_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `author` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `fullName` VARCHAR(64),
+  `birth_date` DATETIME,
+  `death_date` DATETIME,
+  `born_place` VARCHAR(64),
+  `death_place` VARCHAR(64),
+  `born_country_id` INT,
+  `death_country_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `book` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `volumn` INT,
+  `number_pages` INT,
+  `edition` INT,
+  `release_year` INT,
+  `author_obs` VARCHAR(64),
+  `obs` VARCHAR(64),
+  `isbn` VARCHAR(64),
+  `publisher_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `book_copy` (
+  `id` INT,
+  `description` VARCHAR(64),
+  `buy_or_gift` VARCHAR(64),
+  `buy_or_gift_date` DATETIME,
+  `obs` VARCHAR(64),
+  `receiver_person_id` INT,
+  `book_id` INT,
+  `photo` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_086135_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_086135_database') AS relationships;
+DROP DATABASE `db_086135_database`;
+UNINSTALL EXTENSION vsql_schematron;

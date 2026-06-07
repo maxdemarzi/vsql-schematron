@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 635985_schema-005
+--echo #
+CREATE DATABASE `db_635985_schema_005`;
+USE `db_635985_schema_005`;
+
+CREATE TABLE `DATA_SETS` (
+  `ID` INT,
+  `CODE` VARCHAR(64),
+  `LOCATION` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DATA_SET_FILES` (
+  `ID` INT,
+  `DASE_ID` VARCHAR(64),
+  `PARENT_ID` VARCHAR(64),
+  `RELATIVE_PATH` VARCHAR(64),
+  `FILE_NAME` VARCHAR(64),
+  `SIZE_IN_BYTES` INT,
+  `CHECKSUM_CRC32` INT,
+  `IS_DIRECTORY` BOOL,
+  `LAST_MODIFIED` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EVENTS` (
+  `LAST_SEEN_DELETION_EVENT_ID` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_635985_schema_005') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_635985_schema_005') AS relationships;
+DROP DATABASE `db_635985_schema_005`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 205447_database
+--echo #
+CREATE DATABASE `db_205447_database`;
+USE `db_205447_database`;
+
+CREATE TABLE `users` (
+  `uniqueId` VARCHAR(64),
+  `displayName` VARCHAR(64),
+  `profileImage` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `country` INT,
+  `state` VARCHAR(64),
+  `city` VARCHAR(64),
+  PRIMARY KEY (`uniqueId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `userPayments` (
+  `userId` VARCHAR(64),
+  `billingId` VARCHAR(64),
+  `cardType` VARCHAR(64),
+  `cardNum` INT,
+  PRIMARY KEY (`billingId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `loginCredential` (
+  `provider` VARCHAR(64),
+  `uniqueId` VARCHAR(64),
+  `userId` VARCHAR(64),
+  `accessToken` VARCHAR(64),
+  PRIMARY KEY (`provider`, `uniqueId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `venue` (
+  `idx` VARCHAR(64),
+  `country` VARCHAR(64),
+  `state` VARCHAR(64),
+  `city` VARCHAR(64),
+  `streetAddress` VARCHAR(64),
+  `detailAddress` VARCHAR(64),
+  PRIMARY KEY (`idx`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `events` (
+  `idx` VARCHAR(64),
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `hostId` VARCHAR(64),
+  `venueId` VARCHAR(64),
+  `feeAmount` INT,
+  PRIMARY KEY (`idx`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comments` (
+  `idx` VARCHAR(64),
+  `eventId` VARCHAR(64),
+  `parentId` VARCHAR(64),
+  `writerId` VARCHAR(64),
+  `comment` VARCHAR(64),
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  PRIMARY KEY (`idx`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `attendees` (
+  `eventId` VARCHAR(64),
+  `attendeeId` VARCHAR(64),
+  `attending` INT,
+  PRIMARY KEY (`eventId`, `attendeeId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `paymentLog` (
+  `transactionId` VARCHAR(64),
+  `userId` VARCHAR(64),
+  PRIMARY KEY (`transactionId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_205447_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_205447_database') AS relationships;
+DROP DATABASE `db_205447_database`;
+UNINSTALL EXTENSION vsql_schematron;

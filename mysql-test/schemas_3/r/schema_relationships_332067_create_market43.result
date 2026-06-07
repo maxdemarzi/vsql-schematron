@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 332067_create_market43
+#
+CREATE DATABASE `db_332067_create_market43`;
+USE `db_332067_create_market43`;
+CREATE TABLE `user` (
+`UserId` INT,
+`Email` VARCHAR(64),
+`Nickname` VARCHAR(64),
+`AccountType` INT,
+PRIMARY KEY (`UserId`)
+) CHARACTER SET latin1;
+CREATE TABLE `item_type` (
+`ItemTypeId` INT,
+`Name` VARCHAR(64),
+`IconPath` VARCHAR(64),
+`Rarity` INT,
+`Description` VARCHAR(64),
+PRIMARY KEY (`ItemTypeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`ItemId` INT,
+`ItemType` INT,
+`OwnerUserId` INT,
+PRIMARY KEY (`ItemId`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipe` (
+`RecipeId` INT,
+PRIMARY KEY (`RecipeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipe_input` (
+`Recipe` INT,
+`InputItemType` INT,
+`InputItemCount` INT,
+PRIMARY KEY (`Recipe`, `InputItemType`, `InputItemCount`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipe_output` (
+`Recipe` INT,
+`OutputItemType` INT,
+`OutputItemCount` INT,
+PRIMARY KEY (`Recipe`, `OutputItemType`, `OutputItemCount`)
+) CHARACTER SET latin1;
+CREATE TABLE `listing` (
+`ListingId` INT,
+`MinimumBid` INT,
+`PostedTimestamp` DATETIME,
+`ExpiryTimestamp` DATETIME,
+`ListedItemId` INT,
+`ListingUserId` INT,
+`Open` BOOL,
+PRIMARY KEY (`ListingId`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction` (
+`TransactionId` INT,
+`NetBalanceChange` INT,
+`TransactionType` INT,
+`TransactionUser` INT,
+`TransactionTimestamp` DATETIME,
+PRIMARY KEY (`TransactionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `bid` (
+`Bidder` INT,
+`Listing` INT,
+`Value` INT,
+PRIMARY KEY (`Bidder`, `Listing`)
+) CHARACTER SET latin1;
+CREATE TABLE `credential` (
+`SaltedHash` VARCHAR(64),
+`User` INT,
+PRIMARY KEY (`User`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_332067_create_market43') AS relationships;
+relationships
+Database: db_332067_create_market43
+
+Table Connections:
+------------------
+[Implied]  bid.Listing -> listing.ListingId
+[Implied]  credential.User -> user.UserId
+[Implied]  item.ItemType -> item_type.ItemTypeId
+[Implied]  item.OwnerUserId -> user.UserId
+[Implied]  listing.ListedItemId -> item.ItemId
+[Implied]  listing.ListingUserId -> listing.ListingId
+[Implied]  recipe_input.InputItemType -> item_type.ItemTypeId
+[Implied]  recipe_input.Recipe -> recipe.RecipeId
+[Implied]  recipe_output.OutputItemType -> item_type.ItemTypeId
+[Implied]  recipe_output.Recipe -> recipe.RecipeId
+[Implied]  transaction.TransactionUser -> credential.User
+[Implied]  user.AccountType -> item_type.ItemTypeId
+
+DROP DATABASE `db_332067_create_market43`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 041585_usermanage
+#
+CREATE DATABASE `db_041585_usermanage`;
+USE `db_041585_usermanage`;
+CREATE TABLE `schembl_document` (
+`id` INT,
+`scpn` VARCHAR(64),
+`published` DATETIME,
+`life_sci_relevant` INT,
+`family_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schembl_document_class` (
+`schembl_doc_id` INT,
+`class` VARCHAR(64),
+`system` INT,
+PRIMARY KEY (`schembl_doc_id`, `class`, `system`)
+) CHARACTER SET latin1;
+CREATE TABLE `schembl_document_title` (
+`schembl_doc_id` INT,
+`lang` VARCHAR(64),
+`text` VARCHAR(64),
+PRIMARY KEY (`schembl_doc_id`, `lang`)
+) CHARACTER SET latin1;
+CREATE TABLE `schembl_chemical` (
+`id` INT,
+`mol_weight` DECIMAL(10,2),
+`logp` DECIMAL(10,2),
+`med_chem_alert` INT,
+`is_relevant` INT,
+`donor_count` INT,
+`acceptor_count` INT,
+`ring_count` INT,
+`rot_bond_count` INT,
+`corpus_count` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schembl_chemical_structure` (
+`schembl_chem_id` INT,
+`smiles` VARCHAR(64),
+`std_inchi` VARCHAR(64),
+`std_inchikey` VARCHAR(64),
+PRIMARY KEY (`schembl_chem_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schembl_document_chemistry` (
+`schembl_doc_id` INT,
+`schembl_chem_id` INT,
+`field` INT,
+`frequency` INT,
+PRIMARY KEY (`schembl_doc_id`, `schembl_chem_id`, `field`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_041585_usermanage') AS relationships;
+relationships
+Database: db_041585_usermanage
+
+Table Connections:
+------------------
+[Implied]  schembl_document_chemistry.schembl_chem_id -> schembl_chemical.id
+[Implied]  schembl_document_chemistry.schembl_doc_id -> schembl_document.id
+[Implied]  schembl_document_class.schembl_doc_id -> schembl_document.id
+[Implied]  schembl_document_title.schembl_doc_id -> schembl_document.id
+
+DROP DATABASE `db_041585_usermanage`;
+UNINSTALL EXTENSION vsql_schematron;

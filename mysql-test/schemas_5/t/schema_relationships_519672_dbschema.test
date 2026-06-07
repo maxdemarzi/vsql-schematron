@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 519672_dbschema
+--echo #
+CREATE DATABASE `db_519672_dbschema`;
+USE `db_519672_dbschema`;
+
+CREATE TABLE `PracticeQuestions` (
+  `questionId` INT,
+  `questionName` VARCHAR(64),
+  `questionStatement` VARCHAR(64),
+  `difficulty` INT,
+  `UserId` INT,
+  PRIMARY KEY (`questionId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Scoreboard` (
+  `submissionId` INT,
+  `questionId` INT,
+  `Status` VARCHAR(64),
+  `SourceCode` VARCHAR(64),
+  `Time` VARCHAR(64),
+  `Memory` VARCHAR(64),
+  `UserId` INT,
+  `startTime` DATETIME,
+  `endTime` DATETIME,
+  PRIMARY KEY (`submissionId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TestCases` (
+  `questionId` INT,
+  `tid` INT,
+  `inputCase` VARCHAR(64),
+  `outputCase` VARCHAR(64),
+  `isSample` VARCHAR(64),
+  PRIMARY KEY (`tid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Challenge` (
+  `cId` INT,
+  `cName` INT,
+  `cStatement` INT,
+  `startDate` DATETIME,
+  `endDate` DATETIME,
+  `cType` VARCHAR(64),
+  PRIMARY KEY (`cId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ChallengeQuestions` (
+  `cId` INT,
+  `questionId` INT,
+  PRIMARY KEY (`questionId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_519672_dbschema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_519672_dbschema') AS relationships;
+DROP DATABASE `db_519672_dbschema`;
+UNINSTALL EXTENSION vsql_schematron;

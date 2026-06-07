@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 105020_sample_table_data
+--echo #
+CREATE DATABASE `db_105020_sample_table_data`;
+USE `db_105020_sample_table_data`;
+
+CREATE TABLE `teacher` (
+  `teacher_id` DECIMAL(10,2),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `email` VARCHAR(64),
+  `subject` VARCHAR(64),
+  PRIMARY KEY (`teacher_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `guardian` (
+  `guardian_id` DECIMAL(10,2),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `relationship` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `adm_no` DECIMAL(10,2),
+  PRIMARY KEY (`guardian_id`, `adm_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sponsor_table` (
+  `sponsor_id` DECIMAL(10,2),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `country` VARCHAR(64),
+  `province_or_state` VARCHAR(64),
+  `street_address` VARCHAR(64),
+  `email` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `adm_no` DECIMAL(10,2),
+  PRIMARY KEY (`sponsor_id`, `adm_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `student_table` (
+  `adm_no` DECIMAL(10,2),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `hometown` VARCHAR(64),
+  `district` VARCHAR(64),
+  `mentor` DECIMAL(10,2),
+  `guardian_id` DECIMAL(10,2),
+  `sponsor_id` DECIMAL(10,2),
+  PRIMARY KEY (`adm_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `grade_level` (
+  `grade` VARCHAR(64),
+  `academic_year` VARCHAR(64),
+  `adm_no` DECIMAL(10,2),
+  `percentage` DECIMAL(10,2),
+  `class_rank` DECIMAL(10,2),
+  `teacher_id` DECIMAL(10,2),
+  PRIMARY KEY (`grade`, `academic_year`, `adm_no`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_105020_sample_table_data') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_105020_sample_table_data') AS relationships;
+DROP DATABASE `db_105020_sample_table_data`;
+UNINSTALL EXTENSION vsql_schematron;

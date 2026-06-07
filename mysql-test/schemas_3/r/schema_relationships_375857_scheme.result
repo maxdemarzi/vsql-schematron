@@ -1,0 +1,150 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 375857_scheme
+#
+CREATE DATABASE `db_375857_scheme`;
+USE `db_375857_scheme`;
+CREATE TABLE `cities` (
+`id` INT,
+`city` VARCHAR(64),
+`lt` DECIMAL(10,2),
+`lg` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`password` VARCHAR(64),
+`dt_add` DATETIME,
+`lsat_online` DATETIME,
+`city` INT,
+`full_address` VARCHAR(64),
+`birthday` DATETIME,
+`about` VARCHAR(64),
+`avatar_src` VARCHAR(64),
+`phone` VARCHAR(64),
+`skype` VARCHAR(64),
+`over_messenger` VARCHAR(64),
+`rating` DECIMAL(10,2),
+`role` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `profiles` (
+`id` INT,
+`address` VARCHAR(64),
+`bd` DATETIME,
+`about` VARCHAR(64),
+`phone` VARCHAR(64),
+`skype` VARCHAR(64),
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`name` VARCHAR(64),
+`icon` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_specialty` (
+`id` INT,
+`user_id` INT,
+`category_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `portfolio` (
+`id` INT,
+`user_id` INT,
+`img_src` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_settings` (
+`id` INT,
+`user_id` INT,
+`is_message_ntf_enabled` BOOL,
+`is_action_ntf_enabled` BOOL,
+`is_new_review_ntf_enabled` BOOL,
+`is_hidden` BOOL,
+`is_active` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks` (
+`id` INT,
+`dt_add` DATETIME,
+`category_id` INT,
+`description` VARCHAR(64),
+`expire` DATETIME,
+`name` VARCHAR(64),
+`address` VARCHAR(64),
+`budget` INT,
+`lt` DECIMAL(10,2),
+`lg` DECIMAL(10,2),
+`customer_id` INT,
+`executor_id` INT,
+`state` VARCHAR(64),
+`attachment_src` VARCHAR(64),
+`address_comment` VARCHAR(64),
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `task_attachments` (
+`id` INT,
+`task_id` INT,
+`file_type` VARCHAR(64),
+`file_name` VARCHAR(64),
+`file_src` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+`id` INT,
+`sender_id` INT,
+`addressee_id` INT,
+`content` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `opinions` (
+`id` INT,
+`dt_add` DATETIME,
+`rate` INT,
+`description` VARCHAR(64),
+`sender_id` INT,
+`receiver_id` INT,
+`task_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `replies` (
+`id` INT,
+`dt_add` DATETIME,
+`rate` INT,
+`description` VARCHAR(64),
+`sender_id` INT,
+`receiver_id` INT,
+`task_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_375857_scheme') AS relationships;
+relationships
+Database: db_375857_scheme
+
+Table Connections:
+------------------
+[Implied]  messages.sender_id -> profiles.id
+[Implied]  opinions.receiver_id -> profiles.id
+[Implied]  opinions.sender_id -> profiles.id
+[Implied]  opinions.task_id -> tasks.id
+[Implied]  portfolio.user_id -> profiles.id
+[Implied]  profiles.user_id -> users.id
+[Implied]  replies.receiver_id -> profiles.id
+[Implied]  replies.sender_id -> profiles.id
+[Implied]  replies.task_id -> tasks.id
+[Implied]  task_attachments.task_id -> tasks.id
+[Implied]  tasks.category_id -> categories.id
+[Implied]  tasks.customer_id -> profiles.id
+[Implied]  user_settings.user_id -> profiles.id
+[Implied]  users.city -> cities.id
+[Implied]  users_specialty.category_id -> categories.id
+[Implied]  users_specialty.user_id -> profiles.id
+
+DROP DATABASE `db_375857_scheme`;
+UNINSTALL EXTENSION vsql_schematron;

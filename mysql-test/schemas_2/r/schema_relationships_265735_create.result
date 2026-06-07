@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 265735_create
+#
+CREATE DATABASE `db_265735_create`;
+USE `db_265735_create`;
+CREATE TABLE `Users` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`loginToken` VARCHAR(64),
+`loginTime` DATETIME,
+`sessionToken` VARCHAR(64),
+`created` DATETIME,
+`notify` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tournaments` (
+`id` INT,
+`dtstart` DATETIME,
+`title` VARCHAR(64),
+`allRounds` BOOL,
+`nbRounds` INT,
+`frozen` BOOL,
+`stage` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rounds` (
+`tid` INT,
+`variant` VARCHAR(64),
+`cadence` VARCHAR(64),
+`bothcol` BOOL
+) CHARACTER SET latin1;
+CREATE TABLE `Chats` (
+`uid` INT,
+`tid` INT,
+`added` DATETIME,
+`msg` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `Players` (
+`uid` INT,
+`tid` INT,
+`elo` INT,
+`quit` BOOL,
+`ban` BOOL
+) CHARACTER SET latin1;
+CREATE TABLE `Games` (
+`tid` INT,
+`round` INT,
+`score` VARCHAR(64),
+`glink` VARCHAR(64),
+`player1` INT,
+`player2` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Exempts` (
+`tid` INT,
+`round` INT,
+`player` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_265735_create') AS relationships;
+relationships
+Database: db_265735_create
+
+Table Connections:
+------------------
+[Implied]  Exempts.player -> Players.uid
+
+DROP DATABASE `db_265735_create`;
+UNINSTALL EXTENSION vsql_schematron;

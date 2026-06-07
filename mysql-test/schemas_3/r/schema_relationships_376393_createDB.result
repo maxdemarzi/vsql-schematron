@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 376393_createDB
+#
+CREATE DATABASE `db_376393_createDB`;
+USE `db_376393_createDB`;
+CREATE TABLE `Users` (
+`userID` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`email` VARCHAR(64),
+`contactNumber` VARCHAR(64),
+`address` VARCHAR(64),
+`isCustomer` INT,
+PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Restaurant` (
+`restaurantID` INT,
+`restaurantName` VARCHAR(64),
+`location` VARCHAR(64),
+`phoneNumber` VARCHAR(64),
+`email` VARCHAR(64),
+`image` VARCHAR(64),
+`ownerID` INT,
+PRIMARY KEY (`restaurantID`)
+) CHARACTER SET latin1;
+CREATE TABLE `MenuItem` (
+`foodID` INT,
+`timestamp` DATETIME,
+`foodName` VARCHAR(64),
+`price` DECIMAL(10,2),
+`status` VARCHAR(64),
+`image` VARCHAR(64),
+`avgRating` INT,
+`restaurantID` INT,
+PRIMARY KEY (`foodID`)
+) CHARACTER SET latin1;
+CREATE TABLE `FoodOrder` (
+`orderID` INT,
+`timestamp` DATETIME,
+`deliveryStatus` VARCHAR(64),
+`totalPrice` DECIMAL(10,2),
+`customerID` INT,
+`ownerID` INT,
+PRIMARY KEY (`orderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderItem` (
+`orderID` INT,
+`foodID` INT,
+`quantity` INT,
+PRIMARY KEY (`orderID`, `foodID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Feedback` (
+`feedbackID` INT,
+`timestamp` DATETIME,
+`comments` VARCHAR(64),
+`orderID` INT,
+PRIMARY KEY (`feedbackID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rating` (
+`ratingID` INT,
+`ratingValue` INT,
+`feedbackID` INT,
+`foodID` INT,
+PRIMARY KEY (`ratingID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_376393_createDB') AS relationships;
+relationships
+Database: db_376393_createDB
+
+Table Connections:
+------------------
+[Implied]  Feedback.orderID -> FoodOrder.orderID
+[Implied]  FoodOrder.customerID -> Users.userID
+[Implied]  FoodOrder.ownerID -> Users.userID
+[Implied]  MenuItem.restaurantID -> Restaurant.restaurantID
+[Implied]  OrderItem.foodID -> FoodOrder.orderID
+[Implied]  OrderItem.orderID -> FoodOrder.orderID
+[Implied]  Rating.feedbackID -> Feedback.feedbackID
+[Implied]  Rating.foodID -> FoodOrder.orderID
+[Implied]  Restaurant.ownerID -> Users.userID
+
+DROP DATABASE `db_376393_createDB`;
+UNINSTALL EXTENSION vsql_schematron;

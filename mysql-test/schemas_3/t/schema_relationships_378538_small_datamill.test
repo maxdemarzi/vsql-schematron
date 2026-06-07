@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 378538_small-datamill
+--echo #
+CREATE DATABASE `db_378538_small_datamill`;
+USE `db_378538_small_datamill`;
+
+CREATE TABLE `sources` (
+  `id` INT,
+  `path` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `realms` (
+  `realm` VARCHAR(64),
+  PRIMARY KEY (`realm`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `keys` (
+  `key` VARCHAR(64),
+  `is_block` BOOL,
+  `has_paragraphs` BOOL,
+  PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `main` (
+  `vnr` VARCHAR(64),
+  `stamped` BOOL,
+  `dest` VARCHAR(64),
+  `sid` INT,
+  `realm` VARCHAR(64),
+  `ref` VARCHAR(64),
+  `key` VARCHAR(64),
+  `text` VARCHAR(64),
+  `p` VARCHAR(64),
+  `vnr_blob` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_378538_small_datamill') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_378538_small_datamill') AS relationships;
+DROP DATABASE `db_378538_small_datamill`;
+UNINSTALL EXTENSION vsql_schematron;

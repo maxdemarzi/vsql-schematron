@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 096966_models
+#
+CREATE DATABASE `db_096966_models`;
+USE `db_096966_models`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+`location` VARCHAR(64),
+`games_won` INT,
+`games_lost` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `games` (
+`id` INT,
+`name` VARCHAR(64),
+`public` BOOL,
+`tournament` BOOL,
+`creation_date` DATETIME,
+`end_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pairs` (
+`id` INT,
+`winned` BOOL,
+`game_points` INT,
+`game_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `players` (
+`id` INT,
+`user_id` INT,
+`pair_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_096966_models') AS relationships;
+relationships
+Database: db_096966_models
+
+Table Connections:
+------------------
+[Implied]  pairs.game_id -> games.id
+[Implied]  players.pair_id -> pairs.id
+[Implied]  players.user_id -> users.id
+
+DROP DATABASE `db_096966_models`;
+UNINSTALL EXTENSION vsql_schematron;

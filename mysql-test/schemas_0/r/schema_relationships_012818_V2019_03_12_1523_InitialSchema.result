@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 012818_V2019.03.12_1523__InitialSchema
+#
+CREATE DATABASE `db_012818_V2019_03_12_1523_InitialSchema`;
+USE `db_012818_V2019_03_12_1523_InitialSchema`;
+CREATE TABLE `orderlyweb_user` (
+`username` VARCHAR(64),
+`display_name` VARCHAR(64),
+`email` VARCHAR(64),
+`disabled` INT,
+`user_source` VARCHAR(64),
+`last_logged_in` VARCHAR(64),
+PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderlyweb_user_group` (
+`id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderlyweb_user_group_user` (
+`email` VARCHAR(64),
+`user_group` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `orderlyweb_permission` (
+`id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderlyweb_user_group_permission` (
+`id` INT,
+`user_group` VARCHAR(64),
+`permission` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderlyweb_user_group_report_permission` (
+`id` INT,
+`report` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `orderlyweb_user_group_version_permission` (
+`id` INT,
+`version` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `orderlyweb_user_group_global_permission` (
+`id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `orderlyweb_pinned_report_global` (
+`ordering` INT,
+`report` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_012818_V2019_03_12_1523_InitialSchema') AS relationships;
+relationships
+Database: db_012818_V2019_03_12_1523_InitialSchema
+
+Table Connections:
+------------------
+[Implied]  orderlyweb_user_group_permission.permission -> orderlyweb_permission.id
+[Implied]  orderlyweb_user_group_permission.user_group -> orderlyweb_user_group.id
+[Implied]  orderlyweb_user_group_user.email -> orderlyweb_user.email
+[Implied]  orderlyweb_user_group_user.user_group -> orderlyweb_user_group.id
+
+DROP DATABASE `db_012818_V2019_03_12_1523_InitialSchema`;
+UNINSTALL EXTENSION vsql_schematron;

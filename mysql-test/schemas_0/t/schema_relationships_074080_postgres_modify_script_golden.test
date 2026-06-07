@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 074080_postgres-modify-script-golden
+--echo #
+CREATE DATABASE `db_074080_postgres_modify_script_golden`;
+USE `db_074080_postgres_modify_script_golden`;
+
+CREATE TABLE `Company` (
+  `abnNumber` VARCHAR(64),
+  `companyName` VARCHAR(64),
+  `companyCountry` VARCHAR(64),
+  PRIMARY KEY (`abnNumber`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Department` (
+  `deptId` INT,
+  `deptName` VARCHAR(64),
+  `deptLoc` VARCHAR(64),
+  `abn` VARCHAR(64),
+  PRIMARY KEY (`deptId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_074080_postgres_modify_script_golden') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_074080_postgres_modify_script_golden') AS relationships;
+DROP DATABASE `db_074080_postgres_modify_script_golden`;
+UNINSTALL EXTENSION vsql_schematron;

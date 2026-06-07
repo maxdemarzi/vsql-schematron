@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 522909_schema
+#
+CREATE DATABASE `db_522909_schema`;
+USE `db_522909_schema`;
+CREATE TABLE `pilot` (
+`id` INT,
+`account` VARCHAR(64),
+`hashed_password` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`institution` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `uav` (
+`id` INT,
+`weight` DECIMAL(10,2),
+`mac_address` VARCHAR(64),
+`axes_number` INT,
+`body_color` VARCHAR(64),
+`flight_control` VARCHAR(64),
+`owner` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `flight_plan` (
+`id` INT,
+`execution_date` DATETIME,
+`start_time` DATETIME,
+`max_flying_altitude` INT,
+`end_time` DATETIME,
+`flight_plan_waypoints` VARCHAR(64),
+`description` VARCHAR(64),
+`uav` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `flight_data` (
+`id` INT,
+`date` DATETIME,
+`time` DATETIME,
+`hex_data_packet` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`altitude` DECIMAL(10,2),
+`gyro_x` DECIMAL(10,2),
+`gyro_y` DECIMAL(10,2),
+`gyro_z` DECIMAL(10,2),
+`acc_x` DECIMAL(10,2),
+`acc_y` DECIMAL(10,2),
+`acc_z` DECIMAL(10,2),
+`ned_north` DECIMAL(10,2),
+`ned_east` DECIMAL(10,2),
+`ned_down` DECIMAL(10,2),
+`pitch` DECIMAL(10,2),
+`yaw` DECIMAL(10,2),
+`roll` DECIMAL(10,2),
+`flight_plan` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_522909_schema') AS relationships;
+relationships
+Database: db_522909_schema
+
+Table Connections:
+------------------
+[Implied]  flight_data.flight_plan -> flight_plan.id
+[Implied]  flight_plan.uav -> uav.id
+
+DROP DATABASE `db_522909_schema`;
+UNINSTALL EXTENSION vsql_schematron;

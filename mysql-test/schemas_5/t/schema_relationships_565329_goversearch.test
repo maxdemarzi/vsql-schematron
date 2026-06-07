@@ -1,0 +1,134 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 565329_goversearch
+--echo #
+CREATE DATABASE `db_565329_goversearch`;
+USE `db_565329_goversearch`;
+
+CREATE TABLE `tbl_claves` (
+  `pk_Ter_Clave` INT,
+  `Termino_Clave` VARCHAR(64),
+  `Usuario_pk` INT,
+  `Fecha_Alta` DATETIME,
+  `Estado` BOOL
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_gestion` (
+  `pk_Gestionid` INT,
+  `Asociado` INT,
+  `Ley_pk` INT,
+  `Ter_clave_pk` INT,
+  `Fecha` DATETIME,
+  `FUltReforma` DATETIME,
+  `FEntradaVigo` DATETIME,
+  `EstLey` VARCHAR(64),
+  `ObjLey` VARCHAR(64),
+  `TipoLey` VARCHAR(64),
+  `Introduccion` VARCHAR(64),
+  `Num_Articulo` VARCHAR(64),
+  `Tipo` VARCHAR(64),
+  `Titulo` VARCHAR(64),
+  `Ref_Titulo` VARCHAR(64),
+  `NomTitulo` VARCHAR(64),
+  `Capitulo` INT,
+  `Ref_Capitulo` VARCHAR(64),
+  `NomCapitulo` VARCHAR(64),
+  `Fraccion` VARCHAR(64),
+  `Inciso` VARCHAR(64),
+  `Parrafo` VARCHAR(64),
+  `Descripcion` VARCHAR(64),
+  `UltReforma` DATETIME,
+  `Concepto` VARCHAR(64),
+  `Estatus` VARCHAR(64),
+  `Estado` BOOL
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_gpo_leyes` (
+  `pk_Gpo_Ley` INT,
+  `Nombre_de_Grupo` VARCHAR(64),
+  `Estado` BOOL
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_leyes` (
+  `pk_Datos_Ley` INT,
+  `Nombre_de_Ley` VARCHAR(64),
+  `Grupo_pk` INT,
+  `Estado` BOOL
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_menus` (
+  `pk_menu` INT,
+  `nombre` VARCHAR(64),
+  `link` VARCHAR(64),
+  PRIMARY KEY (`pk_menu`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_pagos` (
+  `pk_Pago` INT,
+  `Usuario_pk` INT,
+  `Descripcion` VARCHAR(64),
+  `Folio_Pago` VARCHAR(64),
+  `Fecha_Pago` DATETIME,
+  `Consepto_Pago` VARCHAR(64),
+  `Importe` DECIMAL(10,2),
+  `Estado` BOOL
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_permisos` (
+  `pk_Permiso` INT,
+  `rol_pk` INT,
+  `read` INT,
+  `insert` INT,
+  `update` INT,
+  `delete` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_roles` (
+  `pk_Rol` INT,
+  `Nombre_Rol` VARCHAR(64),
+  `Descripcion` VARCHAR(64),
+  `Estado` BOOL
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_ter_clave` (
+  `pk_Datos_ley` INT,
+  `Termino_Clave_pk` INT,
+  `Ley_pk` INT,
+  `Articulo_pk` VARCHAR(64),
+  `Descripcion` VARCHAR(64),
+  `Estado` BOOL
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_usuarios` (
+  `pk_Usuario` INT,
+  `Nombre` VARCHAR(64),
+  `Apellidos` VARCHAR(64),
+  `Telefono` VARCHAR(64),
+  `Correo` VARCHAR(64),
+  `Usuario` VARCHAR(64),
+  `Contrasena` VARCHAR(64),
+  `Fecha_Alta` DATETIME,
+  `User_Rol_pk` INT,
+  `Estado` BOOL
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_565329_goversearch') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_565329_goversearch') AS relationships;
+DROP DATABASE `db_565329_goversearch`;
+UNINSTALL EXTENSION vsql_schematron;

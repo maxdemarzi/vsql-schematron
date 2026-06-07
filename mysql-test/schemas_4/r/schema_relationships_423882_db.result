@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 423882_db
+#
+CREATE DATABASE `db_423882_db`;
+USE `db_423882_db`;
+CREATE TABLE `public.aoi` (
+`id` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `public.scene` (
+`id` INT,
+`aoi_id` VARCHAR(64),
+`status` VARCHAR(64),
+`message` VARCHAR(64),
+`source_id` VARCHAR(64),
+`data` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.tile` (
+`id` INT,
+`scene_id` INT,
+`status` VARCHAR(64),
+`message` VARCHAR(64),
+`prev` INT,
+`ref` INT,
+`source_id` VARCHAR(64),
+`data` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_423882_db') AS relationships;
+relationships
+Database: db_423882_db
+
+Table Connections:
+------------------
+[Implied]  public.scene.aoi_id -> public.aoi.id
+[Implied]  public.tile.prev -> public.tile.id
+[Implied]  public.tile.scene_id -> public.scene.id
+
+DROP DATABASE `db_423882_db`;
+UNINSTALL EXTENSION vsql_schematron;

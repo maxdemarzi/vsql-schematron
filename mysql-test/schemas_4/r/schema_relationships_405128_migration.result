@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 405128_migration
+#
+CREATE DATABASE `db_405128_migration`;
+USE `db_405128_migration`;
+CREATE TABLE `BookInfo` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`historyBookCount` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Book` (
+`id` VARCHAR(64),
+`infoId` VARCHAR(64),
+`thumbnailPage` INT,
+`number` VARCHAR(64),
+`pageCount` INT,
+`thumbnailById` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Genre` (
+`name` VARCHAR(64),
+`isInvisible` BOOL,
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `BookInfosToGenres` (
+`infoId` VARCHAR(64),
+`genreName` VARCHAR(64),
+PRIMARY KEY (`infoId`, `genreName`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_405128_migration') AS relationships;
+relationships
+Database: db_405128_migration
+
+Table Connections:
+------------------
+[Implied]  Book.infoId -> BookInfosToGenres.infoId
+[Implied]  BookInfosToGenres.genreName -> Genre.name
+
+DROP DATABASE `db_405128_migration`;
+UNINSTALL EXTENSION vsql_schematron;

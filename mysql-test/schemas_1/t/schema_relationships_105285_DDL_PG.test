@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 105285_DDL_PG
+--echo #
+CREATE DATABASE `db_105285_DDL_PG`;
+USE `db_105285_DDL_PG`;
+
+CREATE TABLE `ARTISTS` (
+  `ARTISTID` INT,
+  `STAGENAME` VARCHAR(64),
+  `AGE` INT,
+  PRIMARY KEY (`ARTISTID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BANDS` (
+  `BANDID` INT,
+  `BANDNAME` VARCHAR(64),
+  PRIMARY KEY (`BANDID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BANDMEMBERS` (
+  `BANDID` INT,
+  `ARTISTID` INT,
+  PRIMARY KEY (`BANDID`, `ARTISTID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GENRES` (
+  `GENREID` INT,
+  `GENRENAME` VARCHAR(64),
+  PRIMARY KEY (`GENREID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ALBUMS` (
+  `ALBUMID` INT,
+  `ALBUMNAME` VARCHAR(64),
+  `AUTHOR` INT,
+  `GENRE` INT,
+  `RELEASEYEAR` INT,
+  `DURATION` INT,
+  PRIMARY KEY (`ALBUMID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SONGS` (
+  `SONGID` INT,
+  `SONGNAME` VARCHAR(64),
+  `LENGTH` INT,
+  `ALBUM` INT,
+  PRIMARY KEY (`SONGID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_105285_DDL_PG') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_105285_DDL_PG') AS relationships;
+DROP DATABASE `db_105285_DDL_PG`;
+UNINSTALL EXTENSION vsql_schematron;

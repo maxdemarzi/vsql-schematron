@@ -1,0 +1,182 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 144315_models
+#
+CREATE DATABASE `db_144315_models`;
+USE `db_144315_models`;
+CREATE TABLE `notification_type` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_category` (
+`id` INT,
+`name` VARCHAR(64),
+`price` DECIMAL(10,2),
+`order_date` DATETIME,
+`availability` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `photo` (
+`id` INT,
+`filepath` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `standard` (
+`id` INT,
+`name` VARCHAR(64),
+`base_price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`email` VARCHAR(64),
+`pass_hash` VARCHAR(64),
+`is_admin` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `room` (
+`id` INT,
+`price` DECIMAL(10,2),
+`number_of_beds` INT,
+`id_standard` INT,
+`floor` INT,
+`id_photo` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `session` (
+`id` INT,
+`session_id` VARCHAR(64),
+`user_id` INT,
+`expiration_date` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cooperating_company` (
+`id` INT,
+`name` VARCHAR(64),
+`phone` VARCHAR(64),
+`email` VARCHAR(64),
+`responsible_worker` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `department` (
+`id` INT,
+`name` VARCHAR(64),
+`salary` DECIMAL(10,2),
+`leader` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`id` INT,
+`name` VARCHAR(64),
+`address` VARCHAR(64),
+`phone` VARCHAR(64),
+`email` VARCHAR(64),
+`id_department` INT,
+`bonus` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `facility` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`responsible_worker` INT,
+`id_photo` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `guest` (
+`id` INT,
+`name` VARCHAR(64),
+`phone` VARCHAR(64),
+`email` VARCHAR(64),
+`booker` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notification` (
+`id` INT,
+`id_type` INT,
+`id_department` INT,
+`priority` INT,
+`received_time` DATETIME,
+`done` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+`id` INT,
+`id_guest` INT,
+`received_date` DATETIME,
+`id_order_category` INT,
+`id_notification` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment` (
+`id` INT,
+`id_order` INT,
+`amount` DECIMAL(10,2),
+`description` VARCHAR(64),
+`cash` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reservation` (
+`id` INT,
+`id_room` INT,
+`id_guest` INT,
+`date_from` DATETIME,
+`date_to` DATETIME,
+`id_notification` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`id` INT,
+`content` VARCHAR(64),
+`title` VARCHAR(64),
+`addressee` INT,
+`sender` INT,
+`message_type` INT,
+`date` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_144315_models') AS relationships;
+relationships
+Database: db_144315_models
+
+Table Connections:
+------------------
+[Implied]  cooperating_company.responsible_worker -> employee.id
+[Implied]  cooperating_company.responsible_worker -> guest.id
+[Implied]  cooperating_company.responsible_worker -> user.id
+[Implied]  department.leader -> employee.id
+[Implied]  department.leader -> guest.id
+[Implied]  department.leader -> user.id
+[Implied]  employee.id_department -> department.id
+[Implied]  facility.id_photo -> photo.id
+[Implied]  facility.responsible_worker -> employee.id
+[Implied]  facility.responsible_worker -> guest.id
+[Implied]  facility.responsible_worker -> user.id
+[Implied]  guest.user_id -> user.id
+[Implied]  message.sender -> employee.id
+[Implied]  message.sender -> guest.id
+[Implied]  message.sender -> user.id
+[Implied]  notification.id_department -> department.id
+[Implied]  notification.id_type -> notification_type.id
+[Implied]  order.id_guest -> employee.id
+[Implied]  order.id_guest -> guest.id
+[Implied]  order.id_guest -> user.id
+[Implied]  order.id_notification -> notification.id
+[Implied]  order.id_notification -> notification_type.id
+[Implied]  order.id_order_category -> order_category.id
+[Implied]  payment.id_order -> order.id
+[Implied]  payment.id_order -> order_category.id
+[Implied]  reservation.id_guest -> employee.id
+[Implied]  reservation.id_guest -> guest.id
+[Implied]  reservation.id_guest -> user.id
+[Implied]  reservation.id_notification -> notification.id
+[Implied]  reservation.id_notification -> notification_type.id
+[Implied]  reservation.id_room -> room.id
+[Implied]  room.id_photo -> photo.id
+[Implied]  room.id_standard -> standard.id
+[Implied]  session.user_id -> user.id
+
+DROP DATABASE `db_144315_models`;
+UNINSTALL EXTENSION vsql_schematron;

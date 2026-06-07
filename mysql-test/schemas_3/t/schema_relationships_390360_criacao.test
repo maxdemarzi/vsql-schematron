@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 390360_criacao
+--echo #
+CREATE DATABASE `db_390360_criacao`;
+USE `db_390360_criacao`;
+
+CREATE TABLE `autor` (
+  `idAut` INT,
+  `nome` VARCHAR(64),
+  PRIMARY KEY (`idAut`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tipo_texto` (
+  `idTipText` INT,
+  `nome` VARCHAR(64),
+  PRIMARY KEY (`idTipText`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `idioma` (
+  `idIdioma` INT,
+  `nome` VARCHAR(64),
+  PRIMARY KEY (`idIdioma`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `palavra` (
+  `idPal` INT,
+  `nome` VARCHAR(64),
+  `fk_idioma` INT,
+  PRIMARY KEY (`idPal`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `texto` (
+  `idTex` INT,
+  `nome` VARCHAR(64),
+  `fk_tipTex` INT,
+  `fk_autor` INT,
+  `fk_idioma` INT,
+  PRIMARY KEY (`idTex`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `palavra_texto` (
+  `idPalTex` INT,
+  `fk_text` INT,
+  `fk_pal` INT,
+  `ocorrencia` INT,
+  PRIMARY KEY (`idPalTex`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pal_tex_prox` (
+  `idPalTexProx` INT,
+  `fk_palTex` INT,
+  `fk_pal` INT,
+  `ocorrencia` INT,
+  PRIMARY KEY (`idPalTexProx`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_390360_criacao') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_390360_criacao') AS relationships;
+DROP DATABASE `db_390360_criacao`;
+UNINSTALL EXTENSION vsql_schematron;

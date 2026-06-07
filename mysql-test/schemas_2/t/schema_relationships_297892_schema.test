@@ -1,0 +1,182 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 297892_schema
+--echo #
+CREATE DATABASE `db_297892_schema`;
+USE `db_297892_schema`;
+
+CREATE TABLE `Role` (
+  `ID` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserTable` (
+  `ID` INT,
+  `name` VARCHAR(64),
+  `surname` VARCHAR(64),
+  `user_name` VARCHAR(64),
+  `mail` VARCHAR(64),
+  `details` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Question` (
+  `ID` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `solution` VARCHAR(64),
+  `value` INT,
+  `reward` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserSec` (
+  `ID` INT,
+  `user_id` INT,
+  `pass` VARCHAR(64),
+  `pass_update_at` DATETIME,
+  `recovery_mail` VARCHAR(64),
+  `recovery_code` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserPermision` (
+  `ID` INT,
+  `user_id` INT,
+  `role_id` INT,
+  `expiration` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `QuestionSec` (
+  `ID` INT,
+  `question_id` INT,
+  `user_id` INT,
+  `schema_id` INT,
+  `dml_permission` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SchemaTable` (
+  `ID` INT,
+  `sgdb` VARCHAR(64),
+  `creation_script` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SchemaLocation` (
+  `ID` INT,
+  `schema_id` INT,
+  `credential` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Board` (
+  `ID` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `owner` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BoardMembership` (
+  `ID` INT,
+  `user_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BoardPublish` (
+  `ID` INT,
+  `publish_at` DATETIME,
+  `user_id` INT,
+  `board_id` INT,
+  `question_id` INT,
+  `post_id` INT,
+  `valid_field` VARCHAR(64),
+  `pub_field` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Post` (
+  `ID` INT,
+  `user_id` INT,
+  `title` VARCHAR(64),
+  `content` VARCHAR(64),
+  `comments` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `QuestionAnswer` (
+  `ID` INT,
+  `value` VARCHAR(64),
+  `question_id` INT,
+  `user_id` INT,
+  `submit_time` DATETIME,
+  `status` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `History` (
+  `ID` INT,
+  `user_id` INT,
+  `action` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Payment` (
+  `ID` INT,
+  `wallet_seller` INT,
+  `wallet_buyer` INT,
+  `valoare` INT,
+  `balanta_noua` INT,
+  `title` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `QuestionsOwned` (
+  `ID` INT,
+  `user_id` INT,
+  `question_id` INT,
+  `solution` VARCHAR(64),
+  `solved` VARCHAR(64),
+  `payment_buy` INT,
+  `payment_rew` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Wallet` (
+  `ID` INT,
+  `balancing` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserWallet` (
+  `ID` INT,
+  `user_id` INT,
+  `wallet_id` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_297892_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_297892_schema') AS relationships;
+DROP DATABASE `db_297892_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,163 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 158984_up
+--echo #
+CREATE DATABASE `db_158984_up`;
+USE `db_158984_up`;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password_hash` VARCHAR(64),
+  `given_name` VARCHAR(64),
+  `surname` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `organizations` (
+  `organization_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`organization_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `topics` (
+  `topic_id` INT,
+  `name` VARCHAR(64),
+  `url_slug` VARCHAR(64),
+  `is_deleted` BOOL,
+  `original_topic` INT,
+  `created_by` INT,
+  `created_date` DATETIME,
+  PRIMARY KEY (`topic_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `events` (
+  `event_id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `url_slug` VARCHAR(64),
+  `is_deleted` BOOL,
+  `is_latest` BOOL,
+  `original_event` INT,
+  `created_by` INT,
+  `created_date` DATETIME,
+  PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `perspectives` (
+  `perspective_id` INT,
+  `url_slug` VARCHAR(64),
+  `name` VARCHAR(64),
+  `is_deleted` BOOL,
+  `is_latest` BOOL,
+  `original_perspective` INT,
+  `parent_perspective` INT,
+  `created_by` INT,
+  `created_date` DATETIME,
+  PRIMARY KEY (`perspective_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `actors` (
+  `actor_id` INT,
+  `url_slug` VARCHAR(64),
+  `mononymous_name` VARCHAR(64),
+  `given_name` VARCHAR(64),
+  `surname` VARCHAR(64),
+  `user_id` INT,
+  `is_latest` BOOL,
+  `original_actor` INT,
+  `created_by` INT,
+  `created_date` DATETIME,
+  PRIMARY KEY (`actor_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `locations` (
+  `location_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`location_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_organizations` (
+  `user_id` INT,
+  `organization_id` INT,
+  `role` VARCHAR(64),
+  PRIMARY KEY (`user_id`, `organization_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `topic_events` (
+  `event_id` INT,
+  `topic_id` INT,
+  PRIMARY KEY (`event_id`, `topic_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `perspective_events` (
+  `perspective_event_id` INT,
+  `event_id` INT,
+  `perspective_id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `is_deleted` BOOL,
+  `historicity_stance` VARCHAR(64),
+  `relevance_stance` VARCHAR(64),
+  `created_by` INT,
+  `created_date` DATETIME,
+  `is_latest` BOOL,
+  `original_perspective_event` INT,
+  PRIMARY KEY (`perspective_event_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event_sources` (
+  `event_id` INT,
+  `perspective_id` INT,
+  `url` VARCHAR(64),
+  `description` VARCHAR(64),
+  `source_type` VARCHAR(64),
+  PRIMARY KEY (`event_id`, `perspective_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event_actors` (
+  `event_id` INT,
+  `actor_id` INT,
+  `perspective_id` INT,
+  `organization_id` INT,
+  PRIMARY KEY (`event_id`, `actor_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event_locations` (
+  `event_id` INT,
+  `location_id` INT,
+  `perspective_id` INT,
+  PRIMARY KEY (`event_id`, `location_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event_dates` (
+  `event_date_id` INT,
+  `event_id` INT,
+  `perspective_id` INT,
+  `exact_date` DATETIME,
+  `range_date_start` DATETIME,
+  `range_date_end` DATETIME,
+  PRIMARY KEY (`event_date_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_158984_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_158984_up') AS relationships;
+DROP DATABASE `db_158984_up`;
+UNINSTALL EXTENSION vsql_schematron;

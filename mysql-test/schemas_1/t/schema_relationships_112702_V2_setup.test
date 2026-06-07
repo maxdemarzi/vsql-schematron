@@ -1,0 +1,116 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 112702_V2__setup
+--echo #
+CREATE DATABASE `db_112702_V2_setup`;
+USE `db_112702_V2_setup`;
+
+CREATE TABLE `ACCOUNT` (
+  `ID` INT,
+  `ACCOUNT_NUMBER` VARCHAR(64),
+  `BALANCE` INT,
+  `CLIENT_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACCOUNTTRANSACTION` (
+  `ID` INT,
+  `MESSAGE` VARCHAR(64),
+  `TRANSACTIONTYPE` VARCHAR(64),
+  `ACCOUNT_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACCOUNT_ACCOUNTTRANSACTION` (
+  `Account_ID` INT,
+  `accountTransactionSet_ID` INT,
+  PRIMARY KEY (`Account_ID`, `accountTransactionSet_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ADDRESS` (
+  `ID` INT,
+  `COUNTRY` VARCHAR(64),
+  `MUNICIPALITY` VARCHAR(64),
+  `POSTALCODE` INT,
+  `STREET` VARCHAR(64),
+  `STREETNUMBER` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ADDRESS_PERSON` (
+  `Address_ID` INT,
+  `personSet_ID` INT,
+  PRIMARY KEY (`Address_ID`, `personSet_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CLIENT` (
+  `ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CLIENTTYPE` (
+  `ID` INT,
+  `CTYPE` VARCHAR(64),
+  `CLIENT_FK` INT,
+  `RATING` INT,
+  `PREMIUMRATING` INT,
+  `SPECIALOFFERS` VARCHAR(64),
+  `COUNTRY` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CLIENT_ACCOUNT` (
+  `Client_ID` INT,
+  `accountSet_ID` INT,
+  PRIMARY KEY (`Client_ID`, `accountSet_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PERSON` (
+  `ID` INT,
+  `FIRSTNAME` VARCHAR(64),
+  `LASTNAME` VARCHAR(64),
+  `MAIL` VARCHAR(64),
+  `PERSONIDENTIFICATION` VARCHAR(64),
+  `CLIENT_FK` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PERSON_ADDRESS` (
+  `Person_ID` INT,
+  `addressSet_ID` INT,
+  PRIMARY KEY (`Person_ID`, `addressSet_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SEQUENCE` (
+  `SEQ_NAME` VARCHAR(64),
+  `SEQ_COUNT` DECIMAL(10,2),
+  PRIMARY KEY (`SEQ_NAME`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SYSTEMPROPERTY` (
+  `ID` INT,
+  `NAME` VARCHAR(64),
+  `VALUE` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_112702_V2_setup') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_112702_V2_setup') AS relationships;
+DROP DATABASE `db_112702_V2_setup`;
+UNINSTALL EXTENSION vsql_schematron;

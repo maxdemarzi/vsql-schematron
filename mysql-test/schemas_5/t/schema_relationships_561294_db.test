@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 561294_db
+--echo #
+CREATE DATABASE `db_561294_db`;
+USE `db_561294_db`;
+
+CREATE TABLE `TIENDAONLINE.PRODUCTOS` (
+  `ID_PRODUCTO` INT,
+  `NOMBRE_PRODUCTO` VARCHAR(64),
+  `DESCRIPCCION_PRODUCTO` VARCHAR(64),
+  `CATEGORIA_PRODUCTO` VARCHAR(64),
+  `PRECIO_PRODUCTO` VARCHAR(64),
+  `DESCUENTO` DECIMAL(10,2),
+  `STOCK` INT,
+  `FOTO` VARCHAR(64),
+  PRIMARY KEY (`ID_PRODUCTO`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TIENDAONLINE.USUARIOS` (
+  `ID` INT,
+  `USER` VARCHAR(64),
+  `PASSWORD` VARCHAR(64),
+  `EMAIL` VARCHAR(64),
+  `DIRECCION` VARCHAR(64),
+  `CIUDAD` VARCHAR(64),
+  `PROVINCIA` VARCHAR(64),
+  `CP` VARCHAR(64),
+  `PAIS` VARCHAR(64),
+  `telefono` VARCHAR(64),
+  `ULTIMA_CONEC` DATETIME,
+  `NIVEL_PRIVILEGIO` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TIENDAONLINE.COMPRAS` (
+  `ID_COMPRA` INT,
+  `COMENTARIO_COMPRA` VARCHAR(64),
+  `FK_ID_CLIENTE` INT,
+  PRIMARY KEY (`ID_COMPRA`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TIENDAONLINE.LINEAS_COMPRA` (
+  `CANTIDAD` INT,
+  `FK_ID_COMPRA` INT,
+  `FK_ID_PRODUCTO` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_561294_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_561294_db') AS relationships;
+DROP DATABASE `db_561294_db`;
+UNINSTALL EXTENSION vsql_schematron;

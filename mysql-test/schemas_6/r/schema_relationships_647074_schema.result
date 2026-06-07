@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 647074_schema
+#
+CREATE DATABASE `db_647074_schema`;
+USE `db_647074_schema`;
+CREATE TABLE `bookings.request_levels` (
+`request_level` INT,
+`description` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `bookings.resources` (
+`resource` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`resource`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookings.unique_resources` (
+`unique_id` INT,
+`resource` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`unique_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookings.public_contacts` (
+`public_id` INT,
+`contact` VARCHAR(64),
+PRIMARY KEY (`public_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookings.bookings` (
+`booking_id` INT,
+`member_id` INT,
+`request_level` INT,
+`resource` INT,
+`preference` INT,
+`given_resource` INT,
+`timeslot_id` INT,
+`start_time` DATETIME,
+`end_time` DATETIME,
+`public_id` INT,
+`application_datetime` DATETIME,
+PRIMARY KEY (`booking_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_647074_schema') AS relationships;
+relationships
+Database: db_647074_schema
+
+Table Connections:
+------------------
+[Implied]  bookings.bookings.given_resource -> bookings.resources.resource
+[Implied]  bookings.bookings.public_id -> bookings.public_contacts.public_id
+[Implied]  bookings.bookings.resource -> bookings.resources.resource
+[Implied]  bookings.unique_resources.resource -> bookings.resources.resource
+
+DROP DATABASE `db_647074_schema`;
+UNINSTALL EXTENSION vsql_schematron;

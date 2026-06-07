@@ -1,0 +1,187 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 249522_script
+--echo #
+CREATE DATABASE `db_249522_script`;
+USE `db_249522_script`;
+
+CREATE TABLE `users` (
+  `ID` INT,
+  `EMAIL` VARCHAR(64),
+  `PASSWORD` VARCHAR(64),
+  `TYPE` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `doctors` (
+  `ID_USER` INT,
+  `NAME` VARCHAR(64),
+  `PHOTOPATH` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `patients` (
+  `ID_USER` INT,
+  `NAME` VARCHAR(64),
+  `PHOTOPATH` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `carers` (
+  `ID_USER` INT,
+  `NAME` VARCHAR(64),
+  `PHOTOPATH` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `requestlinkdoctortopatient` (
+  `ID_DOCTOR` INT,
+  `ID_PATIENT` INT,
+  PRIMARY KEY (`ID_DOCTOR`, `ID_PATIENT`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `patientxdoctor` (
+  `ID_DOCTOR` INT,
+  `ID_PATIENT` INT,
+  PRIMARY KEY (`ID_DOCTOR`, `ID_PATIENT`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `patientxcarer` (
+  `ID_CARER` INT,
+  `ID_PATIENT` INT,
+  PRIMARY KEY (`ID_CARER`, `ID_PATIENT`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `requestlinkcarertopatient` (
+  `ID_CARER` INT,
+  `ID_PATIENT` INT,
+  PRIMARY KEY (`ID_CARER`, `ID_PATIENT`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `symptomsformpatient` (
+  `ID_PATIENT` INT,
+  `Q1` VARCHAR(64),
+  `Q2` VARCHAR(64),
+  `formdate` DATETIME,
+  `pathvideo` VARCHAR(64),
+  `discrepancy` INT,
+  PRIMARY KEY (`ID_PATIENT`, `formdate`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `patientxsymptomsform` (
+  `ID_PATIENT` INT,
+  `DATE_FORM` DATETIME,
+  PRIMARY KEY (`DATE_FORM`, `ID_PATIENT`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `nomotorsymptomsformpatient` (
+  `ID_PATIENT` INT,
+  `Q1` INT,
+  `Q2` INT,
+  `Q3` INT,
+  `Q4` INT,
+  `Q5` INT,
+  `Q6` INT,
+  `Q7` INT,
+  `Q8` INT,
+  `Q9` INT,
+  `Q10` INT,
+  `Q11` INT,
+  `Q12` INT,
+  `Q13` INT,
+  `Q14` INT,
+  `Q15` INT,
+  `Q16` INT,
+  `Q17` INT,
+  `Q18` INT,
+  `Q19` INT,
+  `Q20` INT,
+  `Q21` INT,
+  `Q22` INT,
+  `Q23` INT,
+  `Q24` INT,
+  `Q25` INT,
+  `Q26` INT,
+  `Q27` INT,
+  `Q28` INT,
+  `Q29` INT,
+  `Q30` INT,
+  `date` DATETIME,
+  PRIMARY KEY (`ID_PATIENT`, `date`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `emotionalformxpatient` (
+  `ID_PATIENT` INT,
+  `Q1` INT,
+  `Q2` INT,
+  `date` DATETIME,
+  PRIMARY KEY (`ID_PATIENT`, `date`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `medicinealarmpatient` (
+  `ID_PATIENT` INT,
+  `id` VARCHAR(64),
+  `title` VARCHAR(64),
+  `alarmDateTime` DATETIME,
+  `alarmTime` DATETIME,
+  `isPending` BOOL,
+  PRIMARY KEY (`ID_PATIENT`, `id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `medicine` (
+  `ID` INT,
+  `NAME` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `alarmandmedicinepatient` (
+  `ID_PATIENT` INT,
+  `periodicityQuantity` INT,
+  `title` VARCHAR(64),
+  `alarmTime` DATETIME,
+  `idMedicine` INT,
+  `dose` VARCHAR(64),
+  `periodicityType` VARCHAR(64),
+  PRIMARY KEY (`ID_PATIENT`, `idMedicine`, `alarmTime`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `toolboxitems` (
+  `ID` INT,
+  `Title` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `URL` VARCHAR(64),
+  `Type` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stepsxpatient` (
+  `ID_PATIENT` INT,
+  `stepDate` DATETIME,
+  `quantitySteps` INT,
+  PRIMARY KEY (`ID_PATIENT`, `stepDate`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `touchgamexpatient` (
+  `ID_PATIENT` INT,
+  `gameDate` DATETIME,
+  `score` INT,
+  PRIMARY KEY (`ID_PATIENT`, `gameDate`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_249522_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_249522_script') AS relationships;
+DROP DATABASE `db_249522_script`;
+UNINSTALL EXTENSION vsql_schematron;

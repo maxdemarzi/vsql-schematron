@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 493166_createTable
+#
+CREATE DATABASE `db_493166_createTable`;
+USE `db_493166_createTable`;
+CREATE TABLE `3_task.Master` (
+`id` INT,
+`name` VARCHAR(64),
+`isWork` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `3_task.Work` (
+`id` INT,
+`nameOfService` VARCHAR(64),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `3_task.Place` (
+`id` INT,
+`name` VARCHAR(64),
+`isBusy` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `3_task.Order` (
+`id` INT,
+`id_service` INT,
+`id_master` INT,
+`id_place` INT,
+`status` VARCHAR(64),
+`orderDate` DATETIME,
+`plannedStartDate` DATETIME,
+`completionDate` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_493166_createTable') AS relationships;
+relationships
+Database: db_493166_createTable
+
+Table Connections:
+------------------
+[Implied]  3_task.Master.isWork -> 3_task.Work.id
+[Implied]  3_task.Order.id_master -> 3_task.Master.id
+[Implied]  3_task.Order.id_place -> 3_task.Place.id
+
+DROP DATABASE `db_493166_createTable`;
+UNINSTALL EXTENSION vsql_schematron;

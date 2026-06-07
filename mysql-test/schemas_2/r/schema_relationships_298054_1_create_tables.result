@@ -1,0 +1,129 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 298054_1-create-tables
+#
+CREATE DATABASE `db_298054_1_create_tables`;
+USE `db_298054_1_create_tables`;
+CREATE TABLE `educational_degree` (
+`id` INT,
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `educational_field` (
+`id` INT,
+`value` VARCHAR(64),
+`educational_group_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `educational_group` (
+`id` INT,
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `educational_trend` (
+`id` INT,
+`value` VARCHAR(64),
+`educational_field_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `educational_type` (
+`id` INT,
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `graduation_status` (
+`id` INT,
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `professor` (
+`id` INT,
+`value` VARCHAR(64),
+`educational_field_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `segment` (
+`id` INT,
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`id` INT,
+`student_number` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`national_number` INT,
+`birth_cert_number` INT,
+`birth_date` VARCHAR(64),
+`issue_place` VARCHAR(64),
+`father_name` VARCHAR(64),
+`gender` INT,
+`marriage` INT,
+`diploma_type` VARCHAR(64),
+`diploma_average` DECIMAL(10,2),
+`diploma_year` INT,
+`diploma_place` VARCHAR(64),
+`segment_id` INT,
+`segment_info` VARCHAR(64),
+`segment_rank` INT,
+`total_rank` INT,
+`entrance_year` INT,
+`educational_type_id` INT,
+`educational_degree_id` INT,
+`educational_group_id` INT,
+`educational_field_id` INT,
+`educational_trend_id` INT,
+`professor_id` INT,
+`graduation_status_id` INT,
+`graduation_info` VARCHAR(64),
+`address` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`mobile_number` VARCHAR(64),
+`emergency_number` VARCHAR(64),
+`email` VARCHAR(64),
+`account_number` VARCHAR(64),
+`last_update_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `term` (
+`id` INT,
+`student_id` INT,
+`term_number` INT,
+`taken_units` INT,
+`passed_units` INT,
+`deleted_units` INT,
+`failed_units` INT,
+`unspecified_units` INT,
+`zero_units` INT,
+`term_average` DECIMAL(10,2),
+`total_average` DECIMAL(10,2),
+`term_status_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `term_status` (
+`id` INT,
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_298054_1_create_tables') AS relationships;
+relationships
+Database: db_298054_1_create_tables
+
+Table Connections:
+------------------
+[Implied]  educational_field.educational_group_id -> educational_group.id
+[Implied]  educational_trend.educational_field_id -> educational_field.id
+[Implied]  professor.educational_field_id -> educational_field.id
+[Implied]  student.educational_degree_id -> educational_degree.id
+[Implied]  student.educational_field_id -> educational_field.id
+[Implied]  student.educational_group_id -> educational_group.id
+[Implied]  student.educational_trend_id -> educational_trend.id
+[Implied]  student.educational_type_id -> educational_type.id
+[Implied]  student.graduation_status_id -> graduation_status.id
+[Implied]  student.professor_id -> professor.id
+[Implied]  student.segment_id -> segment.id
+[Implied]  term.student_id -> professor.id
+[Implied]  term.term_status_id -> term_status.id
+
+DROP DATABASE `db_298054_1_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

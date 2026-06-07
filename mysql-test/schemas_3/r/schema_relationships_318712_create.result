@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 318712_create
+#
+CREATE DATABASE `db_318712_create`;
+USE `db_318712_create`;
+CREATE TABLE `DARWIN` (
+`component` VARCHAR(64),
+`modified` DATETIME,
+`version` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `DARWIN_LOCK` (
+`processName` VARCHAR(64),
+`leaseUntil` DATETIME,
+`unlockKey` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `DARWIN_PATCH` (
+`id` INT,
+`componentName` VARCHAR(64),
+`patchName` VARCHAR(64),
+`processTime` INT,
+`detectedOn` DATETIME,
+`finishedOn` DATETIME,
+`platform` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `DARWIN_SQL` (
+`id` INT,
+`patchId` INT,
+`statementHash` VARCHAR(64),
+`statement` VARCHAR(64),
+`processTime` INT,
+`finishedOn` DATETIME,
+`exception` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_318712_create') AS relationships;
+relationships
+Database: db_318712_create
+
+Table Connections:
+------------------
+[Implied]  DARWIN_SQL.patchId -> DARWIN_PATCH.id
+
+DROP DATABASE `db_318712_create`;
+UNINSTALL EXTENSION vsql_schematron;

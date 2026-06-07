@@ -1,0 +1,102 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 483015_Biblioteca
+--echo #
+CREATE DATABASE `db_483015_Biblioteca`;
+USE `db_483015_Biblioteca`;
+
+CREATE TABLE `Pessoa` (
+  `pes_cod` DECIMAL(10,2),
+  `pes_nome` VARCHAR(64),
+  `cpf` DECIMAL(10,2),
+  `rg` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`pes_cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Professor` (
+  `pes_cod` DECIMAL(10,2),
+  `titulacao` VARCHAR(64),
+  PRIMARY KEY (`pes_cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Aluno` (
+  `pes_cod` DECIMAL(10,2),
+  `pes_nro_matricula` DECIMAL(10,2),
+  PRIMARY KEY (`pes_cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Telefone` (
+  `tel_cod` DECIMAL(10,2),
+  `tel_numero` DECIMAL(10,2),
+  `tip_descricao` VARCHAR(64),
+  `tel_ddd` DECIMAL(10,2),
+  `pes_cod` DECIMAL(10,2),
+  PRIMARY KEY (`tel_cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Editora` (
+  `edi_cod` DECIMAL(10,2),
+  `edi_descricao` VARCHAR(64),
+  PRIMARY KEY (`edi_cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Livro` (
+  `liv_cod` DECIMAL(10,2),
+  `liv_titulo` VARCHAR(64),
+  `edicao` DECIMAL(10,2),
+  `anopublicacao` VARCHAR(64),
+  `edi_cod` DECIMAL(10,2),
+  PRIMARY KEY (`liv_cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Exemplar` (
+  `exe_cod` DECIMAL(10,2),
+  `exe_descricao` DECIMAL(10,2),
+  `liv_cod` DECIMAL(10,2),
+  `ex_status` DECIMAL(10,2),
+  PRIMARY KEY (`exe_cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Emprestimo` (
+  `emp_cod` DECIMAL(10,2),
+  `pes_cod` DECIMAL(10,2),
+  `emp_data_emprestimo` DATETIME,
+  `emp_data_PrevDev` DATETIME,
+  PRIMARY KEY (`emp_cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ITEM_EMPRESTIMO` (
+  `emp_cod` DECIMAL(10,2),
+  `exe_cod` DECIMAL(10,2),
+  PRIMARY KEY (`emp_cod`, `exe_cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Devolucao` (
+  `dev_cod` DECIMAL(10,2),
+  `data_dev` DATETIME,
+  `emp_cod` DECIMAL(10,2),
+  `exe_cod` DECIMAL(10,2),
+  PRIMARY KEY (`dev_cod`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_483015_Biblioteca') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_483015_Biblioteca') AS relationships;
+DROP DATABASE `db_483015_Biblioteca`;
+UNINSTALL EXTENSION vsql_schematron;

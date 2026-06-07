@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 582221_create_gyoumu_tables
+#
+CREATE DATABASE `db_582221_create_gyoumu_tables`;
+USE `db_582221_create_gyoumu_tables`;
+CREATE TABLE `Teiki_tenken` (
+`tt_no` VARCHAR(64),
+`description` VARCHAR(64),
+`ky_no` VARCHAR(64),
+PRIMARY KEY (`tt_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `Enkaku_kansi` (
+`ek_no` VARCHAR(64),
+`hatuden_ryou` INT,
+`max_temp` INT,
+`min_temp` INT,
+`nissya_ryou` INT,
+`ky_no` VARCHAR(64),
+PRIMARY KEY (`ek_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sita_kusa_kari` (
+`sk_no` VARCHAR(64),
+`time` INT,
+`ky_no` VARCHAR(64),
+PRIMARY KEY (`sk_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `Syuuri_taiou` (
+`st_no` VARCHAR(64),
+`tt_no` VARCHAR(64),
+`ek_no` VARCHAR(64),
+`sk_no` VARCHAR(64),
+`ei_no` VARCHAR(64),
+`hn_no` VARCHAR(64),
+PRIMARY KEY (`st_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `Yobou_hozen` (
+`yh_no` VARCHAR(64),
+`tt_no` VARCHAR(64),
+`ek_no` VARCHAR(64),
+`sk_no` VARCHAR(64),
+`ky_no` VARCHAR(64),
+`ei_no` VARCHAR(64),
+`hn_no` VARCHAR(64),
+PRIMARY KEY (`yh_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `Recall_taiou` (
+`rt_no` VARCHAR(64),
+`zyoukyou_type` VARCHAR(64),
+`rc_no` VARCHAR(64),
+`ei_no` VARCHAR(64),
+`hn_no` VARCHAR(64),
+`wk_no` VARCHAR(64),
+PRIMARY KEY (`rt_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `Gentyou` (
+`gt_no` VARCHAR(64),
+`description` VARCHAR(64),
+`ti_no` VARCHAR(64),
+`tt_no` VARCHAR(64),
+`ek_no` VARCHAR(64),
+`sk_no` VARCHAR(64),
+PRIMARY KEY (`gt_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `Gentyou_tehai` (
+`gt_no` VARCHAR(64),
+`yotei_date` DATETIME,
+`tehai_date` DATETIME,
+`gyoumu_description` VARCHAR(64),
+`ei_no` VARCHAR(64),
+`hn_no` VARCHAR(64),
+PRIMARY KEY (`gt_no`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_582221_create_gyoumu_tables') AS relationships;
+relationships
+Database: db_582221_create_gyoumu_tables
+
+Table Connections:
+------------------
+[Implied]  Gentyou.ek_no -> Enkaku_kansi.ek_no
+[Implied]  Gentyou.sk_no -> Sita_kusa_kari.sk_no
+[Implied]  Gentyou.tt_no -> Teiki_tenken.tt_no
+[Implied]  Syuuri_taiou.ek_no -> Enkaku_kansi.ek_no
+[Implied]  Syuuri_taiou.sk_no -> Sita_kusa_kari.sk_no
+[Implied]  Syuuri_taiou.tt_no -> Teiki_tenken.tt_no
+[Implied]  Yobou_hozen.ek_no -> Enkaku_kansi.ek_no
+[Implied]  Yobou_hozen.sk_no -> Sita_kusa_kari.sk_no
+[Implied]  Yobou_hozen.tt_no -> Teiki_tenken.tt_no
+
+DROP DATABASE `db_582221_create_gyoumu_tables`;
+UNINSTALL EXTENSION vsql_schematron;

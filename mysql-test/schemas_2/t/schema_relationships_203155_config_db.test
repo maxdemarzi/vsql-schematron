@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 203155_config.db
+--echo #
+CREATE DATABASE `db_203155_config_db`;
+USE `db_203155_config_db`;
+
+CREATE TABLE `SCREEN_CONTROLLER` (
+  `id` VARCHAR(64),
+  `file_context` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SCREEN_NAVIGATOR` (
+  `id` VARCHAR(64),
+  `owner_id` VARCHAR(64),
+  `target_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_203155_config_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_203155_config_db') AS relationships;
+DROP DATABASE `db_203155_config_db`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,144 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 214339_scheme
+--echo #
+CREATE DATABASE `db_214339_scheme`;
+USE `db_214339_scheme`;
+
+CREATE TABLE `cities` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `location` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `role` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `city_id` INT,
+  `full_address` VARCHAR(64),
+  `birthday` DATETIME,
+  `about` VARCHAR(64),
+  `avatar_src` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `skype` VARCHAR(64),
+  `over_messenger` VARCHAR(64),
+  `rating` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `id` INT,
+  `title` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_specialty` (
+  `id` INT,
+  `user_id` INT,
+  `category_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `portfolio` (
+  `id` INT,
+  `user_id` INT,
+  `img_src` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_settings` (
+  `id` INT,
+  `user_id` INT,
+  `is_message_ntf_enabled` BOOL,
+  `is_action_ntf_enabled` BOOL,
+  `is_new_review_ntf_enabled` BOOL,
+  `is_hidden` BOOL,
+  `is_active` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tasks` (
+  `id` INT,
+  `customer_id` INT,
+  `executor_id` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `category_id` INT,
+  `state` VARCHAR(64),
+  `price` INT,
+  `deadline` DATETIME,
+  `attachment_src` VARCHAR(64),
+  `city_id` INT,
+  `address` VARCHAR(64),
+  `address_comment` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `task_attachments` (
+  `id` INT,
+  `task_id` INT,
+  `file_type` VARCHAR(64),
+  `file_name` VARCHAR(64),
+  `file_src` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `messages` (
+  `id` INT,
+  `sender_id` INT,
+  `addressee_id` INT,
+  `content` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reviews` (
+  `id` INT,
+  `sender_id` INT,
+  `addressee_id` INT,
+  `task_id` INT,
+  `rating` INT,
+  `content` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `responses` (
+  `id` INT,
+  `task_id` INT,
+  `user_id` INT,
+  `content` VARCHAR(64),
+  `price` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_214339_scheme') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_214339_scheme') AS relationships;
+DROP DATABASE `db_214339_scheme`;
+UNINSTALL EXTENSION vsql_schematron;

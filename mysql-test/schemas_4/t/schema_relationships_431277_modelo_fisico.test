@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 431277_modelo_fisico
+--echo #
+CREATE DATABASE `db_431277_modelo_fisico`;
+USE `db_431277_modelo_fisico`;
+
+CREATE TABLE `Cliente` (
+  `cpf` VARCHAR(64),
+  `nome` VARCHAR(64),
+  `email` VARCHAR(64),
+  `telefone` VARCHAR(64),
+  PRIMARY KEY (`cpf`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Pedido` (
+  `cod` INT,
+  `preco_total` DECIMAL(10,2),
+  `parcelas` INT,
+  `data_compra` DATETIME,
+  `cod_rastreio` VARCHAR(64),
+  `total_itens` INT,
+  `fk_Cliente_cpf` VARCHAR(64),
+  PRIMARY KEY (`cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Produto` (
+  `cod` INT,
+  `cor` VARCHAR(64),
+  `tipo` VARCHAR(64),
+  `tamanho` VARCHAR(64),
+  `nome` VARCHAR(64),
+  `material` VARCHAR(64),
+  PRIMARY KEY (`cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `intermediaria_pedido_produto` (
+  `fk_Produto_cod` INT,
+  `fk_Pedido_cod` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `Camisa` (
+  `FK_Produto_cod` INT,
+  `medida_ombro` DECIMAL(10,2),
+  `medida_manga` DECIMAL(10,2),
+  `comprimento` DECIMAL(10,2),
+  `medida_torax` DECIMAL(10,2),
+  PRIMARY KEY (`FK_Produto_cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Calça` (
+  `FK_Produto_cod` INT,
+  `medida_cintura` DECIMAL(10,2),
+  `medida_quadril` DECIMAL(10,2),
+  `comprimento` DECIMAL(10,2),
+  PRIMARY KEY (`FK_Produto_cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Perfil_de_Medida` (
+  `cod` INT,
+  `cintura` DECIMAL(10,2),
+  `quadril` DECIMAL(10,2),
+  `altura` DECIMAL(10,2),
+  `peso` DECIMAL(10,2),
+  `busto` DECIMAL(10,2),
+  `fk_Cliente_cpf` VARCHAR(64),
+  PRIMARY KEY (`cod`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_431277_modelo_fisico') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_431277_modelo_fisico') AS relationships;
+DROP DATABASE `db_431277_modelo_fisico`;
+UNINSTALL EXTENSION vsql_schematron;

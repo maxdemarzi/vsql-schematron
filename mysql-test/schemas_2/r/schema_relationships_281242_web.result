@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 281242_web
+#
+CREATE DATABASE `db_281242_web`;
+USE `db_281242_web`;
+CREATE TABLE `equipment` (
+`equipment_sn` VARCHAR(64),
+`type_sn` VARCHAR(64),
+PRIMARY KEY (`equipment_sn`)
+) CHARACTER SET latin1;
+CREATE TABLE `use` (
+`use_sn` VARCHAR(64),
+`use_name` VARCHAR(64),
+`number` INT,
+`material_sn` VARCHAR(64),
+PRIMARY KEY (`use_sn`)
+) CHARACTER SET latin1;
+CREATE TABLE `maintain_type` (
+`type_sn` VARCHAR(64),
+`type_name` VARCHAR(64),
+`period` VARCHAR(64),
+`item_sn` VARCHAR(64),
+PRIMARY KEY (`type_sn`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`item_sn` VARCHAR(64),
+`item_name` VARCHAR(64),
+PRIMARY KEY (`item_sn`)
+) CHARACTER SET latin1;
+CREATE TABLE `person` (
+`person_id` VARCHAR(64),
+`person_name` VARCHAR(64),
+PRIMARY KEY (`person_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `maintain_report` (
+`equipment_sn` VARCHAR(64),
+`maintain_name` VARCHAR(64),
+`maintain_content` VARCHAR(64),
+`maintain_person` VARCHAR(64),
+`maintain_time` DATETIME,
+`report_sn` VARCHAR(64),
+`use_sn` VARCHAR(64),
+PRIMARY KEY (`report_sn`)
+) CHARACTER SET latin1;
+CREATE TABLE `materil` (
+`materil_sn` VARCHAR(64),
+`materil_name` VARCHAR(64),
+PRIMARY KEY (`materil_sn`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_281242_web') AS relationships;
+relationships
+Database: db_281242_web
+
+Table Connections:
+------------------
+[Implied]  equipment.type_sn -> maintain_type.type_sn
+[Implied]  maintain_report.equipment_sn -> equipment.equipment_sn
+[Implied]  maintain_report.maintain_person -> person.person_id
+[Implied]  maintain_report.use_sn -> use.use_sn
+[Implied]  maintain_type.item_sn -> item.item_sn
+
+DROP DATABASE `db_281242_web`;
+UNINSTALL EXTENSION vsql_schematron;

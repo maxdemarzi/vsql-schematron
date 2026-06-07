@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 092403_20210530063025_initial_structure.up
+--echo #
+CREATE DATABASE `db_092403_20210530063025_initial_structure_up`;
+USE `db_092403_20210530063025_initial_structure_up`;
+
+CREATE TABLE `users` (
+  `id` VARCHAR(64),
+  `email` VARCHAR(64),
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `verified` BOOL,
+  `role` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `applications` (
+  `id` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  `name` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `verifications` (
+  `id` INT,
+  `code` VARCHAR(64),
+  `user_id` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `files` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `uploader` VARCHAR(64),
+  `hash` VARCHAR(64),
+  `uploaded` DATETIME,
+  `size` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_092403_20210530063025_initial_structure_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_092403_20210530063025_initial_structure_up') AS relationships;
+DROP DATABASE `db_092403_20210530063025_initial_structure_up`;
+UNINSTALL EXTENSION vsql_schematron;

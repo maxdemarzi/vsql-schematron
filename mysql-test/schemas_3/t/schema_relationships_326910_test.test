@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 326910_test
+--echo #
+CREATE DATABASE `db_326910_test`;
+USE `db_326910_test`;
+
+CREATE TABLE `hosts` (
+  `host_id` INT,
+  `user_id` INT,
+  `host_rating` INT,
+  `host_note` VARCHAR(64),
+  `host_date_created` DATETIME,
+  PRIMARY KEY (`host_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `user_favorite_game` INT,
+  `user_age` INT,
+  `user_sex` VARCHAR(64),
+  `user_diet` VARCHAR(64),
+  `user_smokes` VARCHAR(64),
+  `user_pets` VARCHAR(64),
+  `user_speaks` VARCHAR(64),
+  `user_first_name` VARCHAR(64),
+  `user_last_name` VARCHAR(64),
+  `user_city` VARCHAR(64),
+  `user_note` VARCHAR(64),
+  `user_rating` INT,
+  `user_phone_number` INT,
+  `user_date_created` DATETIME,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `events` (
+  `event_id` INT,
+  `event_address` VARCHAR(64),
+  `event_name` VARCHAR(64),
+  `event_note` VARCHAR(64),
+  `event_date_created` DATETIME,
+  `event_date` DATETIME,
+  `even_num_attendances` INT,
+  `event_rank` INT,
+  `event_phone_number` INT,
+  `host_id` INT,
+  `event_map_cor_lon` DECIMAL(10,2),
+  `event_map_cor_lat` DECIMAL(10,2),
+  `even_game_id` INT,
+  PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `games` (
+  `game_id` INT,
+  `game_current_champion` INT,
+  `game_name` VARCHAR(64),
+  `game_info` VARCHAR(64),
+  PRIMARY KEY (`game_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_326910_test') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_326910_test') AS relationships;
+DROP DATABASE `db_326910_test`;
+UNINSTALL EXTENSION vsql_schematron;

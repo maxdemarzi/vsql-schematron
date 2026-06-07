@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 263497_test
+#
+CREATE DATABASE `db_263497_test`;
+USE `db_263497_test`;
+CREATE TABLE `USER` (
+`ID` INT,
+`NAME` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `MODERATOR` (
+`ID` INT,
+`MODERATED_THREAD` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `MESSAGE` (
+`ID` INT,
+`BODY` VARCHAR(64),
+`CREATED_AT` DATETIME,
+`AUTHOR` INT,
+`THREAD` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `THREAD` (
+`ID` INT,
+`TITLE` VARCHAR(64),
+`ORIGINAL_MESSAGE` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_263497_test') AS relationships;
+relationships
+Database: db_263497_test
+
+Table Connections:
+------------------
+[Implied]  MESSAGE.AUTHOR -> MODERATOR.ID
+[Implied]  MESSAGE.AUTHOR -> USER.ID
+[Implied]  MESSAGE.THREAD -> THREAD.ID
+[Implied]  MODERATOR.MODERATED_THREAD -> THREAD.ID
+[Implied]  THREAD.ORIGINAL_MESSAGE -> MESSAGE.ID
+
+DROP DATABASE `db_263497_test`;
+UNINSTALL EXTENSION vsql_schematron;

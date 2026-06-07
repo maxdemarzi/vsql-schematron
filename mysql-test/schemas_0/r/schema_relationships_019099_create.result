@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 019099_create
+#
+CREATE DATABASE `db_019099_create`;
+USE `db_019099_create`;
+CREATE TABLE `client` (
+`id` INT,
+`nom` VARCHAR(64),
+`prenom` VARCHAR(64),
+`email` VARCHAR(64),
+`motdepasse` VARCHAR(64),
+`emailVerifie` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categorie` (
+`id` INT,
+`nom` VARCHAR(64),
+`idpere` INT,
+`idTitreGlobal` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `annonce` (
+`id` INT,
+`idClient` INT,
+`categorie` INT,
+`titre` VARCHAR(64),
+`contenu` VARCHAR(64),
+`adresse` VARCHAR(64),
+`nbParticipant` INT,
+`nbInteresse` INT,
+`departement` VARCHAR(64),
+`datePrevu` INT,
+`dateHeure` INT,
+`photo1` VARCHAR(64),
+`photo2` VARCHAR(64),
+`photo3` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `favoris` (
+`idClient` INT,
+`idAnnonce` INT,
+PRIMARY KEY (`idClient`, `idAnnonce`)
+) CHARACTER SET latin1;
+CREATE TABLE `interesse` (
+`idClient` INT,
+`idAnnonce` INT,
+PRIMARY KEY (`idClient`, `idAnnonce`)
+) CHARACTER SET latin1;
+CREATE TABLE `departement` (
+`id` INT,
+`departement_code` VARCHAR(64),
+`region_nom` VARCHAR(64),
+`departement_nom` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `admin` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_019099_create') AS relationships;
+relationships
+Database: db_019099_create
+
+Table Connections:
+------------------
+[Implied]  annonce.categorie -> categorie.id
+[Implied]  annonce.idClient -> client.id
+[Implied]  annonce.idClient -> favoris.idClient
+[Implied]  annonce.idClient -> interesse.idClient
+[Implied]  favoris.idAnnonce -> annonce.id
+[Implied]  favoris.idClient -> client.id
+[Implied]  favoris.idClient -> interesse.idClient
+[Implied]  interesse.idAnnonce -> annonce.id
+[Implied]  interesse.idClient -> client.id
+[Implied]  interesse.idClient -> favoris.idClient
+
+DROP DATABASE `db_019099_create`;
+UNINSTALL EXTENSION vsql_schematron;

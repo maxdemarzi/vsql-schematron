@@ -1,0 +1,154 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 578976_init
+#
+CREATE DATABASE `db_578976_init`;
+USE `db_578976_init`;
+CREATE TABLE `protein` (
+`pid` INT,
+`IDCODE` VARCHAR(64),
+`ACC_DATE` DATETIME,
+`PROTEIN_TYPE` VARCHAR(64),
+`RESOLUTION` DECIMAL(10,2),
+`EXPERIMENT` VARCHAR(64),
+`EXP_PH` DECIMAL(10,2),
+`EXP_TEMP` DECIMAL(10,2),
+`nres` INT,
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `sequence_align` (
+`said` INT,
+`pid` INT,
+`entity` INT,
+`rcsb_id` VARCHAR(64),
+`chains` VARCHAR(64),
+`uniprot_accession_codes` VARCHAR(64),
+`seq_align_beg` INT,
+`seq_align_end` INT,
+PRIMARY KEY (`said`)
+) CHARACTER SET latin1;
+CREATE TABLE `structure_validation` (
+`pid` INT,
+`rfree` DECIMAL(10,2),
+`clashscore` DECIMAL(10,2),
+`rama` DECIMAL(10,2),
+`rota` DECIMAL(10,2),
+`rsrz` DECIMAL(10,2),
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `PDB` (
+`pid` INT,
+`pdb_file` VARCHAR(64),
+`pdb_file_Hs` VARCHAR(64),
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `contact_map` (
+`pid` INT,
+`distances` VARCHAR(64),
+`anumbs` VARCHAR(64),
+`anames` VARCHAR(64),
+`chains` VARCHAR(64),
+`resnumbs` VARCHAR(64),
+`resnames` VARCHAR(64),
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `FASTA` (
+`pid` INT,
+`fasta_file` VARCHAR(64),
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `similarity` (
+`similid` INT,
+`pid` INT,
+`cluster` VARCHAR(64),
+`seqid` DECIMAL(10,2),
+PRIMARY KEY (`similid`)
+) CHARACTER SET latin1;
+CREATE TABLE `residue` (
+`resid` INT,
+`pid` INT,
+`residue_number` INT,
+`residue_type` VARCHAR(64),
+`chain` VARCHAR(64),
+PRIMARY KEY (`resid`)
+) CHARACTER SET latin1;
+CREATE TABLE `exp_pk` (
+`expid` INT,
+`resid` INT,
+`pka` DECIMAL(10,2),
+`uncertainty` DECIMAL(10,2),
+`exp_method` VARCHAR(64),
+`temp` DECIMAL(10,2),
+`reference` VARCHAR(64),
+PRIMARY KEY (`expid`)
+) CHARACTER SET latin1;
+CREATE TABLE `residue_props` (
+`resid` INT,
+`hseCA_u` DECIMAL(10,2),
+`hseCA_d` DECIMAL(10,2),
+`hseCA_angle` DECIMAL(10,2),
+`hseCB_u` DECIMAL(10,2),
+`hseCB_d` DECIMAL(10,2),
+`hseCN` DECIMAL(10,2),
+`residue_depth` DECIMAL(10,2),
+`ca_depth` DECIMAL(10,2),
+`sec_struct` VARCHAR(64),
+`sasa_r` DECIMAL(10,2),
+`phi` DECIMAL(10,2),
+`psi` DECIMAL(10,2),
+PRIMARY KEY (`resid`)
+) CHARACTER SET latin1;
+CREATE TABLE `sim_settings` (
+`settid` INT,
+`pypka_params` VARCHAR(64),
+`delphi_params` VARCHAR(64),
+`mc_params` VARCHAR(64),
+PRIMARY KEY (`settid`)
+) CHARACTER SET latin1;
+CREATE TABLE `pK_sim` (
+`pksimid` INT,
+`pid` INT,
+`tit_curve` VARCHAR(64),
+`isoelectric_point` DECIMAL(10,2),
+`isoelectric_point_limit` VARCHAR(64),
+`sim_date` DATETIME,
+`sim_time` DATETIME,
+`settid` INT,
+`error_description` VARCHAR(64),
+PRIMARY KEY (`pksimid`)
+) CHARACTER SET latin1;
+CREATE TABLE `pK` (
+`pkid` INT,
+`resid` INT,
+`pksimid` INT,
+`pK` DECIMAL(10,2),
+`dpK` DECIMAL(10,2),
+`tautomers` VARCHAR(64),
+`tautomer_probs` VARCHAR(64),
+`tit_curve` VARCHAR(64),
+PRIMARY KEY (`pkid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_578976_init') AS relationships;
+relationships
+Database: db_578976_init
+
+Table Connections:
+------------------
+[Implied]  exp_pk.resid -> residue.resid
+[Implied]  pK.pK -> exp_pk.expid
+[Implied]  pK.pK -> pK_sim.pksimid
+[Implied]  pK.pksimid -> pK_sim.pksimid
+[Implied]  pK.resid -> residue.resid
+[Implied]  pK_sim.pid -> PDB.pid
+[Implied]  pK_sim.pid -> protein.pid
+[Implied]  pK_sim.settid -> sim_settings.settid
+[Implied]  residue.pid -> PDB.pid
+[Implied]  residue.pid -> protein.pid
+[Implied]  residue_props.residue_depth -> residue.resid
+[Implied]  sequence_align.pid -> PDB.pid
+[Implied]  sequence_align.pid -> protein.pid
+[Implied]  similarity.pid -> PDB.pid
+[Implied]  similarity.pid -> protein.pid
+
+DROP DATABASE `db_578976_init`;
+UNINSTALL EXTENSION vsql_schematron;

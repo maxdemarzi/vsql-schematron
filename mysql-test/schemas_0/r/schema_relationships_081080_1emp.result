@@ -1,0 +1,85 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 081080_1emp
+#
+CREATE DATABASE `db_081080_1emp`;
+USE `db_081080_1emp`;
+CREATE TABLE `empresas` (
+`id` INT,
+`nome` VARCHAR(64),
+`dtcadastro` DATETIME,
+`telcom` VARCHAR(64),
+`site` VARCHAR(64),
+`email` VARCHAR(64),
+`saldo` DECIMAL(10,2),
+`obs` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clientes` (
+`id` INT,
+`fkempresa` INT,
+`nome` VARCHAR(64),
+`dtnascimento` DATETIME,
+`telres` VARCHAR(64),
+`site` VARCHAR(64),
+`email` VARCHAR(64),
+`saldo` DECIMAL(10,2),
+`obs` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contas` (
+`id` INT,
+`fkcliente` INT,
+`nome` VARCHAR(64),
+`dtabertura` DATETIME,
+`saldo` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movimentos` (
+`id` INT,
+`fkconta` INT,
+`historico` VARCHAR(64),
+`credito` DECIMAL(10,2),
+`debito` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movempresas` (
+`id` INT,
+`fkempresa` INT,
+`historico` VARCHAR(64),
+`credito` DECIMAL(10,2),
+`debito` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `precos` (
+`id` INT,
+`produto` VARCHAR(64),
+`valor` DECIMAL(10,2),
+`data_ins` DATETIME,
+`user_ins` VARCHAR(64),
+`data_atu` DATETIME,
+`user_atu` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `precos_log_del` (
+`id` INT,
+`produto` VARCHAR(64),
+`valor` DECIMAL(10,2),
+`data_ins` DATETIME,
+`user_ins` VARCHAR(64),
+`data_atu` DATETIME,
+`user_atu` VARCHAR(64),
+`data_del` DATETIME,
+`user_del` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_081080_1emp') AS relationships;
+relationships
+Database: db_081080_1emp
+
+Table Connections:
+------------------
+[Implied]  contas.fkcliente -> clientes.id
+[Implied]  movempresas.id -> empresas.id
+
+DROP DATABASE `db_081080_1emp`;
+UNINSTALL EXTENSION vsql_schematron;

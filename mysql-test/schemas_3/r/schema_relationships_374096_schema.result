@@ -1,0 +1,134 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 374096_schema
+#
+CREATE DATABASE `db_374096_schema`;
+USE `db_374096_schema`;
+CREATE TABLE `lemma` (
+`id` INT,
+`external_id` INT,
+`lemma` VARCHAR(64),
+`stressed` VARCHAR(64),
+`translation` VARCHAR(64),
+`pos` VARCHAR(64),
+`pos_subtype` VARCHAR(64),
+`level` VARCHAR(64),
+`gender` VARCHAR(64),
+`animacy` VARCHAR(64),
+`stem` VARCHAR(64),
+`ending` VARCHAR(64),
+`domain` VARCHAR(64),
+`aspect` VARCHAR(64),
+`transitivity` VARCHAR(64),
+`stress_pattern_semu` VARCHAR(64),
+`rank` INT,
+`count` DECIMAL(10,2),
+`prefixes` VARCHAR(64),
+`roots` VARCHAR(64),
+`suffixes` VARCHAR(64),
+`rnc_doc_count` INT,
+`rnc_lemma_count` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `inflection` (
+`id` INT,
+`lemma_id` INT,
+`form` VARCHAR(64),
+`stressed` VARCHAR(64),
+`type` VARCHAR(64),
+`frequency` DECIMAL(10,2),
+`sharoff_freq` DECIMAL(10,2),
+`sharoff_rank` INT,
+`rnc_doc_count` INT,
+`rnc_form_count` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `aspect_counterpart` (
+`id` INT,
+`lemma_id` INT,
+`lemma_label` VARCHAR(64),
+`lemma_count` DECIMAL(10,2),
+`aspect` VARCHAR(64),
+`counterpart` VARCHAR(64),
+`counterpart_index` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `aspect_pair` (
+`id` INT,
+`pair_id` INT,
+`pair_name` VARCHAR(64),
+`pair_index` INT,
+`lemma_id` INT,
+`lemma_label` VARCHAR(64),
+`lemma_count` DECIMAL(10,2),
+`aspect` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mwe` (
+`text` VARCHAR(64),
+`cardinality` INT,
+`lemma_id` INT,
+PRIMARY KEY (`text`)
+) CHARACTER SET latin1;
+CREATE TABLE `inflection_type` (
+`key` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+CREATE TABLE `gender` (
+`key` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+CREATE TABLE `level` (
+`key` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+CREATE TABLE `animacy` (
+`key` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+CREATE TABLE `transitivity` (
+`key` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+CREATE TABLE `aspect` (
+`key` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+CREATE TABLE `pos` (
+`key` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+CREATE TABLE `stress_pattern_semu` (
+`key` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`key`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_374096_schema') AS relationships;
+relationships
+Database: db_374096_schema
+
+Table Connections:
+------------------
+[Implied]  aspect_counterpart.aspect -> aspect.key
+[Implied]  aspect_counterpart.lemma_id -> lemma.id
+[Implied]  aspect_pair.aspect -> aspect.key
+[Implied]  aspect_pair.lemma_id -> lemma.id
+[Implied]  inflection.lemma_id -> lemma.id
+[Implied]  lemma.animacy -> animacy.key
+[Implied]  lemma.aspect -> aspect.key
+[Implied]  lemma.gender -> gender.key
+[Implied]  lemma.level -> level.key
+[Implied]  lemma.pos -> pos.key
+[Implied]  lemma.stress_pattern_semu -> stress_pattern_semu.key
+[Implied]  lemma.transitivity -> transitivity.key
+[Implied]  mwe.lemma_id -> lemma.id
+
+DROP DATABASE `db_374096_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 047390_migration
+#
+CREATE DATABASE `db_047390_migration`;
+USE `db_047390_migration`;
+CREATE TABLE `User` (
+`userId` INT,
+`stravaUserId` INT,
+`email` VARCHAR(64),
+`lastname` VARCHAR(64),
+`firstname` VARCHAR(64),
+`password` VARCHAR(64),
+`active` BOOL,
+PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Activity` (
+`activityId` INT,
+`stravaActivityId` INT,
+`stravaUserId` INT,
+`distance` DECIMAL(10,2),
+`movingTime` INT,
+`type` VARCHAR(64),
+`start_date` DATETIME,
+`start_date_local` DATETIME,
+`timezone` VARCHAR(64),
+PRIMARY KEY (`activityId`)
+) CHARACTER SET latin1;
+CREATE TABLE `EmailHash` (
+`hashId` INT,
+`email` VARCHAR(64),
+`hash` VARCHAR(64),
+`createAt` DATETIME,
+PRIMARY KEY (`hashId`)
+) CHARACTER SET latin1;
+CREATE TABLE `PasswordHash` (
+`hashId` INT,
+`email` VARCHAR(64),
+`hash` VARCHAR(64),
+`createAt` DATETIME,
+PRIMARY KEY (`hashId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_047390_migration') AS relationships;
+relationships
+Database: db_047390_migration
+
+Table Connections:
+------------------
+[Implied]  Activity.stravaUserId -> User.userId
+
+DROP DATABASE `db_047390_migration`;
+UNINSTALL EXTENSION vsql_schematron;

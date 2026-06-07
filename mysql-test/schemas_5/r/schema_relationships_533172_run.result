@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 533172_run
+#
+CREATE DATABASE `db_533172_run`;
+USE `db_533172_run`;
+CREATE TABLE `Users` (
+`First_name` VARCHAR(64),
+`Last_name` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `Albums` (
+`imageType` VARCHAR(64),
+`image` VARCHAR(64),
+`username` VARCHAR(64),
+`artist` VARCHAR(64),
+`album_title` VARCHAR(64),
+`genre` VARCHAR(64),
+`is_private` INT,
+PRIMARY KEY (`album_title`)
+) CHARACTER SET latin1;
+CREATE TABLE `Songs` (
+`audio_file` VARCHAR(64),
+`album_title` VARCHAR(64),
+`song_title` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `Shared_Albums` (
+`Owner` VARCHAR(64),
+`Reciever` VARCHAR(64),
+`album_title` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `Follower` (
+`follower` VARCHAR(64),
+`followee` VARCHAR(64),
+`created_at` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_533172_run') AS relationships;
+relationships
+Database: db_533172_run
+
+Table Connections:
+------------------
+[Implied]  Albums.username -> Users.username
+[Implied]  Shared_Albums.Owner -> Users.username
+[Implied]  Shared_Albums.album_title -> Albums.album_title
+[Implied]  Songs.album_title -> Albums.album_title
+
+DROP DATABASE `db_533172_run`;
+UNINSTALL EXTENSION vsql_schematron;

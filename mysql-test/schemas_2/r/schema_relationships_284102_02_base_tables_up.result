@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 284102_02.base_tables.up
+#
+CREATE DATABASE `db_284102_02_base_tables_up`;
+USE `db_284102_02_base_tables_up`;
+CREATE TABLE `ra_nodes` (
+`id` INT,
+`name` VARCHAR(64),
+`code` VARCHAR(64),
+`detail` VARCHAR(64),
+`type` VARCHAR(64),
+`inserted_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ra_users` (
+`id` INT,
+`node_id` INT,
+`username` VARCHAR(64),
+`password_digest` VARCHAR(64),
+`email` VARCHAR(64),
+`is_active` BOOL,
+`inserted_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ra_jobs` (
+`id` INT,
+`node_id` INT,
+`source_user_id` INT,
+`inserted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ra_job_details` (
+`id` INT,
+`node_id` INT,
+`job_id` INT,
+`source_user_id` INT,
+`code` VARCHAR(64),
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`detail` VARCHAR(64),
+`before` BOOL,
+`before_jobs` VARCHAR(64),
+`after` BOOL,
+`after_jobs` VARCHAR(64),
+`script_file` VARCHAR(64),
+`script` VARCHAR(64),
+`inserted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ra_job_logs` (
+`id` INT,
+`node_id` INT,
+`job_id` INT,
+`data` VARCHAR(64),
+`state` BOOL,
+`inserted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_284102_02_base_tables_up') AS relationships;
+relationships
+Database: db_284102_02_base_tables_up
+
+Table Connections:
+------------------
+[Implied]  ra_job_details.job_id -> ra_jobs.id
+[Implied]  ra_job_details.node_id -> ra_nodes.id
+[Implied]  ra_job_details.source_user_id -> ra_users.id
+[Implied]  ra_job_logs.job_id -> ra_jobs.id
+[Implied]  ra_job_logs.node_id -> ra_nodes.id
+[Implied]  ra_jobs.node_id -> ra_nodes.id
+[Implied]  ra_jobs.source_user_id -> ra_users.id
+[Implied]  ra_users.node_id -> ra_nodes.id
+
+DROP DATABASE `db_284102_02_base_tables_up`;
+UNINSTALL EXTENSION vsql_schematron;

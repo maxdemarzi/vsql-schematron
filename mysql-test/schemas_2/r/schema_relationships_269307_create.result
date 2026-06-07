@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 269307_create
+#
+CREATE DATABASE `db_269307_create`;
+USE `db_269307_create`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `repositories` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `repositories_contributors` (
+`repository_id` INT,
+`contributor_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `issues` (
+`id` INT,
+`title` VARCHAR(64),
+`issue_status` VARCHAR(64),
+`repository_id` INT,
+`assignee_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `commits` (
+`id` INT,
+`message` VARCHAR(64),
+`issue_id` INT,
+`repository_id` INT,
+`contributor_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `files` (
+`id` INT,
+`name` VARCHAR(64),
+`size` DECIMAL(10,2),
+`parent_id` INT,
+`commit_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_269307_create') AS relationships;
+relationships
+Database: db_269307_create
+
+Table Connections:
+------------------
+[Implied]  commits.issue_id -> issues.id
+[Implied]  commits.repository_id -> repositories.id
+[Implied]  files.commit_id -> commits.id
+[Implied]  files.parent_id -> files.id
+[Implied]  issues.assignee_id -> users.id
+[Implied]  issues.repository_id -> repositories.id
+[Implied]  repositories_contributors.repository_id -> repositories.id
+
+DROP DATABASE `db_269307_create`;
+UNINSTALL EXTENSION vsql_schematron;

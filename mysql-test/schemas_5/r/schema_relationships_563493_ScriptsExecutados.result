@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 563493_ScriptsExecutados
+#
+CREATE DATABASE `db_563493_ScriptsExecutados`;
+USE `db_563493_ScriptsExecutados`;
+CREATE TABLE `clientes` (
+`codigo` INT,
+`nome` VARCHAR(64),
+`cidade` VARCHAR(64),
+`uf` VARCHAR(64),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `produtos` (
+`codigo` INT,
+`descricao` VARCHAR(64),
+`precovenda` DECIMAL(10,2),
+PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedidos_dados_gerais` (
+`numero` INT,
+`codigo_cli` INT,
+`emissao` DATETIME,
+`valortotal` DECIMAL(10,2),
+PRIMARY KEY (`numero`)
+) CHARACTER SET latin1;
+CREATE TABLE `pedidos_produtos` (
+`id` INT,
+`numeropedido` INT,
+`codigoproduto` INT,
+`quantidade` DECIMAL(10,2),
+`valorunitario` DECIMAL(10,2),
+`valortotal` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_563493_ScriptsExecutados') AS relationships;
+relationships
+Database: db_563493_ScriptsExecutados
+
+Table Connections:
+------------------
+[Implied]  pedidos_dados_gerais.codigo_cli -> clientes.codigo
+[Implied]  pedidos_produtos.codigoproduto -> produtos.codigo
+
+DROP DATABASE `db_563493_ScriptsExecutados`;
+UNINSTALL EXTENSION vsql_schematron;

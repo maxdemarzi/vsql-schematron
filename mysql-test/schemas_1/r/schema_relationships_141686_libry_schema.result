@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 141686_libry_schema
+#
+CREATE DATABASE `db_141686_libry_schema`;
+USE `db_141686_libry_schema`;
+CREATE TABLE `writing` (
+`writing_id` INT,
+`title` VARCHAR(64),
+`release_year` INT,
+`description` VARCHAR(64),
+`lang_origin` INT,
+`numbers` INT,
+PRIMARY KEY (`writing_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `author` (
+`author_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`patronymic` VARCHAR(64),
+`year_born` INT,
+`year_death` INT,
+`country_id` INT,
+PRIMARY KEY (`author_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `language` (
+`language_id` INT,
+`lang` VARCHAR(64),
+PRIMARY KEY (`language_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book` (
+`book_id` INT,
+`writing_id` INT,
+`lang` INT,
+`page_num` INT,
+PRIMARY KEY (`book_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `author_writing` (
+`author_id` INT,
+`writing_id` INT,
+PRIMARY KEY (`author_id`, `writing_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `common_books` (
+`book_id` INT,
+`user_id` INT,
+PRIMARY KEY (`book_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`user_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`phone` VARCHAR(64),
+`age` INT,
+`sex` VARCHAR(64),
+`address_id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`salt` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `want_read` (
+`user_id` INT,
+`writing_id` INT,
+PRIMARY KEY (`user_id`, `writing_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+`address_id` INT,
+`address` VARCHAR(64),
+`address2` VARCHAR(64),
+`city_id` INT,
+PRIMARY KEY (`address_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `city` (
+`city_id` INT,
+`city` VARCHAR(64),
+`country_id` INT,
+PRIMARY KEY (`city_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `country` (
+`country_id` INT,
+`country` VARCHAR(64),
+PRIMARY KEY (`country_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_141686_libry_schema') AS relationships;
+relationships
+Database: db_141686_libry_schema
+
+Table Connections:
+------------------
+[Implied]  address.city_id -> city.city_id
+[Implied]  author.country_id -> country.country_id
+[Implied]  author_writing.author_id -> author.author_id
+[Implied]  author_writing.writing_id -> writing.writing_id
+[Implied]  book.lang -> language.language_id
+[Implied]  book.writing_id -> writing.writing_id
+[Implied]  city.country_id -> country.country_id
+[Implied]  common_books.book_id -> book.book_id
+[Implied]  common_books.user_id -> author.author_id
+[Implied]  user.address_id -> address.address_id
+[Implied]  want_read.user_id -> author.author_id
+[Implied]  want_read.writing_id -> writing.writing_id
+
+DROP DATABASE `db_141686_libry_schema`;
+UNINSTALL EXTENSION vsql_schematron;

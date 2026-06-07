@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 325344_migration
+#
+CREATE DATABASE `db_325344_migration`;
+USE `db_325344_migration`;
+CREATE TABLE `User` (
+`id` INT,
+`updatedAt` DATETIME,
+`createdAt` DATETIME,
+`email` VARCHAR(64),
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`social` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Course` (
+`id` INT,
+`name` VARCHAR(64),
+`courseDetails` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CourseEnrollment` (
+`createdAt` DATETIME,
+`role` VARCHAR(64),
+`userId` INT,
+`courseId` INT,
+PRIMARY KEY (`userId`, `courseId`, `role`)
+) CHARACTER SET latin1;
+CREATE TABLE `Test` (
+`id` INT,
+`updatedAt` DATETIME,
+`name` VARCHAR(64),
+`date` DATETIME,
+`courseId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TestResult` (
+`id` INT,
+`createdAt` DATETIME,
+`result` INT,
+`graderId` INT,
+`studentId` INT,
+`testId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_325344_migration') AS relationships;
+relationships
+Database: db_325344_migration
+
+Table Connections:
+------------------
+[Implied]  CourseEnrollment.courseId -> Course.id
+[Implied]  CourseEnrollment.userId -> User.id
+[Implied]  Test.courseId -> Course.id
+[Implied]  TestResult.studentId -> User.id
+[Implied]  TestResult.testId -> Test.id
+
+DROP DATABASE `db_325344_migration`;
+UNINSTALL EXTENSION vsql_schematron;

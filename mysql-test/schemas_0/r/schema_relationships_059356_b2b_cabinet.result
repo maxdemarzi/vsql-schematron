@@ -1,0 +1,170 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 059356_b2b_cabinet
+#
+CREATE DATABASE `db_059356_b2b_cabinet`;
+USE `db_059356_b2b_cabinet`;
+CREATE TABLE `Country` (
+`id` INT,
+`country` VARCHAR(64),
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `IdentAutority` (
+`id` INT,
+`identAutority` VARCHAR(64),
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PaymentType` (
+`id` INT,
+`paymentType` VARCHAR(64),
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PowerAttorneyType` (
+`id` INT,
+`powerAttorneyType` VARCHAR(64),
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LegalEntityType` (
+`id` INT,
+`legalEntityType` VARCHAR(64),
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `IdentType` (
+`id` INT,
+`identType` VARCHAR(64),
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `GeoAddress` (
+`id` INT,
+`country` INT,
+`region` VARCHAR(64),
+`district` VARCHAR(64),
+`city` VARCHAR(64),
+`village` VARCHAR(64),
+`street` VARCHAR(64),
+`house` VARCHAR(64),
+`apartment` VARCHAR(64),
+`zipCode` VARCHAR(64),
+`locality` VARCHAR(64),
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LegalEntityProfile` (
+`id` INT,
+`legalEntityType` INT,
+`legalEntityName` VARCHAR(64),
+`family` VARCHAR(64),
+`personName` VARCHAR(64),
+`patronymic` VARCHAR(64),
+`IIN` DECIMAL(10,2),
+`BIN` DECIMAL(10,2),
+`birthDate` DATETIME,
+`birthCountry` INT,
+`citizienship` INT,
+`taxResidentCountry` INT,
+`taxNumberForeign` VARCHAR(64),
+`identType` INT,
+`identSerial` VARCHAR(64),
+`identNumber` VARCHAR(64),
+`identIssueDate` DATETIME,
+`identExpDate` DATETIME,
+`identIssuingAuthority` INT,
+`registrationDoc` VARCHAR(64),
+`activityType` VARCHAR(64),
+`license` VARCHAR(64),
+`regAddr` INT,
+`phyAddr` INT,
+`migrationCardNumber` VARCHAR(64),
+`migrationCardIssueDate` DATETIME,
+`migrationCardExpDate` DATETIME,
+`foreignPublicPerson` BOOL,
+`employeeQty` INT,
+`phoneNumber` DECIMAL(10,2),
+`eMail` VARCHAR(64),
+`repFamily` VARCHAR(64),
+`repName` VARCHAR(64),
+`repPatronymic` VARCHAR(64),
+`repPosition` VARCHAR(64),
+`repIIN` DECIMAL(10,2),
+`repBirthDate` DATETIME,
+`repBirthCountry` INT,
+`repCitizienship` INT,
+`repIdentType` INT,
+`repIdentSerial` VARCHAR(64),
+`repIdentNumber` VARCHAR(64),
+`repIdentIssueDate` DATETIME,
+`repIdentExpDate` DATETIME,
+`repIdentIssuingAuthority` INT,
+`repAddr` INT,
+`repPhoneNumber` DECIMAL(10,2),
+`repMigrationCardNumber` VARCHAR(64),
+`repMigrationCardIssueDate` DATETIME,
+`repMigrationCardExpDate` DATETIME,
+`repForeignPublicPerson` BOOL,
+`powerAttorneyType` INT,
+`powerAttorneyNumber` VARCHAR(64),
+`powerAttorneyIssueDate` DATETIME,
+`powerAttorneyExpDate` DATETIME,
+`notaryFamily` VARCHAR(64),
+`notaryName` VARCHAR(64),
+`notaryPatronymic` VARCHAR(64),
+`notaryLicenseNumber` VARCHAR(64),
+`notaryLicenseIssueDate` DATETIME,
+`notaryLicenseIssuingAuthority` VARCHAR(64),
+`massMedia` VARCHAR(64),
+`offshoreAccount` BOOL,
+`sourceFound` VARCHAR(64),
+`financeStatement` VARCHAR(64),
+`hasAffilated` VARCHAR(64),
+`transactionCharacter` VARCHAR(64),
+`paymenTypeOther` VARCHAR(64),
+`subjectOfFinanceMonitoring` BOOL,
+`signedContract` VARCHAR(64),
+`isApproved` BOOL,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LegalEntityAndPaymentType` (
+`paymentTypeId` INT,
+`legalEntityId` INT,
+`updatedAt` DATETIME,
+PRIMARY KEY (`paymentTypeId`, `legalEntityId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer` (
+`id` INT,
+`phoneNumber` DECIMAL(10,2),
+`passwordHash` VARCHAR(64),
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CustomerAndLegalEntityProfile` (
+`customer` INT,
+`legalEntityProfile` INT,
+`updatedAt` DATETIME,
+PRIMARY KEY (`customer`, `legalEntityProfile`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_059356_b2b_cabinet') AS relationships;
+relationships
+Database: db_059356_b2b_cabinet
+
+Table Connections:
+------------------
+[Implied]  CustomerAndLegalEntityProfile.customer -> Customer.id
+[Implied]  CustomerAndLegalEntityProfile.legalEntityProfile -> LegalEntityProfile.id
+[Implied]  GeoAddress.country -> Country.id
+[Implied]  LegalEntityAndPaymentType.paymentTypeId -> PaymentType.id
+[Implied]  LegalEntityProfile.birthCountry -> Country.id
+[Implied]  LegalEntityProfile.identType -> IdentType.id
+[Implied]  LegalEntityProfile.legalEntityType -> LegalEntityType.id
+[Implied]  LegalEntityProfile.powerAttorneyType -> PowerAttorneyType.id
+[Implied]  LegalEntityProfile.repBirthCountry -> Country.id
+[Implied]  LegalEntityProfile.taxResidentCountry -> Country.id
+
+DROP DATABASE `db_059356_b2b_cabinet`;
+UNINSTALL EXTENSION vsql_schematron;

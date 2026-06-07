@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 438297_school-init
+#
+CREATE DATABASE `db_438297_school_init`;
+USE `db_438297_school_init`;
+CREATE TABLE `__EFMigrationsHistory` (
+`MigrationId` VARCHAR(64),
+`ProductVersion` VARCHAR(64),
+PRIMARY KEY (`MigrationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Person` (
+`ID` INT,
+`LastName` VARCHAR(64),
+`FirstName` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Instructor` (
+`ID` INT,
+`HireDate` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Student` (
+`ID` INT,
+`EnrollmentDate` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Department` (
+`DepartmentID` INT,
+`Name` VARCHAR(64),
+`Budget` VARCHAR(64),
+`StartDate` VARCHAR(64),
+`InstructorID` INT,
+`RowVersion` VARCHAR(64),
+PRIMARY KEY (`DepartmentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `OfficeAssignment` (
+`InstructorID` INT,
+`Location` VARCHAR(64),
+PRIMARY KEY (`InstructorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Course` (
+`CourseID` INT,
+`Title` VARCHAR(64),
+`Credits` INT,
+`DepartmentID` INT,
+PRIMARY KEY (`CourseID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CourseAssignment` (
+`InstructorID` INT,
+`CourseID` INT,
+PRIMARY KEY (`CourseID`, `InstructorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Enrollment` (
+`EnrollmentID` INT,
+`CourseID` INT,
+`StudentID` INT,
+`Grade` INT,
+PRIMARY KEY (`EnrollmentID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_438297_school_init') AS relationships;
+relationships
+Database: db_438297_school_init
+
+Table Connections:
+------------------
+[Implied]  Course.DepartmentID -> Department.DepartmentID
+[Implied]  CourseAssignment.CourseID -> Course.CourseID
+[Implied]  CourseAssignment.InstructorID -> Instructor.ID
+[Implied]  Department.InstructorID -> Instructor.ID
+[Implied]  Enrollment.CourseID -> Course.CourseID
+[Implied]  Enrollment.StudentID -> Student.ID
+[Implied]  OfficeAssignment.InstructorID -> Instructor.ID
+
+DROP DATABASE `db_438297_school_init`;
+UNINSTALL EXTENSION vsql_schematron;

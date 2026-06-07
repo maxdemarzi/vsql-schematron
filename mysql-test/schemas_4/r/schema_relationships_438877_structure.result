@@ -1,0 +1,30 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 438877_structure
+#
+CREATE DATABASE `db_438877_structure`;
+USE `db_438877_structure`;
+CREATE TABLE `table_one` (
+`table_two_id` INT,
+`col_one` INT,
+`col_two` INT,
+PRIMARY KEY (`col_one`, `col_two`)
+) CHARACTER SET latin1;
+CREATE TABLE `table_two` (
+`table_two_id` INT,
+`col_one` INT,
+`col_two` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_438877_structure') AS relationships;
+relationships
+Database: db_438877_structure
+
+Table Connections:
+------------------
+[Implied]  table_one.col_two -> table_two.table_two_id
+[Implied]  table_one.table_two_id -> table_two.table_two_id
+[Implied]  table_two.col_one -> table_one.col_one
+[Implied]  table_two.col_two -> table_one.col_two
+
+DROP DATABASE `db_438877_structure`;
+UNINSTALL EXTENSION vsql_schematron;

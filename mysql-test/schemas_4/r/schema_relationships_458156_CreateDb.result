@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 458156_CreateDb
+#
+CREATE DATABASE `db_458156_CreateDb`;
+USE `db_458156_CreateDb`;
+CREATE TABLE `rack` (
+`IdRack` INT,
+`Gisement` VARCHAR(64),
+`PosRack` VARCHAR(64),
+PRIMARY KEY (`IdRack`)
+) CHARACTER SET latin1;
+CREATE TABLE `clients` (
+`IdClient` INT,
+`NomClient` VARCHAR(64),
+PRIMARY KEY (`IdClient`)
+) CHARACTER SET latin1;
+CREATE TABLE `mesure` (
+`IdMesure` INT,
+`Unite` VARCHAR(64),
+PRIMARY KEY (`IdMesure`)
+) CHARACTER SET latin1;
+CREATE TABLE `produit` (
+`IdProduit` VARCHAR(64),
+`Nom` VARCHAR(64),
+`MesureId` INT,
+`ImgProduit` VARCHAR(64),
+PRIMARY KEY (`IdProduit`)
+) CHARACTER SET latin1;
+CREATE TABLE `suivicommande` (
+`IdCommande` INT,
+`ClientId` INT,
+`DescriptionCmd` VARCHAR(64),
+`DateSortie` DATETIME,
+PRIMARY KEY (`IdCommande`)
+) CHARACTER SET latin1;
+CREATE TABLE `geocommande` (
+`RackId` INT,
+`CommandeId` INT,
+`DateEntre` DATETIME,
+PRIMARY KEY (`RackId`, `CommandeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `stock` (
+`RackId` INT,
+`ProduitId` VARCHAR(64),
+`Quantite` DECIMAL(10,2),
+PRIMARY KEY (`RackId`, `ProduitId`)
+) CHARACTER SET latin1;
+CREATE TABLE `sortiestock` (
+`ProduitId` VARCHAR(64),
+`Quantite` DECIMAL(10,2),
+`DateSortie` DATETIME,
+PRIMARY KEY (`ProduitId`, `DateSortie`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_458156_CreateDb') AS relationships;
+relationships
+Database: db_458156_CreateDb
+
+Table Connections:
+------------------
+[Implied]  geocommande.RackId -> rack.IdRack
+[Implied]  produit.MesureId -> mesure.IdMesure
+[Implied]  sortiestock.ProduitId -> produit.IdProduit
+[Implied]  stock.ProduitId -> produit.IdProduit
+[Implied]  stock.RackId -> rack.IdRack
+[Implied]  suivicommande.ClientId -> clients.IdClient
+
+DROP DATABASE `db_458156_CreateDb`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 118421_migration
+#
+CREATE DATABASE `db_118421_migration`;
+USE `db_118421_migration`;
+CREATE TABLE `User` (
+`id` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `IsVoted` (
+`id` INT,
+`vorterId` VARCHAR(64),
+`votedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `VoteAggregate` (
+`id` INT,
+`isVotedWhere` INT,
+`voteId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Vote` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`leftImageTitle` VARCHAR(64),
+`rightImageTitle` VARCHAR(64),
+`endDateTime` DATETIME,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_118421_migration') AS relationships;
+relationships
+Database: db_118421_migration
+
+Table Connections:
+------------------
+[Implied]  VoteAggregate.voteId -> Vote.id
+
+DROP DATABASE `db_118421_migration`;
+UNINSTALL EXTENSION vsql_schematron;

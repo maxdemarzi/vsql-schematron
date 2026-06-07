@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 154773_auction
+#
+CREATE DATABASE `db_154773_auction`;
+USE `db_154773_auction`;
+CREATE TABLE `branch` (
+`branch_code` INT,
+`branch_name` VARCHAR(64),
+`address` VARCHAR(64),
+`hotline_number` VARCHAR(64),
+PRIMARY KEY (`branch_code`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer_account` (
+`id` INT,
+`phone` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`account_password` VARCHAR(64),
+`address` VARCHAR(64),
+`city` VARCHAR(64),
+`country` VARCHAR(64),
+`budget` DECIMAL(10,2),
+`balance` DECIMAL(10,2),
+`profile_picture` VARCHAR(64),
+`branch_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `auction_product` (
+`id` INT,
+`minimum_price` DECIMAL(10,2),
+`closing_time` VARCHAR(64),
+`product_status` VARCHAR(64),
+`current_maximum_bid_price` DECIMAL(10,2),
+`seller_id` INT,
+`product_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction_history` (
+`id` INT,
+`product_id` INT,
+`buyer_id` INT,
+`bid_price` DECIMAL(10,2),
+`recorded_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_154773_auction') AS relationships;
+relationships
+Database: db_154773_auction
+
+Table Connections:
+------------------
+[Implied]  customer_account.branch_id -> branch.branch_code
+[Implied]  transaction_history.product_id -> auction_product.id
+
+DROP DATABASE `db_154773_auction`;
+UNINSTALL EXTENSION vsql_schematron;

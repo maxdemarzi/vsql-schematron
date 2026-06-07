@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 684942_db
+#
+CREATE DATABASE `db_684942_db`;
+USE `db_684942_db`;
+CREATE TABLE `problem_category` (
+`category_id` INT,
+`parent_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `problem` (
+`problem_id` INT,
+`category_id` INT,
+`member_id` INT,
+`title` VARCHAR(64),
+`content` VARCHAR(64),
+`time_limit` INT,
+`reference` VARCHAR(64),
+`hint` VARCHAR(64),
+`created` DATETIME,
+PRIMARY KEY (`problem_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `solve` (
+`solve_id` INT,
+`problem_id` INT,
+`member_id` INT,
+`content` VARCHAR(64),
+`duration` INT,
+`created` DATETIME,
+PRIMARY KEY (`solve_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answer` (
+`answer_id` INT,
+`problem_id` INT,
+`member_id` INT,
+`content` VARCHAR(64),
+`reference` VARCHAR(64),
+`created` DATETIME,
+PRIMARY KEY (`answer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document_category` (
+`category_id` INT,
+`parent_id` INT,
+`board_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document` (
+`document_id` INT,
+`board_id` INT,
+`category_id` INT,
+`member_id` INT,
+`title` VARCHAR(64),
+`content` VARCHAR(64),
+`reference` VARCHAR(64),
+`created` DATETIME,
+PRIMARY KEY (`document_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`comment_id` INT,
+`parent_id` INT,
+`member_id` INT,
+`problem_id` INT,
+`answer_id` INT,
+`document_id` INT,
+`content` VARCHAR(64),
+`created` DATETIME,
+PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_684942_db') AS relationships;
+relationships
+Database: db_684942_db
+
+Table Connections:
+------------------
+[Implied]  answer.problem_id -> problem.problem_id
+[Implied]  comment.answer_id -> answer.answer_id
+[Implied]  comment.document_id -> document.document_id
+[Implied]  comment.parent_id -> comment.comment_id
+[Implied]  comment.problem_id -> problem.problem_id
+[Implied]  document.category_id -> document_category.category_id
+[Implied]  document.category_id -> problem_category.category_id
+[Implied]  document_category.parent_id -> document_category.category_id
+[Implied]  problem.category_id -> document_category.category_id
+[Implied]  problem.category_id -> problem_category.category_id
+[Implied]  problem_category.parent_id -> problem_category.category_id
+[Implied]  solve.problem_id -> problem.problem_id
+
+DROP DATABASE `db_684942_db`;
+UNINSTALL EXTENSION vsql_schematron;

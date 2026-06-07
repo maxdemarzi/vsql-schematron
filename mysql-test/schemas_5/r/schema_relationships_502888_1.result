@@ -1,0 +1,146 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 502888_1
+#
+CREATE DATABASE `db_502888_1`;
+USE `db_502888_1`;
+CREATE TABLE `activation` (
+`powerup_id` INT,
+`club_id` INT,
+`weight` INT,
+PRIMARY KEY (`powerup_id`, `club_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `board_membership` (
+`club_id` INT,
+`board_post_id` INT,
+`user_id` VARCHAR(64),
+`weight` INT,
+PRIMARY KEY (`club_id`, `board_post_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `board_post` (
+`id` INT,
+`title` VARCHAR(64),
+`mandatory` BOOL,
+`weight` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `club` (
+`id` INT,
+`name` VARCHAR(64),
+`short_name` VARCHAR(64),
+`location_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pl_ClubDescription` (
+`club_id` INT,
+`description` VARCHAR(64),
+`list_description` VARCHAR(64),
+PRIMARY KEY (`club_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `club_image` (
+`club_id` INT,
+`image_url` VARCHAR(64),
+PRIMARY KEY (`club_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`id` INT,
+`privacy` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`start_time` DATETIME,
+`end_time` DATETIME,
+`location` VARCHAR(64),
+`cover_url` VARCHAR(64),
+`host_id` VARCHAR(64),
+`club_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `feed` (
+`id` INT,
+`user_id` VARCHAR(64),
+`club_id` INT,
+`message` VARCHAR(64),
+`message_title` VARCHAR(64),
+`picture_url` VARCHAR(64),
+`Created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `initiation_group` (
+`guardian_id` VARCHAR(64),
+`location_id` INT,
+`phone_number` VARCHAR(64),
+`group_number` INT,
+PRIMARY KEY (`guardian_id`, `location_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `location` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `membership` (
+`club_id` INT,
+`user_id` VARCHAR(64),
+`level` INT,
+PRIMARY KEY (`club_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `participation` (
+`event_id` INT,
+`user_id` VARCHAR(64),
+`rvsp` INT,
+PRIMARY KEY (`event_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pending` (
+`club_id` INT,
+`user_id` VARCHAR(64),
+`application_message` VARCHAR(64),
+PRIMARY KEY (`club_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `powerup` (
+`id` INT,
+`class_name` VARCHAR(64),
+`friendly_name` VARCHAR(64),
+`is_mandatory` BOOL,
+`has_menu_entry` BOOL,
+`default_weight` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `super_user` (
+`user_id` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`picture_url` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_502888_1') AS relationships;
+relationships
+Database: db_502888_1
+
+Table Connections:
+------------------
+[Implied]  activation.club_id -> club.id
+[Implied]  activation.powerup_id -> powerup.id
+[Implied]  board_membership.board_post_id -> board_post.id
+[Implied]  board_membership.club_id -> club.id
+[Implied]  board_membership.user_id -> user.id
+[Implied]  club.location_id -> location.id
+[Implied]  club_image.club_id -> club.id
+[Implied]  event.club_id -> club.id
+[Implied]  feed.club_id -> club.id
+[Implied]  feed.user_id -> user.id
+[Implied]  initiation_group.location_id -> location.id
+[Implied]  membership.club_id -> club.id
+[Implied]  membership.user_id -> user.id
+[Implied]  participation.event_id -> event.id
+[Implied]  participation.user_id -> user.id
+[Implied]  pending.club_id -> club.id
+[Implied]  pending.user_id -> user.id
+[Implied]  pl_ClubDescription.club_id -> club.id
+[Implied]  super_user.user_id -> user.id
+
+DROP DATABASE `db_502888_1`;
+UNINSTALL EXTENSION vsql_schematron;

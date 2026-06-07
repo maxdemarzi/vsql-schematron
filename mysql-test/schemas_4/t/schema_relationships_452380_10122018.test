@@ -1,0 +1,127 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 452380_10122018
+--echo #
+CREATE DATABASE `db_452380_10122018`;
+USE `db_452380_10122018`;
+
+CREATE TABLE `SOURCE` (
+  `source_id` INT,
+  `source_type` VARCHAR(64),
+  PRIMARY KEY (`source_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ORGANISM` (
+  `organism_id` INT,
+  `name` VARCHAR(64),
+  `ncbi_tax_id` INT,
+  PRIMARY KEY (`organism_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DBLINKS` (
+  `datab_id` INT,
+  `abbreviation` VARCHAR(64),
+  `weblink` VARCHAR(64),
+  PRIMARY KEY (`datab_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROTEIN` (
+  `protein_id` INT,
+  `ac` VARCHAR(64),
+  `organism_id` INT,
+  `protein_names` VARCHAR(64),
+  `sequence` VARCHAR(64),
+  `seq_length` INT,
+  `fragment` VARCHAR(64),
+  `genename` VARCHAR(64),
+  `function` VARCHAR(64),
+  `status` VARCHAR(64),
+  `tissue_specificity` VARCHAR(64),
+  `subcellular_location` VARCHAR(64),
+  `source_id` INT,
+  `ref_id` INT,
+  PRIMARY KEY (`protein_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `INTERACTOR` (
+  `int_id` INT,
+  `protein_id` INT,
+  `interactor_id` VARCHAR(64),
+  `ref_id` INT,
+  PRIMARY KEY (`int_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RAFTPROT` (
+  `raftprot_id` INT,
+  `uni_ac` VARCHAR(64),
+  `confidence` INT,
+  PRIMARY KEY (`raftprot_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `COMPARTMENTS` (
+  `compartments_id` INT,
+  `uni_ac` VARCHAR(64),
+  `weblink` VARCHAR(64),
+  PRIMARY KEY (`compartments_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TM_TO_TMINT` (
+  `tmint_id` INT,
+  `uniprot_ac` VARCHAR(64),
+  `tm_interactor_ac` VARCHAR(64),
+  PRIMARY KEY (`tmint_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MBPPRED_MAP` (
+  `mbppred_map` INT,
+  `protein_id` INT,
+  `domain` VARCHAR(64),
+  `domain_start` INT,
+  `domain_end` INT,
+  `domain_score` DECIMAL(10,2),
+  PRIMARY KEY (`mbppred_map`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `REACTOME` (
+  `id` INT,
+  `reactome_id` VARCHAR(64),
+  `pathway_description` VARCHAR(64),
+  `organism` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SUBLOCS` (
+  `subloc_id` VARCHAR(64),
+  `description` VARCHAR(64),
+  `category` VARCHAR(64),
+  `alias` VARCHAR(64),
+  PRIMARY KEY (`subloc_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROTEIN_TO_SUBLOC` (
+  `prsbl_id` INT,
+  `protein_id` INT,
+  `subloc_id` VARCHAR(64),
+  PRIMARY KEY (`prsbl_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_452380_10122018') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_452380_10122018') AS relationships;
+DROP DATABASE `db_452380_10122018`;
+UNINSTALL EXTENSION vsql_schematron;

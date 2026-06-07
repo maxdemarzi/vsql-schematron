@@ -1,0 +1,122 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 588492_testtables_oracle
+--echo #
+CREATE DATABASE `db_588492_testtables_oracle`;
+USE `db_588492_testtables_oracle`;
+
+CREATE TABLE `CIB_COMPLEXTESTENTITY` (
+  `ID` DECIMAL(10,2),
+  `USERID` VARCHAR(64),
+  `OWNER` VARCHAR(64),
+  `COMPVALUE` DECIMAL(10,2),
+  `TEN_ID` DECIMAL(10,2),
+  `VERSION` DECIMAL(10,2),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CIB_TCOMPLEXENTITY_EAGER` (
+  `ID` DECIMAL(10,2),
+  `EAGER_ID` DECIMAL(10,2),
+  PRIMARY KEY (`ID`, `EAGER_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CIB_TCOMPLEXENTITY_LAZY` (
+  `ID` DECIMAL(10,2),
+  `LAZY_ID` DECIMAL(10,2),
+  PRIMARY KEY (`ID`, `LAZY_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CIB_TESTENTITY` (
+  `ID` DECIMAL(10,2),
+  `NAMEVALUE` VARCHAR(64),
+  `COUNTER` DECIMAL(10,2),
+  `USERID` VARCHAR(64),
+  `OWNER` VARCHAR(64),
+  `XCALDATE` DATETIME,
+  `XCALTIMESTAMP` DATETIME,
+  `XDATE` DATETIME,
+  `XTIME` DATETIME,
+  `XTIMESTAMP` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CIB_JMENTITY` (
+  `ID` DECIMAL(10,2),
+  `NAMEVALUE` VARCHAR(64),
+  `COUNTER` DECIMAL(10,2),
+  `USERID` VARCHAR(64),
+  `OWNER` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TPSENTITY` (
+  `id` DECIMAL(10,2),
+  `langstring` VARCHAR(64),
+  `bytes` VARCHAR(64),
+  `datevalue` DATETIME,
+  `timevalue` DATETIME,
+  `floatvalue` DECIMAL(10,2),
+  `doublevalue` DECIMAL(10,2),
+  `timestampvalue` DATETIME,
+  `onebyte` INT,
+  `bool` VARCHAR(64),
+  `decimalValue` DECIMAL(10,2),
+  `clobvalue` VARCHAR(64),
+  `nclobvalue` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cib_syntetic1entity` (
+  `id` DECIMAL(10,2),
+  `intArray` VARCHAR(64),
+  `version` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cib_syntetic2entity` (
+  `id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CIB_COMPLEXTESTENTITY2` (
+  `ID` DECIMAL(10,2),
+  `OWNER` VARCHAR(64),
+  `COMPVALUE` DECIMAL(10,2),
+  `TEN_ID` DECIMAL(10,2),
+  `VERSION` DECIMAL(10,2),
+  `SELFOWNER2` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CIB_TCOMPLEXENTITY2_EAGER` (
+  `ID` DECIMAL(10,2),
+  `EAGER_ID` DECIMAL(10,2),
+  PRIMARY KEY (`ID`, `EAGER_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CIB_TCOMPLEXENTITY2_LAZY` (
+  `ID` DECIMAL(10,2),
+  `LAZY_ID` DECIMAL(10,2),
+  PRIMARY KEY (`ID`, `LAZY_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_588492_testtables_oracle') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_588492_testtables_oracle') AS relationships;
+DROP DATABASE `db_588492_testtables_oracle`;
+UNINSTALL EXTENSION vsql_schematron;

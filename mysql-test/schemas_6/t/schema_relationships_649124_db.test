@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 649124_db
+--echo #
+CREATE DATABASE `db_649124_db`;
+USE `db_649124_db`;
+
+CREATE TABLE `company_email` (
+  `email_address` VARCHAR(64),
+  `email_password` VARCHAR(64),
+  `email_smtp_address` VARCHAR(64),
+  `email_port` INT,
+  `email_starttls` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `company_login` (
+  `login_id` INT,
+  `login_username` VARCHAR(64),
+  `login_email` VARCHAR(64),
+  `login_password` VARCHAR(64),
+  PRIMARY KEY (`login_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `company_users` (
+  `user_id` INT,
+  `user_name` VARCHAR(64),
+  `user_lastname` VARCHAR(64),
+  `user_cp` INT,
+  `user_address` VARCHAR(64),
+  `user_home_number` INT,
+  `user_phone` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_649124_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_649124_db') AS relationships;
+DROP DATABASE `db_649124_db`;
+UNINSTALL EXTENSION vsql_schematron;

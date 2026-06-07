@@ -1,0 +1,106 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 650340_createtables
+#
+CREATE DATABASE `db_650340_createtables`;
+USE `db_650340_createtables`;
+CREATE TABLE `studentbase` (
+`snumber` VARCHAR(64),
+`lname` VARCHAR(64),
+`fname` VARCHAR(64),
+`ylevel` INT,
+`pc` VARCHAR(64),
+`house` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`snumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`pwd` VARCHAR(64),
+`fname` VARCHAR(64),
+`lname` VARCHAR(64),
+`usertype` VARCHAR(64),
+`verified` BOOL,
+`token` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `students` (
+`username` VARCHAR(64),
+`house` VARCHAR(64),
+`pc` VARCHAR(64),
+`ylevel` INT,
+`annotations` VARCHAR(64),
+`permitted` BOOL,
+`formfilepath` VARCHAR(64),
+`resubmitpref` BOOL,
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `preferences` (
+`username` VARCHAR(64),
+`prefnum` INT,
+`week` VARCHAR(64),
+`day` VARCHAR(64),
+PRIMARY KEY (`username`, `prefnum`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`eventid` INT,
+`eventdate` DATETIME,
+`week` INT,
+`day` VARCHAR(64),
+`starttime` DATETIME,
+`endtime` DATETIME,
+`place` VARCHAR(64),
+`studentquota` INT,
+`organiserquota` INT,
+PRIMARY KEY (`eventid`)
+) CHARACTER SET latin1;
+CREATE TABLE `studentevents` (
+`username` VARCHAR(64),
+`eventid` INT,
+PRIMARY KEY (`username`, `eventid`)
+) CHARACTER SET latin1;
+CREATE TABLE `organiserevents` (
+`username` VARCHAR(64),
+`eventid` INT,
+PRIMARY KEY (`username`, `eventid`)
+) CHARACTER SET latin1;
+CREATE TABLE `issues` (
+`issueid` INT,
+`username` VARCHAR(64),
+`eventid` INT,
+`issue` VARCHAR(64),
+PRIMARY KEY (`issueid`)
+) CHARACTER SET latin1;
+CREATE TABLE `reports` (
+`reportid` INT,
+`eventid` INT,
+`servings` INT,
+`feedback` VARCHAR(64),
+PRIMARY KEY (`reportid`)
+) CHARACTER SET latin1;
+CREATE TABLE `absences` (
+`username` VARCHAR(64),
+`reportid` INT,
+PRIMARY KEY (`username`, `reportid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_650340_createtables') AS relationships;
+relationships
+Database: db_650340_createtables
+
+Table Connections:
+------------------
+[Implied]  absences.reportid -> reports.reportid
+[Implied]  absences.username -> users.username
+[Implied]  issues.eventid -> events.eventid
+[Implied]  issues.username -> users.username
+[Implied]  organiserevents.eventid -> events.eventid
+[Implied]  organiserevents.username -> users.username
+[Implied]  preferences.username -> users.username
+[Implied]  reports.eventid -> events.eventid
+[Implied]  studentevents.eventid -> events.eventid
+[Implied]  studentevents.username -> users.username
+[Implied]  students.username -> users.username
+
+DROP DATABASE `db_650340_createtables`;
+UNINSTALL EXTENSION vsql_schematron;

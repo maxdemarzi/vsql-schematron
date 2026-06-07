@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 103269_Initialize
+#
+CREATE DATABASE `db_103269_Initialize`;
+USE `db_103269_Initialize`;
+CREATE TABLE `Gender` (
+`gender` VARCHAR(64),
+PRIMARY KEY (`gender`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`user_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`city` VARCHAR(64),
+`wca_id` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`gender` VARCHAR(64),
+`birth_date` DATETIME,
+`approved` DATETIME,
+`email` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Meeting` (
+`meeting_id` INT,
+`meeting_number` INT,
+`date` DATETIME,
+PRIMARY KEY (`meeting_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `News` (
+`news_id` INT,
+`user_id` INT,
+`text` VARCHAR(64),
+`date_and_time` DATETIME,
+PRIMARY KEY (`news_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Counting` (
+`counting` VARCHAR(64),
+PRIMARY KEY (`counting`)
+) CHARACTER SET latin1;
+CREATE TABLE `Discipline` (
+`discipline_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`counting` VARCHAR(64),
+PRIMARY KEY (`discipline_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Result` (
+`result_id` INT,
+`average` DECIMAL(10,2),
+`meeting_id` INT,
+`user_id` INT,
+`discipline_id` INT,
+`attempt_count` INT,
+PRIMARY KEY (`result_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Attempt` (
+`attempt_id` INT,
+`result_id` INT,
+`time` DECIMAL(10,2),
+PRIMARY KEY (`attempt_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Role` (
+`role_id` INT,
+`name` VARCHAR(64),
+`role_key` VARCHAR(64),
+PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User_Role` (
+`user_id` INT,
+`role_id` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Login` (
+`user_id` INT,
+`password_hash` VARCHAR(64),
+`disabled` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`session_id` INT,
+`user_id` INT,
+`session_key` VARCHAR(64),
+`created` DATETIME,
+PRIMARY KEY (`session_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_103269_Initialize') AS relationships;
+relationships
+Database: db_103269_Initialize
+
+Table Connections:
+------------------
+[Implied]  Attempt.result_id -> Result.result_id
+[Implied]  Discipline.counting -> Counting.counting
+[Implied]  Login.user_id -> User_Role.user_id
+[Implied]  News.user_id -> User_Role.user_id
+[Implied]  Result.discipline_id -> Discipline.discipline_id
+[Implied]  Result.meeting_id -> Meeting.meeting_id
+[Implied]  Result.user_id -> User_Role.user_id
+[Implied]  Session.user_id -> User_Role.user_id
+[Implied]  User.gender -> Gender.gender
+[Implied]  User_Role.role_id -> Role.role_id
+[Implied]  User_Role.user_id -> User.user_id
+
+DROP DATABASE `db_103269_Initialize`;
+UNINSTALL EXTENSION vsql_schematron;

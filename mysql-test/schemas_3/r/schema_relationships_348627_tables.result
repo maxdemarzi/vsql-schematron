@@ -1,0 +1,204 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 348627_tables
+#
+CREATE DATABASE `db_348627_tables`;
+USE `db_348627_tables`;
+CREATE TABLE `Store` (
+`storeID` INT,
+`storeAddress` VARCHAR(64),
+`Phone_No` VARCHAR(64),
+PRIMARY KEY (`storeID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Staff` (
+`staffID` INT,
+`storeID` INT,
+`name` VARCHAR(64),
+`Age` INT,
+`Job_Title` VARCHAR(64),
+`Address` VARCHAR(64),
+`Email` VARCHAR(64),
+`Phone_No` VARCHAR(64),
+`TimeofEmployment` DATETIME,
+PRIMARY KEY (`staffID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ClubMember` (
+`customerID` INT,
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`PhoneNumber` VARCHAR(64),
+`Address` VARCHAR(64),
+`Email` VARCHAR(64),
+`ActiveStatus` BOOL,
+`membershipLevel` VARCHAR(64),
+PRIMARY KEY (`customerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SignsUp` (
+`customerID` INT,
+`staffID` INT,
+`signUpDate` DATETIME,
+`storeID` INT,
+PRIMARY KEY (`customerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Transactions` (
+`transactionID` INT,
+`storeID` INT,
+`customerID` INT,
+`cashierID` INT,
+`PurchaseDate` DATETIME,
+`TotalPrice` INT,
+PRIMARY KEY (`transactionID`)
+) CHARACTER SET latin1;
+CREATE TABLE `productTable` (
+`productID` INT,
+`productName` VARCHAR(64),
+`buyPrice` INT,
+`marketPrice` INT,
+PRIMARY KEY (`productID`)
+) CHARACTER SET latin1;
+CREATE TABLE `InventoryInfo` (
+`productID` INT,
+`storeID` INT,
+`productionDate` DATETIME,
+`expirationDate` DATETIME,
+`quantity` INT,
+PRIMARY KEY (`productID`, `storeID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProductList` (
+`transactionID` INT,
+`productID` INT,
+`quantity` INT,
+`discountApplied` BOOL,
+`finalPrice` INT,
+PRIMARY KEY (`transactionID`, `productID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Discount` (
+`discountID` INT,
+`productID` INT,
+`storeID` INT,
+`DiscountPercentage` INT,
+`startDate` DATETIME,
+`endDate` DATETIME,
+PRIMARY KEY (`discountID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Supplier` (
+`supplierID` INT,
+`supplierName` VARCHAR(64),
+`PhoneNumber` VARCHAR(64),
+`Email` VARCHAR(64),
+`Location` VARCHAR(64),
+PRIMARY KEY (`supplierID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProductInfo` (
+`productID` INT,
+`supplierID` INT,
+PRIMARY KEY (`productID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SuppliesInfo` (
+`storeID` INT,
+`productID` INT,
+`billingDate` DATETIME,
+`quantity` INT,
+PRIMARY KEY (`storeID`, `productID`, `billingDate`)
+) CHARACTER SET latin1;
+CREATE TABLE `ordersInfo` (
+`orderID` INT,
+`supplierID` INT,
+`staffID` INT,
+PRIMARY KEY (`orderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `orderProductInfo` (
+`orderID` INT,
+`productID` INT,
+`quantity` INT,
+PRIMARY KEY (`orderID`, `productID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bills` (
+`staffID` INT,
+`supplierID` INT,
+`orderID` INT,
+`billingDate` DATETIME,
+`billingPrice` INT,
+PRIMARY KEY (`orderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Manager` (
+`staffID` INT,
+PRIMARY KEY (`staffID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cashier` (
+`staffID` INT,
+PRIMARY KEY (`staffID`)
+) CHARACTER SET latin1;
+CREATE TABLE `WarehouseOperator` (
+`staffID` INT,
+PRIMARY KEY (`staffID`)
+) CHARACTER SET latin1;
+CREATE TABLE `RegistrationOperator` (
+`staffID` INT,
+PRIMARY KEY (`staffID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BillingStaff` (
+`staffID` INT,
+PRIMARY KEY (`staffID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Admin` (
+`staffID` INT,
+PRIMARY KEY (`staffID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_348627_tables') AS relationships;
+relationships
+Database: db_348627_tables
+
+Table Connections:
+------------------
+[Implied]  Admin.staffID -> Staff.staffID
+[Implied]  BillingStaff.staffID -> Staff.staffID
+[Implied]  Bills.staffID -> Admin.staffID
+[Implied]  Bills.staffID -> BillingStaff.staffID
+[Implied]  Bills.staffID -> Cashier.staffID
+[Implied]  Bills.staffID -> Manager.staffID
+[Implied]  Bills.staffID -> RegistrationOperator.staffID
+[Implied]  Bills.staffID -> WarehouseOperator.staffID
+[Implied]  Bills.supplierID -> Manager.staffID
+[Implied]  Cashier.staffID -> Staff.staffID
+[Implied]  Discount.productID -> ProductInfo.productID
+[Implied]  Discount.productID -> productTable.productID
+[Implied]  Discount.storeID -> Store.storeID
+[Implied]  InventoryInfo.productID -> ProductInfo.productID
+[Implied]  InventoryInfo.productID -> productTable.productID
+[Implied]  InventoryInfo.storeID -> Store.storeID
+[Implied]  Manager.staffID -> Staff.staffID
+[Implied]  ProductInfo.supplierID -> Manager.staffID
+[Implied]  ProductList.productID -> ProductInfo.productID
+[Implied]  ProductList.productID -> productTable.productID
+[Implied]  ProductList.transactionID -> Transactions.transactionID
+[Implied]  RegistrationOperator.staffID -> Staff.staffID
+[Implied]  SignsUp.staffID -> Admin.staffID
+[Implied]  SignsUp.staffID -> BillingStaff.staffID
+[Implied]  SignsUp.staffID -> Cashier.staffID
+[Implied]  SignsUp.staffID -> Manager.staffID
+[Implied]  SignsUp.staffID -> RegistrationOperator.staffID
+[Implied]  SignsUp.staffID -> WarehouseOperator.staffID
+[Implied]  SignsUp.storeID -> Store.storeID
+[Implied]  Staff.storeID -> Store.storeID
+[Implied]  SuppliesInfo.productID -> ProductInfo.productID
+[Implied]  SuppliesInfo.productID -> productTable.productID
+[Implied]  SuppliesInfo.storeID -> Store.storeID
+[Implied]  Transactions.cashierID -> Cashier.staffID
+[Implied]  Transactions.customerID -> Manager.staffID
+[Implied]  Transactions.customerID -> SignsUp.customerID
+[Implied]  Transactions.storeID -> Store.storeID
+[Implied]  WarehouseOperator.staffID -> Staff.staffID
+[Implied]  orderProductInfo.orderID -> ordersInfo.orderID
+[Implied]  orderProductInfo.productID -> ProductInfo.productID
+[Implied]  orderProductInfo.productID -> productTable.productID
+[Implied]  ordersInfo.staffID -> Admin.staffID
+[Implied]  ordersInfo.staffID -> BillingStaff.staffID
+[Implied]  ordersInfo.staffID -> Cashier.staffID
+[Implied]  ordersInfo.staffID -> Manager.staffID
+[Implied]  ordersInfo.staffID -> RegistrationOperator.staffID
+[Implied]  ordersInfo.staffID -> WarehouseOperator.staffID
+[Implied]  ordersInfo.supplierID -> Manager.staffID
+
+DROP DATABASE `db_348627_tables`;
+UNINSTALL EXTENSION vsql_schematron;

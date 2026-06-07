@@ -1,0 +1,146 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 518845_Museo
+--echo #
+CREATE DATABASE `db_518845_Museo`;
+USE `db_518845_Museo`;
+
+CREATE TABLE `paises` (
+  `nombrePaises` VARCHAR(64),
+  PRIMARY KEY (`nombrePaises`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `epocas` (
+  `nombreEpoca` VARCHAR(64),
+  `anoInicio` DATETIME,
+  `anoFIN` DATETIME,
+  PRIMARY KEY (`nombreEpoca`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `colecciones` (
+  `coleccionID` INT,
+  PRIMARY KEY (`coleccionID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `objetosArte` (
+  `id` INT,
+  `coleccionID` INT,
+  `nombreEpoca` VARCHAR(64),
+  `nombrePaises` VARCHAR(64),
+  `anoCreacion` INT,
+  `titulo` VARCHAR(64),
+  `descripcion` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `artistas` (
+  `artistaID` INT,
+  `nombreArtista` VARCHAR(64),
+  `nombrePaises` VARCHAR(64),
+  `descripcionArtista` VARCHAR(64),
+  `estilo` VARCHAR(64),
+  `fechaNac` DATETIME,
+  `fechaFalle` DATETIME,
+  PRIMARY KEY (`artistaID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `crea` (
+  `id` INT,
+  `artistaID` INT,
+  `participacion` VARCHAR(64),
+  PRIMARY KEY (`id`, `artistaID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pintura` (
+  `pinturaID` INT,
+  `id` INT,
+  `tipo` VARCHAR(64),
+  `estilo` VARCHAR(64),
+  `material` VARCHAR(64),
+  PRIMARY KEY (`pinturaID`, `id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `escultura` (
+  `esculturaID` INT,
+  `id` INT,
+  `ancho` DECIMAL(10,2),
+  `alto` DECIMAL(10,2),
+  `estilo` VARCHAR(64),
+  `material` VARCHAR(64),
+  PRIMARY KEY (`esculturaID`, `id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `monumento` (
+  `monumento` INT,
+  `id` INT,
+  `ancho` DECIMAL(10,2),
+  `alto` DECIMAL(10,2),
+  `estilo` VARCHAR(64),
+  `material` VARCHAR(64),
+  PRIMARY KEY (`monumento`, `id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `otro` (
+  `otro` INT,
+  `id` INT,
+  `tipo` VARCHAR(64),
+  `estilo` VARCHAR(64),
+  PRIMARY KEY (`otro`, `id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `exhibiciones` (
+  `nombreExhibiciones` VARCHAR(64),
+  `fechaNac` DATETIME,
+  `fechaFin` DATETIME,
+  PRIMARY KEY (`nombreExhibiciones`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mostrar` (
+  `id` INT,
+  `nombreExhibiciones` VARCHAR(64),
+  PRIMARY KEY (`id`, `nombreExhibiciones`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permanentes` (
+  `permanenteID` INT,
+  `coleccionID` INT,
+  `costo` INT,
+  `fechaAdquisicion` DATETIME,
+  PRIMARY KEY (`permanenteID`, `coleccionID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `prestadas` (
+  `prestadoID` INT,
+  `coleccionID` INT,
+  `propietario` VARCHAR(64),
+  `fechaPrestamo` DATETIME,
+  `fechaDevolucion` DATETIME,
+  PRIMARY KEY (`prestadoID`, `coleccionID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `otras` (
+  `otraID` INT,
+  `coleccionID` INT,
+  PRIMARY KEY (`otraID`, `coleccionID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_518845_Museo') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_518845_Museo') AS relationships;
+DROP DATABASE `db_518845_Museo`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 326353_market
+#
+CREATE DATABASE `db_326353_market`;
+USE `db_326353_market`;
+CREATE TABLE `usuarios` (
+`id` INT,
+`nombre` VARCHAR(64),
+`email` VARCHAR(64),
+`clave` VARCHAR(64),
+`fecha_registro` DATETIME,
+`activo` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `entradas` (
+`id` INT,
+`autor_id` INT,
+`url` VARCHAR(64),
+`titulo` VARCHAR(64),
+`valor` INT,
+`texto` VARCHAR(64),
+`fecha` DATETIME,
+`activa` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comentarios` (
+`id` INT,
+`autor_id` INT,
+`entrada_id` INT,
+`titulo` VARCHAR(64),
+`texto` VARCHAR(64),
+`fecha` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recuperacion_clave` (
+`id` INT,
+`usuario_id` INT,
+`url_secreta` VARCHAR(64),
+`fecha` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `perfil` (
+`id` INT,
+`usuario_id` INT,
+`celular` VARCHAR(64),
+`facebook` VARCHAR(64),
+`twitter` VARCHAR(64),
+`instagram` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_326353_market') AS relationships;
+relationships
+Database: db_326353_market
+
+Table Connections:
+------------------
+[Implied]  comentarios.entrada_id -> entradas.id
+[Implied]  perfil.usuario_id -> usuarios.id
+[Implied]  recuperacion_clave.usuario_id -> usuarios.id
+
+DROP DATABASE `db_326353_market`;
+UNINSTALL EXTENSION vsql_schematron;

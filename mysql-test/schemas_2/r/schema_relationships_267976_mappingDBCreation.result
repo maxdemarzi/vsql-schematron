@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 267976_mappingDBCreation
+#
+CREATE DATABASE `db_267976_mappingDBCreation`;
+USE `db_267976_mappingDBCreation`;
+CREATE TABLE `mapping.cabinets` (
+`id` INT,
+`rid` INT,
+`name` VARCHAR(64),
+`clientName` VARCHAR(64),
+`uHeight` INT,
+`depth` INT,
+`width` INT,
+`height` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mapping.cabinetPowerPlugs` (
+`id` INT,
+`cabid` INT,
+`typeid` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mapping.cabinetPowerOutlets` (
+`id` INT,
+`cabid` INT,
+`outTypeid` INT,
+`amount` INT,
+`plugid` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mapping.slots` (
+`id` INT,
+`devid` INT,
+`name` VARCHAR(64),
+`faceFront` BOOL,
+`topLeftX` INT,
+`topLeftY` INT,
+`bottomRightX` INT,
+`bottomRightY` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mapping.ports` (
+`id` INT,
+`devid` INT,
+`slotid` INT,
+`port` VARCHAR(64),
+`plugTypeid` INT,
+`portType` INT,
+`topLeftX` INT,
+`topLeftY` INT,
+`bottomRightX` INT,
+`bottomRightY` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mapping.connections` (
+`portIdA` INT,
+`portIdZ` INT,
+`color` VARCHAR(64),
+`tag` VARCHAR(64),
+PRIMARY KEY (`portIdZ`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_267976_mappingDBCreation') AS relationships;
+relationships
+Database: db_267976_mappingDBCreation
+
+Table Connections:
+------------------
+[Implied]  mapping.cabinetPowerOutlets.cabid -> mapping.cabinets.id
+[Implied]  mapping.cabinetPowerPlugs.cabid -> mapping.cabinets.id
+[Implied]  mapping.ports.slotid -> mapping.slots.id
+
+DROP DATABASE `db_267976_mappingDBCreation`;
+UNINSTALL EXTENSION vsql_schematron;

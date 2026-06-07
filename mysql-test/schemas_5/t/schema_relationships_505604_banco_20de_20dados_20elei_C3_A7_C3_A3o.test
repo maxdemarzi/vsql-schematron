@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 505604_banco%20de%20dados%20elei%C3%A7%C3%A3o
+--echo #
+CREATE DATABASE `db_505604_banco_20de_20dados_20elei_C3_A7_C3_A3o`;
+USE `db_505604_banco_20de_20dados_20elei_C3_A7_C3_A3o`;
+
+CREATE TABLE `bdEleicao.tblEleicao` (
+  `codEleicao` INT,
+  `tituloEleicao` VARCHAR(64),
+  `dataCadastramento` DATETIME,
+  `dataEleicao` DATETIME,
+  `paisEleicao` VARCHAR(64),
+  `statusEleicao` VARCHAR(64),
+  `quantidadeCandidatos` INT,
+  `votosValidos` INT,
+  PRIMARY KEY (`codEleicao`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bdEleicao.tblCandidato` (
+  `cpfCandidato` VARCHAR(64),
+  `nomeCandidato` VARCHAR(64),
+  `nomeAbreviado` VARCHAR(64),
+  `dataNascimento` DATETIME,
+  `codigoEleicao` INT,
+  `numeroDoPartido` INT,
+  `nomeDoPartido` VARCHAR(64),
+  `votoDoCandidato` INT,
+  PRIMARY KEY (`cpfCandidato`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bdEleicao.tblResultado` (
+  `id` INT,
+  `numeroPartido` INT,
+  `codigoEleicao` INT,
+  `dtaEleicao` DATETIME,
+  `votosBrancos` INT,
+  `votosNulos` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bdEleicao.logEleicao` (
+  `logCode` INT,
+  `logData` DATETIME,
+  `logStatus` VARCHAR(64),
+  PRIMARY KEY (`logCode`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_505604_banco_20de_20dados_20elei_C3_A7_C3_A3o') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_505604_banco_20de_20dados_20elei_C3_A7_C3_A3o') AS relationships;
+DROP DATABASE `db_505604_banco_20de_20dados_20elei_C3_A7_C3_A3o`;
+UNINSTALL EXTENSION vsql_schematron;

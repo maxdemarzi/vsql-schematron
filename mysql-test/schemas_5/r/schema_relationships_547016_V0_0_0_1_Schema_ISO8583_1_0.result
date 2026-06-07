@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 547016_V0_0_0_1__Schema_ISO8583_1_0
+#
+CREATE DATABASE `db_547016_V0_0_0_1_Schema_ISO8583_1_0`;
+USE `db_547016_V0_0_0_1_Schema_ISO8583_1_0`;
+CREATE TABLE `iso8583_mapper` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `iso8583_dataelement` (
+`id` VARCHAR(64),
+`id_mapper` VARCHAR(64),
+`dataelement_number` INT,
+`dataelement_name` VARCHAR(64),
+`dataelement_type` VARCHAR(64),
+`dataelement_length_type` VARCHAR(64),
+`dataelement_length` INT,
+`dataelement_length_prefix` INT,
+`dataelement_repeated_colidx` VARCHAR(64),
+`dataelement_repeated_colrange` VARCHAR(64),
+`dataelement_subelement_separator` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `iso8583_subelement` (
+`id` VARCHAR(64),
+`id_data_element` VARCHAR(64),
+`subelement_number` INT,
+`subelement_name` VARCHAR(64),
+`subelement_type` VARCHAR(64),
+`subelement_type_format` VARCHAR(64),
+`subelement_length` INT,
+`subelement_padding` VARCHAR(64),
+`subelement_padding_pos` VARCHAR(64),
+`subelement_separator` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_547016_V0_0_0_1_Schema_ISO8583_1_0') AS relationships;
+relationships
+Database: db_547016_V0_0_0_1_Schema_ISO8583_1_0
+
+Table Connections:
+------------------
+[Implied]  iso8583_dataelement.id_mapper -> iso8583_mapper.id
+[Implied]  iso8583_subelement.id_data_element -> iso8583_dataelement.id
+
+DROP DATABASE `db_547016_V0_0_0_1_Schema_ISO8583_1_0`;
+UNINSTALL EXTENSION vsql_schematron;

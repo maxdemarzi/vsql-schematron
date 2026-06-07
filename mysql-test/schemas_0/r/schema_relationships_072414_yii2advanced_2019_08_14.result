@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 072414_yii2advanced_2019-08-14
+#
+CREATE DATABASE `db_072414_yii2advanced_2019_08_14`;
+USE `db_072414_yii2advanced_2019_08_14`;
+CREATE TABLE `booking` (
+`id` INT,
+`user_id` INT,
+`film_id` INT,
+`cinema_hall_id` INT,
+`cinema_hall_row_id` INT,
+`cinema_hall_seat_id` INT,
+`price` DECIMAL(10,2),
+`status` INT,
+`created_at` INT,
+`updated_at` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cinema_hall` (
+`id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cinema_hall_rows` (
+`id` INT,
+`number` INT,
+`cinema_hall_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cinema_hall_seats` (
+`id` INT,
+`number` INT,
+`cinema_hall_id` INT,
+`cinema_hall_row_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `films` (
+`id` INT,
+`cinema_hall_id` INT,
+`title` VARCHAR(64),
+`image` VARCHAR(64),
+`price` DECIMAL(10,2),
+`start_at` INT,
+`status` INT,
+`created_at` INT,
+`updated_at` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `migration` (
+`version` VARCHAR(64),
+`apply_time` INT,
+PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_072414_yii2advanced_2019_08_14') AS relationships;
+relationships
+Database: db_072414_yii2advanced_2019_08_14
+
+Table Connections:
+------------------
+[Implied]  booking.cinema_hall_id -> cinema_hall.id
+[Implied]  booking.cinema_hall_row_id -> cinema_hall.id
+[Implied]  booking.cinema_hall_seat_id -> cinema_hall.id
+[Implied]  booking.film_id -> films.id
+[Implied]  cinema_hall_rows.cinema_hall_id -> cinema_hall.id
+[Implied]  cinema_hall_seats.cinema_hall_id -> cinema_hall.id
+[Implied]  cinema_hall_seats.cinema_hall_row_id -> cinema_hall.id
+[Implied]  films.cinema_hall_id -> cinema_hall.id
+
+DROP DATABASE `db_072414_yii2advanced_2019_08_14`;
+UNINSTALL EXTENSION vsql_schematron;

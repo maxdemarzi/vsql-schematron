@@ -1,0 +1,183 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 293563_CreateTables
+--echo #
+CREATE DATABASE `db_293563_CreateTables`;
+USE `db_293563_CreateTables`;
+
+CREATE TABLE `Users` (
+  `id` INT,
+  `googleId` VARCHAR(64),
+  `email` VARCHAR(64),
+  `nombres` VARCHAR(64),
+  `apellidos` VARCHAR(64),
+  `permissions` INT,
+  `timestamp` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Llaves` (
+  `id` VARCHAR(64),
+  `createdById` INT,
+  `timestamp` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Estudiantes` (
+  `id` INT,
+  `edad` INT,
+  `sexo` INT,
+  `programa` INT,
+  `escuela` INT,
+  `ocupacionFutura` VARCHAR(64),
+  `nivelEstudiosFuturoId` INT,
+  `admiracion` VARCHAR(64),
+  `juegoFavorito` VARCHAR(64),
+  `comunidadSegura` INT,
+  `significadoViolencia` VARCHAR(64),
+  `victimaViolencia` INT,
+  `personaViolenta` INT,
+  `personaCreativa` INT,
+  `crearRobot` INT,
+  `disminuirViolencia` INT,
+  `comoDisminuirViolencia` VARCHAR(64),
+  `location` VARCHAR(64),
+  `timestamp` VARCHAR(64),
+  `createdById` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Escuelas` (
+  `id` INT,
+  `nombre` VARCHAR(64),
+  `createdById` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Programas` (
+  `id` INT,
+  `nombre` VARCHAR(64),
+  `createdById` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TemasInteres` (
+  `id` INT,
+  `tema` VARCHAR(64),
+  `createdById` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EstudianteTemasInteres` (
+  `id` INT,
+  `estudianteId` INT,
+  `temaInteresId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TiposTecnologiaEscuela` (
+  `id` INT,
+  `tecnologia` VARCHAR(64),
+  `createdById` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EstudianteTiposTecnologiaEscuela` (
+  `id` INT,
+  `estudianteId` INT,
+  `tipoTecnologiaId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TiposTecnologiaCasa` (
+  `id` INT,
+  `tecnologia` VARCHAR(64),
+  `createdById` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EstudianteTiposTecnologiaCasa` (
+  `id` INT,
+  `estudianteId` INT,
+  `tipoTecnologiaId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TiposProblemaFamilia` (
+  `id` INT,
+  `problema` VARCHAR(64),
+  `createdById` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EstudianteTiposProblema` (
+  `id` INT,
+  `estudianteId` INT,
+  `tipoProblemaFamiliaId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TiposViolencia` (
+  `id` INT,
+  `tipo` VARCHAR(64),
+  `createdById` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EstudianteTiposViolenciaVictima` (
+  `id` INT,
+  `estudianteId` INT,
+  `tipoViolenciaId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EstudianteTiposViolenciaPracticados` (
+  `id` INT,
+  `estudianteId` INT,
+  `tipoViolenciaId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `NivelesEstudios` (
+  `id` INT,
+  `nivel` VARCHAR(64),
+  `createdById` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Familiares` (
+  `id` INT,
+  `estudianteId` INT,
+  `parentescoId` INT,
+  `edad` INT,
+  `ocupacion` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Parentesco` (
+  `id` INT,
+  `nombre` VARCHAR(64),
+  `createdById` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_293563_CreateTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_293563_CreateTables') AS relationships;
+DROP DATABASE `db_293563_CreateTables`;
+UNINSTALL EXTENSION vsql_schematron;

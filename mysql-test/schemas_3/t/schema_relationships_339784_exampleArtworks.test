@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 339784_exampleArtworks
+--echo #
+CREATE DATABASE `db_339784_exampleArtworks`;
+USE `db_339784_exampleArtworks`;
+
+CREATE TABLE `artworks` (
+  `artwork_id` INT,
+  `title` VARCHAR(64),
+  `year` DECIMAL(10,2),
+  `acquisitionYear` DECIMAL(10,2),
+  `thumbnailUrl` VARCHAR(64),
+  `url` VARCHAR(64),
+  PRIMARY KEY (`artwork_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `artworks_info` (
+  `artwork_id` INT,
+  `artist_id` INT,
+  `role_id` INT,
+  `dimension_id` INT,
+  `creditline_id` INT,
+  `inscription_id` INT,
+  `copyright_id` INT,
+  PRIMARY KEY (`artwork_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `artist` (
+  `artist_id` INT,
+  `artist` VARCHAR(64),
+  PRIMARY KEY (`artist_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role` (
+  `role_id` INT,
+  `artistRole` VARCHAR(64),
+  PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dimension` (
+  `dimension_id` INT,
+  `medium_id` INT,
+  `dimensions` VARCHAR(64),
+  `width` INT,
+  `height` DECIMAL(10,2),
+  `depth` DECIMAL(10,2),
+  `units` VARCHAR(64),
+  PRIMARY KEY (`dimension_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `medium` (
+  `medium_id` INT,
+  `medium` VARCHAR(64),
+  PRIMARY KEY (`medium_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `creditline` (
+  `creditline_id` INT,
+  `creditline` VARCHAR(64),
+  PRIMARY KEY (`creditline_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `inscription` (
+  `inscription_id` INT,
+  `inscription` VARCHAR(64),
+  PRIMARY KEY (`inscription_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `copyright` (
+  `copyright_id` INT,
+  `copyright` VARCHAR(64),
+  PRIMARY KEY (`copyright_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_339784_exampleArtworks') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_339784_exampleArtworks') AS relationships;
+DROP DATABASE `db_339784_exampleArtworks`;
+UNINSTALL EXTENSION vsql_schematron;

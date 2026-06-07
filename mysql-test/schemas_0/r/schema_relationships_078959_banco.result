@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 078959_banco
+#
+CREATE DATABASE `db_078959_banco`;
+USE `db_078959_banco`;
+CREATE TABLE `usuario` (
+`cd_usuario` INT,
+`nm_usuario` VARCHAR(64),
+`ds_email` VARCHAR(64),
+`ds_password` VARCHAR(64),
+`nr_cpf` VARCHAR(64),
+`nr_celular` VARCHAR(64),
+`dt_nascimento` DATETIME,
+`ds_usendereco` VARCHAR(64),
+`st_admin` BOOL,
+`st_ativo` BOOL,
+`ds_avaliacao` INT,
+`st_foto` VARCHAR(64),
+PRIMARY KEY (`cd_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `servico` (
+`cd_servico` INT,
+`nm_servico` VARCHAR(64),
+`ds_servico` VARCHAR(64),
+`ds_endereco` VARCHAR(64),
+`dt_servico` DATETIME,
+`dt_prazo` DATETIME,
+`id_usuario` INT,
+`id_categoria` INT,
+`st_servico` BOOL,
+`id_orcamento` INT,
+PRIMARY KEY (`cd_servico`)
+) CHARACTER SET latin1;
+CREATE TABLE `categoria` (
+`cd_categoria` INT,
+`nm_categoria` VARCHAR(64),
+`ds_categoria` VARCHAR(64),
+`ds_ftcategoria` VARCHAR(64),
+PRIMARY KEY (`cd_categoria`)
+) CHARACTER SET latin1;
+CREATE TABLE `orcamento` (
+`cd_orcamento` INT,
+`id_servico` INT,
+`id_usuariot` INT,
+`vl_orcamento` VARCHAR(64),
+`ds_orcamento` VARCHAR(64),
+PRIMARY KEY (`cd_orcamento`)
+) CHARACTER SET latin1;
+CREATE TABLE `report_perfil` (
+`cd_reportperfil` INT,
+`ds_report` VARCHAR(64),
+`dt_report` DATETIME,
+`id_reporter` INT,
+`id_reportado` INT,
+`st_report` BOOL,
+PRIMARY KEY (`cd_reportperfil`)
+) CHARACTER SET latin1;
+CREATE TABLE `report_servico` (
+`cd_reportservico` INT,
+`ds_reports` VARCHAR(64),
+`dt_reports` DATETIME,
+`id_servicorep` INT,
+`id_reporters` INT,
+`id_reportados` INT,
+`st_reports` BOOL,
+PRIMARY KEY (`cd_reportservico`)
+) CHARACTER SET latin1;
+CREATE TABLE `arquivo` (
+`cd_arquivo` INT,
+`id_usuariof` INT,
+`ds_arquivo` VARCHAR(64),
+`dt_data` DATETIME,
+PRIMARY KEY (`cd_arquivo`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario_suspenso` (
+`cd_suspenso` INT,
+`id_usuariosuspenso` INT,
+`dt_inicio` DATETIME,
+`dt_fim` DATETIME,
+PRIMARY KEY (`cd_suspenso`)
+) CHARACTER SET latin1;
+CREATE TABLE `nota` (
+`cd_nota` INT,
+`ds_nota` INT,
+`id_usuarion` INT,
+`id_usuarionotado` INT,
+`id_serviconota` INT,
+PRIMARY KEY (`cd_nota`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_078959_banco') AS relationships;
+relationships
+Database: db_078959_banco
+
+Table Connections:
+------------------
+[Implied]  arquivo.id_usuariof -> usuario.cd_usuario
+[Implied]  nota.id_serviconota -> servico.cd_servico
+[Implied]  nota.id_usuarion -> usuario.cd_usuario
+[Implied]  nota.id_usuarionotado -> usuario.cd_usuario
+[Implied]  orcamento.id_servico -> servico.cd_servico
+[Implied]  orcamento.id_usuariot -> usuario.cd_usuario
+[Implied]  report_perfil.st_report -> report_perfil.cd_reportperfil
+[Implied]  report_servico.id_servicorep -> servico.cd_servico
+[Implied]  report_servico.st_reports -> report_servico.cd_reportservico
+[Implied]  servico.id_categoria -> categoria.cd_categoria
+[Implied]  servico.id_orcamento -> orcamento.cd_orcamento
+[Implied]  servico.id_usuario -> usuario.cd_usuario
+[Implied]  usuario_suspenso.id_usuariosuspenso -> usuario.cd_usuario
+
+DROP DATABASE `db_078959_banco`;
+UNINSTALL EXTENSION vsql_schematron;

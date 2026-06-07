@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 458095_DDL
+#
+CREATE DATABASE `db_458095_DDL`;
+USE `db_458095_DDL`;
+CREATE TABLE `user` (
+`ID` VARCHAR(64),
+`password` VARCHAR(64),
+`name` VARCHAR(64),
+`gender` VARCHAR(64),
+`education` VARCHAR(64),
+`create_time` DATETIME,
+`num_post` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `classification` (
+`name` VARCHAR(64),
+`discussion` INT,
+`num_comment` INT,
+`last_article_time` DATETIME,
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `article` (
+`serial_num` INT,
+`author` VARCHAR(64),
+`class` VARCHAR(64),
+`title` VARCHAR(64),
+`content` VARCHAR(64),
+`post_time` DATETIME,
+PRIMARY KEY (`serial_num`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`serial_num` INT,
+`userID` VARCHAR(64),
+`article_num` INT,
+`comment_time` DATETIME,
+`content` VARCHAR(64),
+PRIMARY KEY (`serial_num`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_458095_DDL') AS relationships;
+relationships
+Database: db_458095_DDL
+
+Table Connections:
+------------------
+[Implied]  article.author -> user.ID
+[Implied]  article.class -> classification.name
+[Implied]  comment.article_num -> article.serial_num
+[Implied]  comment.userID -> user.ID
+
+DROP DATABASE `db_458095_DDL`;
+UNINSTALL EXTENSION vsql_schematron;

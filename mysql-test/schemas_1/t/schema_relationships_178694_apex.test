@@ -1,0 +1,117 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 178694_apex
+--echo #
+CREATE DATABASE `db_178694_apex`;
+USE `db_178694_apex`;
+
+CREATE TABLE `olympus` (
+  `location_id` INT,
+  `location` VARCHAR(64),
+  `common_loot` INT,
+  `epic_loot` INT,
+  `rare_loot` INT,
+  `legendary_loot` INT,
+  `loot_tier` VARCHAR(64),
+  PRIMARY KEY (`location_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `items` (
+  `itemsID` INT,
+  `name` VARCHAR(64),
+  `category` VARCHAR(64),
+  `use_time` INT,
+  `max_per_slot` INT,
+  `rarity` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`itemsID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `player` (
+  `ID` INT,
+  `name` VARCHAR(64),
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  `date_of_join` DATETIME,
+  `acc_type` VARCHAR(64),
+  `credits` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ranks` (
+  `player_id` INT,
+  `total_matches` INT,
+  `p_rank` VARCHAR(64),
+  `rp` INT,
+  `kills` INT,
+  `deaths` INT,
+  PRIMARY KEY (`player_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stats` (
+  `player_id` INT,
+  `lifetime_games` INT,
+  `level` INT,
+  `bp_level` INT,
+  `avg_playtime` DECIMAL(10,2),
+  `lifetime_wins` INT,
+  `lifetime_kills` INT,
+  PRIMARY KEY (`player_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `weapons` (
+  `weaponID` INT,
+  `name` VARCHAR(64),
+  `category` VARCHAR(64),
+  `ammo_type` VARCHAR(64),
+  `damage` INT,
+  `RPM` INT,
+  `capacity` INT,
+  `reload_time` DECIMAL(10,2),
+  PRIMARY KEY (`weaponID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `legends` (
+  `legendID` INT,
+  `name` VARCHAR(64),
+  `category` VARCHAR(64),
+  `win_rate` DECIMAL(10,2),
+  `passive` VARCHAR(64),
+  `tactical` VARCHAR(64),
+  `ultimate` VARCHAR(64),
+  PRIMARY KEY (`legendID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `seasons` (
+  `season_number` INT,
+  `name` VARCHAR(64),
+  `legend_added` INT,
+  `weapon_added` INT,
+  `active_map` VARCHAR(64),
+  `limited_event` VARCHAR(64),
+  `updates` INT,
+  `release_date` DATETIME,
+  PRIMARY KEY (`season_number`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_178694_apex') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_178694_apex') AS relationships;
+DROP DATABASE `db_178694_apex`;
+UNINSTALL EXTENSION vsql_schematron;

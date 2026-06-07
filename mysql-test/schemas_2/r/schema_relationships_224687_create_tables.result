@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 224687_create_tables
+#
+CREATE DATABASE `db_224687_create_tables`;
+USE `db_224687_create_tables`;
+CREATE TABLE `Holder_Address` (
+`Address_Id` VARCHAR(64),
+`Region` VARCHAR(64),
+`City` VARCHAR(64),
+`Street` VARCHAR(64),
+`Building` VARCHAR(64),
+`Apartment` VARCHAR(64),
+PRIMARY KEY (`Address_Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Individual_Holder` (
+`First_Name` VARCHAR(64),
+`Last_Name` VARCHAR(64),
+`Middle_Name` VARCHAR(64),
+`Account_Password` VARCHAR(64),
+`Phone_Number` VARCHAR(64),
+`Serial_Passport` VARCHAR(64),
+`Number_Passport` VARCHAR(64),
+`Date_of_issue_passport` DATETIME,
+`Address_passport_office` VARCHAR(64),
+`Address_id` VARCHAR(64),
+PRIMARY KEY (`Phone_Number`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bank_Account` (
+`Account_Number` VARCHAR(64),
+`Balance` INT,
+`Phone_Number` VARCHAR(64),
+PRIMARY KEY (`Account_Number`)
+) CHARACTER SET latin1;
+CREATE TABLE `Card` (
+`Card_Number` VARCHAR(64),
+`Bank_Account_Number` VARCHAR(64),
+PRIMARY KEY (`Card_Number`)
+) CHARACTER SET latin1;
+CREATE TABLE `Transaction` (
+`ID` VARCHAR(64),
+`Sender_AccountNumber` VARCHAR(64),
+`Beneficiary_AccountNumber` VARCHAR(64),
+`Sum` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_224687_create_tables') AS relationships;
+relationships
+Database: db_224687_create_tables
+
+Table Connections:
+------------------
+[Implied]  Bank_Account.Phone_Number -> Individual_Holder.Phone_Number
+[Implied]  Card.Bank_Account_Number -> Bank_Account.Account_Number
+[Implied]  Individual_Holder.Address_id -> Holder_Address.Address_Id
+
+DROP DATABASE `db_224687_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

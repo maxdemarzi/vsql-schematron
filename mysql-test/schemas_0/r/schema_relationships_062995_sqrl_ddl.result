@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 062995_sqrl.ddl
+#
+CREATE DATABASE `db_062995_sqrl_ddl`;
+USE `db_062995_sqrl_ddl`;
+CREATE TABLE `sqrl_identity` (
+`id` INT,
+`idk` VARCHAR(64),
+`native_user_xref` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sqrl_correlator` (
+`id` INT,
+`authenticationStatus` VARCHAR(64),
+`expiryTime` DATETIME,
+`value` VARCHAR(64),
+`authenticated_identity` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sqrl_identity_flag` (
+`id` INT,
+`name` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `sqrl_identity_data` (
+`id` INT,
+`value` VARCHAR(64),
+`name` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `sqrl_transient_auth_data` (
+`id` INT,
+`value` VARCHAR(64),
+`name` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `sqrl_used_nut_token` (
+`value` VARCHAR(64),
+`expiryTime` DATETIME,
+PRIMARY KEY (`value`)
+) CHARACTER SET latin1;
+CREATE TABLE `sqrl_db_id_gen` (
+`name` VARCHAR(64),
+`value` DECIMAL(10,2),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_062995_sqrl_ddl') AS relationships;
+relationships
+Database: db_062995_sqrl_ddl
+
+Table Connections:
+------------------
+[Implied]  sqrl_correlator.authenticated_identity -> sqrl_identity.id
+[Implied]  sqrl_identity_flag.id -> sqrl_identity.id
+
+DROP DATABASE `db_062995_sqrl_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

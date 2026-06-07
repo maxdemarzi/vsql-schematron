@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 101313_CREATE
+--echo #
+CREATE DATABASE `db_101313_CREATE`;
+USE `db_101313_CREATE`;
+
+CREATE TABLE `proprietarios` (
+  `id_prop` INT,
+  `nome_prop` VARCHAR(64),
+  `cpf_prop` VARCHAR(64),
+  PRIMARY KEY (`id_prop`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `locais` (
+  `id_local` INT,
+  `desc_local` VARCHAR(64),
+  PRIMARY KEY (`id_local`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `lojas` (
+  `id_loja` INT,
+  `dono_loja` INT,
+  `local_loja` INT,
+  `cnpj_loja` VARCHAR(64),
+  `razao_loja` VARCHAR(64),
+  `tipo_loja` VARCHAR(64),
+  PRIMARY KEY (`id_loja`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `funcionarios` (
+  `id_func` INT,
+  `loja_func` INT,
+  `nome_func` VARCHAR(64),
+  `cpf_func` VARCHAR(64),
+  PRIMARY KEY (`id_func`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_101313_CREATE') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_101313_CREATE') AS relationships;
+DROP DATABASE `db_101313_CREATE`;
+UNINSTALL EXTENSION vsql_schematron;

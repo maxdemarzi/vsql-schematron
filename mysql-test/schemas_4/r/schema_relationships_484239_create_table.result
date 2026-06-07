@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 484239_create_table
+#
+CREATE DATABASE `db_484239_create_table`;
+USE `db_484239_create_table`;
+CREATE TABLE `movies` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`year` INT,
+`director` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stars` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`birthYear` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stars_in_movies` (
+`starId` VARCHAR(64),
+`movieId` VARCHAR(64),
+PRIMARY KEY (`starId`, `movieId`)
+) CHARACTER SET latin1;
+CREATE TABLE `genres` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `genres_in_movies` (
+`genreId` INT,
+`movieId` VARCHAR(64),
+PRIMARY KEY (`genreId`, `movieId`)
+) CHARACTER SET latin1;
+CREATE TABLE `creditcards` (
+`id` VARCHAR(64),
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`expiration` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customers` (
+`id` INT,
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`ccId` VARCHAR(64),
+`address` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales` (
+`id` INT,
+`customerId` INT,
+`movieId` VARCHAR(64),
+`saleDate` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ratings` (
+`movieId` VARCHAR(64),
+`rating` DECIMAL(10,2),
+`numVotes` INT,
+PRIMARY KEY (`movieId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_484239_create_table') AS relationships;
+relationships
+Database: db_484239_create_table
+
+Table Connections:
+------------------
+[Implied]  customers.ccId -> creditcards.id
+[Implied]  genres_in_movies.genreId -> genres.id
+[Implied]  genres_in_movies.movieId -> movies.id
+[Implied]  genres_in_movies.movieId -> ratings.movieId
+[Implied]  ratings.movieId -> movies.id
+[Implied]  sales.customerId -> customers.id
+[Implied]  sales.movieId -> movies.id
+[Implied]  sales.movieId -> ratings.movieId
+[Implied]  stars_in_movies.movieId -> movies.id
+[Implied]  stars_in_movies.movieId -> ratings.movieId
+[Implied]  stars_in_movies.starId -> stars.id
+
+DROP DATABASE `db_484239_create_table`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 467937_project
+--echo #
+CREATE DATABASE `db_467937_project`;
+USE `db_467937_project`;
+
+CREATE TABLE `scholarship` (
+  `scholarshipId` VARCHAR(64),
+  `scholarshipAmount` VARCHAR(64),
+  `scholarshipCriteria` VARCHAR(64),
+  `scholarshipDeadline` VARCHAR(64),
+  `scholarshipDescription` VARCHAR(64),
+  `scholarshipLink` VARCHAR(64),
+  `scholarshipName` VARCHAR(64),
+  PRIMARY KEY (`scholarshipId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `userId` VARCHAR(64),
+  `userActivationToken` VARCHAR(64),
+  `userEmail` VARCHAR(64),
+  `userHash` VARCHAR(64),
+  `userName` VARCHAR(64),
+  PRIMARY KEY (`userId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `category` (
+  `categoryId` VARCHAR(64),
+  `categoryName` VARCHAR(64),
+  PRIMARY KEY (`categoryId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `scholarshipCategory` (
+  `scholarshipCategoryCategoryId` VARCHAR(64),
+  `scholarshipCategoryScholarshipId` VARCHAR(64),
+  PRIMARY KEY (`scholarshipCategoryCategoryId`, `scholarshipCategoryScholarshipId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `like` (
+  `likeScholarshipId` VARCHAR(64),
+  `likeUserId` VARCHAR(64),
+  PRIMARY KEY (`likeScholarshipId`, `likeUserId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_467937_project') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_467937_project') AS relationships;
+DROP DATABASE `db_467937_project`;
+UNINSTALL EXTENSION vsql_schematron;

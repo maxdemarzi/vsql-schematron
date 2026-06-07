@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 504248_initial
+#
+CREATE DATABASE `db_504248_initial`;
+USE `db_504248_initial`;
+CREATE TABLE `user_type` (
+`id` INT,
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `preference` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`phone` VARCHAR(64),
+`password` VARCHAR(64),
+`address` VARCHAR(64),
+`created_at` DATETIME,
+`preference` INT,
+`type` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `food` (
+`id` INT,
+`name` VARCHAR(64),
+`price` DECIMAL(10,2),
+`thumbnail` VARCHAR(64),
+`created_at` DATETIME,
+`type` INT,
+`created_by` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cart` (
+`food_id` INT,
+`user_id` INT,
+`quantity` INT,
+PRIMARY KEY (`food_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `food_order` (
+`id` INT,
+`food_id` INT,
+`user_id` INT,
+`status` VARCHAR(64),
+`quantity` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_504248_initial') AS relationships;
+relationships
+Database: db_504248_initial
+
+Table Connections:
+------------------
+[Implied]  cart.food_id -> food.id
+[Implied]  cart.user_id -> user.id
+[Implied]  food.created_by -> user_type.id
+[Implied]  food_order.food_id -> food.id
+[Implied]  food_order.user_id -> user.id
+[Implied]  user.preference -> preference.id
+
+DROP DATABASE `db_504248_initial`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 142596_plantInfoCreate
+#
+CREATE DATABASE `db_142596_plantInfoCreate`;
+USE `db_142596_plantInfoCreate`;
+CREATE TABLE `users` (
+`_id` INT,
+`email` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `plants` (
+`_id` INT,
+`user_id` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `session` (
+`_id` INT,
+`user_id` INT,
+`session_id` VARCHAR(64),
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`_id` INT,
+`plant_id` INT,
+`url` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `relationships` (
+`_id` INT,
+`follower_id` INT,
+`followed_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_142596_plantInfoCreate') AS relationships;
+relationships
+Database: db_142596_plantInfoCreate
+
+Table Connections:
+------------------
+[Implied]  plants.user_id -> posts._id
+[Implied]  plants.user_id -> session._id
+[Implied]  posts.plant_id -> plants._id
+[Implied]  relationships.followed_id -> plants._id
+[Implied]  relationships.followed_id -> posts._id
+[Implied]  relationships.followed_id -> session._id
+[Implied]  relationships.follower_id -> plants._id
+[Implied]  relationships.follower_id -> posts._id
+[Implied]  relationships.follower_id -> session._id
+[Implied]  session.user_id -> plants._id
+[Implied]  session.user_id -> posts._id
+
+DROP DATABASE `db_142596_plantInfoCreate`;
+UNINSTALL EXTENSION vsql_schematron;

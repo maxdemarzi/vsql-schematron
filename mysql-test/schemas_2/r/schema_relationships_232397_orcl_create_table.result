@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 232397_orcl_create_table
+#
+CREATE DATABASE `db_232397_orcl_create_table`;
+USE `db_232397_orcl_create_table`;
+CREATE TABLE `moerogAdmin` (
+`admin_id` VARCHAR(64),
+`admin_password` VARCHAR(64),
+`admin_nickname` VARCHAR(64),
+`admin_email` VARCHAR(64),
+PRIMARY KEY (`admin_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `moerogUser` (
+`user_id` VARCHAR(64),
+`user_password` VARCHAR(64),
+`user_nickname` VARCHAR(64),
+`user_email` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `moerogPost` (
+`post_id` DECIMAL(10,2),
+`post_category` DECIMAL(10,2),
+`post_title` VARCHAR(64),
+`post_datetime` DATETIME,
+`post_content` VARCHAR(64),
+`admin_nickname` VARCHAR(64),
+PRIMARY KEY (`post_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `moerogComment` (
+`comment_id` DECIMAL(10,2),
+`comment_datetime` DATETIME,
+`comment_content` VARCHAR(64),
+`admin_nickname` VARCHAR(64),
+`user_nickname` VARCHAR(64),
+`post_id` DECIMAL(10,2),
+PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_232397_orcl_create_table') AS relationships;
+relationships
+Database: db_232397_orcl_create_table
+
+Table Connections:
+------------------
+[Implied]  moerogComment.post_id -> moerogPost.post_id
+
+DROP DATABASE `db_232397_orcl_create_table`;
+UNINSTALL EXTENSION vsql_schematron;

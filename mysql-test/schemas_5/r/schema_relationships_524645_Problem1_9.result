@@ -1,0 +1,125 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 524645_Problem1-9
+#
+CREATE DATABASE `db_524645_Problem1_9`;
+USE `db_524645_Problem1_9`;
+CREATE TABLE `passports` (
+`passport_id` INT,
+`passport_number` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `persons` (
+`person_id` INT,
+`first_name` VARCHAR(64),
+`salary` DECIMAL(10,2),
+`passport_id` INT,
+PRIMARY KEY (`person_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `manufacturers` (
+`manufacturer_id` INT,
+`name` VARCHAR(64),
+`established_on` DATETIME,
+PRIMARY KEY (`manufacturer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `models` (
+`model_id` INT,
+`name` VARCHAR(64),
+`manufacturer_id` INT,
+PRIMARY KEY (`model_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `students` (
+`student_id` INT,
+`student_number` VARCHAR(64),
+`student_name` VARCHAR(64),
+`major_id` INT,
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `exams` (
+`exam_id` INT,
+`name` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `students_exams` (
+`student_id` INT,
+`exam_id` INT,
+PRIMARY KEY (`student_id`, `exam_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teachers` (
+`teacher_id` INT,
+`name` VARCHAR(64),
+`manager_id` INT,
+PRIMARY KEY (`teacher_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cities` (
+`city_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`city_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customers` (
+`customer_id` INT,
+`name` VARCHAR(64),
+`birthday` DATETIME,
+`city_id` INT,
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`order_id` INT,
+`customer_id` INT,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item_types` (
+`item_type_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`item_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`item_id` INT,
+`name` VARCHAR(64),
+`item_type_id` INT,
+PRIMARY KEY (`item_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_items` (
+`order_id` INT,
+`item_id` INT,
+PRIMARY KEY (`order_id`, `item_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payments` (
+`payment_id` INT,
+`payment_date` DATETIME,
+`payment_amount` DECIMAL(10,2),
+`student_id` INT,
+PRIMARY KEY (`payment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `majors` (
+`major_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`major_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subjects` (
+`subject_id` INT,
+`subject_name` VARCHAR(64),
+PRIMARY KEY (`subject_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_524645_Problem1_9') AS relationships;
+relationships
+Database: db_524645_Problem1_9
+
+Table Connections:
+------------------
+[Implied]  customers.city_id -> cities.city_id
+[Implied]  items.item_type_id -> item_types.item_type_id
+[Implied]  models.manufacturer_id -> manufacturers.manufacturer_id
+[Implied]  order_items.item_id -> items.item_id
+[Implied]  order_items.order_id -> orders.order_id
+[Implied]  orders.customer_id -> customers.customer_id
+[Implied]  payments.student_id -> students.student_id
+[Implied]  persons.passport_id -> passports.passport_id
+[Implied]  students.major_id -> majors.major_id
+[Implied]  students_exams.exam_id -> exams.exam_id
+[Implied]  students_exams.student_id -> students.student_id
+[Implied]  teachers.manager_id -> customers.customer_id
+[Implied]  teachers.manager_id -> persons.person_id
+[Implied]  teachers.manager_id -> students.student_id
+[Implied]  teachers.manager_id -> teachers.teacher_id
+
+DROP DATABASE `db_524645_Problem1_9`;
+UNINSTALL EXTENSION vsql_schematron;

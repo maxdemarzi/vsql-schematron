@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 287658_create_table
+--echo #
+CREATE DATABASE `db_287658_create_table`;
+USE `db_287658_create_table`;
+
+CREATE TABLE `Movies` (
+  `titleid` VARCHAR(64),
+  `title` VARCHAR(64),
+  `releaseyear` INT,
+  `runtimemin` INT,
+  `summary` VARCHAR(64),
+  PRIMARY KEY (`titleid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Users` (
+  `userid` VARCHAR(64),
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Casts` (
+  `castid` VARCHAR(64),
+  `castname` VARCHAR(64),
+  PRIMARY KEY (`castid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Cast_Movie` (
+  `castid` VARCHAR(64),
+  `titleid` VARCHAR(64),
+  `role` VARCHAR(64),
+  PRIMARY KEY (`castid`, `titleid`, `role`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Lists` (
+  `listid` VARCHAR(64),
+  `userid` VARCHAR(64),
+  `listname` VARCHAR(64),
+  PRIMARY KEY (`listid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Comments` (
+  `commentid` VARCHAR(64),
+  `titleid` VARCHAR(64),
+  `userid` VARCHAR(64),
+  `comment` VARCHAR(64),
+  `publishtime` DATETIME,
+  PRIMARY KEY (`commentid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `List_Movie` (
+  `listid` VARCHAR(64),
+  `titleid` VARCHAR(64),
+  PRIMARY KEY (`listid`, `titleid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Genre_Movie` (
+  `titleid` VARCHAR(64),
+  `genre` VARCHAR(64),
+  PRIMARY KEY (`titleid`, `genre`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Subscription` (
+  `subscriber` VARCHAR(64),
+  `subscribeto` VARCHAR(64),
+  PRIMARY KEY (`subscriber`, `subscribeto`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_287658_create_table') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_287658_create_table') AS relationships;
+DROP DATABASE `db_287658_create_table`;
+UNINSTALL EXTENSION vsql_schematron;

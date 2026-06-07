@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 673866_3.3.0_attributes
+--echo #
+CREATE DATABASE `db_673866_3_3_0_attributes`;
+USE `db_673866_3_3_0_attributes`;
+
+CREATE TABLE `ospos_attribute_definitions` (
+  `definition_id` INT,
+  `definition_name` VARCHAR(64),
+  `definition_type` VARCHAR(64),
+  `definition_flags` INT,
+  `definition_fk` INT,
+  `deleted` INT,
+  PRIMARY KEY (`definition_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ospos_attribute_values` (
+  `attribute_id` INT,
+  `attribute_value` VARCHAR(64),
+  `attribute_datetime` DATETIME,
+  PRIMARY KEY (`attribute_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_673866_3_3_0_attributes') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_673866_3_3_0_attributes') AS relationships;
+DROP DATABASE `db_673866_3_3_0_attributes`;
+UNINSTALL EXTENSION vsql_schematron;

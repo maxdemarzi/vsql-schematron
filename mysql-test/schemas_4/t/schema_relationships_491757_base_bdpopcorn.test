@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 491757_base_bdpopcorn
+--echo #
+CREATE DATABASE `db_491757_base_bdpopcorn`;
+USE `db_491757_base_bdpopcorn`;
+
+CREATE TABLE `test` (
+  `test` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `album` (
+  `numAlbum` VARCHAR(64),
+  `nomAlbum` VARCHAR(64),
+  `anneeAlbum` DATETIME,
+  `imageAlbum` VARCHAR(64),
+  PRIMARY KEY (`numAlbum`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auteur` (
+  `numAuteur` VARCHAR(64),
+  `nom` VARCHAR(64),
+  `prenom` VARCHAR(64),
+  PRIMARY KEY (`numAuteur`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `composer` (
+  `numAuteur` VARCHAR(64),
+  `numAlbum` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contenir` (
+  `numPlaylist` INT,
+  `numMusique` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ecrire` (
+  `numAuteur` VARCHAR(64),
+  `numMusique` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `musique` (
+  `numMusique` VARCHAR(64),
+  `numAlbum` VARCHAR(64),
+  `titre` VARCHAR(64),
+  `duree` VARCHAR(64),
+  `top` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `playlist` (
+  `numPlaylist` INT,
+  `numUser` INT,
+  `nom` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `posseder` (
+  `numMusique` VARCHAR(64),
+  `numTag` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tag` (
+  `numTag` INT,
+  `nomTag` VARCHAR(64),
+  PRIMARY KEY (`numTag`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `utilisateur` (
+  `numUser` INT,
+  `pseudo` VARCHAR(64),
+  `mdpUser` VARCHAR(64),
+  `Admin` VARCHAR(64),
+  PRIMARY KEY (`numUser`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_491757_base_bdpopcorn') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_491757_base_bdpopcorn') AS relationships;
+DROP DATABASE `db_491757_base_bdpopcorn`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,197 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 343832_midsem-schema
+--echo #
+CREATE DATABASE `db_343832_midsem_schema`;
+USE `db_343832_midsem_schema`;
+
+CREATE TABLE `User` (
+  `User_Id` VARCHAR(64),
+  `First_Name` VARCHAR(64),
+  `Middle_Name` VARCHAR(64),
+  `Last_Name` VARCHAR(64),
+  `Email` VARCHAR(64),
+  PRIMARY KEY (`User_Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Person_State_Zone` (
+  `State` VARCHAR(64),
+  `Zone` VARCHAR(64),
+  PRIMARY KEY (`State`, `Zone`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Person` (
+  `Person_ID` VARCHAR(64),
+  `House_Number` VARCHAR(64),
+  `Street_Name` VARCHAR(64),
+  `City` VARCHAR(64),
+  `State` VARCHAR(64),
+  `Country` VARCHAR(64),
+  `Pincode` VARCHAR(64),
+  `Date_Of_Birth` DATETIME,
+  `Experience` VARCHAR(64),
+  `Gender` VARCHAR(64),
+  PRIMARY KEY (`Person_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Person_Phone` (
+  `Person_ID` VARCHAR(64),
+  `Phone_Number` DECIMAL(10,2),
+  PRIMARY KEY (`Person_ID`, `Phone_Number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Music_Group` (
+  `Group_ID` VARCHAR(64),
+  `Group_Type` VARCHAR(64),
+  PRIMARY KEY (`Group_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Candidate` (
+  `Candidate_ID` VARCHAR(64),
+  `Advt_Seen` VARCHAR(64),
+  `Is_Director` VARCHAR(64),
+  PRIMARY KEY (`Candidate_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Candidate_Group` (
+  `Candidate_ID` VARCHAR(64),
+  `Group_ID` VARCHAR(64),
+  PRIMARY KEY (`Candidate_ID`, `Group_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Panelist` (
+  `Panelist_ID` VARCHAR(64),
+  `Association_Since` DATETIME,
+  PRIMARY KEY (`Panelist_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `McM_Director` (
+  `Director_ID` VARCHAR(64),
+  `Association_Since` DATETIME,
+  PRIMARY KEY (`Director_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Album` (
+  `Album_Number` VARCHAR(64),
+  `Album_Name` VARCHAR(64),
+  `Group_ID` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Album_Release_Date` DATETIME,
+  `Album_Type` VARCHAR(64),
+  PRIMARY KEY (`Album_Number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Trailer` (
+  `Trailer_URL` VARCHAR(64),
+  `Trailer_Release_Date` DATETIME,
+  `Album_Number` VARCHAR(64),
+  PRIMARY KEY (`Trailer_URL`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Entry` (
+  `Entry_Number` VARCHAR(64),
+  `Entry_Type` VARCHAR(64),
+  `Submission_Date` DATETIME,
+  `Submission_File` VARCHAR(64),
+  `Status_Round1` VARCHAR(64),
+  `Candidate_ID` VARCHAR(64),
+  PRIMARY KEY (`Entry_Number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Live_Show` (
+  `Entry_Number` VARCHAR(64),
+  `Status_Round2` VARCHAR(64),
+  PRIMARY KEY (`Entry_Number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Distributor` (
+  `Distributor_ID` VARCHAR(64),
+  `Company_Name` VARCHAR(64),
+  PRIMARY KEY (`Distributor_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Views_Trailer` (
+  `Trailer_URL` VARCHAR(64),
+  `User_ID` VARCHAR(64),
+  `comment` VARCHAR(64),
+  PRIMARY KEY (`Trailer_URL`, `User_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Sold_By` (
+  `Album_Number` VARCHAR(64),
+  `Distributor_ID` VARCHAR(64),
+  `Price_Per_Unit` DECIMAL(10,2),
+  PRIMARY KEY (`Album_Number`, `Distributor_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Download_URL` (
+  `Download_URL` VARCHAR(64),
+  `Album_Number` VARCHAR(64),
+  `Distributor_ID` VARCHAR(64),
+  PRIMARY KEY (`Download_URL`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Judges` (
+  `Panelist_ID` VARCHAR(64),
+  `Entry_Number` VARCHAR(64),
+  `Judge_Decision` VARCHAR(64),
+  PRIMARY KEY (`Panelist_ID`, `Entry_Number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Approves` (
+  `Director_ID` VARCHAR(64),
+  `Album_Number` VARCHAR(64),
+  `Approval_Date` DATETIME,
+  `Approval_Status` VARCHAR(64),
+  PRIMARY KEY (`Director_ID`, `Album_Number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Checks_Round1` (
+  `Panelist_ID` VARCHAR(64),
+  `Entry_Number` VARCHAR(64),
+  `Judge_Decision` VARCHAR(64),
+  PRIMARY KEY (`Panelist_ID`, `Entry_Number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Part_Of` (
+  `Candidate_ID` VARCHAR(64),
+  `Album_Number` VARCHAR(64),
+  `Role` VARCHAR(64),
+  PRIMARY KEY (`Candidate_ID`, `Album_Number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Download_Using` (
+  `User_ID` VARCHAR(64),
+  `Download_URL` VARCHAR(64),
+  `Date_Of_Download` DATETIME,
+  `Download_Status` VARCHAR(64),
+  PRIMARY KEY (`User_ID`, `Download_URL`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Belongs_To` (
+  `Candidate_ID` VARCHAR(64),
+  `Group_ID` VARCHAR(64),
+  `As_Director` VARCHAR(64),
+  PRIMARY KEY (`Candidate_ID`, `Group_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_343832_midsem_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_343832_midsem_schema') AS relationships;
+DROP DATABASE `db_343832_midsem_schema`;
+UNINSTALL EXTENSION vsql_schematron;

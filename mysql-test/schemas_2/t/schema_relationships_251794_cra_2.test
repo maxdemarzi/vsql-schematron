@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 251794_cra_2
+--echo #
+CREATE DATABASE `db_251794_cra_2`;
+USE `db_251794_cra_2`;
+
+CREATE TABLE `type` (
+  `id` VARCHAR(64),
+  `designation` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `utilisateur` (
+  `matricule` INT,
+  `nom` VARCHAR(64),
+  `prenom` VARCHAR(64),
+  `admin` INT,
+  PRIMARY KEY (`matricule`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cellule` (
+  `id` INT,
+  `designation` VARCHAR(64),
+  `type_c` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etat_incident` (
+  `id` INT,
+  `designation` VARCHAR(64),
+  `abreviation` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etat_demande` (
+  `id` INT,
+  `designation` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `incident` (
+  `id` VARCHAR(64),
+  `cellule_i` INT,
+  `etat_i` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `demande` (
+  `id` VARCHAR(64),
+  `cellule_d` INT,
+  `etat_d` INT,
+  `date_soumission` DATETIME,
+  `date_maj` DATETIME,
+  `date_livraison` DATETIME,
+  `charge` DECIMAL(10,2),
+  `projet` VARCHAR(64),
+  `priorite` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `suivi` (
+  `id` INT,
+  `matricule_s` INT,
+  `temps_passe` DECIMAL(10,2),
+  `cellule_s` INT,
+  `demande_s` VARCHAR(64),
+  `incident_s` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_251794_cra_2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_251794_cra_2') AS relationships;
+DROP DATABASE `db_251794_cra_2`;
+UNINSTALL EXTENSION vsql_schematron;

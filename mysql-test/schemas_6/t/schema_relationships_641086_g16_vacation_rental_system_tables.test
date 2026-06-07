@@ -1,0 +1,113 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 641086_g16_vacation_rental_system_tables
+--echo #
+CREATE DATABASE `db_641086_g16_vacation_rental_system_tables`;
+USE `db_641086_g16_vacation_rental_system_tables`;
+
+CREATE TABLE `Locations` (
+  `LocationId` DECIMAL(10,2),
+  `ParentId` DECIMAL(10,2),
+  `Name` VARCHAR(64),
+  `LocationType` VARCHAR(64),
+  PRIMARY KEY (`LocationId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Users` (
+  `UserId` DECIMAL(10,2),
+  `Email` VARCHAR(64),
+  `Password` VARCHAR(64),
+  `Role` VARCHAR(64),
+  `Firstname` VARCHAR(64),
+  `Lastname` VARCHAR(64),
+  `Gender` VARCHAR(64),
+  `LocationId` DECIMAL(10,2),
+  `Address` VARCHAR(64),
+  `PhoneNumber` VARCHAR(64),
+  `IdentificationNumber` VARCHAR(64),
+  PRIMARY KEY (`UserId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Rentals` (
+  `RentalId` DECIMAL(10,2),
+  `HouseholderId` DECIMAL(10,2),
+  `Title` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Price` DECIMAL(10,2),
+  `LocationId` DECIMAL(10,2),
+  `Address` VARCHAR(64),
+  `IsPassive` DECIMAL(10,2),
+  PRIMARY KEY (`RentalId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RentalDescriptions` (
+  `RentalDescriptionId` DECIMAL(10,2),
+  `RentalId` DECIMAL(10,2),
+  `PropertyType` VARCHAR(64),
+  `BedCount` DECIMAL(10,2),
+  `RoomCount` DECIMAL(10,2),
+  `OccupantCount` DECIMAL(10,2),
+  `SmokingAllowed` DECIMAL(10,2),
+  `PetAllowed` DECIMAL(10,2),
+  `HasWifi` DECIMAL(10,2),
+  `HasGarden` DECIMAL(10,2),
+  `HasBalcony` DECIMAL(10,2),
+  PRIMARY KEY (`RentalDescriptionId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RentalPhotos` (
+  `RentalDescriptionId` DECIMAL(10,2),
+  `URL` VARCHAR(64),
+  `Description` VARCHAR(64),
+  PRIMARY KEY (`RentalDescriptionId`, `URL`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Bookings` (
+  `BookingId` DECIMAL(10,2),
+  `CustomerId` DECIMAL(10,2),
+  `RentalId` DECIMAL(10,2),
+  `StartDate` DATETIME,
+  `EndDate` DATETIME,
+  `Status` VARCHAR(64),
+  PRIMARY KEY (`BookingId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Comments` (
+  `CommentId` DECIMAL(10,2),
+  `RentalId` DECIMAL(10,2),
+  `UserId` DECIMAL(10,2),
+  `Text` VARCHAR(64),
+  `RentalRating` DECIMAL(10,2),
+  `HouseholderRating` DECIMAL(10,2),
+  PRIMARY KEY (`CommentId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Transactions` (
+  `BookingId` DECIMAL(10,2),
+  `Amount` DECIMAL(10,2),
+  `TransactionDate` DATETIME,
+  `TransactionType` VARCHAR(64),
+  `TransactionNumber` VARCHAR(64),
+  PRIMARY KEY (`BookingId`, `TransactionNumber`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_641086_g16_vacation_rental_system_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_641086_g16_vacation_rental_system_tables') AS relationships;
+DROP DATABASE `db_641086_g16_vacation_rental_system_tables`;
+UNINSTALL EXTENSION vsql_schematron;

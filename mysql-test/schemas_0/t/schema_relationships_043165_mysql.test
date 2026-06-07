@@ -1,0 +1,110 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 043165_mysql
+--echo #
+CREATE DATABASE `db_043165_mysql`;
+USE `db_043165_mysql`;
+
+CREATE TABLE `accounting_transactions` (
+  `id` INT,
+  `user_id` INT,
+  `invoice_id` INT,
+  `order_id` INT,
+  `increase` INT,
+  `decrease` INT,
+  `description` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comments` (
+  `id` INT,
+  `product_id` INT,
+  `reply_to_id` INT,
+  `author_id` INT,
+  `author_name` VARCHAR(64),
+  `body` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `published_at` DATETIME,
+  `deleted_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `failed_jobs` (
+  `id` INT,
+  `connection` VARCHAR(64),
+  `queue` VARCHAR(64),
+  `payload` VARCHAR(64),
+  `exception` VARCHAR(64),
+  `failed_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_items` (
+  `id` INT,
+  `order_id` INT,
+  `product_id` INT,
+  `count` INT,
+  `price` INT,
+  `total_price` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_status` (
+  `id` INT,
+  `order_id` INT,
+  `user_id` INT,
+  `state` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `password_resets` (
+  `email` VARCHAR(64),
+  `mobile` VARCHAR(64),
+  `token` VARCHAR(64),
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `payment_transactiobs` (
+  `id` INT,
+  `user_id` INT,
+  `invoice_id` INT,
+  `payment_method` VARCHAR(64),
+  `bank_name` VARCHAR(64),
+  `account` VARCHAR(64),
+  `card_number` VARCHAR(64),
+  `iban` VARCHAR(64),
+  `amount` INT,
+  `status` VARCHAR(64),
+  `reference_number` VARCHAR(64),
+  `details` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_043165_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_043165_mysql') AS relationships;
+DROP DATABASE `db_043165_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

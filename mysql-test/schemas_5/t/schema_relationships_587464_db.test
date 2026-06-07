@@ -1,0 +1,133 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 587464_db
+--echo #
+CREATE DATABASE `db_587464_db`;
+USE `db_587464_db`;
+
+CREATE TABLE `User` (
+  `User_ID` INT,
+  `Person_ID` INT,
+  `Username` VARCHAR(64),
+  `Password` VARCHAR(64),
+  `Email` VARCHAR(64),
+  PRIMARY KEY (`User_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Person` (
+  `Person_ID` INT,
+  `Name` VARCHAR(64),
+  `Surname` VARCHAR(64),
+  `Date of birth` DATETIME,
+  `Sex` VARCHAR(64),
+  `ID number` VARCHAR(64),
+  `City` VARCHAR(64),
+  `Street` VARCHAR(64),
+  `Country` VARCHAR(64),
+  `Zip` VARCHAR(64),
+  PRIMARY KEY (`Person_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Doctor` (
+  `Doctor_ID` INT,
+  `Specialization` VARCHAR(64),
+  `Degree` VARCHAR(64),
+  `Actual state` VARCHAR(64),
+  `Turn out date` DATETIME,
+  PRIMARY KEY (`Doctor_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Nurse` (
+  `Nurse_ID` INT,
+  `Degree` VARCHAR(64),
+  `Department_ID` INT,
+  `Competence` VARCHAR(64),
+  `Actual state` VARCHAR(64),
+  `Turn out date` DATETIME,
+  PRIMARY KEY (`Nurse_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Patient` (
+  `Patient_ID` INT,
+  `Weight` DECIMAL(10,2),
+  `Height` DECIMAL(10,2),
+  `Health condition` VARCHAR(64),
+  `Date of registration` DATETIME,
+  `Date of death` DATETIME,
+  PRIMARY KEY (`Patient_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Department` (
+  `Department_ID` INT,
+  `Name` VARCHAR(64),
+  `Number of beds` INT,
+  `Number of rooms` INT,
+  `Visit time from` VARCHAR(64),
+  `Visit time to` VARCHAR(64),
+  `Floor` INT,
+  PRIMARY KEY (`Department_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Examination` (
+  `Examination_ID` INT,
+  `Doctor_ID` INT,
+  `Department_ID` INT,
+  `Hospitalization_ID` INT,
+  `Type` VARCHAR(64),
+  `Date` DATETIME,
+  `Medical record` VARCHAR(64),
+  PRIMARY KEY (`Examination_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Hospitalization` (
+  `Hospitalization_ID` INT,
+  `Doctor_ID` INT,
+  `Department_ID` INT,
+  `Patient_ID` INT,
+  `Date` DATETIME,
+  `Hospitalization record` VARCHAR(64),
+  PRIMARY KEY (`Hospitalization_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Medication` (
+  `Medication_ID` INT,
+  `Name` VARCHAR(64),
+  `Maximal dose` INT,
+  `Form` VARCHAR(64),
+  `Active substance` VARCHAR(64),
+  `Side effect` VARCHAR(64),
+  PRIMARY KEY (`Medication_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Administration_Of_Medication` (
+  `Adm_of_med_ID` INT,
+  `Doctor_ID` INT,
+  `Medication_ID` INT,
+  `Hospitalization_ID` INT,
+  `Procedure` VARCHAR(64),
+  `Date` DATETIME,
+  `Frequency` INT,
+  `Way of use` VARCHAR(64),
+  PRIMARY KEY (`Adm_of_med_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_587464_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_587464_db') AS relationships;
+DROP DATABASE `db_587464_db`;
+UNINSTALL EXTENSION vsql_schematron;

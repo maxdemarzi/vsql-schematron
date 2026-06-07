@@ -1,0 +1,123 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 012151_Lab2
+#
+CREATE DATABASE `db_012151_Lab2`;
+USE `db_012151_Lab2`;
+CREATE TABLE `Account` (
+`Account_ID` DECIMAL(10,2),
+`Account_Money` DECIMAL(10,2),
+`Account_RegDate` DATETIME,
+`Account_RegBank` VARCHAR(64),
+PRIMARY KEY (`Account_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CheckAccount` (
+`Account_ID` DECIMAL(10,2),
+`Account_Money` DECIMAL(10,2),
+`Account_RegDate` DATETIME,
+`Account_RegBank` VARCHAR(64),
+`Overdraft` DECIMAL(10,2),
+PRIMARY KEY (`Account_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer` (
+`User_ID` DECIMAL(10,2),
+`User_Name` VARCHAR(64),
+`User_Phone` DECIMAL(10,2),
+`User_Address` VARCHAR(64),
+`User_Contact_Name` VARCHAR(64),
+`User_Contact_Phone` DECIMAL(10,2),
+`User_Contact_Email` VARCHAR(64),
+`User_Contact_Relation` VARCHAR(64),
+PRIMARY KEY (`User_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer_CheckAccount` (
+`User_ID` DECIMAL(10,2),
+`Bank_Name` VARCHAR(64),
+`Account_ID` DECIMAL(10,2),
+`LastView_C` DATETIME,
+PRIMARY KEY (`User_ID`, `Bank_Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer_DepositAccount` (
+`User_ID` DECIMAL(10,2),
+`Bank_Name` VARCHAR(64),
+`Account_ID` DECIMAL(10,2),
+`LastView_D` DATETIME,
+PRIMARY KEY (`User_ID`, `Bank_Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `DepositAccount` (
+`Account_ID` DECIMAL(10,2),
+`Account_Money` DECIMAL(10,2),
+`Account_RegDate` DATETIME,
+`Account_RegBank` VARCHAR(64),
+`InterestRate` DECIMAL(10,2),
+`Currencytype` VARCHAR(64),
+PRIMARY KEY (`Account_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employee` (
+`Employee_ID` DECIMAL(10,2),
+`Department_ID` DECIMAL(10,2),
+`Employee_Name` VARCHAR(64),
+`Employee_Phone` DECIMAL(10,2),
+`Employee_Address` VARCHAR(64),
+`Employee_EnterDate` DATETIME,
+PRIMARY KEY (`Employee_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employee_Customer` (
+`Employee_ID` DECIMAL(10,2),
+`User_ID` DECIMAL(10,2),
+`ServiceType` VARCHAR(64),
+PRIMARY KEY (`Employee_ID`, `User_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Loan` (
+`Loan_ID` DECIMAL(10,2),
+`Bank_Name` VARCHAR(64),
+`Loan_Money` DECIMAL(10,2),
+PRIMARY KEY (`Loan_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Loan_Customer` (
+`Loan_ID` DECIMAL(10,2),
+`User_ID` DECIMAL(10,2),
+PRIMARY KEY (`Loan_ID`, `User_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pay` (
+`Loan_ID` DECIMAL(10,2),
+`Pay_Date` DATETIME,
+`Pay_Money` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `SubBank` (
+`Bank_Name` VARCHAR(64),
+`City` VARCHAR(64),
+`Possession` DECIMAL(10,2),
+PRIMARY KEY (`Bank_Name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_012151_Lab2') AS relationships;
+relationships
+Database: db_012151_Lab2
+
+Table Connections:
+------------------
+[Implied]  CheckAccount.Account_Money -> Account.Account_ID
+[Implied]  Customer_CheckAccount.Account_ID -> Account.Account_ID
+[Implied]  Customer_CheckAccount.Bank_Name -> SubBank.Bank_Name
+[Implied]  Customer_CheckAccount.User_ID -> Account.Account_ID
+[Implied]  Customer_CheckAccount.User_ID -> Customer.User_ID
+[Implied]  Customer_CheckAccount.User_ID -> Employee.Employee_ID
+[Implied]  Customer_DepositAccount.Account_ID -> Account.Account_ID
+[Implied]  Customer_DepositAccount.Bank_Name -> SubBank.Bank_Name
+[Implied]  Customer_DepositAccount.User_ID -> Account.Account_ID
+[Implied]  Customer_DepositAccount.User_ID -> Customer.User_ID
+[Implied]  Customer_DepositAccount.User_ID -> Employee.Employee_ID
+[Implied]  DepositAccount.Account_Money -> Account.Account_ID
+[Implied]  Employee_Customer.Employee_ID -> Employee.Employee_ID
+[Implied]  Employee_Customer.User_ID -> Account.Account_ID
+[Implied]  Employee_Customer.User_ID -> Customer.User_ID
+[Implied]  Employee_Customer.User_ID -> Employee.Employee_ID
+[Implied]  Loan.Bank_Name -> SubBank.Bank_Name
+[Implied]  Loan_Customer.Loan_ID -> Loan.Loan_ID
+[Implied]  Loan_Customer.User_ID -> Account.Account_ID
+[Implied]  Loan_Customer.User_ID -> Customer.User_ID
+[Implied]  Loan_Customer.User_ID -> Employee.Employee_ID
+[Implied]  Pay.Loan_ID -> Loan.Loan_ID
+
+DROP DATABASE `db_012151_Lab2`;
+UNINSTALL EXTENSION vsql_schematron;

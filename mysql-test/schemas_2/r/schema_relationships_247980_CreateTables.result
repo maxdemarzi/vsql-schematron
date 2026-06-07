@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 247980_CreateTables
+#
+CREATE DATABASE `db_247980_CreateTables`;
+USE `db_247980_CreateTables`;
+CREATE TABLE `Person` (
+`SSN` DECIMAL(10,2),
+`FName` VARCHAR(64),
+`LName` VARCHAR(64),
+`HomeAddress` VARCHAR(64),
+`CampusAddress` VARCHAR(64),
+`CardNo` DECIMAL(10,2),
+PRIMARY KEY (`SSN`)
+) CHARACTER SET latin1;
+CREATE TABLE `Librarian` (
+`SSN` DECIMAL(10,2),
+`Position` VARCHAR(64),
+PRIMARY KEY (`SSN`)
+) CHARACTER SET latin1;
+CREATE TABLE `Member` (
+`SSN` DECIMAL(10,2),
+`Personification` VARCHAR(64),
+PRIMARY KEY (`SSN`)
+) CHARACTER SET latin1;
+CREATE TABLE `PhoneNo` (
+`SSN` DECIMAL(10,2),
+`Number` INT,
+PRIMARY KEY (`SSN`, `Number`)
+) CHARACTER SET latin1;
+CREATE TABLE `Item` (
+`ISBN` DECIMAL(10,2),
+`Title` VARCHAR(64),
+`Author` VARCHAR(64),
+`ItemDescription` VARCHAR(64),
+`Publisher` VARCHAR(64),
+`YearPublishing` INT,
+PRIMARY KEY (`ISBN`)
+) CHARACTER SET latin1;
+CREATE TABLE `Map` (
+`ISBN` DECIMAL(10,2),
+`NoCopies` INT,
+PRIMARY KEY (`ISBN`)
+) CHARACTER SET latin1;
+CREATE TABLE `Book` (
+`ISBN` DECIMAL(10,2),
+`BookType` VARCHAR(64),
+PRIMARY KEY (`ISBN`)
+) CHARACTER SET latin1;
+CREATE TABLE `BookCopy` (
+`ISBN` DECIMAL(10,2),
+`Barcode` DECIMAL(10,2),
+PRIMARY KEY (`ISBN`, `Barcode`)
+) CHARACTER SET latin1;
+CREATE TABLE `BookSubject` (
+`ISBN` DECIMAL(10,2),
+`BookSubject` VARCHAR(64),
+PRIMARY KEY (`ISBN`, `BookSubject`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_247980_CreateTables') AS relationships;
+relationships
+Database: db_247980_CreateTables
+
+Table Connections:
+------------------
+[Implied]  BookCopy.ISBN -> Book.ISBN
+[Implied]  BookCopy.ISBN -> Item.ISBN
+[Implied]  BookSubject.ISBN -> Book.ISBN
+[Implied]  BookSubject.ISBN -> Item.ISBN
+[Implied]  PhoneNo.SSN -> Librarian.SSN
+[Implied]  PhoneNo.SSN -> Member.SSN
+[Implied]  PhoneNo.SSN -> Person.SSN
+
+DROP DATABASE `db_247980_CreateTables`;
+UNINSTALL EXTENSION vsql_schematron;

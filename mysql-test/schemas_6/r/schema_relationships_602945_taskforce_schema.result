@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 602945_taskforce_schema
+#
+CREATE DATABASE `db_602945_taskforce_schema`;
+USE `db_602945_taskforce_schema`;
+CREATE TABLE `notification_type` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`password` VARCHAR(64),
+`date_add` DATETIME,
+`date_activity` DATETIME,
+`is_visible` BOOL,
+`city_id` INT,
+`address` VARCHAR(64),
+`birthday` DATETIME,
+`phone` VARCHAR(64),
+`skype` VARCHAR(64),
+`telegram` VARCHAR(64),
+`avatar` VARCHAR(64),
+`about` VARCHAR(64),
+`is_deleted` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_notification` (
+`user_id` INT,
+`notification_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `task` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`category_id` INT,
+`status_id` INT,
+`price` DECIMAL(10,2),
+`customer_id` INT,
+`date_add` DATETIME,
+`executor_id` INT,
+`address` VARCHAR(64),
+`city_id` INT,
+`expire` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`id` INT,
+`sender_id` INT,
+`receiver_id` INT,
+`task_id` INT,
+`message` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_602945_taskforce_schema') AS relationships;
+relationships
+Database: db_602945_taskforce_schema
+
+Table Connections:
+------------------
+[Implied]  message.receiver_id -> user.id
+[Implied]  message.sender_id -> user.id
+[Implied]  message.task_id -> task.id
+[Implied]  task.customer_id -> user.id
+[Implied]  user_notification.notification_id -> notification_type.id
+[Implied]  user_notification.user_id -> user.id
+
+DROP DATABASE `db_602945_taskforce_schema`;
+UNINSTALL EXTENSION vsql_schematron;

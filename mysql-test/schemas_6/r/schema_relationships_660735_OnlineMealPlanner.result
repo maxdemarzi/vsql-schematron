@@ -1,0 +1,130 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 660735_OnlineMealPlanner
+#
+CREATE DATABASE `db_660735_OnlineMealPlanner`;
+USE `db_660735_OnlineMealPlanner`;
+CREATE TABLE `Account` (
+`account_id` VARCHAR(64),
+`fname` VARCHAR(64),
+`lname` VARCHAR(64),
+`pword` VARCHAR(64),
+`plantype` VARCHAR(64),
+PRIMARY KEY (`account_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profile` (
+`account_id` VARCHAR(64),
+`profile_id` VARCHAR(64),
+`fname` VARCHAR(64),
+`lname` VARCHAR(64),
+`glutentolerant` VARCHAR(64),
+`diabetic` VARCHAR(64),
+`lactoseintolerant` VARCHAR(64),
+`vegetarian` VARCHAR(64),
+`vegan` VARCHAR(64),
+PRIMARY KEY (`profile_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Recipe` (
+`recipe_id` VARCHAR(64),
+`recipe_name` VARCHAR(64),
+`creationdate` DATETIME,
+`calorie_count` INT,
+`prep_time` INT,
+`unit` VARCHAR(64),
+PRIMARY KEY (`recipe_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Ingredients` (
+`ingredient_id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`ingredient_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Mealplan` (
+`mid` VARCHAR(64),
+`meal_date` DATETIME,
+`calorie_count` INT,
+PRIMARY KEY (`mid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Meal` (
+`meal_id` VARCHAR(64),
+`meal_name` VARCHAR(64),
+`last_served` DATETIME,
+`served_date` DATETIME,
+`meal_type` VARCHAR(64),
+`images` VARCHAR(64),
+PRIMARY KEY (`meal_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Instruction` (
+`recipe_id` VARCHAR(64),
+`instruction_id` VARCHAR(64),
+`instruction_number` INT,
+`step` VARCHAR(64),
+PRIMARY KEY (`instruction_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `SupermarketList` (
+`mid` VARCHAR(64),
+`item_id` VARCHAR(64),
+`item_name` VARCHAR(64),
+`amount` DECIMAL(10,2),
+`unit` VARCHAR(64),
+PRIMARY KEY (`item_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `generates` (
+`profile_id` VARCHAR(64),
+`account_id` VARCHAR(64),
+`mid` VARCHAR(64),
+PRIMARY KEY (`mid`)
+) CHARACTER SET latin1;
+CREATE TABLE `madeupof` (
+`mid` VARCHAR(64),
+`meal_id` VARCHAR(64),
+PRIMARY KEY (`meal_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `has_a` (
+`recipe_id` VARCHAR(64),
+`ingredient_id` VARCHAR(64),
+`amount` DECIMAL(10,2),
+`unit` VARCHAR(64),
+PRIMARY KEY (`ingredient_id`, `recipe_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `adds` (
+`recipe_id` VARCHAR(64),
+`profile_id` VARCHAR(64),
+PRIMARY KEY (`recipe_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `uses` (
+`recipe_id` VARCHAR(64),
+`meal_id` VARCHAR(64),
+PRIMARY KEY (`recipe_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hasInStock` (
+`account_id` VARCHAR(64),
+`profile_id` VARCHAR(64),
+`ingredient_id` VARCHAR(64),
+`status` VARCHAR(64),
+PRIMARY KEY (`profile_id`, `ingredient_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_660735_OnlineMealPlanner') AS relationships;
+relationships
+Database: db_660735_OnlineMealPlanner
+
+Table Connections:
+------------------
+[Implied]  Instruction.recipe_id -> Recipe.recipe_id
+[Implied]  Profile.account_id -> Account.account_id
+[Implied]  SupermarketList.mid -> Mealplan.mid
+[Implied]  adds.profile_id -> Profile.profile_id
+[Implied]  adds.recipe_id -> Recipe.recipe_id
+[Implied]  generates.account_id -> Account.account_id
+[Implied]  generates.profile_id -> Profile.profile_id
+[Implied]  hasInStock.account_id -> Account.account_id
+[Implied]  hasInStock.ingredient_id -> Ingredients.ingredient_id
+[Implied]  hasInStock.profile_id -> Profile.profile_id
+[Implied]  has_a.ingredient_id -> Ingredients.ingredient_id
+[Implied]  has_a.recipe_id -> Recipe.recipe_id
+[Implied]  madeupof.meal_id -> Meal.meal_id
+[Implied]  madeupof.mid -> Mealplan.mid
+[Implied]  uses.meal_id -> Meal.meal_id
+[Implied]  uses.recipe_id -> Recipe.recipe_id
+
+DROP DATABASE `db_660735_OnlineMealPlanner`;
+UNINSTALL EXTENSION vsql_schematron;

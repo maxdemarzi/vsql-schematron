@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 142716_create_tables
+#
+CREATE DATABASE `db_142716_create_tables`;
+USE `db_142716_create_tables`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `modmails` (
+`id` INT,
+`author` INT,
+`time` DATETIME,
+`body` VARCHAR(64),
+`subreddit` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `actions` (
+`id` INT,
+`target_type` INT,
+`target_id` INT,
+`action_summary` VARCHAR(64),
+`action_details` VARCHAR(64),
+`author` INT,
+`moderator` INT,
+`time` DATETIME,
+`subreddit` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subreddits` (
+`id` INT,
+`display_name` VARCHAR(64),
+`subscribers` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subreddit_moderator` (
+`subreddit_id` INT,
+`moderator_id` INT,
+PRIMARY KEY (`subreddit_id`, `moderator_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_142716_create_tables') AS relationships;
+relationships
+Database: db_142716_create_tables
+
+Table Connections:
+------------------
+[Implied]  actions.author -> users.id
+[Implied]  actions.moderator -> users.id
+[Implied]  actions.subreddit -> subreddits.id
+[Implied]  modmails.author -> users.id
+[Implied]  modmails.subreddit -> subreddits.id
+[Implied]  subreddit_moderator.moderator_id -> actions.id
+[Implied]  subreddit_moderator.subreddit_id -> subreddits.id
+
+DROP DATABASE `db_142716_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

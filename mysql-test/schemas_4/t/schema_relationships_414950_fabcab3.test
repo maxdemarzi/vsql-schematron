@@ -1,0 +1,106 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 414950_fabcab3
+--echo #
+CREATE DATABASE `db_414950_fabcab3`;
+USE `db_414950_fabcab3`;
+
+CREATE TABLE `trip` (
+  `Trip_id` VARCHAR(64),
+  `Start_point` VARCHAR(64),
+  `Dest_Point` VARCHAR(64),
+  `Fare` INT,
+  `Rating` INT,
+  PRIMARY KEY (`Trip_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `main_user` (
+  `User_ID` VARCHAR(64),
+  `Rating` INT,
+  `Name` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `Address` VARCHAR(64),
+  `Phone_Number` VARCHAR(64),
+  `Booking_Type` VARCHAR(64),
+  `Booking_ID` INT,
+  `trip_id` VARCHAR(64),
+  PRIMARY KEY (`User_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `driver` (
+  `Driver_ID` VARCHAR(64),
+  `Rating` INT,
+  `Name` VARCHAR(64),
+  `DOB` VARCHAR(64),
+  `Address` VARCHAR(64),
+  `Criminal_Check` VARCHAR(64),
+  `Phone` VARCHAR(64),
+  `Trip_id` VARCHAR(64),
+  PRIMARY KEY (`Driver_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `License_Details` (
+  `License_Number` VARCHAR(64),
+  `License_Expiry` VARCHAR(64),
+  `RTO` VARCHAR(64),
+  `Driver_ID` VARCHAR(64),
+  PRIMARY KEY (`License_Number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vehicle` (
+  `Reg_No` VARCHAR(64),
+  `capacity` INT,
+  `model` VARCHAR(64),
+  `color` VARCHAR(64),
+  `driver_ID` VARCHAR(64),
+  PRIMARY KEY (`Reg_No`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payment` (
+  `Payment_ID` VARCHAR(64),
+  `Payment_method` VARCHAR(64),
+  `Trip_ID` VARCHAR(64),
+  `User_ID` VARCHAR(64),
+  PRIMARY KEY (`Payment_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Discount` (
+  `Trip_ID` VARCHAR(64),
+  `Customer_ID` VARCHAR(64),
+  `Amount` INT,
+  PRIMARY KEY (`Trip_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `complaint` (
+  `Complaint_ID` VARCHAR(64),
+  `Customer_ID` VARCHAR(64),
+  `Comments` VARCHAR(64),
+  PRIMARY KEY (`Complaint_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customer_care` (
+  `Complaint_ID` VARCHAR(64),
+  `Representative_ID` VARCHAR(64),
+  PRIMARY KEY (`Representative_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_414950_fabcab3') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_414950_fabcab3') AS relationships;
+DROP DATABASE `db_414950_fabcab3`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 602785_schema
+#
+CREATE DATABASE `db_602785_schema`;
+USE `db_602785_schema`;
+CREATE TABLE `config` (
+`name` VARCHAR(64),
+`value` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`userid` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`phone` VARCHAR(64),
+`usergroup` VARCHAR(64),
+`lastlogin` INT,
+`regdate` INT,
+PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+CREATE TABLE `locations` (
+`locationid` INT,
+`name` VARCHAR(64),
+`maintainer` INT,
+`address` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`status` VARCHAR(64),
+`gallerylink` VARCHAR(64),
+`createdate` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`locationid`)
+) CHARACTER SET latin1;
+CREATE TABLE `nodes` (
+`nodeid` INT,
+`name` VARCHAR(64),
+`maintainer` INT,
+`location` INT,
+`createdate` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`nodeid`)
+) CHARACTER SET latin1;
+CREATE TABLE `interfaces` (
+`interfaceid` INT,
+`name` VARCHAR(64),
+`node` INT,
+`category` VARCHAR(64),
+`type` VARCHAR(64),
+`address` VARCHAR(64),
+`status` VARCHAR(64),
+`ping` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`interfaceid`)
+) CHARACTER SET latin1;
+CREATE TABLE `linkdata` (
+`linkid` INT,
+`fromif` INT,
+`toif` INT,
+`quality` DECIMAL(10,2),
+`neighborquality` DECIMAL(10,2),
+`source` VARCHAR(64),
+`status` VARCHAR(64),
+`firstup` INT,
+`lastup` INT,
+PRIMARY KEY (`linkid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_602785_schema') AS relationships;
+relationships
+Database: db_602785_schema
+
+Table Connections:
+------------------
+[Implied]  interfaces.node -> nodes.nodeid
+[Implied]  nodes.location -> locations.locationid
+
+DROP DATABASE `db_602785_schema`;
+UNINSTALL EXTENSION vsql_schematron;

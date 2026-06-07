@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 614162_db
+#
+CREATE DATABASE `db_614162_db`;
+USE `db_614162_db`;
+CREATE TABLE `user` (
+`user_id` INT,
+`username` VARCHAR(64),
+`f_name` VARCHAR(64),
+`l_name` VARCHAR(64),
+`password` VARCHAR(64),
+`msisdn` VARCHAR(64),
+`PIN` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contact` (
+`contact_id` INT,
+`user_id` INT,
+`f_name` VARCHAR(64),
+`l_name` VARCHAR(64),
+`full_name` VARCHAR(64),
+`g_id` VARCHAR(64),
+PRIMARY KEY (`contact_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contact_phone_number` (
+`contact_id` INT,
+`type` VARCHAR(64),
+`number` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `call` (
+`call_id` INT,
+`call_from` VARCHAR(64),
+`call_to` VARCHAR(64),
+`duration` INT,
+`status` VARCHAR(64),
+`direction` INT,
+`ts` DATETIME,
+`parent_call_id` INT,
+PRIMARY KEY (`call_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `twilio_call` (
+`call_sid` VARCHAR(64),
+`account_sid` VARCHAR(64),
+`call_id` INT,
+PRIMARY KEY (`call_sid`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_auth_attempt` (
+`msisdn` VARCHAR(64),
+`call_id` INT,
+`ts` DATETIME,
+`auth_code` INT,
+`user_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `authenticated_call` (
+`user_id` INT,
+`call_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `call_auth_msisdn` (
+`call_id` INT,
+`msisdn` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `user_auth_blacklist` (
+`msisdn` VARCHAR(64),
+`expiry` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `call_matched_contact` (
+`call_id` INT,
+`contact_id` INT,
+`selected` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_614162_db') AS relationships;
+relationships
+Database: db_614162_db
+
+Table Connections:
+------------------
+[Implied]  authenticated_call.call_id -> call.call_id
+[Implied]  authenticated_call.user_id -> contact.contact_id
+[Implied]  call.parent_call_id -> call.call_id
+[Implied]  call_auth_msisdn.call_id -> call.call_id
+[Implied]  call_matched_contact.call_id -> call.call_id
+[Implied]  call_matched_contact.contact_id -> contact.contact_id
+[Implied]  contact.user_id -> user.user_id
+[Implied]  contact_phone_number.contact_id -> contact.contact_id
+[Implied]  twilio_call.call_id -> call.call_id
+[Implied]  user_auth_attempt.call_id -> call.call_id
+[Implied]  user_auth_attempt.user_id -> contact.contact_id
+
+DROP DATABASE `db_614162_db`;
+UNINSTALL EXTENSION vsql_schematron;

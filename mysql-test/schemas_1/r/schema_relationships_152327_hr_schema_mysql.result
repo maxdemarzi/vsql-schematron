@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 152327_hr-schema-mysql
+#
+CREATE DATABASE `db_152327_hr_schema_mysql`;
+USE `db_152327_hr_schema_mysql`;
+CREATE TABLE `regions` (
+`region_id` INT,
+`region_name` VARCHAR(64),
+PRIMARY KEY (`region_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `countries` (
+`country_id` VARCHAR(64),
+`country_name` VARCHAR(64),
+`region_id` INT,
+PRIMARY KEY (`country_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `locations` (
+`location_id` INT,
+`street_address` VARCHAR(64),
+`postal_code` VARCHAR(64),
+`city` VARCHAR(64),
+`state_province` VARCHAR(64),
+`country_id` VARCHAR(64),
+PRIMARY KEY (`location_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `departments` (
+`department_id` INT,
+`department_name` VARCHAR(64),
+`manager_id` INT,
+`location_id` INT,
+PRIMARY KEY (`department_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`employee_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`hire_date` DATETIME,
+`salary` DECIMAL(10,2),
+`manager_id` INT,
+`department_id` INT,
+PRIMARY KEY (`employee_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_152327_hr_schema_mysql') AS relationships;
+relationships
+Database: db_152327_hr_schema_mysql
+
+Table Connections:
+------------------
+[Implied]  countries.region_id -> regions.region_id
+[Implied]  departments.location_id -> locations.location_id
+[Implied]  departments.manager_id -> departments.department_id
+[Implied]  employees.department_id -> departments.department_id
+[Implied]  employees.manager_id -> employees.employee_id
+[Implied]  locations.country_id -> countries.country_id
+
+DROP DATABASE `db_152327_hr_schema_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

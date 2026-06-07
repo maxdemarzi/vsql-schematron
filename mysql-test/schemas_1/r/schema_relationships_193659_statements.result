@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 193659_statements
+#
+CREATE DATABASE `db_193659_statements`;
+USE `db_193659_statements`;
+CREATE TABLE `Centre` (
+`CentreID` INT,
+`Name` VARCHAR(64),
+`Address` VARCHAR(64),
+`PhoneNo` VARCHAR(64),
+PRIMARY KEY (`CentreID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Car` (
+`CarID` INT,
+`RegNo` VARCHAR(64),
+`Model` VARCHAR(64),
+PRIMARY KEY (`CarID`)
+) CHARACTER SET latin1;
+CREATE TABLE `School` (
+`SchoolID` INT,
+`Address` VARCHAR(64),
+PRIMARY KEY (`SchoolID`)
+) CHARACTER SET latin1;
+CREATE TABLE `AdminStaff` (
+`EmpID` INT,
+`Forename` VARCHAR(64),
+`Surname` VARCHAR(64),
+`Gender` VARCHAR(64),
+`PhoneNo` VARCHAR(64),
+`Address` VARCHAR(64),
+`Role` VARCHAR(64),
+`SchoolID` INT,
+PRIMARY KEY (`EmpID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Instructor` (
+`EmpID` INT,
+`Forename` VARCHAR(64),
+`Surname` VARCHAR(64),
+`Gender` VARCHAR(64),
+`PhoneNo` VARCHAR(64),
+`Address` VARCHAR(64),
+`LicenceNo` VARCHAR(64),
+`SchoolID` INT,
+`CarID` INT,
+PRIMARY KEY (`EmpID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Client` (
+`ClientID` INT,
+`Forename` VARCHAR(64),
+`Surname` VARCHAR(64),
+`Gender` VARCHAR(64),
+`DoB` DATETIME,
+`PhoneNo` VARCHAR(64),
+`Address` VARCHAR(64),
+`ProvLicenceNo` VARCHAR(64),
+`SchoolID` INT,
+PRIMARY KEY (`ClientID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Lesson` (
+`OnDate` DATETIME,
+`OnTime` DATETIME,
+`ClientID` INT,
+`EmpID` INT,
+PRIMARY KEY (`OnDate`, `OnTime`, `ClientID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Test` (
+`OnDate` DATETIME,
+`OnTime` DATETIME,
+`ClientID` INT,
+`EmpID` INT,
+`CentreID` INT,
+`Status` VARCHAR(64),
+`Reason` VARCHAR(64),
+PRIMARY KEY (`OnDate`, `OnTime`, `ClientID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_193659_statements') AS relationships;
+relationships
+Database: db_193659_statements
+
+Table Connections:
+------------------
+[Implied]  AdminStaff.SchoolID -> School.SchoolID
+[Implied]  Client.SchoolID -> School.SchoolID
+[Implied]  Instructor.CarID -> Car.CarID
+[Implied]  Instructor.SchoolID -> School.SchoolID
+[Implied]  Lesson.ClientID -> Client.ClientID
+[Implied]  Lesson.EmpID -> AdminStaff.EmpID
+[Implied]  Lesson.EmpID -> Instructor.EmpID
+[Implied]  Test.CentreID -> Centre.CentreID
+[Implied]  Test.ClientID -> Client.ClientID
+[Implied]  Test.EmpID -> AdminStaff.EmpID
+[Implied]  Test.EmpID -> Instructor.EmpID
+
+DROP DATABASE `db_193659_statements`;
+UNINSTALL EXTENSION vsql_schematron;

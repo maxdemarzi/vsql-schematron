@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 401713_banco
+#
+CREATE DATABASE `db_401713_banco`;
+USE `db_401713_banco`;
+CREATE TABLE `Compra` (
+`lote` INT,
+`idVacina` INT,
+`custo` INT,
+`dataCompra` DATETIME,
+`fabricacao` DATETIME,
+`validade` DATETIME,
+PRIMARY KEY (`lote`)
+) CHARACTER SET latin1;
+CREATE TABLE `Estoque` (
+`idVacina` INT,
+`vacAplicadas` INT,
+`vacDescartadas` INT,
+`dosesTotal` INT,
+PRIMARY KEY (`idVacina`)
+) CHARACTER SET latin1;
+CREATE TABLE `Historico` (
+`idVacinaGeral` INT,
+`idFaixaEtaria` INT,
+`idAno` INT,
+`idPessoa` INT,
+`idUnidadeSaude` INT,
+`data` DATETIME,
+`doseAtual` INT,
+`idVacina` INT,
+PRIMARY KEY (`idVacinaGeral`, `idFaixaEtaria`, `idAno`, `idPessoa`)
+) CHARACTER SET latin1;
+CREATE TABLE `Vacina_Doenca` (
+`idVacina` INT,
+`idDoenca` INT,
+`idVacinaGeral` INT,
+PRIMARY KEY (`idVacina`, `idDoenca`, `idVacinaGeral`)
+) CHARACTER SET latin1;
+CREATE TABLE `Vacinacao` (
+`idVacinaGeral` INT,
+`idFaixaEtaria` INT,
+`idAno` INT,
+PRIMARY KEY (`idVacinaGeral`, `idFaixaEtaria`, `idAno`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_401713_banco') AS relationships;
+relationships
+Database: db_401713_banco
+
+Table Connections:
+------------------
+[Implied]  Compra.idVacina -> Estoque.idVacina
+[Implied]  Historico.idAno -> Vacinacao.idAno
+[Implied]  Historico.idFaixaEtaria -> Vacinacao.idFaixaEtaria
+[Implied]  Historico.idVacina -> Estoque.idVacina
+[Implied]  Historico.idVacinaGeral -> Vacina_Doenca.idVacinaGeral
+[Implied]  Historico.idVacinaGeral -> Vacinacao.idVacinaGeral
+[Implied]  Vacina_Doenca.idVacina -> Estoque.idVacina
+[Implied]  Vacina_Doenca.idVacinaGeral -> Historico.idVacinaGeral
+[Implied]  Vacina_Doenca.idVacinaGeral -> Vacinacao.idVacinaGeral
+[Implied]  Vacinacao.idAno -> Historico.idAno
+[Implied]  Vacinacao.idFaixaEtaria -> Historico.idFaixaEtaria
+[Implied]  Vacinacao.idVacinaGeral -> Historico.idVacinaGeral
+[Implied]  Vacinacao.idVacinaGeral -> Vacina_Doenca.idVacinaGeral
+
+DROP DATABASE `db_401713_banco`;
+UNINSTALL EXTENSION vsql_schematron;

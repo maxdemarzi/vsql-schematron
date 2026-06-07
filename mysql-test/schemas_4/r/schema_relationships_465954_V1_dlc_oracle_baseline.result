@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 465954_V1__dlc_oracle_baseline
+#
+CREATE DATABASE `db_465954_V1_dlc_oracle_baseline`;
+USE `db_465954_V1_dlc_oracle_baseline`;
+CREATE TABLE `r_values` (
+`nonce` VARCHAR(64),
+`event_name` VARCHAR(64),
+`hd_purpose` INT,
+`coin` INT,
+`account_index` INT,
+`chain_type` INT,
+`key_index` INT,
+`announcement_signature` VARCHAR(64),
+PRIMARY KEY (`nonce`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`nonce` VARCHAR(64),
+`pubkey` VARCHAR(64),
+`event_name` VARCHAR(64),
+`num_outcomes` INT,
+`signing_version` VARCHAR(64),
+`maturation_time` DATETIME,
+`attestation` VARCHAR(64),
+PRIMARY KEY (`nonce`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_outcomes` (
+`nonce` VARCHAR(64),
+`message` VARCHAR(64),
+`hashed_message` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_465954_V1_dlc_oracle_baseline') AS relationships;
+relationships
+Database: db_465954_V1_dlc_oracle_baseline
+
+Table Connections:
+------------------
+[Implied]  event_outcomes.nonce -> events.nonce
+[Implied]  event_outcomes.nonce -> r_values.nonce
+
+DROP DATABASE `db_465954_V1_dlc_oracle_baseline`;
+UNINSTALL EXTENSION vsql_schematron;

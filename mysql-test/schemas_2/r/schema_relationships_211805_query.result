@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 211805_query
+#
+CREATE DATABASE `db_211805_query`;
+USE `db_211805_query`;
+CREATE TABLE `goods` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`year` INT,
+`manufacturer` VARCHAR(64),
+`manufacturer_website` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shops` (
+`id` VARCHAR(64),
+`company` VARCHAR(64),
+`name` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`registered` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`id` VARCHAR(64),
+`shop_id` VARCHAR(64),
+`job` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`phone` VARCHAR(64),
+`salary` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`phone` VARCHAR(64),
+`registered` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` VARCHAR(64),
+`parent_id` VARCHAR(64),
+`user_id` VARCHAR(64),
+`date` DATETIME,
+`comment` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reviews` (
+`id` VARCHAR(64),
+`shop_id` VARCHAR(64),
+`good_id` VARCHAR(64),
+`employee_id` VARCHAR(64),
+`reviewer_id` VARCHAR(64),
+`comment_id` VARCHAR(64),
+`date` DATETIME,
+`good_rating` DECIMAL(10,2),
+`shop_rating` DECIMAL(10,2),
+`employee_rating` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_211805_query') AS relationships;
+relationships
+Database: db_211805_query
+
+Table Connections:
+------------------
+[Implied]  comments.parent_id -> comments.id
+[Implied]  comments.user_id -> users.id
+[Implied]  employees.shop_id -> shops.id
+[Implied]  reviews.comment_id -> comments.id
+[Implied]  reviews.employee_id -> employees.id
+[Implied]  reviews.good_id -> goods.id
+[Implied]  reviews.shop_id -> shops.id
+
+DROP DATABASE `db_211805_query`;
+UNINSTALL EXTENSION vsql_schematron;

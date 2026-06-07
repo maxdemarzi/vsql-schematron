@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 631865_modell_ddl_4
+#
+CREATE DATABASE `db_631865_modell_ddl_4`;
+USE `db_631865_modell_ddl_4`;
+CREATE TABLE `Doctors` (
+`DoctorID` INT,
+`First_Name` VARCHAR(64),
+`Last_Name` VARCHAR(64),
+`CenterID` INT,
+`Employed_Since` DATETIME,
+PRIMARY KEY (`DoctorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Patients` (
+`PatientID` INT,
+`First_Name` VARCHAR(64),
+`Last_Name` VARCHAR(64),
+`Member_Since` DATETIME,
+PRIMARY KEY (`PatientID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Visits` (
+`VisitID` INT,
+`Doctor` INT,
+`Patient` INT,
+`Diagnosis` INT,
+`Date` DATETIME,
+PRIMARY KEY (`VisitID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Diseases` (
+`DiseaseID` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`DiseaseID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Diagnoses` (
+`DiagnosisID` INT,
+`Instructions` VARCHAR(64),
+`Disease` INT,
+`Visit` INT,
+PRIMARY KEY (`DiagnosisID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_631865_modell_ddl_4') AS relationships;
+relationships
+Database: db_631865_modell_ddl_4
+
+Table Connections:
+------------------
+[Implied]  Diagnoses.Disease -> Diseases.DiseaseID
+[Implied]  Diagnoses.Visit -> Visits.VisitID
+[Implied]  Visits.Doctor -> Doctors.DoctorID
+[Implied]  Visits.Patient -> Patients.PatientID
+
+DROP DATABASE `db_631865_modell_ddl_4`;
+UNINSTALL EXTENSION vsql_schematron;

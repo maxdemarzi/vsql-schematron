@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 266628_tables
+#
+CREATE DATABASE `db_266628_tables`;
+USE `db_266628_tables`;
+CREATE TABLE `users` (
+`username` VARCHAR(64),
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`birthDate` DATETIME,
+`registery_date` DATETIME,
+`bio` VARCHAR(64),
+`followers` INT,
+`following` INT,
+`password` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `tweet` (
+`tweetid` INT,
+`type` VARCHAR(64),
+`username` VARCHAR(64),
+`tweet_content` VARCHAR(64),
+`ref_id` INT,
+`timestamp_t` DATETIME,
+`likes` INT,
+PRIMARY KEY (`tweetid`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`mess_id` INT,
+`type` VARCHAR(64),
+`s_id` VARCHAR(64),
+`r_id` VARCHAR(64),
+`content` VARCHAR(64),
+`ref_id` INT,
+`timestamp_t` DATETIME,
+PRIMARY KEY (`mess_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `login_record` (
+`username` VARCHAR(64),
+`timestamp_t` DATETIME,
+PRIMARY KEY (`username`, `timestamp_t`)
+) CHARACTER SET latin1;
+CREATE TABLE `follow` (
+`follower` VARCHAR(64),
+`following` VARCHAR(64),
+PRIMARY KEY (`follower`, `following`)
+) CHARACTER SET latin1;
+CREATE TABLE `hashtag` (
+`hashtag` VARCHAR(64),
+`tweetid` INT,
+PRIMARY KEY (`hashtag`, `tweetid`)
+) CHARACTER SET latin1;
+CREATE TABLE `likes` (
+`username` VARCHAR(64),
+`tweetid` INT,
+`timeStamp_l` DATETIME,
+PRIMARY KEY (`tweetid`, `username`)
+) CHARACTER SET latin1;
+CREATE TABLE `block` (
+`username` VARCHAR(64),
+`blocked_user` VARCHAR(64),
+PRIMARY KEY (`username`, `blocked_user`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_266628_tables') AS relationships;
+relationships
+Database: db_266628_tables
+
+Table Connections:
+------------------
+[Implied]  block.blocked_user -> users.username
+[Implied]  block.username -> users.username
+[Implied]  hashtag.tweetid -> tweet.tweetid
+[Implied]  likes.tweetid -> tweet.tweetid
+[Implied]  likes.username -> users.username
+[Implied]  login_record.username -> users.username
+[Implied]  tweet.username -> users.username
+
+DROP DATABASE `db_266628_tables`;
+UNINSTALL EXTENSION vsql_schematron;

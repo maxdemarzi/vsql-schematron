@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 315560_000001_init.up
+#
+CREATE DATABASE `db_315560_000001_init_up`;
+USE `db_315560_000001_init_up`;
+CREATE TABLE `Users` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`company` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserInterest` (
+`id` INT,
+`userId` INT,
+`topic` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Instructors` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`company` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `InstructorExpertise` (
+`id` INT,
+`instructorId` INT,
+`topic` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Courses` (
+`id` INT,
+`instructorId` INT,
+`name` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CourseTopic` (
+`id` INT,
+`courseId` INT,
+`topic` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CourseAttendee` (
+`id` INT,
+`courseId` INT,
+`attendeeId` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_315560_000001_init_up') AS relationships;
+relationships
+Database: db_315560_000001_init_up
+
+Table Connections:
+------------------
+[Implied]  CourseAttendee.courseId -> Courses.id
+[Implied]  CourseTopic.courseId -> Courses.id
+[Implied]  Courses.instructorId -> Instructors.id
+[Implied]  InstructorExpertise.instructorId -> Instructors.id
+[Implied]  UserInterest.userId -> Users.id
+
+DROP DATABASE `db_315560_000001_init_up`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 646565_V1.0.0.1622672697511__Add_users_table
+--echo #
+CREATE DATABASE `db_646565_V1_0_0_1622672697511_Add_users_table`;
+USE `db_646565_V1_0_0_1622672697511_Add_users_table`;
+
+CREATE TABLE `status_codes` (
+  `id` INT,
+  `status` VARCHAR(64),
+  `code` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_at` DATETIME,
+  `active` BOOL,
+  `is_system_role` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permission_groups` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permissions` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `group` VARCHAR(64),
+  `system_permission` BOOL,
+  `active` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `created_at` DATETIME,
+  `location` INT,
+  `modified_at` DATETIME,
+  `last_auth_attempt_at` DATETIME,
+  `session_id` VARCHAR(64),
+  `ip_address` VARCHAR(64),
+  `status` INT,
+  `status_text` VARCHAR(64),
+  `auth_attempts` INT,
+  `user_name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `role` VARCHAR(64),
+  `system_user` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_permissions` (
+  `id` INT,
+  `role` VARCHAR(64),
+  `permission` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_646565_V1_0_0_1622672697511_Add_users_table') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_646565_V1_0_0_1622672697511_Add_users_table') AS relationships;
+DROP DATABASE `db_646565_V1_0_0_1622672697511_Add_users_table`;
+UNINSTALL EXTENSION vsql_schematron;

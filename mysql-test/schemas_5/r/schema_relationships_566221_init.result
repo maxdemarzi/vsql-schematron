@@ -1,0 +1,99 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 566221_init
+#
+CREATE DATABASE `db_566221_init`;
+USE `db_566221_init`;
+CREATE TABLE `role` (
+`id` INT,
+`name` VARCHAR(64),
+`can_create` INT,
+`can_update` INT,
+`can_delete` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`id_role` INT,
+`image` VARCHAR(64),
+`username` VARCHAR(64),
+`login` VARCHAR(64),
+`password` VARCHAR(64),
+`mail` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `artist` (
+`id` INT,
+`name` VARCHAR(64),
+`url` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `type_tag` (
+`id` INT,
+`name` VARCHAR(64),
+`colour` VARCHAR(64),
+`description` VARCHAR(64),
+`created_by` INT,
+`created_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`id` INT,
+`id_type` INT,
+`name` VARCHAR(64),
+`image_count` INT,
+`description` VARCHAR(64),
+`created_by` INT,
+`created_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_favourite_tag` (
+`id` INT,
+`id_user` INT,
+`id_tag` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_favourite_image` (
+`id` INT,
+`id_user` INT,
+`id_image` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `image` (
+`id` INT,
+`id_artist` INT,
+`filename` VARCHAR(64),
+`url` VARCHAR(64),
+`source` VARCHAR(64),
+`tags` VARCHAR(64),
+`commentaires` VARCHAR(64),
+`date_creation` VARCHAR(64),
+`uploaded_by` INT,
+`uploaded_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_566221_init') AS relationships;
+relationships
+Database: db_566221_init
+
+Table Connections:
+------------------
+[Implied]  image.id_artist -> artist.id
+[Implied]  image.uploaded_by -> user.id
+[Implied]  tag.created_by -> user_favourite_image.id
+[Implied]  tag.created_by -> user_favourite_tag.id
+[Implied]  tag.id_type -> type_tag.id
+[Implied]  type_tag.created_by -> user_favourite_image.id
+[Implied]  type_tag.created_by -> user_favourite_tag.id
+[Implied]  user.id_role -> role.id
+[Implied]  user_favourite_image.id_image -> image.id
+[Implied]  user_favourite_image.id_user -> user_favourite_image.id
+[Implied]  user_favourite_image.id_user -> user_favourite_tag.id
+[Implied]  user_favourite_tag.id_tag -> tag.id
+[Implied]  user_favourite_tag.id_tag -> type_tag.id
+[Implied]  user_favourite_tag.id_user -> user_favourite_image.id
+[Implied]  user_favourite_tag.id_user -> user_favourite_tag.id
+
+DROP DATABASE `db_566221_init`;
+UNINSTALL EXTENSION vsql_schematron;

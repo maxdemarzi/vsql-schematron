@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 072998_V1.0.0.0__Setup
+#
+CREATE DATABASE `db_072998_V1_0_0_0_Setup`;
+USE `db_072998_V1_0_0_0_Setup`;
+CREATE TABLE `STUDY` (
+`StudyKey` INT,
+`PoolKey` INT,
+`PatientID` VARCHAR(64),
+`PatientName` VARCHAR(64),
+`PatientBirthDate` DATETIME,
+`PatientSex` VARCHAR(64),
+`StudyInstanceUID` VARCHAR(64),
+`StudyID` VARCHAR(64),
+`StudyDate` DATETIME,
+`StudyTime` DATETIME,
+`AccessionNumber` VARCHAR(64),
+`ReferringPhysicianName` VARCHAR(64),
+`StudyDescription` VARCHAR(64),
+`UpdatedTimestamp` DATETIME,
+`CreatedTimestamp` DATETIME,
+PRIMARY KEY (`StudyKey`)
+) CHARACTER SET latin1;
+CREATE TABLE `SERIES` (
+`SeriesKey` INT,
+`StudyKey` INT,
+`SeriesInstanceUID` VARCHAR(64),
+`SeriesNumber` VARCHAR(64),
+`Modality` VARCHAR(64),
+`BodyPartExamined` VARCHAR(64),
+`Laterality` VARCHAR(64),
+`SeriesDescription` VARCHAR(64),
+`InstitutionName` VARCHAR(64),
+`StationName` VARCHAR(64),
+`InstitutionalDepartmentName` VARCHAR(64),
+`PerformingPhysicianName` VARCHAR(64),
+`NumberOfSeriesRelatedInstances` INT,
+`CreatedTime` DATETIME,
+`UpdatedTime` DATETIME,
+PRIMARY KEY (`SeriesKey`)
+) CHARACTER SET latin1;
+CREATE TABLE `INSTANCE` (
+`InstanceKey` INT,
+`SeriesKey` INT,
+`SOPInstanceUID` VARCHAR(64),
+`SOPClassUID` VARCHAR(64),
+`InstanceNumber` VARCHAR(64),
+`ContentDate` DATETIME,
+`ContentTime` DATETIME,
+`UpdatedTime` DATETIME,
+`CreatedTime` DATETIME,
+`FilePath` VARCHAR(64),
+PRIMARY KEY (`InstanceKey`)
+) CHARACTER SET latin1;
+CREATE TABLE `DEVICE` (
+`DeviceKey` INT,
+`PoolKey` INT,
+`ApplicationEntityTitle` VARCHAR(64),
+`CallingApplicationEntityTitle` VARCHAR(64),
+`HostName` VARCHAR(64),
+`Description` VARCHAR(64),
+`Port` INT,
+PRIMARY KEY (`DeviceKey`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_072998_V1_0_0_0_Setup') AS relationships;
+relationships
+Database: db_072998_V1_0_0_0_Setup
+
+Table Connections:
+------------------
+[Implied]  INSTANCE.SeriesKey -> SERIES.SeriesKey
+[Implied]  SERIES.StudyKey -> STUDY.StudyKey
+
+DROP DATABASE `db_072998_V1_0_0_0_Setup`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 259481_00001_create-initial-tables
+#
+CREATE DATABASE `db_259481_00001_create_initial_tables`;
+USE `db_259481_00001_create_initial_tables`;
+CREATE TABLE `user_roles` (
+`role_id` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`user_id` INT,
+`role_id` VARCHAR(64),
+`uid` VARCHAR(64),
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `maps` (
+`map_id` INT,
+`user_id` INT,
+`center_location` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`map_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `marker_categories` (
+`category_id` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `marker_subcategories` (
+`subcategory_id` INT,
+`category_id` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`subcategory_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `report_status` (
+`report_status_id` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`report_status_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reports` (
+`report_id` INT,
+`user_id` INT,
+`map_id` INT,
+`subcategory_id` INT,
+`report_status_id` VARCHAR(64),
+`location` INT,
+`note` VARCHAR(64),
+PRIMARY KEY (`report_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `markers` (
+`marker_id` INT,
+`map_id` INT,
+`subcategory_id` INT,
+`location` INT,
+PRIMARY KEY (`marker_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_259481_00001_create_initial_tables') AS relationships;
+relationships
+Database: db_259481_00001_create_initial_tables
+
+Table Connections:
+------------------
+[Implied]  maps.user_id -> users.user_id
+[Implied]  marker_subcategories.category_id -> marker_categories.category_id
+[Implied]  markers.subcategory_id -> marker_categories.category_id
+[Implied]  markers.subcategory_id -> marker_subcategories.subcategory_id
+[Implied]  reports.report_status_id -> report_status.report_status_id
+[Implied]  reports.subcategory_id -> marker_categories.category_id
+[Implied]  reports.subcategory_id -> marker_subcategories.subcategory_id
+[Implied]  reports.user_id -> users.user_id
+[Implied]  users.role_id -> user_roles.role_id
+
+DROP DATABASE `db_259481_00001_create_initial_tables`;
+UNINSTALL EXTENSION vsql_schematron;

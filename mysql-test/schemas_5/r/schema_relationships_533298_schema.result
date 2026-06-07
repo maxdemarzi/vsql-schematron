@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 533298_schema
+#
+CREATE DATABASE `db_533298_schema`;
+USE `db_533298_schema`;
+CREATE TABLE `album_user` (
+`userid` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`avatar` VARCHAR(64),
+PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+CREATE TABLE `album` (
+`albumid` INT,
+`userid` INT,
+`albumname` VARCHAR(64),
+PRIMARY KEY (`albumid`)
+) CHARACTER SET latin1;
+CREATE TABLE `ele` (
+`eleid` INT,
+`source` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`eleid`)
+) CHARACTER SET latin1;
+CREATE TABLE `relation` (
+`albumid` INT,
+`eleid` INT
+) CHARACTER SET latin1;
+CREATE TABLE `user_relation` (
+`userid` INT,
+`friendid` INT
+) CHARACTER SET latin1;
+CREATE TABLE `like_relation` (
+`userid` INT,
+`eleid` INT
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`commentid` INT,
+`eleid` INT,
+`userid` INT,
+`tarid` INT,
+`comments` VARCHAR(64),
+PRIMARY KEY (`commentid`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`messageid` INT,
+`userid` INT,
+`tarid` INT,
+`flag` BOOL,
+`type` INT,
+`info` INT,
+PRIMARY KEY (`messageid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_533298_schema') AS relationships;
+relationships
+Database: db_533298_schema
+
+Table Connections:
+------------------
+[Implied]  album.userid -> album_user.userid
+[Implied]  comment.eleid -> ele.eleid
+[Implied]  comment.userid -> album_user.userid
+[Implied]  like_relation.eleid -> ele.eleid
+[Implied]  like_relation.userid -> album_user.userid
+[Implied]  message.userid -> album_user.userid
+[Implied]  relation.albumid -> album.albumid
+[Implied]  relation.eleid -> ele.eleid
+[Implied]  user_relation.userid -> album_user.userid
+
+DROP DATABASE `db_533298_schema`;
+UNINSTALL EXTENSION vsql_schematron;

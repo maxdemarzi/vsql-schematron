@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 582684_createTables
+#
+CREATE DATABASE `db_582684_createTables`;
+USE `db_582684_createTables`;
+CREATE TABLE `users` (
+`_id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`affiliation` VARCHAR(64),
+`points` INT,
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shoutouts` (
+`_id` INT,
+`contents` VARCHAR(64),
+`sender_id` INT,
+`recipient_id` INT,
+`timestamp` VARCHAR(64),
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stats` (
+`totalShoutouts` INT,
+`lastShoutoutId` VARCHAR(64),
+`lastShoutoutTimestamp` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`_id` INT,
+`user_id` INT,
+`token` VARCHAR(64),
+PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_582684_createTables') AS relationships;
+relationships
+Database: db_582684_createTables
+
+Table Connections:
+------------------
+[Implied]  sessions.user_id -> shoutouts._id
+[Implied]  shoutouts.recipient_id -> sessions._id
+[Implied]  shoutouts.sender_id -> sessions._id
+
+DROP DATABASE `db_582684_createTables`;
+UNINSTALL EXTENSION vsql_schematron;

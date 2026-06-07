@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 174537_Autobuses
+#
+CREATE DATABASE `db_174537_Autobuses`;
+USE `db_174537_Autobuses`;
+CREATE TABLE `terminal` (
+`id` INT,
+`ubicacion` VARCHAR(64),
+`ciudad` VARCHAR(64),
+`autobuses_disponibles` INT,
+`cordinador` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `autobuses` (
+`id` INT,
+`tipo` VARCHAR(64),
+`capacidad_personas` INT,
+`operador` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `boletos` (
+`id` INT,
+`costo` INT,
+`terminal` INT,
+`destino` VARCHAR(64),
+`fecha_salida` VARCHAR(64),
+`fecha_compra` DATETIME,
+`tipo_viaje` VARCHAR(64),
+`autobus` INT,
+`estado` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `operadores` (
+`id` INT,
+`nombre` VARCHAR(64),
+`apellido_pater` VARCHAR(64),
+`apellido_mater` VARCHAR(64),
+`telefono` VARCHAR(64),
+`autobus` INT,
+`terminal` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_174537_Autobuses') AS relationships;
+relationships
+Database: db_174537_Autobuses
+
+Table Connections:
+------------------
+[Implied]  autobuses.operador -> operadores.id
+[Implied]  boletos.autobus -> autobuses.id
+[Implied]  boletos.terminal -> terminal.id
+[Implied]  operadores.autobus -> autobuses.id
+[Implied]  operadores.terminal -> terminal.id
+
+DROP DATABASE `db_174537_Autobuses`;
+UNINSTALL EXTENSION vsql_schematron;

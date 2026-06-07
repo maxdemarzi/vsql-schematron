@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 205447_database
+#
+CREATE DATABASE `db_205447_database`;
+USE `db_205447_database`;
+CREATE TABLE `users` (
+`uniqueId` VARCHAR(64),
+`displayName` VARCHAR(64),
+`profileImage` VARCHAR(64),
+`gender` VARCHAR(64),
+`country` INT,
+`state` VARCHAR(64),
+`city` VARCHAR(64),
+PRIMARY KEY (`uniqueId`)
+) CHARACTER SET latin1;
+CREATE TABLE `userPayments` (
+`userId` VARCHAR(64),
+`billingId` VARCHAR(64),
+`cardType` VARCHAR(64),
+`cardNum` INT,
+PRIMARY KEY (`billingId`)
+) CHARACTER SET latin1;
+CREATE TABLE `loginCredential` (
+`provider` VARCHAR(64),
+`uniqueId` VARCHAR(64),
+`userId` VARCHAR(64),
+`accessToken` VARCHAR(64),
+PRIMARY KEY (`provider`, `uniqueId`)
+) CHARACTER SET latin1;
+CREATE TABLE `venue` (
+`idx` VARCHAR(64),
+`country` VARCHAR(64),
+`state` VARCHAR(64),
+`city` VARCHAR(64),
+`streetAddress` VARCHAR(64),
+`detailAddress` VARCHAR(64),
+PRIMARY KEY (`idx`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`idx` VARCHAR(64),
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`hostId` VARCHAR(64),
+`venueId` VARCHAR(64),
+`feeAmount` INT,
+PRIMARY KEY (`idx`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`idx` VARCHAR(64),
+`eventId` VARCHAR(64),
+`parentId` VARCHAR(64),
+`writerId` VARCHAR(64),
+`comment` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`idx`)
+) CHARACTER SET latin1;
+CREATE TABLE `attendees` (
+`eventId` VARCHAR(64),
+`attendeeId` VARCHAR(64),
+`attending` INT,
+PRIMARY KEY (`eventId`, `attendeeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `paymentLog` (
+`transactionId` VARCHAR(64),
+`userId` VARCHAR(64),
+PRIMARY KEY (`transactionId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_205447_database') AS relationships;
+relationships
+Database: db_205447_database
+
+Table Connections:
+------------------
+[Implied]  attendees.eventId -> events.idx
+[Implied]  comments.eventId -> events.idx
+[Implied]  comments.parentId -> comments.idx
+[Implied]  events.venueId -> venue.idx
+[Implied]  loginCredential.uniqueId -> users.uniqueId
+[Implied]  loginCredential.userId -> users.uniqueId
+[Implied]  paymentLog.userId -> users.uniqueId
+[Implied]  userPayments.userId -> users.uniqueId
+
+DROP DATABASE `db_205447_database`;
+UNINSTALL EXTENSION vsql_schematron;

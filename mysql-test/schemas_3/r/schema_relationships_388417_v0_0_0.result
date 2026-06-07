@@ -1,0 +1,111 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 388417_v0.0.0
+#
+CREATE DATABASE `db_388417_v0_0_0`;
+USE `db_388417_v0_0_0`;
+CREATE TABLE `user` (
+`id` INT,
+`created` DATETIME,
+`username` VARCHAR(64),
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project` (
+`id` INT,
+`created` DATETIME,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project__user` (
+`project_id` INT,
+`user_id` INT,
+`admin` BOOL
+) CHARACTER SET latin1;
+CREATE TABLE `access_key` (
+`id` INT,
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`project_id` INT,
+`key` VARCHAR(64),
+`secret` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project__repository` (
+`id` INT,
+`project_id` INT,
+`git_url` VARCHAR(64),
+`ssh_key_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project__inventory` (
+`id` INT,
+`project_id` INT,
+`type` VARCHAR(64),
+`key_id` INT,
+`inventory` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project__environment` (
+`id` INT,
+`project_id` INT,
+`password` VARCHAR(64),
+`json` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project__template` (
+`id` INT,
+`ssh_key_id` INT,
+`project_id` INT,
+`inventory_id` INT,
+`repository_id` INT,
+`environment_id` INT,
+`playbook` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project__template_schedule` (
+`template_id` INT,
+`cron_format` VARCHAR(64),
+PRIMARY KEY (`template_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `task` (
+`id` INT,
+`template_id` INT,
+`status` VARCHAR(64),
+`playbook` VARCHAR(64),
+`environment` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `task__output` (
+`task_id` INT,
+`task` VARCHAR(64),
+`time` DATETIME,
+`output` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_388417_v0_0_0') AS relationships;
+relationships
+Database: db_388417_v0_0_0
+
+Table Connections:
+------------------
+[Implied]  access_key.project_id -> project.id
+[Implied]  project__environment.project_id -> project.id
+[Implied]  project__inventory.key_id -> access_key.id
+[Implied]  project__inventory.project_id -> project.id
+[Implied]  project__repository.project_id -> project.id
+[Implied]  project__repository.ssh_key_id -> access_key.id
+[Implied]  project__template.environment_id -> project__environment.id
+[Implied]  project__template.inventory_id -> project__inventory.id
+[Implied]  project__template.project_id -> project.id
+[Implied]  project__template.repository_id -> project__repository.id
+[Implied]  project__template.ssh_key_id -> access_key.id
+[Implied]  project__template_schedule.template_id -> project__template.id
+[Implied]  project__user.project_id -> project.id
+[Implied]  project__user.user_id -> user.id
+[Implied]  task.template_id -> project__template.id
+[Implied]  task__output.task_id -> task.id
+
+DROP DATABASE `db_388417_v0_0_0`;
+UNINSTALL EXTENSION vsql_schematron;

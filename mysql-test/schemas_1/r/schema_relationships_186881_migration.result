@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 186881_migration
+#
+CREATE DATABASE `db_186881_migration`;
+USE `db_186881_migration`;
+CREATE TABLE `User` (
+`id` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`username` VARCHAR(64),
+`displayname` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`role` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tweet` (
+`id` INT,
+`createdAt` DATETIME,
+`text` VARCHAR(64),
+`image` VARCHAR(64),
+`authorId` INT,
+`commentAmount` INT,
+`retweetAmount` INT,
+`likeAmount` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Like` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LikesOnTweets` (
+`tweetId` INT,
+`userId` INT,
+`createdAt` DATETIME,
+`likeId` INT,
+PRIMARY KEY (`tweetId`, `userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `_UserFollows` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_186881_migration') AS relationships;
+relationships
+Database: db_186881_migration
+
+Table Connections:
+------------------
+[Implied]  LikesOnTweets.likeId -> Like.id
+[Implied]  LikesOnTweets.tweetId -> Tweet.id
+[Implied]  LikesOnTweets.userId -> User.id
+[Implied]  Tweet.authorId -> User.id
+
+DROP DATABASE `db_186881_migration`;
+UNINSTALL EXTENSION vsql_schematron;

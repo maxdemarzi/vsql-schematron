@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 056843_zimske_oi
+#
+CREATE DATABASE `db_056843_zimske_oi`;
+USE `db_056843_zimske_oi`;
+CREATE TABLE `disciplina` (
+`id` INT,
+`ime` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `drzava` (
+`kratica` VARCHAR(64),
+`ime` VARCHAR(64),
+PRIMARY KEY (`kratica`)
+) CHARACTER SET latin1;
+CREATE TABLE `licenca` (
+`id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `olimpijskeIgre` (
+`leto` INT,
+`drzava` VARCHAR(64),
+PRIMARY KEY (`leto`)
+) CHARACTER SET latin1;
+CREATE TABLE `poddisciplina` (
+`id` INT,
+`ime` VARCHAR(64),
+`disciplina` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `popravi` (
+`uporabnik` VARCHAR(64),
+`tekmovalec` INT,
+`kajNaredi` VARCHAR(64),
+`razlog` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `rezultat` (
+`id` INT,
+`leto` INT,
+`disciplina` INT,
+`tekmovalec` INT,
+`drzava` VARCHAR(64),
+`mesto` INT,
+`rezultat` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tekmovalec` (
+`id` INT,
+`ime` VARCHAR(64),
+`rojen` DATETIME,
+`drzava` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `uporabnik` (
+`uporabniskoIme` VARCHAR(64),
+`geslo` VARCHAR(64),
+`licenca` VARCHAR(64),
+PRIMARY KEY (`uporabniskoIme`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_056843_zimske_oi') AS relationships;
+relationships
+Database: db_056843_zimske_oi
+
+Table Connections:
+------------------
+[Implied]  olimpijskeIgre.drzava -> drzava.kratica
+[Implied]  poddisciplina.disciplina -> disciplina.id
+[Implied]  popravi.tekmovalec -> tekmovalec.id
+[Implied]  popravi.uporabnik -> uporabnik.uporabniskoIme
+[Implied]  rezultat.disciplina -> disciplina.id
+[Implied]  rezultat.drzava -> drzava.kratica
+[Implied]  rezultat.leto -> olimpijskeIgre.leto
+[Implied]  rezultat.tekmovalec -> tekmovalec.id
+[Implied]  tekmovalec.drzava -> drzava.kratica
+[Implied]  uporabnik.licenca -> licenca.id
+
+DROP DATABASE `db_056843_zimske_oi`;
+UNINSTALL EXTENSION vsql_schematron;

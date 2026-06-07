@@ -1,0 +1,126 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 247487_schema
+#
+CREATE DATABASE `db_247487_schema`;
+USE `db_247487_schema`;
+CREATE TABLE `会員.会員` (
+`会員番号` INT,
+`氏名` VARCHAR(64),
+`会員種別` VARCHAR(64),
+`登録日時` DATETIME,
+PRIMARY KEY (`会員番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `資料_所蔵品目.所蔵品目` (
+`所蔵品目番号` INT,
+`タイトル` VARCHAR(64),
+`著者` VARCHAR(64),
+`所蔵品目種別` VARCHAR(64),
+`登録日時` DATETIME,
+PRIMARY KEY (`所蔵品目番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `資料_所蔵品.所蔵品` (
+`所蔵品番号` VARCHAR(64),
+`所蔵品目番号` INT,
+`登録日時` DATETIME,
+PRIMARY KEY (`所蔵品番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `資料_所蔵品.貸出可能` (
+`所蔵品番号` VARCHAR(64),
+`登録日時` DATETIME,
+PRIMARY KEY (`所蔵品番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `資料_所蔵品.貸出中` (
+`所蔵品番号` VARCHAR(64),
+`登録日時` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `資料_所蔵品.取置中` (
+`所蔵品番号` VARCHAR(64),
+`登録日時` DATETIME,
+PRIMARY KEY (`所蔵品番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `貸出.貸出履歴` (
+`貸出番号` INT,
+`所蔵品番号` VARCHAR(64),
+`貸出日` DATETIME,
+`登録日時` DATETIME,
+PRIMARY KEY (`貸出番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `貸出.返却履歴` (
+`貸出番号` INT,
+`返却日` DATETIME,
+`登録日時` DATETIME,
+PRIMARY KEY (`貸出番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `予約.予約履歴` (
+`予約番号` INT,
+`所蔵品目番号` INT,
+`登録日時` DATETIME,
+PRIMARY KEY (`予約番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `予約.予約取消履歴` (
+`予約番号` INT,
+`登録日時` DATETIME,
+PRIMARY KEY (`予約番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `取置.取置履歴` (
+`予約番号` INT,
+`所蔵品番号` VARCHAR(64),
+`取置日` DATETIME,
+`登録日時` DATETIME,
+PRIMARY KEY (`予約番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `取置.準備完了` (
+`所蔵品番号` VARCHAR(64),
+`予約番号` INT,
+`取置日` DATETIME,
+`登録日時` DATETIME,
+PRIMARY KEY (`所蔵品番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `取置.取置解放履歴` (
+`予約番号` INT,
+`所蔵品番号` VARCHAR(64),
+`登録日時` DATETIME,
+PRIMARY KEY (`予約番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `取置.取置期限切れ履歴` (
+`予約番号` INT,
+`登録日時` DATETIME,
+PRIMARY KEY (`予約番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `会員.貸出と会員` (
+`貸出番号` INT,
+`会員番号` INT,
+`登録日時` DATETIME,
+PRIMARY KEY (`貸出番号`)
+) CHARACTER SET latin1;
+CREATE TABLE `会員.予約と会員` (
+`予約番号` INT,
+`会員番号` INT,
+`登録日時` DATETIME,
+PRIMARY KEY (`予約番号`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_247487_schema') AS relationships;
+relationships
+Database: db_247487_schema
+
+Table Connections:
+------------------
+[Implied]  予約.予約履歴.所蔵品目番号 -> 資料_所蔵品目.所蔵品目.所蔵品目番号
+[Implied]  会員.予約と会員.会員番号 -> 会員.会員.会員番号
+[Implied]  会員.貸出と会員.会員番号 -> 会員.会員.会員番号
+[Implied]  取置.取置履歴.所蔵品番号 -> 資料_所蔵品.所蔵品.所蔵品番号
+[Implied]  取置.取置解放履歴.所蔵品番号 -> 資料_所蔵品.所蔵品.所蔵品番号
+[Implied]  取置.準備完了.予約番号 -> 予約.予約取消履歴.予約番号
+[Implied]  取置.準備完了.予約番号 -> 予約.予約履歴.予約番号
+[Implied]  取置.準備完了.予約番号 -> 会員.予約と会員.予約番号
+[Implied]  取置.準備完了.予約番号 -> 取置.取置履歴.予約番号
+[Implied]  取置.準備完了.予約番号 -> 取置.取置期限切れ履歴.予約番号
+[Implied]  取置.準備完了.予約番号 -> 取置.取置解放履歴.予約番号
+[Implied]  貸出.貸出履歴.所蔵品番号 -> 資料_所蔵品.所蔵品.所蔵品番号
+[Implied]  資料_所蔵品.所蔵品.所蔵品目番号 -> 資料_所蔵品目.所蔵品目.所蔵品目番号
+[Implied]  資料_所蔵品.貸出中.所蔵品番号 -> 資料_所蔵品.所蔵品.所蔵品番号
+[Implied]  資料_所蔵品目.所蔵品目.所蔵品目種別 -> 資料_所蔵品.所蔵品.所蔵品番号
+
+DROP DATABASE `db_247487_schema`;
+UNINSTALL EXTENSION vsql_schematron;

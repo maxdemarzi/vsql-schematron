@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 109674_diinventario
+--echo #
+CREATE DATABASE `db_109674_diinventario`;
+USE `db_109674_diinventario`;
+
+CREATE TABLE `articulo` (
+  `idarticulo` INT,
+  `numserie` VARCHAR(64),
+  `estado` VARCHAR(64),
+  `fechaalta` DATETIME,
+  `fechabaja` DATETIME,
+  `usuarioalta` INT,
+  `usuariobaja` INT,
+  `modelo` INT,
+  `departamento` INT,
+  `espacio` INT,
+  `dentrode` INT,
+  `observaciones` VARCHAR(64),
+  PRIMARY KEY (`idarticulo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ficheromodelo` (
+  `idficheromodelo` INT,
+  `modelo` INT,
+  `nombre` VARCHAR(64),
+  `tipo` VARCHAR(64),
+  `contenido` VARCHAR(64),
+  PRIMARY KEY (`idficheromodelo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ficherousuario` (
+  `idficherousuario` INT,
+  `usuario` INT,
+  `tipo` VARCHAR(64),
+  `nombre` VARCHAR(64),
+  `contenido` VARCHAR(64),
+  PRIMARY KEY (`idficherousuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permisosrol` (
+  `idpermisosrol` INT,
+  `rol` INT,
+  `permiso` INT,
+  `acceso` INT,
+  PRIMARY KEY (`idpermisosrol`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_109674_diinventario') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_109674_diinventario') AS relationships;
+DROP DATABASE `db_109674_diinventario`;
+UNINSTALL EXTENSION vsql_schematron;

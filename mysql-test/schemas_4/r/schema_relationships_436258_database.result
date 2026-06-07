@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 436258_database
+#
+CREATE DATABASE `db_436258_database`;
+USE `db_436258_database`;
+CREATE TABLE `rooms` (
+`number` INT,
+`capacity` INT,
+PRIMARY KEY (`number`)
+) CHARACTER SET latin1;
+CREATE TABLE `movies` (
+`id` INT,
+`name` VARCHAR(64),
+`genre` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`isAdmin` BOOL,
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `screenings` (
+`id` INT,
+`date` DATETIME,
+`attendance` INT,
+`roomNo` INT,
+`movie_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookings` (
+`id` INT,
+`movie_id` INT,
+`roomNo` INT,
+`username` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_436258_database') AS relationships;
+relationships
+Database: db_436258_database
+
+Table Connections:
+------------------
+[Implied]  bookings.movie_id -> movies.id
+[Implied]  bookings.username -> users.username
+[Implied]  screenings.movie_id -> movies.id
+
+DROP DATABASE `db_436258_database`;
+UNINSTALL EXTENSION vsql_schematron;

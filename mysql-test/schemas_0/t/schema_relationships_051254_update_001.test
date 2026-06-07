@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 051254_update_001
+--echo #
+CREATE DATABASE `db_051254_update_001`;
+USE `db_051254_update_001`;
+
+CREATE TABLE `person` (
+  `person_id` INT,
+  `login` VARCHAR(64),
+  `password` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `phone_number` VARCHAR(64),
+  `create_user_date` DATETIME,
+  PRIMARY KEY (`person_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `car_color` (
+  `color_id` INT,
+  `color_name` VARCHAR(64),
+  PRIMARY KEY (`color_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `car` (
+  `car_id` INT,
+  `car_year` INT,
+  `make` VARCHAR(64),
+  `model` VARCHAR(64),
+  `modification` VARCHAR(64),
+  `drive_train` VARCHAR(64),
+  `transmission` VARCHAR(64),
+  `engine` VARCHAR(64),
+  `mileage` INT,
+  `doors` INT,
+  `color_id` INT,
+  `vin_number` VARCHAR(64),
+  PRIMARY KEY (`car_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `car_item` (
+  `car_item_id` INT,
+  `id_person` INT,
+  `id_car` INT,
+  `price` INT,
+  `address_locality` VARCHAR(64),
+  `description` VARCHAR(64),
+  `create_item` DATETIME,
+  `sold` BOOL,
+  PRIMARY KEY (`car_item_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `car_image` (
+  `image_id` INT,
+  `id_car_item` INT,
+  `image_path` VARCHAR(64),
+  PRIMARY KEY (`image_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_051254_update_001') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_051254_update_001') AS relationships;
+DROP DATABASE `db_051254_update_001`;
+UNINSTALL EXTENSION vsql_schematron;

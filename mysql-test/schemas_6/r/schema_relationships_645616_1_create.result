@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 645616_1-create
+#
+CREATE DATABASE `db_645616_1_create`;
+USE `db_645616_1_create`;
+CREATE TABLE `Person` (
+`Id` INT,
+`MergedToPersonId` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`SupervisorId` INT,
+`CareerCounselorId` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Company` (
+`Id` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PersonCompany` (
+`Id` INT,
+`PersonId` INT,
+`CompanyId` INT,
+`StartDate` DATETIME,
+`EndDate` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Email` (
+`Id` INT,
+`Address` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PersonEmail` (
+`Id` INT,
+`PersonId` INT,
+`EmailId` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CompanyEmail` (
+`Id` INT,
+`CompanyId` INT,
+`EmailId` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Phone` (
+`Id` INT,
+`Number` VARCHAR(64),
+`Type` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PersonPhone` (
+`Id` INT,
+`PersonId` INT,
+`PhoneId` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CompanyPhone` (
+`Id` INT,
+`CompanyId` INT,
+`PhoneId` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_645616_1_create') AS relationships;
+relationships
+Database: db_645616_1_create
+
+Table Connections:
+------------------
+[Implied]  CompanyEmail.CompanyId -> Company.Id
+[Implied]  CompanyEmail.EmailId -> Email.Id
+[Implied]  CompanyPhone.CompanyId -> Company.Id
+[Implied]  CompanyPhone.PhoneId -> Phone.Id
+[Implied]  Person.SupervisorId -> Person.Id
+[Implied]  PersonCompany.CompanyId -> Company.Id
+[Implied]  PersonCompany.PersonId -> Person.Id
+[Implied]  PersonEmail.EmailId -> Email.Id
+[Implied]  PersonEmail.PersonId -> Person.Id
+[Implied]  PersonPhone.PersonId -> Person.Id
+[Implied]  PersonPhone.PhoneId -> Phone.Id
+
+DROP DATABASE `db_645616_1_create`;
+UNINSTALL EXTENSION vsql_schematron;

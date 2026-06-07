@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 209135_schema
+#
+CREATE DATABASE `db_209135_schema`;
+USE `db_209135_schema`;
+CREATE TABLE `Beers` (
+`name` VARCHAR(64),
+`manf` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bars` (
+`name` VARCHAR(64),
+`addr` VARCHAR(64),
+`license` INT,
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Drinkers` (
+`name` VARCHAR(64),
+`addr` VARCHAR(64),
+`phone` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sells` (
+`bar` VARCHAR(64),
+`beer` VARCHAR(64),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`bar`, `beer`)
+) CHARACTER SET latin1;
+CREATE TABLE `Likes` (
+`drinker` VARCHAR(64),
+`beer` VARCHAR(64),
+PRIMARY KEY (`drinker`, `beer`)
+) CHARACTER SET latin1;
+CREATE TABLE `Frequents` (
+`drinker` VARCHAR(64),
+`bar` VARCHAR(64),
+PRIMARY KEY (`drinker`, `bar`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_209135_schema') AS relationships;
+relationships
+Database: db_209135_schema
+
+Table Connections:
+------------------
+[Implied]  Frequents.bar -> Bars.name
+[Implied]  Frequents.drinker -> Drinkers.name
+[Implied]  Likes.beer -> Beers.name
+[Implied]  Likes.drinker -> Drinkers.name
+[Implied]  Sells.bar -> Bars.name
+[Implied]  Sells.beer -> Beers.name
+
+DROP DATABASE `db_209135_schema`;
+UNINSTALL EXTENSION vsql_schematron;

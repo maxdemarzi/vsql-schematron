@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 409950_system_sale
+#
+CREATE DATABASE `db_409950_system_sale`;
+USE `db_409950_system_sale`;
+CREATE TABLE `type_product` (
+`id` INT,
+`description` VARCHAR(64),
+`percentage_imposed` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`id` INT,
+`id_type` INT,
+`description` VARCHAR(64),
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sale` (
+`id` INT,
+`total_imposed` DECIMAL(10,2),
+`total_sale` DECIMAL(10,2),
+`total_pay` DECIMAL(10,2),
+`date_register` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `itens_sale` (
+`id` INT,
+`id_sale` INT,
+`id_product` INT,
+`description` VARCHAR(64),
+`amount` INT,
+`price_uni` DECIMAL(10,2),
+`percentage_imposed` DECIMAL(10,2),
+`total_pay` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_409950_system_sale') AS relationships;
+relationships
+Database: db_409950_system_sale
+
+Table Connections:
+------------------
+[Implied]  itens_sale.id_product -> product.id
+[Implied]  itens_sale.id_product -> type_product.id
+[Implied]  itens_sale.id_sale -> sale.id
+[Implied]  product.id_type -> type_product.id
+
+DROP DATABASE `db_409950_system_sale`;
+UNINSTALL EXTENSION vsql_schematron;

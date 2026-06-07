@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 005053_wellbores-same-as-can
+#
+CREATE DATABASE `db_005053_wellbores_same_as_can`;
+USE `db_005053_wellbores_same_as_can`;
+CREATE TABLE `T1` (
+`id` INT,
+`well` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T2` (
+`id` INT,
+`well` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `T3` (
+`id` INT,
+`well` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `W1` (
+`id` INT,
+`name` VARCHAR(64),
+`wellbore` INT
+) CHARACTER SET latin1;
+CREATE TABLE `T_can_link` (
+`can_id` INT,
+`can_prov` INT,
+`id1` INT,
+`id2` INT,
+`id3` INT,
+PRIMARY KEY (`can_id`, `can_prov`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_can_well_link` (
+`can_id` INT,
+`can_prov` VARCHAR(64),
+`id1` VARCHAR(64),
+`id2` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_005053_wellbores_same_as_can') AS relationships;
+relationships
+Database: db_005053_wellbores_same_as_can
+
+Table Connections:
+------------------
+[Implied]  T1.id -> T3.id
+[Implied]  T2.id -> T3.id
+[Implied]  T3.id -> T2.id
+
+DROP DATABASE `db_005053_wellbores_same_as_can`;
+UNINSTALL EXTENSION vsql_schematron;

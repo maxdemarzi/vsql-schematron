@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 000767_schema
+#
+CREATE DATABASE `db_000767_schema`;
+USE `db_000767_schema`;
+CREATE TABLE `members` (
+`id` INT,
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`email` VARCHAR(64),
+`pass` VARCHAR(64),
+`dob` DATETIME,
+`gender` VARCHAR(64),
+`iscommittee` BOOL,
+`iscoach` BOOL,
+`isactive` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `certs` (
+`id` INT,
+`certname` VARCHAR(64),
+`recordtype` VARCHAR(64),
+`authority` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `records` (
+`id` INT,
+`member_id` INT,
+`cert_id` INT,
+`auth_id` INT,
+`auth_date` DATETIME,
+`completed` DATETIME,
+`expiry` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_000767_schema') AS relationships;
+relationships
+Database: db_000767_schema
+
+Table Connections:
+------------------
+[Implied]  records.cert_id -> certs.id
+[Implied]  records.member_id -> members.id
+
+DROP DATABASE `db_000767_schema`;
+UNINSTALL EXTENSION vsql_schematron;

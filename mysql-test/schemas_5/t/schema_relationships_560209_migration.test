@@ -1,0 +1,132 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 560209_migration
+--echo #
+CREATE DATABASE `db_560209_migration`;
+USE `db_560209_migration`;
+
+CREATE TABLE `User` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  `email` VARCHAR(64),
+  `username` VARCHAR(64),
+  `color` VARCHAR(64),
+  `hashedPassword` VARCHAR(64),
+  `isEmailVerified` BOOL,
+  `isVerified` BOOL,
+  `avatarURL` VARCHAR(64),
+  `bio` VARCHAR(64),
+  `role` VARCHAR(64),
+  `accountStatus` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Session` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  `expiresAt` DATETIME,
+  `handle` VARCHAR(64),
+  `hashedSessionToken` VARCHAR(64),
+  `antiCSRFToken` VARCHAR(64),
+  `publicData` VARCHAR(64),
+  `privateData` VARCHAR(64),
+  `userId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Token` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  `hashedToken` VARCHAR(64),
+  `type` VARCHAR(64),
+  `expiresAt` DATETIME,
+  `sentTo` VARCHAR(64),
+  `userId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Conversation` (
+  `id` VARCHAR(64),
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Community` (
+  `id` VARCHAR(64),
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  `name` VARCHAR(64),
+  `color` VARCHAR(64),
+  `isVerified` BOOL,
+  `description` VARCHAR(64),
+  `avatarURL` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CommunityMember` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  `role` VARCHAR(64),
+  `communityId` VARCHAR(64),
+  `userId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CommunityTextChannel` (
+  `id` VARCHAR(64),
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  `name` VARCHAR(64),
+  `topic` VARCHAR(64),
+  `communityId` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Message` (
+  `id` VARCHAR(64),
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  `content` VARCHAR(64),
+  `userId` INT,
+  `communityTextChannelId` VARCHAR(64),
+  `conversationId` VARCHAR(64),
+  `repliesCounter` INT,
+  `replyToMessageId` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `_Mentions_refferedUserId` (
+  `A` VARCHAR(64),
+  `B` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `_ConversationToUser` (
+  `A` VARCHAR(64),
+  `B` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_560209_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_560209_migration') AS relationships;
+DROP DATABASE `db_560209_migration`;
+UNINSTALL EXTENSION vsql_schematron;

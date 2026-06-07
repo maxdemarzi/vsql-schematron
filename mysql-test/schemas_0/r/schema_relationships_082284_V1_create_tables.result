@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 082284_V1__create_tables
+#
+CREATE DATABASE `db_082284_V1_create_tables`;
+USE `db_082284_V1_create_tables`;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`name` VARCHAR(64),
+`image_url` VARCHAR(64),
+`role` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `links` (
+`id` INT,
+`url` VARCHAR(64),
+`title` VARCHAR(64),
+`created_by` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` INT,
+`name` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `link_tag` (
+`link_id` INT,
+`tag_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_082284_V1_create_tables') AS relationships;
+relationships
+Database: db_082284_V1_create_tables
+
+Table Connections:
+------------------
+[Implied]  link_tag.tag_id -> tags.id
+[Implied]  links.created_by -> users.id
+
+DROP DATABASE `db_082284_V1_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

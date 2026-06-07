@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 274793_academico
+#
+CREATE DATABASE `db_274793_academico`;
+USE `db_274793_academico`;
+CREATE TABLE `curso` (
+`idcur` INT,
+`nomecur` VARCHAR(64),
+PRIMARY KEY (`idcur`)
+) CHARACTER SET latin1;
+CREATE TABLE `aluno` (
+`idalu` INT,
+`nomealu` VARCHAR(64),
+`tipoalu` VARCHAR(64),
+`idcurso` INT,
+PRIMARY KEY (`idalu`)
+) CHARACTER SET latin1;
+CREATE TABLE `disciplina` (
+`iddis` INT,
+`nomedis` VARCHAR(64),
+PRIMARY KEY (`iddis`)
+) CHARACTER SET latin1;
+CREATE TABLE `pre_requisito` (
+`iddis` INT,
+`idpre` INT,
+PRIMARY KEY (`iddis`, `idpre`)
+) CHARACTER SET latin1;
+CREATE TABLE `professor` (
+`idprof` INT,
+`nomepro` VARCHAR(64),
+PRIMARY KEY (`idprof`)
+) CHARACTER SET latin1;
+CREATE TABLE `turma` (
+`idtur` INT,
+`iddis` INT,
+`ano` INT,
+`semestre` INT,
+`codtur` VARCHAR(64),
+PRIMARY KEY (`idtur`)
+) CHARACTER SET latin1;
+CREATE TABLE `turpro` (
+`idtur` INT,
+`idprof` INT,
+PRIMARY KEY (`idtur`, `idprof`)
+) CHARACTER SET latin1;
+CREATE TABLE `historico` (
+`idtur` INT,
+`idalu` INT,
+`nota` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_274793_academico') AS relationships;
+relationships
+Database: db_274793_academico
+
+Table Connections:
+------------------
+[Implied]  aluno.idcurso -> curso.idcur
+[Implied]  historico.idalu -> aluno.idalu
+[Implied]  historico.idtur -> turma.idtur
+[Implied]  pre_requisito.iddis -> disciplina.iddis
+[Implied]  turma.iddis -> disciplina.iddis
+[Implied]  turpro.idprof -> professor.idprof
+[Implied]  turpro.idtur -> turma.idtur
+
+DROP DATABASE `db_274793_academico`;
+UNINSTALL EXTENSION vsql_schematron;

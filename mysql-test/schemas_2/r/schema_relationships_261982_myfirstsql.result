@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 261982_myfirstsql
+#
+CREATE DATABASE `db_261982_myfirstsql`;
+USE `db_261982_myfirstsql`;
+CREATE TABLE `customers` (
+`customerID` VARCHAR(64),
+`companyName` VARCHAR(64),
+`contactName` VARCHAR(64),
+`contactTitle` VARCHAR(64),
+`address` VARCHAR(64),
+`city` VARCHAR(64),
+`region` VARCHAR(64),
+`postalCode` VARCHAR(64),
+`country` VARCHAR(64),
+`phone` VARCHAR(64),
+`fax` VARCHAR(64),
+PRIMARY KEY (`customerID`)
+) CHARACTER SET latin1;
+CREATE TABLE `territories` (
+`territoryID` VARCHAR(64),
+`territoryDescription` VARCHAR(64),
+`regionID` INT,
+PRIMARY KEY (`territoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `regions` (
+`regionid` INT,
+`regionDescription` VARCHAR(64),
+PRIMARY KEY (`regionid`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee_territories` (
+`employeeID` INT,
+`territoryID` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `shippers` (
+`shipperID` INT,
+`companyName` VARCHAR(64),
+`phone` VARCHAR(64),
+PRIMARY KEY (`shipperID`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`orderID` INT,
+`customerID` VARCHAR(64),
+`employeeID` INT,
+`orderDate` DATETIME,
+`requiredDate` DATETIME,
+`shippedDate` DATETIME,
+`shipVia` INT,
+`freight` DECIMAL(10,2),
+`shipName` VARCHAR(64),
+`shipAddress` VARCHAR(64),
+`shipCity` VARCHAR(64),
+`shipRegion` VARCHAR(64),
+`shipPostalCode` VARCHAR(64),
+`shipCountry` VARCHAR(64),
+PRIMARY KEY (`orderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_details` (
+`orderID` INT,
+`productID` INT,
+`unitPrice` DECIMAL(10,2),
+`quantity` INT,
+`discount` DECIMAL(10,2)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_261982_myfirstsql') AS relationships;
+relationships
+Database: db_261982_myfirstsql
+
+Table Connections:
+------------------
+[Implied]  employee_territories.territoryID -> territories.territoryID
+[Implied]  order_details.orderID -> orders.orderID
+[Implied]  orders.customerID -> customers.customerID
+[Implied]  territories.regionID -> regions.regionid
+
+DROP DATABASE `db_261982_myfirstsql`;
+UNINSTALL EXTENSION vsql_schematron;

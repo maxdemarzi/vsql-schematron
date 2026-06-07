@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 433824_bdd_covid
+#
+CREATE DATABASE `db_433824_bdd_covid`;
+USE `db_433824_bdd_covid`;
+CREATE TABLE `covidtest.Disponibilite_test` (
+`idDisponibilite_test` INT,
+`Date` DATETIME,
+`Heure` DATETIME,
+`identifiant_infirmier` INT,
+PRIMARY KEY (`idDisponibilite_test`)
+) CHARACTER SET latin1;
+CREATE TABLE `covidtest.RendezVous` (
+`idRendezVous` INT,
+`Date` DATETIME,
+`Heure` DATETIME,
+`Nom` VARCHAR(64),
+`Prenom` VARCHAR(64),
+`Present` VARCHAR(64),
+`idDisponibilite_test` INT,
+PRIMARY KEY (`idRendezVous`, `idDisponibilite_test`)
+) CHARACTER SET latin1;
+CREATE TABLE `covidtest.Personnes_testees` (
+`idPersonnes_testees` INT,
+`Nom` VARCHAR(64),
+`Prenom` VARCHAR(64),
+`Age` DECIMAL(10,2),
+`Sexe` VARCHAR(64),
+`Ville` VARCHAR(64),
+`rv_idDisponibilite_test` INT,
+PRIMARY KEY (`idPersonnes_testees`, `rv_idDisponibilite_test`)
+) CHARACTER SET latin1;
+CREATE TABLE `covidtest.A_un_resultat` (
+`idDisponibilite_test` INT,
+PRIMARY KEY (`idDisponibilite_test`)
+) CHARACTER SET latin1;
+CREATE TABLE `covidtest.Resultats_tests` (
+`idResultats_tests` INT,
+`Nom` VARCHAR(64),
+`Prenom` VARCHAR(64),
+`Resultat` VARCHAR(64),
+`idDisponibilite_test` INT,
+PRIMARY KEY (`idResultats_tests`, `idDisponibilite_test`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_433824_bdd_covid') AS relationships;
+relationships
+Database: db_433824_bdd_covid
+
+Table Connections:
+------------------
+[Implied]  covidtest.Personnes_testees.rv_idDisponibilite_test -> covidtest.A_un_resultat.idDisponibilite_test
+[Implied]  covidtest.Personnes_testees.rv_idDisponibilite_test -> covidtest.Disponibilite_test.idDisponibilite_test
+[Implied]  covidtest.RendezVous.idDisponibilite_test -> covidtest.A_un_resultat.idDisponibilite_test
+[Implied]  covidtest.RendezVous.idDisponibilite_test -> covidtest.Disponibilite_test.idDisponibilite_test
+[Implied]  covidtest.Resultats_tests.idDisponibilite_test -> covidtest.A_un_resultat.idDisponibilite_test
+[Implied]  covidtest.Resultats_tests.idDisponibilite_test -> covidtest.Disponibilite_test.idDisponibilite_test
+
+DROP DATABASE `db_433824_bdd_covid`;
+UNINSTALL EXTENSION vsql_schematron;

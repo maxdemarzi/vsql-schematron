@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 608702_schema_data
+#
+CREATE DATABASE `db_608702_schema_data`;
+USE `db_608702_schema_data`;
+CREATE TABLE `APP_ROLE` (
+`ROLE_ID` INT,
+`ROLE_NAME` VARCHAR(64),
+PRIMARY KEY (`ROLE_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `APP_USER` (
+`USER_ID` INT,
+`USER_NAME` VARCHAR(64),
+`ENCRYPTED_PASSWORD` VARCHAR(64),
+`ENABLED` BOOL,
+`USER_REAL_NAME` VARCHAR(64),
+`USER_REAL_SURNAME` VARCHAR(64),
+PRIMARY KEY (`USER_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `APP_TASKS` (
+`TID` INT,
+`TITLE` VARCHAR(64),
+`DESCRIPTION` VARCHAR(64),
+`START_DATE` DATETIME,
+`END_DATE` DATETIME,
+`UID` INT,
+PRIMARY KEY (`TID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Persistent_Logins` (
+`username` VARCHAR(64),
+`series` VARCHAR(64),
+`token` VARCHAR(64),
+`last_used` DATETIME,
+PRIMARY KEY (`series`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER_ROLE` (
+`ID` INT,
+`USER_ID` INT,
+`ROLE_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_608702_schema_data') AS relationships;
+relationships
+Database: db_608702_schema_data
+
+Table Connections:
+------------------
+[Implied]  USER_ROLE.ROLE_ID -> APP_ROLE.ROLE_ID
+[Implied]  USER_ROLE.USER_ID -> APP_USER.USER_ID
+
+DROP DATABASE `db_608702_schema_data`;
+UNINSTALL EXTENSION vsql_schematron;

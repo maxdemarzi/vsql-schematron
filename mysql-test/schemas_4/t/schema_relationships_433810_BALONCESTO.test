@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 433810_BALONCESTO
+--echo #
+CREATE DATABASE `db_433810_BALONCESTO`;
+USE `db_433810_BALONCESTO`;
+
+CREATE TABLE `EQUIPOS` (
+  `CODEQUIPO` VARCHAR(64),
+  `NOMBREQUIPO` VARCHAR(64),
+  PRIMARY KEY (`CODEQUIPO`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TEMPORADA` (
+  `CODTEMP` VARCHAR(64),
+  `NOMBRE` VARCHAR(64),
+  PRIMARY KEY (`CODTEMP`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PARTIDOS` (
+  `CODPARTIDO` VARCHAR(64),
+  `TEMPORADA` VARCHAR(64),
+  `JORNADA` INT,
+  `PUNTOSLOCAL` INT,
+  `PUNTOSVISITANTE` INT,
+  `CODEQUIPOLOCAL` VARCHAR(64),
+  `CODEQUIPOVISITANTE` VARCHAR(64),
+  PRIMARY KEY (`CODPARTIDO`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `JUGADORES` (
+  `CODJUGADOR` VARCHAR(64),
+  `NOMBREJUGADOR` VARCHAR(64),
+  `FECHANAC` DATETIME,
+  PRIMARY KEY (`CODJUGADOR`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PARTIDOS_JUGADORES` (
+  `CODPARTIDO` VARCHAR(64),
+  `CODJUGADOR` VARCHAR(64),
+  `CANASTAS` INT,
+  `ASISTENCIAS` INT,
+  `REBOTES` INT,
+  PRIMARY KEY (`CODPARTIDO`, `CODJUGADOR`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TEMP_EQUIPO_JUGADOR` (
+  `CODTEMP` VARCHAR(64),
+  `CODEQUIPO` VARCHAR(64),
+  `CODJUGADOR` VARCHAR(64),
+  `SALARIO` INT,
+  PRIMARY KEY (`CODTEMP`, `CODEQUIPO`, `CODJUGADOR`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_433810_BALONCESTO') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_433810_BALONCESTO') AS relationships;
+DROP DATABASE `db_433810_BALONCESTO`;
+UNINSTALL EXTENSION vsql_schematron;

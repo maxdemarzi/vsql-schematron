@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 168863_hackathon
+#
+CREATE DATABASE `db_168863_hackathon`;
+USE `db_168863_hackathon`;
+CREATE TABLE `User` (
+`id` INT,
+`phone_number` VARCHAR(64),
+`user_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Provider` (
+`id` INT,
+`display_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProviderContent` (
+`id` INT,
+`provider_id` INT,
+`content` VARCHAR(64),
+`title` VARCHAR(64),
+`date_created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserProviderRelationTable` (
+`provider_id` INT,
+`user_id` INT,
+PRIMARY KEY (`provider_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ChatRoom` (
+`id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserChatRoomRelationTable` (
+`chatroom_id` INT,
+`user_id` INT,
+PRIMARY KEY (`chatroom_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_168863_hackathon') AS relationships;
+relationships
+Database: db_168863_hackathon
+
+Table Connections:
+------------------
+[Implied]  ProviderContent.provider_id -> Provider.id
+[Implied]  UserChatRoomRelationTable.chatroom_id -> ChatRoom.id
+[Implied]  UserChatRoomRelationTable.user_id -> User.id
+[Implied]  UserProviderRelationTable.user_id -> User.id
+
+DROP DATABASE `db_168863_hackathon`;
+UNINSTALL EXTENSION vsql_schematron;

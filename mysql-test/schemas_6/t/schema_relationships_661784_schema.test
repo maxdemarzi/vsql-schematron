@@ -1,0 +1,117 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 661784_schema
+--echo #
+CREATE DATABASE `db_661784_schema`;
+USE `db_661784_schema`;
+
+CREATE TABLE `contacts` (
+  `contact_id` INT,
+  `address` VARCHAR(64),
+  `phone_number` VARCHAR(64),
+  `additional_info` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `position` VARCHAR(64),
+  `company` VARCHAR(64),
+  PRIMARY KEY (`contact_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `acme_customers` (
+  `customer_id` INT,
+  `contact_id` INT,
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `locations` (
+  `location_id` INT,
+  `address` VARCHAR(64),
+  `longitude` DECIMAL(10,2),
+  `latitude` DECIMAL(10,2),
+  PRIMARY KEY (`location_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `acme_orders` (
+  `order_id` INT,
+  `created_on` DATETIME,
+  `comment` VARCHAR(64),
+  `customer_id` INT,
+  `priority` INT,
+  `start_location_id` INT,
+  `end_location_id` INT,
+  `scheduled_time` VARCHAR(64),
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `warehouses` (
+  `warehouse_id` INT,
+  `warehouse_name` VARCHAR(64),
+  `contact_id` INT,
+  `location` INT,
+  `max_capacity` DECIMAL(10,2),
+  `is_active` BOOL,
+  PRIMARY KEY (`warehouse_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `acme_order_status` (
+  `created_on` DATETIME,
+  `status` VARCHAR(64),
+  `warehouse_id` INT,
+  `order_id` INT,
+  PRIMARY KEY (`order_id`, `created_on`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `acme_users` (
+  `user_id` INT,
+  `password` VARCHAR(64),
+  `region` VARCHAR(64),
+  `email` VARCHAR(64),
+  `contact_id` INT,
+  `token` VARCHAR(64),
+  `avatar_url` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_roles` (
+  `user_id` INT,
+  `role` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `delivery_operators` (
+  `operator_id` INT,
+  `current_location` INT,
+  `location_last_updated` DATETIME,
+  PRIMARY KEY (`operator_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_deliveries` (
+  `order_id` INT,
+  `delivery_operator_id` INT,
+  `delivery_status` VARCHAR(64),
+  `start_location_id` INT,
+  `end_location_id` INT,
+  `active_time_periods` VARCHAR(64),
+  PRIMARY KEY (`order_id`, `delivery_operator_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_661784_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_661784_schema') AS relationships;
+DROP DATABASE `db_661784_schema`;
+UNINSTALL EXTENSION vsql_schematron;

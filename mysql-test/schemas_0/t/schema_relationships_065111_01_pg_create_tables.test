@@ -1,0 +1,110 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 065111_01-pg_create_tables
+--echo #
+CREATE DATABASE `db_065111_01_pg_create_tables`;
+USE `db_065111_01_pg_create_tables`;
+
+CREATE TABLE `ie_batch` (
+  `b_id` INT,
+  `b_name` VARCHAR(64),
+  PRIMARY KEY (`b_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ie_eval_type` (
+  `et_id` INT,
+  `et_description` VARCHAR(64),
+  PRIMARY KEY (`et_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ie_person_role` (
+  `pr_id` INT,
+  `pr_title` VARCHAR(64),
+  PRIMARY KEY (`pr_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ie_person` (
+  `p_id` INT,
+  `p_firstname` VARCHAR(64),
+  `p_lastname` VARCHAR(64),
+  `p_role` INT,
+  PRIMARY KEY (`p_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ie_eval` (
+  `e_id` INT,
+  `e_week` INT,
+  `e_date` DATETIME,
+  `e_eval_type` INT,
+  `e_pid_trainee` INT,
+  `e_batch` INT,
+  PRIMARY KEY (`e_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ie_eval_comment` (
+  `ec_id` INT,
+  `ec_text` VARCHAR(64),
+  `ec_eid` INT,
+  PRIMARY KEY (`ec_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ie_person_batch` (
+  `join_id` INT,
+  `person_id` INT,
+  `batch_id` INT,
+  PRIMARY KEY (`join_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ie_subject` (
+  `s_id` INT,
+  `s_subject` VARCHAR(64),
+  PRIMARY KEY (`s_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ie_question_pool` (
+  `qp_id` INT,
+  `qp_question_text` VARCHAR(64),
+  `qp_max_communication_score` INT,
+  `qp_max_knowledge_score` INT,
+  `qp_sid` INT,
+  `qp_count` INT,
+  `qp_last_date_used` DATETIME,
+  PRIMARY KEY (`qp_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ie_question_eval` (
+  `qe_id` INT,
+  `qe_communication_score` INT,
+  `qe_knowledge_score` INT,
+  `qe_eid` INT,
+  `qe_qpid` INT,
+  PRIMARY KEY (`qe_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ie_question_comment` (
+  `qc_id` INT,
+  `qc_comment_text` VARCHAR(64),
+  `qc_eid` INT,
+  PRIMARY KEY (`qc_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_065111_01_pg_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_065111_01_pg_create_tables') AS relationships;
+DROP DATABASE `db_065111_01_pg_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

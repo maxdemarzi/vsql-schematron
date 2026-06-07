@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 228998_HW_Certificate
+--echo #
+CREATE DATABASE `db_228998_HW_Certificate`;
+USE `db_228998_HW_Certificate`;
+
+CREATE TABLE `ORGANIZATION` (
+  `SN` VARCHAR(64),
+  `CN` VARCHAR(64),
+  PRIMARY KEY (`SN`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CA` (
+  `SN` VARCHAR(64),
+  `CN` VARCHAR(64),
+  `Trusted` BOOL,
+  PRIMARY KEY (`SN`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CERTIFICATE` (
+  `SN` VARCHAR(64),
+  `CN` VARCHAR(64),
+  `Org` VARCHAR(64),
+  `Issuer` VARCHAR(64),
+  `Valid_Since` DATETIME,
+  `Valid_Until` DATETIME,
+  PRIMARY KEY (`SN`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_228998_HW_Certificate') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_228998_HW_Certificate') AS relationships;
+DROP DATABASE `db_228998_HW_Certificate`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,143 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 426281_CreaBD_EurekaBank
+--echo #
+CREATE DATABASE `db_426281_CreaBD_EurekaBank`;
+USE `db_426281_CreaBD_EurekaBank`;
+
+CREATE TABLE `tipomovimiento` (
+  `tipocodigo` VARCHAR(64),
+  `tipodescripcion` VARCHAR(64),
+  `tipoaccion` VARCHAR(64),
+  `tipoestado` VARCHAR(64),
+  PRIMARY KEY (`tipocodigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sucursal` (
+  `sucucodigo` VARCHAR(64),
+  `sucunombre` VARCHAR(64),
+  `sucuciudad` VARCHAR(64),
+  `sucudireccion` VARCHAR(64),
+  `sucucontcuenta` INT,
+  PRIMARY KEY (`sucucodigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `empleado` (
+  `emplcodigo` VARCHAR(64),
+  `emplpaterno` VARCHAR(64),
+  `emplmaterno` VARCHAR(64),
+  `emplnombre` VARCHAR(64),
+  `emplciudad` VARCHAR(64),
+  `empldireccion` VARCHAR(64),
+  `emplusuario` VARCHAR(64),
+  `emplclave` VARCHAR(64),
+  PRIMARY KEY (`emplcodigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `asignado` (
+  `asigcodigo` VARCHAR(64),
+  `sucucodigo` VARCHAR(64),
+  `emplcodigo` VARCHAR(64),
+  `asigfechaalta` DATETIME,
+  `asigfechabaja` DATETIME,
+  PRIMARY KEY (`asigcodigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cliente` (
+  `cliecodigo` VARCHAR(64),
+  `cliepaterno` VARCHAR(64),
+  `cliematerno` VARCHAR(64),
+  `clienombre` VARCHAR(64),
+  `cliedni` VARCHAR(64),
+  `clieciudad` VARCHAR(64),
+  `cliedireccion` VARCHAR(64),
+  `clietelefono` VARCHAR(64),
+  `clieemail` VARCHAR(64),
+  PRIMARY KEY (`cliecodigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `moneda` (
+  `monecodigo` VARCHAR(64),
+  `monedescripcion` VARCHAR(64),
+  PRIMARY KEY (`monecodigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cuenta` (
+  `cuencodigo` VARCHAR(64),
+  `monecodigo` VARCHAR(64),
+  `sucucodigo` VARCHAR(64),
+  `emplcreacuenta` VARCHAR(64),
+  `cliecodigo` VARCHAR(64),
+  `cuensaldo` DECIMAL(10,2),
+  `cuenfechacreacion` DATETIME,
+  `cuenestado` VARCHAR(64),
+  `cuencontmov` INT,
+  `cuenclave` VARCHAR(64),
+  PRIMARY KEY (`cuencodigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `movimiento` (
+  `cuencodigo` VARCHAR(64),
+  `movinumero` INT,
+  `movifecha` DATETIME,
+  `emplcodigo` VARCHAR(64),
+  `tipocodigo` VARCHAR(64),
+  `moviimporte` DECIMAL(10,2),
+  `cuenreferencia` VARCHAR(64),
+  PRIMARY KEY (`cuencodigo`, `movinumero`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `parametro` (
+  `paracodigo` VARCHAR(64),
+  `paradescripcion` VARCHAR(64),
+  `paravalor` VARCHAR(64),
+  `paraestado` VARCHAR(64),
+  PRIMARY KEY (`paracodigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `interesmensual` (
+  `monecodigo` VARCHAR(64),
+  `inteimporte` DECIMAL(10,2),
+  PRIMARY KEY (`monecodigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `costomovimiento` (
+  `monecodigo` VARCHAR(64),
+  `costimporte` DECIMAL(10,2),
+  PRIMARY KEY (`monecodigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cargomantenimiento` (
+  `monecodigo` VARCHAR(64),
+  `cargMontoMaximo` DECIMAL(10,2),
+  `cargImporte` DECIMAL(10,2),
+  PRIMARY KEY (`monecodigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contador` (
+  `conttabla` VARCHAR(64),
+  `contitem` INT,
+  `contlongitud` INT,
+  PRIMARY KEY (`conttabla`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_426281_CreaBD_EurekaBank') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_426281_CreaBD_EurekaBank') AS relationships;
+DROP DATABASE `db_426281_CreaBD_EurekaBank`;
+UNINSTALL EXTENSION vsql_schematron;

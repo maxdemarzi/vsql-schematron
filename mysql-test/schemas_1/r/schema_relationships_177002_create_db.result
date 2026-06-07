@@ -1,0 +1,183 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 177002_create_db
+#
+CREATE DATABASE `db_177002_create_db`;
+USE `db_177002_create_db`;
+CREATE TABLE `app_user` (
+`user_id` INT,
+`user_Name` VARCHAR(64),
+`Caloric_Needs` INT,
+`Gluten_Sensitivity` BOOL,
+`Allergies` VARCHAR(64),
+`Vegan_Vegetarian` VARCHAR(64),
+`Spice_Tolerance` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Meal_Plan` (
+`plan_ID` INT,
+`plan_Name` VARCHAR(64),
+`Number_of_Meals` INT,
+`calories_per_day` INT,
+`Diet_Style` VARCHAR(64),
+`Complexity` VARCHAR(64),
+`Description` VARCHAR(64),
+`Creator_ID` INT,
+PRIMARY KEY (`plan_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Storage` (
+`sto_ID` INT,
+`sto_Name` VARCHAR(64),
+`Location` VARCHAR(64),
+`Type` VARCHAR(64),
+`Temperature` VARCHAR(64),
+`Capacity` INT,
+`Light_Exposure` VARCHAR(64),
+PRIMARY KEY (`sto_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Recipe` (
+`rec_ID` INT,
+`rec_Name` VARCHAR(64),
+`Author` VARCHAR(64),
+`Source` VARCHAR(64),
+`URL` VARCHAR(64),
+`Cuisine` VARCHAR(64),
+`Time_to_Cook` INT,
+`Calories` INT,
+`Complexity` VARCHAR(64),
+`Type` VARCHAR(64),
+`Vegetarian_Status` VARCHAR(64),
+`Spiciness` VARCHAR(64),
+PRIMARY KEY (`rec_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Ingredient` (
+`ing_ID` INT,
+`ing_Name` VARCHAR(64),
+`Quantity` DECIMAL(10,2),
+`Type` VARCHAR(64),
+`Family` VARCHAR(64),
+`Color` VARCHAR(64),
+`Price_per_Unit` DECIMAL(10,2),
+`Unit` VARCHAR(64),
+`Organic` BOOL,
+`Date_Purchased` DATETIME,
+`Expiration_Date` DATETIME,
+`Location_Purchased` VARCHAR(64),
+`Season` VARCHAR(64),
+`Quality` VARCHAR(64),
+`Storage_ID` INT,
+PRIMARY KEY (`ing_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Equipment` (
+`eqp_ID` INT,
+`eqp_Name` VARCHAR(64),
+`Type` VARCHAR(64),
+`Brand` VARCHAR(64),
+`Size` VARCHAR(64),
+`Material` VARCHAR(64),
+`Age` INT,
+`Owner` VARCHAR(64),
+`Storage_ID` INT,
+PRIMARY KEY (`eqp_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Appliance` (
+`app_ID` INT,
+`app_Name` VARCHAR(64),
+`Function` VARCHAR(64),
+`Manufacturer` VARCHAR(64),
+`Year` DATETIME,
+`Maintenance_Status` VARCHAR(64),
+PRIMARY KEY (`app_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Shopping_List` (
+`list_ID` INT,
+`Date` DATETIME,
+`Store` VARCHAR(64),
+`Purchaser_ID` INT,
+PRIMARY KEY (`list_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Favorites` (
+`user_ID` INT,
+`Rec_ID` INT,
+PRIMARY KEY (`user_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Has_Cooked` (
+`hc_ID` INT,
+`user_ID` INT,
+`Rec_ID` INT,
+`Rating` INT,
+`Times_Cooked` INT,
+PRIMARY KEY (`hc_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Plan_contains` (
+`pc_ID` INT,
+`Plan_ID` INT,
+`Rec_ID` INT,
+`Servings` INT,
+PRIMARY KEY (`pc_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `List_to_Make` (
+`lm_ID` INT,
+`list_ID` INT,
+`Rec_ID` INT,
+PRIMARY KEY (`lm_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ing_required` (
+`ir_ID` INT,
+`rec_ID` INT,
+`ing_id` INT,
+`qty` DECIMAL(10,2),
+PRIMARY KEY (`ir_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `list_contains` (
+`lc_ID` INT,
+`list_ID` INT,
+`ing_id` INT,
+`qty` DECIMAL(10,2),
+PRIMARY KEY (`lc_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `app_required` (
+`ar_ID` INT,
+`rec_ID` INT,
+`app_ID` INT,
+`Used_for` VARCHAR(64),
+PRIMARY KEY (`ar_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `eqp_required` (
+`er_ID` INT,
+`rec_ID` INT,
+`eqp_ID` INT,
+`Used_for` VARCHAR(64),
+PRIMARY KEY (`er_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_177002_create_db') AS relationships;
+relationships
+Database: db_177002_create_db
+
+Table Connections:
+------------------
+[Implied]  Equipment.Storage_ID -> Storage.sto_ID
+[Implied]  Favorites.Rec_ID -> Recipe.rec_ID
+[Implied]  Has_Cooked.Rec_ID -> Recipe.rec_ID
+[Implied]  Has_Cooked.user_ID -> Favorites.user_ID
+[Implied]  Has_Cooked.user_ID -> app_user.user_id
+[Implied]  Has_Cooked.user_ID -> eqp_required.er_ID
+[Implied]  Ingredient.Storage_ID -> Storage.sto_ID
+[Implied]  List_to_Make.Rec_ID -> Recipe.rec_ID
+[Implied]  List_to_Make.list_ID -> Shopping_List.list_ID
+[Implied]  Meal_Plan.Creator_ID -> app_user.user_id
+[Implied]  Plan_contains.Plan_ID -> Meal_Plan.plan_ID
+[Implied]  Plan_contains.Rec_ID -> Recipe.rec_ID
+[Implied]  Shopping_List.Purchaser_ID -> eqp_required.er_ID
+[Implied]  app_required.app_ID -> Appliance.app_ID
+[Implied]  app_required.rec_ID -> Recipe.rec_ID
+[Implied]  eqp_required.eqp_ID -> Equipment.eqp_ID
+[Implied]  eqp_required.rec_ID -> Recipe.rec_ID
+[Implied]  ing_required.ing_id -> Ingredient.ing_ID
+[Implied]  ing_required.rec_ID -> Recipe.rec_ID
+[Implied]  list_contains.ing_id -> Ingredient.ing_ID
+[Implied]  list_contains.ing_id -> ing_required.ir_ID
+[Implied]  list_contains.list_ID -> Shopping_List.list_ID
+
+DROP DATABASE `db_177002_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

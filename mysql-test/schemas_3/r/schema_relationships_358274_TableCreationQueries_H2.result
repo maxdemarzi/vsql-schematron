@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 358274_TableCreationQueries-H2
+#
+CREATE DATABASE `db_358274_TableCreationQueries_H2`;
+USE `db_358274_TableCreationQueries_H2`;
+CREATE TABLE `User` (
+`userID` VARCHAR(64),
+`name` VARCHAR(64),
+`password` VARCHAR(64),
+`regDate` DATETIME,
+PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `TestPlan` (
+`testID` INT,
+`userID` VARCHAR(64),
+`testConfig` VARCHAR(64),
+`creationTime` DATETIME,
+PRIMARY KEY (`testID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Report` (
+`reportID` INT,
+`testID` VARCHAR(64),
+`userID` VARCHAR(64),
+`report` VARCHAR(64),
+`passed` INT,
+`failed` INT,
+`passRate` INT,
+`runTime` DATETIME,
+PRIMARY KEY (`reportID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_358274_TableCreationQueries_H2') AS relationships;
+relationships
+Database: db_358274_TableCreationQueries_H2
+
+Table Connections:
+------------------
+[Implied]  Report.userID -> User.userID
+[Implied]  TestPlan.userID -> User.userID
+
+DROP DATABASE `db_358274_TableCreationQueries_H2`;
+UNINSTALL EXTENSION vsql_schematron;

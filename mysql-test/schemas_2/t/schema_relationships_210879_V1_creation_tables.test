@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 210879_V1__creation-tables
+--echo #
+CREATE DATABASE `db_210879_V1_creation_tables`;
+USE `db_210879_V1_creation_tables`;
+
+CREATE TABLE `usuario` (
+  `id` INT,
+  `nome` VARCHAR(64),
+  `cpf` VARCHAR(64),
+  `email` VARCHAR(64),
+  `created_at` DATETIME,
+  `ativo` BOOL,
+  `perfil_id` INT,
+  `senha` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `perfil` (
+  `id` INT,
+  `nome` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permissoes` (
+  `id` INT,
+  `nome` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rel_permissao_perfil` (
+  `id` INT,
+  `permissao_id` INT,
+  `perfil_id` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `evento` (
+  `id` INT,
+  `nome` VARCHAR(64),
+  `data_evento` DATETIME,
+  `duracao` DECIMAL(10,2),
+  `texto` VARCHAR(64),
+  `id_usuario` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rel_participante_evento` (
+  `id` INT,
+  `usuario_id` INT,
+  `evento_id` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `certificado` (
+  `id` INT,
+  `rel_participante_evento` INT,
+  `protocolo` VARCHAR(64),
+  `num_downloads` INT,
+  `last_download` DATETIME,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `feature_toogle` (
+  `id` INT,
+  `feature` VARCHAR(64),
+  `ativo` BOOL,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_210879_V1_creation_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_210879_V1_creation_tables') AS relationships;
+DROP DATABASE `db_210879_V1_creation_tables`;
+UNINSTALL EXTENSION vsql_schematron;

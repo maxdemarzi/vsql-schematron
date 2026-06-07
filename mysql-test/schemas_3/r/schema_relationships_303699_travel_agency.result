@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 303699_travel_agency
+#
+CREATE DATABASE `db_303699_travel_agency`;
+USE `db_303699_travel_agency`;
+CREATE TABLE `company` (
+`mail` VARCHAR(64),
+`pass` VARCHAR(64),
+`comp_name` VARCHAR(64),
+`representative_fame` VARCHAR(64),
+`representative_lname` VARCHAR(64),
+`Tele_number` INT,
+`city` VARCHAR(64),
+`country` VARCHAR(64),
+`street` VARCHAR(64),
+`address` VARCHAR(64),
+PRIMARY KEY (`mail`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`pass` VARCHAR(64),
+`user_fname` VARCHAR(64),
+`user_lname` VARCHAR(64),
+`mail` VARCHAR(64),
+`tele_number` INT,
+`city` VARCHAR(64),
+`country` VARCHAR(64),
+`boy` BOOL,
+`BD` DATETIME,
+PRIMARY KEY (`mail`)
+) CHARACTER SET latin1;
+CREATE TABLE `Trips` (
+`trip_id` INT,
+`mail` VARCHAR(64),
+`price` INT,
+`days` INT,
+`hours` INT,
+`descri` VARCHAR(64),
+`city` VARCHAR(64),
+`country` VARCHAR(64),
+`visited_place` VARCHAR(64),
+PRIMARY KEY (`trip_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Trips_photos` (
+`trip_id` INT,
+`photo` VARCHAR(64),
+`photo_id` INT,
+PRIMARY KEY (`trip_id`, `photo_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reservation` (
+`mail` VARCHAR(64),
+`trip_id` INT,
+`D` DATETIME,
+`done` BOOL,
+`cancelled` BOOL,
+PRIMARY KEY (`mail`, `trip_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `rates` (
+`user_mail` VARCHAR(64),
+`comp_mail` VARCHAR(64),
+`stars` INT,
+`descri` VARCHAR(64),
+PRIMARY KEY (`user_mail`, `comp_mail`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_303699_travel_agency') AS relationships;
+relationships
+Database: db_303699_travel_agency
+
+Table Connections:
+------------------
+[Implied]  Reservation.mail -> company.mail
+[Implied]  Reservation.mail -> users.mail
+[Implied]  Reservation.trip_id -> Trips.trip_id
+[Implied]  Trips.mail -> company.mail
+[Implied]  Trips.mail -> users.mail
+[Implied]  Trips_photos.trip_id -> Trips.trip_id
+[Implied]  rates.comp_mail -> company.mail
+[Implied]  rates.user_mail -> users.mail
+
+DROP DATABASE `db_303699_travel_agency`;
+UNINSTALL EXTENSION vsql_schematron;

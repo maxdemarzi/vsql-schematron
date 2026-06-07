@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 055612_schema
+--echo #
+CREATE DATABASE `db_055612_schema`;
+USE `db_055612_schema`;
+
+CREATE TABLE `archfolio.users` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `salt` VARCHAR(64),
+  `password` VARCHAR(64),
+  `pfp_url` VARCHAR(64),
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `location` VARCHAR(64),
+  `joined_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `archfolio.followers` (
+  `id` INT,
+  `follower_id` INT,
+  `following_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `archfolio.posts` (
+  `id` INT,
+  `user_id` INT,
+  `pfp_url` VARCHAR(64),
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `tags` VARCHAR(64),
+  `views` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `archfolio.metadatas` (
+  `id` INT,
+  `post_id` INT,
+  `is_url` BOOL,
+  `content` VARCHAR(64),
+  `disposition_order` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `archfolio.likes` (
+  `id` INT,
+  `user_id` INT,
+  `post_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `archfolio.favorites` (
+  `id` INT,
+  `user_id` INT,
+  `post_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `archfolio.comments` (
+  `id` INT,
+  `user_id` INT,
+  `post_id` INT,
+  `content` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_055612_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_055612_schema') AS relationships;
+DROP DATABASE `db_055612_schema`;
+UNINSTALL EXTENSION vsql_schematron;

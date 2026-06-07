@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 279308_CreateTablePharm
+#
+CREATE DATABASE `db_279308_CreateTablePharm`;
+USE `db_279308_CreateTablePharm`;
+CREATE TABLE `employee` (
+`emp_id` VARCHAR(64),
+`emp_name` VARCHAR(64),
+`emp_add` VARCHAR(64),
+`emp_email` VARCHAR(64),
+`emp_pass` VARCHAR(64),
+`emp_sal` DECIMAL(10,2),
+`emp_role` VARCHAR(64),
+PRIMARY KEY (`emp_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee_num` (
+`emp_id` VARCHAR(64),
+`emp_num` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `pharmacist` (
+`pemp_id` VARCHAR(64),
+`phar_degree` VARCHAR(64),
+PRIMARY KEY (`pemp_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cashier` (
+`cemp_id` VARCHAR(64),
+`year_of_exp` INT,
+PRIMARY KEY (`cemp_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `supplier` (
+`supp_id` INT,
+`sup_name` VARCHAR(64),
+PRIMARY KEY (`supp_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `supplier_contact` (
+`sup_id` INT,
+`sup_num` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `patient` (
+`pat_num` VARCHAR(64),
+`pat_name` VARCHAR(64),
+`pat_age` INT,
+`pat_gender` VARCHAR(64),
+`pat_id` VARCHAR(64),
+PRIMARY KEY (`pat_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `company` (
+`comp_name` VARCHAR(64),
+`com_id` VARCHAR(64),
+`cmp_num` VARCHAR(64),
+PRIMARY KEY (`com_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `medicine` (
+`med_name` VARCHAR(64),
+`med_id` VARCHAR(64),
+`med_price` DECIMAL(10,2),
+`med_expdate` DATETIME,
+`quant_med` INT,
+`med_mfg` DATETIME,
+`com_id` VARCHAR(64),
+PRIMARY KEY (`med_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bill` (
+`bill_date` DATETIME,
+`bill_id` VARCHAR(64),
+`pat_id` VARCHAR(64),
+`bill_amount` DECIMAL(10,2),
+PRIMARY KEY (`bill_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `med_in_bill` (
+`bill_id` VARCHAR(64),
+`med_id` VARCHAR(64),
+`quantity` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_279308_CreateTablePharm') AS relationships;
+relationships
+Database: db_279308_CreateTablePharm
+
+Table Connections:
+------------------
+[Implied]  bill.pat_id -> patient.pat_id
+[Implied]  employee_num.emp_id -> employee.emp_id
+[Implied]  med_in_bill.bill_id -> bill.bill_id
+[Implied]  med_in_bill.med_id -> medicine.med_id
+[Implied]  medicine.com_id -> company.com_id
+[Implied]  supplier_contact.sup_id -> supplier.supp_id
+
+DROP DATABASE `db_279308_CreateTablePharm`;
+UNINSTALL EXTENSION vsql_schematron;

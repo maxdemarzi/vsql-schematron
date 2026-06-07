@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 676505_dataDefinitions
+--echo #
+CREATE DATABASE `db_676505_dataDefinitions`;
+USE `db_676505_dataDefinitions`;
+
+CREATE TABLE `clinics` (
+  `clinicID` INT,
+  `clinicName` VARCHAR(64),
+  `specialty` VARCHAR(64),
+  `providerCapacity` INT,
+  `examRooms` INT,
+  `primaryCare` BOOL,
+  PRIMARY KEY (`clinicID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `providers` (
+  `providerID` INT,
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `licenseType` VARCHAR(64),
+  `licenseNumber` INT,
+  `specialty` VARCHAR(64),
+  `primaryCare` BOOL,
+  PRIMARY KEY (`providerID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `patients` (
+  `medicalRecordNumber` INT,
+  `birthdate` DATETIME,
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `primaryCarePhysician` INT,
+  `preferredPharmacy` VARCHAR(64),
+  PRIMARY KEY (`medicalRecordNumber`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `procedures` (
+  `procedureCode` VARCHAR(64),
+  `procedureName` VARCHAR(64),
+  PRIMARY KEY (`procedureCode`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `diagnoses` (
+  `diagnosisCode` VARCHAR(64),
+  `diagnosisName` VARCHAR(64),
+  PRIMARY KEY (`diagnosisCode`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `visits` (
+  `accountNumber` INT,
+  `visitDate` DATETIME,
+  `chiefComplaint` VARCHAR(64),
+  `diagnosisCode` VARCHAR(64),
+  `procedureCode` VARCHAR(64),
+  `patient` INT,
+  `provider` INT,
+  `providerNotes` VARCHAR(64),
+  `clinic` INT,
+  PRIMARY KEY (`accountNumber`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `providersClinics` (
+  `providerID` INT,
+  `clinicID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `patientsClinics` (
+  `patientID` INT,
+  `clinicID` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_676505_dataDefinitions') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_676505_dataDefinitions') AS relationships;
+DROP DATABASE `db_676505_dataDefinitions`;
+UNINSTALL EXTENSION vsql_schematron;

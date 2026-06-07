@@ -1,0 +1,116 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 204067_catalog
+#
+CREATE DATABASE `db_204067_catalog`;
+USE `db_204067_catalog`;
+CREATE TABLE `archive` (
+`id` INT,
+`name` VARCHAR(64),
+`directory` VARCHAR(64),
+`compression` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `connections` (
+`archive_id` INT,
+`type` VARCHAR(64),
+`dsn` VARCHAR(64),
+`pghost` VARCHAR(64),
+`pgport` INT,
+`pguser` VARCHAR(64),
+`pgdatabase` VARCHAR(64),
+PRIMARY KEY (`archive_id`, `type`)
+) CHARACTER SET latin1;
+CREATE TABLE `backup` (
+`id` INT,
+`archive_id` INT,
+`xlogpos` VARCHAR(64),
+`xlogposend` VARCHAR(64),
+`timeline` INT,
+`label` VARCHAR(64),
+`fsentry` VARCHAR(64),
+`started` VARCHAR(64),
+`stopped` VARCHAR(64),
+`pinned` INT,
+`status` VARCHAR(64),
+`systemid` VARCHAR(64),
+`wal_segment_size` INT,
+`used_profile` INT,
+`pg_version_num` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `backup_tablespaces` (
+`backup_id` INT,
+`spcoid` INT,
+`spclocation` VARCHAR(64),
+`spcsize` INT,
+PRIMARY KEY (`backup_id`, `spcoid`)
+) CHARACTER SET latin1;
+CREATE TABLE `stream` (
+`id` INT,
+`archive_id` INT,
+`stype` INT,
+`slot_name` VARCHAR(64),
+`systemid` VARCHAR(64),
+`timeline` INT,
+`xlogpos` VARCHAR(64),
+`dbname` VARCHAR(64),
+`status` VARCHAR(64),
+`create_date` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `version` (
+`number` INT,
+`create_date` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `backup_profiles` (
+`id` INT,
+`name` VARCHAR(64),
+`compress_type` INT,
+`max_rate` INT,
+`label` VARCHAR(64),
+`fast_checkpoint` INT,
+`include_wal` INT,
+`wait_for_wal` INT,
+`noverify_checksums` INT,
+`manifest` BOOL,
+`manifest_checksums` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `procs` (
+`pid` INT,
+`archive_id` INT,
+`type` VARCHAR(64),
+`started` VARCHAR(64),
+`state` VARCHAR(64),
+`shm_key` INT,
+`shm_id` INT,
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `retention` (
+`id` INT,
+`name` VARCHAR(64),
+`created` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `retention_rules` (
+`id` INT,
+`type` INT,
+`value` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_204067_catalog') AS relationships;
+relationships
+Database: db_204067_catalog
+
+Table Connections:
+------------------
+[Implied]  backup.archive_id -> archive.id
+[Implied]  backup.id -> backup_profiles.id
+[Implied]  backup_tablespaces.backup_id -> backup.id
+[Implied]  connections.archive_id -> archive.id
+[Implied]  procs.archive_id -> archive.id
+[Implied]  retention_rules.id -> retention.id
+[Implied]  stream.archive_id -> archive.id
+
+DROP DATABASE `db_204067_catalog`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 425331_pgsql-init
+#
+CREATE DATABASE `db_425331_pgsql_init`;
+USE `db_425331_pgsql_init`;
+CREATE TABLE `second_schema.authors` (
+`id` INT,
+`name` VARCHAR(64),
+`web` VARCHAR(64),
+`born` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `publishers` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `eans` (
+`id` INT,
+`code` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books` (
+`id` INT,
+`author_id` INT,
+`translator_id` INT,
+`title` VARCHAR(64),
+`publisher_id` INT,
+`ean_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books_x_tags` (
+`book_id` INT,
+`tag_id` INT,
+PRIMARY KEY (`book_id`, `tag_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag_followers` (
+`tag_id` INT,
+`author_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`tag_id`, `author_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `table_with_defaults` (
+`name` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_425331_pgsql_init') AS relationships;
+relationships
+Database: db_425331_pgsql_init
+
+Table Connections:
+------------------
+[Implied]  books.author_id -> second_schema.authors.id
+[Implied]  books.ean_id -> eans.id
+[Implied]  books.publisher_id -> publishers.id
+[Implied]  books_x_tags.book_id -> books.id
+[Implied]  books_x_tags.tag_id -> tags.id
+[Implied]  tag_followers.author_id -> second_schema.authors.id
+[Implied]  tag_followers.tag_id -> tags.id
+
+DROP DATABASE `db_425331_pgsql_init`;
+UNINSTALL EXTENSION vsql_schematron;

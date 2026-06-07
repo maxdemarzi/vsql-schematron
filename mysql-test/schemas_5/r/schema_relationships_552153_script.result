@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 552153_script
+#
+CREATE DATABASE `db_552153_script`;
+USE `db_552153_script`;
+CREATE TABLE `alumno` (
+`id` INT,
+`nombres` VARCHAR(64),
+`apellidos` VARCHAR(64),
+`telefono` INT,
+`fecha_nacimiento` DATETIME,
+`fecha_ingreso` DATETIME,
+`estado` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `profesor` (
+`id` INT,
+`nombres` VARCHAR(64),
+`apellidos` VARCHAR(64),
+`telefono` INT,
+`fecha_postulacion` DATETIME,
+`estado` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `kardex` (
+`id` INT,
+`nota` VARCHAR(64),
+`mes` INT,
+`gestion` INT,
+`id_alumno` INT,
+`id_grupo` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `asistencia` (
+`id` INT,
+`estado` VARCHAR(64),
+`fecha` DATETIME,
+`id_kardex` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `grupo` (
+`id` INT,
+`nombre` VARCHAR(64),
+`id_curso` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `boleta_inscripcion` (
+`id` INT,
+`fecha_inscripcion` DATETIME,
+`id_alumno` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `boleta_grupo` (
+`id_boleta` INT,
+`id_grupo` INT,
+PRIMARY KEY (`id_boleta`, `id_grupo`)
+) CHARACTER SET latin1;
+CREATE TABLE `imparte` (
+`id_profesor` INT,
+`id_grupo` INT,
+`fecha_asignacion` DATETIME,
+PRIMARY KEY (`id_profesor`, `id_grupo`)
+) CHARACTER SET latin1;
+CREATE TABLE `curso` (
+`id` INT,
+`nombre` VARCHAR(64),
+`descripcion` VARCHAR(64),
+`estado` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `prerequisitos` (
+`id_curso` INT,
+`id_prerequisito` INT,
+PRIMARY KEY (`id_curso`, `id_prerequisito`)
+) CHARACTER SET latin1;
+CREATE TABLE `horario` (
+`id_grupo` INT,
+`id` INT,
+`dia` VARCHAR(64),
+`hora_inicio` VARCHAR(64),
+`hora_fin` VARCHAR(64),
+`id_aula` INT,
+PRIMARY KEY (`id_grupo`, `id`)
+) CHARACTER SET latin1;
+CREATE TABLE `aula` (
+`id` INT,
+`nombre` VARCHAR(64),
+`capacidad` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_552153_script') AS relationships;
+relationships
+Database: db_552153_script
+
+Table Connections:
+------------------
+[Implied]  asistencia.id_kardex -> kardex.id
+[Implied]  boleta_grupo.id_boleta -> boleta_inscripcion.id
+[Implied]  boleta_grupo.id_grupo -> grupo.id
+[Implied]  boleta_inscripcion.id_alumno -> alumno.id
+[Implied]  grupo.id_curso -> curso.id
+[Implied]  horario.id_aula -> aula.id
+[Implied]  horario.id_grupo -> grupo.id
+[Implied]  imparte.id_grupo -> grupo.id
+[Implied]  imparte.id_profesor -> profesor.id
+[Implied]  kardex.id_alumno -> alumno.id
+[Implied]  kardex.id_grupo -> grupo.id
+[Implied]  prerequisitos.id_curso -> curso.id
+
+DROP DATABASE `db_552153_script`;
+UNINSTALL EXTENSION vsql_schematron;

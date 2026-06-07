@@ -1,0 +1,215 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 596611_people_19-5
+--echo #
+CREATE DATABASE `db_596611_people_19_5`;
+USE `db_596611_people_19_5`;
+
+CREATE TABLE `attachment` (
+  `attachment_id` INT,
+  `template_row_id` INT,
+  `type` INT,
+  PRIMARY KEY (`attachment_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `availability` (
+  `professional_id` INT,
+  `day` INT,
+  `start_time` DATETIME,
+  `end_time` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `categories_id` INT,
+  `key` VARCHAR(64),
+  `value` VARCHAR(64),
+  `category` VARCHAR(64),
+  PRIMARY KEY (`categories_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `client` (
+  `client_id` INT,
+  `balance` DECIMAL(10,2),
+  `created_date` DATETIME,
+  `created_time` DATETIME,
+  `tradename` VARCHAR(64),
+  `business_name` VARCHAR(64),
+  `identification_type` VARCHAR(64),
+  `identification_number` INT,
+  `country` VARCHAR(64),
+  `department` VARCHAR(64),
+  `city` VARCHAR(64),
+  `web_page` VARCHAR(64),
+  `payment_method` VARCHAR(64),
+  `address` VARCHAR(64),
+  `users_id` INT,
+  PRIMARY KEY (`client_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `document` (
+  `document_id` INT,
+  `professional_id` INT,
+  `type` INT,
+  `created_date` DATETIME,
+  `created_time` DATETIME,
+  `document` VARCHAR(64),
+  `ranking` VARCHAR(64),
+  PRIMARY KEY (`document_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `groups` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `login_attempts` (
+  `id` INT,
+  `ip_address` VARCHAR(64),
+  `login` VARCHAR(64),
+  `time` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `professional` (
+  `professional_id` INT,
+  `is_available` BOOL,
+  `identification_type` VARCHAR(64),
+  `identification_number` INT,
+  `expedition_date` DATETIME,
+  `birth_place` VARCHAR(64),
+  `birth_date` DATETIME,
+  `address` VARCHAR(64),
+  `city` VARCHAR(64),
+  `department` VARCHAR(64),
+  `charge_applies` VARCHAR(64),
+  `userfile` VARCHAR(64),
+  `users_id` INT,
+  PRIMARY KEY (`professional_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `quicker` (
+  `quicker_id` INT,
+  `name` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`quicker_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schema_tables` (
+  `schema_tables_id` INT,
+  `column_name` VARCHAR(64),
+  `column_type` VARCHAR(64),
+  `tittle` VARCHAR(64),
+  `is_visible` BOOL,
+  `table_name` VARCHAR(64),
+  `order` INT,
+  `rules` VARCHAR(64),
+  `category` VARCHAR(64),
+  `search` BOOL,
+  PRIMARY KEY (`schema_tables_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `service` (
+  `service_id` VARCHAR(64),
+  `professional_id` INT,
+  `template_row_id` INT,
+  `type` INT,
+  `status` INT,
+  `priority` INT,
+  `start_date` DATETIME,
+  `start_time` DATETIME,
+  `end_date` DATETIME,
+  `end_time` DATETIME,
+  `created_date` DATETIME,
+  `created_time` DATETIME,
+  `address` VARCHAR(64),
+  `neighborhood` VARCHAR(64),
+  `coordinates` VARCHAR(64),
+  `stratification` INT,
+  `info` VARCHAR(64),
+  `report_id` INT,
+  `bill_id` INT,
+  PRIMARY KEY (`service_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `service_attachment` (
+  `service_id` VARCHAR(64),
+  `attachment_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `template` (
+  `template_id` INT,
+  `client_id` INT,
+  `is_corporative` BOOL,
+  `created_date` DATETIME,
+  `created_time` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `template_row` (
+  `template_row_id` INT,
+  `client_id` INT,
+  `name` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `identity` VARCHAR(64),
+  `area` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `email` VARCHAR(64),
+  `city` VARCHAR(64),
+  `userfile` VARCHAR(64),
+  `is_corporative` BOOL,
+  PRIMARY KEY (`template_row_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `users_id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  `active` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `user_type` INT,
+  `phone` VARCHAR(64),
+  PRIMARY KEY (`users_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_groups` (
+  `id` INT,
+  `user_id` INT,
+  `group_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `works_us` (
+  `works_us_id` INT,
+  `name` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `identity_card` INT,
+  `phone` VARCHAR(64),
+  `email` VARCHAR(64),
+  `userfile` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_596611_people_19_5') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_596611_people_19_5') AS relationships;
+DROP DATABASE `db_596611_people_19_5`;
+UNINSTALL EXTENSION vsql_schematron;

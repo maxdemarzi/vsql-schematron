@@ -1,0 +1,141 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 436566_ScriptSQL
+#
+CREATE DATABASE `db_436566_ScriptSQL`;
+USE `db_436566_ScriptSQL`;
+CREATE TABLE `status` (
+`statusId` INT,
+`nome` VARCHAR(64),
+PRIMARY KEY (`statusId`)
+) CHARACTER SET latin1;
+CREATE TABLE `pessoa` (
+`pessoaId` INT,
+`nome` VARCHAR(64),
+`sobrenome` VARCHAR(64),
+`email` VARCHAR(64),
+`usuario` VARCHAR(64),
+`senha` VARCHAR(64),
+`nivel` INT,
+`admin` BOOL,
+`notifyEmail` BOOL,
+`foto` VARCHAR(64),
+`statusId` INT,
+PRIMARY KEY (`pessoaId`)
+) CHARACTER SET latin1;
+CREATE TABLE `estado` (
+`estadoId` INT,
+`nome` VARCHAR(64),
+`sigla` VARCHAR(64),
+PRIMARY KEY (`estadoId`)
+) CHARACTER SET latin1;
+CREATE TABLE `casa` (
+`casaId` INT,
+`proprietarioId` INT,
+`nome` VARCHAR(64),
+`endereco` VARCHAR(64),
+`cidade` VARCHAR(64),
+`estadoId` INT,
+`cep` VARCHAR(64),
+`temperatura` INT,
+`foto` VARCHAR(64),
+PRIMARY KEY (`casaId`)
+) CHARACTER SET latin1;
+CREATE TABLE `morador` (
+`moradorId` INT,
+`pessoaId` INT,
+`casaId` INT,
+`data_cadastro` DATETIME,
+PRIMARY KEY (`moradorId`)
+) CHARACTER SET latin1;
+CREATE TABLE `comodo` (
+`comodoId` INT,
+`casaId` INT,
+`nome` VARCHAR(64),
+`andar` INT,
+PRIMARY KEY (`comodoId`)
+) CHARACTER SET latin1;
+CREATE TABLE `aparelho` (
+`aparelhoId` INT,
+`comodoId` INT,
+`nome` VARCHAR(64),
+`descricao` VARCHAR(64),
+`port` VARCHAR(64),
+`consumo` DECIMAL(10,2),
+`status` BOOL,
+PRIMARY KEY (`aparelhoId`)
+) CHARACTER SET latin1;
+CREATE TABLE `cenas` (
+`cenaId` INT,
+`nome` VARCHAR(64),
+`descricao` VARCHAR(64),
+`dataHora` DATETIME,
+PRIMARY KEY (`cenaId`)
+) CHARACTER SET latin1;
+CREATE TABLE `rotina` (
+`rotinaId` INT,
+`aparelhoId` INT,
+`dataHora` DATETIME,
+`acao` BOOL,
+`descricao` VARCHAR(64),
+`cenaId` INT,
+PRIMARY KEY (`rotinaId`)
+) CHARACTER SET latin1;
+CREATE TABLE `ativacao` (
+`ativacaoId` INT,
+`aparelhoId` INT,
+`pessoaId` INT,
+`dataHora` DATETIME,
+`acao` BOOL,
+`descricao` VARCHAR(64),
+PRIMARY KEY (`ativacaoId`)
+) CHARACTER SET latin1;
+CREATE TABLE `log` (
+`logId` INT,
+`pessoaId` INT,
+`casaId` INT,
+`acao` VARCHAR(64),
+`dataHora` DATETIME,
+`descricao` VARCHAR(64),
+`ip` VARCHAR(64),
+PRIMARY KEY (`logId`)
+) CHARACTER SET latin1;
+CREATE TABLE `mensagens` (
+`mensagemId` INT,
+`casaId` INT,
+`dataMensagem` DATETIME,
+`mensagem` VARCHAR(64),
+`tipo` INT,
+`lida` BOOL,
+PRIMARY KEY (`mensagemId`)
+) CHARACTER SET latin1;
+CREATE TABLE `relatorio` (
+`relatorioId` INT,
+`nome` VARCHAR(64),
+`descricao` VARCHAR(64),
+`sql` VARCHAR(64),
+`data_cadastro` DATETIME,
+PRIMARY KEY (`relatorioId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_436566_ScriptSQL') AS relationships;
+relationships
+Database: db_436566_ScriptSQL
+
+Table Connections:
+------------------
+[Implied]  aparelho.comodoId -> comodo.comodoId
+[Implied]  ativacao.aparelhoId -> aparelho.aparelhoId
+[Implied]  ativacao.pessoaId -> pessoa.pessoaId
+[Implied]  casa.estadoId -> estado.estadoId
+[Implied]  comodo.casaId -> casa.casaId
+[Implied]  log.casaId -> casa.casaId
+[Implied]  log.pessoaId -> pessoa.pessoaId
+[Implied]  mensagens.casaId -> casa.casaId
+[Implied]  morador.casaId -> casa.casaId
+[Implied]  morador.pessoaId -> pessoa.pessoaId
+[Implied]  pessoa.statusId -> status.statusId
+[Implied]  rotina.aparelhoId -> aparelho.aparelhoId
+[Implied]  rotina.cenaId -> cenas.cenaId
+
+DROP DATABASE `db_436566_ScriptSQL`;
+UNINSTALL EXTENSION vsql_schematron;

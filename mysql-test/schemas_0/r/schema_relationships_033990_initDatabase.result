@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 033990_initDatabase
+#
+CREATE DATABASE `db_033990_initDatabase`;
+USE `db_033990_initDatabase`;
+CREATE TABLE `users` (
+`username` VARCHAR(64),
+`pass` VARCHAR(64),
+`account` VARCHAR(64),
+`bio` VARCHAR(64),
+`registered` DATETIME,
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `stories` (
+`id` INT,
+`title` VARCHAR(64),
+`brief` VARCHAR(64),
+`content` VARCHAR(64),
+`username` VARCHAR(64),
+`rating` DECIMAL(10,2),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ratings` (
+`id` INT,
+`username` VARCHAR(64),
+`rating` INT,
+PRIMARY KEY (`id`, `username`)
+) CHARACTER SET latin1;
+CREATE TABLE `logins` (
+`token` VARCHAR(64),
+`username` VARCHAR(64),
+`created` DATETIME,
+PRIMARY KEY (`token`)
+) CHARACTER SET latin1;
+CREATE TABLE `storyComments` (
+`cid` INT,
+`id` INT,
+`username` VARCHAR(64),
+`comment` VARCHAR(64),
+`created` DATETIME,
+PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `favs` (
+`id` INT,
+`username` VARCHAR(64),
+PRIMARY KEY (`id`, `username`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_033990_initDatabase') AS relationships;
+relationships
+Database: db_033990_initDatabase
+
+Table Connections:
+------------------
+[Implied]  favs.username -> users.username
+[Implied]  logins.username -> users.username
+[Implied]  ratings.username -> users.username
+[Implied]  stories.username -> users.username
+[Implied]  storyComments.username -> users.username
+
+DROP DATABASE `db_033990_initDatabase`;
+UNINSTALL EXTENSION vsql_schematron;

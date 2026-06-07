@@ -1,0 +1,184 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 214453_database%20nsuClub
+--echo #
+CREATE DATABASE `db_214453_database_20nsuClub`;
+USE `db_214453_database_20nsuClub`;
+
+CREATE TABLE `members` (
+  `id` INT,
+  `nsu_id` INT,
+  `depertment_name` VARCHAR(64),
+  `barch` INT,
+  `full_name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `mobile_number` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `date_of_birth` DATETIME,
+  `club_name` VARCHAR(64),
+  `facebook_id` VARCHAR(64),
+  `twtter_id` VARCHAR(64),
+  `whatsup_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `events` (
+  `event_id` INT,
+  `ev_title` VARCHAR(64),
+  `ev_description` VARCHAR(64),
+  `ev_photo` VARCHAR(64),
+  `ev_publish_date` DATETIME,
+  `ve_date` DATETIME,
+  PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `clubs` (
+  `club_id` INT,
+  `club_name` VARCHAR(64),
+  `club_member_Position` INT,
+  `club_event` INT,
+  `club_about` INT,
+  `club_awards` INT,
+  PRIMARY KEY (`club_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `members_Positions` (
+  `members_Position_id` INT,
+  `club_president` VARCHAR(64),
+  `club_vixe_precident` INT,
+  `club_genera_secretary` INT,
+  `club_eb` INT,
+  `club_treasurer` INT,
+  `club_sub_exicutive` INT,
+  `club_in_charge` INT,
+  `club_member` VARCHAR(64),
+  PRIMARY KEY (`members_Position_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `eb` (
+  `eb_id` INT,
+  `nsu_id` INT,
+  `club_name` VARCHAR(64),
+  `joining_date` DATETIME,
+  PRIMARY KEY (`eb_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `presidents` (
+  `president_id` INT,
+  `nsu_id` INT,
+  `club_name` VARCHAR(64),
+  `joining_date` DATETIME,
+  PRIMARY KEY (`president_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vice_presidents` (
+  `vice_president_id` INT,
+  `nsu_id` INT,
+  `club_name` VARCHAR(64),
+  `joining_date` DATETIME,
+  PRIMARY KEY (`vice_president_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `general_secretarys` (
+  `general_secretary_id` INT,
+  `nsu_id` INT,
+  `club_name` VARCHAR(64),
+  `joining_date` DATETIME,
+  PRIMARY KEY (`general_secretary_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `treasurers` (
+  `treasurer_id` INT,
+  `nsu_id` INT,
+  `club_name` VARCHAR(64),
+  `joining_date` DATETIME,
+  PRIMARY KEY (`treasurer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Sub_executives` (
+  `Sub_executive_id` INT,
+  `nsu_id` INT,
+  `club_name` VARCHAR(64),
+  `joining_date` DATETIME,
+  PRIMARY KEY (`Sub_executive_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `in_charges` (
+  `in_charge_id` INT,
+  `nsu_id` INT,
+  `club_name` VARCHAR(64),
+  `joining_date` DATETIME,
+  PRIMARY KEY (`in_charge_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `club_members` (
+  `club_member_id` INT,
+  `nsu_id` INT,
+  `club_name` VARCHAR(64),
+  `joining_date` DATETIME,
+  PRIMARY KEY (`club_member_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `abouts` (
+  `about_id` INT,
+  `about_title` VARCHAR(64),
+  `about_description` VARCHAR(64),
+  PRIMARY KEY (`about_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `awards` (
+  `award_id` INT,
+  `award_title` VARCHAR(64),
+  `award_description` VARCHAR(64),
+  `award_photo` VARCHAR(64),
+  PRIMARY KEY (`award_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_messages` (
+  `user_message_id` INT,
+  `user_message_name` VARCHAR(64),
+  `user_message_email` VARCHAR(64),
+  `user_message_description` VARCHAR(64),
+  PRIMARY KEY (`user_message_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `joining_request` (
+  `joining_request_id` INT,
+  `id` INT,
+  `questions` VARCHAR(64),
+  `result` INT,
+  `joining_request_date` DATETIME,
+  PRIMARY KEY (`joining_request_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `joining_quistions` (
+  `joining_quistion_id` INT,
+  `questions_no` INT,
+  `ans_01` VARCHAR(64),
+  `ans_02` VARCHAR(64),
+  `ans_03` VARCHAR(64),
+  `ans_04` VARCHAR(64),
+  `ans_05` VARCHAR(64),
+  PRIMARY KEY (`joining_quistion_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_214453_database_20nsuClub') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_214453_database_20nsuClub') AS relationships;
+DROP DATABASE `db_214453_database_20nsuClub`;
+UNINSTALL EXTENSION vsql_schematron;

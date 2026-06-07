@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 610698_migration
+#
+CREATE DATABASE `db_610698_migration`;
+USE `db_610698_migration`;
+CREATE TABLE `Assets` (
+`uuid` VARCHAR(64),
+`binary` VARCHAR(64),
+`digest` VARCHAR(64),
+`compressed` BOOL,
+`filename` VARCHAR(64),
+`status` VARCHAR(64),
+`draftRequestId` VARCHAR(64),
+`draftExpectedParts` INT,
+`invalidReason` VARCHAR(64),
+`invalidTimestamp` DATETIME,
+`created` DATETIME,
+`createdByUuid` VARCHAR(64),
+`modified` DATETIME,
+`modifiedByUuid` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Biomes` (
+`uuid` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`link` VARCHAR(64),
+`created` DATETIME,
+`createdByUuid` VARCHAR(64),
+`modified` DATETIME,
+`modifiedByUuid` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Fragments` (
+`uuid` VARCHAR(64),
+`assetsByUuid` VARCHAR(64),
+`part` INT,
+`binary` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Species` (
+`uuid` VARCHAR(64),
+`tag` VARCHAR(64),
+`generation` INT,
+`description` VARCHAR(64),
+`link` VARCHAR(64),
+`created` DATETIME,
+`createdByUuid` VARCHAR(64),
+`modified` DATETIME,
+`modifiedByUuid` VARCHAR(64),
+`assetByUuid` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+`uuid` VARCHAR(64),
+`email` VARCHAR(64),
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`token` VARCHAR(64),
+`created` DATETIME,
+`modified` DATETIME,
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Habitats` (
+`uuid` VARCHAR(64),
+`speciesByUuid` VARCHAR(64),
+`biomesByUuid` VARCHAR(64),
+`created` DATETIME,
+`createdByUuid` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Characteristics` (
+`uuid` VARCHAR(64),
+`key` VARCHAR(64),
+`value` VARCHAR(64),
+`speciesByUuid` VARCHAR(64),
+`created` DATETIME,
+`createdByUuid` VARCHAR(64),
+`modified` DATETIME,
+`modifiedByUuid` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_610698_migration') AS relationships;
+relationships
+Database: db_610698_migration
+
+Table Connections:
+------------------
+[Implied]  Characteristics.speciesByUuid -> Species.uuid
+[Implied]  Fragments.assetsByUuid -> Assets.uuid
+[Implied]  Habitats.biomesByUuid -> Biomes.uuid
+[Implied]  Habitats.speciesByUuid -> Species.uuid
+
+DROP DATABASE `db_610698_migration`;
+UNINSTALL EXTENSION vsql_schematron;

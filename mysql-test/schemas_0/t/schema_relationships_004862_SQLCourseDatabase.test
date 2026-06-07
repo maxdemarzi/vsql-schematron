@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 004862_SQLCourseDatabase
+--echo #
+CREATE DATABASE `db_004862_SQLCourseDatabase`;
+USE `db_004862_SQLCourseDatabase`;
+
+CREATE TABLE `Faculty` (
+  `faculty_id` INT,
+  `faculty_name` VARCHAR(64),
+  PRIMARY KEY (`faculty_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Course` (
+  `course_id` INT,
+  `course_name` VARCHAR(64),
+  PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Teacher` (
+  `teacher_id` INT,
+  `last_name` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `birthday` DATETIME,
+  `curator_id` INT,
+  PRIMARY KEY (`teacher_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Student` (
+  `student_id` INT,
+  `student_number` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `gender` INT,
+  `birthday` DATETIME,
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Unit` (
+  `unit_id` INT,
+  `unit_number` VARCHAR(64),
+  `faculty_id` INT,
+  PRIMARY KEY (`unit_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Student_Unit` (
+  `student_unit_id` INT,
+  `unit_id` INT,
+  `student_id` INT,
+  `is_head` INT,
+  PRIMARY KEY (`student_unit_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Teacher_Course_Faculty` (
+  `teacher_course_faculty_id` INT,
+  `teacher_id` INT,
+  `course_id` INT,
+  `faculty_id` INT,
+  `duration` DECIMAL(10,2),
+  PRIMARY KEY (`teacher_course_faculty_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Student_grade` (
+  `student_grade_id` INT,
+  `student_id` INT,
+  `course_id` INT,
+  `grade` INT,
+  PRIMARY KEY (`student_grade_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_004862_SQLCourseDatabase') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_004862_SQLCourseDatabase') AS relationships;
+DROP DATABASE `db_004862_SQLCourseDatabase`;
+UNINSTALL EXTENSION vsql_schematron;

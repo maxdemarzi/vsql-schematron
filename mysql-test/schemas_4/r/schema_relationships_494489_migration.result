@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 494489_migration
+#
+CREATE DATABASE `db_494489_migration`;
+USE `db_494489_migration`;
+CREATE TABLE `Article` (
+`id` INT,
+`slug` VARCHAR(64),
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`body` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`authorId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ArticleTags` (
+`articleId` INT,
+`tagId` INT,
+PRIMARY KEY (`articleId`, `tagId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comment` (
+`id` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`body` VARCHAR(64),
+`articleId` INT,
+`authorId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` INT,
+`email` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`image` VARCHAR(64),
+`bio` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_UserFavorites` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_UserFollows` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_494489_migration') AS relationships;
+relationships
+Database: db_494489_migration
+
+Table Connections:
+------------------
+[Implied]  Article.authorId -> User.id
+[Implied]  ArticleTags.articleId -> Article.id
+[Implied]  ArticleTags.tagId -> Tag.id
+[Implied]  Comment.articleId -> Article.id
+[Implied]  Comment.authorId -> User.id
+
+DROP DATABASE `db_494489_migration`;
+UNINSTALL EXTENSION vsql_schematron;

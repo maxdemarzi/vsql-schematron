@@ -1,0 +1,120 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 242919_05.Table-Relations
+--echo #
+CREATE DATABASE `db_242919_05_Table_Relations`;
+USE `db_242919_05_Table_Relations`;
+
+CREATE TABLE `Models` (
+  `ModelID` INT,
+  `Name` VARCHAR(64),
+  `ManufacturerID` INT,
+  PRIMARY KEY (`ModelID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `StudentsExams` (
+  `StudentID` INT,
+  `ExamID` INT,
+  PRIMARY KEY (`StudentID`, `ExamID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Teachers` (
+  `TeacherID` INT,
+  `Name` VARCHAR(64),
+  `ManagerID` INT,
+  PRIMARY KEY (`TeacherID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ItemTypes` (
+  `ItemTypeID` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`ItemTypeID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Items` (
+  `ItemID` INT,
+  `Name` VARCHAR(64),
+  `ItemTypeID` INT,
+  PRIMARY KEY (`ItemID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Cities` (
+  `CityID` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`CityID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Customers` (
+  `CustomerID` INT,
+  `Name` VARCHAR(64),
+  `Birthday` DATETIME,
+  `CityID` INT,
+  PRIMARY KEY (`CustomerID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Orders` (
+  `OrderID` INT,
+  `CustomerID` INT,
+  PRIMARY KEY (`OrderID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `OrderItems` (
+  `OrderID` INT,
+  `ItemID` INT,
+  PRIMARY KEY (`OrderID`, `ItemID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Majors` (
+  `MajorID` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`MajorID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Students` (
+  `StudentID` INT,
+  `StudentNumber` INT,
+  `StudentName` VARCHAR(64),
+  `MajorID` INT,
+  PRIMARY KEY (`StudentID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Payments` (
+  `PaymentID` INT,
+  `PaymentDate` DATETIME,
+  `PaymentAmount` DECIMAL(10,2),
+  `StudentID` INT,
+  PRIMARY KEY (`PaymentID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Subjects` (
+  `SubjectID` INT,
+  `SubjectName` VARCHAR(64),
+  PRIMARY KEY (`SubjectID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Agenda` (
+  `StudentID` INT,
+  `SubjectID` INT,
+  PRIMARY KEY (`StudentID`, `SubjectID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_242919_05_Table_Relations') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_242919_05_Table_Relations') AS relationships;
+DROP DATABASE `db_242919_05_Table_Relations`;
+UNINSTALL EXTENSION vsql_schematron;

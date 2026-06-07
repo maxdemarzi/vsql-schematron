@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 519226_script2Oretorno
+#
+CREATE DATABASE `db_519226_script2Oretorno`;
+USE `db_519226_script2Oretorno`;
+CREATE TABLE `oficina.funcionario` (
+`idFuncionario` INT,
+`nomeFuncionario` VARCHAR(64),
+`usuario` VARCHAR(64),
+`senha` VARCHAR(64),
+PRIMARY KEY (`idFuncionario`)
+) CHARACTER SET latin1;
+CREATE TABLE `oficina.contato` (
+`idContato` INT,
+`tel` VARCHAR(64),
+`cel` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`idContato`)
+) CHARACTER SET latin1;
+CREATE TABLE `oficina.endereco` (
+`idEndereco` INT,
+`logradouro` VARCHAR(64),
+`numero` INT,
+`cep` VARCHAR(64),
+`bairro` VARCHAR(64),
+`cidade` VARCHAR(64),
+`uf` VARCHAR(64),
+`complemento` VARCHAR(64),
+PRIMARY KEY (`idEndereco`)
+) CHARACTER SET latin1;
+CREATE TABLE `oficina.servico` (
+`idservico` INT,
+`nomeServico` VARCHAR(64),
+`valor` DECIMAL(10,2),
+PRIMARY KEY (`idservico`)
+) CHARACTER SET latin1;
+CREATE TABLE `oficina.cliente` (
+`idCliente` INT,
+`nome` VARCHAR(64),
+`cpf` VARCHAR(64),
+`rg` VARCHAR(64),
+`contato_idContato` INT,
+`idEndereco` INT,
+PRIMARY KEY (`idCliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `oficina.dadocarro` (
+`idcarro` INT,
+`marcaVeiculo` VARCHAR(64),
+`modeloVeiculo` VARCHAR(64),
+`cor` VARCHAR(64),
+`placa` VARCHAR(64),
+`anoCarro` VARCHAR(64),
+`idCliente_carro` INT,
+PRIMARY KEY (`idcarro`)
+) CHARACTER SET latin1;
+CREATE TABLE `oficina.ordemServico` (
+`idordemServico` INT,
+`idCliente` INT,
+`idFuncionario` INT,
+`dataEntrada` DATETIME,
+`dataSaida` DATETIME,
+`valorTotal` DECIMAL(10,2),
+`finalizado` INT,
+PRIMARY KEY (`idordemServico`)
+) CHARACTER SET latin1;
+CREATE TABLE `oficina.servico_e_ordemservico` (
+`servico_idServico` INT,
+`ordemservico_idordemServico` INT
+) CHARACTER SET latin1;
+CREATE TABLE `oficina.pre_cadastro` (
+`idPreCadastro` INT,
+`nomeCliente` VARCHAR(64),
+`marcaVeicolo` VARCHAR(64),
+`modeloVeiculo` VARCHAR(64),
+`tel` VARCHAR(64),
+PRIMARY KEY (`idPreCadastro`)
+) CHARACTER SET latin1;
+CREATE TABLE `oficina.agendamento` (
+`idAgendamento` INT,
+`data` VARCHAR(64),
+`hora` VARCHAR(64),
+`pre_cadastro_id` INT,
+PRIMARY KEY (`idAgendamento`)
+) CHARACTER SET latin1;
+CREATE TABLE `oficina.agendamento_has_cliente` (
+`idAgendamento` INT,
+`idCliente` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_519226_script2Oretorno') AS relationships;
+relationships
+Database: db_519226_script2Oretorno
+
+Table Connections:
+------------------
+[Implied]  oficina.agendamento.pre_cadastro_id -> oficina.pre_cadastro.idPreCadastro
+[Implied]  oficina.agendamento_has_cliente.idAgendamento -> oficina.agendamento.idAgendamento
+[Implied]  oficina.agendamento_has_cliente.idCliente -> oficina.cliente.idCliente
+[Implied]  oficina.cliente.contato_idContato -> oficina.contato.idContato
+[Implied]  oficina.cliente.idEndereco -> oficina.endereco.idEndereco
+[Implied]  oficina.ordemServico.idCliente -> oficina.cliente.idCliente
+[Implied]  oficina.ordemServico.idFuncionario -> oficina.funcionario.idFuncionario
+[Implied]  oficina.servico_e_ordemservico.ordemservico_idordemServico -> oficina.ordemServico.idordemServico
+[Implied]  oficina.servico_e_ordemservico.servico_idServico -> oficina.servico.idservico
+
+DROP DATABASE `db_519226_script2Oretorno`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 500740_1-create_tables
+#
+CREATE DATABASE `db_500740_1_create_tables`;
+USE `db_500740_1_create_tables`;
+CREATE TABLE `Pictures` (
+`ID` INT,
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+`Width` INT,
+`Height` INT,
+`Rating` INT,
+`ArtistID` INT,
+`UploaderID` INT,
+`DateCreated` DATETIME,
+`DateUploaded` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+`ID` INT,
+`Name` VARCHAR(64),
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`Nickname` VARCHAR(64),
+`RegistrationDate` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Artists` (
+`ID` INT,
+`Name` VARCHAR(64),
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`PersonalSite` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sites` (
+`ID` INT,
+`URL` VARCHAR(64),
+`Name` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pools` (
+`ID` INT,
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ChildPools` (
+`ID` INT,
+`PoolID` INT,
+`ChildPoolID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tags` (
+`ID` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pools_Pictures` (
+`ID` INT,
+`PoolID` INT,
+`PictureID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tags_Pictures` (
+`ID` INT,
+`TagID` INT,
+`PictureID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Watches` (
+`ID` INT,
+`UserID` INT,
+`PictureID` INT,
+`Liked` INT,
+`Reposted` INT,
+`SiteID` INT,
+`WatchDate` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reposts` (
+`ID` INT,
+`WatchID` INT,
+`Message` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_500740_1_create_tables') AS relationships;
+relationships
+Database: db_500740_1_create_tables
+
+Table Connections:
+------------------
+[Implied]  ChildPools.ChildPoolID -> Pools.ID
+[Implied]  ChildPools.PoolID -> Pools.ID
+[Implied]  Pictures.ArtistID -> Artists.ID
+[Implied]  Pools_Pictures.PictureID -> Pictures.ID
+[Implied]  Pools_Pictures.PoolID -> Pools.ID
+[Implied]  Reposts.WatchID -> Watches.ID
+[Implied]  Tags_Pictures.PictureID -> Pictures.ID
+[Implied]  Tags_Pictures.TagID -> Tags.ID
+[Implied]  Watches.PictureID -> Pictures.ID
+[Implied]  Watches.SiteID -> Sites.ID
+[Implied]  Watches.UserID -> Users.ID
+
+DROP DATABASE `db_500740_1_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

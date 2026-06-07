@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 582423_nm-outdoors
+--echo #
+CREATE DATABASE `db_582423_nm_outdoors`;
+USE `db_582423_nm_outdoors`;
+
+CREATE TABLE `recArea` (
+  `recAreaId` VARCHAR(64),
+  `recAreaDescription` VARCHAR(64),
+  `recAreaDirections` VARCHAR(64),
+  `recAreaImageUrl` VARCHAR(64),
+  `recAreaLat` DECIMAL(10,2),
+  `recAreaLong` DECIMAL(10,2),
+  `recAreaMapUrl` VARCHAR(64),
+  `recAreaName` VARCHAR(64),
+  PRIMARY KEY (`recAreaId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `profile` (
+  `profileId` VARCHAR(64),
+  `profileActivationToken` VARCHAR(64),
+  `profileAtHandle` VARCHAR(64),
+  `profileEmail` VARCHAR(64),
+  `profileHash` VARCHAR(64),
+  `profileImageUrl` VARCHAR(64),
+  PRIMARY KEY (`profileId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `review` (
+  `reviewId` VARCHAR(64),
+  `reviewProfileId` VARCHAR(64),
+  `reviewRecAreaId` VARCHAR(64),
+  `reviewContent` VARCHAR(64),
+  `reviewDateTime` DATETIME,
+  `reviewRating` INT,
+  PRIMARY KEY (`reviewId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activity` (
+  `activityId` VARCHAR(64),
+  `activityName` VARCHAR(64),
+  PRIMARY KEY (`activityId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activityType` (
+  `activityTypeActivityId` VARCHAR(64),
+  `activityTypeRecAreaId` VARCHAR(64),
+  PRIMARY KEY (`activityTypeActivityId`, `activityTypeRecAreaId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_582423_nm_outdoors') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_582423_nm_outdoors') AS relationships;
+DROP DATABASE `db_582423_nm_outdoors`;
+UNINSTALL EXTENSION vsql_schematron;

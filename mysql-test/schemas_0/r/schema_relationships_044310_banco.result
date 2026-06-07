@@ -1,0 +1,147 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 044310_banco
+#
+CREATE DATABASE `db_044310_banco`;
+USE `db_044310_banco`;
+CREATE TABLE `tb_perfil` (
+`cd_perfil` INT,
+`nm_nickname` VARCHAR(64),
+`nm_email` VARCHAR(64),
+`nm_senha` VARCHAR(64),
+`dt_nasc` DATETIME,
+`ds_sexo` VARCHAR(64),
+`ds_imagem` VARCHAR(64),
+PRIMARY KEY (`cd_perfil`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_tipo_chat` (
+`cd_tipo_chat` INT,
+`nm_tipo_chat` VARCHAR(64),
+PRIMARY KEY (`cd_tipo_chat`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_grupo` (
+`cd_grupo` INT,
+`nm_grupo` VARCHAR(64),
+`ds_grupo` VARCHAR(64),
+`ds_imagem` VARCHAR(64),
+`dt_criacao` DATETIME,
+`cd_perfil` INT,
+PRIMARY KEY (`cd_grupo`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_amigo` (
+`cd_amigo` INT,
+`dt_amizade` DATETIME,
+`cd_de` INT,
+`cd_para` INT,
+PRIMARY KEY (`cd_amigo`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_tipo_denuncia` (
+`cd_tipo_denuncia` INT,
+`nm_tipo_denuncia` VARCHAR(64),
+PRIMARY KEY (`cd_tipo_denuncia`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_tipo_postagem` (
+`cd_tipo_postagem` INT,
+`nm_tipo_postagem` VARCHAR(64),
+PRIMARY KEY (`cd_tipo_postagem`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_postagem` (
+`cd_postagem` INT,
+`nm_titulo` VARCHAR(64),
+`dt_postagem` DATETIME,
+`hr_postagem` DATETIME,
+`ds_extensao` VARCHAR(64),
+`cd_perfil` INT,
+`cd_tipo_postagem` INT,
+PRIMARY KEY (`cd_postagem`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_chat` (
+`cd_chat` INT,
+`ds_mensagem` VARCHAR(64),
+`cd_de` INT,
+`cd_para` INT,
+`cd_tipo_chat` INT,
+PRIMARY KEY (`cd_chat`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_tipo_notificacao` (
+`cd_tipo_notificacao` INT,
+`nm_tipo_notificacao` VARCHAR(64),
+PRIMARY KEY (`cd_tipo_notificacao`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_notificacao` (
+`cd_notificacao` INT,
+`ic_status` VARCHAR(64),
+`cd_de` INT,
+`cd_para` INT,
+`cd_tipo_notificacao` INT,
+PRIMARY KEY (`cd_notificacao`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_denuncia` (
+`cd_denuncia` INT,
+`dt_denuncia` DATETIME,
+`cd_tipo_denuncia` INT,
+`cd_postagem` INT,
+`cd_perfil` INT,
+PRIMARY KEY (`cd_denuncia`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_curtida` (
+`cd_curtida` INT,
+`cd_postagem` INT,
+`cd_perfil` INT,
+PRIMARY KEY (`cd_curtida`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_descurtida` (
+`cd_descurtida` INT,
+`cd_postagem` INT,
+`cd_perfil` INT,
+PRIMARY KEY (`cd_descurtida`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_compartilhamento` (
+`cd_compartilhamento` INT,
+`dt_compartilhamento` DATETIME,
+`hr_compartilhamento` DATETIME,
+`cd_postagem` INT,
+`cd_perfil` INT,
+PRIMARY KEY (`cd_compartilhamento`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_comentario` (
+`cd_comentario` INT,
+`ds_comentario` VARCHAR(64),
+`dt_comentario` DATETIME,
+`hr_comentario` DATETIME,
+`cd_postagem` INT,
+`cd_perfil` INT,
+PRIMARY KEY (`cd_comentario`)
+) CHARACTER SET latin1;
+CREATE TABLE `grupo_perfil` (
+`cd_grupo` INT,
+`cd_perfil` INT,
+`ic_administrador` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_044310_banco') AS relationships;
+relationships
+Database: db_044310_banco
+
+Table Connections:
+------------------
+[Implied]  grupo_perfil.cd_grupo -> tb_grupo.cd_grupo
+[Implied]  grupo_perfil.cd_perfil -> tb_perfil.cd_perfil
+[Implied]  tb_chat.cd_tipo_chat -> tb_tipo_chat.cd_tipo_chat
+[Implied]  tb_comentario.cd_perfil -> tb_perfil.cd_perfil
+[Implied]  tb_comentario.cd_postagem -> tb_postagem.cd_postagem
+[Implied]  tb_compartilhamento.cd_perfil -> tb_perfil.cd_perfil
+[Implied]  tb_compartilhamento.cd_postagem -> tb_postagem.cd_postagem
+[Implied]  tb_curtida.cd_perfil -> tb_perfil.cd_perfil
+[Implied]  tb_curtida.cd_postagem -> tb_postagem.cd_postagem
+[Implied]  tb_denuncia.cd_perfil -> tb_perfil.cd_perfil
+[Implied]  tb_denuncia.cd_postagem -> tb_postagem.cd_postagem
+[Implied]  tb_denuncia.cd_tipo_denuncia -> tb_tipo_denuncia.cd_tipo_denuncia
+[Implied]  tb_descurtida.cd_perfil -> tb_perfil.cd_perfil
+[Implied]  tb_descurtida.cd_postagem -> tb_postagem.cd_postagem
+[Implied]  tb_grupo.cd_perfil -> tb_perfil.cd_perfil
+[Implied]  tb_notificacao.cd_tipo_notificacao -> tb_tipo_notificacao.cd_tipo_notificacao
+[Implied]  tb_postagem.cd_perfil -> tb_perfil.cd_perfil
+[Implied]  tb_postagem.cd_tipo_postagem -> tb_tipo_postagem.cd_tipo_postagem
+
+DROP DATABASE `db_044310_banco`;
+UNINSTALL EXTENSION vsql_schematron;

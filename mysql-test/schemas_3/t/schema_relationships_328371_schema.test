@@ -1,0 +1,176 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 328371_schema
+--echo #
+CREATE DATABASE `db_328371_schema`;
+USE `db_328371_schema`;
+
+CREATE TABLE `domain` (
+  `domain_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`domain_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `error` (
+  `error_id` INT,
+  `page_id` INT,
+  `visitor_id` INT,
+  `message` VARCHAR(64),
+  `line_number` INT,
+  `timestamp` DATETIME,
+  PRIMARY KEY (`error_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `gene` (
+  `gene_id` INT,
+  `page_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`gene_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genome` (
+  `genome_id` INT,
+  `page_id` INT,
+  `hash` VARCHAR(64),
+  PRIMARY KEY (`genome_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genome_variant_link` (
+  `genome_variant_link_id` INT,
+  `genome_id` INT,
+  `variant_id` INT,
+  PRIMARY KEY (`genome_variant_link_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `goal` (
+  `goal_id` INT,
+  `name` VARCHAR(64),
+  `value` INT,
+  `pageview_xid` INT,
+  PRIMARY KEY (`goal_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `page` (
+  `page_id` INT,
+  `domain_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`page_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pageview` (
+  `pageview_id` INT,
+  `pageview_xid` INT,
+  `page_id` INT,
+  `visitor_id` INT,
+  `referrer_id` INT,
+  `genome_id` INT,
+  `vary_call` VARCHAR(64),
+  `load_time` INT,
+  `init_time` INT,
+  `results_time` INT,
+  `idle_time` INT,
+  `vary_time` INT,
+  `timestamp` DATETIME,
+  PRIMARY KEY (`pageview_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `referrer` (
+  `referrer_id` INT,
+  `hash` VARCHAR(64),
+  `domain` VARCHAR(64),
+  `path` VARCHAR(64),
+  `external` VARCHAR(64),
+  `search_engine` VARCHAR(64),
+  `search_term` VARCHAR(64),
+  PRIMARY KEY (`referrer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `variant` (
+  `variant_id` INT,
+  `gene_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`variant_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stats_by_variant` (
+  `variant_id` INT,
+  `count` INT,
+  `nonzero` INT,
+  `sum` INT,
+  `avg` DECIMAL(10,2),
+  `sumsq` INT,
+  `wavg` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stats_by_genome` (
+  `genome_id` INT,
+  `count` INT,
+  `nonzero` INT,
+  `sum` INT,
+  `avg` DECIMAL(10,2),
+  `sumsq` INT,
+  `wavg` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `visitor` (
+  `visitor_id` INT,
+  `hash` VARCHAR(64),
+  `ip_address` VARCHAR(64),
+  `Parent` VARCHAR(64),
+  `Platform` VARCHAR(64),
+  `Browser` VARCHAR(64),
+  `Version` VARCHAR(64),
+  `MajorVer` VARCHAR(64),
+  `Frames` VARCHAR(64),
+  `IFrames` VARCHAR(64),
+  `Tables` VARCHAR(64),
+  `Cookies` VARCHAR(64),
+  `JavaApplets` VARCHAR(64),
+  `JavaScript` VARCHAR(64),
+  `CSS` VARCHAR(64),
+  `CssVersion` VARCHAR(64),
+  `supportsCSS` VARCHAR(64),
+  `MinorVer` VARCHAR(64),
+  `Alpha` VARCHAR(64),
+  `Beta` VARCHAR(64),
+  `Win16` VARCHAR(64),
+  `Win32` VARCHAR(64),
+  `Win64` VARCHAR(64),
+  `BackgroundSounds` VARCHAR(64),
+  `AuthenticodeUpdate` VARCHAR(64),
+  `CDF` VARCHAR(64),
+  `VBScript` VARCHAR(64),
+  `ActiveXControls` VARCHAR(64),
+  `Stripper` VARCHAR(64),
+  `isBanned` VARCHAR(64),
+  `WAP` VARCHAR(64),
+  `isMobileDevice` VARCHAR(64),
+  `isSyndicationReader` VARCHAR(64),
+  `Crawler` VARCHAR(64),
+  `AOL` VARCHAR(64),
+  `aolVersion` VARCHAR(64),
+  `netCLR` VARCHAR(64),
+  `ClrVersion` VARCHAR(64),
+  PRIMARY KEY (`visitor_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_328371_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_328371_schema') AS relationships;
+DROP DATABASE `db_328371_schema`;
+UNINSTALL EXTENSION vsql_schematron;

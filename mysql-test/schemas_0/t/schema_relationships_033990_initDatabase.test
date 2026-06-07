@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 033990_initDatabase
+--echo #
+CREATE DATABASE `db_033990_initDatabase`;
+USE `db_033990_initDatabase`;
+
+CREATE TABLE `users` (
+  `username` VARCHAR(64),
+  `pass` VARCHAR(64),
+  `account` VARCHAR(64),
+  `bio` VARCHAR(64),
+  `registered` DATETIME,
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stories` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `brief` VARCHAR(64),
+  `content` VARCHAR(64),
+  `username` VARCHAR(64),
+  `rating` DECIMAL(10,2),
+  `created` DATETIME,
+  `modified` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ratings` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `rating` INT,
+  PRIMARY KEY (`id`, `username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `logins` (
+  `token` VARCHAR(64),
+  `username` VARCHAR(64),
+  `created` DATETIME,
+  PRIMARY KEY (`token`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `storyComments` (
+  `cid` INT,
+  `id` INT,
+  `username` VARCHAR(64),
+  `comment` VARCHAR(64),
+  `created` DATETIME,
+  PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `favs` (
+  `id` INT,
+  `username` VARCHAR(64),
+  PRIMARY KEY (`id`, `username`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_033990_initDatabase') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_033990_initDatabase') AS relationships;
+DROP DATABASE `db_033990_initDatabase`;
+UNINSTALL EXTENSION vsql_schematron;

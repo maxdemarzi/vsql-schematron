@@ -1,0 +1,196 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 368961_create
+#
+CREATE DATABASE `db_368961_create`;
+USE `db_368961_create`;
+CREATE TABLE `Card_state` (
+`id_state` DECIMAL(10,2),
+`state_title` VARCHAR(64),
+PRIMARY KEY (`id_state`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sex` (
+`id_sex` DECIMAL(10,2),
+`sex_title` VARCHAR(64),
+PRIMARY KEY (`id_sex`)
+) CHARACTER SET latin1;
+CREATE TABLE `Patient` (
+`id_patient` DECIMAL(10,2),
+`last_name` VARCHAR(64),
+`first_name` VARCHAR(64),
+`patronymic` VARCHAR(64),
+`id_sex` DECIMAL(10,2),
+`date_birth` DATETIME,
+`telephone` VARCHAR(64),
+`passport` VARCHAR(64),
+`insurance_number` VARCHAR(64),
+PRIMARY KEY (`id_patient`)
+) CHARACTER SET latin1;
+CREATE TABLE `Medical_card` (
+`id_medical_card` DECIMAL(10,2),
+`id_patient` DECIMAL(10,2),
+`id_state` DECIMAL(10,2),
+PRIMARY KEY (`id_medical_card`)
+) CHARACTER SET latin1;
+CREATE TABLE `Group_info` (
+`id_group_info` DECIMAL(10,2),
+`group_title` VARCHAR(64),
+PRIMARY KEY (`id_group_info`)
+) CHARACTER SET latin1;
+CREATE TABLE `Additional_info` (
+`id_info` DECIMAL(10,2),
+`id_medical_card` DECIMAL(10,2),
+`id_group_info` DECIMAL(10,2),
+`description` VARCHAR(64),
+PRIMARY KEY (`id_info`)
+) CHARACTER SET latin1;
+CREATE TABLE `History_type` (
+`id_history_type` DECIMAL(10,2),
+`type_title` VARCHAR(64),
+PRIMARY KEY (`id_history_type`)
+) CHARACTER SET latin1;
+CREATE TABLE `Medical_history` (
+`id_medical_history` DECIMAL(10,2),
+`id_medical_card` DECIMAL(10,2),
+`id_history_type` DECIMAL(10,2),
+`description` VARCHAR(64),
+`openning_date` DATETIME,
+PRIMARY KEY (`id_medical_history`)
+) CHARACTER SET latin1;
+CREATE TABLE `Specialization` (
+`id_specialization` DECIMAL(10,2),
+`spec_title` VARCHAR(64),
+PRIMARY KEY (`id_specialization`)
+) CHARACTER SET latin1;
+CREATE TABLE `Doctor` (
+`id_doctor` DECIMAL(10,2),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`patronymic` VARCHAR(64),
+`id_specialization` DECIMAL(10,2),
+PRIMARY KEY (`id_doctor`)
+) CHARACTER SET latin1;
+CREATE TABLE `Group_illnesses` (
+`id_group_illnesses` DECIMAL(10,2),
+`ilnesses_gr_title` VARCHAR(64),
+PRIMARY KEY (`id_group_illnesses`)
+) CHARACTER SET latin1;
+CREATE TABLE `Illnesses` (
+`id_illness` DECIMAL(10,2),
+`illnesses_title` VARCHAR(64),
+`id_group_illnesses` DECIMAL(10,2),
+PRIMARY KEY (`id_illness`)
+) CHARACTER SET latin1;
+CREATE TABLE `Drugs` (
+`id_drug` DECIMAL(10,2),
+`drug_title` VARCHAR(64),
+PRIMARY KEY (`id_drug`)
+) CHARACTER SET latin1;
+CREATE TABLE `Measure` (
+`id_measure` DECIMAL(10,2),
+`measure_title` VARCHAR(64),
+PRIMARY KEY (`id_measure`)
+) CHARACTER SET latin1;
+CREATE TABLE `Work_time` (
+`id_time` DECIMAL(10,2),
+`work_time` DATETIME,
+PRIMARY KEY (`id_time`)
+) CHARACTER SET latin1;
+CREATE TABLE `Week_day` (
+`id_week_day` DECIMAL(10,2),
+`week_day` VARCHAR(64),
+PRIMARY KEY (`id_week_day`)
+) CHARACTER SET latin1;
+CREATE TABLE `Analysis` (
+`id_analysis` DECIMAL(10,2),
+`analysis_title` VARCHAR(64),
+PRIMARY KEY (`id_analysis`)
+) CHARACTER SET latin1;
+CREATE TABLE `Laboratory` (
+`id_laboratory` DECIMAL(10,2),
+`lab_title` VARCHAR(64),
+PRIMARY KEY (`id_laboratory`)
+) CHARACTER SET latin1;
+CREATE TABLE `Laboratory_schedule` (
+`id_laboratory` DECIMAL(10,2),
+`id_week_day` DECIMAL(10,2),
+`id_time` DECIMAL(10,2),
+PRIMARY KEY (`id_laboratory`, `id_week_day`, `id_time`)
+) CHARACTER SET latin1;
+CREATE TABLE `Doctor_schedule` (
+`id_doctor` DECIMAL(10,2),
+`id_week_day` DECIMAL(10,2),
+`id_time` DECIMAL(10,2),
+PRIMARY KEY (`id_doctor`, `id_week_day`, `id_time`)
+) CHARACTER SET latin1;
+CREATE TABLE `Doctor_reception` (
+`id_doctor_reception` DECIMAL(10,2),
+`id_medical_history` DECIMAL(10,2),
+`id_doctor` DECIMAL(10,2),
+`reception_date` DATETIME,
+PRIMARY KEY (`id_doctor_reception`)
+) CHARACTER SET latin1;
+CREATE TABLE `Examination` (
+`id_examination` DECIMAL(10,2),
+`id_doctor_reception` DECIMAL(10,2),
+`complaints` VARCHAR(64),
+PRIMARY KEY (`id_examination`)
+) CHARACTER SET latin1;
+CREATE TABLE `Laboratory_reception` (
+`id_laboratory_reception` DECIMAL(10,2),
+`id_examination` DECIMAL(10,2),
+`id_laboratory` DECIMAL(10,2),
+`analysis_date` DATETIME,
+`analysis_result` VARCHAR(64),
+`id_analysis` DECIMAL(10,2),
+PRIMARY KEY (`id_laboratory_reception`)
+) CHARACTER SET latin1;
+CREATE TABLE `Treatment` (
+`id_treatment` DECIMAL(10,2),
+`id_examination` DECIMAL(10,2),
+`id_drug` DECIMAL(10,2),
+`id_measure` DECIMAL(10,2),
+`dosage` DECIMAL(10,2),
+`quantity` DECIMAL(10,2),
+`duration` DECIMAL(10,2),
+PRIMARY KEY (`id_treatment`)
+) CHARACTER SET latin1;
+CREATE TABLE `Diagnosis` (
+`id_diagnosis` DECIMAL(10,2),
+`id_examination` DECIMAL(10,2),
+`id_illness` DECIMAL(10,2),
+PRIMARY KEY (`id_diagnosis`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_368961_create') AS relationships;
+relationships
+Database: db_368961_create
+
+Table Connections:
+------------------
+[Implied]  Additional_info.id_group_info -> Group_info.id_group_info
+[Implied]  Additional_info.id_medical_card -> Medical_card.id_medical_card
+[Implied]  Diagnosis.id_examination -> Examination.id_examination
+[Implied]  Diagnosis.id_illness -> Illnesses.id_illness
+[Implied]  Doctor.id_specialization -> Specialization.id_specialization
+[Implied]  Doctor_reception.id_doctor -> Doctor.id_doctor
+[Implied]  Doctor_reception.id_medical_history -> History_type.id_history_type
+[Implied]  Doctor_schedule.id_doctor -> Doctor.id_doctor
+[Implied]  Doctor_schedule.id_week_day -> Week_day.id_week_day
+[Implied]  Examination.id_doctor_reception -> Doctor.id_doctor
+[Implied]  Illnesses.id_group_illnesses -> Group_illnesses.id_group_illnesses
+[Implied]  Laboratory_reception.id_analysis -> Analysis.id_analysis
+[Implied]  Laboratory_reception.id_examination -> Examination.id_examination
+[Implied]  Laboratory_reception.id_laboratory -> Laboratory.id_laboratory
+[Implied]  Laboratory_schedule.id_laboratory -> Laboratory.id_laboratory
+[Implied]  Laboratory_schedule.id_week_day -> Week_day.id_week_day
+[Implied]  Medical_card.id_patient -> Patient.id_patient
+[Implied]  Medical_card.id_state -> Card_state.id_state
+[Implied]  Medical_history.id_history_type -> History_type.id_history_type
+[Implied]  Medical_history.id_medical_card -> Medical_card.id_medical_card
+[Implied]  Patient.id_sex -> Sex.id_sex
+[Implied]  Treatment.id_drug -> Drugs.id_drug
+[Implied]  Treatment.id_examination -> Examination.id_examination
+[Implied]  Treatment.id_measure -> Measure.id_measure
+
+DROP DATABASE `db_368961_create`;
+UNINSTALL EXTENSION vsql_schematron;

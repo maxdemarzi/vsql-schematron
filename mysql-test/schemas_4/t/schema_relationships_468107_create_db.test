@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 468107_create_db
+--echo #
+CREATE DATABASE `db_468107_create_db`;
+USE `db_468107_create_db`;
+
+CREATE TABLE `users` (
+  `nid` VARCHAR(64),
+  `login` VARCHAR(64),
+  `password` VARCHAR(64),
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  `user_mode` BOOL,
+  `dateCreated` DATETIME,
+  `lastLoggedIn` DATETIME,
+  PRIMARY KEY (`nid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sessions` (
+  `nid` VARCHAR(64),
+  `ip` VARCHAR(64),
+  `token` VARCHAR(64),
+  `dateCreated` DATETIME,
+  PRIMARY KEY (`nid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tests` (
+  `code` VARCHAR(64),
+  `testName` VARCHAR(64),
+  `numberOfQuestions` INT,
+  `solutions` VARCHAR(64),
+  `testOwner` VARCHAR(64),
+  `expiration` DATETIME,
+  PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `history` (
+  `id` INT,
+  `nid` VARCHAR(64),
+  `testCode` VARCHAR(64),
+  `studentSolutions` VARCHAR(64),
+  `studentScore` INT,
+  `submittedImage` VARCHAR(64),
+  `submissionTime` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_468107_create_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_468107_create_db') AS relationships;
+DROP DATABASE `db_468107_create_db`;
+UNINSTALL EXTENSION vsql_schematron;

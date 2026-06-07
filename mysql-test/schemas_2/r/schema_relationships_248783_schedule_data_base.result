@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 248783_schedule_data_base
+#
+CREATE DATABASE `db_248783_schedule_data_base`;
+USE `db_248783_schedule_data_base`;
+CREATE TABLE `admin_data` (
+`value` INT,
+`user_id` INT,
+PRIMARY KEY (`value`)
+) CHARACTER SET latin1;
+CREATE TABLE `exercise` (
+`value` INT,
+`exercise_id` INT,
+`training_id` INT,
+`approach` INT,
+`repetition` INT,
+`weigth` INT,
+PRIMARY KEY (`value`)
+) CHARACTER SET latin1;
+CREATE TABLE `exercise_data` (
+`value` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`value`)
+) CHARACTER SET latin1;
+CREATE TABLE `person` (
+`value` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`birthday` DATETIME,
+`sex_id` INT,
+PRIMARY KEY (`value`)
+) CHARACTER SET latin1;
+CREATE TABLE `sex` (
+`value` INT,
+`sex` VARCHAR(64),
+PRIMARY KEY (`value`)
+) CHARACTER SET latin1;
+CREATE TABLE `state` (
+`value` INT,
+`state` VARCHAR(64),
+PRIMARY KEY (`value`)
+) CHARACTER SET latin1;
+CREATE TABLE `training` (
+`value` INT,
+`user_id` INT,
+`create_date` DATETIME,
+`training_date` DATETIME,
+PRIMARY KEY (`value`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_data` (
+`value` INT,
+`person_id` INT,
+`user_login` VARCHAR(64),
+`user_password` VARCHAR(64),
+`state_id` INT,
+`date_reg` DATETIME,
+PRIMARY KEY (`value`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_248783_schedule_data_base') AS relationships;
+relationships
+Database: db_248783_schedule_data_base
+
+Table Connections:
+------------------
+[Implied]  admin_data.user_id -> user_data.value
+[Implied]  exercise.exercise_id -> exercise.value
+[Implied]  exercise.training_id -> training.value
+[Implied]  person.sex_id -> sex.value
+[Implied]  training.user_id -> user_data.value
+[Implied]  user_data.person_id -> person.value
+[Implied]  user_data.state_id -> state.value
+
+DROP DATABASE `db_248783_schedule_data_base`;
+UNINSTALL EXTENSION vsql_schematron;

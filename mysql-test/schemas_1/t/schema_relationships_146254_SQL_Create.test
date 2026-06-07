@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 146254_SQL_Create
+--echo #
+CREATE DATABASE `db_146254_SQL_Create`;
+USE `db_146254_SQL_Create`;
+
+CREATE TABLE `item` (
+  `IdItem` INT,
+  `Tipo` VARCHAR(64),
+  `Nome` VARCHAR(64),
+  `Quantidade` INT,
+  PRIMARY KEY (`IdItem`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pedinte` (
+  `IdPedinte` INT,
+  `Nome` VARCHAR(64),
+  `Idade` INT,
+  `DataEntrada` DATETIME,
+  PRIMARY KEY (`IdPedinte`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pedido` (
+  `IdPedido` INT,
+  `IdPedinte` INT,
+  `DataPedido` DATETIME,
+  PRIMARY KEY (`IdPedido`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pedidoxitem` (
+  `IdPedidoxItem` INT,
+  `IdPedido` INT,
+  `IdItem` INT,
+  PRIMARY KEY (`IdPedidoxItem`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rua` (
+  `IdRua` INT,
+  `Nome` VARCHAR(64),
+  PRIMARY KEY (`IdRua`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ponto` (
+  `Idponto` INT,
+  `Nome` VARCHAR(64),
+  PRIMARY KEY (`Idponto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pontoxrua` (
+  `IdPontoxRua` INT,
+  `IdRua` INT,
+  `IdPonto` INT,
+  PRIMARY KEY (`IdPontoxRua`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ligacao` (
+  `IdLigacao` INT,
+  `IdFocal` INT,
+  `IdProximo` INT,
+  PRIMARY KEY (`IdLigacao`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `local` (
+  `IdLocal` INT,
+  `IdPonto` INT,
+  `Nome` VARCHAR(64),
+  PRIMARY KEY (`IdLocal`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_146254_SQL_Create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_146254_SQL_Create') AS relationships;
+DROP DATABASE `db_146254_SQL_Create`;
+UNINSTALL EXTENSION vsql_schematron;

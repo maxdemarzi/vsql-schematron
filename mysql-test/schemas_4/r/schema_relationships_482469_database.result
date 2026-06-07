@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 482469_database
+#
+CREATE DATABASE `db_482469_database`;
+USE `db_482469_database`;
+CREATE TABLE `employee` (
+`EmpID` VARCHAR(64),
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`Position` VARCHAR(64),
+`Designation` VARCHAR(64),
+`ContactNumber` VARCHAR(64),
+`Email` VARCHAR(64),
+`Password` VARCHAR(64),
+`ProfilePicturePath` VARCHAR(64),
+`IsDeleted` INT,
+PRIMARY KEY (`EmpID`)
+) CHARACTER SET latin1;
+CREATE TABLE `vehicle` (
+`RegistrationNo` VARCHAR(64),
+`Model` VARCHAR(64),
+`PurchasedYear` DATETIME,
+`Value` INT,
+`FuelType` VARCHAR(64),
+`InsuranceValue` VARCHAR(64),
+`InsuranceCompany` VARCHAR(64),
+`AssignedOfficer` VARCHAR(64),
+`State` INT,
+`CurrentLocation` VARCHAR(64),
+`NumOfAllocations` INT,
+`IsLeased` INT,
+`VehiclePicturePath` VARCHAR(64),
+`IsDeleted` INT,
+PRIMARY KEY (`RegistrationNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `driver` (
+`DriverID` VARCHAR(64),
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`LicenseNumber` VARCHAR(64),
+`LicenseType` VARCHAR(64),
+`LicenseExpirationDay` VARCHAR(64),
+`DateOfAdmission` DATETIME,
+`ProfilePicturePath` VARCHAR(64),
+`IsDeleted` INT,
+`AssignedVehicle` VARCHAR(64),
+`State` INT,
+`NumOfAllocations` INT,
+`Email` VARCHAR(64),
+PRIMARY KEY (`DriverID`)
+) CHARACTER SET latin1;
+CREATE TABLE `leased_vehicle` (
+`RegistrationNo` VARCHAR(64),
+`LeasedCompany` VARCHAR(64),
+`LeasedPeriodFrom` VARCHAR(64),
+`LeasedPeriodTo` VARCHAR(64),
+`MonthlyPayment` VARCHAR(64),
+PRIMARY KEY (`RegistrationNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `request` (
+`RequestID` INT,
+`CreatedDate` DATETIME,
+`State` INT,
+`DateOfTrip` DATETIME,
+`TimeOfTrip` DATETIME,
+`DropLocation` VARCHAR(64),
+`PickLocation` VARCHAR(64),
+`RequesterID` VARCHAR(64),
+`Purpose` VARCHAR(64),
+`JustifiedBy` VARCHAR(64),
+`JOComment` VARCHAR(64),
+`ApprovedBy` VARCHAR(64),
+`CAOComment` VARCHAR(64),
+`ScheduledBy` VARCHAR(64),
+`Driver` VARCHAR(64),
+`Vehicle` VARCHAR(64),
+PRIMARY KEY (`RequestID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_482469_database') AS relationships;
+relationships
+Database: db_482469_database
+
+Table Connections:
+------------------
+[Implied]  driver.AssignedVehicle -> vehicle.RegistrationNo
+[Implied]  leased_vehicle.RegistrationNo -> vehicle.RegistrationNo
+[Implied]  request.Driver -> driver.DriverID
+[Implied]  request.Vehicle -> vehicle.RegistrationNo
+
+DROP DATABASE `db_482469_database`;
+UNINSTALL EXTENSION vsql_schematron;

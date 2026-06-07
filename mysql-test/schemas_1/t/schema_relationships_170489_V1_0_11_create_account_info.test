@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 170489_V1.0.11__create_account_info
+--echo #
+CREATE DATABASE `db_170489_V1_0_11_create_account_info`;
+USE `db_170489_V1_0_11_create_account_info`;
+
+CREATE TABLE `account_info_type` (
+  `name` VARCHAR(64),
+  `memo` VARCHAR(64),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `account_info` (
+  `type` VARCHAR(64),
+  `value` DECIMAL(10,2),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`type`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_170489_V1_0_11_create_account_info') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_170489_V1_0_11_create_account_info') AS relationships;
+DROP DATABASE `db_170489_V1_0_11_create_account_info`;
+UNINSTALL EXTENSION vsql_schematron;

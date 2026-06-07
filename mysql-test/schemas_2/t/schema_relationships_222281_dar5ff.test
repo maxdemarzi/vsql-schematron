@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 222281_dar5ff
+--echo #
+CREATE DATABASE `db_222281_dar5ff`;
+USE `db_222281_dar5ff`;
+
+CREATE TABLE `api_detectedurl` (
+  `onion_http_hash` VARCHAR(64),
+  `onion_http` VARCHAR(64),
+  `mirror_http` VARCHAR(64),
+  `content_length` INT,
+  `created_at` DATETIME,
+  `lastChecked_at` DATETIME,
+  `status_code` INT,
+  `keyword_id` VARCHAR(64),
+  `title` VARCHAR(64),
+  `crawlerName` VARCHAR(64),
+  PRIMARY KEY (`onion_http_hash`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `api_detectkeywords` (
+  `keyword` VARCHAR(64),
+  `created_at` DATETIME,
+  `created_from_id` INT,
+  PRIMARY KEY (`keyword`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `api_fileuuidmap` (
+  `id` INT,
+  `source_hash` VARCHAR(64),
+  `content_length` INT,
+  `system_path` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `django_admin_log` (
+  `id` INT,
+  `action_time` DATETIME,
+  `object_id` VARCHAR(64),
+  `object_repr` VARCHAR(64),
+  `action_flag` INT,
+  `change_message` VARCHAR(64),
+  `content_type_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `django_session` (
+  `session_key` VARCHAR(64),
+  `session_data` VARCHAR(64),
+  `expire_date` DATETIME,
+  PRIMARY KEY (`session_key`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_222281_dar5ff') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_222281_dar5ff') AS relationships;
+DROP DATABASE `db_222281_dar5ff`;
+UNINSTALL EXTENSION vsql_schematron;

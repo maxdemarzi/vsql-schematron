@@ -1,0 +1,109 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 220785_oopdb_create
+--echo #
+CREATE DATABASE `db_220785_oopdb_create`;
+USE `db_220785_oopdb_create`;
+
+CREATE TABLE `todoapp.users` (
+  `uuid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  `avatar` VARCHAR(64),
+  PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `todoapp.settings_users` (
+  `uuid_user` VARCHAR(64),
+  `notify_email_noncritical` BOOL
+) CHARACTER SET latin1;
+
+CREATE TABLE `todoapp_private.users` (
+  `uuid_user` VARCHAR(64),
+  `email` VARCHAR(64),
+  `github_id` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `todoapp.tags` (
+  `uuid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `color` VARCHAR(64),
+  `created_at` DATETIME,
+  `creator` VARCHAR(64),
+  PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `todoapp.states` (
+  `uuid` VARCHAR(64),
+  `title` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `todoapp.tasks` (
+  `uuid` VARCHAR(64),
+  `title` VARCHAR(64),
+  `start_at` DATETIME,
+  `end_at` DATETIME,
+  `created_at` DATETIME,
+  `creator` VARCHAR(64),
+  PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `todoapp.tasks_states` (
+  `uuid_task` VARCHAR(64),
+  `uuid_state` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `todoapp.tasks_tags` (
+  `uuid_task` VARCHAR(64),
+  `uuid_tag` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `todoapp.discussions` (
+  `uuid` VARCHAR(64),
+  `content` VARCHAR(64),
+  `created_at` DATETIME,
+  `creator` VARCHAR(64),
+  `parent_task` VARCHAR(64),
+  `parent_discussion` VARCHAR(64),
+  PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `todoapp.followers_tasks` (
+  `uuid_task` VARCHAR(64),
+  `uuid_user` VARCHAR(64),
+  `notify_email_like` BOOL,
+  `notify_email_discussion` BOOL,
+  `notify_email_following` BOOL
+) CHARACTER SET latin1;
+
+CREATE TABLE `todoapp.followers_discussions` (
+  `uuid_user` VARCHAR(64),
+  `uuid_discussion` VARCHAR(64),
+  `notify_email_like` BOOL,
+  `notify_email_discussion` BOOL,
+  `notify_email_following` BOOL,
+  PRIMARY KEY (`uuid_user`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_220785_oopdb_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_220785_oopdb_create') AS relationships;
+DROP DATABASE `db_220785_oopdb_create`;
+UNINSTALL EXTENSION vsql_schematron;

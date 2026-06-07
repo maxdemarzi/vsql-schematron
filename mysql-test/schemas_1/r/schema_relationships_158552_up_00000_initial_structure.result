@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 158552_up-00000-initial-structure
+#
+CREATE DATABASE `db_158552_up_00000_initial_structure`;
+USE `db_158552_up_00000_initial_structure`;
+CREATE TABLE `node` (
+`nodeId` INT,
+`createdAt` DATETIME,
+`depth` INT,
+PRIMARY KEY (`nodeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`tagId` INT,
+`title` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`tagId`)
+) CHARACTER SET latin1;
+CREATE TABLE `nodeTag` (
+`nodeId` INT,
+`tagId` INT,
+PRIMARY KEY (`nodeId`, `tagId`)
+) CHARACTER SET latin1;
+CREATE TABLE `edit` (
+`editId` INT,
+`nodeId` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`content` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`editId`)
+) CHARACTER SET latin1;
+CREATE TABLE `dependency` (
+`nodeId` INT,
+`parentId` INT,
+`direct` BOOL,
+PRIMARY KEY (`nodeId`, `parentId`)
+) CHARACTER SET latin1;
+CREATE TABLE `dirtyNode` (
+`nodeId` INT,
+`createdAt` DATETIME,
+PRIMARY KEY (`nodeId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_158552_up_00000_initial_structure') AS relationships;
+relationships
+Database: db_158552_up_00000_initial_structure
+
+Table Connections:
+------------------
+[Implied]  dependency.nodeId -> node.nodeId
+[Implied]  dirtyNode.nodeId -> node.nodeId
+[Implied]  edit.nodeId -> node.nodeId
+[Implied]  nodeTag.nodeId -> node.nodeId
+[Implied]  nodeTag.tagId -> tag.tagId
+
+DROP DATABASE `db_158552_up_00000_initial_structure`;
+UNINSTALL EXTENSION vsql_schematron;

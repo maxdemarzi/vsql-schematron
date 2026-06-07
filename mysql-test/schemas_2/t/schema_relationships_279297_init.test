@@ -1,0 +1,150 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 279297_init
+--echo #
+CREATE DATABASE `db_279297_init`;
+USE `db_279297_init`;
+
+CREATE TABLE `state_type` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activity_type` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `action_type` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `target_type` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `process` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `external_id` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `admin` (
+  `id` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  `process_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `state` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `state_type_id` VARCHAR(64),
+  `pro_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `transition` (
+  `id` VARCHAR(64),
+  `curr_state` VARCHAR(64),
+  `next_state` VARCHAR(64),
+  `process_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `group` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `process_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `group_member` (
+  `id` VARCHAR(64),
+  `group_id` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `action` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `type_id` VARCHAR(64),
+  `process_id` VARCHAR(64),
+  `transition_id` VARCHAR(64),
+  `group_id` VARCHAR(64),
+  `target_type_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `request` (
+  `id` VARCHAR(64),
+  `process_id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `request_time` DATETIME,
+  `requester_user_id` VARCHAR(64),
+  `current_state` VARCHAR(64),
+  `blocked` BOOL,
+  `blocker_external_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `request_data` (
+  `id` VARCHAR(64),
+  `request_id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `value` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `request_action` (
+  `id` VARCHAR(64),
+  `request_id` VARCHAR(64),
+  `transition_id` VARCHAR(64),
+  `action_id` VARCHAR(64),
+  `active` BOOL,
+  `completed` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stakeholder` (
+  `id` VARCHAR(64),
+  `request_id` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_279297_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_279297_init') AS relationships;
+DROP DATABASE `db_279297_init`;
+UNINSTALL EXTENSION vsql_schematron;

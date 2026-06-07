@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 504133_base
+#
+CREATE DATABASE `db_504133_base`;
+USE `db_504133_base`;
+CREATE TABLE `gl_organization` (
+`id` VARCHAR(64),
+`code` VARCHAR(64),
+`name` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `gl_account` (
+`id` VARCHAR(64),
+`number` VARCHAR(64),
+`code` VARCHAR(64),
+`parent_id` VARCHAR(64),
+`org_id` VARCHAR(64),
+`disabled` BOOL,
+`description` VARCHAR(64),
+`allow_manual_entries` BOOL,
+`type` VARCHAR(64),
+`usage` VARCHAR(64),
+`tags` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `gl_journal` (
+`id` VARCHAR(64),
+`tranaction_id` VARCHAR(64),
+`ext_ref` VARCHAR(64),
+`account_number` VARCHAR(64),
+`entry_date` DATETIME,
+`amount` DECIMAL(10,2),
+`notes` VARCHAR(64),
+`reversal_id` VARCHAR(64),
+`payment_id` VARCHAR(64),
+`manual_entry` BOOL,
+`entry_type` VARCHAR(64),
+`tsignature` VARCHAR(64),
+`tags` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_504133_base') AS relationships;
+relationships
+Database: db_504133_base
+
+Table Connections:
+------------------
+[Implied]  gl_account.org_id -> gl_organization.id
+[Implied]  gl_account.parent_id -> gl_account.id
+
+DROP DATABASE `db_504133_base`;
+UNINSTALL EXTENSION vsql_schematron;

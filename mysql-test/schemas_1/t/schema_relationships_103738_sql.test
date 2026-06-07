@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 103738_sql
+--echo #
+CREATE DATABASE `db_103738_sql`;
+USE `db_103738_sql`;
+
+CREATE TABLE `users` (
+  `id_user` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `nickname` VARCHAR(64),
+  PRIMARY KEY (`id_user`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `questoes_respostas` (
+  `id_questao` INT,
+  `pergunta` VARCHAR(64),
+  `resp_correta` VARCHAR(64),
+  `resp_a` VARCHAR(64),
+  `resp_b` VARCHAR(64),
+  `resp_c` VARCHAR(64),
+  `valida` VARCHAR(64),
+  PRIMARY KEY (`id_questao`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `denuncia_validacao` (
+  `id_den_val` INT,
+  `num_denuncias` INT,
+  `num_validacoes` INT,
+  `username_1` VARCHAR(64),
+  `username_2` VARCHAR(64),
+  `id_quest` INT,
+  PRIMARY KEY (`id_den_val`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stats` (
+  `id_estats` INT,
+  `n_partidas_jogadas` INT,
+  `n_tot_perg_resp` INT,
+  `premio_total` INT,
+  `n_util_eli_duas_altern` INT,
+  `n_derr_erro` INT,
+  `n_derr_parada` INT,
+  `id_user_stats` INT,
+  PRIMARY KEY (`id_estats`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ranking` (
+  `id_ranking` INT,
+  `pontuacao` DECIMAL(10,2),
+  `id_usuario` INT,
+  PRIMARY KEY (`id_ranking`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_103738_sql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_103738_sql') AS relationships;
+DROP DATABASE `db_103738_sql`;
+UNINSTALL EXTENSION vsql_schematron;

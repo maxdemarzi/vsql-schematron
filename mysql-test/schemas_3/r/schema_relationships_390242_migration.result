@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 390242_migration
+#
+CREATE DATABASE `db_390242_migration`;
+USE `db_390242_migration`;
+CREATE TABLE `Word` (
+`id` INT,
+`swissGerman` VARCHAR(64),
+`german` VARCHAR(64),
+`spellings` VARCHAR(64),
+`dialect` VARCHAR(64),
+`audioSamplePath` VARCHAR(64),
+`createdAt` DATETIME,
+`createdByUserId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Interpretation` (
+`id` INT,
+`wordId` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`createdByUserId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Meaning` (
+`id` INT,
+`interpretationId` INT,
+`explanation` VARCHAR(64),
+`examples` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`verified` BOOL,
+`preferredDialect` VARCHAR(64),
+`password` VARCHAR(64),
+`lastForgotPasswordAt` DATETIME,
+`lastPasswordResetAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`token` VARCHAR(64),
+`userId` INT,
+`createdAt` DATETIME,
+PRIMARY KEY (`token`)
+) CHARACTER SET latin1;
+CREATE TABLE `_InterpretationUpvotes` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_InterpretationDownvotes` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_390242_migration') AS relationships;
+relationships
+Database: db_390242_migration
+
+Table Connections:
+------------------
+[Implied]  Interpretation.createdByUserId -> User.id
+[Implied]  Interpretation.wordId -> Word.id
+[Implied]  Meaning.interpretationId -> Interpretation.id
+[Implied]  Session.userId -> User.id
+[Implied]  Word.createdByUserId -> User.id
+
+DROP DATABASE `db_390242_migration`;
+UNINSTALL EXTENSION vsql_schematron;

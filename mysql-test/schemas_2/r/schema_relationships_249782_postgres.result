@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 249782_postgres
+#
+CREATE DATABASE `db_249782_postgres`;
+USE `db_249782_postgres`;
+CREATE TABLE `test.users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `test.user_friends` (
+`id` INT,
+`friend` INT,
+PRIMARY KEY (`id`, `friend`)
+) CHARACTER SET latin1;
+CREATE TABLE `test.profiles` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `test.posts` (
+`id` INT,
+`title` VARCHAR(64),
+`create_time` DATETIME,
+`author_id` INT,
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `test.nullable_posts` (
+`id` INT,
+`title` VARCHAR(64),
+`create_time` DATETIME,
+`author_id` INT,
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `test.comments` (
+`id` INT,
+`content` VARCHAR(64),
+`post_id` INT,
+`author_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `test.categories` (
+`id` INT,
+`name` VARCHAR(64),
+`parent_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `test.post_category` (
+`category_id` INT,
+`post_id` INT,
+PRIMARY KEY (`category_id`, `post_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `test.orders` (
+`key1` INT,
+`key2` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`key1`, `key2`)
+) CHARACTER SET latin1;
+CREATE TABLE `test.items` (
+`id` INT,
+`name` VARCHAR(64),
+`col1` INT,
+`col2` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.yii_types` (
+`int_col` INT,
+`int_col2` INT,
+`char_col` VARCHAR(64),
+`char_col2` VARCHAR(64),
+`char_col3` VARCHAR(64),
+`numeric_col` DECIMAL(10,2),
+`real_col` DECIMAL(10,2),
+`blob_col` VARCHAR(64),
+`time` DATETIME,
+`time2` DATETIME,
+`bool_col` BOOL,
+`bool_col2` BOOL
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_249782_postgres') AS relationships;
+relationships
+Database: db_249782_postgres
+
+Table Connections:
+------------------
+[Implied]  test.categories.parent_id -> test.categories.id
+[Implied]  test.comments.author_id -> test.profiles.id
+[Implied]  test.comments.post_id -> test.posts.id
+[Implied]  test.nullable_posts.author_id -> test.profiles.id
+[Implied]  test.post_category.category_id -> test.categories.id
+[Implied]  test.post_category.post_id -> test.posts.id
+[Implied]  test.posts.author_id -> test.profiles.id
+[Implied]  test.profiles.user_id -> test.users.id
+[Implied]  test.user_friends.friend -> test.profiles.id
+[Implied]  test.user_friends.id -> test.profiles.id
+
+DROP DATABASE `db_249782_postgres`;
+UNINSTALL EXTENSION vsql_schematron;

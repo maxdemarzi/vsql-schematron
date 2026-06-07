@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 645616_1-create
+--echo #
+CREATE DATABASE `db_645616_1_create`;
+USE `db_645616_1_create`;
+
+CREATE TABLE `Person` (
+  `Id` INT,
+  `MergedToPersonId` INT,
+  `FirstName` VARCHAR(64),
+  `LastName` VARCHAR(64),
+  `SupervisorId` INT,
+  `CareerCounselorId` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Company` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PersonCompany` (
+  `Id` INT,
+  `PersonId` INT,
+  `CompanyId` INT,
+  `StartDate` DATETIME,
+  `EndDate` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Email` (
+  `Id` INT,
+  `Address` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PersonEmail` (
+  `Id` INT,
+  `PersonId` INT,
+  `EmailId` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CompanyEmail` (
+  `Id` INT,
+  `CompanyId` INT,
+  `EmailId` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Phone` (
+  `Id` INT,
+  `Number` VARCHAR(64),
+  `Type` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PersonPhone` (
+  `Id` INT,
+  `PersonId` INT,
+  `PhoneId` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CompanyPhone` (
+  `Id` INT,
+  `CompanyId` INT,
+  `PhoneId` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_645616_1_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_645616_1_create') AS relationships;
+DROP DATABASE `db_645616_1_create`;
+UNINSTALL EXTENSION vsql_schematron;

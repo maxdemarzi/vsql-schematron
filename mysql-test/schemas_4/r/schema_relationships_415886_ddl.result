@@ -1,0 +1,39 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 415886_ddl
+#
+CREATE DATABASE `db_415886_ddl`;
+USE `db_415886_ddl`;
+CREATE TABLE `question` (
+`id` INT,
+`body` VARCHAR(64),
+`number` INT,
+`correct_index` INT,
+`info` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `answer` (
+`id` INT,
+`body` VARCHAR(64),
+`answer_index` INT,
+`question_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question_answer` (
+`id` INT,
+`session_id` VARCHAR(64),
+`answer_index` INT,
+`question_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_415886_ddl') AS relationships;
+relationships
+Database: db_415886_ddl
+
+Table Connections:
+------------------
+[Implied]  answer.question_id -> question.id
+[Implied]  question_answer.question_id -> question.id
+
+DROP DATABASE `db_415886_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

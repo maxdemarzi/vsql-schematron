@@ -1,0 +1,146 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 067857_V1__initial
+#
+CREATE DATABASE `db_067857_V1_initial`;
+USE `db_067857_V1_initial`;
+CREATE TABLE `address` (
+`id` INT,
+`line_1` VARCHAR(64),
+`line_2` VARCHAR(64),
+`city` VARCHAR(64),
+`postcode` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contact_info` (
+`id` INT,
+`phone_number` VARCHAR(64),
+`address_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `drone` (
+`id` INT,
+`make` VARCHAR(64),
+`model` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `general_info` (
+`id` INT,
+`date_of_birth` VARCHAR(64),
+`place_of_birth` VARCHAR(64),
+`company_name` VARCHAR(64),
+`previous_flying_exp` VARCHAR(64),
+`preferred_location` VARCHAR(64),
+`drone_type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`role` VARCHAR(64),
+`activated` INT,
+`enabled` INT,
+`authentication_token` VARCHAR(64),
+`expiry_datetime` DATETIME,
+PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+CREATE TABLE `candidate` (
+`id` INT,
+`reference_number` VARCHAR(64),
+`user_id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`surname` VARCHAR(64),
+`contact_info_id` INT,
+`general_info_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `instructor` (
+`id` INT,
+`user_id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`surname` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`course_number` VARCHAR(64),
+`course_name` VARCHAR(64),
+`course_start` DATETIME,
+`course_end` DATETIME,
+PRIMARY KEY (`course_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `flight_training` (
+`id` INT,
+`candidate_number` VARCHAR(64),
+`training_type` VARCHAR(64),
+`instructor_id` INT,
+`skills_assessment_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ground_school` (
+`id` INT,
+`candidate_number` VARCHAR(64),
+`instructor_id` INT,
+`completion_date` DATETIME,
+`question_bank` INT,
+`pass_result` INT,
+`pass_date` DATETIME,
+`resit` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `operators_manual` (
+`id` INT,
+`candidate_number` VARCHAR(64),
+`instructor_id` INT,
+`submitted_date` DATETIME,
+`pass_date` DATETIME,
+`file_path` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `flight_assessment` (
+`id` INT,
+`candidate_number` VARCHAR(64),
+`instructor_id` INT,
+`insurance` INT,
+`logged_hours` DATETIME,
+`suas_category` VARCHAR(64),
+`assessment_pass_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recommendations` (
+`id` INT,
+`candidate_number` VARCHAR(64),
+`asg_recomend_date` VARCHAR(64),
+`flight_competence_date` VARCHAR(64),
+`caa_application_date` VARCHAR(64),
+`caa_approval_date` VARCHAR(64),
+`overall_comments_approval_by_caa` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `review` (
+`id` INT,
+`candidate_id` INT,
+`instructor_id` INT,
+`review_text` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_067857_V1_initial') AS relationships;
+relationships
+Database: db_067857_V1_initial
+
+Table Connections:
+------------------
+[Implied]  candidate.contact_info_id -> contact_info.id
+[Implied]  candidate.general_info_id -> general_info.id
+[Implied]  candidate.user_id -> user.email
+[Implied]  contact_info.address_id -> address.id
+[Implied]  flight_assessment.instructor_id -> instructor.id
+[Implied]  flight_training.instructor_id -> instructor.id
+[Implied]  general_info.drone_type_id -> drone.id
+[Implied]  ground_school.instructor_id -> instructor.id
+[Implied]  instructor.user_id -> user.email
+[Implied]  operators_manual.instructor_id -> instructor.id
+[Implied]  review.candidate_id -> candidate.id
+[Implied]  review.instructor_id -> instructor.id
+
+DROP DATABASE `db_067857_V1_initial`;
+UNINSTALL EXTENSION vsql_schematron;

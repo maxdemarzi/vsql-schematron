@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 060659_xiaofeiniu
+--echo #
+CREATE DATABASE `db_060659_xiaofeiniu`;
+USE `db_060659_xiaofeiniu`;
+
+CREATE TABLE `xfn_admin` (
+  `aid` INT,
+  `aname` VARCHAR(64),
+  `apwd` VARCHAR(64),
+  PRIMARY KEY (`aid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `xfn_settings` (
+  `sid` INT,
+  `appName` VARCHAR(64),
+  `apiUrl` VARCHAR(64),
+  `adminUrl` VARCHAR(64),
+  `appUrl` VARCHAR(64),
+  `icp` VARCHAR(64),
+  `copyright` VARCHAR(64),
+  PRIMARY KEY (`sid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `xfn_table` (
+  `tid` INT,
+  `tname` VARCHAR(64),
+  `type` VARCHAR(64),
+  `status` INT,
+  PRIMARY KEY (`tid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `xfn_reservation` (
+  `rid` INT,
+  `contactName` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `contactTime` INT,
+  `dinnerTime` INT,
+  `tableId` INT,
+  PRIMARY KEY (`rid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `xfn_category` (
+  `cid` INT,
+  `cname` VARCHAR(64),
+  PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `xfn_dish` (
+  `did` INT,
+  `title` VARCHAR(64),
+  `imgUrl` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `detail` VARCHAR(64),
+  `categoryId` INT,
+  PRIMARY KEY (`did`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `xfn_order` (
+  `oid` INT,
+  `startTime` INT,
+  `endTime` INT,
+  `customerCount` INT,
+  `tableId` INT,
+  PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `xfn_order_detail` (
+  `oid` INT,
+  `dishId` INT,
+  `dishCount` INT,
+  `customerName` VARCHAR(64),
+  `orderId` INT,
+  PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_060659_xiaofeiniu') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_060659_xiaofeiniu') AS relationships;
+DROP DATABASE `db_060659_xiaofeiniu`;
+UNINSTALL EXTENSION vsql_schematron;

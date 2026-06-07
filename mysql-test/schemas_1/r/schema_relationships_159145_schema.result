@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 159145_schema
+#
+CREATE DATABASE `db_159145_schema`;
+USE `db_159145_schema`;
+CREATE TABLE `ranks` (
+`name` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `chess_players` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`rank_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `debuts` (
+`code` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+CREATE TABLE `results` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chess_games` (
+`id` INT,
+`white_player_id` INT,
+`black_player_id` INT,
+`result_id` INT,
+`debut_code` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_159145_schema') AS relationships;
+relationships
+Database: db_159145_schema
+
+Table Connections:
+------------------
+[Implied]  chess_games.debut_code -> debuts.code
+[Implied]  chess_games.result_id -> results.id
+[Implied]  chess_players.rank_name -> ranks.name
+
+DROP DATABASE `db_159145_schema`;
+UNINSTALL EXTENSION vsql_schematron;

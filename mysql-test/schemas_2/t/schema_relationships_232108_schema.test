@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 232108_schema
+--echo #
+CREATE DATABASE `db_232108_schema`;
+USE `db_232108_schema`;
+
+CREATE TABLE `symbolids` (
+  `id` INT,
+  `symbol` VARCHAR(64),
+  `exchange` VARCHAR(64),
+  `name` VARCHAR(64),
+  `industry` VARCHAR(64),
+  `subindustry` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `candlestick` (
+  `id` INT,
+  `starttime` DATETIME,
+  `endtime` DATETIME,
+  `open` DECIMAL(10,2),
+  `close` DECIMAL(10,2),
+  `high` DECIMAL(10,2),
+  `low` DECIMAL(10,2),
+  `volume` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_232108_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_232108_schema') AS relationships;
+DROP DATABASE `db_232108_schema`;
+UNINSTALL EXTENSION vsql_schematron;

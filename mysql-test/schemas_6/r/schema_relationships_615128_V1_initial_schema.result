@@ -1,0 +1,157 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 615128_V1__initial_schema
+#
+CREATE DATABASE `db_615128_V1_initial_schema`;
+USE `db_615128_V1_initial_schema`;
+CREATE TABLE `alerters` (
+`id` INT,
+`uuid` VARCHAR(64),
+`kind` VARCHAR(64),
+`webhook` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `checks` (
+`id` INT,
+`uuid` VARCHAR(64),
+`alerter_id` INT,
+`name` VARCHAR(64),
+`enabled` INT,
+`kind` VARCHAR(64),
+`interval` INT,
+`site_threshold` INT,
+`passing_threshold` INT,
+`failing_threshold` INT,
+`silent` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `check_sites` (
+`id` INT,
+`check_id` INT,
+`slug` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ping_specs` (
+`id` INT,
+`check_id` INT,
+`host` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dns_specs` (
+`id` INT,
+`check_id` INT,
+`record` VARCHAR(64),
+`domain` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `http_specs` (
+`id` INT,
+`check_id` INT,
+`url` VARCHAR(64),
+`headers` VARCHAR(64),
+`timeout` INT,
+`code` INT,
+`content` VARCHAR(64),
+`digest` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tls_specs` (
+`id` INT,
+`check_id` INT,
+`domain` VARCHAR(64),
+`window` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `play_store_specs` (
+`id` INT,
+`check_id` INT,
+`app_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `app_store_specs` (
+`id` INT,
+`check_id` INT,
+`bundle_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tcp_specs` (
+`id` INT,
+`check_id` INT,
+`host` VARCHAR(64),
+`port` INT,
+`timeout` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `udp_specs` (
+`id` INT,
+`check_id` INT,
+`host` VARCHAR(64),
+`port` INT,
+`message` VARCHAR(64),
+`content` VARCHAR(64),
+`timeout` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `whois_specs` (
+`id` INT,
+`check_id` INT,
+`domain` VARCHAR(64),
+`window` INT,
+`attribute` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `site_outages` (
+`id` INT,
+`uuid` VARCHAR(64),
+`check_id` INT,
+`site` VARCHAR(64),
+`passing_strikes` INT,
+`failing_strikes` INT,
+`started_on` DATETIME,
+`ended_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `outages` (
+`id` INT,
+`uuid` VARCHAR(64),
+`check_id` INT,
+`started_on` DATETIME,
+`ended_on` DATETIME,
+`comment` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`id` INT,
+`check_id` INT,
+`outage_id` INT,
+`site` VARCHAR(64),
+`status` INT,
+`message` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_615128_V1_initial_schema') AS relationships;
+relationships
+Database: db_615128_V1_initial_schema
+
+Table Connections:
+------------------
+[Implied]  app_store_specs.check_id -> checks.id
+[Implied]  check_sites.check_id -> checks.id
+[Implied]  checks.alerter_id -> alerters.id
+[Implied]  dns_specs.check_id -> checks.id
+[Implied]  events.check_id -> checks.id
+[Implied]  events.outage_id -> outages.id
+[Implied]  http_specs.check_id -> checks.id
+[Implied]  outages.check_id -> checks.id
+[Implied]  ping_specs.check_id -> checks.id
+[Implied]  play_store_specs.check_id -> checks.id
+[Implied]  site_outages.check_id -> checks.id
+[Implied]  tcp_specs.check_id -> checks.id
+[Implied]  tls_specs.check_id -> checks.id
+[Implied]  udp_specs.check_id -> checks.id
+[Implied]  whois_specs.check_id -> checks.id
+
+DROP DATABASE `db_615128_V1_initial_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,100 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 306745_V1__Initial_Tables
+--echo #
+CREATE DATABASE `db_306745_V1_Initial_Tables`;
+USE `db_306745_V1_Initial_Tables`;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password_hash` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cookbooks` (
+  `id` INT,
+  `user_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sections` (
+  `id` INT,
+  `cookbook_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recipes` (
+  `id` INT,
+  `creator` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `servings` INT,
+  `prep_time` VARCHAR(64),
+  `cook_time` VARCHAR(64),
+  `cool_time` VARCHAR(64),
+  `total_time` VARCHAR(64),
+  `source` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ingredients` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `measurements` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recipe_ingredients` (
+  `recipe_id` INT,
+  `ingredient_id` INT,
+  `ingredient_no` INT,
+  `amount` VARCHAR(64),
+  `measurement_id` INT,
+  `preparation` VARCHAR(64),
+  PRIMARY KEY (`recipe_id`, `ingredient_id`, `ingredient_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recipe_steps` (
+  `recipe_id` INT,
+  `step_no` INT,
+  `instructions` VARCHAR(64),
+  PRIMARY KEY (`recipe_id`, `step_no`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recipe_locations` (
+  `id` INT,
+  `recipe_id` INT,
+  `cookbook_id` INT,
+  `section_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_306745_V1_Initial_Tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_306745_V1_Initial_Tables') AS relationships;
+DROP DATABASE `db_306745_V1_Initial_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

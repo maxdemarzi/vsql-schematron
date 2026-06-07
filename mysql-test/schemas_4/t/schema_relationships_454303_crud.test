@@ -1,0 +1,161 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 454303_crud
+--echo #
+CREATE DATABASE `db_454303_crud`;
+USE `db_454303_crud`;
+
+CREATE TABLE `tb_privi` (
+  `id_privi` INT,
+  `nome_privi` VARCHAR(64),
+  PRIMARY KEY (`id_privi`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_estado` (
+  `id_est` INT,
+  `nome_est` VARCHAR(64),
+  PRIMARY KEY (`id_est`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_pais` (
+  `id_pais` INT,
+  `nome_pais` VARCHAR(64),
+  PRIMARY KEY (`id_pais`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_hora` (
+  `id_h` INT,
+  `hora_h` VARCHAR(64),
+  PRIMARY KEY (`id_h`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_cargo` (
+  `id_car` INT,
+  `nome_car` VARCHAR(64),
+  PRIMARY KEY (`id_car`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_departamento` (
+  `id_dep` INT,
+  `nome_dep` VARCHAR(64),
+  PRIMARY KEY (`id_dep`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_curso` (
+  `id_c` INT,
+  `nome_c` VARCHAR(64),
+  PRIMARY KEY (`id_c`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_aluno` (
+  `id_aluno` INT,
+  `nome_a` VARCHAR(64),
+  `sexo_a` VARCHAR(64),
+  `dtnasc_a` DATETIME,
+  `cpf_a` VARCHAR(64),
+  `rg_a` VARCHAR(64),
+  `org_a` VARCHAR(64),
+  `resp_a` VARCHAR(64),
+  `email_a` VARCHAR(64),
+  `tel_a` VARCHAR(64),
+  `cel_a` VARCHAR(64),
+  `rua_a` VARCHAR(64),
+  `cidade_a` VARCHAR(64),
+  `bairro_a` VARCHAR(64),
+  `n_a` VARCHAR(64),
+  `matri_a` DATETIME,
+  `foto_a` VARCHAR(64),
+  `id_pais` INT,
+  `id_est` INT,
+  `id_c` INT,
+  `id_h` INT,
+  PRIMARY KEY (`id_aluno`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_func` (
+  `id_func` INT,
+  `nome_func` VARCHAR(64),
+  `sexo_func` VARCHAR(64),
+  `data_func` DATETIME,
+  `cpf_func` VARCHAR(64),
+  `rg_func` VARCHAR(64),
+  `org_func` VARCHAR(64),
+  `pis_func` VARCHAR(64),
+  `email_func` VARCHAR(64),
+  `tel_func` VARCHAR(64),
+  `cel_func` VARCHAR(64),
+  `carte_func` VARCHAR(64),
+  `rua_func` VARCHAR(64),
+  `bairro_func` VARCHAR(64),
+  `cidade_func` VARCHAR(64),
+  `n_func` VARCHAR(64),
+  `admi_func` DATETIME,
+  `salario_func` DECIMAL(10,2),
+  `func_func` VARCHAR(64),
+  `foto_func` VARCHAR(64),
+  `func_cad` INT,
+  `id_car` INT,
+  `id_dep` INT,
+  `id_est` INT,
+  `id_pais` INT,
+  PRIMARY KEY (`id_func`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_turma` (
+  `id_t` INT,
+  `nome_t` VARCHAR(64),
+  `num_t` INT,
+  `max_a` INT,
+  `est_t` VARCHAR(64),
+  `id_c` INT,
+  `id_h` INT,
+  `id_func` INT,
+  PRIMARY KEY (`id_t`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_fk_a_t` (
+  `id_t` INT,
+  `id_c` INT,
+  `id_h` INT,
+  `id_aluno` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_login` (
+  `id_log` INT,
+  `usuario_log` VARCHAR(64),
+  `senha_log` VARCHAR(64),
+  `id_privi` INT,
+  `id_func` INT,
+  PRIMARY KEY (`id_log`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_fk_f_a` (
+  `id_func` INT,
+  `id_aluno` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tb_fk_f_f` (
+  `id_func` INT,
+  `func_cad` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_454303_crud') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_454303_crud') AS relationships;
+DROP DATABASE `db_454303_crud`;
+UNINSTALL EXTENSION vsql_schematron;

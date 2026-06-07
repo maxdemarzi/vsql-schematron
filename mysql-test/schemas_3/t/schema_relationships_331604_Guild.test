@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 331604_Guild
+--echo #
+CREATE DATABASE `db_331604_Guild`;
+USE `db_331604_Guild`;
+
+CREATE TABLE `kbGuild` (
+  `id` VARCHAR(64),
+  `guild_id` VARCHAR(64),
+  `prefix` VARCHAR(64),
+  `max_warning_points` INT,
+  `mod_log_channel` VARCHAR(64),
+  `welcome_channel` VARCHAR(64),
+  `reactRoleChannel` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kbWarns` (
+  `id` VARCHAR(64),
+  `k_guild_id` VARCHAR(64),
+  `k_user_id` VARCHAR(64),
+  `k_points` INT,
+  `k_ts` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kbInsights` (
+  `id` INT,
+  `k_guild_id` VARCHAR(64),
+  `k_date` DATETIME,
+  `k_left` INT,
+  `k_joined` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_331604_Guild') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_331604_Guild') AS relationships;
+DROP DATABASE `db_331604_Guild`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 086498_Group_Proj_Version
+#
+CREATE DATABASE `db_086498_Group_Proj_Version`;
+USE `db_086498_Group_Proj_Version`;
+CREATE TABLE `EMPLOYEE` (
+`EmployeeID` INT,
+`First_Name` VARCHAR(64),
+`Last_Name` VARCHAR(64),
+`Title` VARCHAR(64),
+`Gender` VARCHAR(64),
+`Location` VARCHAR(64),
+`Email` VARCHAR(64),
+`Phone_Number` VARCHAR(64),
+PRIMARY KEY (`EmployeeID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BRANCH` (
+`BranchID` INT,
+`Branch_Name` VARCHAR(64),
+`Location` VARCHAR(64),
+`Employee_Qty` INT,
+`Branch_Mgr` INT,
+PRIMARY KEY (`BranchID`)
+) CHARACTER SET latin1;
+CREATE TABLE `DEPARTMENT` (
+`Department_Name` VARCHAR(64),
+`Department_Mgr` INT,
+PRIMARY KEY (`Department_Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `DISTRIBUTOR` (
+`DistributorID` INT,
+`Distributor_Name` VARCHAR(64),
+`Location` VARCHAR(64),
+`Product_Qty` INT,
+`Phone_Number` VARCHAR(64),
+PRIMARY KEY (`DistributorID`)
+) CHARACTER SET latin1;
+CREATE TABLE `WAREHOUSE` (
+`WareHouseID` INT,
+`Location` VARCHAR(64),
+`Product_Qty` INT,
+`WareHouse_Mgr` INT,
+PRIMARY KEY (`WareHouseID`)
+) CHARACTER SET latin1;
+CREATE TABLE `OPERATIONS` (
+`BranchID` INT,
+`DistributorID` INT,
+`WareHouseID` INT,
+PRIMARY KEY (`BranchID`, `DistributorID`, `WareHouseID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_086498_Group_Proj_Version') AS relationships;
+relationships
+Database: db_086498_Group_Proj_Version
+
+Table Connections:
+------------------
+[Implied]  BRANCH.Branch_Mgr -> BRANCH.BranchID
+[Implied]  OPERATIONS.BranchID -> BRANCH.BranchID
+[Implied]  OPERATIONS.DistributorID -> DISTRIBUTOR.DistributorID
+[Implied]  OPERATIONS.WareHouseID -> WAREHOUSE.WareHouseID
+[Implied]  WAREHOUSE.WareHouse_Mgr -> WAREHOUSE.WareHouseID
+
+DROP DATABASE `db_086498_Group_Proj_Version`;
+UNINSTALL EXTENSION vsql_schematron;

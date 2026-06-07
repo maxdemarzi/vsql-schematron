@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 526576_V1.0.0__Init
+--echo #
+CREATE DATABASE `db_526576_V1_0_0_Init`;
+USE `db_526576_V1_0_0_Init`;
+
+CREATE TABLE `orders` (
+  `id` INT,
+  `exchange_id` VARCHAR(64),
+  `date_add` DATETIME,
+  `price` DECIMAL(10,2),
+  `stop_price` DECIMAL(10,2),
+  `orig_qty` DECIMAL(10,2),
+  `executed_qty` DECIMAL(10,2),
+  `iceberg_qty` DECIMAL(10,2),
+  `cumulative_quote_qty` DECIMAL(10,2),
+  `status` VARCHAR(64),
+  `time_in_force` VARCHAR(64),
+  `type` VARCHAR(64),
+  `side` VARCHAR(64),
+  `transact_time` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trade` (
+  `id` INT,
+  `exchange_trade_id` VARCHAR(64),
+  `date_add` DATETIME,
+  `order_ref` INT,
+  `price` DECIMAL(10,2),
+  `qty` DECIMAL(10,2),
+  `quote_qty` DECIMAL(10,2),
+  `commission` DECIMAL(10,2),
+  `commission_asset` DECIMAL(10,2),
+  `symbol` VARCHAR(64),
+  `buyer` BOOL,
+  `maker` BOOL,
+  `best_match` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_526576_V1_0_0_Init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_526576_V1_0_0_Init') AS relationships;
+DROP DATABASE `db_526576_V1_0_0_Init`;
+UNINSTALL EXTENSION vsql_schematron;

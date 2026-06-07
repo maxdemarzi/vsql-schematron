@@ -1,0 +1,100 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 461861_travelagency
+--echo #
+CREATE DATABASE `db_461861_travelagency`;
+USE `db_461861_travelagency`;
+
+CREATE TABLE `user` (
+  `user_id` INT,
+  `user_Name` VARCHAR(64),
+  `user_PhoneNo` VARCHAR(64),
+  `user_Email` VARCHAR(64),
+  `user_Password` VARCHAR(64),
+  `user_Role` VARCHAR(64),
+  `user_Input_Time` DATETIME,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `airlines` (
+  `airlines_id` INT,
+  `airlines_Name` VARCHAR(64),
+  `airlines_Point` INT,
+  `airlines_Entry_By` INT,
+  `airlines_Input_Time` DATETIME,
+  PRIMARY KEY (`airlines_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `agent` (
+  `agent_id` INT,
+  `agent_Name` VARCHAR(64),
+  `agent_PhoneNo` VARCHAR(64),
+  `agent_Entry_By` INT,
+  `agent_Input_Time` DATETIME,
+  PRIMARY KEY (`agent_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `capping` (
+  `capping_id` INT,
+  `capping_Amount` DECIMAL(10,2),
+  `capping_Airlines` INT,
+  `capping_Payment_By` VARCHAR(64),
+  `capping_MCD_No` VARCHAR(64),
+  `capping_Date` DATETIME,
+  `capping_Entry_By` INT,
+  `capping_Input_Time` DATETIME,
+  PRIMARY KEY (`capping_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `maindata` (
+  `maindata_id` INT,
+  `maindata_Name` VARCHAR(64),
+  `maindata_PhoneNo` VARCHAR(64),
+  `maindata_Fare` INT,
+  `maindata_Paid` INT,
+  `maindata_Due` INT,
+  `maindata_Commission` INT,
+  `maindata_Entry_By` INT,
+  `maindata_Input_Time` DATETIME,
+  `maindata_Ticket_By` INT,
+  `maindata_Comment` VARCHAR(64),
+  `maindata_Point` INT,
+  `maindata_Date` DATETIME,
+  `maindata_Flown_Date` DATETIME,
+  `maindata_Pnr` VARCHAR(64),
+  `maindata_Pax` INT,
+  `maindata_Route` VARCHAR(64),
+  `maindata_Airlines` INT,
+  PRIMARY KEY (`maindata_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payment` (
+  `payment_id` INT,
+  `payment_PhoneNo` VARCHAR(64),
+  `payment_By` INT,
+  `payment_Amount` DECIMAL(10,2),
+  `payment_Date` DATETIME,
+  `payment_Input_Time` DATETIME,
+  PRIMARY KEY (`payment_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_461861_travelagency') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_461861_travelagency') AS relationships;
+DROP DATABASE `db_461861_travelagency`;
+UNINSTALL EXTENSION vsql_schematron;

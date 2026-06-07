@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 307239_mysql
+#
+CREATE DATABASE `db_307239_mysql`;
+USE `db_307239_mysql`;
+CREATE TABLE `users` (
+`id` INT,
+`full_name` VARCHAR(64),
+`phone` VARCHAR(64),
+`avatar` VARCHAR(64),
+`stripe_id` VARCHAR(64),
+`email` VARCHAR(64),
+`category_counts` VARCHAR(64),
+`disabled` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `purchases` (
+`id` INT,
+`customer_id` INT,
+`product_id` INT,
+`quantity` INT,
+`returned_at` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notifications` (
+`id` INT,
+`verb` VARCHAR(64),
+`subject_type` VARCHAR(64),
+`subject_id` INT,
+`user_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`body` VARCHAR(64),
+`product_id` INT,
+`commenter_id` INT,
+`reply_to_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chats` (
+`id` INT,
+`body` VARCHAR(64),
+`reply_to_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `seq100` (
+`i` INT,
+PRIMARY KEY (`i`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_307239_mysql') AS relationships;
+relationships
+Database: db_307239_mysql
+
+Table Connections:
+------------------
+[Implied]  chats.reply_to_id -> chats.id
+[Implied]  comments.commenter_id -> users.id
+[Implied]  comments.reply_to_id -> comments.id
+[Implied]  notifications.user_id -> users.id
+[Implied]  purchases.customer_id -> users.id
+
+DROP DATABASE `db_307239_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

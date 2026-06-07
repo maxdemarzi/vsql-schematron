@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 616552_bookstores
+#
+CREATE DATABASE `db_616552_bookstores`;
+USE `db_616552_bookstores`;
+CREATE TABLE `bookclassinfo` (
+`classid` VARCHAR(64),
+`classname` VARCHAR(64),
+PRIMARY KEY (`classid`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookdetailinfo` (
+`bookid` VARCHAR(64),
+`edition` INT,
+`packaging` VARCHAR(64),
+`format` INT,
+`publdata` VARCHAR(64),
+`numpages` INT,
+`language` VARCHAR(64),
+`authorsIntroduce` VARCHAR(64),
+`contentIntroduce` VARCHAR(64),
+`directory` VARCHAR(64),
+`preface` VARCHAR(64),
+`bigImage` VARCHAR(64),
+PRIMARY KEY (`bookid`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookinfo` (
+`bookid` VARCHAR(64),
+`bookname` VARCHAR(64),
+`author` VARCHAR(64),
+`publisher` VARCHAR(64),
+`unitprice` DECIMAL(10,2),
+`summary` VARCHAR(64),
+`bookimage` VARCHAR(64),
+`buynum` INT,
+`classid` VARCHAR(64),
+PRIMARY KEY (`bookid`)
+) CHARACTER SET latin1;
+CREATE TABLE `stockinfo` (
+`stockid` VARCHAR(64),
+`userid` INT,
+`bookid` VARCHAR(64),
+`stockprice` DECIMAL(10,2),
+`stockquantity` INT,
+`stockdate` VARCHAR(64),
+`stockremark` VARCHAR(64),
+PRIMARY KEY (`stockid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_616552_bookstores') AS relationships;
+relationships
+Database: db_616552_bookstores
+
+Table Connections:
+------------------
+[Implied]  bookinfo.classid -> bookclassinfo.classid
+[Implied]  stockinfo.bookid -> bookdetailinfo.bookid
+[Implied]  stockinfo.bookid -> bookinfo.bookid
+
+DROP DATABASE `db_616552_bookstores`;
+UNINSTALL EXTENSION vsql_schematron;

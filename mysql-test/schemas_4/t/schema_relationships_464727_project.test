@@ -1,0 +1,140 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 464727_project
+--echo #
+CREATE DATABASE `db_464727_project`;
+USE `db_464727_project`;
+
+CREATE TABLE `Pilot` (
+  `ID` INT,
+  `name` VARCHAR(64),
+  `nationality` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Flight` (
+  `flight_num` INT,
+  `cost` INT,
+  `num_sold` INT,
+  `num_stops` INT,
+  `actual_arrive_date` VARCHAR(64),
+  `actual_arrive_time` VARCHAR(64),
+  `actual_depart_date` VARCHAR(64),
+  `actual_depart_time` VARCHAR(64),
+  `source` VARCHAR(64),
+  `destination` VARCHAR(64),
+  `ID` INT,
+  PRIMARY KEY (`flight_num`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Schedule` (
+  `flight_num` INT,
+  `day` VARCHAR(64),
+  `depart_time` VARCHAR(64),
+  `arrive_time` VARCHAR(64),
+  PRIMARY KEY (`flight_num`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Reservation` (
+  `Rnum` INT,
+  PRIMARY KEY (`Rnum`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Waitlisted` (
+  `Rnum` INT,
+  PRIMARY KEY (`Rnum`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Confirmed` (
+  `Rnum` INT,
+  PRIMARY KEY (`Rnum`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Reserved` (
+  `Rnum` INT,
+  PRIMARY KEY (`Rnum`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Customer` (
+  `ID` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `date_of_birth` VARCHAR(64),
+  `address` VARCHAR(64),
+  `contact_num` VARCHAR(64),
+  `ZIP_code` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Plane` (
+  `ID` INT,
+  `model` VARCHAR(64),
+  `make` VARCHAR(64),
+  `age` INT,
+  `num_seats` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Technician` (
+  `ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `has1` (
+  `flight_num1` INT,
+  `flight_num2` INT,
+  PRIMARY KEY (`flight_num1`, `flight_num2`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `repair_request` (
+  `ID1` INT,
+  `ID2` INT,
+  `ID3` INT,
+  `ID` INT,
+  PRIMARY KEY (`ID1`, `ID2`, `ID3`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `uses` (
+  `flight_num` INT,
+  `ID1` INT,
+  `ID2` INT,
+  PRIMARY KEY (`flight_num`, `ID1`, `ID2`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `has` (
+  `flight_num` INT,
+  `ID` INT,
+  `Rnum` INT,
+  PRIMARY KEY (`flight_num`, `ID`, `Rnum`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `repairs` (
+  `ID1` INT,
+  `ID2` INT,
+  `ID3` INT,
+  `date` VARCHAR(64),
+  `code` VARCHAR(64),
+  PRIMARY KEY (`ID1`, `ID2`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_464727_project') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_464727_project') AS relationships;
+DROP DATABASE `db_464727_project`;
+UNINSTALL EXTENSION vsql_schematron;

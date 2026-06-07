@@ -1,0 +1,185 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 427399_db3
+--echo #
+CREATE DATABASE `db_427399_db3`;
+USE `db_427399_db3`;
+
+CREATE TABLE `casestatus` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `casetype` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `courtlevel` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `gender` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hearingtype` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `lawfirm` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notification` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `prison` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `prosecutorteam` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `region` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `district` (
+  `id` INT,
+  `region` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `town` (
+  `id` INT,
+  `district` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `court` (
+  `id` INT,
+  `town` INT,
+  `court_level` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `policestation` (
+  `id` INT,
+  `town` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `person` (
+  `id` INT,
+  `xname` VARCHAR(64),
+  `address` VARCHAR(64),
+  `gender` INT,
+  `classtype` VARCHAR(64),
+  `service_number` VARCHAR(64),
+  `reg_date` DATETIME,
+  `bar_number` VARCHAR(64),
+  `prosecutor_team` INT,
+  `law_firm` INT,
+  `phone` VARCHAR(64),
+  `complaint` INT,
+  `court` INT,
+  `bail` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `offender_prison` (
+  `offender` INT,
+  `prison` INT,
+  PRIMARY KEY (`offender`, `prison`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hearing` (
+  `id` INT,
+  `case` INT,
+  `defense_att` INT,
+  `prosecutor` INT,
+  `hearing_date` DATETIME,
+  `judge` INT,
+  `hearing_type` INT,
+  `notification` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `filing` (
+  `id` INT,
+  `hearing` INT,
+  `file_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `document` (
+  `id` INT,
+  `filing` INT,
+  `content` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `complaint` (
+  `id` INT,
+  `complainant` INT,
+  `police` INT,
+  `police_station` INT,
+  `statement` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `case` (
+  `id` INT,
+  `complaint` INT,
+  `prosecutor_team` INT,
+  `complainant` INT,
+  `offender` INT,
+  `defense_att` INT,
+  `court` INT,
+  `judge` INT,
+  `prison` INT,
+  `case_type` INT,
+  `case_status` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bail` (
+  `id` INT,
+  `hearing` INT,
+  `amount` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_427399_db3') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_427399_db3') AS relationships;
+DROP DATABASE `db_427399_db3`;
+UNINSTALL EXTENSION vsql_schematron;

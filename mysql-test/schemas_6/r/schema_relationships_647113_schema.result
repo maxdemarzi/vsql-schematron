@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 647113_schema
+#
+CREATE DATABASE `db_647113_schema`;
+USE `db_647113_schema`;
+CREATE TABLE `users` (
+`user_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`phone` VARCHAR(64),
+`updated` DATETIME,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `profiles` (
+`user_id` INT,
+`gender` VARCHAR(64),
+`birthday` DATETIME,
+`photo_id` INT,
+`status` VARCHAR(64),
+`city` VARCHAR(64),
+`country` VARCHAR(64),
+`updated` DATETIME,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+`id` INT,
+`from_user_id` INT,
+`to_user_id` INT,
+`body` VARCHAR(64),
+`is_important` BOOL,
+`is_delivered` BOOL,
+`updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `friendship_statuses` (
+`id` INT,
+`name` VARCHAR(64),
+`updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `friendship` (
+`user_id` INT,
+`friend_id` INT,
+`status_id` INT,
+`requested_at` DATETIME,
+`confirmed_at` DATETIME,
+`updated` DATETIME,
+PRIMARY KEY (`user_id`, `friend_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `communities` (
+`id` INT,
+`name` VARCHAR(64),
+`updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `communities_users` (
+`community_id` INT,
+`user_id` INT,
+`updated` DATETIME,
+PRIMARY KEY (`community_id`, `user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_647113_schema') AS relationships;
+relationships
+Database: db_647113_schema
+
+Table Connections:
+------------------
+[Implied]  communities_users.community_id -> communities.id
+[Implied]  communities_users.user_id -> profiles.user_id
+[Implied]  friendship.friend_id -> friendship_statuses.id
+[Implied]  friendship.user_id -> profiles.user_id
+[Implied]  messages.from_user_id -> profiles.user_id
+[Implied]  messages.to_user_id -> profiles.user_id
+[Implied]  profiles.user_id -> users.user_id
+
+DROP DATABASE `db_647113_schema`;
+UNINSTALL EXTENSION vsql_schematron;

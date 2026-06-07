@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 268989_initdb
+#
+CREATE DATABASE `db_268989_initdb`;
+USE `db_268989_initdb`;
+CREATE TABLE `adressen` (
+`aid` INT,
+`ort` VARCHAR(64),
+`plz` INT,
+`adresse_1` VARCHAR(64),
+`adresse_2` VARCHAR(64),
+`tel_g` VARCHAR(64),
+`tel_m` VARCHAR(64),
+`email_1` VARCHAR(64),
+`email_2` VARCHAR(64),
+PRIMARY KEY (`aid`)
+) CHARACTER SET latin1;
+CREATE TABLE `personen` (
+`pid` INT,
+`anrede` VARCHAR(64),
+`name` VARCHAR(64),
+`vorname` VARCHAR(64),
+`fk_aid` INT,
+PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `schulen` (
+`suid` INT,
+`name` VARCHAR(64),
+`fk_aid` INT,
+PRIMARY KEY (`suid`)
+) CHARACTER SET latin1;
+CREATE TABLE `firmen` (
+`fid` INT,
+`name` VARCHAR(64),
+`fk_aid` INT,
+PRIMARY KEY (`fid`)
+) CHARACTER SET latin1;
+CREATE TABLE `lehrkraefte` (
+`lkid` INT,
+`fk_pid` INT,
+PRIMARY KEY (`lkid`)
+) CHARACTER SET latin1;
+CREATE TABLE `kalssen` (
+`kid` INT,
+`fk_suid` INT,
+`name` VARCHAR(64),
+`fk_lkid` INT,
+PRIMARY KEY (`kid`)
+) CHARACTER SET latin1;
+CREATE TABLE `abvs` (
+`abvid` INT,
+`fk_pid` INT,
+`fk_fid` INT,
+PRIMARY KEY (`abvid`)
+) CHARACTER SET latin1;
+CREATE TABLE `schueler` (
+`sid` INT,
+`fk_pid` INT,
+`fk_fid` INT,
+`fk_kid` INT,
+PRIMARY KEY (`sid`)
+) CHARACTER SET latin1;
+CREATE TABLE `beurteilungen` (
+`bid` INT,
+`fk_sid` INT,
+`fk_mid` INT,
+`note` INT,
+`gewichtung` DECIMAL(10,2),
+`bemerkung` VARCHAR(64),
+PRIMARY KEY (`bid`)
+) CHARACTER SET latin1;
+CREATE TABLE `module` (
+`mid` INT,
+`name` VARCHAR(64),
+`fk_suid` INT,
+`fk_lkid` INT,
+PRIMARY KEY (`mid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_268989_initdb') AS relationships;
+relationships
+Database: db_268989_initdb
+
+Table Connections:
+------------------
+[Implied]  abvs.fk_fid -> firmen.fid
+[Implied]  abvs.fk_pid -> abvs.abvid
+[Implied]  abvs.fk_pid -> personen.pid
+[Implied]  beurteilungen.fk_mid -> module.mid
+[Implied]  beurteilungen.fk_sid -> schueler.sid
+[Implied]  firmen.fk_aid -> adressen.aid
+[Implied]  kalssen.fk_lkid -> lehrkraefte.lkid
+[Implied]  kalssen.fk_suid -> schulen.suid
+[Implied]  lehrkraefte.fk_pid -> lehrkraefte.lkid
+[Implied]  lehrkraefte.fk_pid -> personen.pid
+[Implied]  module.fk_lkid -> kalssen.kid
+[Implied]  module.fk_lkid -> lehrkraefte.lkid
+[Implied]  module.fk_suid -> schulen.suid
+[Implied]  personen.fk_aid -> adressen.aid
+[Implied]  schueler.fk_fid -> firmen.fid
+[Implied]  schueler.fk_kid -> kalssen.kid
+[Implied]  schueler.fk_pid -> personen.pid
+[Implied]  schueler.fk_pid -> schueler.sid
+[Implied]  schulen.fk_aid -> adressen.aid
+
+DROP DATABASE `db_268989_initdb`;
+UNINSTALL EXTENSION vsql_schematron;

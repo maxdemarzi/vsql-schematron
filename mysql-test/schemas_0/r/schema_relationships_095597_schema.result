@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 095597_schema
+#
+CREATE DATABASE `db_095597_schema`;
+USE `db_095597_schema`;
+CREATE TABLE `user` (
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`role` VARCHAR(64),
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`profile_image` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `teacher` (
+`username` VARCHAR(64),
+`bio` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`username` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`name` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`guest` INT,
+`category` VARCHAR(64),
+`creator` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_course` (
+`username` VARCHAR(64),
+`course` VARCHAR(64),
+PRIMARY KEY (`username`, `course`)
+) CHARACTER SET latin1;
+CREATE TABLE `lesson` (
+`id` INT,
+`title` VARCHAR(64),
+`course` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `material` (
+`id` INT,
+`name` VARCHAR(64),
+`lesson` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question` (
+`id` INT,
+`question` VARCHAR(64),
+`answer` VARCHAR(64),
+`student` VARCHAR(64),
+`course` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_095597_schema') AS relationships;
+relationships
+Database: db_095597_schema
+
+Table Connections:
+------------------
+[Implied]  course.category -> category.name
+[Implied]  course.creator -> student.username
+[Implied]  course.creator -> teacher.username
+[Implied]  course.creator -> user.username
+[Implied]  lesson.course -> course.id
+[Implied]  material.lesson -> lesson.id
+[Implied]  question.course -> course.id
+[Implied]  question.student -> student.username
+[Implied]  student.username -> user.username
+[Implied]  teacher.username -> user.username
+[Implied]  user_course.username -> user.username
+
+DROP DATABASE `db_095597_schema`;
+UNINSTALL EXTENSION vsql_schematron;

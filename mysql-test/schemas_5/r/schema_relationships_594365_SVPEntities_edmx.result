@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 594365_SVPEntities.edmx
+#
+CREATE DATABASE `db_594365_SVPEntities_edmx`;
+USE `db_594365_SVPEntities_edmx`;
+CREATE TABLE `Clubs` (
+`Id` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profiles` (
+`Id` INT,
+`Name` VARCHAR(64),
+`Value` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sequences` (
+`Id` INT,
+`Date` DATETIME,
+`Profile_Id` INT,
+`Member_Id` INT,
+`Price_Id` INT,
+`PreviousSequence_Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Shots` (
+`Id` INT,
+`Value` DECIMAL(10,2),
+`ShotNumber` INT,
+`FactorValue` DECIMAL(10,2),
+`Angle` DECIMAL(10,2),
+`Valid` BOOL,
+`Sequence_Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Competitions` (
+`Id` INT,
+`Name` VARCHAR(64),
+`Date` DATETIME,
+`Finished` BOOL,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Awards` (
+`Id` INT,
+`Name` VARCHAR(64),
+`Competition_Id` INT,
+`Winner_Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Participants` (
+`Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Participants_Member` (
+`Firstname` VARCHAR(64),
+`Name` VARCHAR(64),
+`Birthday` DATETIME,
+`Shortname` VARCHAR(64),
+`Id` INT,
+`Club_Id` INT,
+`SingleCompetition_Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Participants_Group` (
+`Name` VARCHAR(64),
+`Id` INT,
+`GroupCompetition_Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Competitions_GroupCompetition` (
+`Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Competitions_SingleCompetition` (
+`Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `MemberGroup` (
+`Member_Id` INT,
+`Groups_Id` INT,
+PRIMARY KEY (`Member_Id`, `Groups_Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_594365_SVPEntities_edmx') AS relationships;
+relationships
+Database: db_594365_SVPEntities_edmx
+
+Table Connections:
+------------------
+[Implied]  Awards.Competition_Id -> Competitions.Id
+[Implied]  Competitions.Id -> Competitions_GroupCompetition.Id
+[Implied]  Competitions_SingleCompetition.Id -> Competitions.Id
+[Implied]  MemberGroup.Member_Id -> Participants_Member.Id
+[Implied]  MemberGroup.Member_Id -> Profiles.Id
+[Implied]  Participants_Group.GroupCompetition_Id -> Competitions_GroupCompetition.Id
+[Implied]  Participants_Member.Club_Id -> Clubs.Id
+[Implied]  Participants_Member.Id -> Participants.Id
+[Implied]  Participants_Member.SingleCompetition_Id -> Competitions.Id
+[Implied]  Sequences.Member_Id -> Participants_Member.Id
+[Implied]  Sequences.Member_Id -> Profiles.Id
+[Implied]  Sequences.Profile_Id -> Profiles.Id
+[Implied]  Shots.Sequence_Id -> Sequences.Id
+
+DROP DATABASE `db_594365_SVPEntities_edmx`;
+UNINSTALL EXTENSION vsql_schematron;

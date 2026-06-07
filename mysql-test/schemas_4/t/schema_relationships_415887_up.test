@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 415887_up
+--echo #
+CREATE DATABASE `db_415887_up`;
+USE `db_415887_up`;
+
+CREATE TABLE `commits` (
+  `rev_hash` VARCHAR(64),
+  PRIMARY KEY (`rev_hash`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `branches` (
+  `id` VARCHAR(64),
+  `title` VARCHAR(64),
+  `head_rev` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pr_commits` (
+  `id` INT,
+  `pull_request_id` INT,
+  `commit_rev` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event_status` (
+  `id` INT,
+  `title` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `platforms` (
+  `id` INT,
+  `platform` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `build_status` (
+  `id` INT,
+  `status_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pr_status` (
+  `id` INT,
+  `status_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `drvs` (
+  `drv_path` VARCHAR(64),
+  `attribute` VARCHAR(64),
+  `previous_drv` VARCHAR(64),
+  `platform_id` INT,
+  `commit_rev_hash` VARCHAR(64),
+  `build_status_id` INT,
+  PRIMARY KEY (`drv_path`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_415887_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_415887_up') AS relationships;
+DROP DATABASE `db_415887_up`;
+UNINSTALL EXTENSION vsql_schematron;

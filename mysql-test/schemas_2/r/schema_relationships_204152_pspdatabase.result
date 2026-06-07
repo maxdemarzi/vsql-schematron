@@ -1,0 +1,138 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 204152_pspdatabase
+#
+CREATE DATABASE `db_204152_pspdatabase`;
+USE `db_204152_pspdatabase`;
+CREATE TABLE `comments` (
+`id` INT,
+`description` VARCHAR(64),
+`idea_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments_flags` (
+`id` INT,
+`user_id` INT,
+`comment_id` INT,
+`flag_comment` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments_likes` (
+`id` INT,
+`user_id` INT,
+`comment_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ideas` (
+`id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`subtopics_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ideas_flags` (
+`id` INT,
+`user_id` INT,
+`idea_id` INT,
+`idea_flag_description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ideas_likes` (
+`id` INT,
+`user_id` INT,
+`idea_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ideas_loves` (
+`id` INT,
+`user_id` INT,
+`idea_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `main_topics` (
+`id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`active` BOOL,
+`upcoming` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subcomments` (
+`id` INT,
+`description` VARCHAR(64),
+`user_id` INT,
+`comment_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subcomments_likes` (
+`id` INT,
+`user_id` INT,
+`subcomment_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subflags` (
+`id` INT,
+`user_id` INT,
+`subcomment_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subtopics` (
+`id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`main_id` INT,
+`active` BOOL,
+`upcoming` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_filter` (
+`id` INT,
+`filter` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`address` VARCHAR(64),
+`ward` INT,
+`admin` BOOL,
+`active` BOOL,
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`zipcode` VARCHAR(64),
+`photo` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_204152_pspdatabase') AS relationships;
+relationships
+Database: db_204152_pspdatabase
+
+Table Connections:
+------------------
+[Implied]  comments.idea_id -> ideas.id
+[Implied]  comments.user_id -> users.id
+[Implied]  comments_flags.comment_id -> comments.id
+[Implied]  comments_flags.user_id -> users.id
+[Implied]  comments_likes.comment_id -> comments.id
+[Implied]  comments_likes.user_id -> users.id
+[Implied]  ideas.subtopics_id -> subtopics.id
+[Implied]  ideas.user_id -> users.id
+[Implied]  ideas_flags.idea_id -> ideas.id
+[Implied]  ideas_flags.user_id -> users.id
+[Implied]  ideas_likes.idea_id -> ideas.id
+[Implied]  ideas_likes.user_id -> users.id
+[Implied]  ideas_loves.idea_id -> ideas.id
+[Implied]  ideas_loves.user_id -> users.id
+[Implied]  subcomments.comment_id -> comments.id
+[Implied]  subcomments.user_id -> users.id
+[Implied]  subcomments_likes.subcomment_id -> subcomments.id
+[Implied]  subcomments_likes.user_id -> users.id
+[Implied]  subflags.subcomment_id -> subcomments.id
+[Implied]  subflags.user_id -> users.id
+[Implied]  subtopics.main_id -> main_topics.id
+
+DROP DATABASE `db_204152_pspdatabase`;
+UNINSTALL EXTENSION vsql_schematron;

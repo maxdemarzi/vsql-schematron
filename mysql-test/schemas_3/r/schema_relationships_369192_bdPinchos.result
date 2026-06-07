@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 369192_bdPinchos
+#
+CREATE DATABASE `db_369192_bdPinchos`;
+USE `db_369192_bdPinchos`;
+CREATE TABLE `concurso` (
+`idC` INT,
+`nombreC` VARCHAR(64),
+`basesC` VARCHAR(64),
+`ciudadC` VARCHAR(64),
+`fechaInicioC` VARCHAR(64),
+`fechaFinalC` VARCHAR(64),
+`fechaFinalistasC` VARCHAR(64),
+`premioC` INT,
+`patrocinadorC` VARCHAR(64),
+PRIMARY KEY (`idC`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario` (
+`emailU` VARCHAR(64),
+`contrasenaU` VARCHAR(64),
+`tipoU` VARCHAR(64),
+`estadoU` INT,
+`nombreU` VARCHAR(64),
+`concursoId` INT,
+PRIMARY KEY (`emailU`)
+) CHARACTER SET latin1;
+CREATE TABLE `participante` (
+`direccionP` VARCHAR(64),
+`telefonoP` INT,
+`nombreLocalP` VARCHAR(64),
+`horarioP` VARCHAR(64),
+`paginaWebP` VARCHAR(64),
+`fotoP` VARCHAR(64),
+`usuarioEmail` VARCHAR(64),
+PRIMARY KEY (`usuarioEmail`)
+) CHARACTER SET latin1;
+CREATE TABLE `pincho` (
+`idPi` INT,
+`nombrePi` VARCHAR(64),
+`precioPi` INT,
+`ingredientesPi` VARCHAR(64),
+`cocineroPi` VARCHAR(64),
+`numvotosPopPi` INT,
+`numvotosProfPi` DECIMAL(10,2),
+`fotoPi` VARCHAR(64),
+`estadoPi` INT,
+`participanteEmail` VARCHAR(64),
+`numvotePi` VARCHAR(64),
+PRIMARY KEY (`idPi`)
+) CHARACTER SET latin1;
+CREATE TABLE `codVoto` (
+`idCV` VARCHAR(64),
+`pinchoId` INT,
+PRIMARY KEY (`idCV`, `pinchoId`)
+) CHARACTER SET latin1;
+CREATE TABLE `premiados` (
+`idPrem` INT,
+`ronda` INT,
+PRIMARY KEY (`idPrem`)
+) CHARACTER SET latin1;
+CREATE TABLE `voto` (
+`usuarioEmailU` VARCHAR(64),
+`pinchoIdPi` INT,
+`codigoPinchoV` VARCHAR(64),
+`valoracionV` INT,
+PRIMARY KEY (`usuarioEmailU`, `pinchoIdPi`, `codigoPinchoV`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_369192_bdPinchos') AS relationships;
+relationships
+Database: db_369192_bdPinchos
+
+Table Connections:
+------------------
+[Implied]  codVoto.pinchoId -> pincho.idPi
+[Implied]  participante.usuarioEmail -> usuario.emailU
+[Implied]  pincho.participanteEmail -> participante.usuarioEmail
+[Implied]  usuario.concursoId -> concurso.idC
+[Implied]  voto.pinchoIdPi -> pincho.idPi
+[Implied]  voto.usuarioEmailU -> usuario.emailU
+
+DROP DATABASE `db_369192_bdPinchos`;
+UNINSTALL EXTENSION vsql_schematron;

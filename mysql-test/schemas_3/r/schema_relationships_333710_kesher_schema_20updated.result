@@ -1,0 +1,85 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 333710_kesher_schema%20updated
+#
+CREATE DATABASE `db_333710_kesher_schema_20updated`;
+USE `db_333710_kesher_schema_20updated`;
+CREATE TABLE `users` (
+`id` INT,
+`user_type` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email_address` VARCHAR(64),
+`id_number` VARCHAR(64),
+`is_deleted` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `kindergarten_staff_mapping` (
+`record_id` INT,
+`kindergarten_id` INT,
+`user_id` INT,
+PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `kinder_gartens` (
+`record_id` INT,
+`kindergarten_id` INT,
+`kindergarten_name` VARCHAR(64),
+PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `children` (
+`record_id` INT,
+`kindergarten_id` INT,
+`child_id` VARCHAR(64),
+`child_first_name` VARCHAR(64),
+`child_last_name` VARCHAR(64),
+`child_birth_date` DATETIME,
+`is_deleted` BOOL,
+PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `parents_children_mapping` (
+`record_id` INT,
+`child_id` VARCHAR(64),
+`parent_email` VARCHAR(64),
+PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `attendance` (
+`record_id` INT,
+`child_id` VARCHAR(64),
+`arrival_date` DATETIME,
+`arrival_time` DATETIME,
+PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `report_categories` (
+`record_id` INT,
+`category_name` VARCHAR(64),
+PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `report_subcategories` (
+`category_id` INT,
+`subcategory_name` VARCHAR(64),
+`record_id` INT,
+PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `daily_report` (
+`record_id` INT,
+`sender_id` INT,
+`child_id` VARCHAR(64),
+`report_date` DATETIME,
+`category_id` INT,
+`subcategory_id` INT,
+`report_value` VARCHAR(64),
+PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_333710_kesher_schema_20updated') AS relationships;
+relationships
+Database: db_333710_kesher_schema_20updated
+
+Table Connections:
+------------------
+[Implied]  children.kindergarten_id -> kinder_gartens.record_id
+[Implied]  daily_report.sender_id -> users.id
+[Implied]  kindergarten_staff_mapping.kindergarten_id -> kinder_gartens.record_id
+[Implied]  kindergarten_staff_mapping.user_id -> users.id
+
+DROP DATABASE `db_333710_kesher_schema_20updated`;
+UNINSTALL EXTENSION vsql_schematron;

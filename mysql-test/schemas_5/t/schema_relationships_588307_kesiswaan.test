@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 588307_kesiswaan
+--echo #
+CREATE DATABASE `db_588307_kesiswaan`;
+USE `db_588307_kesiswaan`;
+
+CREATE TABLE `kompli` (
+  `kd_kompli` VARCHAR(64),
+  `nm_kompli` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pengajuan_kip` (
+  `id` VARCHAR(64),
+  `nis` VARCHAR(64),
+  `month` VARCHAR(64),
+  `year` VARCHAR(64),
+  `date_create` VARCHAR(64),
+  `date_update` VARCHAR(64),
+  `img_sktm` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rombel` (
+  `kd_rombel` VARCHAR(64),
+  `nama_rombel` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sekolah` (
+  `id` VARCHAR(64),
+  `npsn` INT,
+  `nama_sekolah` VARCHAR(64),
+  `alamat` VARCHAR(64),
+  `kodepos` INT,
+  `email` VARCHAR(64),
+  `website` VARCHAR(64),
+  `nama_kepsek` VARCHAR(64),
+  `golongan` VARCHAR(64),
+  `pangkat` VARCHAR(64),
+  `nip` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `siswa` (
+  `nis` VARCHAR(64),
+  `nis_lengkap` VARCHAR(64),
+  `nm_lengkap` VARCHAR(64),
+  `kd_kompli` VARCHAR(64),
+  `kd_rombel` VARCHAR(64),
+  `nm_ortu` VARCHAR(64),
+  `alamat` VARCHAR(64),
+  `pekerjaan` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `surat_keluar` (
+  `id` VARCHAR(64),
+  `nis` VARCHAR(64),
+  `nama_guru` VARCHAR(64),
+  `nip` VARCHAR(64),
+  `bulan` VARCHAR(64),
+  `keperluan` VARCHAR(64),
+  `tahun` VARCHAR(64),
+  `date_create` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` VARCHAR(64),
+  `nama` VARCHAR(64),
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `npsn` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_588307_kesiswaan') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_588307_kesiswaan') AS relationships;
+DROP DATABASE `db_588307_kesiswaan`;
+UNINSTALL EXTENSION vsql_schematron;

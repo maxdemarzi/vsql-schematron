@@ -1,0 +1,106 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 207602_insert_table
+--echo #
+CREATE DATABASE `db_207602_insert_table`;
+USE `db_207602_insert_table`;
+
+CREATE TABLE `user` (
+  `StaffId` INT,
+  `ICBCEmployeeId` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `FirstName` VARCHAR(64),
+  `LastName` VARCHAR(64),
+  `Department` VARCHAR(64),
+  `Valid` BOOL,
+  PRIMARY KEY (`StaffId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `workspace` (
+  `WorkspaceId` VARCHAR(64),
+  `WorkspaceName` VARCHAR(64),
+  `StaffId` INT,
+  `FloorId` INT,
+  PRIMARY KEY (`WorkspaceId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `floor` (
+  `FloorId` INT,
+  `FloorNo` INT,
+  `Location` VARCHAR(64),
+  `City` VARCHAR(64),
+  `Building` VARCHAR(64),
+  `FloorPlanUrl` VARCHAR(64),
+  PRIMARY KEY (`FloorId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `availability` (
+  `AvailabilityId` INT,
+  `StartDate` DATETIME,
+  `EndDate` DATETIME,
+  `WorkspaceId` VARCHAR(64),
+  `Comment` VARCHAR(64),
+  PRIMARY KEY (`AvailabilityId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `workspaceFeature` (
+  `WorkspaceId` VARCHAR(64),
+  `FeatureId` INT,
+  PRIMARY KEY (`WorkspaceId`, `FeatureId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `feature` (
+  `FeatureId` INT,
+  `FeatureName` VARCHAR(64),
+  PRIMARY KEY (`FeatureId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `booking` (
+  `Confirmed` BOOL,
+  `BookingId` INT,
+  `StartDate` DATETIME,
+  `EndDate` DATETIME,
+  `StaffId` INT,
+  `AvailabilityId` INT,
+  `WorkspaceId` VARCHAR(64),
+  `Timestamp` DATETIME,
+  PRIMARY KEY (`BookingId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `archivedBooking` (
+  `ArchivedBookingId` INT,
+  `StartDate` DATETIME,
+  `EndDate` DATETIME,
+  `StaffId` INT,
+  `ArchivedAvailabilityId` INT,
+  PRIMARY KEY (`ArchivedBookingId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `archivedAvailability` (
+  `ArchivedAvailabilityId` INT,
+  `StartDate` DATETIME,
+  `EndDate` DATETIME,
+  `WorkspaceId` VARCHAR(64),
+  PRIMARY KEY (`ArchivedAvailabilityId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_207602_insert_table') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_207602_insert_table') AS relationships;
+DROP DATABASE `db_207602_insert_table`;
+UNINSTALL EXTENSION vsql_schematron;

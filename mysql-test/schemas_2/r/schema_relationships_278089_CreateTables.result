@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 278089_CreateTables
+#
+CREATE DATABASE `db_278089_CreateTables`;
+USE `db_278089_CreateTables`;
+CREATE TABLE `roles` (
+`id` INT,
+`roleName` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`isActive` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_roles` (
+`userId` INT,
+`roleId` INT
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`categoryName` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `statuses` (
+`id` INT,
+`statusName` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `activities` (
+`id` INT,
+`activityName` VARCHAR(64),
+`dateStart` DATETIME,
+`dateEnd` DATETIME,
+`categoryId` INT,
+`statusId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_activities` (
+`id` INT,
+`activityId` INT,
+`activityOwner` INT,
+`activityPerformer` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_278089_CreateTables') AS relationships;
+relationships
+Database: db_278089_CreateTables
+
+Table Connections:
+------------------
+[Implied]  activities.categoryId -> categories.id
+[Implied]  activities.statusId -> statuses.id
+[Implied]  users_activities.activityId -> activities.id
+[Implied]  users_activities.activityOwner -> users.id
+[Implied]  users_roles.roleId -> roles.id
+[Implied]  users_roles.userId -> users.id
+
+DROP DATABASE `db_278089_CreateTables`;
+UNINSTALL EXTENSION vsql_schematron;

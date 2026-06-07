@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 622095_travel_db
+--echo #
+CREATE DATABASE `db_622095_travel_db`;
+USE `db_622095_travel_db`;
+
+CREATE TABLE `tags` (
+  `tag_id` INT,
+  `name` VARCHAR(64),
+  `definition` VARCHAR(64),
+  PRIMARY KEY (`tag_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trail_park_rel` (
+  `trail_id` INT,
+  `park_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `trail` (
+  `trail_id` INT,
+  `name` VARCHAR(64),
+  `trail_length` DECIMAL(10,2),
+  `difficulty` INT,
+  `url` VARCHAR(64),
+  `blaze` VARCHAR(64),
+  `loop_flag` INT,
+  `map` VARCHAR(64),
+  `map_google` VARCHAR(64),
+  `alltrails` VARCHAR(64),
+  `rating` INT,
+  `comment` VARCHAR(64),
+  PRIMARY KEY (`trail_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `park` (
+  `park_id` INT,
+  `name` VARCHAR(64),
+  `address` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `zip_code` INT,
+  `phone` VARCHAR(64),
+  `url` VARCHAR(64),
+  `map_url` VARCHAR(64),
+  `map_google` VARCHAR(64),
+  `alltrails` VARCHAR(64),
+  `gps_lat` DECIMAL(10,2),
+  `gps_long` DECIMAL(10,2),
+  `police_1_id` INT,
+  `police_2_id` INT,
+  `medical_1_id` INT,
+  `medical_2_id` INT,
+  `drive_time` DECIMAL(10,2),
+  `drive_miles` INT,
+  `rating` INT,
+  `comment` VARCHAR(64),
+  PRIMARY KEY (`park_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `destination` (
+  `place_id` INT,
+  `name` VARCHAR(64),
+  `locale` VARCHAR(64),
+  `state` VARCHAR(64),
+  `country` VARCHAR(64),
+  `url` VARCHAR(64),
+  `type` VARCHAR(64),
+  `comments` VARCHAR(64),
+  PRIMARY KEY (`place_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `table2tags` (
+  `table2tag_id` INT,
+  `table_id` INT,
+  `tag_id` INT,
+  `table_name` VARCHAR(64),
+  PRIMARY KEY (`table2tag_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tables_in_db` (
+  `db_tables` VARCHAR(64),
+  PRIMARY KEY (`db_tables`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_622095_travel_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_622095_travel_db') AS relationships;
+DROP DATABASE `db_622095_travel_db`;
+UNINSTALL EXTENSION vsql_schematron;

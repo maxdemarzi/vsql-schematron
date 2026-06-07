@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 657147_alldatabases
+#
+CREATE DATABASE `db_657147_alldatabases`;
+USE `db_657147_alldatabases`;
+CREATE TABLE `course` (
+`CourseID` VARCHAR(64),
+`course` VARCHAR(64),
+`credit` INT,
+PRIMARY KEY (`CourseID`)
+) CHARACTER SET latin1;
+CREATE TABLE `department` (
+`DeptID` VARCHAR(64),
+`dname` VARCHAR(64),
+PRIMARY KEY (`DeptID`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee` (
+`EmpID` VARCHAR(64),
+`ename` VARCHAR(64),
+`spec` VARCHAR(64),
+`FacID` VARCHAR(64),
+`DeptID` VARCHAR(64),
+PRIMARY KEY (`EmpID`, `FacID`, `DeptID`)
+) CHARACTER SET latin1;
+CREATE TABLE `enroll` (
+`RollNo` VARCHAR(64),
+`CourseID` VARCHAR(64),
+`marks` INT
+) CHARACTER SET latin1;
+CREATE TABLE `faculty` (
+`FacID` VARCHAR(64),
+`fname` VARCHAR(64),
+PRIMARY KEY (`FacID`)
+) CHARACTER SET latin1;
+CREATE TABLE `mentor` (
+`RollNo` VARCHAR(64),
+`FacID` VARCHAR(64),
+PRIMARY KEY (`RollNo`, `FacID`)
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`RollNo` VARCHAR(64),
+`Name` VARCHAR(64),
+`city` VARCHAR(64),
+`DOB` DATETIME,
+PRIMARY KEY (`RollNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `teach` (
+`CourseID` VARCHAR(64),
+`FacID` VARCHAR(64),
+PRIMARY KEY (`CourseID`, `FacID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Student` (
+`STU_NUM` VARCHAR(64),
+`STU_SNAME` VARCHAR(64),
+`STU_FNAME` VARCHAR(64),
+`STU_INITIAL` VARCHAR(64),
+`STU_STARTDATE` DATETIME,
+`COURSE_CODE` VARCHAR(64),
+`PROJ_NUM` INT,
+PRIMARY KEY (`STU_NUM`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_657147_alldatabases') AS relationships;
+relationships
+Database: db_657147_alldatabases
+
+Table Connections:
+------------------
+[Implied]  Student.COURSE_CODE -> course.CourseID
+[Implied]  employee.DeptID -> department.DeptID
+[Implied]  employee.FacID -> faculty.FacID
+[Implied]  enroll.CourseID -> course.CourseID
+[Implied]  enroll.RollNo -> student.RollNo
+[Implied]  mentor.FacID -> faculty.FacID
+[Implied]  mentor.RollNo -> student.RollNo
+[Implied]  teach.CourseID -> course.CourseID
+[Implied]  teach.FacID -> faculty.FacID
+
+DROP DATABASE `db_657147_alldatabases`;
+UNINSTALL EXTENSION vsql_schematron;

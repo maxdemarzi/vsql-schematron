@@ -1,0 +1,111 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 011373_1_base.up
+--echo #
+CREATE DATABASE `db_011373_1_base_up`;
+USE `db_011373_1_base_up`;
+
+CREATE TABLE `users` (
+  `ID` VARCHAR(64),
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `hash` VARCHAR(64),
+  `active` BOOL,
+  `last_signed_in` DATETIME,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `version` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `ID` VARCHAR(64),
+  `label` VARCHAR(64),
+  `version` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `scopes` (
+  `name` VARCHAR(64),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_roles` (
+  `user_id` VARCHAR(64),
+  `role_id` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_scopes` (
+  `role_id` VARCHAR(64),
+  `scope_id` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `features` (
+  `name` VARCHAR(64),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `plans` (
+  `ID` VARCHAR(64),
+  `name` VARCHAR(64),
+  `label` VARCHAR(64),
+  `price` INT,
+  `public` BOOL,
+  `recurring` BOOL,
+  `expires` DATETIME,
+  `frequency` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `plan_feature` (
+  `plan_id` VARCHAR(64),
+  `feature_id` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subscriptions` (
+  `ID` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  `plan_id` VARCHAR(64),
+  `created_at` DATETIME,
+  `active` BOOL,
+  `multiplier` DECIMAL(10,2),
+  `status` VARCHAR(64),
+  `foreign_subscription` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payment_statuses` (
+  `name` VARCHAR(64),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payments` (
+  `ID` VARCHAR(64),
+  `amount` INT,
+  `completed_at` DATETIME,
+  `status` VARCHAR(64),
+  `subscription_id` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_011373_1_base_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_011373_1_base_up') AS relationships;
+DROP DATABASE `db_011373_1_base_up`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 241504_tables
+--echo #
+CREATE DATABASE `db_241504_tables`;
+USE `db_241504_tables`;
+
+CREATE TABLE `bugs` (
+  `libname` VARCHAR(64),
+  `numberofbugs` INT,
+  `status` VARCHAR(64),
+  PRIMARY KEY (`libname`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `releasefreq` (
+  `libname` VARCHAR(64),
+  `numreleases` INT,
+  `averagedays` INT,
+  `status` VARCHAR(64),
+  PRIMARY KEY (`libname`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `lastdiscussed` (
+  `libname` VARCHAR(64),
+  `lastdate` VARCHAR(64),
+  PRIMARY KEY (`libname`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pullrequests` (
+  `libname` VARCHAR(64),
+  `percent` VARCHAR(64),
+  `mergedcount` INT,
+  `contributorprcount` INT,
+  `numPRs` INT,
+  `saveddate` VARCHAR(64),
+  `status` VARCHAR(64),
+  PRIMARY KEY (`libname`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `libname` VARCHAR(64),
+  `userclassification` VARCHAR(64),
+  PRIMARY KEY (`libname`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `issueresponse` (
+  `libname` VARCHAR(64),
+  `averagedays` VARCHAR(64),
+  `totalWithComments` INT,
+  `totalIssues` INT,
+  `status` VARCHAR(64),
+  PRIMARY KEY (`libname`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_241504_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_241504_tables') AS relationships;
+DROP DATABASE `db_241504_tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 266369_schema
+#
+CREATE DATABASE `db_266369_schema`;
+USE `db_266369_schema`;
+CREATE TABLE `CreditCard` (
+`id` INT,
+`ownerFullName` VARCHAR(64),
+`number` VARCHAR(64),
+`pin` VARCHAR(64),
+`expirationDate` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Faculty` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Course` (
+`id` INT,
+`faculty_id` INT,
+`required_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Person` (
+`id` INT,
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`birthDate` DATETIME,
+`email` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Assistant` (
+`id` INT,
+`details_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Student` (
+`id` INT,
+`details_id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`creditCard_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Inscription` (
+`id` INT,
+`student_id` INT,
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Teacher` (
+`id` INT,
+`details_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`id` INT,
+`course_id` INT,
+`teacher_id` INT,
+`assistant_id` INT,
+`academicYear` INT,
+`firstLesson` DATETIME,
+`lastLesson` DATETIME,
+`code` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `inscription_session` (
+`inscription_id` INT,
+`session_id` INT,
+PRIMARY KEY (`inscription_id`, `session_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_266369_schema') AS relationships;
+relationships
+Database: db_266369_schema
+
+Table Connections:
+------------------
+[Implied]  Course.faculty_id -> Faculty.id
+[Implied]  Inscription.student_id -> Teacher.id
+[Implied]  Session.assistant_id -> Assistant.id
+[Implied]  Session.course_id -> Course.id
+[Implied]  Session.teacher_id -> Teacher.id
+[Implied]  Student.creditCard_id -> CreditCard.id
+[Implied]  inscription_session.inscription_id -> Inscription.id
+[Implied]  inscription_session.session_id -> Session.id
+
+DROP DATABASE `db_266369_schema`;
+UNINSTALL EXTENSION vsql_schematron;

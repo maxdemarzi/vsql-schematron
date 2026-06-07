@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 393291_V1__init
+#
+CREATE DATABASE `db_393291_V1_init`;
+USE `db_393291_V1_init`;
+CREATE TABLE `first` (
+`id` INT,
+`first_field` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `second` (
+`id` INT,
+`second_field` VARCHAR(64),
+`fk_first` INT,
+`fk_second` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `third` (
+`id` INT,
+`third_field` VARCHAR(64),
+`fk_second` INT,
+`fk_first` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_393291_V1_init') AS relationships;
+relationships
+Database: db_393291_V1_init
+
+Table Connections:
+------------------
+[Implied]  second.fk_first -> first.id
+[Implied]  third.fk_first -> first.id
+[Implied]  third.fk_second -> second.id
+
+DROP DATABASE `db_393291_V1_init`;
+UNINSTALL EXTENSION vsql_schematron;

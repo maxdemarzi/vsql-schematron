@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 607869_createTables
+--echo #
+CREATE DATABASE `db_607869_createTables`;
+USE `db_607869_createTables`;
+
+CREATE TABLE `Users` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `authority` VARCHAR(64),
+  `enabled` BOOL,
+  `hasProfilePic` BOOL,
+  `latitude` DECIMAL(10,2),
+  `longitude` DECIMAL(10,2),
+  `registeredTimestamp` DATETIME,
+  `profileViews` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Posts` (
+  `id` INT,
+  `text` VARCHAR(64),
+  `likes` INT,
+  `dislikes` INT,
+  `total` INT,
+  `timestamp` DATETIME,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Post_Comments` (
+  `id` INT,
+  `text` VARCHAR(64),
+  `likes` INT,
+  `dislikes` INT,
+  `total` INT,
+  `timestamp` DATETIME,
+  `user_id` INT,
+  `masterPost_id` INT,
+  `postIndex` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Like_Records` (
+  `user_id` INT,
+  `post_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `Like_Records_Comments` (
+  `user_id` INT,
+  `post_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `Dislike_Records` (
+  `user_id` INT,
+  `post_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `Dislike_Records_Comments` (
+  `user_id` INT,
+  `post_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `Tags` (
+  `tag` VARCHAR(64),
+  `post_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_607869_createTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_607869_createTables') AS relationships;
+DROP DATABASE `db_607869_createTables`;
+UNINSTALL EXTENSION vsql_schematron;

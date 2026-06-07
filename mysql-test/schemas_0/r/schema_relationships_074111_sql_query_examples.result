@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 074111_sql_query_examples
+#
+CREATE DATABASE `db_074111_sql_query_examples`;
+USE `db_074111_sql_query_examples`;
+CREATE TABLE `employee` (
+`employee_ID` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`birthday` DATETIME,
+`sex` VARCHAR(64),
+`salary` INT,
+`supervisor_ID` INT,
+`branch_ID` INT,
+PRIMARY KEY (`employee_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `branch` (
+`branch_ID` INT,
+`branch_name` VARCHAR(64),
+`manager_ID` INT,
+`manager_start_date` DATETIME,
+PRIMARY KEY (`branch_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `client` (
+`client_ID` INT,
+`client_name` VARCHAR(64),
+`branch_id` INT,
+PRIMARY KEY (`client_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_074111_sql_query_examples') AS relationships;
+relationships
+Database: db_074111_sql_query_examples
+
+Table Connections:
+------------------
+[Implied]  branch.manager_ID -> branch.branch_ID
+[Implied]  branch.manager_ID -> client.client_ID
+[Implied]  branch.manager_ID -> employee.employee_ID
+[Implied]  client.branch_id -> branch.branch_ID
+[Implied]  employee.branch_ID -> branch.branch_ID
+[Implied]  employee.supervisor_ID -> client.client_ID
+[Implied]  employee.supervisor_ID -> employee.employee_ID
+
+DROP DATABASE `db_074111_sql_query_examples`;
+UNINSTALL EXTENSION vsql_schematron;

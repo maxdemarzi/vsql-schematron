@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 458613_schema
+#
+CREATE DATABASE `db_458613_schema`;
+USE `db_458613_schema`;
+CREATE TABLE `credentials` (
+`provider` VARCHAR(64),
+`api_key` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`user_id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `map_cache` (
+`place_id` VARCHAR(64),
+`lat` DECIMAL(10,2),
+`lng` DECIMAL(10,2),
+`city` VARCHAR(64),
+`region` VARCHAR(64),
+`country_name` VARCHAR(64),
+`country_code` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `location_history` (
+`user_id` INT,
+`place_id` VARCHAR(64),
+`timestamp` DECIMAL(10,2),
+PRIMARY KEY (`user_id`, `place_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_458613_schema') AS relationships;
+relationships
+Database: db_458613_schema
+
+Table Connections:
+------------------
+[Implied]  location_history.user_id -> users.user_id
+
+DROP DATABASE `db_458613_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 534245_spcf_accounting_fees%202020-08-30
+#
+CREATE DATABASE `db_534245_spcf_accounting_fees_202020_08_30`;
+USE `db_534245_spcf_accounting_fees_202020_08_30`;
+CREATE TABLE `accounts` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `inventory` (
+`id` INT,
+`item_code` VARCHAR(64),
+`item_name` VARCHAR(64),
+`qty` INT,
+`item_description` VARCHAR(64),
+`item_price` DECIMAL(10,2),
+`market_original_price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `inventory_cost` (
+`id` INT,
+`item_id` INT,
+`total_cost` INT,
+`date_added` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `transaction` (
+`id` INT,
+`student_id` VARCHAR(64),
+`full_name` VARCHAR(64),
+`transaction_date` DATETIME,
+`address` VARCHAR(64),
+`phone_num` VARCHAR(64),
+`total_amount` DECIMAL(10,2),
+`amount_paid` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction_lists` (
+`id` INT,
+`transaction_id` INT,
+`item_id` INT,
+`qty` INT,
+`adjusted_price` DECIMAL(10,2),
+`transaction_date` DATETIME,
+`subtotal` DECIMAL(10,2)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_534245_spcf_accounting_fees_202020_08_30') AS relationships;
+relationships
+Database: db_534245_spcf_accounting_fees_202020_08_30
+
+Table Connections:
+------------------
+[Implied]  inventory_cost.id -> inventory.id
+[Implied]  transaction_lists.transaction_id -> transaction.id
+
+DROP DATABASE `db_534245_spcf_accounting_fees_202020_08_30`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,194 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 424484_migration
+--echo #
+CREATE DATABASE `db_424484_migration`;
+USE `db_424484_migration`;
+
+CREATE TABLE `Ability` (
+  `id` INT,
+  `description` VARCHAR(64),
+  `userId` INT,
+  `projectId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Achievement` (
+  `id` INT,
+  `score` DECIMAL(10,2),
+  `userId` INT,
+  `abilityId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AchievementHistory` (
+  `id` INT,
+  `achievementId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Cause` (
+  `description` VARCHAR(64),
+  `id` INT,
+  `userId` INT,
+  `projectId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Enrolment` (
+  `id` INT,
+  `startDate` DATETIME,
+  `endDate` DATETIME,
+  `description` VARCHAR(64),
+  `projectId` INT,
+  `userId` INT,
+  `statusId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EnrolmentStatus` (
+  `id` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Favorite` (
+  `id` INT,
+  `userId` INT,
+  `projectId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Locality` (
+  `id` INT,
+  `street` VARCHAR(64),
+  `number` VARCHAR(64),
+  `neighborhood` VARCHAR(64),
+  `lat` VARCHAR(64),
+  `lng` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `country` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Notification` (
+  `id` INT,
+  `date` DATETIME,
+  `vizualized` BOOL,
+  `userId` INT,
+  `organizationId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Organization` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `email` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `website` VARCHAR(64),
+  `facebook` VARCHAR(64),
+  `linkedIn` VARCHAR(64),
+  `twitter` VARCHAR(64),
+  `instagram` VARCHAR(64),
+  `typeId` INT,
+  `localityId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `OrganizationType` (
+  `id` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Photo` (
+  `id` INT,
+  `description` VARCHAR(64),
+  `projectId` INT,
+  `organizationId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Project` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `startDate` DATETIME,
+  `endDate` DATETIME,
+  `workload` INT,
+  `organizationId` INT,
+  `statusId` INT,
+  `localityId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ProjectStatus` (
+  `id` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Rating` (
+  `id` INT,
+  `rate` DECIMAL(10,2),
+  `count` INT,
+  `organizationId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Review` (
+  `id` INT,
+  `description` VARCHAR(64),
+  `rate` INT,
+  `date` DATETIME,
+  `projectId` INT,
+  `userId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Tag` (
+  `id` INT,
+  `description` VARCHAR(64),
+  `projectId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `User` (
+  `email` VARCHAR(64),
+  `firstname` VARCHAR(64),
+  `id` INT,
+  `lastname` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `bio` VARCHAR(64),
+  `document` VARCHAR(64),
+  `facebook` VARCHAR(64),
+  `linkedIn` VARCHAR(64),
+  `twitter` VARCHAR(64),
+  `instagram` VARCHAR(64),
+  `localityId` INT,
+  `photoId` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_424484_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_424484_migration') AS relationships;
+DROP DATABASE `db_424484_migration`;
+UNINSTALL EXTENSION vsql_schematron;

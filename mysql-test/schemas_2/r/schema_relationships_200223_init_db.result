@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 200223_init_db
+#
+CREATE DATABASE `db_200223_init_db`;
+USE `db_200223_init_db`;
+CREATE TABLE `Users` (
+`ID` INT,
+`username` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Game` (
+`ID` INT,
+`phase` INT,
+`start_date` DATETIME,
+`end_date` DATETIME,
+`game_duration` INT,
+`vote_duration` INT,
+`nb_words` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Words` (
+`ID` INT,
+`word` VARCHAR(64),
+`creator_id` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Artwork` (
+`ID` INT,
+`title` VARCHAR(64),
+`url` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `userToGame` (
+`user_id` INT,
+`game_id` INT,
+`votes` INT,
+`artwork_id` INT,
+`is_host` BOOL,
+PRIMARY KEY (`user_id`, `game_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `wordToGame` (
+`word_id` INT,
+`game_id` INT,
+PRIMARY KEY (`word_id`, `game_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_200223_init_db') AS relationships;
+relationships
+Database: db_200223_init_db
+
+Table Connections:
+------------------
+[Implied]  Words.creator_id -> Users.ID
+[Implied]  userToGame.artwork_id -> Artwork.ID
+[Implied]  userToGame.game_id -> Game.ID
+[Implied]  userToGame.user_id -> Users.ID
+[Implied]  wordToGame.game_id -> Game.ID
+[Implied]  wordToGame.word_id -> Words.ID
+
+DROP DATABASE `db_200223_init_db`;
+UNINSTALL EXTENSION vsql_schematron;

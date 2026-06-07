@@ -1,0 +1,134 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 268719_codewars_script
+#
+CREATE DATABASE `db_268719_codewars_script`;
+USE `db_268719_codewars_script`;
+CREATE TABLE `week` (
+`id` INT,
+`number` INT,
+`start_date` DATETIME,
+`is_active` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `exercise` (
+`id` INT,
+`week_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`cash_reward` INT,
+`difficulty` INT,
+`execution_exemple` VARCHAR(64),
+`point_reward` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tips` (
+`id` INT,
+`tip` VARCHAR(64),
+`exercise_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `team` (
+`id` INT,
+`color` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `person` (
+`da` INT,
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+PRIMARY KEY (`da`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`da` INT,
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`da` INT,
+`team_id` INT,
+`cash` INT,
+PRIMARY KEY (`da`)
+) CHARACTER SET latin1;
+CREATE TABLE `teacher` (
+`da` INT,
+PRIMARY KEY (`da`)
+) CHARACTER SET latin1;
+CREATE TABLE `studentExercise` (
+`id` INT,
+`student_da` INT,
+`exercise_id` INT,
+`completed` BOOL,
+`corrected` BOOL,
+`comments` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `file` (
+`student_exercise_id` INT,
+`file_path` VARCHAR(64),
+`corrected_file_path` VARCHAR(64),
+PRIMARY KEY (`student_exercise_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`id` INT,
+`name` VARCHAR(64),
+`price` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `studentItem` (
+`id` INT,
+`item_id` INT,
+`student_da` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `token` (
+`user_id` INT,
+`token` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notification` (
+`id` INT,
+`user_id` INT,
+`name` VARCHAR(64),
+`is_seen` BOOL,
+`description` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `log` (
+`id` INT,
+`date` DATETIME,
+`ip` VARCHAR(64),
+`da` INT,
+`method` VARCHAR(64),
+`action` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_268719_codewars_script') AS relationships;
+relationships
+Database: db_268719_codewars_script
+
+Table Connections:
+------------------
+[Implied]  exercise.week_id -> week.id
+[Implied]  file.student_exercise_id -> studentExercise.id
+[Implied]  log.da -> person.da
+[Implied]  log.da -> student.da
+[Implied]  log.da -> teacher.da
+[Implied]  notification.user_id -> user.id
+[Implied]  student.team_id -> team.id
+[Implied]  studentExercise.exercise_id -> exercise.id
+[Implied]  studentExercise.student_da -> student.da
+[Implied]  studentItem.item_id -> item.id
+[Implied]  studentItem.student_da -> student.da
+[Implied]  tips.exercise_id -> exercise.id
+[Implied]  token.user_id -> user.id
+[Implied]  user.da -> person.da
+[Implied]  user.da -> student.da
+[Implied]  user.da -> teacher.da
+
+DROP DATABASE `db_268719_codewars_script`;
+UNINSTALL EXTENSION vsql_schematron;

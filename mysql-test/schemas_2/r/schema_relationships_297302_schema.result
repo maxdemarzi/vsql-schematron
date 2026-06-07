@@ -1,0 +1,85 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 297302_schema
+#
+CREATE DATABASE `db_297302_schema`;
+USE `db_297302_schema`;
+CREATE TABLE `schedule` (
+`id` INT,
+`date` DATETIME,
+`start_time` DATETIME,
+`end_time` DATETIME,
+`repetition_id` VARCHAR(64),
+`series_id` INT,
+`repetition_end_date` DATETIME,
+`TC1` BOOL,
+`TC2` BOOL,
+`TC3` BOOL,
+`TC4` BOOL,
+`name` VARCHAR(64),
+`coach` VARCHAR(64),
+`max_participants` INT,
+`act_participants` INT,
+`price` DECIMAL(10,2),
+`details` VARCHAR(64),
+`color` VARCHAR(64),
+`created_at` DATETIME,
+`cancelled_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `member` (
+`id` INT,
+`lastname` VARCHAR(64),
+`surname` VARCHAR(64),
+`title` VARCHAR(64),
+`active_status` BOOL,
+`gender` VARCHAR(64),
+`birthdate` DATETIME,
+`kid_status` BOOL,
+`lastname_parent` VARCHAR(64),
+`surname_parent` VARCHAR(64),
+`title_parent` VARCHAR(64),
+`greeting` VARCHAR(64),
+`street` VARCHAR(64),
+`zip_code` VARCHAR(64),
+`city` VARCHAR(64),
+`tel_number1` VARCHAR(64),
+`tel_number2` VARCHAR(64),
+`email_address1` VARCHAR(64),
+`email_address2` VARCHAR(64),
+`notes` VARCHAR(64),
+`entered_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lesson` (
+`id` INT,
+`schedule_id` INT,
+`participant_id` INT,
+`cancelled_at` DATETIME,
+`cancellation_id` INT,
+`cancellation_text` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `weatherForecast` (
+`startTime` DATETIME,
+`temperature` DECIMAL(10,2),
+`precipitationProbability` DECIMAL(10,2),
+`precipitationIntensity` DECIMAL(10,2),
+`windSpeed` DECIMAL(10,2),
+`cloudCover` DECIMAL(10,2),
+`weatherCode` INT,
+`Timestamp` DATETIME,
+PRIMARY KEY (`startTime`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_297302_schema') AS relationships;
+relationships
+Database: db_297302_schema
+
+Table Connections:
+------------------
+[Implied]  lesson.participant_id -> member.id
+[Implied]  lesson.schedule_id -> schedule.id
+
+DROP DATABASE `db_297302_schema`;
+UNINSTALL EXTENSION vsql_schematron;

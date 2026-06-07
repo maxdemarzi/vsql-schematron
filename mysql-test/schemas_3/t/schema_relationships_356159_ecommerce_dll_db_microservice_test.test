@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 356159_ecommerce_dll_db_microservice_test
+--echo #
+CREATE DATABASE `db_356159_ecommerce_dll_db_microservice_test`;
+USE `db_356159_ecommerce_dll_db_microservice_test`;
+
+CREATE TABLE `cargamos.store_api` (
+  `id_store` VARCHAR(64),
+  `store_name` VARCHAR(64),
+  `store_code` VARCHAR(64),
+  `store_street_address` VARCHAR(64),
+  `store_external_number` VARCHAR(64),
+  `store_suburb_address` VARCHAR(64),
+  `store_city_address` VARCHAR(64),
+  `store_country_address` VARCHAR(64),
+  `store_zippostal_code` VARCHAR(64),
+  `store_min_inventory` DECIMAL(10,2),
+  `creation_date` DATETIME,
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`id_store`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cargamos.user_auth_api` (
+  `user_id` DECIMAL(10,2),
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `password_hash` VARCHAR(64),
+  `creation_date` DATETIME,
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cargamos.product_api` (
+  `product_id` VARCHAR(64),
+  `product_sku` VARCHAR(64),
+  `product_unspc` VARCHAR(64),
+  `product_brand` VARCHAR(64),
+  `category_id` DECIMAL(10,2),
+  `parent_category_id` DECIMAL(10,2),
+  `unit_of_measure` VARCHAR(64),
+  `product_stock` DECIMAL(10,2),
+  `product_store_id` VARCHAR(64),
+  `product_name` VARCHAR(64),
+  `product_title` VARCHAR(64),
+  `product_long_description` VARCHAR(64),
+  `product_photo` VARCHAR(64),
+  `product_price` DECIMAL(10,2),
+  `product_tax` DECIMAL(10,2),
+  `product_currency` VARCHAR(64),
+  `product_status` VARCHAR(64),
+  `product_published` BOOL,
+  `product_manage_stock` BOOL,
+  `product_length` DECIMAL(10,2),
+  `product_width` DECIMAL(10,2),
+  `product_height` DECIMAL(10,2),
+  `product_weight` DECIMAL(10,2),
+  `creation_date` DATETIME,
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_356159_ecommerce_dll_db_microservice_test') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_356159_ecommerce_dll_db_microservice_test') AS relationships;
+DROP DATABASE `db_356159_ecommerce_dll_db_microservice_test`;
+UNINSTALL EXTENSION vsql_schematron;

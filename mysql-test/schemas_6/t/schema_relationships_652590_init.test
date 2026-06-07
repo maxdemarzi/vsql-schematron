@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 652590_init
+--echo #
+CREATE DATABASE `db_652590_init`;
+USE `db_652590_init`;
+
+CREATE TABLE `user_info` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `token` VARCHAR(64),
+  `token_create_time` INT,
+  `head_img` VARCHAR(64),
+  `create_time` INT,
+  `rtmp_token` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `meeting_info` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `time` INT,
+  `info` VARCHAR(64),
+  `creator` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_meeting` (
+  `id` INT,
+  `mid` INT,
+  `uid` INT,
+  `audience` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `meeting_record` (
+  `id` INT,
+  `mid` INT,
+  `v_path` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `meeting_comment` (
+  `id` INT,
+  `mid` INT,
+  `author` INT,
+  `comment` VARCHAR(64),
+  `comment_time` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_652590_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_652590_init') AS relationships;
+DROP DATABASE `db_652590_init`;
+UNINSTALL EXTENSION vsql_schematron;

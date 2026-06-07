@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 277746_actionexporter_foundation_schema
+#
+CREATE DATABASE `db_277746_actionexporter_foundation_schema`;
+USE `db_277746_actionexporter_foundation_schema`;
+CREATE TABLE `actionrequest` (
+`actionrequestPK` INT,
+`actionId` VARCHAR(64),
+`responserequired` BOOL,
+`actionplanname` VARCHAR(64),
+`actiontypename` VARCHAR(64),
+`questionset` VARCHAR(64),
+`contactFK` INT,
+`sampleunitrefFK` VARCHAR(64),
+`caseId` VARCHAR(64),
+`priority` VARCHAR(64),
+`caseref` VARCHAR(64),
+`iac` VARCHAR(64),
+`dateStored` DATETIME,
+`dateSent` DATETIME,
+PRIMARY KEY (`actionrequestPK`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+`sampleunitrefPK` VARCHAR(64),
+`addresstype` VARCHAR(64),
+`estabtype` VARCHAR(64),
+`category` VARCHAR(64),
+`organisation_name` VARCHAR(64),
+`address_line1` VARCHAR(64),
+`address_line2` VARCHAR(64),
+`locality` VARCHAR(64),
+`town_name` VARCHAR(64),
+`postcode` VARCHAR(64),
+`lad` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+PRIMARY KEY (`sampleunitrefPK`)
+) CHARACTER SET latin1;
+CREATE TABLE `actionexporter.filerowcount` (
+`filename` VARCHAR(64),
+`rowcount` INT,
+`datesent` DATETIME,
+`reported` BOOL
+) CHARACTER SET latin1;
+CREATE TABLE `templatemapping` (
+`actiontypenamePK` VARCHAR(64),
+`templatenameFK` VARCHAR(64),
+`file` VARCHAR(64),
+`datemodified` DATETIME,
+PRIMARY KEY (`actiontypenamePK`)
+) CHARACTER SET latin1;
+CREATE TABLE `template` (
+`templatenamePK` VARCHAR(64),
+`content` VARCHAR(64),
+`datemodified` DATETIME,
+PRIMARY KEY (`templatenamePK`)
+) CHARACTER SET latin1;
+CREATE TABLE `contact` (
+`contactPK` INT,
+`forename` VARCHAR(64),
+`surname` VARCHAR(64),
+`phonenumber` VARCHAR(64),
+`emailaddress` VARCHAR(64),
+`title` VARCHAR(64),
+PRIMARY KEY (`contactPK`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_277746_actionexporter_foundation_schema') AS relationships;
+relationships
+Database: db_277746_actionexporter_foundation_schema
+
+Table Connections:
+------------------
+[Implied]  actionrequest.contactFK -> contact.contactPK
+[Implied]  templatemapping.templatenameFK -> template.templatenamePK
+
+DROP DATABASE `db_277746_actionexporter_foundation_schema`;
+UNINSTALL EXTENSION vsql_schematron;

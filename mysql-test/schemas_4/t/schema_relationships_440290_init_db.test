@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 440290_init_db
+--echo #
+CREATE DATABASE `db_440290_init_db`;
+USE `db_440290_init_db`;
+
+CREATE TABLE `users` (
+  `user_id` VARCHAR(64),
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `status` VARCHAR(64),
+  `country` VARCHAR(64),
+  `password_hash` VARCHAR(64),
+  `registered` INT,
+  `valid_tokens` VARCHAR(64),
+  `verified_email` BOOL,
+  `type` VARCHAR(64),
+  `preferences` VARCHAR(64),
+  `secret` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `games` (
+  `game_id` VARCHAR(64),
+  `parent_game` VARCHAR(64),
+  `moves` VARCHAR(64),
+  `player_1_id` VARCHAR(64),
+  `player_2_id` VARCHAR(64),
+  `outcome` VARCHAR(64),
+  `created` INT,
+  `started` INT,
+  `last_activity` INT,
+  `duration` INT,
+  `rating_delta_player_1` INT,
+  `rating_delta_player_2` INT,
+  `status` VARCHAR(64),
+  `ruleset` VARCHAR(64),
+  `private` BOOL,
+  `debug` BOOL,
+  PRIMARY KEY (`game_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `social` (
+  `user_1_id` VARCHAR(64),
+  `user_2_id` VARCHAR(64),
+  `type` VARCHAR(64),
+  `timestamp` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_440290_init_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_440290_init_db') AS relationships;
+DROP DATABASE `db_440290_init_db`;
+UNINSTALL EXTENSION vsql_schematron;

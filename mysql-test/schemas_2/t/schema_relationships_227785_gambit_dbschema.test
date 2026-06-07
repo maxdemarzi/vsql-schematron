@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 227785_gambit_dbschema
+--echo #
+CREATE DATABASE `db_227785_gambit_dbschema`;
+USE `db_227785_gambit_dbschema`;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `is_active` INT,
+  `registration_date` DATETIME,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `messages` (
+  `message_id` INT,
+  `sender` INT,
+  `message_type` VARCHAR(64),
+  `message` VARCHAR(64),
+  `attachment_url` VARCHAR(64),
+  `sent` DATETIME,
+  PRIMARY KEY (`message_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `receivers` (
+  `message_id` INT,
+  `receiver_id` INT,
+  PRIMARY KEY (`message_id`, `receiver_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contacts` (
+  `user1` INT,
+  `user2` INT,
+  PRIMARY KEY (`user1`, `user2`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pending_contacts` (
+  `user` INT,
+  `pending_friend` INT,
+  PRIMARY KEY (`user`, `pending_friend`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `group_chats` (
+  `group_id` VARCHAR(64),
+  `owner` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`group_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `group_chat_messages` (
+  `message_id` INT,
+  `group_id` VARCHAR(64),
+  PRIMARY KEY (`message_id`, `group_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `group_chat_members` (
+  `member_id` INT,
+  `group_id` VARCHAR(64),
+  PRIMARY KEY (`member_id`, `group_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_227785_gambit_dbschema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_227785_gambit_dbschema') AS relationships;
+DROP DATABASE `db_227785_gambit_dbschema`;
+UNINSTALL EXTENSION vsql_schematron;

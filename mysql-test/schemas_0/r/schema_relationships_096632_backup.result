@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 096632_backup
+#
+CREATE DATABASE `db_096632_backup`;
+USE `db_096632_backup`;
+CREATE TABLE `z_theater` (
+`t_id` INT,
+`name` VARCHAR(64),
+`location` VARCHAR(64),
+`rating` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `z_theater_user` (
+`theater_id` INT,
+`password` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `z_movies` (
+`m_id` INT,
+`name` VARCHAR(64),
+`release_date` DATETIME,
+`language` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `z_genre` (
+`m_id` INT,
+`Genre` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `z_shows` (
+`show_id` INT,
+`slot` DATETIME,
+`price` INT,
+`t_id` INT,
+`weekend_price` INT,
+`m_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `z_seats` (
+`s_id` INT,
+`seat_price` INT,
+`theater_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `z_person` (
+`p_id` INT,
+`name` VARCHAR(64),
+`gender` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `z_customer` (
+`p_id` INT,
+`Email` VARCHAR(64),
+`Phone` VARCHAR(64),
+`password` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `z_payment` (
+`payment_id` INT,
+`timeAndDateOfPurchase` DATETIME,
+`amount` INT,
+`c_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `z_ticket` (
+`ticket_id` INT,
+`dt` DATETIME,
+`show_id` INT,
+`payment_id` INT,
+`p_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `z_booking` (
+`payment` INT,
+`seat_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `z_actor` (
+`p_id` INT,
+`rating` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `z_acted_in` (
+`p_id` INT,
+`m_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `z_review` (
+`m_id` INT,
+`p_id` INT,
+`description` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_096632_backup') AS relationships;
+relationships
+Database: db_096632_backup
+
+Table Connections:
+------------------
+[Implied]  z_booking.payment -> z_payment.payment_id
+[Implied]  z_ticket.payment_id -> z_payment.payment_id
+[Implied]  z_ticket.show_id -> z_shows.show_id
+
+DROP DATABASE `db_096632_backup`;
+UNINSTALL EXTENSION vsql_schematron;

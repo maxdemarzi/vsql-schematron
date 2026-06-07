@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 068602_plscience-clean
+#
+CREATE DATABASE `db_068602_plscience_clean`;
+USE `db_068602_plscience_clean`;
+CREATE TABLE `competence_group_service` (
+`group_service_id` INT,
+`competence_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `role_coordination_service` (
+`coordination_service_id` INT,
+`role_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `sequence` (
+`SEQ_NAME` VARCHAR(64),
+`SEQ_COUNT` DECIMAL(10,2),
+PRIMARY KEY (`SEQ_NAME`)
+) CHARACTER SET latin1;
+CREATE TABLE `SGWfC` (
+`idSGWfC` INT,
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`idSGWfC`)
+) CHARACTER SET latin1;
+CREATE TABLE `steps_service` (
+`collab_service_id` INT,
+`step_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `taverna_workflow` (
+`id` INT,
+`created_at` VARCHAR(64),
+`name` VARCHAR(64),
+`t2flow` VARCHAR(64),
+`idAgent` INT,
+`experiment_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `taverna_workflow_input` (
+`id` INT,
+`name` VARCHAR(64),
+`taverna_workflow_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `taverna_workflow_run` (
+`id` INT,
+`status` VARCHAR(64),
+`uuid` VARCHAR(64),
+`taverna_workflow_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `taverna_workflow_run_input_value` (
+`id` INT,
+`input_value` VARCHAR(64),
+`taverna_workflow_input_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `WasControledBy` (
+`idWasControledBy` INT,
+`Description` VARCHAR(64),
+`Activity_idActivity` INT,
+`Agent_idAgent` INT
+) CHARACTER SET latin1;
+CREATE TABLE `WasEndedByWT` (
+`idWasEndedByWT` INT,
+`Workflow_idWorkflow` INT,
+`Task_idTask` INT,
+`Ended` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `WasGeneratedBy` (
+`idWasGeneratedBy` INT,
+`Experiment_Experiment` INT,
+`ResearchGroup_idResearchGroup` INT,
+`Description` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `WasStartedByWT` (
+`idWasStartedByWT` INT,
+`Workflow_idWorkflow` INT,
+`Task_idTask` INT,
+`Started` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_068602_plscience_clean') AS relationships;
+relationships
+Database: db_068602_plscience_clean
+
+Table Connections:
+------------------
+[Implied]  taverna_workflow_input.taverna_workflow_id -> taverna_workflow.id
+[Implied]  taverna_workflow_run.taverna_workflow_id -> taverna_workflow.id
+[Implied]  taverna_workflow_run_input_value.taverna_workflow_input_id -> taverna_workflow.id
+
+DROP DATABASE `db_068602_plscience_clean`;
+UNINSTALL EXTENSION vsql_schematron;

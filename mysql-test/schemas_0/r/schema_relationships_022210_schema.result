@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 022210_schema
+#
+CREATE DATABASE `db_022210_schema`;
+USE `db_022210_schema`;
+CREATE TABLE `role` (
+`id` INT,
+`rolename` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `registration_info` (
+`id` INT,
+`registration_date` DATETIME,
+`hash` VARCHAR(64),
+`activation_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+`is_activated` BOOL,
+`is_enabled` BOOL,
+`role_id` INT,
+`registration_info_id` INT,
+`user_info_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_022210_schema') AS relationships;
+relationships
+Database: db_022210_schema
+
+Table Connections:
+------------------
+[Implied]  user.registration_info_id -> registration_info.id
+[Implied]  user.role_id -> role.id
+
+DROP DATABASE `db_022210_schema`;
+UNINSTALL EXTENSION vsql_schematron;

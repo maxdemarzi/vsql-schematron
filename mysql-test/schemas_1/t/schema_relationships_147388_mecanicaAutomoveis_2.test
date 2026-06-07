@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 147388_mecanicaAutomoveis_2
+--echo #
+CREATE DATABASE `db_147388_mecanicaAutomoveis_2`;
+USE `db_147388_mecanicaAutomoveis_2`;
+
+CREATE TABLE `pessoa` (
+  `codigo` INT,
+  `nome` VARCHAR(64),
+  `cpf` VARCHAR(64),
+  `endereco` VARCHAR(64),
+  PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `proprietario` (
+  `codigo_proprietario` INT,
+  `email` VARCHAR(64),
+  `telefone` VARCHAR(64),
+  PRIMARY KEY (`codigo_proprietario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mecanico` (
+  `codigo_mecanico` INT,
+  `especialidade` VARCHAR(64),
+  PRIMARY KEY (`codigo_mecanico`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `veiculo` (
+  `codigo_veiculo` INT,
+  `descricao` VARCHAR(64),
+  `placa` VARCHAR(64),
+  `codigo_proprietario` INT,
+  PRIMARY KEY (`codigo_veiculo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `peca` (
+  `id` INT,
+  `nome` VARCHAR(64),
+  `marca` VARCHAR(64),
+  `tamanho` VARCHAR(64),
+  `preco` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ordem_servico` (
+  `numero_OS` INT,
+  `data_emissao` DATETIME,
+  `data_conclusao` DATETIME,
+  `valor` DECIMAL(10,2),
+  `descricao` VARCHAR(64),
+  `codigo_mecanico` INT,
+  `codigo_veiculo` INT,
+  PRIMARY KEY (`numero_OS`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `requer` (
+  `numero_OS` INT,
+  `id_peca` INT,
+  `quantidade` INT,
+  PRIMARY KEY (`numero_OS`, `id_peca`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_147388_mecanicaAutomoveis_2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_147388_mecanicaAutomoveis_2') AS relationships;
+DROP DATABASE `db_147388_mecanicaAutomoveis_2`;
+UNINSTALL EXTENSION vsql_schematron;

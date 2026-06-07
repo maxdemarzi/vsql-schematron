@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 053275_koin
+--echo #
+CREATE DATABASE `db_053275_koin`;
+USE `db_053275_koin`;
+
+CREATE TABLE `tbl_data` (
+  `id` INT,
+  `id_coin` INT,
+  `high` DECIMAL(10,2),
+  `low` DECIMAL(10,2),
+  `vol_coin` DECIMAL(10,2),
+  `vol_pair` DECIMAL(10,2),
+  `last` DECIMAL(10,2),
+  `buy` DECIMAL(10,2),
+  `sell` DECIMAL(10,2),
+  `server_time` DATETIME,
+  `nilai_range` DECIMAL(10,2),
+  `top_range` DECIMAL(10,2),
+  `lower_range` DECIMAL(10,2),
+  `percent_range` DECIMAL(10,2),
+  `percent_top_range` DECIMAL(10,2),
+  `percent_lower_range` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_market` (
+  `id` INT,
+  `nama_market` VARCHAR(64),
+  `pair` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_053275_koin') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_053275_koin') AS relationships;
+DROP DATABASE `db_053275_koin`;
+UNINSTALL EXTENSION vsql_schematron;

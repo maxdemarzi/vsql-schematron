@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 023100_first_draft
+--echo #
+CREATE DATABASE `db_023100_first_draft`;
+USE `db_023100_first_draft`;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `user_name` VARCHAR(64),
+  `user_email` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `club` (
+  `club_name` VARCHAR(64),
+  `nickname` VARCHAR(64),
+  `found_date` DATETIME,
+  `home_ground` VARCHAR(64),
+  `location` VARCHAR(64),
+  PRIMARY KEY (`club_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `player` (
+  `player_id` INT,
+  `player_name` VARCHAR(64),
+  `height` INT,
+  `weight` INT,
+  `age` INT,
+  `birth_date` DATETIME,
+  `market_value` INT,
+  `player_position` VARCHAR(64),
+  PRIMARY KEY (`player_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contract` (
+  `contract_id` INT,
+  `contract_club` VARCHAR(64),
+  `contract_player` INT,
+  `expiration` DATETIME,
+  PRIMARY KEY (`contract_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `game` (
+  `game_id` INT,
+  `game_home` VARCHAR(64),
+  `game_guest` VARCHAR(64),
+  `game_date` DATETIME,
+  `result` VARCHAR(64),
+  PRIMARY KEY (`game_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event` (
+  `event_id` INT,
+  `event_player` INT,
+  `event_game` INT,
+  `event_date` DATETIME,
+  `data_type` VARCHAR(64),
+  PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comments` (
+  `comments_id` INT,
+  `comments_game` INT,
+  `comments_user` INT,
+  `user_comment` VARCHAR(64),
+  PRIMARY KEY (`comments_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `follows` (
+  `follows_id` INT,
+  `follows_club` VARCHAR(64),
+  `follows_user` INT,
+  PRIMARY KEY (`follows_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ratings` (
+  `ratings_id` INT,
+  `ratings_user` INT,
+  `ratings_player` INT,
+  `rating_comment` VARCHAR(64),
+  PRIMARY KEY (`ratings_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_023100_first_draft') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_023100_first_draft') AS relationships;
+DROP DATABASE `db_023100_first_draft`;
+UNINSTALL EXTENSION vsql_schematron;

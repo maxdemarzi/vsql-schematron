@@ -1,0 +1,122 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 086815_gantri
+#
+CREATE DATABASE `db_086815_gantri`;
+USE `db_086815_gantri`;
+CREATE TABLE `kategori` (
+`kategori_id` INT,
+`kategori_nama` VARCHAR(64),
+`kategori_ket` VARCHAR(64),
+`kategori_gambar` VARCHAR(64),
+PRIMARY KEY (`kategori_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `keranjang` (
+`keranjang_id` INT,
+`produk_kode` VARCHAR(64),
+`user_id` INT,
+`keranjang_qty` INT
+) CHARACTER SET latin1;
+CREATE TABLE `list` (
+`list_id` INT,
+`sk_id` INT,
+`list_nama` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `pembayaran` (
+`pembayaran_kode` INT,
+`pemesanan_kode` VARCHAR(64),
+`pembayaran_nama` VARCHAR(64),
+`pembayaran_pesan` VARCHAR(64),
+`pembayaran_status` VARCHAR(64),
+`pembayaran_method` VARCHAR(64),
+`pembayaran_tanggal` DATETIME,
+`pembayaran_bukti` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `pemesanan` (
+`pemesanan_kode` VARCHAR(64),
+`user_id` INT,
+`pemesanan_subtotal` INT,
+`pemesanan_ongkir` INT,
+`pemesanan_total` INT,
+`pemesanan_status` VARCHAR(64),
+`pemesanan_tanggal` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `pemesanan_detailp` (
+`pdp_id` INT,
+`pemesanan_kode` VARCHAR(64),
+`produk_kode` VARCHAR(64),
+`pdp_qty` INT,
+`pdp_bonus` INT,
+`pdp_harga` INT,
+`pdp_diskon` INT,
+`pdp_subtotal` INT
+) CHARACTER SET latin1;
+CREATE TABLE `pemesanan_ship` (
+`ps_id` INT,
+`pemesanan_kode` VARCHAR(64),
+`ps_nama` VARCHAR(64),
+`ps_email` VARCHAR(64),
+`ps_tel` VARCHAR(64),
+`ps_alamat` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `produk` (
+`produk_kode` VARCHAR(64),
+`list_id` INT,
+`produk_nama` VARCHAR(64),
+`produk_harga` INT,
+`produk_ket` VARCHAR(64),
+`produk_up` VARCHAR(64),
+`produk_gambar` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `promo` (
+`promo_id` INT,
+`produk_kode` VARCHAR(64),
+`promo_diskon` INT,
+`promo_start` DATETIME,
+`promo_end` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `rekening` (
+`rekening_id` INT,
+`rekening_bank` VARCHAR(64),
+`rekening_nama` VARCHAR(64),
+`rekening_nomor` VARCHAR(64),
+`rekening_gambar` VARCHAR(64),
+PRIMARY KEY (`rekening_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `slider` (
+`slider_id` INT,
+`slider_judul` VARCHAR(64),
+`slider_ket` VARCHAR(64),
+`slider_gambar` VARCHAR(64),
+PRIMARY KEY (`slider_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sub_kategori` (
+`sk_id` INT,
+`kategori_id` INT,
+`sk_nama` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`user_id` INT,
+`user_username` VARCHAR(64),
+`user_password` VARCHAR(64),
+`user_nama` VARCHAR(64),
+`user_email` VARCHAR(64),
+`user_tel` VARCHAR(64),
+`user_alamat` VARCHAR(64),
+`user_jk` VARCHAR(64),
+`user_role` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_086815_gantri') AS relationships;
+relationships
+Database: db_086815_gantri
+
+Table Connections:
+------------------
+[Implied]  keranjang.user_id -> user.user_id
+[Implied]  pemesanan.user_id -> user.user_id
+[Implied]  produk.list_id -> list.list_id
+[Implied]  sub_kategori.kategori_id -> kategori.kategori_id
+
+DROP DATABASE `db_086815_gantri`;
+UNINSTALL EXTENSION vsql_schematron;

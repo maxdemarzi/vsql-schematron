@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 518664_full_identity_schema
+#
+CREATE DATABASE `db_518664_full_identity_schema`;
+USE `db_518664_full_identity_schema`;
+CREATE TABLE `invite_tokens` (
+`id` INT,
+`medium` VARCHAR(64),
+`address` VARCHAR(64),
+`room_id` VARCHAR(64),
+`sender` VARCHAR(64),
+`token` VARCHAR(64),
+`received_ts` INT,
+`sent_ts` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ephemeral_public_keys` (
+`id` INT,
+`public_key` VARCHAR(64),
+`verify_count` INT,
+`persistence_ts` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `peers` (
+`id` INT,
+`name` VARCHAR(64),
+`port` INT,
+`lastSentVersion` INT,
+`lastPokeSucceededAt` INT,
+`active` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `peer_pubkeys` (
+`id` INT,
+`peername` VARCHAR(64),
+`alg` VARCHAR(64),
+`key` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `local_threepid_associations` (
+`id` INT,
+`medium` VARCHAR(64),
+`address` VARCHAR(64),
+`mxid` VARCHAR(64),
+`ts` INT,
+`notBefore` INT,
+`notAfter` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `global_threepid_associations` (
+`id` INT,
+`medium` VARCHAR(64),
+`address` VARCHAR(64),
+`mxid` VARCHAR(64),
+`ts` INT,
+`notBefore` INT,
+`notAfter` INT,
+`originServer` VARCHAR(64),
+`originId` INT,
+`sgAssoc` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `threepid_validation_sessions` (
+`id` INT,
+`medium` VARCHAR(64),
+`address` VARCHAR(64),
+`clientSecret` VARCHAR(64),
+`validated` INT,
+`mtime` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `threepid_token_auths` (
+`id` INT,
+`validationSession` INT,
+`token` VARCHAR(64),
+`sendAttemptNumber` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_518664_full_identity_schema') AS relationships;
+relationships
+Database: db_518664_full_identity_schema
+
+Table Connections:
+------------------
+[Implied]  peer_pubkeys.id -> peers.id
+
+DROP DATABASE `db_518664_full_identity_schema`;
+UNINSTALL EXTENSION vsql_schematron;

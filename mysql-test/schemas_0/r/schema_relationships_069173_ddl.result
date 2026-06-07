@@ -1,0 +1,85 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 069173_ddl
+#
+CREATE DATABASE `db_069173_ddl`;
+USE `db_069173_ddl`;
+CREATE TABLE `food_category` (
+`id` INT,
+`title` VARCHAR(64),
+`active` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `food` (
+`id` INT,
+`name` VARCHAR(64),
+`kcal` DECIMAL(10,2),
+`carbohydrates` DECIMAL(10,2),
+`proteins` DECIMAL(10,2),
+`total_fats` DECIMAL(10,2),
+`saturated_fats` DECIMAL(10,2),
+`trans_fats` DECIMAL(10,2),
+`dietary_fiber` DECIMAL(10,2),
+`sodium` DECIMAL(10,2),
+`food_category_id` INT,
+`active` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `client` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`active` BOOL,
+`professional_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipe` (
+`id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`client_id` INT,
+`active` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipe_food` (
+`id` INT,
+`recipe_id` INT,
+`food_id` INT,
+`quantity` DECIMAL(10,2),
+`active` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `professional` (
+`id` INT,
+`name` VARCHAR(64),
+`cpf` VARCHAR(64),
+`email` VARCHAR(64),
+`telefone` VARCHAR(64),
+`register` VARCHAR(64),
+`active` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`reference` VARCHAR(64),
+`description` VARCHAR(64),
+`professional_id` INT,
+`active` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_069173_ddl') AS relationships;
+relationships
+Database: db_069173_ddl
+
+Table Connections:
+------------------
+[Implied]  client.professional_id -> professional.id
+[Implied]  comments.professional_id -> professional.id
+[Implied]  food.food_category_id -> food_category.id
+[Implied]  recipe.client_id -> client.id
+[Implied]  recipe_food.food_id -> food.id
+[Implied]  recipe_food.recipe_id -> recipe.id
+
+DROP DATABASE `db_069173_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

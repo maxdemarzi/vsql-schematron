@@ -1,0 +1,114 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 430234_roots-n-table
+#
+CREATE DATABASE `db_430234_roots_n_table`;
+USE `db_430234_roots_n_table`;
+CREATE TABLE `profile` (
+`profileId` INT,
+`profileActivationToken` VARCHAR(64),
+`profileEmail` VARCHAR(64),
+`profileFirstName` VARCHAR(64),
+`profileHash` VARCHAR(64),
+`profileLastName` VARCHAR(64),
+`profilePhoneNumber` VARCHAR(64),
+`profileSalt` VARCHAR(64),
+`profileStripeToken` VARCHAR(64),
+`profileType` VARCHAR(64),
+`profileUserName` VARCHAR(64),
+PRIMARY KEY (`profileId`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`categoryId` INT,
+`categoryName` VARCHAR(64),
+PRIMARY KEY (`categoryId`)
+) CHARACTER SET latin1;
+CREATE TABLE `image` (
+`imageId` INT,
+`imagePath` VARCHAR(64),
+`imageType` VARCHAR(64),
+PRIMARY KEY (`imageId`)
+) CHARACTER SET latin1;
+CREATE TABLE `unit` (
+`unitId` INT,
+`unitName` VARCHAR(64),
+PRIMARY KEY (`unitId`)
+) CHARACTER SET latin1;
+CREATE TABLE `purchase` (
+`purchaseId` INT,
+`purchaseProfileId` INT,
+`purchaseStripeToken` VARCHAR(64),
+PRIMARY KEY (`purchaseId`)
+) CHARACTER SET latin1;
+CREATE TABLE `ledger` (
+`ledgerId` INT,
+`ledgerPurchaseId` INT,
+`ledgerAmount` DECIMAL(10,2),
+`ledgerDateTime` DATETIME,
+`ledgerStripeToken` VARCHAR(64),
+PRIMARY KEY (`ledgerId`)
+) CHARACTER SET latin1;
+CREATE TABLE `location` (
+`locationId` INT,
+`locationProfileId` INT,
+`locationAttention` VARCHAR(64),
+`locationCity` VARCHAR(64),
+`locationName` VARCHAR(64),
+`locationState` VARCHAR(64),
+`locationStreetOne` VARCHAR(64),
+`locationStreetTwo` VARCHAR(64),
+`locationZipCode` VARCHAR(64),
+PRIMARY KEY (`locationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`productId` INT,
+`productProfileId` INT,
+`productUnitId` INT,
+`productDescription` VARCHAR(64),
+`productName` VARCHAR(64),
+`productPrice` DECIMAL(10,2),
+PRIMARY KEY (`productId`)
+) CHARACTER SET latin1;
+CREATE TABLE `productCategory` (
+`productCategoryCategoryId` INT,
+`productCategoryProductId` INT,
+PRIMARY KEY (`productCategoryCategoryId`, `productCategoryProductId`)
+) CHARACTER SET latin1;
+CREATE TABLE `productImage` (
+`productImageImageId` INT,
+`productImageProductId` INT,
+PRIMARY KEY (`productImageImageId`, `productImageProductId`)
+) CHARACTER SET latin1;
+CREATE TABLE `productPurchase` (
+`productPurchaseProductId` INT,
+`productPurchasePurchaseId` INT,
+`productPurchaseAmount` DECIMAL(10,2),
+PRIMARY KEY (`productPurchaseProductId`, `productPurchasePurchaseId`)
+) CHARACTER SET latin1;
+CREATE TABLE `profileImage` (
+`profileImageImageId` INT,
+`profileImageProfileId` INT,
+PRIMARY KEY (`profileImageImageId`, `profileImageProfileId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_430234_roots_n_table') AS relationships;
+relationships
+Database: db_430234_roots_n_table
+
+Table Connections:
+------------------
+[Implied]  ledger.ledgerPurchaseId -> purchase.purchaseId
+[Implied]  location.locationProfileId -> location.locationId
+[Implied]  product.productProfileId -> product.productId
+[Implied]  product.productUnitId -> unit.unitId
+[Implied]  productCategory.productCategoryCategoryId -> product.productId
+[Implied]  productCategory.productCategoryProductId -> product.productId
+[Implied]  productImage.productImageImageId -> product.productId
+[Implied]  productImage.productImageProductId -> product.productId
+[Implied]  productPurchase.productPurchaseProductId -> product.productId
+[Implied]  productPurchase.productPurchasePurchaseId -> product.productId
+[Implied]  profileImage.profileImageImageId -> profile.profileId
+[Implied]  profileImage.profileImageProfileId -> profile.profileId
+[Implied]  purchase.purchaseProfileId -> purchase.purchaseId
+
+DROP DATABASE `db_430234_roots_n_table`;
+UNINSTALL EXTENSION vsql_schematron;

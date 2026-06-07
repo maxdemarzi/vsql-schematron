@@ -1,0 +1,136 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 100025_obj_pj_sena
+--echo #
+CREATE DATABASE `db_100025_obj_pj_sena`;
+USE `db_100025_obj_pj_sena`;
+
+CREATE TABLE `obj_cargo` (
+  `id_cargo` INT,
+  `cargo` VARCHAR(64),
+  PRIMARY KEY (`id_cargo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `obj_registro_sena` (
+  `id_obj_registro_sena` INT,
+  `nombre` VARCHAR(64),
+  `tel` INT,
+  `correo` VARCHAR(64),
+  `contrasena` VARCHAR(64),
+  `cargo` INT,
+  PRIMARY KEY (`id_obj_registro_sena`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `obj_doc_sena` (
+  `id_obj_doc_sena` INT,
+  `nombre_doc` VARCHAR(64),
+  PRIMARY KEY (`id_obj_doc_sena`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `obj_nivel_forma_sena` (
+  `id_obj_nivel_sena` INT,
+  `nombre_nivel` VARCHAR(64),
+  PRIMARY KEY (`id_obj_nivel_sena`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `obj_jornada_sena` (
+  `id_obj_jornada_sena` INT,
+  `nombre_jornada` VARCHAR(64),
+  PRIMARY KEY (`id_obj_jornada_sena`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `obj_sede_sena` (
+  `id_obj_sede_sena` INT,
+  `nombre_sede` VARCHAR(64),
+  PRIMARY KEY (`id_obj_sede_sena`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `obj_per_reporte_sena` (
+  `id_obj_per_reporte_sena` INT,
+  `nombre_reporte` VARCHAR(64),
+  PRIMARY KEY (`id_obj_per_reporte_sena`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `obj_mot_reporte_sena` (
+  `id_obj_mot_reporte_sena` INT,
+  `nombre_mot_reporte` VARCHAR(64),
+  PRIMARY KEY (`id_obj_mot_reporte_sena`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `obj_alerta` (
+  `id_obj_alerta` INT,
+  `nombre` VARCHAR(64),
+  `apellido` VARCHAR(64),
+  `doc` INT,
+  `num_doc` INT,
+  `telefono` INT,
+  `direccion` VARCHAR(64),
+  `nivel` INT,
+  `programa` VARCHAR(64),
+  `ficha` VARCHAR(64),
+  `jornada` INT,
+  `sede` INT,
+  `correo_aprendiz` VARCHAR(64),
+  `cusa_reporte` INT,
+  `causa_reporte_aprendiz` VARCHAR(64),
+  `reporte_diri` INT,
+  `accion` VARCHAR(64),
+  `documento_soporte` VARCHAR(64),
+  `nombre_ins` VARCHAR(64),
+  `apellido_ins` VARCHAR(64),
+  `telefono_ins` INT,
+  `correo_ins` VARCHAR(64),
+  `responsable` VARCHAR(64),
+  `fecha_registro` DATETIME,
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_obj_alerta`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `obj_casos_reportados` (
+  `id_obj_casos_reportados` INT,
+  `nombre` VARCHAR(64),
+  `apellido` VARCHAR(64),
+  `doc` INT,
+  `num_doc` INT,
+  `telefono` INT,
+  `direccion` VARCHAR(64),
+  `nivel` INT,
+  `programa` VARCHAR(64),
+  `ficha` VARCHAR(64),
+  `jornada` INT,
+  `sede` INT,
+  `correo_aprendiz` VARCHAR(64),
+  `cusa_reporte` INT,
+  `causa_reporte_aprendiz` VARCHAR(64),
+  `reporte_diri` INT,
+  `accion` VARCHAR(64),
+  `documento_soporte` VARCHAR(64),
+  `nombre_ins` VARCHAR(64),
+  `apellido_ins` VARCHAR(64),
+  `telefono_ins` INT,
+  `correo_ins` VARCHAR(64),
+  `responsable` VARCHAR(64),
+  `fecha_registro` DATETIME,
+  PRIMARY KEY (`id_obj_casos_reportados`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_100025_obj_pj_sena') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_100025_obj_pj_sena') AS relationships;
+DROP DATABASE `db_100025_obj_pj_sena`;
+UNINSTALL EXTENSION vsql_schematron;

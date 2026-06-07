@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 088841_V20190606111500__egov_chat
+--echo #
+CREATE DATABASE `db_088841_V20190606111500_egov_chat`;
+USE `db_088841_V20190606111500_egov_chat`;
+
+CREATE TABLE `eg_chat_conversation_state` (
+  `id` INT,
+  `conversation_id` VARCHAR(64),
+  `active_node_id` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  `active` BOOL,
+  `question_details` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `eg_chat_message` (
+  `id` INT,
+  `message_id` VARCHAR(64),
+  `conversation_id` VARCHAR(64),
+  `node_id` VARCHAR(64),
+  `message_content` VARCHAR(64),
+  `content_type` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_088841_V20190606111500_egov_chat') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_088841_V20190606111500_egov_chat') AS relationships;
+DROP DATABASE `db_088841_V20190606111500_egov_chat`;
+UNINSTALL EXTENSION vsql_schematron;

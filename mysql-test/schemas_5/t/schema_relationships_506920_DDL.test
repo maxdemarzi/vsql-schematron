@@ -1,0 +1,120 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 506920_DDL
+--echo #
+CREATE DATABASE `db_506920_DDL`;
+USE `db_506920_DDL`;
+
+CREATE TABLE `sec_usuario` (
+  `id` INT,
+  `nome` VARCHAR(64),
+  `email` VARCHAR(64),
+  `validhash` VARCHAR(64),
+  `_inc_usua` INT,
+  `_inc_data` DATETIME,
+  `_alt_usua` INT,
+  `_alt_data` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sec_autorizacao` (
+  `id` INT,
+  `chave` VARCHAR(64),
+  `descr` VARCHAR(64),
+  `_inc_usua` INT,
+  `_inc_data` DATETIME,
+  `_alt_usua` INT,
+  `_alt_data` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sec_aut_usuario` (
+  `id` INT,
+  `idaut` INT,
+  `idusu` INT,
+  `_inc_usua` INT,
+  `_inc_data` DATETIME,
+  `_alt_usua` INT,
+  `_alt_data` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mer_driver` (
+  `id` INT,
+  `nome` VARCHAR(64),
+  `versao` VARCHAR(64),
+  `anomesvs` INT,
+  `_inc_usua` INT,
+  `_inc_data` DATETIME,
+  `_alt_usua` INT,
+  `_alt_data` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mer_modulo` (
+  `id` INT,
+  `nome` VARCHAR(64),
+  `prefixo` VARCHAR(64),
+  `prefixonochk` VARCHAR(64),
+  `_inc_usua` INT,
+  `_inc_data` DATETIME,
+  `_alt_usua` INT,
+  `_alt_data` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mer_coluna_tipo` (
+  `idtipocol` VARCHAR(64),
+  `descr` VARCHAR(64),
+  `istamanho` BOOL,
+  `isdecimal` BOOL,
+  `_inc_usua` INT,
+  `_inc_data` DATETIME,
+  `_alt_usua` INT,
+  `_alt_data` DATETIME,
+  PRIMARY KEY (`idtipocol`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mer_dominio_campo` (
+  `iddomcampo` VARCHAR(64),
+  `padrao` VARCHAR(64),
+  `idtipocol` VARCHAR(64),
+  `tamanho` INT,
+  `decimais` INT,
+  `_inc_usua` INT,
+  `_inc_data` DATETIME,
+  `_alt_usua` INT,
+  `_alt_data` DATETIME,
+  PRIMARY KEY (`iddomcampo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `est_mes` (
+  `id` VARCHAR(64),
+  `descr` VARCHAR(64),
+  `_inc_usua` INT,
+  `_inc_data` DATETIME,
+  `_alt_usua` INT,
+  `_alt_data` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_506920_DDL') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_506920_DDL') AS relationships;
+DROP DATABASE `db_506920_DDL`;
+UNINSTALL EXTENSION vsql_schematron;

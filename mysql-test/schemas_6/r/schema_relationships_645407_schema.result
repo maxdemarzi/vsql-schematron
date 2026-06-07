@@ -1,0 +1,127 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 645407_schema
+#
+CREATE DATABASE `db_645407_schema`;
+USE `db_645407_schema`;
+CREATE TABLE `groups_scanlation` (
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`release_delay` INT,
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups_scanlation_urls` (
+`group_name` VARCHAR(64),
+`url` VARCHAR(64),
+PRIMARY KEY (`group_name`, `url`)
+) CHARACTER SET latin1;
+CREATE TABLE `languages` (
+`name` VARCHAR(64),
+`code` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `series` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`cover_image` VARCHAR(64),
+`type_name` VARCHAR(64),
+`type_demonym` VARCHAR(64),
+`status` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `series_aliases` (
+`series_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`series_id`, `name`)
+) CHARACTER SET latin1;
+CREATE TABLE `series_chapters` (
+`id` INT,
+`series_id` INT,
+`title` VARCHAR(64),
+`chapter_number_absolute` VARCHAR(64),
+`chapter_number_volume` DECIMAL(10,2),
+`volume_number` DECIMAL(10,2),
+`chapter_language` VARCHAR(64),
+`contributor_id` INT,
+`time_uploaded` DATETIME,
+`hash` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `series_chapters_files` (
+`chapter_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`chapter_id`, `name`)
+) CHARACTER SET latin1;
+CREATE TABLE `series_chapters_groups` (
+`chapter_id` INT,
+`group_name` VARCHAR(64),
+PRIMARY KEY (`chapter_id`, `group_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `series_ratings` (
+`series_id` INT,
+`user_id` INT,
+`rating` INT,
+PRIMARY KEY (`series_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `series_tags` (
+`series_id` INT,
+`tag_name` VARCHAR(64),
+`tag_namespace` VARCHAR(64),
+PRIMARY KEY (`series_id`, `tag_name`, `tag_namespace`)
+) CHARACTER SET latin1;
+CREATE TABLE `statuses` (
+`name` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`name` VARCHAR(64),
+`namespace` VARCHAR(64),
+PRIMARY KEY (`name`, `namespace`)
+) CHARACTER SET latin1;
+CREATE TABLE `types` (
+`name` VARCHAR(64),
+`origin_demonym` VARCHAR(64),
+PRIMARY KEY (`name`, `origin_demonym`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password_hash` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_following_series` (
+`user_id` INT,
+`series_id` INT,
+PRIMARY KEY (`user_id`, `series_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_groups` (
+`user_id` INT,
+`group_name` VARCHAR(64),
+PRIMARY KEY (`user_id`, `group_name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_645407_schema') AS relationships;
+relationships
+Database: db_645407_schema
+
+Table Connections:
+------------------
+[Implied]  groups_scanlation_urls.group_name -> groups_scanlation.name
+[Implied]  series.status -> statuses.name
+[Implied]  series_aliases.series_id -> series.id
+[Implied]  series_chapters.chapter_language -> languages.name
+[Implied]  series_chapters.series_id -> series.id
+[Implied]  series_chapters_files.chapter_id -> series_chapters_groups.chapter_id
+[Implied]  series_chapters_groups.chapter_id -> series_chapters_files.chapter_id
+[Implied]  series_chapters_groups.group_name -> groups_scanlation.name
+[Implied]  series_ratings.series_id -> series.id
+[Implied]  series_ratings.user_id -> users.id
+[Implied]  series_tags.series_id -> series.id
+[Implied]  users_following_series.series_id -> series.id
+[Implied]  users_following_series.user_id -> users.id
+[Implied]  users_groups.group_name -> groups_scanlation.name
+[Implied]  users_groups.user_id -> users.id
+
+DROP DATABASE `db_645407_schema`;
+UNINSTALL EXTENSION vsql_schematron;

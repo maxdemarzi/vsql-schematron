@@ -1,0 +1,127 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 632036_Create_table
+#
+CREATE DATABASE `db_632036_Create_table`;
+USE `db_632036_Create_table`;
+CREATE TABLE `User` (
+`UserId` INT,
+`Email` VARCHAR(64),
+`Address` VARCHAR(64),
+`Phone_Number` INT,
+`Password` VARCHAR(64),
+`Username` VARCHAR(64),
+`Value` INT,
+PRIMARY KEY (`UserId`)
+) CHARACTER SET latin1;
+CREATE TABLE `EmployerMembership` (
+`Genre` VARCHAR(64),
+`MonthlyFee` DECIMAL(10,2),
+`MaxJobPost` INT,
+PRIMARY KEY (`Genre`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employer` (
+`Employer_ID` INT,
+`Description` VARCHAR(64),
+`Name` VARCHAR(64),
+`Emoloyer_Balance` DECIMAL(10,2),
+`EmMembershipStartTime` DATETIME,
+`UserId` INT,
+`GenreEm` VARCHAR(64),
+`EmployerStatus` VARCHAR(64),
+`FrozenTime` DATETIME,
+PRIMARY KEY (`Employer_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CandidateMembership` (
+`Genre` VARCHAR(64),
+`MonthlyFee` DECIMAL(10,2),
+`MaxJobApply` INT,
+PRIMARY KEY (`Genre`)
+) CHARACTER SET latin1;
+CREATE TABLE `Candidate` (
+`Candidate_ID` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`Candidate_Balance` DECIMAL(10,2),
+`CanMembershipStartTime` DATETIME,
+`UserId` INT,
+`GenreCan` VARCHAR(64),
+`CandidateStatus` VARCHAR(64),
+`FrozenTime` DATETIME,
+PRIMARY KEY (`Candidate_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `JobCategory` (
+`Genre` VARCHAR(64),
+`Name` VARCHAR(64),
+PRIMARY KEY (`Genre`)
+) CHARACTER SET latin1;
+CREATE TABLE `Admin` (
+`Admin_ID` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`UserID` INT,
+PRIMARY KEY (`Admin_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Job` (
+`Job_ID` INT,
+`Vacancies` INT,
+`JobStatus` BOOL,
+`Title` VARCHAR(64),
+`Description` VARCHAR(64),
+`Post_Date` DATETIME,
+`Location` VARCHAR(64),
+`PostEmployer_ID` INT,
+`GenreJob` VARCHAR(64),
+PRIMARY KEY (`Job_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Payment` (
+`Payment_ID` INT,
+`Amount` DECIMAL(10,2),
+`PaymentCreateDate` DATETIME,
+`UserId` INT,
+PRIMARY KEY (`Payment_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PayMenthod` (
+`Paymthod_ID` INT,
+`Card_Number` VARCHAR(64),
+`CVV_Number` VARCHAR(64),
+`ExpireDate` DATETIME,
+`DefaultCard` BOOL,
+`AutoManual` BOOL,
+`UserId` INT,
+`Payment_ID` INT,
+PRIMARY KEY (`Paymthod_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PadInformation` (
+`AccountNumber` INT,
+`BranchNumber` INT,
+`InstituteNumber` INT,
+`PayMethod_ID` INT,
+PRIMARY KEY (`PayMethod_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Application` (
+`ApplicationStatus` VARCHAR(64),
+`ApplicationDate` DATETIME,
+`Job_ID` INT,
+`Candidate_ID` INT,
+PRIMARY KEY (`Job_ID`, `Candidate_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_632036_Create_table') AS relationships;
+relationships
+Database: db_632036_Create_table
+
+Table Connections:
+------------------
+[Implied]  Admin.UserID -> User.UserId
+[Implied]  Application.Candidate_ID -> Candidate.Candidate_ID
+[Implied]  Application.Job_ID -> Job.Job_ID
+[Implied]  Candidate.GenreCan -> CandidateMembership.Genre
+[Implied]  Candidate.UserId -> User.UserId
+[Implied]  Employer.UserId -> User.UserId
+[Implied]  Job.PostEmployer_ID -> Employer.Employer_ID
+[Implied]  PayMenthod.Payment_ID -> Payment.Payment_ID
+[Implied]  PayMenthod.UserId -> User.UserId
+[Implied]  Payment.UserId -> User.UserId
+
+DROP DATABASE `db_632036_Create_table`;
+UNINSTALL EXTENSION vsql_schematron;

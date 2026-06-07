@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 546030_migration
+#
+CREATE DATABASE `db_546030_migration`;
+USE `db_546030_migration`;
+CREATE TABLE `DevelopmentField` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `DevelopmentTool` (
+`id` INT,
+`name` VARCHAR(64),
+`developmentFieldId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `SoftwarePlatform` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Project` (
+`id` INT,
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`repo` VARCHAR(64),
+`logo` VARCHAR(64),
+`intro` VARCHAR(64),
+`language` VARCHAR(64),
+`coverUrl` VARCHAR(64),
+`description` VARCHAR(64),
+`dockerHubUrl` VARCHAR(64),
+`downloadUrl` VARCHAR(64),
+`tags` VARCHAR(64),
+`screenshots` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_DevelopmentToolToProject` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_ProjectToSoftwarePlatform` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_546030_migration') AS relationships;
+relationships
+Database: db_546030_migration
+
+Table Connections:
+------------------
+[Implied]  DevelopmentTool.developmentFieldId -> DevelopmentField.id
+[Implied]  _ProjectToSoftwarePlatform.A -> Project.id
+[Implied]  _ProjectToSoftwarePlatform.B -> SoftwarePlatform.id
+
+DROP DATABASE `db_546030_migration`;
+UNINSTALL EXTENSION vsql_schematron;

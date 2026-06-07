@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 164401_krusty
+#
+CREATE DATABASE `db_164401_krusty`;
+USE `db_164401_krusty`;
+CREATE TABLE `units` (
+`unit` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`unit`)
+) CHARACTER SET latin1;
+CREATE TABLE `ingredients` (
+`id` INT,
+`ingredient` VARCHAR(64),
+`quantity` INT,
+`last_delivered_quantity` INT,
+`last_delivered_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`product` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipes` (
+`productId` INT,
+`ingredientId` INT,
+`quantity` INT,
+`unit` INT
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`customer` INT,
+`delivery_date` DATETIME,
+`created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_164401_krusty') AS relationships;
+relationships
+Database: db_164401_krusty
+
+Table Connections:
+------------------
+[Implied]  recipes.ingredientId -> ingredients.id
+[Implied]  recipes.productId -> products.id
+
+DROP DATABASE `db_164401_krusty`;
+UNINSTALL EXTENSION vsql_schematron;

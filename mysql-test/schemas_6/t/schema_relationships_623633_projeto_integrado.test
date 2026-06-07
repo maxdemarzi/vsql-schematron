@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 623633_projeto_integrado
+--echo #
+CREATE DATABASE `db_623633_projeto_integrado`;
+USE `db_623633_projeto_integrado`;
+
+CREATE TABLE `projeto` (
+  `codigo` INT,
+  `nome_projeto` VARCHAR(64),
+  `nome_responsavel` VARCHAR(64),
+  `email_responsavel` VARCHAR(64),
+  `data_inicio` DATETIME,
+  `data_fim` DATETIME,
+  `situacao` VARCHAR(64),
+  PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tcc` (
+  `codigo` INT,
+  `titulo` VARCHAR(64),
+  `autor` VARCHAR(64),
+  `situacao` VARCHAR(64),
+  `fk_projeto_codigo` INT,
+  PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `artigo` (
+  `codigo` INT,
+  `titulo` VARCHAR(64),
+  `natureza` VARCHAR(64),
+  `autor` VARCHAR(64),
+  `email_autor` VARCHAR(64),
+  `fk_projeto_codigo` INT,
+  PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `coautor` (
+  `codigo` INT,
+  `nome` VARCHAR(64),
+  `email` VARCHAR(64),
+  `fk_artigo_codigo` INT,
+  PRIMARY KEY (`codigo`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_623633_projeto_integrado') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_623633_projeto_integrado') AS relationships;
+DROP DATABASE `db_623633_projeto_integrado`;
+UNINSTALL EXTENSION vsql_schematron;

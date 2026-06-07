@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 151548_schema
+#
+CREATE DATABASE `db_151548_schema`;
+USE `db_151548_schema`;
+CREATE TABLE `Users` (
+`HID` INT,
+`UserName` VARCHAR(64),
+`Password` VARCHAR(64),
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+PRIMARY KEY (`HID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Events` (
+`EID` INT,
+`HostID` INT,
+`EventName` VARCHAR(64),
+`EventPassword` VARCHAR(64),
+`StartTime` DATETIME,
+`FinishTime` DATETIME,
+`EstimatedAttendeeNumber` INT,
+PRIMARY KEY (`EID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Feedback` (
+`FID` INT,
+`EventID` INT,
+`AttendeeName` VARCHAR(64),
+`Feedback` VARCHAR(64),
+`Mood` INT,
+`Answer` VARCHAR(64),
+`Additionals` VARCHAR(64),
+PRIMARY KEY (`FID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Template` (
+`TID` INT,
+`EventID` INT,
+`Question` VARCHAR(64),
+PRIMARY KEY (`TID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_151548_schema') AS relationships;
+relationships
+Database: db_151548_schema
+
+Table Connections:
+------------------
+[Implied]  Events.HostID -> Template.TID
+[Implied]  Feedback.AttendeeName -> Users.UserName
+[Implied]  Feedback.EventID -> Events.EID
+[Implied]  Template.EventID -> Events.EID
+
+DROP DATABASE `db_151548_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 113993_pas
+#
+CREATE DATABASE `db_113993_pas`;
+USE `db_113993_pas`;
+CREATE TABLE `application` (
+`application_number` INT,
+`applied_on` DATETIME,
+`full_name` VARCHAR(64),
+`surname` VARCHAR(64),
+`gender` VARCHAR(64),
+`date_of_birth` DATETIME,
+`mobile_number` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`email` VARCHAR(64),
+`address` VARCHAR(64),
+`state` VARCHAR(64),
+`citizenship` VARCHAR(64),
+`id_proof_number` VARCHAR(64),
+`voter_id` VARCHAR(64),
+`rpo_state` VARCHAR(64),
+`rpo_district` VARCHAR(64),
+`rpo_centre` VARCHAR(64),
+`passport_type` VARCHAR(64),
+`passport_booklet_pages` VARCHAR(64),
+`passport_photo` VARCHAR(64),
+`id_proof` VARCHAR(64),
+`address_proof` VARCHAR(64),
+`passport_number` VARCHAR(64),
+`status` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_token` (
+`email_id` VARCHAR(64),
+`token` VARCHAR(64),
+`last_signon` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `pending_activation` (
+`email_id` VARCHAR(64),
+`activation_code` VARCHAR(64),
+`gen_time` DATETIME,
+PRIMARY KEY (`email_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pending_password_reset` (
+`email_id` VARCHAR(64),
+`reset_code` VARCHAR(64),
+`gen_time` DATETIME,
+PRIMARY KEY (`email_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`email_id` VARCHAR(64),
+`pass_hash` VARCHAR(64),
+`role` VARCHAR(64),
+`active` VARCHAR(64),
+`first_name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`mobile_number` VARCHAR(64),
+PRIMARY KEY (`email_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_113993_pas') AS relationships;
+relationships
+Database: db_113993_pas
+
+Table Connections:
+------------------
+[Implied]  auth_token.email_id -> pending_activation.email_id
+[Implied]  auth_token.email_id -> pending_password_reset.email_id
+[Implied]  auth_token.email_id -> user.email_id
+
+DROP DATABASE `db_113993_pas`;
+UNINSTALL EXTENSION vsql_schematron;

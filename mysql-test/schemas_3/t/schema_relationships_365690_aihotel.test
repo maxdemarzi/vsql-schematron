@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 365690_aihotel
+--echo #
+CREATE DATABASE `db_365690_aihotel`;
+USE `db_365690_aihotel`;
+
+CREATE TABLE `aboc_user` (
+  `uid` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  `state` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `camerainfo` (
+  `cameraid` INT,
+  `location` VARCHAR(64),
+  PRIMARY KEY (`cameraid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `crowdinfo` (
+  `infoid` INT,
+  `cameraid` INT,
+  `peoplecount` VARCHAR(64),
+  `time` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `orderinfo` (
+  `orderid` INT,
+  `userid` INT,
+  `roomid` INT,
+  `money` INT,
+  `prolevel` INT,
+  `starttime` DATETIME,
+  `endtime` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `roominfo` (
+  `roomid` INT,
+  `userid` INT,
+  `roomnumber` VARCHAR(64),
+  `rent` INT,
+  `empty` INT,
+  `roomtype` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `userinfo` (
+  `userid` INT,
+  `age` INT,
+  `gender` INT,
+  `feature` VARCHAR(64),
+  `isvip` INT,
+  PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_365690_aihotel') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_365690_aihotel') AS relationships;
+DROP DATABASE `db_365690_aihotel`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 151006_add_table_bug102_new
+--echo #
+CREATE DATABASE `db_151006_add_table_bug102_new`;
+USE `db_151006_add_table_bug102_new`;
+
+CREATE TABLE `testtable` (
+  `field1` INT,
+  `field2` INT,
+  `field3` VARCHAR(64),
+  `field4` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `procedureresult$Operation` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `result_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_151006_add_table_bug102_new') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_151006_add_table_bug102_new') AS relationships;
+DROP DATABASE `db_151006_add_table_bug102_new`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 655662_migration
+--echo #
+CREATE DATABASE `db_655662_migration`;
+USE `db_655662_migration`;
+
+CREATE TABLE `User` (
+  `username` VARCHAR(64),
+  `uuid` VARCHAR(64),
+  `userid` INT,
+  PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Image` (
+  `image` VARCHAR(64),
+  `uuid` VARCHAR(64),
+  `imageid` INT,
+  `userid` INT,
+  PRIMARY KEY (`imageid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Role` (
+  `name` VARCHAR(64),
+  `roleid` INT,
+  `isAdmin` BOOL,
+  PRIMARY KEY (`roleid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `_RoleToUser` (
+  `A` INT,
+  `B` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_655662_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_655662_migration') AS relationships;
+DROP DATABASE `db_655662_migration`;
+UNINSTALL EXTENSION vsql_schematron;

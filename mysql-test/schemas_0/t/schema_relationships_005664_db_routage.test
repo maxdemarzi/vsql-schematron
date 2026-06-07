@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 005664_db_routage
+--echo #
+CREATE DATABASE `db_005664_db_routage`;
+USE `db_005664_db_routage`;
+
+CREATE TABLE `instance` (
+  `id` INT,
+  `nom` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `point` (
+  `id` INT,
+  `pointtype` INT,
+  `x` DECIMAL(10,2),
+  `y` DECIMAL(10,2),
+  `ninstance` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `depot` (
+  `npoint` INT,
+  PRIMARY KEY (`npoint`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `planning` (
+  `id` INT,
+  `cout` DECIMAL(10,2),
+  `ninstance` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vehicule` (
+  `id` INT,
+  `cout` DECIMAL(10,2),
+  `capaciteutilisee` INT,
+  `capacite` INT,
+  `ndepot` INT,
+  `nplanning` INT,
+  `ninstance` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `client` (
+  `demand` INT,
+  `position` INT,
+  `npoint` INT,
+  `nvehicule` INT,
+  PRIMARY KEY (`npoint`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `route` (
+  `id` INT,
+  `ndepart` INT,
+  `narrivee` INT,
+  `distance` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_005664_db_routage') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_005664_db_routage') AS relationships;
+DROP DATABASE `db_005664_db_routage`;
+UNINSTALL EXTENSION vsql_schematron;

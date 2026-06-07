@@ -1,0 +1,129 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 080662_test.sqlite
+--echo #
+CREATE DATABASE `db_080662_test_sqlite`;
+USE `db_080662_test_sqlite`;
+
+CREATE TABLE `song` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `name_for_sort` VARCHAR(64),
+  `file_path` VARCHAR(64),
+  `picture_id` DECIMAL(10,2),
+  `album_id` INT,
+  `year` INT,
+  `rating` INT,
+  `bpm` INT,
+  `comments` VARCHAR(64),
+  `size` INT,
+  `length` INT,
+  `date_modified` VARCHAR(64),
+  `date_added` VARCHAR(64),
+  `track_order` INT,
+  `play_count` INT,
+  `last_play_time` INT,
+  `skip_count` INT,
+  `last_skip_time` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `song_has_artist` (
+  `artist_id` INT,
+  `song_id` INT,
+  `order` INT,
+  PRIMARY KEY (`artist_id`, `song_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `song_has_genre` (
+  `song_id` INT,
+  `genre_id` INT,
+  `order` INT,
+  PRIMARY KEY (`song_id`, `genre_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `song_has_composer` (
+  `composer_id` INT,
+  `song_id` INT,
+  `order` INT,
+  PRIMARY KEY (`composer_id`, `song_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `album` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `name_for_sort` VARCHAR(64),
+  `picture_id` INT,
+  `track_number` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `folder` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `playlist_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `playlist_has_song` (
+  `playlist_id` INT,
+  `song_id` INT,
+  `order` INT,
+  PRIMARY KEY (`playlist_id`, `song_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `artist` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `surname` VARCHAR(64),
+  `name_for_sort` VARCHAR(64),
+  `picture_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `playlist` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `picture` (
+  `id` INT,
+  `path` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `composer` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `surname` VARCHAR(64),
+  `name_for_sort` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genre` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_080662_test_sqlite') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_080662_test_sqlite') AS relationships;
+DROP DATABASE `db_080662_test_sqlite`;
+UNINSTALL EXTENSION vsql_schematron;

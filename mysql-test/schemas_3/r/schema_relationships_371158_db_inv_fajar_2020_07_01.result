@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 371158_db_inv_fajar_2020-07-01
+#
+CREATE DATABASE `db_371158_db_inv_fajar_2020_07_01`;
+USE `db_371158_db_inv_fajar_2020_07_01`;
+CREATE TABLE `app_barang` (
+`part_name` VARCHAR(64),
+`part_number` VARCHAR(64),
+`minimum_stok` INT,
+`bom` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`part_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `app_barang_keluar` (
+`id` INT,
+`part_number` VARCHAR(64),
+`jumlah_barang_keluar` INT,
+`tanggal_keluar` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `app_barang_masuk` (
+`id` INT,
+`part_number` VARCHAR(64),
+`id_type` INT,
+`status_permintaan` VARCHAR(64),
+`jumlah_barang` INT,
+`status_barang` INT,
+`keterangan` VARCHAR(64),
+`tanggal_masuk` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `app_role` (
+`id_users_role` INT,
+`kategori` VARCHAR(64),
+PRIMARY KEY (`id_users_role`)
+) CHARACTER SET latin1;
+CREATE TABLE `app_type` (
+`id` INT,
+`jenis_type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `app_users` (
+`id` INT,
+`id_users_role` INT,
+`nama` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_371158_db_inv_fajar_2020_07_01') AS relationships;
+relationships
+Database: db_371158_db_inv_fajar_2020_07_01
+
+Table Connections:
+------------------
+[Implied]  app_barang_masuk.id_type -> app_type.id
+[Implied]  app_users.id_users_role -> app_role.id_users_role
+
+DROP DATABASE `db_371158_db_inv_fajar_2020_07_01`;
+UNINSTALL EXTENSION vsql_schematron;

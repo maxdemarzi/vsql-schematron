@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 021438_MLPA%20Data%20Model
+#
+CREATE DATABASE `db_021438_MLPA_20Data_20Model`;
+USE `db_021438_MLPA_20Data_20Model`;
+CREATE TABLE `genes` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `genes_variants` (
+`gene_id` INT,
+`variation_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `variations` (
+`id` INT,
+`variation` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `variations_results` (
+`variation_id` INT,
+`result_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `results` (
+`id` INT,
+`result` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `interpretations` (
+`id` INT,
+`interpretations` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `results_interpretations` (
+`result_id` INT,
+`interpretations_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_021438_MLPA_20Data_20Model') AS relationships;
+relationships
+Database: db_021438_MLPA_20Data_20Model
+
+Table Connections:
+------------------
+[Implied]  genes_variants.gene_id -> genes.id
+[Implied]  genes_variants.variation_id -> variations.id
+[Implied]  results_interpretations.interpretations_id -> interpretations.id
+[Implied]  results_interpretations.result_id -> results.id
+[Implied]  variations_results.result_id -> results.id
+[Implied]  variations_results.variation_id -> variations.id
+
+DROP DATABASE `db_021438_MLPA_20Data_20Model`;
+UNINSTALL EXTENSION vsql_schematron;

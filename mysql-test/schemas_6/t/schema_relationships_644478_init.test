@@ -1,0 +1,127 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 644478_init
+--echo #
+CREATE DATABASE `db_644478_init`;
+USE `db_644478_init`;
+
+CREATE TABLE `wms_request` (
+  `id` INT,
+  `md5` VARCHAR(64),
+  `ip` VARCHAR(64),
+  `request_time` DATETIME,
+  `request_method` VARCHAR(64),
+  `request` VARCHAR(64),
+  `wms_request_type` VARCHAR(64),
+  `wms_srs` INT,
+  `wms_bbox` VARCHAR(64),
+  `wms_width` INT,
+  `wms_height` INT,
+  `dpi` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wms_request_layer` (
+  `id` INT,
+  `request_id` INT,
+  `layer_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wfs_request` (
+  `id` INT,
+  `md5` VARCHAR(64),
+  `ip` VARCHAR(64),
+  `request_time` DATETIME,
+  `request_method` VARCHAR(64),
+  `request` VARCHAR(64),
+  `wfs_request_type` VARCHAR(64),
+  `wfs_srs` INT,
+  `wfs_bbox` VARCHAR(64),
+  `wfs_typename` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `document_request` (
+  `id` INT,
+  `md5` VARCHAR(64),
+  `ip` VARCHAR(64),
+  `request_time` DATETIME,
+  `request_method` VARCHAR(64),
+  `request` VARCHAR(64),
+  `document` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `owner_request` (
+  `id` INT,
+  `md5` VARCHAR(64),
+  `ip` VARCHAR(64),
+  `request_time` DATETIME,
+  `request_method` VARCHAR(64),
+  `request` VARCHAR(64),
+  `egrid` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dataservice_request` (
+  `id` INT,
+  `md5` VARCHAR(64),
+  `ip` VARCHAR(64),
+  `request_time` DATETIME,
+  `request_method` VARCHAR(64),
+  `request` VARCHAR(64),
+  `dataset` VARCHAR(64),
+  `filter` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `searchtext_request` (
+  `id` INT,
+  `md5` VARCHAR(64),
+  `ip` VARCHAR(64),
+  `request_time` DATETIME,
+  `request_method` VARCHAR(64),
+  `request` VARCHAR(64),
+  `searchtext` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `matomo_add_layer` (
+  `id` INT,
+  `year` INT,
+  `month` INT,
+  `layername` VARCHAR(64),
+  `acount` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `matomo_searchtext` (
+  `id` INT,
+  `year` INT,
+  `month` INT,
+  `searchtext` VARCHAR(64),
+  `acount` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_644478_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_644478_init') AS relationships;
+DROP DATABASE `db_644478_init`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 003138_migrate
+#
+CREATE DATABASE `db_003138_migrate`;
+USE `db_003138_migrate`;
+CREATE TABLE `user` (
+`id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`bio` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`id` INT,
+`username` VARCHAR(64),
+`text` VARCHAR(64),
+`timestamp` DATETIME,
+`comment_on` INT,
+`attachment` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hashtag` (
+`hashtag` VARCHAR(64),
+`occurence` INT,
+`last_updated` DATETIME,
+PRIMARY KEY (`hashtag`)
+) CHARACTER SET latin1;
+CREATE TABLE `post_have_hashtags` (
+`id_post` INT,
+`hashtag` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_003138_migrate') AS relationships;
+relationships
+Database: db_003138_migrate
+
+Table Connections:
+------------------
+[Implied]  post.comment_on -> post.id
+[Implied]  post.username -> user.username
+[Implied]  post_have_hashtags.hashtag -> hashtag.hashtag
+[Implied]  post_have_hashtags.id_post -> post.id
+
+DROP DATABASE `db_003138_migrate`;
+UNINSTALL EXTENSION vsql_schematron;

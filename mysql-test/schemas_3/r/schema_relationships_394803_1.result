@@ -1,0 +1,164 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 394803_1
+#
+CREATE DATABASE `db_394803_1`;
+USE `db_394803_1`;
+CREATE TABLE `abilities` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `natures` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ev_spreads` (
+`id` INT,
+`hp` INT,
+`attack` INT,
+`defence` INT,
+`spa` INT,
+`spd` INT,
+`speed` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `moves` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pokemon` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `generations` (
+`id` INT,
+`number` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tiers` (
+`id` INT,
+`name` VARCHAR(64),
+`generation_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `years` (
+`id` INT,
+`number` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `months` (
+`id` INT,
+`number` INT,
+`year_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tier_months` (
+`id` INT,
+`month_id` INT,
+`tier_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tier_ratings` (
+`id` INT,
+`no_of_battles` INT,
+`rating` INT,
+`tier_month_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stat_records` (
+`id` INT,
+`raw_usage` INT,
+`pokemon_id` INT,
+`tier_rating_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ability_records` (
+`id` INT,
+`number` DECIMAL(10,2),
+`ability_id` INT,
+`stat_record_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `check_records` (
+`id` INT,
+`matchup_occurences` INT,
+`kos_or_switches_caused` DECIMAL(10,2),
+`kos_or_switches_stddev` DECIMAL(10,2),
+`pokemon_id` INT,
+`stat_record_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item_records` (
+`id` INT,
+`number` DECIMAL(10,2),
+`item_id` INT,
+`stat_record_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lead_records` (
+`id` INT,
+`number` DECIMAL(10,2),
+`stat_record_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `move_records` (
+`id` INT,
+`number` DECIMAL(10,2),
+`move_id` INT,
+`stat_record_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `spread_records` (
+`id` INT,
+`number` DECIMAL(10,2),
+`ev_spread_id` INT,
+`nature_id` INT,
+`stat_record_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teammate_records` (
+`id` INT,
+`number` DECIMAL(10,2),
+`pokemon_id` INT,
+`stat_record_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_394803_1') AS relationships;
+relationships
+Database: db_394803_1
+
+Table Connections:
+------------------
+[Implied]  ability_records.ability_id -> abilities.id
+[Implied]  ability_records.stat_record_id -> stat_records.id
+[Implied]  check_records.pokemon_id -> pokemon.id
+[Implied]  check_records.stat_record_id -> stat_records.id
+[Implied]  item_records.item_id -> items.id
+[Implied]  item_records.stat_record_id -> stat_records.id
+[Implied]  lead_records.stat_record_id -> stat_records.id
+[Implied]  months.year_id -> years.id
+[Implied]  move_records.move_id -> moves.id
+[Implied]  move_records.stat_record_id -> stat_records.id
+[Implied]  spread_records.ev_spread_id -> ev_spreads.id
+[Implied]  spread_records.nature_id -> natures.id
+[Implied]  spread_records.stat_record_id -> stat_records.id
+[Implied]  stat_records.pokemon_id -> pokemon.id
+[Implied]  stat_records.tier_rating_id -> tier_ratings.id
+[Implied]  teammate_records.pokemon_id -> pokemon.id
+[Implied]  teammate_records.stat_record_id -> stat_records.id
+[Implied]  tier_months.month_id -> months.id
+[Implied]  tier_months.tier_id -> tiers.id
+[Implied]  tier_ratings.tier_month_id -> tier_months.id
+[Implied]  tiers.generation_id -> generations.id
+
+DROP DATABASE `db_394803_1`;
+UNINSTALL EXTENSION vsql_schematron;

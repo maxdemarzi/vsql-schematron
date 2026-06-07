@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 095129_db_setup
+#
+CREATE DATABASE `db_095129_db_setup`;
+USE `db_095129_db_setup`;
+CREATE TABLE `webShop.role` (
+`idRole` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`idRole`)
+) CHARACTER SET latin1;
+CREATE TABLE `webShop.item` (
+`idItem` INT,
+`count` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`isActive` INT,
+`picture` VARCHAR(64),
+`thumb` VARCHAR(64),
+PRIMARY KEY (`idItem`)
+) CHARACTER SET latin1;
+CREATE TABLE `webShop.orderLocation` (
+`idOrderLocation` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`idOrderLocation`)
+) CHARACTER SET latin1;
+CREATE TABLE `webShop.tbl_order` (
+`idOrder` INT,
+`webShopUser_idWebShopUser` INT,
+`eventName` VARCHAR(64),
+`eventPlace` VARCHAR(64),
+`pickUpDatetime` DATETIME,
+`returnDatetime` DATETIME,
+`orderLocation_idOrderLocation` INT,
+`isReady` INT,
+`isReturned` INT,
+PRIMARY KEY (`idOrder`)
+) CHARACTER SET latin1;
+CREATE TABLE `webShop.order_has_item` (
+`order_idOrder` INT,
+`item_idItem` INT,
+`quantity` INT,
+PRIMARY KEY (`order_idOrder`, `item_idItem`)
+) CHARACTER SET latin1;
+CREATE TABLE `webShop.category` (
+`idCategory` INT,
+`name` VARCHAR(64),
+`category_idCategory` INT,
+PRIMARY KEY (`idCategory`)
+) CHARACTER SET latin1;
+CREATE TABLE `webShop.item_has_category` (
+`item_idItem` INT,
+`category_idCategory` INT,
+PRIMARY KEY (`item_idItem`, `category_idCategory`)
+) CHARACTER SET latin1;
+CREATE TABLE `webShop.passwordResetToken` (
+`token` VARCHAR(64),
+`webShopUser_idWebShopUser` INT,
+`expire` DATETIME,
+PRIMARY KEY (`token`)
+) CHARACTER SET latin1;
+CREATE TABLE `webShop.rememberMeToken` (
+`token` VARCHAR(64),
+`webShopUser_idWebShopUser` INT,
+`expire` DATETIME,
+PRIMARY KEY (`token`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_095129_db_setup') AS relationships;
+relationships
+Database: db_095129_db_setup
+
+Table Connections:
+------------------
+[Implied]  webShop.category.category_idCategory -> webShop.item_has_category.category_idCategory
+[Implied]  webShop.item_has_category.category_idCategory -> webShop.category.idCategory
+[Implied]  webShop.item_has_category.item_idItem -> webShop.item.idItem
+[Implied]  webShop.order_has_item.item_idItem -> webShop.item.idItem
+[Implied]  webShop.order_has_item.order_idOrder -> webShop.tbl_order.idOrder
+[Implied]  webShop.tbl_order.orderLocation_idOrderLocation -> webShop.orderLocation.idOrderLocation
+
+DROP DATABASE `db_095129_db_setup`;
+UNINSTALL EXTENSION vsql_schematron;

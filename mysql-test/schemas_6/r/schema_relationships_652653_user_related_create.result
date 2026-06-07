@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 652653_user-related-create
+#
+CREATE DATABASE `db_652653_user_related_create`;
+USE `db_652653_user_related_create`;
+CREATE TABLE `game` (
+`id` INT,
+`announce_date` VARCHAR(64),
+`branch` VARCHAR(64),
+`description` VARCHAR(64),
+`developer_id` INT,
+`discount_end` VARCHAR(64),
+`discount_rate` DECIMAL(10,2),
+`discount_start` VARCHAR(64),
+`front_image` VARCHAR(64),
+`name` VARCHAR(64),
+`price` DECIMAL(10,2),
+`release_date` VARCHAR(64),
+`score` DECIMAL(10,2),
+`tag` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `game_comment` (
+`game_comment_id` INT,
+`content` VARCHAR(64),
+`game_id` INT,
+`grade` DECIMAL(10,2),
+`user_id` INT,
+`visible` BOOL,
+PRIMARY KEY (`game_comment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `game_content` (
+`id` INT,
+`game_id` INT,
+`name` VARCHAR(64),
+`path` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `game_game_contents` (
+`game_id` INT,
+`game_contents_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `hibernate_sequence` (
+`next_val` INT
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`balance` DECIMAL(10,2),
+`role` VARCHAR(64),
+`avatar` VARCHAR(64),
+`bio` VARCHAR(64),
+`online` BOOL,
+`locked` BOOL,
+`created_at` DATETIME,
+`last_online` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_friends` (
+`from_user_id` INT,
+`to_user_id` INT,
+`status` VARCHAR(64),
+PRIMARY KEY (`from_user_id`, `to_user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_purchases` (
+`id` INT,
+`user_id` INT,
+`balance_change` DECIMAL(10,2),
+`created_at` DATETIME,
+`rest_balance` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_games` (
+`user_id` INT,
+`game_id` INT,
+`purchase_id` INT,
+`valid` INT,
+`user_tag` VARCHAR(64),
+PRIMARY KEY (`user_id`, `game_id`, `valid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_652653_user_related_create') AS relationships;
+relationships
+Database: db_652653_user_related_create
+
+Table Connections:
+------------------
+[Implied]  game_comment.game_id -> game.id
+[Implied]  game_comment.user_id -> users.id
+[Implied]  game_content.game_id -> game.id
+[Implied]  game_game_contents.game_contents_id -> game_content.id
+[Implied]  game_game_contents.game_id -> game.id
+[Implied]  users_friends.from_user_id -> users.id
+[Implied]  users_friends.to_user_id -> users.id
+[Implied]  users_games.game_id -> game.id
+[Implied]  users_games.user_id -> users.id
+[Implied]  users_purchases.user_id -> users.id
+
+DROP DATABASE `db_652653_user_related_create`;
+UNINSTALL EXTENSION vsql_schematron;

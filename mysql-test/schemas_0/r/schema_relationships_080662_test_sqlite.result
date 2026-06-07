@@ -1,0 +1,118 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 080662_test.sqlite
+#
+CREATE DATABASE `db_080662_test_sqlite`;
+USE `db_080662_test_sqlite`;
+CREATE TABLE `song` (
+`id` INT,
+`name` VARCHAR(64),
+`name_for_sort` VARCHAR(64),
+`file_path` VARCHAR(64),
+`picture_id` DECIMAL(10,2),
+`album_id` INT,
+`year` INT,
+`rating` INT,
+`bpm` INT,
+`comments` VARCHAR(64),
+`size` INT,
+`length` INT,
+`date_modified` VARCHAR(64),
+`date_added` VARCHAR(64),
+`track_order` INT,
+`play_count` INT,
+`last_play_time` INT,
+`skip_count` INT,
+`last_skip_time` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `song_has_artist` (
+`artist_id` INT,
+`song_id` INT,
+`order` INT,
+PRIMARY KEY (`artist_id`, `song_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `song_has_genre` (
+`song_id` INT,
+`genre_id` INT,
+`order` INT,
+PRIMARY KEY (`song_id`, `genre_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `song_has_composer` (
+`composer_id` INT,
+`song_id` INT,
+`order` INT,
+PRIMARY KEY (`composer_id`, `song_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `album` (
+`id` INT,
+`name` VARCHAR(64),
+`name_for_sort` VARCHAR(64),
+`picture_id` INT,
+`track_number` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `folder` (
+`id` INT,
+`name` VARCHAR(64),
+`playlist_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `playlist_has_song` (
+`playlist_id` INT,
+`song_id` INT,
+`order` INT,
+PRIMARY KEY (`playlist_id`, `song_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `artist` (
+`id` INT,
+`first_name` VARCHAR(64),
+`surname` VARCHAR(64),
+`name_for_sort` VARCHAR(64),
+`picture_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `playlist` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `picture` (
+`id` INT,
+`path` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `composer` (
+`id` INT,
+`first_name` VARCHAR(64),
+`surname` VARCHAR(64),
+`name_for_sort` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `genre` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_080662_test_sqlite') AS relationships;
+relationships
+Database: db_080662_test_sqlite
+
+Table Connections:
+------------------
+[Implied]  album.picture_id -> picture.id
+[Implied]  artist.picture_id -> picture.id
+[Implied]  folder.playlist_id -> playlist.id
+[Implied]  playlist_has_song.playlist_id -> playlist.id
+[Implied]  playlist_has_song.song_id -> song.id
+[Implied]  song.album_id -> album.id
+[Implied]  song.picture_id -> picture.id
+[Implied]  song_has_artist.artist_id -> artist.id
+[Implied]  song_has_artist.song_id -> song.id
+[Implied]  song_has_composer.composer_id -> composer.id
+[Implied]  song_has_composer.song_id -> song.id
+[Implied]  song_has_genre.genre_id -> genre.id
+[Implied]  song_has_genre.song_id -> song.id
+
+DROP DATABASE `db_080662_test_sqlite`;
+UNINSTALL EXTENSION vsql_schematron;

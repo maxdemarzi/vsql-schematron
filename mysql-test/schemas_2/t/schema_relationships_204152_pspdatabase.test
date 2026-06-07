@@ -1,0 +1,143 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 204152_pspdatabase
+--echo #
+CREATE DATABASE `db_204152_pspdatabase`;
+USE `db_204152_pspdatabase`;
+
+CREATE TABLE `comments` (
+  `id` INT,
+  `description` VARCHAR(64),
+  `idea_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comments_flags` (
+  `id` INT,
+  `user_id` INT,
+  `comment_id` INT,
+  `flag_comment` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comments_likes` (
+  `id` INT,
+  `user_id` INT,
+  `comment_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ideas` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `subtopics_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ideas_flags` (
+  `id` INT,
+  `user_id` INT,
+  `idea_id` INT,
+  `idea_flag_description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ideas_likes` (
+  `id` INT,
+  `user_id` INT,
+  `idea_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ideas_loves` (
+  `id` INT,
+  `user_id` INT,
+  `idea_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `main_topics` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `active` BOOL,
+  `upcoming` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subcomments` (
+  `id` INT,
+  `description` VARCHAR(64),
+  `user_id` INT,
+  `comment_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subcomments_likes` (
+  `id` INT,
+  `user_id` INT,
+  `subcomment_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subflags` (
+  `id` INT,
+  `user_id` INT,
+  `subcomment_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subtopics` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `main_id` INT,
+  `active` BOOL,
+  `upcoming` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_filter` (
+  `id` INT,
+  `filter` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `address` VARCHAR(64),
+  `ward` INT,
+  `admin` BOOL,
+  `active` BOOL,
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `zipcode` VARCHAR(64),
+  `photo` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_204152_pspdatabase') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_204152_pspdatabase') AS relationships;
+DROP DATABASE `db_204152_pspdatabase`;
+UNINSTALL EXTENSION vsql_schematron;

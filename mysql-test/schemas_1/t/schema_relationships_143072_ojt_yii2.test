@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 143072_ojt_yii2
+--echo #
+CREATE DATABASE `db_143072_ojt_yii2`;
+USE `db_143072_ojt_yii2`;
+
+CREATE TABLE `auth_assignment` (
+  `item_name` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  `created_at` INT,
+  PRIMARY KEY (`item_name`, `user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_item` (
+  `name` VARCHAR(64),
+  `type` INT,
+  `description` VARCHAR(64),
+  `rule_name` VARCHAR(64),
+  `data` VARCHAR(64),
+  `created_at` INT,
+  `updated_at` INT,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_item_child` (
+  `parent` VARCHAR(64),
+  `child` VARCHAR(64),
+  PRIMARY KEY (`parent`, `child`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_rule` (
+  `name` VARCHAR(64),
+  `data` VARCHAR(64),
+  `created_at` INT,
+  `updated_at` INT,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `maintence` (
+  `id` INT,
+  `date` DATETIME,
+  `vehicle_type` INT,
+  `licence_plat` VARCHAR(64),
+  `explanation` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `migration` (
+  `version` VARCHAR(64),
+  `apply_time` INT,
+  PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schedule` (
+  `id` INT,
+  `id_booking` INT,
+  `id_vehicle` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `statusorder` (
+  `id` INT,
+  `des` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vehicle` (
+  `id` INT,
+  `licence_plat` VARCHAR(64),
+  `vehicle_type` VARCHAR(64),
+  `vehicle_status` VARCHAR(64),
+  `partner` VARCHAR(64),
+  `id_driver` INT,
+  `status_schedule` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_143072_ojt_yii2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_143072_ojt_yii2') AS relationships;
+DROP DATABASE `db_143072_ojt_yii2`;
+UNINSTALL EXTENSION vsql_schematron;

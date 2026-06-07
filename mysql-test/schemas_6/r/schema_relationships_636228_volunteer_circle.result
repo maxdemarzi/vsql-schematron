@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 636228_volunteer_circle
+#
+CREATE DATABASE `db_636228_volunteer_circle`;
+USE `db_636228_volunteer_circle`;
+CREATE TABLE `User` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`profile_pic` VARCHAR(64),
+`is_deleted` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Recommendation` (
+`user_id` INT,
+`recommended_by` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`user_id`, `recommended_by`)
+) CHARACTER SET latin1;
+CREATE TABLE `Connection` (
+`requester_id` INT,
+`recipient_id` INT,
+`state` VARCHAR(64),
+PRIMARY KEY (`requester_id`, `recipient_id`, `state`)
+) CHARACTER SET latin1;
+CREATE TABLE `Skill` (
+`id` INT,
+`user_id` INT,
+`name` VARCHAR(64),
+`validations` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Validation` (
+`skill_id` INT,
+`validated_by` INT,
+PRIMARY KEY (`skill_id`, `validated_by`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_636228_volunteer_circle') AS relationships;
+relationships
+Database: db_636228_volunteer_circle
+
+Table Connections:
+------------------
+[Implied]  Connection.recipient_id -> User.id
+[Implied]  Recommendation.recommended_by -> User.id
+[Implied]  Recommendation.user_id -> User.id
+[Implied]  Skill.user_id -> User.id
+[Implied]  Validation.skill_id -> Skill.id
+[Implied]  Validation.validated_by -> User.id
+
+DROP DATABASE `db_636228_volunteer_circle`;
+UNINSTALL EXTENSION vsql_schematron;

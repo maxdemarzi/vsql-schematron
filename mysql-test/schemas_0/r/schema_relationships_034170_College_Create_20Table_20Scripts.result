@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 034170_College-Create%20Table%20Scripts
+#
+CREATE DATABASE `db_034170_College_Create_20Table_20Scripts`;
+USE `db_034170_College_Create_20Table_20Scripts`;
+CREATE TABLE `STUDENT` (
+`USN` VARCHAR(64),
+`SNAME` VARCHAR(64),
+`ADDRESS` VARCHAR(64),
+`PHONE` INT,
+`GENDER` VARCHAR(64),
+PRIMARY KEY (`USN`)
+) CHARACTER SET latin1;
+CREATE TABLE `SEMSEC` (
+`SSID` VARCHAR(64),
+`SEM` INT,
+`SEC` VARCHAR(64),
+PRIMARY KEY (`SSID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CLASS` (
+`USN` VARCHAR(64),
+`SSID` VARCHAR(64),
+PRIMARY KEY (`USN`)
+) CHARACTER SET latin1;
+CREATE TABLE `SUBJECT` (
+`SUBCODE` VARCHAR(64),
+`TITLE` VARCHAR(64),
+`SEM` INT,
+`CREDITS` INT,
+PRIMARY KEY (`SUBCODE`)
+) CHARACTER SET latin1;
+CREATE TABLE `IAMARKS` (
+`USN` VARCHAR(64),
+`SUBCODE` VARCHAR(64),
+`SSID` VARCHAR(64),
+`TEST1` INT,
+`TEST2` INT,
+`TEST3` INT,
+`FINALIA` INT,
+PRIMARY KEY (`SUBCODE`, `USN`, `SSID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_034170_College_Create_20Table_20Scripts') AS relationships;
+relationships
+Database: db_034170_College_Create_20Table_20Scripts
+
+Table Connections:
+------------------
+[Implied]  CLASS.SSID -> SEMSEC.SSID
+[Implied]  IAMARKS.SSID -> SEMSEC.SSID
+[Implied]  IAMARKS.SUBCODE -> SUBJECT.SUBCODE
+[Implied]  IAMARKS.USN -> CLASS.USN
+[Implied]  IAMARKS.USN -> STUDENT.USN
+
+DROP DATABASE `db_034170_College_Create_20Table_20Scripts`;
+UNINSTALL EXTENSION vsql_schematron;

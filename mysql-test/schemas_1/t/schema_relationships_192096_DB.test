@@ -1,0 +1,134 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 192096_DB
+--echo #
+CREATE DATABASE `db_192096_DB`;
+USE `db_192096_DB`;
+
+CREATE TABLE `person` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `middle_name` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `birth_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `person_phone` (
+  `id` INT,
+  `phone_number` VARCHAR(64),
+  PRIMARY KEY (`id`, `phone_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `person_email` (
+  `id` INT,
+  `email_address` VARCHAR(64),
+  PRIMARY KEY (`id`, `email_address`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `player` (
+  `id` INT,
+  `postal_code` VARCHAR(64),
+  `city` VARCHAR(64),
+  `street` VARCHAR(64),
+  `house_number` VARCHAR(64),
+  `money_won` DECIMAL(10,2),
+  `rating` INT,
+  `iban_number` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `professional` (
+  `id` INT,
+  `nationality` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event_location` (
+  `id` INT,
+  `max_players` INT,
+  `postal_code` VARCHAR(64),
+  `city` VARCHAR(64),
+  `street` VARCHAR(64),
+  `house_number` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tournament` (
+  `id` INT,
+  `date` DATETIME,
+  `time` DATETIME,
+  `cost` DECIMAL(10,2),
+  `min_players` INT,
+  `min_age` INT,
+  `max_age` INT,
+  `location_id` INT,
+  `winner_id` INT,
+  `type` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tournament_entry` (
+  `reference_number` INT,
+  `player_id` INT,
+  `tournament_id` INT,
+  `date` DATETIME,
+  `has_paid` BOOL,
+  PRIMARY KEY (`reference_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tournament_table` (
+  `id` INT,
+  `tournament_id` INT,
+  `round` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tournament_table_player` (
+  `table_id` INT,
+  `player_id` INT,
+  `position` INT,
+  PRIMARY KEY (`table_id`, `player_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `masterclass` (
+  `id` INT,
+  `date` DATETIME,
+  `time` DATETIME,
+  `min_players` INT,
+  `min_rating` INT,
+  `location_id` INT,
+  `professional_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `masterclass_entry` (
+  `reference_number` INT,
+  `player_id` INT,
+  `masterclass_id` INT,
+  `date` DATETIME,
+  `has_paid` BOOL,
+  PRIMARY KEY (`reference_number`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_192096_DB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_192096_DB') AS relationships;
+DROP DATABASE `db_192096_DB`;
+UNINSTALL EXTENSION vsql_schematron;

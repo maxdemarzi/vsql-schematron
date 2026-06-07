@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 631926_Schema
+--echo #
+CREATE DATABASE `db_631926_Schema`;
+USE `db_631926_Schema`;
+
+CREATE TABLE `travelers` (
+  `traveler_id` INT,
+  `name` VARCHAR(64),
+  `photo_url` VARCHAR(64),
+  `points` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `places` (
+  `place_id` INT,
+  `name` VARCHAR(64),
+  `beenHere` INT,
+  `wantToGo` INT,
+  `photoURL` VARCHAR(64),
+  `description` VARCHAR(64),
+  `date` VARCHAR(64),
+  `points` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `friends` (
+  `friend1` INT,
+  `friend2` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `traveler_places` (
+  `traveler` INT,
+  `place` INT,
+  `date` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_631926_Schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_631926_Schema') AS relationships;
+DROP DATABASE `db_631926_Schema`;
+UNINSTALL EXTENSION vsql_schematron;

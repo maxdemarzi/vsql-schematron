@@ -1,0 +1,156 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 037768_schema
+#
+CREATE DATABASE `db_037768_schema`;
+USE `db_037768_schema`;
+CREATE TABLE `category` (
+`id` INT,
+`description` VARCHAR(64),
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `credit_cards` (
+`id` INT,
+`cvv` INT,
+`expiration_month` INT,
+`expiration_year` INT,
+`holder_name` VARCHAR(64),
+`number` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hibernate_sequence` (
+`next_val` INT
+) CHARACTER SET latin1;
+CREATE TABLE `platform` (
+`id` INT,
+`description` VARCHAR(64),
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `application` (
+`id` INT,
+`company` VARCHAR(64),
+`description` VARCHAR(64),
+`income_estimation` INT,
+`language` VARCHAR(64),
+`name` VARCHAR(64),
+`oculusdbid` VARCHAR(64),
+`picture` VARCHAR(64),
+`price` DECIMAL(10,2),
+`release_date` DATETIME,
+`sales_estimations` INT,
+`total_reviews` INT,
+`type_of_app` INT,
+`type_of_gameplay` INT,
+`website` VARCHAR(64),
+`category_id` INT,
+`platform_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `application_positive_words` (
+`application_id` INT,
+`positive_words_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `application_negative_words` (
+`application_id` INT,
+`negative_words_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`content` VARCHAR(64),
+`title` VARCHAR(64),
+`application_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reviews` (
+`id` INT,
+`content` VARCHAR(64),
+`oculus_id` VARCHAR(64),
+`publish_date` DATETIME,
+`title` VARCHAR(64),
+`usefull` BOOL,
+`application_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_account` (
+`id` INT,
+`authority` VARCHAR(64),
+`nick` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `administrator` (
+`id` INT,
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`user_account_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `developer` (
+`id` INT,
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`company` VARCHAR(64),
+`company_description` VARCHAR(64),
+`webpage` VARCHAR(64),
+`user_account_id` INT,
+`credit_card_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sponsors` (
+`id` INT,
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`user_account_id` INT,
+`credit_card_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sponsorship` (
+`id` INT,
+`attachmenturl` VARCHAR(64),
+`title` VARCHAR(64),
+`sponsor_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`user_account_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `word` (
+`id` INT,
+`letters` VARCHAR(64),
+`repeats` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_037768_schema') AS relationships;
+relationships
+Database: db_037768_schema
+
+Table Connections:
+------------------
+[Implied]  administrator.user_account_id -> user_account.id
+[Implied]  application.category_id -> category.id
+[Implied]  application.platform_id -> platform.id
+[Implied]  application_negative_words.application_id -> application.id
+[Implied]  application_negative_words.negative_words_id -> word.id
+[Implied]  application_positive_words.application_id -> application.id
+[Implied]  application_positive_words.positive_words_id -> word.id
+[Implied]  comments.application_id -> application.id
+[Implied]  developer.credit_card_id -> credit_cards.id
+[Implied]  developer.user_account_id -> user_account.id
+[Implied]  reviews.application_id -> application.id
+[Implied]  sponsors.credit_card_id -> credit_cards.id
+[Implied]  sponsors.user_account_id -> user_account.id
+[Implied]  sponsorship.sponsor_id -> sponsors.id
+[Implied]  users.user_account_id -> user_account.id
+
+DROP DATABASE `db_037768_schema`;
+UNINSTALL EXTENSION vsql_schematron;

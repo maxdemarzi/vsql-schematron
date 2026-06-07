@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 139486_Project4-PostgreSQL-ETL
+#
+CREATE DATABASE `db_139486_Project4_PostgreSQL_ETL`;
+USE `db_139486_Project4_PostgreSQL_ETL`;
+CREATE TABLE `state` (
+`id` INT,
+`state_abbrev` VARCHAR(64),
+`code` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `area` (
+`id` INT,
+`area_name` VARCHAR(64),
+`stateid` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `county` (
+`id` INT,
+`county_name` VARCHAR(64),
+`code` INT,
+`areaid` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `county_town` (
+`id` INT,
+`county_town_name` VARCHAR(64),
+`pop2010` INT,
+`countyid` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fmr` (
+`id` INT,
+`bedrooms` INT,
+`fmr` INT,
+`county_townid` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `staging` (
+`fips2000` VARCHAR(64),
+`fips2010` VARCHAR(64),
+`fmr2` VARCHAR(64),
+`fmr0` VARCHAR(64),
+`fmr1` VARCHAR(64),
+`fmr3` VARCHAR(64),
+`fmr4` VARCHAR(64),
+`county` VARCHAR(64),
+`state` VARCHAR(64),
+`cousub` VARCHAR(64),
+`countyname` VARCHAR(64),
+`metro_code` VARCHAR(64),
+`areaname` VARCHAR(64),
+`county_town_name` VARCHAR(64),
+`pop2010` VARCHAR(64),
+`state_alpha` VARCHAR(64),
+`fmr_type` VARCHAR(64),
+`metro` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_139486_Project4_PostgreSQL_ETL') AS relationships;
+relationships
+Database: db_139486_Project4_PostgreSQL_ETL
+
+Table Connections:
+------------------
+[Implied]  area.stateid -> state.id
+[Implied]  county.areaid -> area.id
+[Implied]  county_town.countyid -> county.id
+[Implied]  fmr.county_townid -> county.id
+
+DROP DATABASE `db_139486_Project4_PostgreSQL_ETL`;
+UNINSTALL EXTENSION vsql_schematron;

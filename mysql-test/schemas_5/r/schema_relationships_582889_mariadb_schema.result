@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 582889_mariadb-schema
+#
+CREATE DATABASE `db_582889_mariadb_schema`;
+USE `db_582889_mariadb_schema`;
+CREATE TABLE `Experiment` (
+`experimentId` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`experimentId`)
+) CHARACTER SET latin1;
+CREATE TABLE `ExperimentData` (
+`dataId` INT,
+`experimentId` INT,
+`name` VARCHAR(64),
+`version` INT,
+`location` VARCHAR(64),
+`type` VARCHAR(64),
+`contentType` VARCHAR(64),
+PRIMARY KEY (`dataId`)
+) CHARACTER SET latin1;
+CREATE TABLE `TimelineStep` (
+`stepId` INT,
+`experimentId` INT,
+`sequence` INT,
+`start` DATETIME,
+`end` DATETIME,
+`status` VARCHAR(64),
+`resultLog` VARCHAR(64),
+`processorName` VARCHAR(64),
+`processorVersion` VARCHAR(64),
+`processorLocation` VARCHAR(64),
+`parameters` VARCHAR(64),
+`parametersContentType` VARCHAR(64),
+`parametersDescriptionLocation` VARCHAR(64),
+`notes` VARCHAR(64),
+PRIMARY KEY (`stepId`)
+) CHARACTER SET latin1;
+CREATE TABLE `StepData` (
+`id` INT,
+`stepId` INT,
+`dataId` INT,
+`relationType` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ResultWatchers` (
+`stepId` INT,
+`resultEndpoint` VARCHAR(64),
+PRIMARY KEY (`stepId`)
+) CHARACTER SET latin1;
+CREATE TABLE `PluginEndpoints` (
+`id` INT,
+`url` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_582889_mariadb_schema') AS relationships;
+relationships
+Database: db_582889_mariadb_schema
+
+Table Connections:
+------------------
+[Implied]  ExperimentData.experimentId -> Experiment.experimentId
+[Implied]  StepData.dataId -> ExperimentData.dataId
+[Implied]  StepData.stepId -> ResultWatchers.stepId
+[Implied]  StepData.stepId -> TimelineStep.stepId
+[Implied]  TimelineStep.experimentId -> Experiment.experimentId
+
+DROP DATABASE `db_582889_mariadb_schema`;
+UNINSTALL EXTENSION vsql_schematron;

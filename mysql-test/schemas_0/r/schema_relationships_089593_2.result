@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 089593_2
+#
+CREATE DATABASE `db_089593_2`;
+USE `db_089593_2`;
+CREATE TABLE `fabricante` (
+`codFabricante` INT,
+`nomeFabricante` VARCHAR(64),
+PRIMARY KEY (`codFabricante`)
+) CHARACTER SET latin1;
+CREATE TABLE `automovel` (
+`codAuto` INT,
+`codFabricante` INT,
+`modelo` VARCHAR(64),
+`ano` INT,
+`pais` VARCHAR(64),
+`preco_tabela` DECIMAL(10,2),
+PRIMARY KEY (`codAuto`)
+) CHARACTER SET latin1;
+CREATE TABLE `revendedora` (
+`cnpj` VARCHAR(64),
+`nome` VARCHAR(64),
+`cidade` VARCHAR(64),
+`estado` VARCHAR(64),
+PRIMARY KEY (`cnpj`)
+) CHARACTER SET latin1;
+CREATE TABLE `consumidor` (
+`identidade` VARCHAR(64),
+`nome` VARCHAR(64),
+`sobrenome` VARCHAR(64),
+PRIMARY KEY (`identidade`)
+) CHARACTER SET latin1;
+CREATE TABLE `negocio` (
+`codComprador` VARCHAR(64),
+`codRevenda` VARCHAR(64),
+`codAuto` INT,
+`data` DATETIME,
+`preco` DECIMAL(10,2),
+PRIMARY KEY (`codComprador`, `codRevenda`, `codAuto`, `data`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_089593_2') AS relationships;
+relationships
+Database: db_089593_2
+
+Table Connections:
+------------------
+[Implied]  automovel.codFabricante -> fabricante.codFabricante
+[Implied]  negocio.codAuto -> automovel.codAuto
+
+DROP DATABASE `db_089593_2`;
+UNINSTALL EXTENSION vsql_schematron;

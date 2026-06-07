@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 653394_create_tables
+#
+CREATE DATABASE `db_653394_create_tables`;
+USE `db_653394_create_tables`;
+CREATE TABLE `UserBlockstackIDs` (
+`id` INT,
+`BlockstackID` VARCHAR(64),
+`cid` INT,
+`updated_at` DATETIME,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserContacts` (
+`cid` INT,
+`Name` VARCHAR(64),
+`Gender` VARCHAR(64),
+`Birthday` DATETIME,
+`Hometown` VARCHAR(64),
+`Title` VARCHAR(64),
+`updated_at` DATETIME,
+`created_at` DATETIME,
+PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserEmails` (
+`id` INT,
+`cid` INT,
+`Email` VARCHAR(64),
+`updated_at` DATETIME,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserFollowers` (
+`id` INT,
+`cid` INT,
+`ProfileID` INT,
+`updated_at` DATETIME,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserImages` (
+`id` INT,
+`cid` INT,
+`pid` INT,
+`ResourceURI` VARCHAR(64),
+`updated_at` DATETIME,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserLoginTimes` (
+`id` INT,
+`cid` INT,
+`Login` DATETIME,
+`updated_at` DATETIME,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserPosts` (
+`id` INT,
+`cid` INT,
+`Content` VARCHAR(64),
+`updated_at` DATETIME,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_653394_create_tables') AS relationships;
+relationships
+Database: db_653394_create_tables
+
+Table Connections:
+------------------
+[Implied]  UserBlockstackIDs.cid -> UserContacts.cid
+[Implied]  UserEmails.cid -> UserContacts.cid
+[Implied]  UserFollowers.cid -> UserContacts.cid
+[Implied]  UserImages.cid -> UserContacts.cid
+[Implied]  UserImages.pid -> UserImages.id
+[Implied]  UserLoginTimes.cid -> UserContacts.cid
+[Implied]  UserPosts.cid -> UserContacts.cid
+
+DROP DATABASE `db_653394_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

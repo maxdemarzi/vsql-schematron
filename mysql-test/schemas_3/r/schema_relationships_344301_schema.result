@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 344301_schema
+#
+CREATE DATABASE `db_344301_schema`;
+USE `db_344301_schema`;
+CREATE TABLE `user` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`salt` VARCHAR(64),
+`reg_date` DATETIME,
+`mod_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_token` (
+`id` INT,
+`user_id` INT,
+`token` VARCHAR(64),
+`reg_date` DATETIME,
+`mod_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `article` (
+`id` INT,
+`uid` VARCHAR(64),
+`title` VARCHAR(64),
+`content` VARCHAR(64),
+`url` VARCHAR(64),
+`written_date` DATETIME,
+`used_in_train` BOOL,
+`reg_date` DATETIME,
+`mod_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `source` (
+`id` INT,
+`name` VARCHAR(64),
+`reg_date` DATETIME,
+`mod_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `crawled_from` (
+`id` INT,
+`article_id` INT,
+`source_id` INT,
+`reg_date` DATETIME,
+`mod_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `read_article` (
+`id` INT,
+`article_id` INT,
+`reader_id` INT,
+`reg_date` DATETIME,
+`mod_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `article_image` (
+`id` INT,
+`article_id` INT,
+`src` VARCHAR(64),
+`reg_date` DATETIME,
+`mod_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `similarity` (
+`id` INT,
+`article1_id` INT,
+`article2_id` INT,
+`similarity` DECIMAL(10,2),
+`reg_date` DATETIME,
+`mod_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_344301_schema') AS relationships;
+relationships
+Database: db_344301_schema
+
+Table Connections:
+------------------
+[Implied]  article_image.article_id -> article.id
+[Implied]  auth_token.user_id -> user.id
+[Implied]  crawled_from.article_id -> article.id
+[Implied]  crawled_from.source_id -> source.id
+[Implied]  read_article.article_id -> article.id
+[Implied]  similarity.article1_id -> article.id
+[Implied]  similarity.article2_id -> article.id
+
+DROP DATABASE `db_344301_schema`;
+UNINSTALL EXTENSION vsql_schematron;

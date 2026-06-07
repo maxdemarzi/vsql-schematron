@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 415545_schema_mysql
+--echo #
+CREATE DATABASE `db_415545_schema_mysql`;
+USE `db_415545_schema_mysql`;
+
+CREATE TABLE `entities` (
+  `entity_id` INT,
+  PRIMARY KEY (`entity_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `attributes` (
+  `attribute_name` VARCHAR(64),
+  `type` VARCHAR(64),
+  PRIMARY KEY (`attribute_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entity_attributes_id` (
+  `entity_id` INT,
+  `attribute_name` VARCHAR(64),
+  `attribute_value` INT,
+  PRIMARY KEY (`entity_id`, `attribute_name`, `attribute_value`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entity_attributes_str` (
+  `entity_id` INT,
+  `attribute_name` VARCHAR(64),
+  `attribute_value` VARCHAR(64),
+  PRIMARY KEY (`entity_id`, `attribute_name`, `attribute_value`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entity_attributes_float` (
+  `entity_id` INT,
+  `attribute_name` VARCHAR(64),
+  `attribute_value` DECIMAL(10,2),
+  PRIMARY KEY (`entity_id`, `attribute_name`, `attribute_value`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entity_attributes_bool` (
+  `entity_id` INT,
+  `attribute_name` VARCHAR(64),
+  `attribute_value` BOOL,
+  PRIMARY KEY (`entity_id`, `attribute_name`, `attribute_value`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_415545_schema_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_415545_schema_mysql') AS relationships;
+DROP DATABASE `db_415545_schema_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

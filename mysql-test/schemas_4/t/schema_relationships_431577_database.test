@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 431577_database
+--echo #
+CREATE DATABASE `db_431577_database`;
+USE `db_431577_database`;
+
+CREATE TABLE `products` (
+  `id` INT,
+  `productid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `num` INT,
+  `specifications` VARCHAR(64),
+  `notes` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `userid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `tel` INT,
+  `address` VARCHAR(64),
+  `notes` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `purchaseOrders` (
+  `id` INT,
+  `purchaseorderid` VARCHAR(64),
+  `time` DATETIME,
+  `state` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `purchaseOperations` (
+  `id` INT,
+  `purchaseoperationid` VARCHAR(64),
+  `purchaseOrderId` VARCHAR(64),
+  `productId` VARCHAR(64),
+  `salePrice` DECIMAL(10,2),
+  `num` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `saleOrders` (
+  `id` INT,
+  `saleorderid` VARCHAR(64),
+  `time` DATETIME,
+  `state` BOOL,
+  `userId` VARCHAR(64),
+  `selling` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `saleOperations` (
+  `id` INT,
+  `saleoperationid` VARCHAR(64),
+  `saleOrderId` VARCHAR(64),
+  `productId` VARCHAR(64),
+  `salePrice` DECIMAL(10,2),
+  `num` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `checkOuts` (
+  `id` INT,
+  `checkoutid` VARCHAR(64),
+  `saleOrderId` VARCHAR(64),
+  `time` DATETIME,
+  `amount` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_431577_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_431577_database') AS relationships;
+DROP DATABASE `db_431577_database`;
+UNINSTALL EXTENSION vsql_schematron;

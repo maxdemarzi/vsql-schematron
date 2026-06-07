@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 436592_1
+#
+CREATE DATABASE `db_436592_1`;
+USE `db_436592_1`;
+CREATE TABLE `star` (
+`id` INT,
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`flat_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `star_map` (
+`id` INT,
+`s3image_url` VARCHAR(64),
+`submission_id` VARCHAR(64),
+`job_id` VARCHAR(64),
+`job_status` VARCHAR(64),
+`image_annotations` VARCHAR(64),
+`user_id` INT,
+`created_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_info` (
+`id` INT,
+`type` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `star_map_star` (
+`star_map_id` INT,
+`star_id` INT,
+PRIMARY KEY (`star_map_id`, `star_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_436592_1') AS relationships;
+relationships
+Database: db_436592_1
+
+Table Connections:
+------------------
+[Implied]  star_map.user_id -> user_info.id
+[Implied]  star_map_star.star_id -> star.id
+[Implied]  star_map_star.star_map_id -> star.id
+
+DROP DATABASE `db_436592_1`;
+UNINSTALL EXTENSION vsql_schematron;

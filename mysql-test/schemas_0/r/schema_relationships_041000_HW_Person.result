@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 041000_HW_Person
+#
+CREATE DATABASE `db_041000_HW_Person`;
+USE `db_041000_HW_Person`;
+CREATE TABLE `PERSON` (
+`ID` VARCHAR(64),
+`Name` VARCHAR(64),
+`Street` VARCHAR(64),
+`City` VARCHAR(64),
+`Seat` VARCHAR(64),
+`Position` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CAR` (
+`Vin` VARCHAR(64),
+`Make` VARCHAR(64),
+`Model` VARCHAR(64),
+`Year` DATETIME,
+`Driver` VARCHAR(64),
+PRIMARY KEY (`Vin`)
+) CHARACTER SET latin1;
+CREATE TABLE `CAR_INSURANCE` (
+`Policy_number` VARCHAR(64),
+`Company_name` VARCHAR(64),
+`Insured_car` VARCHAR(64),
+PRIMARY KEY (`Policy_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `PHONE` (
+`ID` VARCHAR(64),
+`Number` VARCHAR(64),
+PRIMARY KEY (`ID`, `Number`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_041000_HW_Person') AS relationships;
+relationships
+Database: db_041000_HW_Person
+
+Table Connections:
+------------------
+[Implied]  CAR.Driver -> PERSON.ID
+[Implied]  CAR_INSURANCE.Insured_car -> CAR.Vin
+
+DROP DATABASE `db_041000_HW_Person`;
+UNINSTALL EXTENSION vsql_schematron;

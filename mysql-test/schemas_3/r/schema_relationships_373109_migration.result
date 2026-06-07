@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 373109_migration
+#
+CREATE DATABASE `db_373109_migration`;
+USE `db_373109_migration`;
+CREATE TABLE `GuildTrelloIntegration` (
+`id` INT,
+`key` VARCHAR(64),
+`token` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ArchiveSettings` (
+`id` INT,
+`enabled` BOOL
+) CHARACTER SET latin1;
+CREATE TABLE `ArchivedChannel` (
+`id` INT,
+`guild_id` INT,
+`name` VARCHAR(64),
+`topic` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `ArchivedMessage` (
+`id` INT,
+`guild_id` INT,
+`channel_id` INT,
+`author_id` INT,
+`content` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_373109_migration') AS relationships;
+relationships
+Database: db_373109_migration
+
+Table Connections:
+------------------
+[Implied]  ArchivedChannel.guild_id -> GuildTrelloIntegration.id
+[Implied]  ArchivedMessage.guild_id -> GuildTrelloIntegration.id
+
+DROP DATABASE `db_373109_migration`;
+UNINSTALL EXTENSION vsql_schematron;

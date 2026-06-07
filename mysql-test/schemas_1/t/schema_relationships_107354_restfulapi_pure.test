@@ -1,0 +1,139 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 107354_restfulapi-pure
+--echo #
+CREATE DATABASE `db_107354_restfulapi_pure`;
+USE `db_107354_restfulapi_pure`;
+
+CREATE TABLE `user_groups` (
+  `id` INT,
+  `title` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rights` (
+  `id` INT,
+  `title` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `classes` (
+  `id` INT,
+  `class` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `class_branches` (
+  `id` INT,
+  `class_branch` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `students_bind_classes` (
+  `student_id` INT,
+  `class` INT,
+  `class_branch` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `group_rights` (
+  `id` INT,
+  `group_id` INT,
+  `right_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `group_id` INT,
+  `user_uuid` VARCHAR(64),
+  `user_fullname` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `user_status` INT,
+  `created_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `institutions` (
+  `id` INT,
+  `city` VARCHAR(64),
+  `county` VARCHAR(64),
+  `institution_type` VARCHAR(64),
+  `institution_name` VARCHAR(64),
+  `web_address` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_bind_institutions` (
+  `user_id` INT,
+  `institution_id` INT,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `students_bind_teachers` (
+  `student_id` INT,
+  `teacher_id` INT,
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `info_systems` (
+  `id` INT,
+  `mac_address` VARCHAR(64),
+  `network_name` VARCHAR(64),
+  `os_name` VARCHAR(64),
+  `os_version` VARCHAR(64),
+  `created_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `log_files` (
+  `id` INT,
+  `user_id` INT,
+  `file_name` VARCHAR(64),
+  `mac_address` VARCHAR(64),
+  `file_status` INT,
+  `upload_type` VARCHAR(64),
+  `deleted_date` DATETIME,
+  `created_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `log_users` (
+  `id` INT,
+  `user_id` INT,
+  `mac_address` VARCHAR(64),
+  `process_name` VARCHAR(64),
+  `created_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `assignments` (
+  `id` INT,
+  `student_id` INT,
+  `teacher_id` VARCHAR(64),
+  `file_log_id` VARCHAR(64),
+  `created_date` DATETIME,
+  `updated_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_107354_restfulapi_pure') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_107354_restfulapi_pure') AS relationships;
+DROP DATABASE `db_107354_restfulapi_pure`;
+UNINSTALL EXTENSION vsql_schematron;

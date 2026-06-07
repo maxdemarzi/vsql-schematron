@@ -1,0 +1,209 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 556868_create
+#
+CREATE DATABASE `db_556868_create`;
+USE `db_556868_create`;
+CREATE TABLE `upload_addrs` (
+`id` INT,
+`address` VARCHAR(64),
+`fan_id` INT,
+`band_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bands` (
+`id` INT,
+`name` VARCHAR(64),
+`short_name` VARCHAR(64),
+`contact_email` VARCHAR(64),
+`zipcode` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`bio` VARCHAR(64),
+`salt` VARCHAR(64),
+`official_website` VARCHAR(64),
+`salted_password` VARCHAR(64),
+`security_token` VARCHAR(64),
+`token_expiry` DATETIME,
+`logo` VARCHAR(64),
+`confirmed` BOOL,
+`confirmation_code` VARCHAR(64),
+`claimed` BOOL,
+`created_on` DATETIME,
+`page_views` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `venues` (
+`id` INT,
+`name` VARCHAR(64),
+`url` VARCHAR(64),
+`address` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`zipcode` VARCHAR(64),
+`country` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`description` VARCHAR(64),
+`contact_email` VARCHAR(64),
+`latitude` VARCHAR(64),
+`longitude` VARCHAR(64),
+`page_views` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fans` (
+`id` INT,
+`name` VARCHAR(64),
+`real_name` VARCHAR(64),
+`contact_email` VARCHAR(64),
+`mobile_email` VARCHAR(64),
+`zipcode` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`bio` VARCHAR(64),
+`salt` VARCHAR(64),
+`website` VARCHAR(64),
+`salted_password` VARCHAR(64),
+`logo` VARCHAR(64),
+`confirmed` BOOL,
+`confirmation_code` VARCHAR(64),
+`security_token` VARCHAR(64),
+`token_expiry` DATETIME,
+`created_on` DATETIME,
+`page_views` INT,
+`last_favorites_email` DATETIME,
+`default_radius` INT,
+`wants_favorites_emails` BOOL,
+`admin` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`body` VARCHAR(64),
+`created_on` DATETIME,
+`show_id` INT,
+`band_id` INT,
+`venue_id` INT,
+`photo_id` INT,
+`created_by_fan_id` INT,
+`created_by_band_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags_bands` (
+`id` INT,
+`band_id` INT,
+`tag_id` INT,
+`tag_type` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags_venues` (
+`id` INT,
+`venue_id` INT,
+`tag_id` INT,
+`tag_type` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags_shows` (
+`id` INT,
+`show_id` INT,
+`tag_id` INT,
+`tag_type` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bands_shows` (
+`band_id` INT,
+`show_id` INT,
+`can_edit` BOOL,
+PRIMARY KEY (`band_id`, `show_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `band_services` (
+`id` INT,
+`band_id` INT,
+`myspace_username` VARCHAR(64),
+`myspace_password` VARCHAR(64),
+`purevolume_username` VARCHAR(64),
+`purevolume_password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bands_fans` (
+`band_id` INT,
+`fan_id` INT,
+PRIMARY KEY (`band_id`, `fan_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shows` (
+`id` INT,
+`cost` VARCHAR(64),
+`title` VARCHAR(64),
+`bands_playing_title` VARCHAR(64),
+`description` VARCHAR(64),
+`url` VARCHAR(64),
+`date` DATETIME,
+`page_views` INT,
+`venue_id` INT,
+`created_by_fan_id` INT,
+`created_by_band_id` INT,
+`created_by_system` BOOL,
+`created_on` DATETIME,
+`last_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fans_shows` (
+`show_id` INT,
+`fan_id` INT,
+PRIMARY KEY (`show_id`, `fan_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `photos` (
+`id` INT,
+`filename` VARCHAR(64),
+`description` VARCHAR(64),
+`created_on` DATETIME,
+`page_views` INT,
+`show_id` INT,
+`band_id` INT,
+`venue_id` INT,
+`created_by_fan_id` INT,
+`created_by_band_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_556868_create') AS relationships;
+relationships
+Database: db_556868_create
+
+Table Connections:
+------------------
+[Implied]  band_services.band_id -> bands.id
+[Implied]  bands_fans.band_id -> bands.id
+[Implied]  bands_fans.fan_id -> fans.id
+[Implied]  bands_shows.band_id -> bands.id
+[Implied]  bands_shows.show_id -> shows.id
+[Implied]  comments.band_id -> bands.id
+[Implied]  comments.created_by_band_id -> bands.id
+[Implied]  comments.created_by_fan_id -> fans.id
+[Implied]  comments.photo_id -> photos.id
+[Implied]  comments.show_id -> shows.id
+[Implied]  comments.venue_id -> venues.id
+[Implied]  fans_shows.fan_id -> fans.id
+[Implied]  fans_shows.show_id -> shows.id
+[Implied]  photos.band_id -> bands.id
+[Implied]  photos.created_by_band_id -> bands.id
+[Implied]  photos.created_by_fan_id -> fans.id
+[Implied]  photos.show_id -> shows.id
+[Implied]  photos.venue_id -> venues.id
+[Implied]  shows.created_by_band_id -> bands.id
+[Implied]  shows.created_by_fan_id -> fans.id
+[Implied]  shows.venue_id -> venues.id
+[Implied]  tags_bands.band_id -> bands.id
+[Implied]  tags_bands.tag_id -> tags.id
+[Implied]  tags_shows.show_id -> shows.id
+[Implied]  tags_shows.tag_id -> tags.id
+[Implied]  tags_venues.tag_id -> tags.id
+[Implied]  tags_venues.venue_id -> venues.id
+[Implied]  upload_addrs.band_id -> bands.id
+[Implied]  upload_addrs.fan_id -> fans.id
+
+DROP DATABASE `db_556868_create`;
+UNINSTALL EXTENSION vsql_schematron;

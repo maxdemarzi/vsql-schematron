@@ -1,0 +1,143 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 592072_seqdata
+--echo #
+CREATE DATABASE `db_592072_seqdata`;
+USE `db_592072_seqdata`;
+
+CREATE TABLE `browserwebsite` (
+  `id` INT,
+  `name` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `django_admin_log` (
+  `id` INT,
+  `action_time` DATETIME,
+  `object_id` VARCHAR(64),
+  `object_repr` VARCHAR(64),
+  `action_flag` INT,
+  `change_message` VARCHAR(64),
+  `content_type_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `django_session` (
+  `session_key` VARCHAR(64),
+  `session_data` VARCHAR(64),
+  `expire_date` DATETIME,
+  PRIMARY KEY (`session_key`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genomeTrackSidebar_aligntype` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genomeTrackSidebar_cellline` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genomeTrackSidebar_exptcondition` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genomeTrackSidebar_expttarget` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genomeTrackSidebar_expttype` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genomeTrackSidebar_genome` (
+  `id` INT,
+  `version` VARCHAR(64),
+  `species_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genomeTrackSidebar_lab` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genomeTrackSidebar_readtype` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genomeTrackSidebar_seqalignment` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `genome_id` INT,
+  `permissions` VARCHAR(64),
+  `aligntype_id` INT,
+  `numhits` INT,
+  `totalweight` DECIMAL(10,2),
+  `aligndir` VARCHAR(64),
+  `alignfile` VARCHAR(64),
+  `idxfile` VARCHAR(64),
+  `collabalignid` VARCHAR(64),
+  `expt_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genomeTrackSidebar_seqexpt` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `replicate` VARCHAR(64),
+  `species_id` INT,
+  `expttpe_id` INT,
+  `lab_id` INT,
+  `exptcondition_id` INT,
+  `expttarget_id` INT,
+  `cellline_id` INT,
+  `readtype_id` INT,
+  `readlength` INT,
+  `numreads` INT,
+  `collabid` VARCHAR(64),
+  `publicsource` VARCHAR(64),
+  `publicdbid` VARCHAR(64),
+  `fqfile` VARCHAR(64),
+  `exptnote` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genomeTrackSidebar_species` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_592072_seqdata') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_592072_seqdata') AS relationships;
+DROP DATABASE `db_592072_seqdata`;
+UNINSTALL EXTENSION vsql_schematron;

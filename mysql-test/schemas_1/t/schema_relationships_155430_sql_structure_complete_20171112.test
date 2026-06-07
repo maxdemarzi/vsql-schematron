@@ -1,0 +1,194 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 155430_sql_structure_complete_20171112
+--echo #
+CREATE DATABASE `db_155430_sql_structure_complete_20171112`;
+USE `db_155430_sql_structure_complete_20171112`;
+
+CREATE TABLE `adresses` (
+  `id` INT,
+  `street` VARCHAR(64),
+  `zipcode_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `knex_migrations` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `batch` INT,
+  `migration_time` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `knex_migrations_lock` (
+  `is_locked` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `messages` (
+  `id` INT,
+  `type` VARCHAR(64),
+  `header` VARCHAR(64),
+  `body` VARCHAR(64),
+  `sender_id` INT,
+  `receiver_id` INT,
+  `sent_at` DATETIME,
+  `received_at` DATETIME,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `parent_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permissions` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `real_estate_advertisements` (
+  `id` INT,
+  `real_estate_id` INT,
+  `user_id` INT,
+  `active_from` DATETIME,
+  `active_to` DATETIME,
+  `description` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `real_estate_agencies` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `adress_id` INT,
+  `phone` VARCHAR(64),
+  `mobile` VARCHAR(64),
+  `email` VARCHAR(64),
+  `register_court` VARCHAR(64),
+  `register_number` VARCHAR(64),
+  `website` VARCHAR(64),
+  `manager_id` INT,
+  `profilepicture` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `real_estate_medias` (
+  `id` INT,
+  `type` VARCHAR(64),
+  `path` VARCHAR(64),
+  `estate_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `real_estates` (
+  `id` INT,
+  `adress_id` INT,
+  `owner_id` INT,
+  `seller_id` INT,
+  `header` VARCHAR(64),
+  `description` VARCHAR(64),
+  `size` DECIMAL(10,2),
+  `cost` DECIMAL(10,2),
+  `running_cost` DECIMAL(10,2),
+  `isActive` INT,
+  `build_at` DATETIME,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_permissions` (
+  `id` INT,
+  `role_id` INT,
+  `permission_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `searches` (
+  `id` INT,
+  `user_id` INT,
+  `search` VARCHAR(64),
+  `type` VARCHAR(64),
+  `min_size` DECIMAL(10,2),
+  `max_size` DECIMAL(10,2),
+  `min_price` DECIMAL(10,2),
+  `max_price` DECIMAL(10,2),
+  `min_rooms` INT,
+  `max_rooms` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_families` (
+  `id` INT,
+  `type` VARCHAR(64),
+  `age` INT,
+  `usePublicTransport` INT,
+  `adress_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_roles` (
+  `id` INT,
+  `user_id` INT,
+  `role_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `salt` VARCHAR(64),
+  `password` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `mobile` VARCHAR(64),
+  `adress_id` INT,
+  `profilepicture` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `zipcodes` (
+  `id` INT,
+  `zipcode` VARCHAR(64),
+  `location` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_155430_sql_structure_complete_20171112') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_155430_sql_structure_complete_20171112') AS relationships;
+DROP DATABASE `db_155430_sql_structure_complete_20171112`;
+UNINSTALL EXTENSION vsql_schematron;

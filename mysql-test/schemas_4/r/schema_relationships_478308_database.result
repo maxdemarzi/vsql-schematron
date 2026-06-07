@@ -1,0 +1,173 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 478308_database
+#
+CREATE DATABASE `db_478308_database`;
+USE `db_478308_database`;
+CREATE TABLE `user_type` (
+`type_no` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`type_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_info` (
+`user_no` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`type_no` INT,
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`age` INT,
+`birthday` DATETIME,
+`gender` VARCHAR(64),
+`address` VARCHAR(64),
+`mobile_numbe` VARCHAR(64),
+`img_source` VARCHAR(64),
+`peso_address` VARCHAR(64),
+`is_online` BOOL,
+`verify` BOOL,
+`date_created` DATETIME,
+PRIMARY KEY (`user_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `currency_type` (
+`currency_type_id` INT,
+`name` VARCHAR(64),
+`icon` VARCHAR(64),
+PRIMARY KEY (`currency_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_wallet` (
+`user_no` INT,
+`currency_type_id` INT,
+`amount` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `ads_type` (
+`ads_type_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`ads_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction_type` (
+`transaction_type_id` INT,
+`code` VARCHAR(64),
+`ads_type_id` INT,
+`currency_type_id` INT,
+`duration` INT,
+`duration_unit` VARCHAR(64),
+`amount` DECIMAL(10,2),
+`url` VARCHAR(64),
+`content` VARCHAR(64),
+PRIMARY KEY (`transaction_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `deposit_transactions` (
+`transaction_id` INT,
+`user_no` INT,
+`transaction_type_id` INT,
+`deposit_date` DATETIME,
+`end_time` DATETIME,
+PRIMARY KEY (`transaction_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `days` (
+`_day` INT
+) CHARACTER SET latin1;
+CREATE TABLE `refer` (
+`refer_id` INT,
+`referedBy` INT,
+`user_no` INT,
+PRIMARY KEY (`refer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`event_no` INT,
+`event_name` VARCHAR(64),
+`started_date` DATETIME,
+`ended_date` DATETIME,
+`created_by` INT,
+PRIMARY KEY (`event_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `participant` (
+`event_no` INT,
+`user_no` INT
+) CHARACTER SET latin1;
+CREATE TABLE `raffle` (
+`raffle_id` INT,
+`code` VARCHAR(64),
+`image` VARCHAR(64),
+`prize` VARCHAR(64),
+`description` VARCHAR(64),
+`max_winner` INT,
+`raffle_draw` DATETIME,
+`date_created` DATETIME,
+`date_updated` DATETIME,
+`created_by` INT,
+PRIMARY KEY (`raffle_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `raffle_participant` (
+`p_no` INT,
+`raffle_id` INT,
+`fname` VARCHAR(64),
+`lname` VARCHAR(64),
+`fb_profile` VARCHAR(64),
+`email_address` VARCHAR(64),
+`date_created` DATETIME,
+PRIMARY KEY (`p_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `raffle_winner` (
+`p_no` INT,
+`date_created` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `temp_event` (
+`temp_no` INT,
+`temp_name` VARCHAR(64),
+PRIMARY KEY (`temp_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `temp` (
+`temp_event_no` INT,
+`temp_email` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`cat_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`cat_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pages` (
+`page_id` INT,
+`name` VARCHAR(64),
+`cat_id` INT,
+PRIMARY KEY (`page_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`post_id` INT,
+`title` VARCHAR(64),
+`thumbnail` VARCHAR(64),
+`content` VARCHAR(64),
+`user_no` INT,
+`cat_id` INT,
+PRIMARY KEY (`post_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_478308_database') AS relationships;
+relationships
+Database: db_478308_database
+
+Table Connections:
+------------------
+[Implied]  deposit_transactions.transaction_type_id -> transaction_type.transaction_type_id
+[Implied]  deposit_transactions.user_no -> refer.refer_id
+[Implied]  deposit_transactions.user_no -> user_info.user_no
+[Implied]  pages.cat_id -> categories.cat_id
+[Implied]  participant.event_no -> event.event_no
+[Implied]  participant.user_no -> refer.refer_id
+[Implied]  participant.user_no -> user_info.user_no
+[Implied]  post.cat_id -> categories.cat_id
+[Implied]  post.user_no -> refer.refer_id
+[Implied]  post.user_no -> user_info.user_no
+[Implied]  raffle_participant.raffle_id -> raffle.raffle_id
+[Implied]  raffle_winner.p_no -> raffle_participant.p_no
+[Implied]  raffle_winner.p_no -> refer.refer_id
+[Implied]  refer.user_no -> user_info.user_no
+[Implied]  temp.temp_event_no -> event.event_no
+[Implied]  transaction_type.ads_type_id -> ads_type.ads_type_id
+[Implied]  transaction_type.currency_type_id -> currency_type.currency_type_id
+[Implied]  user_info.type_no -> user_type.type_no
+[Implied]  user_wallet.currency_type_id -> currency_type.currency_type_id
+[Implied]  user_wallet.user_no -> refer.refer_id
+[Implied]  user_wallet.user_no -> user_info.user_no
+
+DROP DATABASE `db_478308_database`;
+UNINSTALL EXTENSION vsql_schematron;

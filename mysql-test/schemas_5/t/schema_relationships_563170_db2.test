@@ -1,0 +1,153 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 563170_db2
+--echo #
+CREATE DATABASE `db_563170_db2`;
+USE `db_563170_db2`;
+
+CREATE TABLE `user_role` (
+  `role_id` INT,
+  `role` VARCHAR(64),
+  PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `user_id` VARCHAR(64),
+  `role_id` INT,
+  `password` VARCHAR(64),
+  `status` INT,
+  `fname` VARCHAR(64),
+  `mname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `birthdate` DATETIME,
+  `contact_no` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course` (
+  `course_id` VARCHAR(64),
+  `course_name` VARCHAR(64),
+  PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `student` (
+  `student_id` VARCHAR(64),
+  `course_id` VARCHAR(64),
+  `year_level` INT,
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `instructor` (
+  `instructor_id` VARCHAR(64),
+  `position` VARCHAR(64),
+  PRIMARY KEY (`instructor_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `room_type` (
+  `room_type_id` INT,
+  `room_type` VARCHAR(64),
+  PRIMARY KEY (`room_type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `room` (
+  `room_id` VARCHAR(64),
+  `room_type` INT,
+  PRIMARY KEY (`room_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `subject` (
+  `subject_code` VARCHAR(64),
+  `subject_title` VARCHAR(64),
+  PRIMARY KEY (`subject_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `academic_year` (
+  `academic_year_id` INT,
+  `academic_year` VARCHAR(64),
+  PRIMARY KEY (`academic_year_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `semester` (
+  `semester_id` INT,
+  `semester` VARCHAR(64),
+  `academic_year_id` INT,
+  `start_date` DATETIME,
+  `end_date` DATETIME,
+  PRIMARY KEY (`semester_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `seat_plan` (
+  `seat_id` INT,
+  `row` INT,
+  `column` INT,
+  PRIMARY KEY (`seat_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `class` (
+  `class_id` INT,
+  `semester_id` INT,
+  `subject_code` VARCHAR(64),
+  `room_id` VARCHAR(64),
+  `instructor_id` VARCHAR(64),
+  `start_time` DATETIME,
+  `end_time` DATETIME,
+  PRIMARY KEY (`class_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `class_member` (
+  `student_id` VARCHAR(64),
+  `class_id` INT,
+  `status` VARCHAR(64),
+  `seat_id` INT,
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `attendance_status` (
+  `attendance_status` INT,
+  `definition` VARCHAR(64),
+  PRIMARY KEY (`attendance_status`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `attendance` (
+  `attendance_id` INT,
+  `class_id` INT,
+  `student_id` VARCHAR(64),
+  `attendance_datetime` DATETIME,
+  `attendance_status` INT,
+  PRIMARY KEY (`attendance_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `class_calendar` (
+  `class_calendar_id` INT,
+  `class_id` INT,
+  `event_date` DATETIME,
+  `event` VARCHAR(64),
+  PRIMARY KEY (`class_calendar_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `consultee` (
+  `consultation_id` INT,
+  `student_id` VARCHAR(64),
+  PRIMARY KEY (`consultation_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_563170_db2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_563170_db2') AS relationships;
+DROP DATABASE `db_563170_db2`;
+UNINSTALL EXTENSION vsql_schematron;

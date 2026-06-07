@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 634882_init
+#
+CREATE DATABASE `db_634882_init`;
+USE `db_634882_init`;
+CREATE TABLE `ll.languages` (
+`code` VARCHAR(64),
+`full_name` VARCHAR(64),
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+CREATE TABLE `ll.activities` (
+`activity` VARCHAR(64),
+`full_name` VARCHAR(64),
+PRIMARY KEY (`activity`)
+) CHARACTER SET latin1;
+CREATE TABLE `ll.questions` (
+`id` INT,
+`language1` VARCHAR(64),
+`language2` VARCHAR(64),
+`activity` VARCHAR(64),
+`question` VARCHAR(64),
+`note` VARCHAR(64),
+`answer1` VARCHAR(64),
+`answer2` VARCHAR(64),
+`answer3` VARCHAR(64),
+`answer4` VARCHAR(64),
+`answer5` VARCHAR(64),
+`date_added` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ll.users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`date_added` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ll.users_keys` (
+`user_id` INT,
+`unique_key` VARCHAR(64),
+`expiration` DATETIME,
+`date_connection` DATETIME,
+PRIMARY KEY (`user_id`, `unique_key`)
+) CHARACTER SET latin1;
+CREATE TABLE `ll.users_questions` (
+`user_id` INT,
+`question_id` INT,
+`mark` INT,
+PRIMARY KEY (`user_id`, `question_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ll.users_lessons` (
+`id` INT,
+`user_id` INT,
+`description` VARCHAR(64),
+`duration` INT,
+`percent` INT,
+`pinned` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ll.users_lessons_questions` (
+`user_lesson_id` INT,
+`question_id` INT,
+PRIMARY KEY (`user_lesson_id`, `question_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_634882_init') AS relationships;
+relationships
+Database: db_634882_init
+
+Table Connections:
+------------------
+[Implied]  ll.questions.activity -> ll.activities.activity
+[Implied]  ll.users_keys.user_id -> ll.users.id
+[Implied]  ll.users_lessons.user_id -> ll.users.id
+[Implied]  ll.users_lessons_questions.question_id -> ll.questions.id
+[Implied]  ll.users_lessons_questions.user_lesson_id -> ll.users.id
+[Implied]  ll.users_questions.question_id -> ll.questions.id
+[Implied]  ll.users_questions.user_id -> ll.users.id
+
+DROP DATABASE `db_634882_init`;
+UNINSTALL EXTENSION vsql_schematron;

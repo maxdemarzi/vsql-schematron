@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 159669_SQL%20Tables
+#
+CREATE DATABASE `db_159669_SQL_20Tables`;
+USE `db_159669_SQL_20Tables`;
+CREATE TABLE `staff` (
+`staff_ssn` INT,
+`staff_name` VARCHAR(64),
+`field` VARCHAR(64),
+`salary` INT,
+`rnk` INT,
+`course_load` INT,
+`work_hr` INT,
+PRIMARY KEY (`staff_ssn`)
+) CHARACTER SET latin1;
+CREATE TABLE `building` (
+`building_id` INT,
+`building_name` VARCHAR(64),
+`location` VARCHAR(64),
+PRIMARY KEY (`building_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `department` (
+`dept_id` INT,
+`dept_name` VARCHAR(64),
+`annual_budget` INT,
+`dept_chair` VARCHAR(64),
+`building_id` INT,
+PRIMARY KEY (`dept_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`course_no` INT,
+`course_name` VARCHAR(64),
+`year1` INT,
+`credit` INT,
+`ta_hr_req` INT,
+`dept_id` INT,
+PRIMARY KEY (`course_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `section` (
+`sec_no` INT,
+`course_no` INT,
+`year1` INT,
+`staff_ssn` INT,
+`current_enrolled` INT,
+`max_enroll` INT,
+PRIMARY KEY (`sec_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `registeration` (
+`s_id` INT,
+`sec_no` INT,
+`course_no` INT
+) CHARACTER SET latin1;
+CREATE TABLE `sectioninroom` (
+`building_id` INT,
+`room_no` INT,
+`course_no` INT,
+`sec_no` INT,
+`weekday1` VARCHAR(64),
+`time1` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_159669_SQL_20Tables') AS relationships;
+relationships
+Database: db_159669_SQL_20Tables
+
+Table Connections:
+------------------
+[Implied]  course.dept_id -> department.dept_id
+[Implied]  department.building_id -> building.building_id
+[Implied]  registeration.course_no -> course.course_no
+[Implied]  registeration.sec_no -> section.sec_no
+[Implied]  section.course_no -> course.course_no
+[Implied]  section.staff_ssn -> staff.staff_ssn
+[Implied]  sectioninroom.building_id -> building.building_id
+[Implied]  sectioninroom.course_no -> course.course_no
+[Implied]  sectioninroom.sec_no -> section.sec_no
+
+DROP DATABASE `db_159669_SQL_20Tables`;
+UNINSTALL EXTENSION vsql_schematron;

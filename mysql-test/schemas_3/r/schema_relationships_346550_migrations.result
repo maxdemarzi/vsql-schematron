@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 346550_migrations
+#
+CREATE DATABASE `db_346550_migrations`;
+USE `db_346550_migrations`;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`slug` VARCHAR(64),
+`bio` VARCHAR(64),
+`username` VARCHAR(64),
+`profilePic` VARCHAR(64),
+`isActive` INT,
+`resetToken` VARCHAR(64),
+`createdAt` DATETIME,
+`lastActive` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `followers` (
+`id` INT,
+`subjectId` INT,
+`userId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`userId` INT,
+`content` VARCHAR(64),
+`tags` VARCHAR(64),
+`img` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`postId` INT,
+`userId` INT,
+`content` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_346550_migrations') AS relationships;
+relationships
+Database: db_346550_migrations
+
+Table Connections:
+------------------
+[Implied]  comments.postId -> posts.id
+[Implied]  comments.userId -> followers.id
+[Implied]  followers.userId -> users.id
+[Implied]  posts.userId -> followers.id
+
+DROP DATABASE `db_346550_migrations`;
+UNINSTALL EXTENSION vsql_schematron;

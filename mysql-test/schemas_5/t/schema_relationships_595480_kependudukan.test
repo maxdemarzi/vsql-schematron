@@ -1,0 +1,131 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 595480_kependudukan
+--echo #
+CREATE DATABASE `db_595480_kependudukan`;
+USE `db_595480_kependudukan`;
+
+CREATE TABLE `admin` (
+  `username` VARCHAR(64),
+  `password` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `daftar_keluarga` (
+  `id` INT,
+  `KK_Lama` VARCHAR(64),
+  `nama` VARCHAR(64),
+  `jk` VARCHAR(64),
+  `tempat_lahir` VARCHAR(64),
+  `tanggal_lahir` DATETIME,
+  `agama` VARCHAR(64),
+  `pendidikan` VARCHAR(64),
+  `pekerjaan` VARCHAR(64),
+  `status_kawin` VARCHAR(64),
+  `shdk` VARCHAR(64),
+  `paspor` VARCHAR(64),
+  `kitas` VARCHAR(64),
+  `ayah` VARCHAR(64),
+  `ibu` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `data_penduduk` (
+  `No_KK` VARCHAR(64),
+  `Nama_Lengkap` VARCHAR(64),
+  `NIK` VARCHAR(64),
+  `Jenis_Kelamin` VARCHAR(64),
+  `Tempat_Lahir` VARCHAR(64),
+  `Tanggal_Lahir` DATETIME,
+  `Agama` VARCHAR(64),
+  `No_Telp` VARCHAR(64),
+  `No_RT` INT,
+  `No_RW` INT,
+  `Dusun` VARCHAR(64),
+  `Kode_pos` INT,
+  `Pendidikan` VARCHAR(64),
+  `Pekerjaan` VARCHAR(64),
+  `Gol_darah` VARCHAR(64),
+  `Status_kawin` VARCHAR(64),
+  `Tanggal_kawin` DATETIME,
+  `SHDK` VARCHAR(64),
+  `Status_keberadaan` VARCHAR(64),
+  PRIMARY KEY (`NIK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `informasi_desa` (
+  `id_info` INT,
+  `Judul` VARCHAR(64),
+  `Isi` VARCHAR(64),
+  PRIMARY KEY (`id_info`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kategori_miskin` (
+  `NIK` VARCHAR(64),
+  `Fasilitas_buang_air` VARCHAR(64),
+  `Luas_lantai` VARCHAR(64),
+  `Jenis_lantai` VARCHAR(64),
+  `Sumber_air_minum` VARCHAR(64),
+  `Jenis_dinding` VARCHAR(64),
+  `Sumber_penerangan` VARCHAR(64),
+  `BB_memasak` VARCHAR(64),
+  `Konsumsi_daging` VARCHAR(64),
+  `Satu_pakaian_pertahun` VARCHAR(64),
+  `Satudua_kali_makan` VARCHAR(64),
+  `Bayar_pengobatan` VARCHAR(64),
+  `Sumber_penghasilan_Kepala_RT` VARCHAR(64),
+  `Pendidikan_tertinggi_Kepala_RT` VARCHAR(64),
+  `TabunganBarang_Jual` VARCHAR(64),
+  PRIMARY KEY (`NIK`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `surat` (
+  `NIK_pemohon` VARCHAR(64),
+  `No_surat` INT,
+  `jenis_surat` VARCHAR(64),
+  `tanggal_pengajuan` DATETIME,
+  `tanggal_terima` DATETIME,
+  `Nama_lahir` VARCHAR(64),
+  `Jenis_kelamin` VARCHAR(64),
+  `Jam_lahir` DATETIME,
+  `Hari_lahir` VARCHAR(64),
+  `Tanggal_lahir` DATETIME,
+  `Tempat_lahir` VARCHAR(64),
+  `Nama_ayah` VARCHAR(64),
+  `Nama_ibu` VARCHAR(64),
+  `Anak_ke` INT,
+  `Tanggal_kematian` DATETIME,
+  `Hari_mati` VARCHAR(64),
+  `Sebab_kematian` VARCHAR(64),
+  `Lokasi_kematian` VARCHAR(64),
+  `Tanggal_menikah` DATETIME,
+  `Wali_dari` VARCHAR(64),
+  `Keperluan` VARCHAR(64),
+  `Status_perceraian` VARCHAR(64),
+  `NIK_suami` VARCHAR(64),
+  `NIK_istri` VARCHAR(64),
+  `KK_Lama` VARCHAR(64),
+  `NIK_KK_Lama` VARCHAR(64),
+  `KK_ditempati` VARCHAR(64),
+  `NIK_KK_ditempati` VARCHAR(64),
+  `Alasan` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_595480_kependudukan') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_595480_kependudukan') AS relationships;
+DROP DATABASE `db_595480_kependudukan`;
+UNINSTALL EXTENSION vsql_schematron;

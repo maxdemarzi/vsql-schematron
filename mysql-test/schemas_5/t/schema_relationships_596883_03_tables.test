@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 596883_03.tables
+--echo #
+CREATE DATABASE `db_596883_03_tables`;
+USE `db_596883_03_tables`;
+
+CREATE TABLE `concept_synonym` (
+  `dbid` INT,
+  `synonym` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `concept_definition` (
+  `dbid` INT,
+  `status` INT,
+  `type` INT,
+  `expression` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `attribute_expression` (
+  `dbid` INT,
+  `operator` INT,
+  `property` INT,
+  `value` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_group` (
+  `dbid` INT,
+  `attribute` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `concept_expression_definition` (
+  `dbid` INT,
+  `class` INT,
+  `attribute` INT,
+  `role_group` INT,
+  `expression` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `property_domain` (
+  `status` INT,
+  `concept` INT,
+  `property` INT,
+  `minimum` INT,
+  `maximum` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `data_type` (
+  `status` INT,
+  `data_type` INT,
+  `restriction` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_596883_03_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_596883_03_tables') AS relationships;
+DROP DATABASE `db_596883_03_tables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 335317_initDB
+--echo #
+CREATE DATABASE `db_335317_initDB`;
+USE `db_335317_initDB`;
+
+CREATE TABLE `plugin_data` (
+  `id` INT,
+  `version` INT,
+  `aspect_type` VARCHAR(64),
+  `start_time` INT,
+  `end_time` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sql_stmt_plugin` (
+  `id` INT,
+  `sql_stmt` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_335317_initDB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_335317_initDB') AS relationships;
+DROP DATABASE `db_335317_initDB`;
+UNINSTALL EXTENSION vsql_schematron;

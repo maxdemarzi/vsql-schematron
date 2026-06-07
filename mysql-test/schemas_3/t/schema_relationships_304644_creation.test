@@ -1,0 +1,142 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 304644_creation
+--echo #
+CREATE DATABASE `db_304644_creation`;
+USE `db_304644_creation`;
+
+CREATE TABLE `CONSUMER` (
+  `ID` INT,
+  `LOGIN` VARCHAR(64),
+  `PWD` VARCHAR(64),
+  `LVL` INT,
+  `FIRSTNAME` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `QUALIFICATION` (
+  `ID` INT,
+  `NAME` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CRAFT` (
+  `ID` INT,
+  `NAME` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `POSITION` (
+  `ID` INT,
+  `LATITUDE` DECIMAL(10,2),
+  `LONGITUDE` DECIMAL(10,2),
+  `ADDRESS` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SITE` (
+  `ID` INT,
+  `NUM_SITE` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `SITE_MASTER` VARCHAR(64),
+  `SITE_MANAGER` VARCHAR(64),
+  `DATE_INIT` DATETIME,
+  `DATE_END` DATETIME,
+  `ID_POSITION` INT,
+  `COLOR` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PHASE` (
+  `ID` INT,
+  `ID_SITE` INT,
+  `NUM_WEEK` INT,
+  `NUM_YEAR` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `NEED` (
+  `ID` INT,
+  `ID_PHASE` INT,
+  `ID_CRAFT` INT,
+  `ID_QUALIFICATION` INT,
+  `NEED` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `WORKER` (
+  `ID` INT,
+  `NAME` VARCHAR(64),
+  `FIRST_NAME` VARCHAR(64),
+  `BIRTHDATE` DATETIME,
+  `LICENCE` VARCHAR(64),
+  `ID_POSITION` INT,
+  `ID_QUALIFICATION` INT,
+  `ID_CRAFT` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ASSIGNMENT` (
+  `ID` INT,
+  `ID_PHASE` INT,
+  `ID_WORKER` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CAR` (
+  `ID` INT,
+  `PLATE` VARCHAR(64),
+  `MODEL` VARCHAR(64),
+  `NB_PLACE` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SHUTTLE` (
+  `ID` INT,
+  `ID_DRIVER` INT,
+  `ID_CAR` INT,
+  `ID_PHASE` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PASSENGER` (
+  `ID` INT,
+  `ID_SHUTTLE` INT,
+  `ID_WORKER` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PICKUP` (
+  `ID` INT,
+  `ID_POSITION` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PICKUP_LINK` (
+  `ID` INT,
+  `ID_PICKUP` INT,
+  `ID_SHUTTLE` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_304644_creation') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_304644_creation') AS relationships;
+DROP DATABASE `db_304644_creation`;
+UNINSTALL EXTENSION vsql_schematron;

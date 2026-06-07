@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 028559_movies
+#
+CREATE DATABASE `db_028559_movies`;
+USE `db_028559_movies`;
+CREATE TABLE `actors` (
+`act_id` INT,
+`act_name` VARCHAR(64),
+`act_gender` VARCHAR(64),
+PRIMARY KEY (`act_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `directors` (
+`dir_id` INT,
+`dir_name` VARCHAR(64),
+`dir_phone` VARCHAR(64),
+PRIMARY KEY (`dir_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movies` (
+`mov_id` INT,
+`mov_title` VARCHAR(64),
+`mov_year` INT,
+`mov_lang` VARCHAR(64),
+`dir_id` INT,
+PRIMARY KEY (`mov_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `movie_casts` (
+`act_id` INT,
+`mov_id` INT,
+`role` VARCHAR(64),
+PRIMARY KEY (`act_id`, `mov_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ratings` (
+`mov_id` INT,
+`rev_stars` INT,
+PRIMARY KEY (`mov_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_028559_movies') AS relationships;
+relationships
+Database: db_028559_movies
+
+Table Connections:
+------------------
+[Implied]  movie_casts.act_id -> actors.act_id
+[Implied]  movie_casts.mov_id -> movies.mov_id
+[Implied]  movie_casts.mov_id -> ratings.mov_id
+[Implied]  movies.dir_id -> directors.dir_id
+[Implied]  ratings.mov_id -> movies.mov_id
+
+DROP DATABASE `db_028559_movies`;
+UNINSTALL EXTENSION vsql_schematron;

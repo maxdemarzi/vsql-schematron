@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 266441_schema
+#
+CREATE DATABASE `db_266441_schema`;
+USE `db_266441_schema`;
+CREATE TABLE `Users` (
+`id` INT,
+`username` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`password` VARCHAR(64),
+`education` VARCHAR(64),
+`employment` VARCHAR(64),
+`music` VARCHAR(64),
+`movie` VARCHAR(64),
+`nationality` VARCHAR(64),
+`birthday` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Posts` (
+`id` INT,
+`u_id` INT,
+`content` INT,
+`image` VARCHAR(64),
+`creation_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Friends` (
+`u_id` INT,
+`f_id` INT,
+PRIMARY KEY (`u_id`, `f_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comments` (
+`id` INT,
+`p_id` INT,
+`u_id` INT,
+`comment` VARCHAR(64),
+`creation_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_266441_schema') AS relationships;
+relationships
+Database: db_266441_schema
+
+Table Connections:
+------------------
+[Implied]  Comments.u_id -> Friends.u_id
+[Implied]  Posts.u_id -> Friends.u_id
+
+DROP DATABASE `db_266441_schema`;
+UNINSTALL EXTENSION vsql_schematron;

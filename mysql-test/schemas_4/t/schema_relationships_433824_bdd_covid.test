@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 433824_bdd_covid
+--echo #
+CREATE DATABASE `db_433824_bdd_covid`;
+USE `db_433824_bdd_covid`;
+
+CREATE TABLE `covidtest.Disponibilite_test` (
+  `idDisponibilite_test` INT,
+  `Date` DATETIME,
+  `Heure` DATETIME,
+  `identifiant_infirmier` INT,
+  PRIMARY KEY (`idDisponibilite_test`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `covidtest.RendezVous` (
+  `idRendezVous` INT,
+  `Date` DATETIME,
+  `Heure` DATETIME,
+  `Nom` VARCHAR(64),
+  `Prenom` VARCHAR(64),
+  `Present` VARCHAR(64),
+  `idDisponibilite_test` INT,
+  PRIMARY KEY (`idRendezVous`, `idDisponibilite_test`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `covidtest.Personnes_testees` (
+  `idPersonnes_testees` INT,
+  `Nom` VARCHAR(64),
+  `Prenom` VARCHAR(64),
+  `Age` DECIMAL(10,2),
+  `Sexe` VARCHAR(64),
+  `Ville` VARCHAR(64),
+  `rv_idDisponibilite_test` INT,
+  PRIMARY KEY (`idPersonnes_testees`, `rv_idDisponibilite_test`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `covidtest.A_un_resultat` (
+  `idDisponibilite_test` INT,
+  PRIMARY KEY (`idDisponibilite_test`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `covidtest.Resultats_tests` (
+  `idResultats_tests` INT,
+  `Nom` VARCHAR(64),
+  `Prenom` VARCHAR(64),
+  `Resultat` VARCHAR(64),
+  `idDisponibilite_test` INT,
+  PRIMARY KEY (`idResultats_tests`, `idDisponibilite_test`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_433824_bdd_covid') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_433824_bdd_covid') AS relationships;
+DROP DATABASE `db_433824_bdd_covid`;
+UNINSTALL EXTENSION vsql_schematron;

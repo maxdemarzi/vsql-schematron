@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 074958_generator_test
+#
+CREATE DATABASE `db_074958_generator_test`;
+USE `db_074958_generator_test`;
+CREATE TABLE `self_reference` (
+`id` INT,
+`name` VARCHAR(64),
+`parent` INT,
+`table_a_pk_col_one` INT,
+`table_a_pk_col_two` VARCHAR(64),
+`table_a_pk_col_three` DATETIME,
+PRIMARY KEY (`id`, `table_a_pk_col_one`, `table_a_pk_col_two`, `table_a_pk_col_three`)
+) CHARACTER SET latin1;
+CREATE TABLE `table1` (
+`id` INT,
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `table_a` (
+`pk_col_one` INT,
+`pk_col_two` VARCHAR(64),
+`pk_col_three` DATETIME,
+`another_col` VARCHAR(64),
+`and_another` VARCHAR(64),
+`table_b_id` DATETIME,
+`table_c_id` INT,
+PRIMARY KEY (`pk_col_one`, `pk_col_two`, `pk_col_three`)
+) CHARACTER SET latin1;
+CREATE TABLE `table_b` (
+`id` DATETIME,
+`you` VARCHAR(64),
+`he` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `table_c` (
+`id` INT,
+`title` VARCHAR(64),
+`table1_id` INT,
+PRIMARY KEY (`id`, `table1_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_074958_generator_test') AS relationships;
+relationships
+Database: db_074958_generator_test
+
+Table Connections:
+------------------
+[Implied]  table_c.table1_id -> table1.id
+
+DROP DATABASE `db_074958_generator_test`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 081876_schema
+#
+CREATE DATABASE `db_081876_schema`;
+USE `db_081876_schema`;
+CREATE TABLE `customers` (
+`customer_id` INT,
+`name` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`notes` VARCHAR(64),
+PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`employee_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`employee_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employees_skills` (
+`skill_name` VARCHAR(64),
+`employee_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `employees_availability` (
+`weekday` VARCHAR(64),
+`employee_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `pets` (
+`pet_id` INT,
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`birth_date` DATETIME,
+`notes` VARCHAR(64),
+`owner_id` INT,
+PRIMARY KEY (`pet_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schedules` (
+`schedule_id` INT,
+`delivery_date` DATETIME,
+`activities` VARCHAR(64),
+PRIMARY KEY (`schedule_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `schedules_pets` (
+`schedule_id` INT,
+`pet_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `schedules_employees` (
+`schedule_id` INT,
+`employee_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_081876_schema') AS relationships;
+relationships
+Database: db_081876_schema
+
+Table Connections:
+------------------
+[Implied]  employees_availability.employee_id -> employees.employee_id
+[Implied]  employees_skills.employee_id -> employees.employee_id
+[Implied]  pets.owner_id -> customers.customer_id
+[Implied]  pets.owner_id -> employees.employee_id
+[Implied]  schedules_employees.employee_id -> employees.employee_id
+[Implied]  schedules_employees.schedule_id -> schedules.schedule_id
+[Implied]  schedules_pets.pet_id -> pets.pet_id
+[Implied]  schedules_pets.schedule_id -> schedules.schedule_id
+
+DROP DATABASE `db_081876_schema`;
+UNINSTALL EXTENSION vsql_schematron;

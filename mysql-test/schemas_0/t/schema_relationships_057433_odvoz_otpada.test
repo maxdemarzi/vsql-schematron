@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 057433_odvoz_otpada
+--echo #
+CREATE DATABASE `db_057433_odvoz_otpada`;
+USE `db_057433_odvoz_otpada`;
+
+CREATE TABLE `rasporedodvoza` (
+  `idRasporedaOdvoza` INT,
+  `idVrsteOtpada` INT,
+  `idUlice` INT,
+  `danTjednaOdvoza` VARCHAR(64),
+  `vrijemeOdvoza` VARCHAR(64),
+  `idGrad` INT,
+  `datumKreiranja` VARCHAR(64),
+  `datumOdvoza` VARCHAR(64),
+  PRIMARY KEY (`idRasporedaOdvoza`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ulica` (
+  `idUlica` INT,
+  `imeUlica` VARCHAR(64),
+  `idGrada` INT,
+  PRIMARY KEY (`idUlica`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_057433_odvoz_otpada') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_057433_odvoz_otpada') AS relationships;
+DROP DATABASE `db_057433_odvoz_otpada`;
+UNINSTALL EXTENSION vsql_schematron;

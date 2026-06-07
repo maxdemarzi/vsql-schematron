@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 545621_fornecedor
+--echo #
+CREATE DATABASE `db_545621_fornecedor`;
+USE `db_545621_fornecedor`;
+
+CREATE TABLE `fornecedor` (
+  `forn_id` INT,
+  `forn_cnpj` VARCHAR(64),
+  `forn_nome` VARCHAR(64),
+  PRIMARY KEY (`forn_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `saida` (
+  `saida_id` INT,
+  `saida_cpf` VARCHAR(64),
+  `saida_quant` INT,
+  `saida_produto` INT,
+  `saida_valor` DECIMAL(10,2),
+  PRIMARY KEY (`saida_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `estoque` (
+  `estoque_id` INT,
+  `estoque_forn` INT,
+  `estoque_nome` VARCHAR(64),
+  `estoque_quant` INT,
+  `estoque_valor` DECIMAL(10,2),
+  PRIMARY KEY (`estoque_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entrada` (
+  `entrada_id` INT,
+  `entrada_forn` INT,
+  `entrada_produto` INT,
+  `entrada_quant` INT,
+  PRIMARY KEY (`entrada_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuario` (
+  `usuario_id` INT,
+  `usuario_login` VARCHAR(64),
+  `usuario_perm` INT,
+  `usuario_nome` VARCHAR(64),
+  `usuario_senha` VARCHAR(64),
+  PRIMARY KEY (`usuario_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_545621_fornecedor') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_545621_fornecedor') AS relationships;
+DROP DATABASE `db_545621_fornecedor`;
+UNINSTALL EXTENSION vsql_schematron;

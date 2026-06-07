@@ -1,0 +1,125 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 351784_Cinema
+#
+CREATE DATABASE `db_351784_Cinema`;
+USE `db_351784_Cinema`;
+CREATE TABLE `produttori` (
+`id` INT,
+`nome` VARCHAR(64),
+`cognome` VARCHAR(64),
+`ruolo` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `film` (
+`id` INT,
+`titolo` VARCHAR(64),
+`anno_uscita` INT,
+`durata` INT,
+`id_attore` INT,
+`id_regista` INT,
+`3D` VARCHAR(64),
+`prima_proiezione` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `macchinisti` (
+`cf` VARCHAR(64),
+`nome` VARCHAR(64),
+`cognome` VARCHAR(64),
+`iban` VARCHAR(64),
+PRIMARY KEY (`cf`)
+) CHARACTER SET latin1;
+CREATE TABLE `coordinatori` (
+`cf` VARCHAR(64),
+`nome` VARCHAR(64),
+`cognome` VARCHAR(64),
+`iban` VARCHAR(64),
+PRIMARY KEY (`cf`)
+) CHARACTER SET latin1;
+CREATE TABLE `addetti_alle_pulizie` (
+`cf` VARCHAR(64),
+`nome` VARCHAR(64),
+`cognome` VARCHAR(64),
+`iban` VARCHAR(64),
+PRIMARY KEY (`cf`)
+) CHARACTER SET latin1;
+CREATE TABLE `sale` (
+`id` INT,
+`nome` VARCHAR(64),
+`numero_posti` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `turni` (
+`id` INT,
+`id_sala` INT,
+`cf_macchinista` VARCHAR(64),
+`cf_addetto_pulizie` VARCHAR(64),
+`cf_coordinatore` VARCHAR(64),
+`data_inizio` DATETIME,
+`data_fine` DATETIME,
+PRIMARY KEY (`id`, `id_sala`)
+) CHARACTER SET latin1;
+CREATE TABLE `turno_macchinista` (
+`id_turno` INT,
+`cf_macchinista` VARCHAR(64),
+PRIMARY KEY (`id_turno`, `cf_macchinista`)
+) CHARACTER SET latin1;
+CREATE TABLE `turno_coordinatore` (
+`id_turno` INT,
+`cf_coordinatore` VARCHAR(64),
+PRIMARY KEY (`id_turno`, `cf_coordinatore`)
+) CHARACTER SET latin1;
+CREATE TABLE `turno_addetto_pulizie` (
+`id_turno` INT,
+`cf_addetto_pulizie` VARCHAR(64),
+PRIMARY KEY (`id_turno`, `cf_addetto_pulizie`)
+) CHARACTER SET latin1;
+CREATE TABLE `proiezioni` (
+`id` INT,
+`id_sala` INT,
+`id_film` INT,
+`posti_disponibili` INT,
+`data_inizio` DATETIME,
+`data_fine` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `biglietti` (
+`id` INT,
+`id_proiezione` INT,
+`numero_posto` INT,
+`tipo_tariffa` VARCHAR(64),
+`prezzo` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tariffe` (
+`tariffa` VARCHAR(64),
+`prezzo` DECIMAL(10,2),
+PRIMARY KEY (`tariffa`)
+) CHARACTER SET latin1;
+CREATE TABLE `errore_film` (
+`msg` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `errore_biglietti` (
+`msg` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_351784_Cinema') AS relationships;
+relationships
+Database: db_351784_Cinema
+
+Table Connections:
+------------------
+[Implied]  biglietti.tipo_tariffa -> tariffe.tariffa
+[Implied]  proiezioni.id_film -> film.id
+[Implied]  proiezioni.id_sala -> turni.id_sala
+[Implied]  turni.cf_addetto_pulizie -> turno_addetto_pulizie.cf_addetto_pulizie
+[Implied]  turni.cf_coordinatore -> turno_coordinatore.cf_coordinatore
+[Implied]  turni.cf_macchinista -> turno_macchinista.cf_macchinista
+[Implied]  turno_addetto_pulizie.id_turno -> turno_coordinatore.id_turno
+[Implied]  turno_addetto_pulizie.id_turno -> turno_macchinista.id_turno
+[Implied]  turno_coordinatore.id_turno -> turno_addetto_pulizie.id_turno
+[Implied]  turno_coordinatore.id_turno -> turno_macchinista.id_turno
+[Implied]  turno_macchinista.id_turno -> turno_addetto_pulizie.id_turno
+[Implied]  turno_macchinista.id_turno -> turno_coordinatore.id_turno
+
+DROP DATABASE `db_351784_Cinema`;
+UNINSTALL EXTENSION vsql_schematron;

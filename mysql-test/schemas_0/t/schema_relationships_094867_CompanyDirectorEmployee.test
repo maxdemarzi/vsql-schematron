@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 094867_CompanyDirectorEmployee
+--echo #
+CREATE DATABASE `db_094867_CompanyDirectorEmployee`;
+USE `db_094867_CompanyDirectorEmployee`;
+
+CREATE TABLE `attendance` (
+  `attendee_person_id` INT,
+  `meeting_id` INT,
+  PRIMARY KEY (`attendee_person_id`, `meeting_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `company` (
+  `company_id` INT,
+  `company_name` VARCHAR(64),
+  `is_listed` BOOL,
+  PRIMARY KEY (`company_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `directorship` (
+  `directorship_id` INT,
+  `director_person_id` INT,
+  `company_id` INT,
+  `appointment_date` DATETIME,
+  PRIMARY KEY (`directorship_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employee` (
+  `employee_id` INT,
+  `employee_nr` INT,
+  `company_id` INT,
+  `manager_employee_id` INT,
+  `manager_is_ceo` BOOL,
+  PRIMARY KEY (`employee_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employment` (
+  `person_id` INT,
+  `employee_id` INT,
+  PRIMARY KEY (`person_id`, `employee_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `meeting` (
+  `meeting_id` INT,
+  `company_id` INT,
+  `date` DATETIME,
+  `is_board_meeting` BOOL,
+  PRIMARY KEY (`meeting_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `person` (
+  `person_id` INT,
+  `given_name` VARCHAR(64),
+  `family_name` VARCHAR(64),
+  `birth_date` DATETIME,
+  PRIMARY KEY (`person_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_094867_CompanyDirectorEmployee') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_094867_CompanyDirectorEmployee') AS relationships;
+DROP DATABASE `db_094867_CompanyDirectorEmployee`;
+UNINSTALL EXTENSION vsql_schematron;

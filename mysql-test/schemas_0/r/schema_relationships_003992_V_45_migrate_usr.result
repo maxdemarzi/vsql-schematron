@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 003992_V_45__migrate_usr
+#
+CREATE DATABASE `db_003992_V_45_migrate_usr`;
+USE `db_003992_V_45_migrate_usr`;
+CREATE TABLE `usr_schema_version` (
+`version_key` VARCHAR(64),
+`version_value` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `usr_oguser` (
+`id` INT,
+`oid` INT,
+`ver_from_instant` DATETIME,
+`ver_to_instant` DATETIME,
+`corr_from_instant` DATETIME,
+`corr_to_instant` DATETIME,
+`name` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usr_idkey` (
+`id` INT,
+`key_scheme` VARCHAR(64),
+`key_value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usr_oguser2idkey` (
+`oguser_id` INT,
+`idkey_id` INT,
+PRIMARY KEY (`oguser_id`, `idkey_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usr_entitlement` (
+`oguser_id` INT,
+`entitlement_index` INT,
+`entitlement_pattern` VARCHAR(64),
+PRIMARY KEY (`oguser_id`, `entitlement_index`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_003992_V_45_migrate_usr') AS relationships;
+relationships
+Database: db_003992_V_45_migrate_usr
+
+Table Connections:
+------------------
+[Implied]  usr_entitlement.oguser_id -> usr_oguser.id
+[Implied]  usr_oguser2idkey.idkey_id -> usr_idkey.id
+[Implied]  usr_oguser2idkey.oguser_id -> usr_oguser.id
+
+DROP DATABASE `db_003992_V_45_migrate_usr`;
+UNINSTALL EXTENSION vsql_schematron;

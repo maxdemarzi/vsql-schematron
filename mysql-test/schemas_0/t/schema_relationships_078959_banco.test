@@ -1,0 +1,120 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 078959_banco
+--echo #
+CREATE DATABASE `db_078959_banco`;
+USE `db_078959_banco`;
+
+CREATE TABLE `usuario` (
+  `cd_usuario` INT,
+  `nm_usuario` VARCHAR(64),
+  `ds_email` VARCHAR(64),
+  `ds_password` VARCHAR(64),
+  `nr_cpf` VARCHAR(64),
+  `nr_celular` VARCHAR(64),
+  `dt_nascimento` DATETIME,
+  `ds_usendereco` VARCHAR(64),
+  `st_admin` BOOL,
+  `st_ativo` BOOL,
+  `ds_avaliacao` INT,
+  `st_foto` VARCHAR(64),
+  PRIMARY KEY (`cd_usuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `servico` (
+  `cd_servico` INT,
+  `nm_servico` VARCHAR(64),
+  `ds_servico` VARCHAR(64),
+  `ds_endereco` VARCHAR(64),
+  `dt_servico` DATETIME,
+  `dt_prazo` DATETIME,
+  `id_usuario` INT,
+  `id_categoria` INT,
+  `st_servico` BOOL,
+  `id_orcamento` INT,
+  PRIMARY KEY (`cd_servico`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categoria` (
+  `cd_categoria` INT,
+  `nm_categoria` VARCHAR(64),
+  `ds_categoria` VARCHAR(64),
+  `ds_ftcategoria` VARCHAR(64),
+  PRIMARY KEY (`cd_categoria`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orcamento` (
+  `cd_orcamento` INT,
+  `id_servico` INT,
+  `id_usuariot` INT,
+  `vl_orcamento` VARCHAR(64),
+  `ds_orcamento` VARCHAR(64),
+  PRIMARY KEY (`cd_orcamento`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `report_perfil` (
+  `cd_reportperfil` INT,
+  `ds_report` VARCHAR(64),
+  `dt_report` DATETIME,
+  `id_reporter` INT,
+  `id_reportado` INT,
+  `st_report` BOOL,
+  PRIMARY KEY (`cd_reportperfil`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `report_servico` (
+  `cd_reportservico` INT,
+  `ds_reports` VARCHAR(64),
+  `dt_reports` DATETIME,
+  `id_servicorep` INT,
+  `id_reporters` INT,
+  `id_reportados` INT,
+  `st_reports` BOOL,
+  PRIMARY KEY (`cd_reportservico`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `arquivo` (
+  `cd_arquivo` INT,
+  `id_usuariof` INT,
+  `ds_arquivo` VARCHAR(64),
+  `dt_data` DATETIME,
+  PRIMARY KEY (`cd_arquivo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuario_suspenso` (
+  `cd_suspenso` INT,
+  `id_usuariosuspenso` INT,
+  `dt_inicio` DATETIME,
+  `dt_fim` DATETIME,
+  PRIMARY KEY (`cd_suspenso`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `nota` (
+  `cd_nota` INT,
+  `ds_nota` INT,
+  `id_usuarion` INT,
+  `id_usuarionotado` INT,
+  `id_serviconota` INT,
+  PRIMARY KEY (`cd_nota`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_078959_banco') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_078959_banco') AS relationships;
+DROP DATABASE `db_078959_banco`;
+UNINSTALL EXTENSION vsql_schematron;

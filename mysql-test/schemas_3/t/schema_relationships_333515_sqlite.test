@@ -1,0 +1,113 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 333515_sqlite
+--echo #
+CREATE DATABASE `db_333515_sqlite`;
+USE `db_333515_sqlite`;
+
+CREATE TABLE `profile` (
+  `id` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customer` (
+  `id` INT,
+  `email` VARCHAR(64),
+  `name` VARCHAR(64),
+  `address` VARCHAR(64),
+  `status` INT,
+  `profile_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `category` (
+  `id` INT,
+  `language_code` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `category_photo` (
+  `id` INT,
+  `category_id` INT,
+  `display_number` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `supplier` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `attribute` (
+  `id` INT,
+  `supplier_id` INT,
+  `name` VARCHAR(64),
+  `value` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product` (
+  `id` INT,
+  `supplier_id` INT,
+  `category_language_code` VARCHAR(64),
+  `category_id` INT,
+  `internal_name` VARCHAR(64),
+  PRIMARY KEY (`id`, `supplier_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product_language` (
+  `id` INT,
+  `supplier_id` INT,
+  `language_code` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`, `supplier_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `organization` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `identity_provider` (
+  `id` INT,
+  `organization_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_rtl` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `blog_rtl` (
+  `id` INT,
+  `id_user` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_333515_sqlite') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_333515_sqlite') AS relationships;
+DROP DATABASE `db_333515_sqlite`;
+UNINSTALL EXTENSION vsql_schematron;

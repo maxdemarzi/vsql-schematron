@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 059268_linguistdb
+#
+CREATE DATABASE `db_059268_linguistdb`;
+USE `db_059268_linguistdb`;
+CREATE TABLE `users` (
+`userID` INT,
+`username` VARCHAR(64),
+`userfname` VARCHAR(64),
+`userlname` VARCHAR(64),
+`usermail` VARCHAR(64),
+`userpasswrd` VARCHAR(64),
+`usercountry` VARCHAR(64),
+`subscriptionId` INT,
+`registerDate` DATETIME,
+PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `subscriptions` (
+`subscriptionId` INT,
+`name` VARCHAR(64),
+`price` DECIMAL(10,2),
+`wording` VARCHAR(64),
+`lgAmount` INT,
+PRIMARY KEY (`subscriptionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `language_choices` (
+`choiceId` INT,
+`languageId` INT,
+`userId` INT,
+PRIMARY KEY (`choiceId`)
+) CHARACTER SET latin1;
+CREATE TABLE `languages` (
+`languageId` INT,
+`name` VARCHAR(64),
+`wording` VARCHAR(64),
+`iconPath` VARCHAR(64),
+`languageImg` VARCHAR(64),
+PRIMARY KEY (`languageId`)
+) CHARACTER SET latin1;
+CREATE TABLE `lessons` (
+`lessonId` INT,
+`name` VARCHAR(64),
+`wording` VARCHAR(64),
+`content` VARCHAR(64),
+`illustrationPath` VARCHAR(64),
+`languageId` INT,
+PRIMARY KEY (`lessonId`)
+) CHARACTER SET latin1;
+CREATE TABLE `countries` (
+`num_code` INT,
+`alpha_2_code` VARCHAR(64),
+`alpha_3_code` VARCHAR(64),
+`en_short_name` VARCHAR(64),
+`nationality` VARCHAR(64),
+PRIMARY KEY (`num_code`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_059268_linguistdb') AS relationships;
+relationships
+Database: db_059268_linguistdb
+
+Table Connections:
+------------------
+[Implied]  language_choices.languageId -> languages.languageId
+[Implied]  language_choices.userId -> users.userID
+[Implied]  lessons.languageId -> languages.languageId
+[Implied]  users.subscriptionId -> subscriptions.subscriptionId
+
+DROP DATABASE `db_059268_linguistdb`;
+UNINSTALL EXTENSION vsql_schematron;

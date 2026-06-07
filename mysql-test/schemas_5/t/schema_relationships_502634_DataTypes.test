@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 502634_DataTypes
+--echo #
+CREATE DATABASE `db_502634_DataTypes`;
+USE `db_502634_DataTypes`;
+
+CREATE TABLE `AACET` (
+  `AlternateAutoCounter` INT,
+  PRIMARY KEY (`AlternateAutoCounter`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AACSub` (
+  `AACETAlternateAutoCounter` INT,
+  PRIMARY KEY (`AACETAlternateAutoCounter`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AGET` (
+  `AlternateGuid` VARCHAR(64),
+  PRIMARY KEY (`AlternateGuid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AGSub` (
+  `AGETAlternateGuid` VARCHAR(64),
+  PRIMARY KEY (`AGETAlternateGuid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_502634_DataTypes') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_502634_DataTypes') AS relationships;
+DROP DATABASE `db_502634_DataTypes`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,177 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 144315_models
+--echo #
+CREATE DATABASE `db_144315_models`;
+USE `db_144315_models`;
+
+CREATE TABLE `notification_type` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_category` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `order_date` DATETIME,
+  `availability` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `photo` (
+  `id` INT,
+  `filepath` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `standard` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `base_price` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `email` VARCHAR(64),
+  `pass_hash` VARCHAR(64),
+  `is_admin` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `room` (
+  `id` INT,
+  `price` DECIMAL(10,2),
+  `number_of_beds` INT,
+  `id_standard` INT,
+  `floor` INT,
+  `id_photo` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `session` (
+  `id` INT,
+  `session_id` VARCHAR(64),
+  `user_id` INT,
+  `expiration_date` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cooperating_company` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `email` VARCHAR(64),
+  `responsible_worker` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `department` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `salary` DECIMAL(10,2),
+  `leader` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employee` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `address` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `email` VARCHAR(64),
+  `id_department` INT,
+  `bonus` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `facility` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `responsible_worker` INT,
+  `id_photo` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `guest` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `email` VARCHAR(64),
+  `booker` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notification` (
+  `id` INT,
+  `id_type` INT,
+  `id_department` INT,
+  `priority` INT,
+  `received_time` DATETIME,
+  `done` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order` (
+  `id` INT,
+  `id_guest` INT,
+  `received_date` DATETIME,
+  `id_order_category` INT,
+  `id_notification` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payment` (
+  `id` INT,
+  `id_order` INT,
+  `amount` DECIMAL(10,2),
+  `description` VARCHAR(64),
+  `cash` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reservation` (
+  `id` INT,
+  `id_room` INT,
+  `id_guest` INT,
+  `date_from` DATETIME,
+  `date_to` DATETIME,
+  `id_notification` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `message` (
+  `id` INT,
+  `content` VARCHAR(64),
+  `title` VARCHAR(64),
+  `addressee` INT,
+  `sender` INT,
+  `message_type` INT,
+  `date` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_144315_models') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_144315_models') AS relationships;
+DROP DATABASE `db_144315_models`;
+UNINSTALL EXTENSION vsql_schematron;

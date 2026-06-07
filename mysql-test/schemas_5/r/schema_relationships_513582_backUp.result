@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 513582_backUp
+#
+CREATE DATABASE `db_513582_backUp`;
+USE `db_513582_backUp`;
+CREATE TABLE `admin` (
+`nombre` VARCHAR(64),
+`apellido` VARCHAR(64),
+`dni` VARCHAR(64),
+`fechaNacimiento` DATETIME,
+`email` VARCHAR(64),
+`telefono` INT,
+`ciudad` VARCHAR(64),
+`provincia` VARCHAR(64),
+`codPostal` INT,
+`direccion` VARCHAR(64),
+`tipo` INT,
+PRIMARY KEY (`dni`)
+) CHARACTER SET latin1;
+CREATE TABLE `asiste` (
+`dni_pac` VARCHAR(64),
+`dni_fam` VARCHAR(64),
+PRIMARY KEY (`dni_pac`, `dni_fam`)
+) CHARACTER SET latin1;
+CREATE TABLE `clinico` (
+`nombre` VARCHAR(64),
+`apellido` VARCHAR(64),
+`dni` VARCHAR(64),
+`fechaNacimiento` DATETIME,
+`email` VARCHAR(64),
+`telefono` INT,
+`ciudad` VARCHAR(64),
+`provincia` VARCHAR(64),
+`codPostal` INT,
+`direccion` VARCHAR(64),
+`especialidad` VARCHAR(64),
+PRIMARY KEY (`dni`)
+) CHARACTER SET latin1;
+CREATE TABLE `cuidador_familiar` (
+`nombre` VARCHAR(64),
+`apellido` VARCHAR(64),
+`dni` VARCHAR(64),
+`fechaNacimiento` DATETIME,
+`email` VARCHAR(64),
+`telefono` INT,
+`ciudad` VARCHAR(64),
+`provincia` VARCHAR(64),
+`codPostal` INT,
+`direccion` VARCHAR(64),
+PRIMARY KEY (`dni`)
+) CHARACTER SET latin1;
+CREATE TABLE `paciente` (
+`nombre` VARCHAR(64),
+`apellido` VARCHAR(64),
+`dni` VARCHAR(64),
+`fechaNacimiento` DATETIME,
+`email` VARCHAR(64),
+`telefono` INT,
+`ciudad` VARCHAR(64),
+`provincia` VARCHAR(64),
+`codPostal` INT,
+`direccion` VARCHAR(64),
+`dni_clinico` VARCHAR(64),
+PRIMARY KEY (`dni`)
+) CHARACTER SET latin1;
+CREATE TABLE `usuario` (
+`dni` VARCHAR(64),
+`password` VARCHAR(64),
+`rol` VARCHAR(64),
+PRIMARY KEY (`dni`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_513582_backUp') AS relationships;
+relationships
+Database: db_513582_backUp
+
+Table Connections:
+------------------
+[Implied]  asiste.dni_pac -> paciente.dni
+[Implied]  paciente.dni_clinico -> clinico.dni
+
+DROP DATABASE `db_513582_backUp`;
+UNINSTALL EXTENSION vsql_schematron;

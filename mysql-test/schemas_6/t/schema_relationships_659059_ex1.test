@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 659059_ex1
+--echo #
+CREATE DATABASE `db_659059_ex1`;
+USE `db_659059_ex1`;
+
+CREATE TABLE `Aircraft` (
+  `model` VARCHAR(64),
+  `horsepower` INT,
+  `topspeed` DECIMAL(10,2),
+  `width` DECIMAL(10,2),
+  `height` DECIMAL(10,2),
+  `weight` DECIMAL(10,2),
+  PRIMARY KEY (`model`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Race` (
+  `location` VARCHAR(64),
+  `edition` VARCHAR(64),
+  `country` VARCHAR(64),
+  `date` INT,
+  `gates` VARCHAR(64),
+  `eliminations` VARCHAR(64),
+  PRIMARY KEY (`location`, `edition`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Pilot` (
+  `num` INT,
+  `firstname` VARCHAR(64),
+  `surname` VARCHAR(64),
+  `nationality` VARCHAR(64),
+  `birtgday` INT,
+  `team` VARCHAR(64),
+  `aircraft` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Participation` (
+  `pilot` VARCHAR(64),
+  `location` VARCHAR(64),
+  `edition` VARCHAR(64),
+  `trainingtime` DECIMAL(10,2),
+  `trainingpos` INT,
+  `trainingpenalty` INT,
+  `qualificationtime` DECIMAL(10,2),
+  `qualificationpos` INT,
+  `qualificationpenalty` INT,
+  `eliminationtime` DECIMAL(10,2),
+  `eliminationpos` INT,
+  `eliminationpenalty` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `Duel` (
+  `pilot1` VARCHAR(64),
+  `pilot2` VARCHAR(64),
+  `location` VARCHAR(64),
+  `edition` VARCHAR(64),
+  `dueltype` VARCHAR(64),
+  `timepilot1` DECIMAL(10,2),
+  `timepilot2` DECIMAL(10,2),
+  `penaltypilot1` INT,
+  `penaltypilot2` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_659059_ex1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_659059_ex1') AS relationships;
+DROP DATABASE `db_659059_ex1`;
+UNINSTALL EXTENSION vsql_schematron;

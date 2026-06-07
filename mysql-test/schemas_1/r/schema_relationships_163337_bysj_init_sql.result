@@ -1,0 +1,156 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 163337_bysj_init_sql
+#
+CREATE DATABASE `db_163337_bysj_init_sql`;
+USE `db_163337_bysj_init_sql`;
+CREATE TABLE `t_attach` (
+`ID` INT,
+`FILETYPE` VARCHAR(64),
+`CREATETIME` DATETIME,
+`FILEPATH` VARCHAR(64),
+`FILENAME` VARCHAR(64),
+`downloadCount` INT,
+`fileImages` VARCHAR(64),
+`fromName` VARCHAR(64),
+`FROMID` INT,
+`FROMSUBID` INT,
+`CREATEUSER` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_bbsblock` (
+`ID` INT,
+`NAME` VARCHAR(64),
+`BLOCKRULES` VARCHAR(64),
+`DESCRIPTION` VARCHAR(64),
+`PARENT` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_bbscontent` (
+`ID` INT,
+`TITLE` VARCHAR(64),
+`CONTENT` VARCHAR(64),
+`CREATETIME` DATETIME,
+`MODIFYTIME` DATETIME,
+`READTIMES` INT,
+`TOP` BOOL,
+`ACCESS` BOOL,
+`ATTACHIDS` VARCHAR(64),
+`CREATEUSER` INT,
+`BBSBLOCK` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_bbscontentcomments` (
+`ID` INT,
+`CONTENT` VARCHAR(64),
+`CREATETIME` DATETIME,
+`MODIFYTIME` DATETIME,
+`ACCESS` BOOL,
+`BBSCONTENT` INT,
+`CREATEUSER` INT,
+`BBSBLOCK` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_classdetail` (
+`ID` INT,
+`TITLE` VARCHAR(64),
+`CONTENT` VARCHAR(64),
+`ATTACHIDS` VARCHAR(64),
+`CREATETIME` DATETIME,
+`CREATEUSER` INT,
+`COURSECLASS` INT,
+`COURSE` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_classdetailcomments` (
+`ID` INT,
+`CONTENT` VARCHAR(64),
+`CREATETIME` DATETIME,
+`CREATEUSER` INT,
+`PARENTS` INT,
+`CLASSDETAIL` INT,
+`COURSECLASS` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_course` (
+`ID` INT,
+`NAME` VARCHAR(64),
+`COURSELEVEL` INT,
+`DESCRIPTION` VARCHAR(64),
+`TEACHERTEAM` VARCHAR(64),
+`TEACHCONTENT` VARCHAR(64),
+`TEACHMETHOD` VARCHAR(64),
+`TEACHENVIRONMENT` VARCHAR(64),
+`TEACHOUTLINE` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_courseclass` (
+`id` INT,
+`TITLE` VARCHAR(64),
+`COURSECLASSIMAGE` VARCHAR(64),
+`DESCRIPTION` VARCHAR(64),
+`CRAETETIME` DATETIME,
+`CREATEUSER` INT,
+`course` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_news` (
+`ID` INT,
+`TITLE` VARCHAR(64),
+`CONTENT` VARCHAR(64),
+`HOT` BOOL,
+`SOURCE` VARCHAR(64),
+`TYPE` VARCHAR(64),
+`READTIMES` INT,
+`IMAGES` VARCHAR(64),
+`NEWSKEY` VARCHAR(64),
+`ACCESS` BOOL,
+`COMMENTSCOUNT` INT,
+`CREATETIME` DATETIME,
+`MODIFYTIME` DATETIME,
+`CREATEUSER` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_newscomments` (
+`ID` INT,
+`CONTENT` VARCHAR(64),
+`CREATETIME` DATETIME,
+`ACCESS` BOOL,
+`NEWS` INT,
+`PARENT` INT,
+`createUser` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_notification` (
+`ID` INT,
+`TITLE` VARCHAR(64),
+`CONTENT` VARCHAR(64),
+`CREATETIME` DATETIME,
+`MODIFYTIME` DATETIME,
+`TYPE` VARCHAR(64),
+`READTIMES` INT,
+`ntfImage` VARCHAR(64),
+`NITIFICATIONKEY` VARCHAR(64),
+`CREATEUSER` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_163337_bysj_init_sql') AS relationships;
+relationships
+Database: db_163337_bysj_init_sql
+
+Table Connections:
+------------------
+[Implied]  t_bbsblock.PARENT -> t_bbsblock.ID
+[Implied]  t_bbscontent.BBSBLOCK -> t_bbsblock.ID
+[Implied]  t_bbscontentcomments.BBSBLOCK -> t_bbsblock.ID
+[Implied]  t_bbscontentcomments.BBSCONTENT -> t_bbscontent.ID
+[Implied]  t_classdetail.COURSE -> t_course.ID
+[Implied]  t_classdetail.COURSECLASS -> t_courseclass.id
+[Implied]  t_classdetailcomments.CLASSDETAIL -> t_classdetail.ID
+[Implied]  t_classdetailcomments.COURSECLASS -> t_courseclass.id
+[Implied]  t_courseclass.course -> t_course.ID
+[Implied]  t_newscomments.NEWS -> t_news.ID
+[Implied]  t_newscomments.PARENT -> t_newscomments.ID
+
+DROP DATABASE `db_163337_bysj_init_sql`;
+UNINSTALL EXTENSION vsql_schematron;

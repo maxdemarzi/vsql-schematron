@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 439968_QuickDBD-export
+#
+CREATE DATABASE `db_439968_QuickDBD_export`;
+USE `db_439968_QuickDBD_export`;
+CREATE TABLE `card_holder` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `credit_card` (
+`cardholder_id` INT,
+`card` VARCHAR(64),
+PRIMARY KEY (`cardholder_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `merchant_category` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `merchant` (
+`id` INT,
+`name` VARCHAR(64),
+`id_merchant_category` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction` (
+`id` INT,
+`date` DATETIME,
+`amount` DECIMAL(10,2),
+`card` VARCHAR(64),
+`id_merchant` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_439968_QuickDBD_export') AS relationships;
+relationships
+Database: db_439968_QuickDBD_export
+
+Table Connections:
+------------------
+[Implied]  credit_card.cardholder_id -> card_holder.id
+[Implied]  merchant.id_merchant_category -> merchant_category.id
+[Implied]  transaction.id_merchant -> merchant.id
+[Implied]  transaction.id_merchant -> merchant_category.id
+
+DROP DATABASE `db_439968_QuickDBD_export`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,151 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 174594_5%20%D1%85%D1%80%D0%BE%D1%88%D0%B8%D1%85%20%D1%83%D1%87%D0%B0%D1%81%D0%BD%D0%B8%D0%BA%D0%BE%D0%B2
+--echo #
+CREATE DATABASE `db_174594_5_20_D1_85_D1_80_D0_BE_D1_88_D0_B8_D1_85_20_D1_83`;
+USE `db_174594_5_20_D1_85_D1_80_D0_BE_D1_88_D0_B8_D1_85_20_D1_83`;
+
+CREATE TABLE `apply_applyapplication` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `surname` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `dateOfBirth` DATETIME,
+  `country` VARCHAR(64),
+  `city` VARCHAR(64),
+  `email` VARCHAR(64),
+  `placeOfWorkOrStudy` VARCHAR(64),
+  `speciality` VARCHAR(64),
+  `motivationMessage` VARCHAR(64),
+  `image` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `apply_destribution` (
+  `id` INT,
+  `CF_max` INT,
+  `member_id_id` INT,
+  `project_id_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `apply_projectpriority` (
+  `id` INT,
+  `priority` INT,
+  `project_id_id` INT,
+  `applyApp_id_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `apply_testsapply` (
+  `id` INT,
+  `answer` INT,
+  `applyApp_id_id` INT,
+  `tests_id_id` INT,
+  `subject_id_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `django_admin_log` (
+  `id` INT,
+  `action_time` DATETIME,
+  `object_id` VARCHAR(64),
+  `object_repr` VARCHAR(64),
+  `action_flag` INT,
+  `change_message` VARCHAR(64),
+  `content_type_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `django_migrations` (
+  `id` INT,
+  `app` VARCHAR(64),
+  `name` VARCHAR(64),
+  `applied` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `django_session` (
+  `session_key` VARCHAR(64),
+  `session_data` VARCHAR(64),
+  `expire_date` DATETIME,
+  PRIMARY KEY (`session_key`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `news_news_paragraph` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `text` VARCHAR(64),
+  `date` DATETIME,
+  `image` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `projectsTestsQuestions_markforeachproject` (
+  `id` INT,
+  `mark` INT,
+  `project_id_id` INT,
+  `subject_id_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `projectsTestsQuestions_project` (
+  `id` INT,
+  `project_name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `mentor_id_id` INT,
+  `image` VARCHAR(64),
+  `mentor_image` VARCHAR(64),
+  `mentor_description` VARCHAR(64),
+  `maxMembers` INT,
+  `minMembers` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `projectsTestsQuestions_project_news` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `image` VARCHAR(64),
+  `text` VARCHAR(64),
+  `project_id_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `projectsTestsQuestions_subject` (
+  `id` INT,
+  `subject_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `projectsTestsQuestions_test` (
+  `id` INT,
+  `question` VARCHAR(64),
+  `right_answer` VARCHAR(64),
+  `subject_id` INT,
+  `wrong_answer1` VARCHAR(64),
+  `wrong_answer2` VARCHAR(64),
+  `wrong_answer3` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_174594_5_20_D1_85_D1_80_D0_BE_D1_88_D0_B8_D1_85_20_D1_83') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_174594_5_20_D1_85_D1_80_D0_BE_D1_88_D0_B8_D1_85_20_D1_83') AS relationships;
+DROP DATABASE `db_174594_5_20_D1_85_D1_80_D0_BE_D1_88_D0_B8_D1_85_20_D1_83`;
+UNINSTALL EXTENSION vsql_schematron;

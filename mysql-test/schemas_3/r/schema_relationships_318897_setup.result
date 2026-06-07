@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 318897_setup
+#
+CREATE DATABASE `db_318897_setup`;
+USE `db_318897_setup`;
+CREATE TABLE `users` (
+`userID` INT,
+`vms_email` VARCHAR(64),
+`vms_apiPassword` VARCHAR(64),
+`userPassword` VARCHAR(64),
+`userType` VARCHAR(64),
+PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `dids` (
+`didID` INT,
+`ownerID` INT,
+`did` VARCHAR(64),
+PRIMARY KEY (`didID`)
+) CHARACTER SET latin1;
+CREATE TABLE `contacts` (
+`contactID` INT,
+`ownerID` INT,
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`did` VARCHAR(64),
+`notes` VARCHAR(64),
+PRIMARY KEY (`contactID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_318897_setup') AS relationships;
+relationships
+Database: db_318897_setup
+
+Table Connections:
+------------------
+[Implied]  contacts.ownerID -> contacts.contactID
+[Implied]  contacts.ownerID -> users.userID
+[Implied]  dids.ownerID -> contacts.contactID
+[Implied]  dids.ownerID -> users.userID
+
+DROP DATABASE `db_318897_setup`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 263152_IdentityTablesMySql
+#
+CREATE DATABASE `db_263152_IdentityTablesMySql`;
+USE `db_263152_IdentityTablesMySql`;
+CREATE TABLE `identitylogin` (
+`LoginProvider` VARCHAR(64),
+`ProviderKey` VARCHAR(64),
+`UserId` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`ProviderKey`, `UserId`, `LoginProvider`)
+) CHARACTER SET latin1;
+CREATE TABLE `identityrole` (
+`Id` INT,
+`Name` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `identityuser` (
+`Id` INT,
+`Username` VARCHAR(64),
+`Email` VARCHAR(64),
+`EmailConfirmed` BOOL,
+`PasswordHash` VARCHAR(64),
+`SecurityStamp` VARCHAR(64),
+`PhoneNumber` VARCHAR(64),
+`PhoneNumberConfirmed` BOOL,
+`TwoFactorEnabled` BOOL,
+`LockoutEnd` DATETIME,
+`LockoutEnabled` BOOL,
+`AccessFailedCount` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `identityuserclaim` (
+`Id` INT,
+`UserId` INT,
+`ClaimType` VARCHAR(64),
+`ClaimValue` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `identityuserrole` (
+`UserId` INT,
+`RoleId` INT,
+PRIMARY KEY (`UserId`, `RoleId`)
+) CHARACTER SET latin1;
+CREATE TABLE `identityroleclaim` (
+`Id` INT,
+`RoleId` INT,
+`ClaimType` VARCHAR(64),
+`ClaimValue` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_263152_IdentityTablesMySql') AS relationships;
+relationships
+Database: db_263152_IdentityTablesMySql
+
+Table Connections:
+------------------
+[Implied]  identitylogin.UserId -> identityuserrole.UserId
+[Implied]  identityroleclaim.Id -> identityrole.Id
+[Implied]  identityroleclaim.RoleId -> identityuserrole.RoleId
+[Implied]  identityuserclaim.Id -> identityuser.Id
+[Implied]  identityuserclaim.UserId -> identitylogin.UserId
+[Implied]  identityuserclaim.UserId -> identityuserrole.UserId
+[Implied]  identityuserrole.UserId -> identitylogin.UserId
+
+DROP DATABASE `db_263152_IdentityTablesMySql`;
+UNINSTALL EXTENSION vsql_schematron;

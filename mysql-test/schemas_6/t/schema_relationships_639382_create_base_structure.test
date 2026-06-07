@@ -1,0 +1,326 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 639382_create_base_structure
+--echo #
+CREATE DATABASE `db_639382_create_base_structure`;
+USE `db_639382_create_base_structure`;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `user_username` VARCHAR(64),
+  `user_password` VARCHAR(64),
+  `user_firstname` VARCHAR(64),
+  `user_lastname` VARCHAR(64),
+  `user_email` VARCHAR(64),
+  `user_phone` VARCHAR(64),
+  `user_gender` VARCHAR(64),
+  `user_birthdate` DATETIME,
+  `user_date_registered` DATETIME,
+  `user_date_updated` DATETIME,
+  `user_date_validated` DATETIME,
+  `user_date_lastlogin` DATETIME,
+  `user_must_change_password` INT,
+  `user_img_profile` VARCHAR(64),
+  `user_status` INT,
+  `status` INT,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_sessions` (
+  `usersession_id` INT,
+  `user_id` INT,
+  `usersession_token` VARCHAR(64),
+  `usersession_host` VARCHAR(64),
+  `usersession_os` VARCHAR(64),
+  `usersession_browser` VARCHAR(64),
+  `usersession_browser_version` VARCHAR(64),
+  `usersession_device` VARCHAR(64),
+  `usersession_geoip` VARCHAR(64),
+  `usersession_date_created` DATETIME,
+  `usersession_date_expired` DATETIME,
+  `usersession_status` INT,
+  `status` INT,
+  PRIMARY KEY (`usersession_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rbac_roles` (
+  `role_id` INT,
+  `role_key` VARCHAR(64),
+  `role_name` VARCHAR(64),
+  `role_description` VARCHAR(64),
+  `role_default` INT,
+  `role_status` INT,
+  `status` INT,
+  PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_roles` (
+  `userrole_id` INT,
+  `user_id` INT,
+  `role_id` INT,
+  `userrole_date_created` DATETIME,
+  `userrole_date_updated` DATETIME,
+  `userrole_status` INT,
+  `status` INT,
+  PRIMARY KEY (`userrole_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `navigations` (
+  `navigation_id` INT,
+  `navigation_name` VARCHAR(64),
+  `navigation_level` INT,
+  `navigation_depends` INT,
+  `navigation_url` VARCHAR(64),
+  `navigation_icon` VARCHAR(64),
+  `navigation_order` INT,
+  `navigation_status` INT,
+  `status` INT,
+  PRIMARY KEY (`navigation_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `navigation_paths` (
+  `navigationpath_id` INT,
+  `navigation_id` INT,
+  `controller_name` VARCHAR(64),
+  `action_name` VARCHAR(64),
+  `module_name` VARCHAR(64),
+  `status` INT,
+  PRIMARY KEY (`navigationpath_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `navigation_favorites` (
+  `navigationfavorite_id` INT,
+  `user_id` INT,
+  `navigationfavorite_name` VARCHAR(64),
+  `navigationfavorite_url` VARCHAR(64),
+  `status` INT,
+  PRIMARY KEY (`navigationfavorite_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rbac_group_actions` (
+  `groupaction_id` INT,
+  `groupaction_key` VARCHAR(64),
+  `groupaction_name` VARCHAR(64),
+  `groupaction_description` VARCHAR(64),
+  `groupaction_order` INT,
+  `groupaction_status` INT,
+  `status` INT,
+  PRIMARY KEY (`groupaction_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rbac_actions` (
+  `action_id` INT,
+  `groupaction_id` INT,
+  `action_key` VARCHAR(64),
+  `action_name` VARCHAR(64),
+  `action_description` VARCHAR(64),
+  `action_status` INT,
+  `status` INT,
+  PRIMARY KEY (`action_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rbac_permissions` (
+  `permission_id` INT,
+  `role_id` INT,
+  `action_id` INT,
+  `permission_status` INT,
+  `status` INT,
+  PRIMARY KEY (`permission_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `navigation_actions` (
+  `navigationaction_id` INT,
+  `navigation_id` INT,
+  `action_id` INT,
+  `status` INT,
+  PRIMARY KEY (`navigationaction_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `log_events` (
+  `logevent_id` INT,
+  `action_id` INT,
+  `usersession_id` INT,
+  `logevent_code` INT,
+  `logevent_message` VARCHAR(64),
+  `logevent_params` VARCHAR(64),
+  `logevent_public` INT,
+  `logevent_date_created` DATETIME,
+  `status` INT,
+  PRIMARY KEY (`logevent_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `responsables` (
+  `responsable_id` INT,
+  `responsable_name` VARCHAR(64),
+  `responsable_phone` VARCHAR(64),
+  `responsable_position` VARCHAR(64),
+  `status` INT,
+  PRIMARY KEY (`responsable_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `lists` (
+  `list_id` INT,
+  `list_code` VARCHAR(64),
+  `list_name` VARCHAR(64),
+  `list_resumen` VARCHAR(64),
+  `list_status` INT,
+  `active` INT,
+  `status` INT,
+  PRIMARY KEY (`list_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `type_variables` (
+  `typevariable_id` INT,
+  `typevariable_denomination` VARCHAR(64),
+  `typevariable_key` VARCHAR(64),
+  `active` INT,
+  `status` INT,
+  PRIMARY KEY (`typevariable_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `type_devices` (
+  `typedevice_id` INT,
+  `typedevice_denomination` VARCHAR(64),
+  `typedevice_origin` VARCHAR(64),
+  `typedevice_modem` INT,
+  `typedevice_maintenance_frequency` INT,
+  `status` INT,
+  PRIMARY KEY (`typedevice_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `type_device_variables` (
+  `typedevicevariable_id` INT,
+  `typedevice_id` INT,
+  `typevariable_id` INT,
+  `status` INT,
+  PRIMARY KEY (`typedevicevariable_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `devices` (
+  `device_id` INT,
+  `typedevice_id` INT,
+  `device_code` VARCHAR(64),
+  `device_serie` VARCHAR(64),
+  `device_latitude` VARCHAR(64),
+  `device_longitude` VARCHAR(64),
+  `device_number_modem` VARCHAR(64),
+  `device_provider_modem` VARCHAR(64),
+  `device_status` INT,
+  `status` INT,
+  PRIMARY KEY (`device_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `device_maintenances` (
+  `devicemaintenance_id` INT,
+  `device_id` INT,
+  `devicemaintenance_date` DATETIME,
+  `responsable_id` INT,
+  `status` INT,
+  PRIMARY KEY (`devicemaintenance_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `device_responsables` (
+  `deviceresponsable_id` INT,
+  `device_id` INT,
+  `responsable_id` INT,
+  `status` INT,
+  PRIMARY KEY (`deviceresponsable_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `list_users` (
+  `listuser_id` INT,
+  `list_id` INT,
+  `role_id` INT,
+  `user_id` INT,
+  `status` INT,
+  PRIMARY KEY (`listuser_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `list_devices` (
+  `listdevice` INT,
+  `list_id` INT,
+  `device_id` INT,
+  `status` INT,
+  PRIMARY KEY (`listdevice`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `list_responsables` (
+  `listresponsable_id` INT,
+  `list_id` INT,
+  `responsable_id` INT,
+  `status` INT,
+  PRIMARY KEY (`listresponsable_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `images` (
+  `image_id` INT,
+  `image_name` VARCHAR(64),
+  `image_mimetype` VARCHAR(64),
+  `image_extension` VARCHAR(64),
+  `image_size` DECIMAL(10,2),
+  `date_create` DATETIME,
+  `status` INT,
+  PRIMARY KEY (`image_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `banners` (
+  `banner_id` INT,
+  `image_id` INT,
+  `banner_title` VARCHAR(64),
+  `banner_description` VARCHAR(64),
+  `banner_order` INT,
+  `active` INT,
+  `status` INT,
+  PRIMARY KEY (`banner_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cards` (
+  `card_id` INT,
+  `card_title` VARCHAR(64),
+  `card_description` VARCHAR(64),
+  `card_order` INT,
+  `status` INT,
+  PRIMARY KEY (`card_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `partners` (
+  `partner_id` INT,
+  `image_id` INT,
+  `partner_name` VARCHAR(64),
+  `partner_url` VARCHAR(64),
+  `partner_description` VARCHAR(64),
+  `partner_order` INT,
+  `status` INT,
+  PRIMARY KEY (`partner_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `device_activities` (
+  `deviceactivity_id` INT,
+  `device_id` INT,
+  `typevariable_id` INT,
+  `deviceactivity_value` VARCHAR(64),
+  `date_created` DATETIME,
+  `status` INT,
+  PRIMARY KEY (`deviceactivity_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_639382_create_base_structure') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_639382_create_base_structure') AS relationships;
+DROP DATABASE `db_639382_create_base_structure`;
+UNINSTALL EXTENSION vsql_schematron;

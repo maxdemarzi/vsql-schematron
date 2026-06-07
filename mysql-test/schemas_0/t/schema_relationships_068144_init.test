@@ -1,0 +1,155 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 068144_init
+--echo #
+CREATE DATABASE `db_068144_init`;
+USE `db_068144_init`;
+
+CREATE TABLE `CRYPTOADDRESS` (
+  `ID` INT,
+  `TYPE` INT,
+  `ADDRESS` VARCHAR(64),
+  `CURRENCY` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DEPOSITACCOUNT` (
+  `ID` INT,
+  `depositAccountId` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DEPOSITADDRESS` (
+  `ID` INT,
+  `cryptoAddressId` INT,
+  `depositAccountId` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ENABLEDCURRENCY` (
+  `ID` INT,
+  `CURRENCY` INT,
+  `depositAccountId` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PAYMENT` (
+  `ID` INT,
+  `STATUS` INT,
+  `FEE` DECIMAL(10,2),
+  `paymentId` VARCHAR(64),
+  `AMOUNT` DECIMAL(10,2),
+  `TAG` VARCHAR(64),
+  `cryptoAddressId` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `INVOICE` (
+  `ID` INT,
+  `STATUS` INT,
+  `RECEIVED` DECIMAL(10,2),
+  `invoiceId` VARCHAR(64),
+  `AMOUNT` DECIMAL(10,2),
+  `TAG` VARCHAR(64),
+  `cryptoAddressId` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TX` (
+  `ID` INT,
+  `STATUS` INT,
+  `TAG` VARCHAR(64),
+  `AMOUNT` DECIMAL(10,2),
+  `FEE` DECIMAL(10,2),
+  `HASH` VARCHAR(64),
+  `cryptoAddressId` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BTCTX` (
+  `ID` INT,
+  `CONFIRMATIONS` INT,
+  `ADDRESS` VARCHAR(64),
+  `TxId` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TRXTX` (
+  `ID` INT,
+  `ADDRESS` VARCHAR(64),
+  `TxId` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CONTRACTRET` (
+  `ID` INT,
+  `contractRet` VARCHAR(64),
+  `TrxTable` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `XRPTX` (
+  `ID` INT,
+  `FEE` DECIMAL(10,2),
+  `ACCOUNT` VARCHAR(64),
+  `SEQUENCE` INT,
+  `VALIDATED` BOOL,
+  `TxId` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GRMINMSG` (
+  `ID` INT,
+  `sourceAddress` VARCHAR(64),
+  `DESTINATION` VARCHAR(64),
+  `VALUE` INT,
+  `fwdFee` INT,
+  `ihrFee` INT,
+  `createdLt` INT,
+  `bodyHash` VARCHAR(64),
+  `msgText` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GRMTX` (
+  `ID` INT,
+  `UTIME` INT,
+  `inMsg` INT,
+  `TxId` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GRMOUTMSG` (
+  `ID` INT,
+  `grmTx` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GRMQUERYINFO` (
+  `ID` INT,
+  `queryId` INT,
+  `validUntil` INT,
+  `bodyHash` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_068144_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_068144_init') AS relationships;
+DROP DATABASE `db_068144_init`;
+UNINSTALL EXTENSION vsql_schematron;

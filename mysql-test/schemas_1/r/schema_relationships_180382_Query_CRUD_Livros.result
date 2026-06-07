@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 180382_Query_CRUD_Livros
+#
+CREATE DATABASE `db_180382_Query_CRUD_Livros`;
+USE `db_180382_Query_CRUD_Livros`;
+CREATE TABLE `tbl_Livro` (
+`ID` INT,
+`Nome` VARCHAR(64),
+`Preco` DECIMAL(10,2),
+`Data_Pub` DATETIME,
+`Num_Paginas` INT,
+`Sinopse` VARCHAR(64),
+`Cod_Editora` INT,
+`ID_Idioma` INT,
+`ID_Img` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_Autor` (
+`ID` INT,
+`Nome` VARCHAR(64),
+`Sobrenome` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_Categoria` (
+`Cod` INT,
+`Nome` VARCHAR(64),
+PRIMARY KEY (`Cod`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_Editora` (
+`Cod` INT,
+`Nome` VARCHAR(64),
+PRIMARY KEY (`Cod`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_Idioma` (
+`ID` INT,
+`Nome` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_Imagem` (
+`ID` INT,
+`Nome` VARCHAR(64),
+`Extension` VARCHAR(64),
+`Tamanho_KB` DECIMAL(10,2),
+`Data` DATETIME,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_Categoriza` (
+`ID_Livro` INT,
+`Cod_Categoria` INT,
+PRIMARY KEY (`Cod_Categoria`, `ID_Livro`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_Escreve` (
+`ID_Livro` INT,
+`ID_Autor` INT,
+PRIMARY KEY (`ID_Livro`, `ID_Autor`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_180382_Query_CRUD_Livros') AS relationships;
+relationships
+Database: db_180382_Query_CRUD_Livros
+
+Table Connections:
+------------------
+[Implied]  tbl_Categoriza.Cod_Categoria -> tbl_Categoria.Cod
+[Implied]  tbl_Categoriza.ID_Livro -> tbl_Livro.ID
+[Implied]  tbl_Escreve.ID_Autor -> tbl_Autor.ID
+[Implied]  tbl_Escreve.ID_Livro -> tbl_Livro.ID
+[Implied]  tbl_Livro.Cod_Editora -> tbl_Editora.Cod
+[Implied]  tbl_Livro.ID_Idioma -> tbl_Idioma.ID
+
+DROP DATABASE `db_180382_Query_CRUD_Livros`;
+UNINSTALL EXTENSION vsql_schematron;

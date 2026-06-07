@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 083589_database
+#
+CREATE DATABASE `db_083589_database`;
+USE `db_083589_database`;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(64),
+`username` VARCHAR(64),
+`bio` VARCHAR(64),
+`email` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`password` VARCHAR(64),
+`profile_pic` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `followers` (
+`id` INT,
+`date` DATETIME,
+`user_id` INT,
+`follower_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`description` VARCHAR(64),
+`user_id` INT,
+`location_id` INT,
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `locations` (
+`id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`date` DATETIME,
+`message` VARCHAR(64),
+`comment_id` INT,
+`post_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `likes` (
+`id` INT,
+`date` DATETIME,
+`post_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `saved_posts` (
+`id` INT,
+`date` DATETIME,
+`user_id` INT,
+`post_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `images` (
+`id` INT,
+`root` VARCHAR(64),
+`date` DATETIME,
+`post_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_083589_database') AS relationships;
+relationships
+Database: db_083589_database
+
+Table Connections:
+------------------
+[Implied]  comments.post_id -> posts.id
+[Implied]  comments.user_id -> followers.id
+[Implied]  followers.follower_id -> users.id
+[Implied]  followers.user_id -> users.id
+[Implied]  images.post_id -> posts.id
+[Implied]  likes.post_id -> posts.id
+[Implied]  likes.user_id -> followers.id
+[Implied]  posts.location_id -> locations.id
+[Implied]  posts.user_id -> followers.id
+[Implied]  saved_posts.post_id -> posts.id
+[Implied]  saved_posts.user_id -> followers.id
+
+DROP DATABASE `db_083589_database`;
+UNINSTALL EXTENSION vsql_schematron;

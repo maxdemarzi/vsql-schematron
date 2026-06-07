@@ -1,0 +1,115 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 075864_create_insert
+#
+CREATE DATABASE `db_075864_create_insert`;
+USE `db_075864_create_insert`;
+CREATE TABLE `EMPLOYEE` (
+`email` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`salary` DECIMAL(10,2),
+`hired_date` DATETIME,
+PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+CREATE TABLE `JOURNALIST` (
+`journal_email` VARCHAR(64),
+`work_experience` INT,
+`cv` VARCHAR(64),
+`chief_editor` VARCHAR(64),
+PRIMARY KEY (`journal_email`)
+) CHARACTER SET latin1;
+CREATE TABLE `ADMINISTRATIVE` (
+`email` VARCHAR(64),
+`duties` VARCHAR(64),
+`address` VARCHAR(64),
+`address_number` INT,
+`city` VARCHAR(64),
+PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+CREATE TABLE `NEWSPAPER` (
+`name_news` VARCHAR(64),
+`owner_name` VARCHAR(64),
+`publish_freq` VARCHAR(64),
+`editor_in_chief` VARCHAR(64),
+PRIMARY KEY (`name_news`)
+) CHARACTER SET latin1;
+CREATE TABLE `PAPER` (
+`name_newspaper` VARCHAR(64),
+`paper_num` INT,
+`pages_num` INT,
+`release_date` DATETIME,
+`copy_num` INT,
+PRIMARY KEY (`paper_num`, `name_newspaper`)
+) CHARACTER SET latin1;
+CREATE TABLE `TELEPHONE` (
+`telephone_num` VARCHAR(64),
+`administrative_employee` VARCHAR(64),
+PRIMARY KEY (`telephone_num`)
+) CHARACTER SET latin1;
+CREATE TABLE `WORKS` (
+`newsp_name` VARCHAR(64),
+`employee_name` VARCHAR(64),
+PRIMARY KEY (`newsp_name`, `employee_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `CATEGORY` (
+`id` INT,
+`parent_id` INT,
+`name_category` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ARTICLE` (
+`art_path` VARCHAR(64),
+`title` VARCHAR(64),
+`summary` VARCHAR(64),
+`pages` INT,
+`category` INT,
+PRIMARY KEY (`art_path`)
+) CHARACTER SET latin1;
+CREATE TABLE `SUBMISSION` (
+`journalist` VARCHAR(64),
+`article` VARCHAR(64),
+`sub_date` DATETIME,
+PRIMARY KEY (`journalist`, `article`)
+) CHARACTER SET latin1;
+CREATE TABLE `CHECKING` (
+`chief` VARCHAR(64),
+`article` VARCHAR(64),
+`comments` VARCHAR(64),
+`approval` VARCHAR(64),
+`approval_date` DATETIME,
+PRIMARY KEY (`article`)
+) CHARACTER SET latin1;
+CREATE TABLE `PAGE_ORGANISATION` (
+`newspaperName` VARCHAR(64),
+`papernum` INT,
+`in_article` VARCHAR(64),
+`position` INT,
+PRIMARY KEY (`papernum`, `position`)
+) CHARACTER SET latin1;
+CREATE TABLE `KEYWORDS` (
+`article` VARCHAR(64),
+`words` VARCHAR(64),
+PRIMARY KEY (`words`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_075864_create_insert') AS relationships;
+relationships
+Database: db_075864_create_insert
+
+Table Connections:
+------------------
+[Implied]  ARTICLE.category -> CATEGORY.id
+[Implied]  CATEGORY.parent_id -> CATEGORY.id
+[Implied]  CHECKING.article -> ARTICLE.art_path
+[Implied]  JOURNALIST.chief_editor -> EMPLOYEE.email
+[Implied]  KEYWORDS.article -> ARTICLE.art_path
+[Implied]  PAGE_ORGANISATION.in_article -> ARTICLE.art_path
+[Implied]  PAGE_ORGANISATION.in_article -> CHECKING.article
+[Implied]  SUBMISSION.article -> ARTICLE.art_path
+[Implied]  SUBMISSION.journalist -> JOURNALIST.journal_email
+[Implied]  TELEPHONE.administrative_employee -> ADMINISTRATIVE.email
+[Implied]  WORKS.employee_name -> EMPLOYEE.email
+
+DROP DATABASE `db_075864_create_insert`;
+UNINSTALL EXTENSION vsql_schematron;

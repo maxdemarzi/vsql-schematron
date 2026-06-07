@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 663835_20210214154022_init_schema.up
+#
+CREATE DATABASE `db_663835_20210214154022_init_schema_up`;
+USE `db_663835_20210214154022_init_schema_up`;
+CREATE TABLE `admins` (
+`id` INT,
+`email` VARCHAR(64),
+`encrypted_password` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`username` VARCHAR(64),
+`encrypted_password` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`title` VARCHAR(64),
+`body` VARCHAR(64),
+`owner_id` INT,
+`created_at` DATETIME,
+`published_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `relationships` (
+`follower_id` INT,
+`followed_id` INT,
+`created_at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `responses` (
+`id` INT,
+`body` VARCHAR(64),
+`post_id` INT,
+`owner_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_663835_20210214154022_init_schema_up') AS relationships;
+relationships
+Database: db_663835_20210214154022_init_schema_up
+
+Table Connections:
+------------------
+[Implied]  posts.owner_id -> users.id
+[Implied]  relationships.follower_id -> users.id
+[Implied]  responses.owner_id -> users.id
+[Implied]  responses.post_id -> posts.id
+
+DROP DATABASE `db_663835_20210214154022_init_schema_up`;
+UNINSTALL EXTENSION vsql_schematron;

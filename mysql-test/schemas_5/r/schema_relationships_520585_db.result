@@ -1,0 +1,45 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 520585_db
+#
+CREATE DATABASE `db_520585_db`;
+USE `db_520585_db`;
+CREATE TABLE `player` (
+`id` INT,
+`name` VARCHAR(64),
+`points` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tournament` (
+`id` INT,
+`name` VARCHAR(64),
+`deposit` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tournament_player` (
+`id` INT,
+`player_id` INT,
+`tournament_id` INT,
+`prize` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `backer` (
+`id` INT,
+`player_id` INT,
+`backer_id` INT,
+`sum` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_520585_db') AS relationships;
+relationships
+Database: db_520585_db
+
+Table Connections:
+------------------
+[Implied]  backer.backer_id -> backer.id
+[Implied]  backer.player_id -> player.id
+[Implied]  tournament_player.player_id -> player.id
+[Implied]  tournament_player.tournament_id -> tournament.id
+
+DROP DATABASE `db_520585_db`;
+UNINSTALL EXTENSION vsql_schematron;

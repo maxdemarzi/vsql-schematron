@@ -1,0 +1,141 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 600277_kannabis
+--echo #
+CREATE DATABASE `db_600277_kannabis`;
+USE `db_600277_kannabis`;
+
+CREATE TABLE `agronomists` (
+  `id` INT,
+  `last_name` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customers` (
+  `id` INT,
+  `last_name` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hemp_sort` (
+  `id` INT,
+  `sort_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `complaints` (
+  `id` INT,
+  `customer_id` INT,
+  `text_complaints` VARCHAR(64),
+  `comp_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `products` (
+  `id` INT,
+  `prod_name` VARCHAR(64),
+  `agronom_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product_items` (
+  `product_id` INT,
+  `hemp_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `id` INT,
+  `customer_id` INT,
+  `agronom_id` INT,
+  `order_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_items` (
+  `order_id` INT,
+  `product_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `status` (
+  `id` INT,
+  `status_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `returnss` (
+  `id` INT,
+  `order_id` INT,
+  `status_id` INT,
+  `return_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `harvests` (
+  `id` INT,
+  `agronom_id` INT,
+  `hemp_sort_id` INT,
+  `start_date` DATETIME,
+  `finish_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tsts_groups` (
+  `id` INT,
+  `title` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tasting_group_members` (
+  `tsts_groups_id` INT,
+  `customer_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `tastings` (
+  `id` INT,
+  `tsts_groups_id` INT,
+  `product_id` INT,
+  `tasting_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `business_trips_groups` (
+  `id` INT,
+  `title` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bt_group_members` (
+  `bt_group_id` INT,
+  `agronom_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `business_trips` (
+  `id` INT,
+  `bt_group_id` INT,
+  `start_date` DATETIME,
+  `finish_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_600277_kannabis') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_600277_kannabis') AS relationships;
+DROP DATABASE `db_600277_kannabis`;
+UNINSTALL EXTENSION vsql_schematron;

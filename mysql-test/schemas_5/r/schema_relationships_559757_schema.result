@@ -1,0 +1,131 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 559757_schema
+#
+CREATE DATABASE `db_559757_schema`;
+USE `db_559757_schema`;
+CREATE TABLE `unit` (
+`id` INT,
+`name` VARCHAR(64),
+`create_datetime` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`unit_id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`age` INT,
+`create_datetime` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`id` INT,
+`post_id` INT,
+`review` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `school` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `school_teacher` (
+`school_id` INT,
+`teacher_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `teacher` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `phone` (
+`id` INT,
+`number` VARCHAR(64),
+`details_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `phone_details` (
+`id` INT,
+`provider` VARCHAR(64),
+`technology` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `book_details` (
+`id` INT,
+`author` VARCHAR(64),
+`press` VARCHAR(64),
+`book_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `content` (
+`id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `content_details` (
+`id` INT,
+`text` VARCHAR(64),
+`content_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `address` (
+`id` INT,
+`number` VARCHAR(64),
+`street` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_addresses` (
+`user_id` INT,
+`addresses_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `teacher_courses` (
+`teachers_id` INT,
+`courses_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_course` (
+`student_id` INT,
+`course_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_559757_schema') AS relationships;
+relationships
+Database: db_559757_schema
+
+Table Connections:
+------------------
+[Implied]  book_details.book_id -> book.id
+[Implied]  comment.post_id -> post.id
+[Implied]  content_details.content_id -> content.id
+[Implied]  school_teacher.school_id -> school.id
+[Implied]  school_teacher.teacher_id -> teacher.id
+[Implied]  student_course.course_id -> course.id
+[Implied]  student_course.student_id -> student.id
+[Implied]  teacher_courses.courses_id -> course.id
+[Implied]  teacher_courses.teachers_id -> teacher.id
+[Implied]  user.unit_id -> unit.id
+[Implied]  user_addresses.addresses_id -> address.id
+[Implied]  user_addresses.user_id -> student.id
+[Implied]  user_addresses.user_id -> teacher.id
+
+DROP DATABASE `db_559757_schema`;
+UNINSTALL EXTENSION vsql_schematron;

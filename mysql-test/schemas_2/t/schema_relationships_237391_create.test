@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 237391_create
+--echo #
+CREATE DATABASE `db_237391_create`;
+USE `db_237391_create`;
+
+CREATE TABLE `users` (
+  `NAME` VARCHAR(64),
+  `EMAIL` VARCHAR(64),
+  `PASS` VARCHAR(64),
+  PRIMARY KEY (`NAME`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `items` (
+  `ID` INT,
+  `IMGURL` VARCHAR(64),
+  `TITLE` VARCHAR(64),
+  `SOURCE` VARCHAR(64),
+  `LINK` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comments` (
+  `ID` INT,
+  `ITEM` INT,
+  `DATE` DATETIME,
+  `TEXT` VARCHAR(64),
+  `AUTHOR` VARCHAR(64),
+  `LIKES` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `temp_tokens` (
+  `TOKEN` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `EMAIL` VARCHAR(64),
+  `PASS` VARCHAR(64),
+  `EXP` DATETIME,
+  PRIMARY KEY (`TOKEN`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `access_tokens` (
+  `TOKEN` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `EXP` DATETIME,
+  PRIMARY KEY (`TOKEN`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `likes` (
+  `USER` VARCHAR(64),
+  `COMMENT` INT,
+  PRIMARY KEY (`USER`, `COMMENT`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_237391_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_237391_create') AS relationships;
+DROP DATABASE `db_237391_create`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 520755_create
+#
+CREATE DATABASE `db_520755_create`;
+USE `db_520755_create`;
+CREATE TABLE `game` (
+`gamename` VARCHAR(64),
+`oringinal_price` DECIMAL(10,2),
+`current_price` DECIMAL(10,2),
+`lowest_price` DECIMAL(10,2),
+`link` VARCHAR(64),
+`image_url` VARCHAR(64),
+`desc` VARCHAR(64),
+PRIMARY KEY (`gamename`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`nickname` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`salt` VARCHAR(64),
+PRIMARY KEY (`nickname`)
+) CHARACTER SET latin1;
+CREATE TABLE `wishlist` (
+`nickname` INT,
+`gamename` INT,
+`email_alert` BOOL,
+PRIMARY KEY (`nickname`, `gamename`)
+) CHARACTER SET latin1;
+CREATE TABLE `own` (
+`nickname` INT,
+`gamename` INT,
+PRIMARY KEY (`nickname`, `gamename`)
+) CHARACTER SET latin1;
+CREATE TABLE `history_price` (
+`gamename` VARCHAR(64),
+`price` DECIMAL(10,2),
+`date` DATETIME,
+PRIMARY KEY (`gamename`, `date`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_520755_create') AS relationships;
+relationships
+Database: db_520755_create
+
+Table Connections:
+------------------
+[Implied]  history_price.gamename -> game.gamename
+[Implied]  own.gamename -> wishlist.gamename
+[Implied]  own.nickname -> wishlist.nickname
+[Implied]  wishlist.gamename -> own.gamename
+[Implied]  wishlist.nickname -> own.nickname
+
+DROP DATABASE `db_520755_create`;
+UNINSTALL EXTENSION vsql_schematron;

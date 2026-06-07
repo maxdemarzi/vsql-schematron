@@ -1,0 +1,531 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 510777_012tool-results-tables-create
+#
+CREATE DATABASE `db_510777_012tool_results_tables_create`;
+USE `db_510777_012tool_results_tables_create`;
+CREATE TABLE `raw_mac_addrs` (
+`tool_run_id` VARCHAR(64),
+`mac_addr` VARCHAR(64),
+`is_responding` BOOL,
+PRIMARY KEY (`tool_run_id`, `mac_addr`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_ip_addrs` (
+`tool_run_id` VARCHAR(64),
+`ip_addr` VARCHAR(64),
+`is_responding` BOOL,
+PRIMARY KEY (`tool_run_id`, `ip_addr`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_mac_addrs_ip_addrs` (
+`tool_run_id` VARCHAR(64),
+`mac_addr` VARCHAR(64),
+`ip_addr` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `mac_addr`, `ip_addr`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_hostnames` (
+`tool_run_id` VARCHAR(64),
+`ip_addr` VARCHAR(64),
+`hostname` VARCHAR(64),
+`reason` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `ip_addr`, `hostname`, `reason`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_vlans` (
+`tool_run_id` VARCHAR(64),
+`vlan` DECIMAL(10,2),
+`description` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `vlan`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_ip_nets` (
+`tool_run_id` VARCHAR(64),
+`ip_net` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `ip_net`)
+) CHARACTER SET latin1;
+CREATE TABLE `ip_nets_extra_weights` (
+`ip_net` VARCHAR(64),
+`extra_weight` DECIMAL(10,2),
+PRIMARY KEY (`ip_net`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_vlans_ip_nets` (
+`tool_run_id` VARCHAR(64),
+`vlan` DECIMAL(10,2),
+`ip_net` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `vlan`, `ip_net`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_ip_traceroutes` (
+`tool_run_id` VARCHAR(64),
+`hop_count` INT,
+`rtr_ip_addr` VARCHAR(64),
+`dst_ip_addr` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `hop_count`, `rtr_ip_addr`, `dst_ip_addr`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_ports` (
+`tool_run_id` VARCHAR(64),
+`ip_addr` VARCHAR(64),
+`protocol` VARCHAR(64),
+`port` DECIMAL(10,2),
+`port_state` VARCHAR(64),
+`port_reason` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `ip_addr`, `protocol`, `port`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_network_services` (
+`tool_run_id` VARCHAR(64),
+`ip_addr` VARCHAR(64),
+`protocol` VARCHAR(64),
+`port` DECIMAL(10,2),
+`service_name` VARCHAR(64),
+`service_description` VARCHAR(64),
+`service_reason` VARCHAR(64),
+`observer_ip_addr` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `ip_addr`, `protocol`, `port`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_nessus_results` (
+`tool_run_id` VARCHAR(64),
+`ip_addr` VARCHAR(64),
+`protocol` VARCHAR(64),
+`port` DECIMAL(10,2),
+`plugin_id` INT,
+`plugin_name` VARCHAR(64),
+`plugin_family` VARCHAR(64),
+`plugin_type` VARCHAR(64),
+`plugin_output` VARCHAR(64),
+`severity` INT,
+`description` VARCHAR(64),
+`solution` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `ip_addr`, `protocol`, `port`, `plugin_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_nessus_results_cves` (
+`tool_run_id` VARCHAR(64),
+`ip_addr` VARCHAR(64),
+`protocol` VARCHAR(64),
+`port` DECIMAL(10,2),
+`plugin_id` INT,
+`cve_id` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `ip_addr`, `protocol`, `port`, `plugin_id`, `cve_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_nessus_results_metasploit_modules` (
+`tool_run_id` VARCHAR(64),
+`ip_addr` VARCHAR(64),
+`protocol` VARCHAR(64),
+`port` DECIMAL(10,2),
+`plugin_id` INT,
+`metasploit_name` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `ip_addr`, `protocol`, `port`, `plugin_id`, `metasploit_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_nse_results` (
+`tool_run_id` VARCHAR(64),
+`ip_addr` VARCHAR(64),
+`protocol` VARCHAR(64),
+`port` DECIMAL(10,2),
+`script_id` VARCHAR(64),
+`script_output` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `ip_addr`, `protocol`, `port`, `script_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_ssh_host_public_keys` (
+`tool_run_id` VARCHAR(64),
+`ip_addr` VARCHAR(64),
+`protocol` VARCHAR(64),
+`port` DECIMAL(10,2),
+`ssh_key_type` VARCHAR(64),
+`ssh_key_bits` INT,
+`ssh_key_fingerprint` VARCHAR(64),
+`ssh_key_public` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `ip_addr`, `protocol`, `port`, `ssh_key_type`, `ssh_key_bits`, `ssh_key_fingerprint`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_ssh_host_algorithms` (
+`tool_run_id` VARCHAR(64),
+`ip_addr` VARCHAR(64),
+`protocol` VARCHAR(64),
+`port` DECIMAL(10,2),
+`ssh_algo_type` VARCHAR(64),
+`ssh_algo_name` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `ip_addr`, `protocol`, `port`, `ssh_algo_type`, `ssh_algo_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_operating_systems` (
+`tool_run_id` VARCHAR(64),
+`ip_addr` VARCHAR(64),
+`vendor_name` VARCHAR(64),
+`product_name` VARCHAR(64),
+`product_version` VARCHAR(64),
+`cpe` VARCHAR(64),
+`accuracy` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `raw_tool_observations` (
+`tool_run_id` VARCHAR(64),
+`category` VARCHAR(64),
+`observation` VARCHAR(64),
+PRIMARY KEY (`tool_run_id`, `category`, `observation`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_510777_012tool_results_tables_create') AS relationships;
+relationships
+Database: db_510777_012tool_results_tables_create
+
+Table Connections:
+------------------
+[Implied]  raw_hostnames.ip_addr -> raw_ip_addrs.ip_addr
+[Implied]  raw_hostnames.ip_addr -> raw_nessus_results.ip_addr
+[Implied]  raw_hostnames.ip_addr -> raw_network_services.ip_addr
+[Implied]  raw_hostnames.ip_addr -> raw_nse_results.ip_addr
+[Implied]  raw_hostnames.ip_addr -> raw_ports.ip_addr
+[Implied]  raw_hostnames.ip_addr -> raw_ssh_host_algorithms.ip_addr
+[Implied]  raw_hostnames.ip_addr -> raw_ssh_host_public_keys.ip_addr
+[Implied]  raw_hostnames.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_hostnames.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_hostnames.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_hostnames.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_hostnames.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_hostnames.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_hostnames.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_hostnames.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_hostnames.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_hostnames.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_hostnames.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_ip_addrs.ip_addr -> raw_hostnames.ip_addr
+[Implied]  raw_ip_addrs.ip_addr -> raw_mac_addrs_ip_addrs.ip_addr
+[Implied]  raw_ip_addrs.ip_addr -> raw_nessus_results.ip_addr
+[Implied]  raw_ip_addrs.ip_addr -> raw_network_services.ip_addr
+[Implied]  raw_ip_addrs.ip_addr -> raw_nse_results.ip_addr
+[Implied]  raw_ip_addrs.ip_addr -> raw_ports.ip_addr
+[Implied]  raw_ip_addrs.ip_addr -> raw_ssh_host_algorithms.ip_addr
+[Implied]  raw_ip_addrs.ip_addr -> raw_ssh_host_public_keys.ip_addr
+[Implied]  raw_ip_addrs.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_ip_addrs.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_ip_addrs.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_ip_addrs.tool_run_id -> raw_mac_addrs.tool_run_id
+[Implied]  raw_ip_addrs.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_ip_addrs.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_ip_addrs.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_ip_addrs.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_ip_addrs.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_ip_addrs.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_ip_addrs.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_ip_addrs.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_ip_nets.ip_net -> ip_nets_extra_weights.ip_net
+[Implied]  raw_ip_nets.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_ip_nets.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_ip_nets.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_ip_nets.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_ip_nets.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_ip_nets.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_ip_nets.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_ip_nets.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_ip_nets.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_ip_nets.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_ip_nets.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_ip_traceroutes.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_ip_traceroutes.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_ip_traceroutes.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_ip_traceroutes.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_ip_traceroutes.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_ip_traceroutes.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_ip_traceroutes.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_ip_traceroutes.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_ip_traceroutes.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_ip_traceroutes.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_ip_traceroutes.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_mac_addrs.mac_addr -> raw_mac_addrs_ip_addrs.mac_addr
+[Implied]  raw_mac_addrs.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_mac_addrs.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_mac_addrs.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_mac_addrs.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_mac_addrs.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_mac_addrs.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_mac_addrs.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_mac_addrs.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_mac_addrs.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_mac_addrs.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_mac_addrs.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_mac_addrs.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_mac_addrs_ip_addrs.ip_addr -> raw_hostnames.ip_addr
+[Implied]  raw_mac_addrs_ip_addrs.ip_addr -> raw_ip_addrs.ip_addr
+[Implied]  raw_mac_addrs_ip_addrs.ip_addr -> raw_nessus_results.ip_addr
+[Implied]  raw_mac_addrs_ip_addrs.ip_addr -> raw_network_services.ip_addr
+[Implied]  raw_mac_addrs_ip_addrs.ip_addr -> raw_nse_results.ip_addr
+[Implied]  raw_mac_addrs_ip_addrs.ip_addr -> raw_ports.ip_addr
+[Implied]  raw_mac_addrs_ip_addrs.ip_addr -> raw_ssh_host_algorithms.ip_addr
+[Implied]  raw_mac_addrs_ip_addrs.ip_addr -> raw_ssh_host_public_keys.ip_addr
+[Implied]  raw_mac_addrs_ip_addrs.mac_addr -> raw_mac_addrs.mac_addr
+[Implied]  raw_mac_addrs_ip_addrs.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_mac_addrs_ip_addrs.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_mac_addrs_ip_addrs.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_mac_addrs_ip_addrs.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_mac_addrs_ip_addrs.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_mac_addrs_ip_addrs.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_mac_addrs_ip_addrs.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_mac_addrs_ip_addrs.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_mac_addrs_ip_addrs.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_mac_addrs_ip_addrs.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_mac_addrs_ip_addrs.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_mac_addrs_ip_addrs.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_nessus_results.ip_addr -> raw_hostnames.ip_addr
+[Implied]  raw_nessus_results.ip_addr -> raw_ip_addrs.ip_addr
+[Implied]  raw_nessus_results.ip_addr -> raw_nessus_results_cves.ip_addr
+[Implied]  raw_nessus_results.ip_addr -> raw_nessus_results_metasploit_modules.ip_addr
+[Implied]  raw_nessus_results.ip_addr -> raw_network_services.ip_addr
+[Implied]  raw_nessus_results.ip_addr -> raw_nse_results.ip_addr
+[Implied]  raw_nessus_results.ip_addr -> raw_ports.ip_addr
+[Implied]  raw_nessus_results.ip_addr -> raw_ssh_host_algorithms.ip_addr
+[Implied]  raw_nessus_results.ip_addr -> raw_ssh_host_public_keys.ip_addr
+[Implied]  raw_nessus_results.plugin_id -> raw_nessus_results_cves.plugin_id
+[Implied]  raw_nessus_results.plugin_id -> raw_nessus_results_metasploit_modules.plugin_id
+[Implied]  raw_nessus_results.port -> raw_ports.port
+[Implied]  raw_nessus_results.protocol -> raw_nessus_results_cves.protocol
+[Implied]  raw_nessus_results.protocol -> raw_nessus_results_metasploit_modules.protocol
+[Implied]  raw_nessus_results.protocol -> raw_network_services.protocol
+[Implied]  raw_nessus_results.protocol -> raw_nse_results.protocol
+[Implied]  raw_nessus_results.protocol -> raw_ports.protocol
+[Implied]  raw_nessus_results.protocol -> raw_ssh_host_algorithms.protocol
+[Implied]  raw_nessus_results.protocol -> raw_ssh_host_public_keys.protocol
+[Implied]  raw_nessus_results.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_nessus_results.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_nessus_results.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_nessus_results.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_nessus_results.tool_run_id -> raw_nessus_results_cves.tool_run_id
+[Implied]  raw_nessus_results.tool_run_id -> raw_nessus_results_metasploit_modules.tool_run_id
+[Implied]  raw_nessus_results.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_nessus_results.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_nessus_results.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_nessus_results.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_nessus_results.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_nessus_results.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_nessus_results.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_nessus_results_cves.ip_addr -> raw_hostnames.ip_addr
+[Implied]  raw_nessus_results_cves.ip_addr -> raw_ip_addrs.ip_addr
+[Implied]  raw_nessus_results_cves.ip_addr -> raw_nessus_results.ip_addr
+[Implied]  raw_nessus_results_cves.ip_addr -> raw_network_services.ip_addr
+[Implied]  raw_nessus_results_cves.ip_addr -> raw_nse_results.ip_addr
+[Implied]  raw_nessus_results_cves.ip_addr -> raw_ports.ip_addr
+[Implied]  raw_nessus_results_cves.ip_addr -> raw_ssh_host_algorithms.ip_addr
+[Implied]  raw_nessus_results_cves.ip_addr -> raw_ssh_host_public_keys.ip_addr
+[Implied]  raw_nessus_results_cves.plugin_id -> raw_nessus_results.plugin_id
+[Implied]  raw_nessus_results_cves.port -> raw_ports.port
+[Implied]  raw_nessus_results_cves.protocol -> raw_nessus_results.protocol
+[Implied]  raw_nessus_results_cves.protocol -> raw_network_services.protocol
+[Implied]  raw_nessus_results_cves.protocol -> raw_nse_results.protocol
+[Implied]  raw_nessus_results_cves.protocol -> raw_ports.protocol
+[Implied]  raw_nessus_results_cves.protocol -> raw_ssh_host_algorithms.protocol
+[Implied]  raw_nessus_results_cves.protocol -> raw_ssh_host_public_keys.protocol
+[Implied]  raw_nessus_results_cves.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_nessus_results_cves.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_nessus_results_cves.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_nessus_results_cves.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_nessus_results_cves.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_nessus_results_cves.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_nessus_results_cves.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_nessus_results_cves.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_nessus_results_cves.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_nessus_results_cves.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_nessus_results_cves.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_nessus_results_cves.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_nessus_results_metasploit_modules.ip_addr -> raw_hostnames.ip_addr
+[Implied]  raw_nessus_results_metasploit_modules.ip_addr -> raw_ip_addrs.ip_addr
+[Implied]  raw_nessus_results_metasploit_modules.ip_addr -> raw_nessus_results.ip_addr
+[Implied]  raw_nessus_results_metasploit_modules.ip_addr -> raw_network_services.ip_addr
+[Implied]  raw_nessus_results_metasploit_modules.ip_addr -> raw_nse_results.ip_addr
+[Implied]  raw_nessus_results_metasploit_modules.ip_addr -> raw_ports.ip_addr
+[Implied]  raw_nessus_results_metasploit_modules.ip_addr -> raw_ssh_host_algorithms.ip_addr
+[Implied]  raw_nessus_results_metasploit_modules.ip_addr -> raw_ssh_host_public_keys.ip_addr
+[Implied]  raw_nessus_results_metasploit_modules.plugin_id -> raw_nessus_results.plugin_id
+[Implied]  raw_nessus_results_metasploit_modules.port -> raw_ports.port
+[Implied]  raw_nessus_results_metasploit_modules.protocol -> raw_nessus_results.protocol
+[Implied]  raw_nessus_results_metasploit_modules.protocol -> raw_network_services.protocol
+[Implied]  raw_nessus_results_metasploit_modules.protocol -> raw_nse_results.protocol
+[Implied]  raw_nessus_results_metasploit_modules.protocol -> raw_ports.protocol
+[Implied]  raw_nessus_results_metasploit_modules.protocol -> raw_ssh_host_algorithms.protocol
+[Implied]  raw_nessus_results_metasploit_modules.protocol -> raw_ssh_host_public_keys.protocol
+[Implied]  raw_nessus_results_metasploit_modules.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_nessus_results_metasploit_modules.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_nessus_results_metasploit_modules.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_nessus_results_metasploit_modules.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_nessus_results_metasploit_modules.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_nessus_results_metasploit_modules.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_nessus_results_metasploit_modules.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_nessus_results_metasploit_modules.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_nessus_results_metasploit_modules.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_nessus_results_metasploit_modules.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_nessus_results_metasploit_modules.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_nessus_results_metasploit_modules.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_network_services.ip_addr -> raw_hostnames.ip_addr
+[Implied]  raw_network_services.ip_addr -> raw_ip_addrs.ip_addr
+[Implied]  raw_network_services.ip_addr -> raw_nessus_results.ip_addr
+[Implied]  raw_network_services.ip_addr -> raw_nse_results.ip_addr
+[Implied]  raw_network_services.ip_addr -> raw_ports.ip_addr
+[Implied]  raw_network_services.ip_addr -> raw_ssh_host_algorithms.ip_addr
+[Implied]  raw_network_services.ip_addr -> raw_ssh_host_public_keys.ip_addr
+[Implied]  raw_network_services.port -> raw_ports.port
+[Implied]  raw_network_services.protocol -> raw_nessus_results.protocol
+[Implied]  raw_network_services.protocol -> raw_nse_results.protocol
+[Implied]  raw_network_services.protocol -> raw_ports.protocol
+[Implied]  raw_network_services.protocol -> raw_ssh_host_algorithms.protocol
+[Implied]  raw_network_services.protocol -> raw_ssh_host_public_keys.protocol
+[Implied]  raw_network_services.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_network_services.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_network_services.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_network_services.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_network_services.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_network_services.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_network_services.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_network_services.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_network_services.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_network_services.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_network_services.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_nse_results.ip_addr -> raw_hostnames.ip_addr
+[Implied]  raw_nse_results.ip_addr -> raw_ip_addrs.ip_addr
+[Implied]  raw_nse_results.ip_addr -> raw_nessus_results.ip_addr
+[Implied]  raw_nse_results.ip_addr -> raw_network_services.ip_addr
+[Implied]  raw_nse_results.ip_addr -> raw_ports.ip_addr
+[Implied]  raw_nse_results.ip_addr -> raw_ssh_host_algorithms.ip_addr
+[Implied]  raw_nse_results.ip_addr -> raw_ssh_host_public_keys.ip_addr
+[Implied]  raw_nse_results.port -> raw_ports.port
+[Implied]  raw_nse_results.protocol -> raw_nessus_results.protocol
+[Implied]  raw_nse_results.protocol -> raw_network_services.protocol
+[Implied]  raw_nse_results.protocol -> raw_ports.protocol
+[Implied]  raw_nse_results.protocol -> raw_ssh_host_algorithms.protocol
+[Implied]  raw_nse_results.protocol -> raw_ssh_host_public_keys.protocol
+[Implied]  raw_nse_results.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_nse_results.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_nse_results.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_nse_results.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_nse_results.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_nse_results.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_nse_results.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_nse_results.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_nse_results.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_nse_results.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_nse_results.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_operating_systems.ip_addr -> raw_hostnames.ip_addr
+[Implied]  raw_operating_systems.ip_addr -> raw_ip_addrs.ip_addr
+[Implied]  raw_operating_systems.ip_addr -> raw_nessus_results.ip_addr
+[Implied]  raw_operating_systems.ip_addr -> raw_network_services.ip_addr
+[Implied]  raw_operating_systems.ip_addr -> raw_nse_results.ip_addr
+[Implied]  raw_operating_systems.ip_addr -> raw_ports.ip_addr
+[Implied]  raw_operating_systems.ip_addr -> raw_ssh_host_algorithms.ip_addr
+[Implied]  raw_operating_systems.ip_addr -> raw_ssh_host_public_keys.ip_addr
+[Implied]  raw_operating_systems.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_operating_systems.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_operating_systems.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_operating_systems.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_operating_systems.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_operating_systems.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_operating_systems.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_operating_systems.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_operating_systems.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_operating_systems.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_operating_systems.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_operating_systems.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_ports.ip_addr -> raw_hostnames.ip_addr
+[Implied]  raw_ports.ip_addr -> raw_ip_addrs.ip_addr
+[Implied]  raw_ports.ip_addr -> raw_nessus_results.ip_addr
+[Implied]  raw_ports.ip_addr -> raw_network_services.ip_addr
+[Implied]  raw_ports.ip_addr -> raw_nse_results.ip_addr
+[Implied]  raw_ports.ip_addr -> raw_ssh_host_algorithms.ip_addr
+[Implied]  raw_ports.ip_addr -> raw_ssh_host_public_keys.ip_addr
+[Implied]  raw_ports.port -> raw_nessus_results.port
+[Implied]  raw_ports.port -> raw_network_services.port
+[Implied]  raw_ports.port -> raw_nse_results.port
+[Implied]  raw_ports.port -> raw_ssh_host_algorithms.port
+[Implied]  raw_ports.port -> raw_ssh_host_public_keys.port
+[Implied]  raw_ports.protocol -> raw_nessus_results.protocol
+[Implied]  raw_ports.protocol -> raw_network_services.protocol
+[Implied]  raw_ports.protocol -> raw_nse_results.protocol
+[Implied]  raw_ports.protocol -> raw_ssh_host_algorithms.protocol
+[Implied]  raw_ports.protocol -> raw_ssh_host_public_keys.protocol
+[Implied]  raw_ports.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_ports.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_ports.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_ports.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_ports.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_ports.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_ports.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_ports.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_ports.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_ports.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_ports.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_ssh_host_algorithms.ip_addr -> raw_hostnames.ip_addr
+[Implied]  raw_ssh_host_algorithms.ip_addr -> raw_ip_addrs.ip_addr
+[Implied]  raw_ssh_host_algorithms.ip_addr -> raw_nessus_results.ip_addr
+[Implied]  raw_ssh_host_algorithms.ip_addr -> raw_network_services.ip_addr
+[Implied]  raw_ssh_host_algorithms.ip_addr -> raw_nse_results.ip_addr
+[Implied]  raw_ssh_host_algorithms.ip_addr -> raw_ports.ip_addr
+[Implied]  raw_ssh_host_algorithms.ip_addr -> raw_ssh_host_public_keys.ip_addr
+[Implied]  raw_ssh_host_algorithms.port -> raw_ports.port
+[Implied]  raw_ssh_host_algorithms.protocol -> raw_nessus_results.protocol
+[Implied]  raw_ssh_host_algorithms.protocol -> raw_network_services.protocol
+[Implied]  raw_ssh_host_algorithms.protocol -> raw_nse_results.protocol
+[Implied]  raw_ssh_host_algorithms.protocol -> raw_ports.protocol
+[Implied]  raw_ssh_host_algorithms.protocol -> raw_ssh_host_public_keys.protocol
+[Implied]  raw_ssh_host_algorithms.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_ssh_host_algorithms.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_ssh_host_algorithms.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_ssh_host_algorithms.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_ssh_host_algorithms.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_ssh_host_algorithms.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_ssh_host_algorithms.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_ssh_host_algorithms.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_ssh_host_algorithms.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_ssh_host_algorithms.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_ssh_host_algorithms.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_ssh_host_public_keys.ip_addr -> raw_hostnames.ip_addr
+[Implied]  raw_ssh_host_public_keys.ip_addr -> raw_ip_addrs.ip_addr
+[Implied]  raw_ssh_host_public_keys.ip_addr -> raw_nessus_results.ip_addr
+[Implied]  raw_ssh_host_public_keys.ip_addr -> raw_network_services.ip_addr
+[Implied]  raw_ssh_host_public_keys.ip_addr -> raw_nse_results.ip_addr
+[Implied]  raw_ssh_host_public_keys.ip_addr -> raw_ports.ip_addr
+[Implied]  raw_ssh_host_public_keys.ip_addr -> raw_ssh_host_algorithms.ip_addr
+[Implied]  raw_ssh_host_public_keys.port -> raw_ports.port
+[Implied]  raw_ssh_host_public_keys.protocol -> raw_nessus_results.protocol
+[Implied]  raw_ssh_host_public_keys.protocol -> raw_network_services.protocol
+[Implied]  raw_ssh_host_public_keys.protocol -> raw_nse_results.protocol
+[Implied]  raw_ssh_host_public_keys.protocol -> raw_ports.protocol
+[Implied]  raw_ssh_host_public_keys.protocol -> raw_ssh_host_algorithms.protocol
+[Implied]  raw_ssh_host_public_keys.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_ssh_host_public_keys.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_ssh_host_public_keys.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_ssh_host_public_keys.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_ssh_host_public_keys.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_ssh_host_public_keys.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_ssh_host_public_keys.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_ssh_host_public_keys.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_ssh_host_public_keys.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_ssh_host_public_keys.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_ssh_host_public_keys.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_tool_observations.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_tool_observations.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_tool_observations.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_tool_observations.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_tool_observations.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_tool_observations.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_tool_observations.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_tool_observations.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_tool_observations.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_tool_observations.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_tool_observations.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_vlans.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_vlans.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_vlans.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_vlans.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_vlans.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_vlans.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_vlans.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_vlans.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_vlans.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_vlans.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_vlans.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_vlans.vlan -> raw_vlans_ip_nets.vlan
+[Implied]  raw_vlans_ip_nets.ip_net -> ip_nets_extra_weights.ip_net
+[Implied]  raw_vlans_ip_nets.tool_run_id -> raw_hostnames.tool_run_id
+[Implied]  raw_vlans_ip_nets.tool_run_id -> raw_ip_addrs.tool_run_id
+[Implied]  raw_vlans_ip_nets.tool_run_id -> raw_ip_nets.tool_run_id
+[Implied]  raw_vlans_ip_nets.tool_run_id -> raw_ip_traceroutes.tool_run_id
+[Implied]  raw_vlans_ip_nets.tool_run_id -> raw_nessus_results.tool_run_id
+[Implied]  raw_vlans_ip_nets.tool_run_id -> raw_network_services.tool_run_id
+[Implied]  raw_vlans_ip_nets.tool_run_id -> raw_nse_results.tool_run_id
+[Implied]  raw_vlans_ip_nets.tool_run_id -> raw_ports.tool_run_id
+[Implied]  raw_vlans_ip_nets.tool_run_id -> raw_ssh_host_algorithms.tool_run_id
+[Implied]  raw_vlans_ip_nets.tool_run_id -> raw_ssh_host_public_keys.tool_run_id
+[Implied]  raw_vlans_ip_nets.tool_run_id -> raw_tool_observations.tool_run_id
+[Implied]  raw_vlans_ip_nets.tool_run_id -> raw_vlans.tool_run_id
+[Implied]  raw_vlans_ip_nets.vlan -> raw_vlans.vlan
+
+DROP DATABASE `db_510777_012tool_results_tables_create`;
+UNINSTALL EXTENSION vsql_schematron;

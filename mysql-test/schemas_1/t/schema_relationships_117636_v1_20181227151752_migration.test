@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 117636_v1__20181227151752_migration
+--echo #
+CREATE DATABASE `db_117636_v1_20181227151752_migration`;
+USE `db_117636_v1_20181227151752_migration`;
+
+CREATE TABLE `event` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  `agentCommission` DECIMAL(10,2),
+  `agentReduction` DECIMAL(10,2),
+  `title` VARCHAR(64),
+  `type` VARCHAR(64),
+  `createdBy_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `log` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  `exception` VARCHAR(64),
+  `level` VARCHAR(64),
+  `message` VARCHAR(64),
+  `section` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  `roleName` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ticket` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  `description` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `reserved` BOOL,
+  `title` VARCHAR(64),
+  `type` VARCHAR(64),
+  `createdBy_id` INT,
+  `event_id` INT,
+  `reservedBy_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  `login` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_role` (
+  `user_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_117636_v1_20181227151752_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_117636_v1_20181227151752_migration') AS relationships;
+DROP DATABASE `db_117636_v1_20181227151752_migration`;
+UNINSTALL EXTENSION vsql_schematron;

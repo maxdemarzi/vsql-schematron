@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 375318_MySQL
+#
+CREATE DATABASE `db_375318_MySQL`;
+USE `db_375318_MySQL`;
+CREATE TABLE `bet_type` (
+`id` INT,
+`bet_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `horse` (
+`id` INT,
+`horse_name` VARCHAR(64),
+`description` VARCHAR(64),
+`avatar` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `race_status` (
+`id` INT,
+`status` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `race` (
+`id` INT,
+`start_date` DATETIME,
+`race_name` VARCHAR(64),
+`description` VARCHAR(64),
+`race_status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `race_runner` (
+`id` INT,
+`runner_id` INT,
+`runner_place` INT,
+`race_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`id` INT,
+`role_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_status` (
+`id` INT,
+`user_status` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_table` (
+`id` INT,
+`login` VARCHAR(64),
+`pass` VARCHAR(64),
+`username` VARCHAR(64),
+`role_id` INT,
+`money` DECIMAL(10,2),
+`avatar` VARCHAR(64),
+`status_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bet` (
+`id` INT,
+`user_id` INT,
+`price` DECIMAL(10,2),
+`bet_type` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bet_pick` (
+`id` INT,
+`bet_id` INT,
+`pick_place` INT,
+`pick_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_375318_MySQL') AS relationships;
+relationships
+Database: db_375318_MySQL
+
+Table Connections:
+------------------
+[Implied]  bet.bet_type -> bet_type.id
+[Implied]  bet.user_id -> user_table.id
+[Implied]  bet_pick.bet_id -> bet.id
+[Implied]  race.race_status -> race_status.id
+[Implied]  race_runner.race_id -> race.id
+[Implied]  user_table.role_id -> user_role.id
+[Implied]  user_table.status_id -> race_status.id
+
+DROP DATABASE `db_375318_MySQL`;
+UNINSTALL EXTENSION vsql_schematron;

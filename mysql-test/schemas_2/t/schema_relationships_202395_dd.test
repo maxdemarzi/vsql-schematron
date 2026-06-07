@@ -1,0 +1,177 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 202395_dd
+--echo #
+CREATE DATABASE `db_202395_dd`;
+USE `db_202395_dd`;
+
+CREATE TABLE `sistema_reclamos` (
+  `id_sistema_reclamo` INT,
+  `nombre` VARCHAR(64),
+  `nombre_creador` VARCHAR(64),
+  `logo` VARCHAR(64),
+  `fec_insercion` DATETIME,
+  `fec_modificacion` DATETIME,
+  `usuario` INT,
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_sistema_reclamo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `areas` (
+  `id_area` INT,
+  `id_sistema_reclamo` INT,
+  `nombre` VARCHAR(64),
+  `descripcion` VARCHAR(64),
+  `fec_insercion` DATETIME,
+  `fec_modificacion` DATETIME,
+  `usuario` INT,
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_area`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `jefes_areas` (
+  `id_jefe_area` INT,
+  `id_area` INT,
+  `nombres` VARCHAR(64),
+  `ap` VARCHAR(64),
+  `am` VARCHAR(64),
+  `ci` INT,
+  `telefono` VARCHAR(64),
+  `correo` VARCHAR(64),
+  `fec_inicio` DATETIME,
+  `fec_fin` DATETIME,
+  `fec_insercion` DATETIME,
+  `fec_modificacion` DATETIME,
+  `usuario` INT,
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_jefe_area`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tipo_empleados` (
+  `id_tipo_empleado` INT,
+  `nombre` VARCHAR(64),
+  `descripcion` VARCHAR(64),
+  `fec_insercion` DATETIME,
+  `fec_modificacion` DATETIME,
+  `usuario` INT,
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_tipo_empleado`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `empleados` (
+  `id_empleado` INT,
+  `id_tipo_empleado` INT,
+  `id_area` INT,
+  `id_sistema_reclamo` INT,
+  `nombres` VARCHAR(64),
+  `ap` VARCHAR(64),
+  `am` VARCHAR(64),
+  `ci` INT,
+  `tel_fijo` VARCHAR(64),
+  `tel_cel` VARCHAR(64),
+  `direccion` VARCHAR(64),
+  `fec_insercion` DATETIME,
+  `fec_modificacion` DATETIME,
+  `usuario` INT,
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_empleado`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `horarios` (
+  `id_hora` INT,
+  `id_empleado` INT,
+  `hora_entrada` DATETIME,
+  `hora_salida` DATETIME,
+  `fec_insercion` DATETIME,
+  `fec_modificacion` DATETIME,
+  `usuario` INT,
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_hora`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reclamos` (
+  `id_reclamo` INT,
+  `nombres` VARCHAR(64),
+  `ap` VARCHAR(64),
+  `am` VARCHAR(64),
+  `telefono` INT,
+  `correo` VARCHAR(64),
+  `codigo_usuario` VARCHAR(64),
+  `barrio` VARCHAR(64),
+  `calle_avenida` VARCHAR(64),
+  `entre_que_calles` VARCHAR(64),
+  `numero_de_casa` INT,
+  `referencias` VARCHAR(64),
+  `descripcion_del_reclamo` VARCHAR(64),
+  `map` VARCHAR(64),
+  `otro_recurrente` VARCHAR(64),
+  `telefono_del_recurrente` INT,
+  `tipo_de_calzada` VARCHAR(64),
+  `fec_insercion` DATETIME,
+  `fec_modificacion` DATETIME,
+  `usuario` INT,
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_reclamo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reclamo_confirmados` (
+  `id_conf` INT,
+  `id_reclamo` INT,
+  `nombres` VARCHAR(64),
+  `ap` VARCHAR(64),
+  `am` VARCHAR(64),
+  `telefono` INT,
+  `correo` VARCHAR(64),
+  `codigo_usuario` VARCHAR(64),
+  `barrio` VARCHAR(64),
+  `calle_avenida` VARCHAR(64),
+  `entre_que_calles` VARCHAR(64),
+  `numero_de_casa` INT,
+  `referencias` VARCHAR(64),
+  `descripcion_del_reclamo` VARCHAR(64),
+  `fotos` VARCHAR(64),
+  `map` VARCHAR(64),
+  `otro_recurrente` VARCHAR(64),
+  `telefono_del_recurrente` INT,
+  `tipo_de_calzada` VARCHAR(64),
+  `fec_insercion` DATETIME,
+  `fec_modificacion` DATETIME,
+  `usuario` INT,
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_conf`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `asignaciones` (
+  `id_asignar` INT,
+  `id_conf` INT,
+  `id_empleado` INT,
+  `descripcion` VARCHAR(64),
+  `fec_inicio` DATETIME,
+  `fec_fin` DATETIME,
+  `fec_insercion` DATETIME,
+  `fec_modificacion` DATETIME,
+  `usuario` INT,
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_asignar`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_202395_dd') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_202395_dd') AS relationships;
+DROP DATABASE `db_202395_dd`;
+UNINSTALL EXTENSION vsql_schematron;

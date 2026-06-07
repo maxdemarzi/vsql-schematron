@@ -1,0 +1,131 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 372888_tables
+#
+CREATE DATABASE `db_372888_tables`;
+USE `db_372888_tables`;
+CREATE TABLE `experiment` (
+`EID` INT,
+`notes` VARCHAR(64),
+PRIMARY KEY (`EID`)
+) CHARACTER SET latin1;
+CREATE TABLE `population` (
+`PID` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`PID`)
+) CHARACTER SET latin1;
+CREATE TABLE `goterm` (
+`GOID` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`GOID`)
+) CHARACTER SET latin1;
+CREATE TABLE `sample` (
+`SID` INT,
+`PID` INT,
+`EID` INT,
+`identifier` VARCHAR(64),
+`notes` VARCHAR(64),
+PRIMARY KEY (`SID`)
+) CHARACTER SET latin1;
+CREATE TABLE `snp` (
+`SNPID` INT,
+`RPID` INT,
+`alt_allele` VARCHAR(64),
+`qual` DECIMAL(10,2),
+`filter` VARCHAR(64),
+`AC` INT,
+`AF` DECIMAL(10,2),
+`AN` INT,
+`baseQRankSum` DECIMAL(10,2),
+`clippingRankSum` DECIMAL(10,2),
+`DP` INT,
+`excessHet` DECIMAL(10,2),
+`FS` DECIMAL(10,2),
+`inbreedingCoeff` DECIMAL(10,2),
+`MLEAC` INT,
+`MLEAF` DECIMAL(10,2),
+`MQ` DECIMAL(10,2),
+`MQRankSum` DECIMAL(10,2),
+`QD` DECIMAL(10,2),
+`readPosRankSum` DECIMAL(10,2),
+`SOR` DECIMAL(10,2),
+PRIMARY KEY (`SNPID`)
+) CHARACTER SET latin1;
+CREATE TABLE `snpeffect` (
+`SEID` INT,
+`SNPID` INT,
+`allele` VARCHAR(64),
+`effect` VARCHAR(64),
+`impact` VARCHAR(64),
+`gene_name` VARCHAR(64),
+`feature_type` VARCHAR(64),
+`transcript_biotype` VARCHAR(64),
+`ranktotal` VARCHAR(64),
+`HGVSc` VARCHAR(64),
+`HGVSp` VARCHAR(64),
+`cDNA_positioncDNA_length` VARCHAR(64),
+`Protein_positionProtein_length` VARCHAR(64),
+`warnings` VARCHAR(64),
+PRIMARY KEY (`SEID`)
+) CHARACTER SET latin1;
+CREATE TABLE `have` (
+`SID` INT,
+`SNPID` INT,
+`GT` VARCHAR(64),
+`GQ` INT,
+PRIMARY KEY (`SNPID`, `SID`)
+) CHARACTER SET latin1;
+CREATE TABLE `reference` (
+`RPID` INT,
+`chromosome` VARCHAR(64),
+`position` INT,
+`allele` VARCHAR(64),
+PRIMARY KEY (`RPID`)
+) CHARACTER SET latin1;
+CREATE TABLE `gene` (
+`GID` INT,
+`chromosome` VARCHAR(64),
+`start_position` INT,
+`end_position` INT,
+`feature_type` VARCHAR(64),
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`symbol` VARCHAR(64),
+`parent` VARCHAR(64),
+`owner` VARCHAR(64),
+PRIMARY KEY (`GID`)
+) CHARACTER SET latin1;
+CREATE TABLE `infunction` (
+`IFID` INT,
+`GOID` INT,
+`GID` INT,
+PRIMARY KEY (`IFID`)
+) CHARACTER SET latin1;
+CREATE TABLE `associate` (
+`AID` INT,
+`RPID` INT,
+`GID` INT,
+PRIMARY KEY (`AID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_372888_tables') AS relationships;
+relationships
+Database: db_372888_tables
+
+Table Connections:
+------------------
+[Implied]  associate.GID -> gene.GID
+[Implied]  associate.RPID -> population.PID
+[Implied]  associate.RPID -> reference.RPID
+[Implied]  have.SID -> sample.SID
+[Implied]  have.SNPID -> snp.SNPID
+[Implied]  infunction.GID -> gene.GID
+[Implied]  infunction.GOID -> goterm.GOID
+[Implied]  sample.EID -> experiment.EID
+[Implied]  sample.PID -> population.PID
+[Implied]  snp.RPID -> population.PID
+[Implied]  snp.RPID -> reference.RPID
+[Implied]  snpeffect.SNPID -> snp.SNPID
+
+DROP DATABASE `db_372888_tables`;
+UNINSTALL EXTENSION vsql_schematron;

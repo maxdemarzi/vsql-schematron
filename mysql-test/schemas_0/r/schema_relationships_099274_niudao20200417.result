@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 099274_niudao20200417
+#
+CREATE DATABASE `db_099274_niudao20200417`;
+USE `db_099274_niudao20200417`;
+CREATE TABLE `course` (
+`course_id` VARCHAR(64),
+`course_type_id` VARCHAR(64),
+`course_category_id` VARCHAR(64),
+`course_name` VARCHAR(64),
+`course_img` VARCHAR(64),
+`course_des` VARCHAR(64),
+`price` DECIMAL(10,2),
+`create_time` DATETIME,
+`study_number` INT,
+PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course_and_knowledge` (
+`id` VARCHAR(64),
+`course_id` VARCHAR(64),
+`course_knowledge_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course_and_people` (
+`id` VARCHAR(64),
+`course_for_people_id` VARCHAR(64),
+`course_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course_category` (
+`course_category_id` VARCHAR(64),
+`course_category_name` VARCHAR(64),
+`course_category_sort` INT,
+PRIMARY KEY (`course_category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course_comment` (
+`comment_id` VARCHAR(64),
+`comment_text` VARCHAR(64),
+`comment_time` DATETIME,
+`comment_id_ref` VARCHAR(64),
+`course_id` VARCHAR(64),
+`user_id` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `course_for_people` (
+`course_for_people_id` VARCHAR(64),
+`course_for_people_name` VARCHAR(64),
+`course_for_people_sort` INT,
+PRIMARY KEY (`course_for_people_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course_knowledge` (
+`course_knowledge_id` VARCHAR(64),
+`course_category_id` VARCHAR(64),
+`course_knowledge_name` VARCHAR(64),
+`course_knowledge_sort` INT,
+PRIMARY KEY (`course_knowledge_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course_type` (
+`course_type_id` VARCHAR(64),
+`course_type_name` VARCHAR(64),
+`course_type_sort` INT,
+PRIMARY KEY (`course_type_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_099274_niudao20200417') AS relationships;
+relationships
+Database: db_099274_niudao20200417
+
+Table Connections:
+------------------
+[Implied]  course.course_category_id -> course_category.course_category_id
+[Implied]  course.course_type_id -> course_type.course_type_id
+[Implied]  course_and_knowledge.course_id -> course.course_id
+[Implied]  course_and_knowledge.course_knowledge_id -> course_knowledge.course_knowledge_id
+[Implied]  course_and_people.course_for_people_id -> course_for_people.course_for_people_id
+[Implied]  course_and_people.course_id -> course.course_id
+[Implied]  course_comment.course_id -> course.course_id
+[Implied]  course_knowledge.course_category_id -> course_category.course_category_id
+
+DROP DATABASE `db_099274_niudao20200417`;
+UNINSTALL EXTENSION vsql_schematron;

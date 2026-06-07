@@ -1,0 +1,108 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 222594_002.do.merchant-initial-tables
+--echo #
+CREATE DATABASE `db_222594_002_do_merchant_initial_tables`;
+USE `db_222594_002_do_merchant_initial_tables`;
+
+CREATE TABLE `merchant` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `summary` VARCHAR(64),
+  `description` VARCHAR(64),
+  `code` VARCHAR(64),
+  `active` BOOL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `address` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `organisation` VARCHAR(64),
+  `street_address_lines` VARCHAR(64),
+  `dependent_locality` VARCHAR(64),
+  `city_or_locality` VARCHAR(64),
+  `state_or_province` VARCHAR(64),
+  `zip_or_postal_code` VARCHAR(64),
+  `sorting_code` VARCHAR(64),
+  `geo_location` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `merchant__address` (
+  `merchant_id` INT,
+  `address_id` INT,
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `link` (
+  `id` INT,
+  `url` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `merchant__link` (
+  `merchant_id` INT,
+  `link_type` VARCHAR(64),
+  `link_id` INT,
+  `address_id` INT,
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `product` (
+  `id` INT,
+  `product` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `merchant__product` (
+  `merchant_id` INT,
+  `product_id` INT,
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `limit` (
+  `id` INT,
+  `limit_type` VARCHAR(64),
+  `limit` VARCHAR(64),
+  `geo_circle` VARCHAR(64),
+  `geo_polygon` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `merchant__limit` (
+  `merchant_id` INT,
+  `limit_type` VARCHAR(64),
+  `limit_id` INT,
+  `address_id` INT,
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_222594_002_do_merchant_initial_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_222594_002_do_merchant_initial_tables') AS relationships;
+DROP DATABASE `db_222594_002_do_merchant_initial_tables`;
+UNINSTALL EXTENSION vsql_schematron;

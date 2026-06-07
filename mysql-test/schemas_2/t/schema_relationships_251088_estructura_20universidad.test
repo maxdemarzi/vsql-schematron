@@ -1,0 +1,100 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 251088_estructura%20universidad
+--echo #
+CREATE DATABASE `db_251088_estructura_20universidad`;
+USE `db_251088_estructura_20universidad`;
+
+CREATE TABLE `mydb.Universidad` (
+  `idUniversidad` INT,
+  `nomUniversidad` VARCHAR(64),
+  PRIMARY KEY (`idUniversidad`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.Carrera` (
+  `idCarrera` INT,
+  `nomCarrera` VARCHAR(64),
+  `idUniversidad` INT,
+  `numSemestres` INT,
+  `numAsignaturas` INT,
+  `numProfesores` INT,
+  PRIMARY KEY (`idCarrera`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.Semestre` (
+  `idSemestre` INT,
+  `idcarrera` INT,
+  `descripcion` VARCHAR(64),
+  PRIMARY KEY (`idSemestre`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.Profesor` (
+  `idProfesor` INT,
+  `rutProfesor` VARCHAR(64),
+  `nomProfesor` VARCHAR(64),
+  `apeProfesor` VARCHAR(64),
+  `carreraProf` VARCHAR(64),
+  `fichaProf` VARCHAR(64),
+  `direccionProf` VARCHAR(64),
+  `celularProf` INT,
+  `fecNacimiento` DATETIME,
+  `fecIngreso` DATETIME,
+  PRIMARY KEY (`idProfesor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.Asignatura` (
+  `idAsignatura` INT,
+  `idSemestre` INT,
+  `nomAsigna` VARCHAR(64),
+  `idprofesor` INT,
+  `numSemestre` INT,
+  `descripcion` VARCHAR(64),
+  PRIMARY KEY (`idAsignatura`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.Alumnos` (
+  `idAlumno` INT,
+  `idCarrera` INT,
+  `rutAlumno` VARCHAR(64),
+  `nomAlumno` VARCHAR(64),
+  `ApeAlumno` VARCHAR(64),
+  `direccionAlum` VARCHAR(64),
+  `celularAlum` INT,
+  `fecNacimiento` DATETIME,
+  `fecIngreso` DATETIME,
+  `idProfesor` INT,
+  PRIMARY KEY (`idAlumno`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mydb.Notas` (
+  `idNota` INT,
+  `idAlumno` INT,
+  `nota` DECIMAL(10,2),
+  `idProfesor` INT,
+  `idAsignatura` INT,
+  `IdSemestre` INT,
+  `fecNota` DATETIME,
+  `idCarrera` INT,
+  PRIMARY KEY (`idNota`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_251088_estructura_20universidad') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_251088_estructura_20universidad') AS relationships;
+DROP DATABASE `db_251088_estructura_20universidad`;
+UNINSTALL EXTENSION vsql_schematron;

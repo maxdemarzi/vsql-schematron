@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 329327_bdprova
+--echo #
+CREATE DATABASE `db_329327_bdprova`;
+USE `db_329327_bdprova`;
+
+CREATE TABLE `tbfornecedor` (
+  `CdFornecedor` INT,
+  `NmFornecedor` VARCHAR(64),
+  `CNPJ` VARCHAR(64),
+  PRIMARY KEY (`CdFornecedor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbproduto` (
+  `CdProduto` INT,
+  `NmProduto` VARCHAR(64),
+  `PrecoAtual` DECIMAL(10,2),
+  PRIMARY KEY (`CdProduto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TbTipoDespesa` (
+  `CdTipoDespesa` INT,
+  `NmTipoDespesa` VARCHAR(64),
+  PRIMARY KEY (`CdTipoDespesa`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbcidade` (
+  `CdCidade` INT,
+  `NmCidade` VARCHAR(64),
+  PRIMARY KEY (`CdCidade`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbvendedor` (
+  `CdVendedor` INT,
+  `NmVendedor` VARCHAR(64),
+  `CdCidade` INT,
+  PRIMARY KEY (`CdVendedor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TbDespesa` (
+  `CdDespesa` INT,
+  `DtDespesa` DATETIME,
+  `VlDespesa` DECIMAL(10,2),
+  `CdTipoDespesa` INT,
+  PRIMARY KEY (`CdDespesa`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbcliente` (
+  `CdCliente` INT,
+  `NmCliente` VARCHAR(64),
+  `CdCidadeReside` INT,
+  `CdCidadeNasc` INT,
+  PRIMARY KEY (`CdCliente`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TbProduto_Fornecedor` (
+  `CdProduto` INT,
+  `CdFornecedor` INT,
+  `PrecoCusto` DECIMAL(10,2),
+  PRIMARY KEY (`CdProduto`, `CdFornecedor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbvenda` (
+  `CdVenda` INT,
+  `CdCliente` INT,
+  `CdProduto` INT,
+  `CdVendedor` INT,
+  `DataVenda` DATETIME,
+  `PrecoVenda` DECIMAL(10,2),
+  `FormaPag` VARCHAR(64),
+  PRIMARY KEY (`CdVenda`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TbContaReceber` (
+  `CdContaReceber` INT,
+  `NumParcela` INT,
+  `VlParcela` DECIMAL(10,2),
+  `DtPrevistaPag` DATETIME,
+  `Situacao` VARCHAR(64),
+  `CdVenda` INT,
+  PRIMARY KEY (`CdContaReceber`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_329327_bdprova') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_329327_bdprova') AS relationships;
+DROP DATABASE `db_329327_bdprova`;
+UNINSTALL EXTENSION vsql_schematron;

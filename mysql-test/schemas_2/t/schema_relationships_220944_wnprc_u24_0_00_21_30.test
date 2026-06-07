@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 220944_wnprc_u24-0.00-21.30
+--echo #
+CREATE DATABASE `db_220944_wnprc_u24_0_00_21_30`;
+USE `db_220944_wnprc_u24_0_00_21_30`;
+
+CREATE TABLE `wnprc_u24.lookupSets` (
+  `RowId` INT,
+  `SetName` VARCHAR(64),
+  `Label` VARCHAR(64),
+  `ObjectId` VARCHAR(64),
+  `Created` DATETIME,
+  `CreatedBy` VARCHAR(64),
+  `Modified` DATETIME,
+  `ModifiedBy` VARCHAR(64),
+  `DiCreated` DATETIME,
+  `DiModified` DATETIME,
+  `DiCreatedBy` VARCHAR(64),
+  `DiModifiedBy` VARCHAR(64),
+  `Container` VARCHAR(64),
+  PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wnprc_u24.lookups` (
+  `RowId` INT,
+  `SetName` VARCHAR(64),
+  `Value` VARCHAR(64),
+  `SortOrder` INT,
+  `DateDisabled` DATETIME,
+  `ObjectId` VARCHAR(64),
+  `Created` DATETIME,
+  `CreatedBy` VARCHAR(64),
+  `Modified` DATETIME,
+  `ModifiedBy` VARCHAR(64),
+  `DiCreated` DATETIME,
+  `DiModified` DATETIME,
+  `DiCreatedBy` VARCHAR(64),
+  `DiModifiedBy` VARCHAR(64),
+  `Container` VARCHAR(64),
+  PRIMARY KEY (`RowId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wnprc_u24.RowsToDelete` (
+  `ObjectId` VARCHAR(64),
+  `Modified` DATETIME,
+  PRIMARY KEY (`ObjectId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `wnprc_u24.WeightStaging` (
+  `AnimalId` VARCHAR(64),
+  `PrimateId` VARCHAR(64),
+  `Date` DATETIME,
+  `Weight` DECIMAL(10,2),
+  `ObjectId` VARCHAR(64),
+  `Created` DATETIME,
+  `CreatedBy` VARCHAR(64),
+  `Modified` DATETIME,
+  `ModifiedBy` VARCHAR(64),
+  `WeightMVIndicator` VARCHAR(64),
+  PRIMARY KEY (`ObjectId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_220944_wnprc_u24_0_00_21_30') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_220944_wnprc_u24_0_00_21_30') AS relationships;
+DROP DATABASE `db_220944_wnprc_u24_0_00_21_30`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 538815_parcialFinal
+--echo #
+CREATE DATABASE `db_538815_parcialFinal`;
+USE `db_538815_parcialFinal`;
+
+CREATE TABLE `Personas` (
+  `codigo_id` VARCHAR(64),
+  `snombre` VARCHAR(64),
+  `sapellido` VARCHAR(64),
+  `stelefono` VARCHAR(64),
+  `sdireccion` VARCHAR(64),
+  PRIMARY KEY (`codigo_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Pacientes` (
+  `codigo_id` VARCHAR(64),
+  `gsangre` VARCHAR(64),
+  PRIMARY KEY (`codigo_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Doctores` (
+  `codigo_id` VARCHAR(64),
+  `sespecialidad` VARCHAR(64),
+  `nsalario` DECIMAL(10,2),
+  `bactivo` BOOL,
+  PRIMARY KEY (`codigo_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Clinicas` (
+  `codigo_id` INT,
+  `snombre` VARCHAR(64),
+  `inivel` INT,
+  `stelefono` VARCHAR(64),
+  `sdireccion` VARCHAR(64),
+  PRIMARY KEY (`codigo_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Consultas` (
+  `codigo_id` INT,
+  `clinica_id` INT,
+  `doctor_id` VARCHAR(64),
+  `paciente_id` VARCHAR(64),
+  `dtfecha` DATETIME,
+  PRIMARY KEY (`codigo_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Medicamentos` (
+  `codigo_id` INT,
+  `nombre` VARCHAR(64),
+  `dosis` VARCHAR(64),
+  `tipo` VARCHAR(64),
+  PRIMARY KEY (`codigo_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Recetas` (
+  `cantidad` INT,
+  `consulta_id` INT,
+  `medicamentos_id` INT,
+  PRIMARY KEY (`consulta_id`, `medicamentos_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_538815_parcialFinal') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_538815_parcialFinal') AS relationships;
+DROP DATABASE `db_538815_parcialFinal`;
+UNINSTALL EXTENSION vsql_schematron;

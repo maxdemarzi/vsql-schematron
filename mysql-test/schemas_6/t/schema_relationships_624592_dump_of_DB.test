@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 624592_dump_of_DB
+--echo #
+CREATE DATABASE `db_624592_dump_of_DB`;
+USE `db_624592_dump_of_DB`;
+
+CREATE TABLE `addresses` (
+  `id` INT,
+  `contry` VARCHAR(64),
+  `town` VARCHAR(64),
+  `street` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `boats` (
+  `id` INT,
+  `boat_name` VARCHAR(64),
+  `number_of_landing_sites` INT,
+  `spending_for_a_day` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `clients` (
+  `id` INT,
+  `full_name` VARCHAR(64),
+  `client_age` INT,
+  `phone_number` DECIMAL(10,2),
+  `pasport_number` DECIMAL(10,2),
+  `address` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `clients_tickets` (
+  `client_id` INT,
+  `ticket_id` INT,
+  PRIMARY KEY (`client_id`, `ticket_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `jorneys` (
+  `id` INT,
+  `boat_id` INT,
+  `date_depature` DATETIME,
+  `date_arrive` DATETIME,
+  `city_depature` VARCHAR(64),
+  `city_arrive` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `staff` (
+  `id` INT,
+  `full_name` VARCHAR(64),
+  `phone_number` DECIMAL(10,2),
+  `pasport_number` DECIMAL(10,2),
+  `number_of_worked_years` INT,
+  `worker_age` INT,
+  `worker_salary` INT,
+  `address` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `staff_boats` (
+  `boat_id` INT,
+  `worker_id` INT,
+  PRIMARY KEY (`boat_id`, `worker_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tickets` (
+  `id` INT,
+  `jorney_id` INT,
+  `cost` INT,
+  `cabin_number` INT,
+  `ticket_class` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_624592_dump_of_DB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_624592_dump_of_DB') AS relationships;
+DROP DATABASE `db_624592_dump_of_DB`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 365690_aihotel
+#
+CREATE DATABASE `db_365690_aihotel`;
+USE `db_365690_aihotel`;
+CREATE TABLE `aboc_user` (
+`uid` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+`state` INT
+) CHARACTER SET latin1;
+CREATE TABLE `camerainfo` (
+`cameraid` INT,
+`location` VARCHAR(64),
+PRIMARY KEY (`cameraid`)
+) CHARACTER SET latin1;
+CREATE TABLE `crowdinfo` (
+`infoid` INT,
+`cameraid` INT,
+`peoplecount` VARCHAR(64),
+`time` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `orderinfo` (
+`orderid` INT,
+`userid` INT,
+`roomid` INT,
+`money` INT,
+`prolevel` INT,
+`starttime` DATETIME,
+`endtime` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `roominfo` (
+`roomid` INT,
+`userid` INT,
+`roomnumber` VARCHAR(64),
+`rent` INT,
+`empty` INT,
+`roomtype` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `userinfo` (
+`userid` INT,
+`age` INT,
+`gender` INT,
+`feature` VARCHAR(64),
+`isvip` INT,
+PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_365690_aihotel') AS relationships;
+relationships
+Database: db_365690_aihotel
+
+Table Connections:
+------------------
+[Implied]  crowdinfo.cameraid -> camerainfo.cameraid
+[Implied]  orderinfo.userid -> userinfo.userid
+[Implied]  roominfo.userid -> userinfo.userid
+
+DROP DATABASE `db_365690_aihotel`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 329327_bdprova
+#
+CREATE DATABASE `db_329327_bdprova`;
+USE `db_329327_bdprova`;
+CREATE TABLE `tbfornecedor` (
+`CdFornecedor` INT,
+`NmFornecedor` VARCHAR(64),
+`CNPJ` VARCHAR(64),
+PRIMARY KEY (`CdFornecedor`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbproduto` (
+`CdProduto` INT,
+`NmProduto` VARCHAR(64),
+`PrecoAtual` DECIMAL(10,2),
+PRIMARY KEY (`CdProduto`)
+) CHARACTER SET latin1;
+CREATE TABLE `TbTipoDespesa` (
+`CdTipoDespesa` INT,
+`NmTipoDespesa` VARCHAR(64),
+PRIMARY KEY (`CdTipoDespesa`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbcidade` (
+`CdCidade` INT,
+`NmCidade` VARCHAR(64),
+PRIMARY KEY (`CdCidade`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbvendedor` (
+`CdVendedor` INT,
+`NmVendedor` VARCHAR(64),
+`CdCidade` INT,
+PRIMARY KEY (`CdVendedor`)
+) CHARACTER SET latin1;
+CREATE TABLE `TbDespesa` (
+`CdDespesa` INT,
+`DtDespesa` DATETIME,
+`VlDespesa` DECIMAL(10,2),
+`CdTipoDespesa` INT,
+PRIMARY KEY (`CdDespesa`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbcliente` (
+`CdCliente` INT,
+`NmCliente` VARCHAR(64),
+`CdCidadeReside` INT,
+`CdCidadeNasc` INT,
+PRIMARY KEY (`CdCliente`)
+) CHARACTER SET latin1;
+CREATE TABLE `TbProduto_Fornecedor` (
+`CdProduto` INT,
+`CdFornecedor` INT,
+`PrecoCusto` DECIMAL(10,2),
+PRIMARY KEY (`CdProduto`, `CdFornecedor`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbvenda` (
+`CdVenda` INT,
+`CdCliente` INT,
+`CdProduto` INT,
+`CdVendedor` INT,
+`DataVenda` DATETIME,
+`PrecoVenda` DECIMAL(10,2),
+`FormaPag` VARCHAR(64),
+PRIMARY KEY (`CdVenda`)
+) CHARACTER SET latin1;
+CREATE TABLE `TbContaReceber` (
+`CdContaReceber` INT,
+`NumParcela` INT,
+`VlParcela` DECIMAL(10,2),
+`DtPrevistaPag` DATETIME,
+`Situacao` VARCHAR(64),
+`CdVenda` INT,
+PRIMARY KEY (`CdContaReceber`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_329327_bdprova') AS relationships;
+relationships
+Database: db_329327_bdprova
+
+Table Connections:
+------------------
+[Implied]  TbContaReceber.CdVenda -> tbvenda.CdVenda
+[Implied]  TbDespesa.CdTipoDespesa -> TbTipoDespesa.CdTipoDespesa
+[Implied]  TbProduto_Fornecedor.CdFornecedor -> tbfornecedor.CdFornecedor
+[Implied]  TbProduto_Fornecedor.CdProduto -> tbproduto.CdProduto
+[Implied]  tbvenda.CdCliente -> tbcliente.CdCliente
+[Implied]  tbvenda.CdProduto -> tbproduto.CdProduto
+[Implied]  tbvenda.CdVendedor -> tbvendedor.CdVendedor
+[Implied]  tbvendedor.CdCidade -> tbcidade.CdCidade
+
+DROP DATABASE `db_329327_bdprova`;
+UNINSTALL EXTENSION vsql_schematron;

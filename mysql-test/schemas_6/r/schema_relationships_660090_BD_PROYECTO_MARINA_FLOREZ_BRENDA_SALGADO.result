@@ -1,0 +1,127 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 660090_BD_PROYECTO_MARINA_FLOREZ_BRENDA_SALGADO
+#
+CREATE DATABASE `db_660090_BD_PROYECTO_MARINA_FLOREZ_BRENDA_SALGADO`;
+USE `db_660090_BD_PROYECTO_MARINA_FLOREZ_BRENDA_SALGADO`;
+CREATE TABLE `Usuario` (
+`cod_Usuario` INT,
+`Nombre_Tecnico` VARCHAR(64),
+`Telefono_Tecnico` VARCHAR(64),
+`Celular_Tecnico` INT,
+`Correo_Tecnico` VARCHAR(64),
+`Nombre_Cliente` VARCHAR(64),
+`Telefono_Cliente` VARCHAR(64),
+`Celular_Cliente` INT,
+`Correo_Cliente` VARCHAR(64),
+`cod_MantenimientoFK` INT,
+`No_ReporteFK` INT,
+`Cod_Diagnostico_EntradaFK` INT,
+`Cod_Diagnostico_SalidaFK` INT,
+`Cod_incidenciasFK` INT,
+PRIMARY KEY (`cod_Usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `Mantenimiento` (
+`Cod_Mantenimiento` INT,
+`Tipo_Mantenimiento` VARCHAR(64),
+`Fecha_Entrega` DATETIME,
+`Fecha_Salida` DATETIME,
+`Observaciones` VARCHAR(64),
+`Cod_EquipoFK` INT,
+PRIMARY KEY (`Cod_Mantenimiento`)
+) CHARACTER SET latin1;
+CREATE TABLE `Software` (
+`Cod_Software` INT,
+`Arquitectura` VARCHAR(64),
+`Tipo_de_SO` VARCHAR(64),
+`Caducacion_Licencia` VARCHAR(64),
+`Sistema_Operativo` VARCHAR(64),
+PRIMARY KEY (`Cod_Software`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bitacora` (
+`No_Reporte` INT,
+`Causa_Fallo` VARCHAR(64),
+`Fecha_Entrega` DATETIME,
+`Fecha_Salida` DATETIME,
+PRIMARY KEY (`No_Reporte`)
+) CHARACTER SET latin1;
+CREATE TABLE `reporte_incidencias` (
+`Cod_incidencias` INT,
+`nombre_cliente` VARCHAR(64),
+`telefono_contacto` VARCHAR(64),
+`identificacion_cliente` INT,
+`motivo_registro` VARCHAR(64),
+`Area_cliente` VARCHAR(64),
+`Fecha_reporte` DATETIME,
+PRIMARY KEY (`Cod_incidencias`)
+) CHARACTER SET latin1;
+CREATE TABLE `Configuracion_red` (
+`Cod_Red` INT,
+`Direccion_IP` INT,
+`Direccion_Mac` VARCHAR(64),
+PRIMARY KEY (`Cod_Red`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tarjeta_red` (
+`Cod_Tarjeta_Red` INT,
+`Nombre_tabla_Tarjeta_Red` VARCHAR(64),
+`Marca_integrada` VARCHAR(64),
+`Marca_Adicional` VARCHAR(64),
+`Puertos_usb` VARCHAR(64),
+`velocidad_integrada` VARCHAR(64),
+`velocidad_adicional` VARCHAR(64),
+PRIMARY KEY (`Cod_Tarjeta_Red`)
+) CHARACTER SET latin1;
+CREATE TABLE `Diagnostico_entrada` (
+`Cod_Diagnostico_Entrada` INT,
+`Estado_Equipo` VARCHAR(64),
+`Fecha_Entrega` DATETIME,
+`Proceso_Realizar` VARCHAR(64),
+PRIMARY KEY (`Cod_Diagnostico_Entrada`)
+) CHARACTER SET latin1;
+CREATE TABLE `Diagnostico_salida` (
+`Cod_Diagnostico_Salida` INT,
+`Estado_Salida` DATETIME,
+`Fecha_salida` DATETIME,
+`Proceso_Realizado` VARCHAR(64),
+PRIMARY KEY (`Cod_Diagnostico_Salida`)
+) CHARACTER SET latin1;
+CREATE TABLE `Equipo` (
+`Cod_Equipo` INT,
+`Cod_HardwareFK` INT,
+`Cod_SoftwareFK` INT,
+`Cod_Diagnostico_EntradaFK` INT,
+`Cod_Diagnostico_SalidaFK` INT,
+`No_ReporteFK` INT,
+`Cod_RedFK` INT,
+`Cod_incidenciasFK` INT,
+PRIMARY KEY (`Cod_Equipo`)
+) CHARACTER SET latin1;
+CREATE TABLE `Hardware` (
+`Cod_Hardware` INT,
+`Marca_de_equipo` VARCHAR(64),
+`Pantalla` VARCHAR(64),
+`Memoria_Ram` VARCHAR(64),
+`Procesador` VARCHAR(64),
+`Velocidad_Procesador` VARCHAR(64),
+`Nucleo` INT,
+`Disco_Duro` VARCHAR(64),
+`Capacidad_Disco_Duro` VARCHAR(64),
+`Tipo_Tarjeta_Video` VARCHAR(64),
+`Puertos_USB` VARCHAR(64),
+`Tipo_Disco_Flexible` VARCHAR(64),
+`Cod_Tarjeta_RedFK` INT,
+PRIMARY KEY (`Cod_Hardware`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_660090_BD_PROYECTO_MARINA_FLOREZ_BRENDA_SALGADO') AS relationships;
+relationships
+Database: db_660090_BD_PROYECTO_MARINA_FLOREZ_BRENDA_SALGADO
+
+Table Connections:
+------------------
+[Implied]  Equipo.Cod_HardwareFK -> Hardware.Cod_Hardware
+[Implied]  Equipo.Cod_SoftwareFK -> Software.Cod_Software
+[Implied]  Mantenimiento.Cod_EquipoFK -> Equipo.Cod_Equipo
+[Implied]  Usuario.cod_MantenimientoFK -> Mantenimiento.Cod_Mantenimiento
+
+DROP DATABASE `db_660090_BD_PROYECTO_MARINA_FLOREZ_BRENDA_SALGADO`;
+UNINSTALL EXTENSION vsql_schematron;

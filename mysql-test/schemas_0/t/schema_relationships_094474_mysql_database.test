@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 094474_mysql_database
+--echo #
+CREATE DATABASE `db_094474_mysql_database`;
+USE `db_094474_mysql_database`;
+
+CREATE TABLE `confirmation` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `status` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `marker` (
+  `id` INT,
+  `species_name` VARCHAR(64),
+  `username` VARCHAR(64),
+  `date` VARCHAR(64),
+  `text` VARCHAR(64),
+  `latitude` DECIMAL(10,2),
+  `longitude` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `species` (
+  `species_name` VARCHAR(64),
+  `username` VARCHAR(64),
+  `type` VARCHAR(64),
+  PRIMARY KEY (`species_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `synonym` (
+  `id` INT,
+  `species_name` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `username` VARCHAR(64),
+  `type` VARCHAR(64),
+  `name` VARCHAR(64),
+  `surname` VARCHAR(64),
+  `birth_date` VARCHAR(64),
+  `mail` VARCHAR(64),
+  `pass` VARCHAR(64),
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_094474_mysql_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_094474_mysql_database') AS relationships;
+DROP DATABASE `db_094474_mysql_database`;
+UNINSTALL EXTENSION vsql_schematron;

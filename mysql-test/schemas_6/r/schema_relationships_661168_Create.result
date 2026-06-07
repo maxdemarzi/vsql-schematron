@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 661168_Create
+#
+CREATE DATABASE `db_661168_Create`;
+USE `db_661168_Create`;
+CREATE TABLE `GameStatus` (
+`ID` INT,
+`Value` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `Level` (
+`ID` INT,
+`Value` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `SeasonType` (
+`ID` INT,
+`Value` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `Season` (
+`ID` INT,
+`GUID` VARCHAR(64),
+`Year` INT,
+`NumWeeksInRegularSeason` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Conference` (
+`ID` INT,
+`GUID` VARCHAR(64),
+`Name` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `Division` (
+`ID` INT,
+`GUID` VARCHAR(64),
+`ConferenceGUID` VARCHAR(64),
+`Name` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `Team` (
+`ID` INT,
+`GUID` VARCHAR(64),
+`Name` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `Game` (
+`ID` INT,
+`GUID` VARCHAR(64),
+`SeasonGUID` VARCHAR(64),
+`Week` INT,
+`Level` VARCHAR(64),
+`SeasonType` VARCHAR(64),
+`Status` VARCHAR(64),
+`Date` DATETIME,
+`HomeTeamGUID` VARCHAR(64),
+`HomeTeamScore` INT,
+`AwayTeamGUID` VARCHAR(64),
+`AwayTeamScore` INT,
+`TV` VARCHAR(64),
+`Notes` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `TeamBySeason` (
+`ID` INT,
+`Level` VARCHAR(64),
+`SeasonGUID` VARCHAR(64),
+`ConferenceGUID` VARCHAR(64),
+`DivisionGUID` VARCHAR(64),
+`TeamGUID` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_661168_Create') AS relationships;
+relationships
+Database: db_661168_Create
+
+Table Connections:
+------------------
+[Implied]  Division.ConferenceGUID -> Conference.GUID
+[Implied]  Game.AwayTeamGUID -> Team.GUID
+[Implied]  Game.HomeTeamGUID -> Team.GUID
+[Implied]  Game.SeasonGUID -> Season.GUID
+[Implied]  TeamBySeason.ConferenceGUID -> Conference.GUID
+[Implied]  TeamBySeason.DivisionGUID -> Division.GUID
+[Implied]  TeamBySeason.SeasonGUID -> Season.GUID
+[Implied]  TeamBySeason.TeamGUID -> Team.GUID
+
+DROP DATABASE `db_661168_Create`;
+UNINSTALL EXTENSION vsql_schematron;

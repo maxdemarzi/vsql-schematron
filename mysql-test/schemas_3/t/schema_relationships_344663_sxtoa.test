@@ -1,0 +1,130 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 344663_sxtoa
+--echo #
+CREATE DATABASE `db_344663_sxtoa`;
+USE `db_344663_sxtoa`;
+
+CREATE TABLE `dept` (
+  `deptno` DECIMAL(10,2),
+  `deptname` VARCHAR(64),
+  `location` VARCHAR(64),
+  PRIMARY KEY (`deptno`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `position` (
+  `posid` DECIMAL(10,2),
+  `pname` VARCHAR(64),
+  `pdesc` VARCHAR(64),
+  PRIMARY KEY (`posid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Employee` (
+  `userid` VARCHAR(64),
+  `password` VARCHAR(64),
+  `deptno` DECIMAL(10,2),
+  `posid` DECIMAL(10,2),
+  `Use_userid` VARCHAR(64),
+  `realname` VARCHAR(64),
+  `sex` VARCHAR(64),
+  `birthdate` DATETIME,
+  `leavedate` DATETIME,
+  `firedate` DATETIME,
+  `onduty` VARCHAR(64),
+  `usertype` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `qq` VARCHAR(64),
+  `emercontactperson` VARCHAR(64),
+  `idcard` VARCHAR(64),
+  PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `duty` (
+  `did` DECIMAL(10,2),
+  `userid` VARCHAR(64),
+  `dname` DATETIME,
+  `signintime` VARCHAR(64),
+  `signouttime` VARCHAR(64),
+  PRIMARY KEY (`did`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `expense` (
+  `expid` DECIMAL(10,2),
+  `userid` VARCHAR(64),
+  `totalamount` DECIMAL(10,2),
+  `exptime` DATETIME,
+  `expdesc` VARCHAR(64),
+  `nextauditor` VARCHAR(64),
+  `lastResult` VARCHAR(64),
+  `status` VARCHAR(64),
+  PRIMARY KEY (`expid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `expenseitem` (
+  `itemid` DECIMAL(10,2),
+  `expid` DECIMAL(10,2),
+  `type` VARCHAR(64),
+  `amount` DECIMAL(10,2),
+  `comments` VARCHAR(64),
+  PRIMARY KEY (`itemid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ExpImage` (
+  `imgid` DECIMAL(10,2),
+  `expid` DECIMAL(10,2),
+  `realname` VARCHAR(64),
+  `filename` VARCHAR(64),
+  `filetype` VARCHAR(64),
+  PRIMARY KEY (`imgid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auditing` (
+  `auditid` DECIMAL(10,2),
+  `expid` DECIMAL(10,2),
+  `userid` VARCHAR(64),
+  `result` VARCHAR(64),
+  `comments` VARCHAR(64),
+  `time` VARCHAR(64),
+  PRIMARY KEY (`auditid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payment` (
+  `pid` DECIMAL(10,2),
+  `payuserid` DECIMAL(10,2),
+  `amount` DECIMAL(10,2),
+  `paytime` DATETIME,
+  `expid` DECIMAL(10,2),
+  `expuserid` DECIMAL(10,2),
+  PRIMARY KEY (`pid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `income` (
+  `icid` DECIMAL(10,2),
+  `amount` DECIMAL(10,2),
+  `icdate` DATETIME,
+  `ictype` VARCHAR(64),
+  `indesc` VARCHAR(64),
+  `userid` VARCHAR(64),
+  PRIMARY KEY (`icid`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_344663_sxtoa') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_344663_sxtoa') AS relationships;
+DROP DATABASE `db_344663_sxtoa`;
+UNINSTALL EXTENSION vsql_schematron;

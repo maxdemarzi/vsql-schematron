@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 620296_meme_db_init
+#
+CREATE DATABASE `db_620296_meme_db_init`;
+USE `db_620296_meme_db_init`;
+CREATE TABLE `pending_meme` (
+`user_id` INT,
+`u_message_id` INT,
+`g_message_id` INT,
+`group_id` INT,
+PRIMARY KEY (`group_id`, `g_message_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `published_meme` (
+`channel_id` INT,
+`c_message_id` INT,
+PRIMARY KEY (`channel_id`, `c_message_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `votes` (
+`user_id` INT,
+`c_message_id` INT,
+`channel_id` INT,
+`is_upvote` BOOL,
+PRIMARY KEY (`user_id`, `c_message_id`, `channel_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `admin_votes` (
+`admin_id` INT,
+`g_message_id` INT,
+`group_id` INT,
+`is_upvote` BOOL,
+PRIMARY KEY (`admin_id`, `g_message_id`, `group_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `credited_users` (
+`user_id` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `banned_users` (
+`user_id` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_620296_meme_db_init') AS relationships;
+relationships
+Database: db_620296_meme_db_init
+
+Table Connections:
+------------------
+[Implied]  admin_votes.g_message_id -> pending_meme.g_message_id
+[Implied]  admin_votes.group_id -> pending_meme.group_id
+[Implied]  pending_meme.g_message_id -> admin_votes.g_message_id
+[Implied]  pending_meme.group_id -> admin_votes.group_id
+[Implied]  pending_meme.user_id -> banned_users.user_id
+[Implied]  pending_meme.user_id -> credited_users.user_id
+[Implied]  published_meme.c_message_id -> votes.c_message_id
+[Implied]  published_meme.channel_id -> votes.channel_id
+[Implied]  votes.c_message_id -> published_meme.c_message_id
+[Implied]  votes.channel_id -> published_meme.channel_id
+[Implied]  votes.user_id -> banned_users.user_id
+[Implied]  votes.user_id -> credited_users.user_id
+
+DROP DATABASE `db_620296_meme_db_init`;
+UNINSTALL EXTENSION vsql_schematron;

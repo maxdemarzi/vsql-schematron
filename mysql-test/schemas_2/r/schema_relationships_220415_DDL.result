@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 220415_DDL
+#
+CREATE DATABASE `db_220415_DDL`;
+USE `db_220415_DDL`;
+CREATE TABLE `user` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`name` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customers` (
+`id` INT,
+`title` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sample_types` (
+`id` INT,
+`title` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_log` (
+`id` INT,
+`protocol_Id` VARCHAR(64),
+`customer` VARCHAR(64),
+`test` VARCHAR(64),
+`sample_type` VARCHAR(64),
+`order_amount` INT,
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sample_log` (
+`id` INT,
+`sample_id` VARCHAR(64),
+`sample_weight` DECIMAL(10,2),
+`order_id` INT,
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tray_log` (
+`id` INT,
+`tray_id` VARCHAR(64),
+`sample_id` INT,
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reference_tray_log` (
+`id` INT,
+`reference_tray_id` VARCHAR(64),
+`reference_tray_weight_before` DECIMAL(10,2),
+`reference_tray_weight_after` DECIMAL(10,2),
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `total_moisture_log` (
+`id` INT,
+`tray_id` INT,
+`tray_weight` DECIMAL(10,2),
+`total_tray_weight_before` DECIMAL(10,2),
+`total_tray_weight_after` DECIMAL(10,2),
+`total_tray_weight_after_plus` DECIMAL(10,2),
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `general_moisture_log` (
+`id` INT,
+`tray_id` INT,
+`jar_id` VARCHAR(64),
+`jar_weight` DECIMAL(10,2),
+`total_jar_weight_before` DECIMAL(10,2),
+`total_jar_weight_after` DECIMAL(10,2),
+`total_jar_weight_after_plus` DECIMAL(10,2),
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ash_log` (
+`id` INT,
+`tray_id` INT,
+`dish_id` VARCHAR(64),
+`dish_weight` DECIMAL(10,2),
+`total_dish_weight_before` DECIMAL(10,2),
+`total_dish_weight_after` DECIMAL(10,2),
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_220415_DDL') AS relationships;
+relationships
+Database: db_220415_DDL
+
+Table Connections:
+------------------
+[Implied]  ash_log.tray_id -> tray_log.id
+[Implied]  general_moisture_log.tray_id -> tray_log.id
+[Implied]  sample_log.order_id -> order_log.id
+[Implied]  total_moisture_log.tray_id -> tray_log.id
+
+DROP DATABASE `db_220415_DDL`;
+UNINSTALL EXTENSION vsql_schematron;

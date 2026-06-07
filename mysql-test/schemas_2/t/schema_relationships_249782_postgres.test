@@ -1,0 +1,118 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 249782_postgres
+--echo #
+CREATE DATABASE `db_249782_postgres`;
+USE `db_249782_postgres`;
+
+CREATE TABLE `test.users` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `test.user_friends` (
+  `id` INT,
+  `friend` INT,
+  PRIMARY KEY (`id`, `friend`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `test.profiles` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `test.posts` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `create_time` DATETIME,
+  `author_id` INT,
+  `content` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `test.nullable_posts` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `create_time` DATETIME,
+  `author_id` INT,
+  `content` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `test.comments` (
+  `id` INT,
+  `content` VARCHAR(64),
+  `post_id` INT,
+  `author_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `test.categories` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `parent_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `test.post_category` (
+  `category_id` INT,
+  `post_id` INT,
+  PRIMARY KEY (`category_id`, `post_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `test.orders` (
+  `key1` INT,
+  `key2` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`key1`, `key2`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `test.items` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `col1` INT,
+  `col2` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `public.yii_types` (
+  `int_col` INT,
+  `int_col2` INT,
+  `char_col` VARCHAR(64),
+  `char_col2` VARCHAR(64),
+  `char_col3` VARCHAR(64),
+  `numeric_col` DECIMAL(10,2),
+  `real_col` DECIMAL(10,2),
+  `blob_col` VARCHAR(64),
+  `time` DATETIME,
+  `time2` DATETIME,
+  `bool_col` BOOL,
+  `bool_col2` BOOL
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_249782_postgres') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_249782_postgres') AS relationships;
+DROP DATABASE `db_249782_postgres`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 146856_trabalhoSql
+--echo #
+CREATE DATABASE `db_146856_trabalhoSql`;
+USE `db_146856_trabalhoSql`;
+
+CREATE TABLE `pessoa` (
+  `cpf` INT,
+  `nome` VARCHAR(64),
+  `estado_civil` VARCHAR(64),
+  `nascimento` DATETIME,
+  `rua` VARCHAR(64),
+  `numero` INT,
+  `cep` INT,
+  `telefone` INT,
+  PRIMARY KEY (`cpf`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `paciente` (
+  `nro_pront` INT,
+  PRIMARY KEY (`nro_pront`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `funcionario` (
+  `cod_func` INT,
+  `funcao` VARCHAR(64),
+  PRIMARY KEY (`cod_func`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `atendimento` (
+  `nro_atendimento` INT,
+  `hora_consulta` DATETIME,
+  `data_consulta` DATETIME,
+  `data_atual` DATETIME,
+  PRIMARY KEY (`nro_atendimento`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `secretaria` (
+  `idioma` VARCHAR(64),
+  `tipo` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dentista` (
+  `crm` INT,
+  `especializazao` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `procedimento` (
+  `nro_procedimento` INT,
+  `hora` DATETIME,
+  `data_consulta` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `cirurgia` (
+  `procedimento` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `consulta` (
+  `medicamento` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `atestado` (
+  `descricao` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_146856_trabalhoSql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_146856_trabalhoSql') AS relationships;
+DROP DATABASE `db_146856_trabalhoSql`;
+UNINSTALL EXTENSION vsql_schematron;

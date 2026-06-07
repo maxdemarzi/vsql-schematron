@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 499546_init
+#
+CREATE DATABASE `db_499546_init`;
+USE `db_499546_init`;
+CREATE TABLE `metadata` (
+`wallet_id` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`wallet_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`wallet_id` VARCHAR(64),
+`id` INT,
+`type` VARCHAR(64),
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+`key` VARCHAR(64),
+PRIMARY KEY (`wallet_id`, `id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags_encrypted` (
+`wallet_id` VARCHAR(64),
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+`item_id` INT,
+PRIMARY KEY (`wallet_id`, `name`, `item_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags_plaintext` (
+`wallet_id` VARCHAR(64),
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+`item_id` INT,
+PRIMARY KEY (`wallet_id`, `name`, `item_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_499546_init') AS relationships;
+relationships
+Database: db_499546_init
+
+Table Connections:
+------------------
+[Implied]  items.wallet_id -> metadata.wallet_id
+[Implied]  tags_encrypted.item_id -> tags_plaintext.item_id
+[Implied]  tags_encrypted.wallet_id -> metadata.wallet_id
+[Implied]  tags_plaintext.item_id -> tags_encrypted.item_id
+[Implied]  tags_plaintext.wallet_id -> metadata.wallet_id
+
+DROP DATABASE `db_499546_init`;
+UNINSTALL EXTENSION vsql_schematron;

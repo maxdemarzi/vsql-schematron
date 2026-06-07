@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 458616_databaseFile
+--echo #
+CREATE DATABASE `db_458616_databaseFile`;
+USE `db_458616_databaseFile`;
+
+CREATE TABLE `USERS` (
+  `Email` VARCHAR(64),
+  `Nickname` VARCHAR(64),
+  `Password` VARCHAR(64),
+  `Name` VARCHAR(64),
+  `Surname` VARCHAR(64),
+  `Banned` BOOL,
+  PRIMARY KEY (`Email`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ROLES` (
+  `RoleName` VARCHAR(64),
+  PRIMARY KEY (`RoleName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USER_ROLES` (
+  `UserID` VARCHAR(64),
+  `RoleName` VARCHAR(64),
+  PRIMARY KEY (`UserID`, `RoleName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TOPICS` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `ImageLink` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SUBTOPICS` (
+  `Id` INT,
+  `Title` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `TopicID` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ARTICLES` (
+  `Id` INT,
+  `Title` VARCHAR(64),
+  `HTMLCode` VARCHAR(64),
+  `AuthorID` VARCHAR(64),
+  `SubtopicID` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `COMMENTS` (
+  `Id` INT,
+  `Text` VARCHAR(64),
+  `Date` DATETIME,
+  `AuthorID` VARCHAR(64),
+  `ArticleID` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `COMMENTS_VOTES` (
+  `CommentID` INT,
+  `AuthorID` VARCHAR(64),
+  `is_like` BOOL,
+  PRIMARY KEY (`CommentID`, `AuthorID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FORGOT_PASSWORD_TOKENS` (
+  `Id` INT,
+  `UserID` VARCHAR(64),
+  `Token` VARCHAR(64),
+  `expireDate` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_458616_databaseFile') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_458616_databaseFile') AS relationships;
+DROP DATABASE `db_458616_databaseFile`;
+UNINSTALL EXTENSION vsql_schematron;

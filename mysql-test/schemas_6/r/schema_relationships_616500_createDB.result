@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 616500_createDB
+#
+CREATE DATABASE `db_616500_createDB`;
+USE `db_616500_createDB`;
+CREATE TABLE `Inventory` (
+`Id` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Player` (
+`Username` VARCHAR(64),
+`Password` VARCHAR(64),
+`Email` VARCHAR(64),
+`Inventory_id` INT,
+PRIMARY KEY (`Username`)
+) CHARACTER SET latin1;
+CREATE TABLE `Defensive_item` (
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+`Bonus_Health` INT,
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Offensive_item` (
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+`Bonus_Damage` INT,
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Inventory_DefItem` (
+`Id` INT,
+`Item_name` VARCHAR(64),
+PRIMARY KEY (`Id`, `Item_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Inventory_OffItem` (
+`Id` INT,
+`Item_name` VARCHAR(64),
+PRIMARY KEY (`Id`, `Item_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Aggresive_NPC` (
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+`Inventory_id` INT,
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Neutral_NPC` (
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+`Inventory_id` INT,
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Character` (
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Offensive_skill` (
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+`Bonus_Damage` INT,
+`Character_name` VARCHAR(64),
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Defensive_skill` (
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+`Bonus_Health` INT,
+`Character_Name` VARCHAR(64),
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Player_Character` (
+`Username` VARCHAR(64),
+`Character_Name` VARCHAR(64),
+`Lvl` INT,
+PRIMARY KEY (`Username`, `Character_Name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_616500_createDB') AS relationships;
+relationships
+Database: db_616500_createDB
+
+Table Connections:
+------------------
+[Implied]  Aggresive_NPC.Inventory_id -> Inventory.Id
+[Implied]  Defensive_skill.Character_Name -> Character.Name
+[Implied]  Inventory_DefItem.Id -> Inventory.Id
+[Implied]  Inventory_DefItem.Item_name -> Defensive_item.Name
+[Implied]  Inventory_DefItem.Item_name -> Offensive_item.Name
+[Implied]  Inventory_OffItem.Id -> Inventory.Id
+[Implied]  Inventory_OffItem.Item_name -> Defensive_item.Name
+[Implied]  Inventory_OffItem.Item_name -> Offensive_item.Name
+[Implied]  Neutral_NPC.Inventory_id -> Inventory.Id
+[Implied]  Offensive_skill.Character_name -> Character.Name
+[Implied]  Player.Inventory_id -> Inventory.Id
+[Implied]  Player_Character.Character_Name -> Character.Name
+[Implied]  Player_Character.Username -> Player.Username
+
+DROP DATABASE `db_616500_createDB`;
+UNINSTALL EXTENSION vsql_schematron;

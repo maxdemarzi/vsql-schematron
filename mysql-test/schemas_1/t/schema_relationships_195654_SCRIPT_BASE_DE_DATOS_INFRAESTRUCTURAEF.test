@@ -1,0 +1,145 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 195654_SCRIPT_BASE_DE_DATOS_INFRAESTRUCTURAEF
+--echo #
+CREATE DATABASE `db_195654_SCRIPT_BASE_DE_DATOS_INFRAESTRUCTURAEF`;
+USE `db_195654_SCRIPT_BASE_DE_DATOS_INFRAESTRUCTURAEF`;
+
+CREATE TABLE `Informe_Hard` (
+  `Id_InfoHard` INT,
+  `Nombre_Compo` VARCHAR(64),
+  `Tipo_Compo` VARCHAR(64),
+  `Marca_Compo` VARCHAR(64),
+  `Serial_Compo` VARCHAR(64),
+  `Estado_Compo` VARCHAR(64),
+  `Capacidad_Compo` VARCHAR(64),
+  PRIMARY KEY (`Id_InfoHard`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Hoja_Vida` (
+  `Id_Hoja_Vida` INT,
+  `Id_TestConecFK` INT,
+  `Id_InfoHardFK` INT,
+  `Id_SOfk` INT,
+  `Id_EquipoFK` INT,
+  `Id_InfoSpecFK` INT,
+  PRIMARY KEY (`Id_Hoja_Vida`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Equipo` (
+  `Id_Equipo` INT,
+  `Tipo_Equi` VARCHAR(64),
+  `Marca_Equi` VARCHAR(64),
+  `Modelo_Equi` VARCHAR(64),
+  PRIMARY KEY (`Id_Equipo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Test_Conec` (
+  `Id_TestConec` INT,
+  `Nombre_Host` VARCHAR(64),
+  `Nombre_Red` VARCHAR(64),
+  `Tipo_Conexion` VARCHAR(64),
+  `Tipo_IP` VARCHAR(64),
+  `Direccion_IP` VARCHAR(64),
+  `Perfil_Red` VARCHAR(64),
+  `Mascara` VARCHAR(64),
+  `Puerta_Enlace` VARCHAR(64),
+  `MAC` VARCHAR(64),
+  PRIMARY KEY (`Id_TestConec`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SO` (
+  `Id_SO` INT,
+  `Id_EstadoSoftFK` INT,
+  `SO` VARCHAR(64),
+  `Licen_SO` VARCHAR(64),
+  `MultipleSO` VARCHAR(64),
+  `Service_Pack` VARCHAR(64),
+  `Arquitectura` VARCHAR(64),
+  `Contro_Comple` VARCHAR(64),
+  `Parti_Disc` VARCHAR(64),
+  PRIMARY KEY (`Id_SO`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Soft_Especifico` (
+  `Id_InfoSpec` INT,
+  `Tipo_Soft` VARCHAR(64),
+  `Nombre_Sof` VARCHAR(64),
+  `Version_Soft` VARCHAR(64),
+  `Estado_Soft` VARCHAR(64),
+  `Carac_Sof` VARCHAR(64),
+  `Licenciado` VARCHAR(64),
+  `FecLicencia` DATETIME,
+  `Observaciones` VARCHAR(64),
+  PRIMARY KEY (`Id_InfoSpec`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Bitacoras` (
+  `Id_Bitacora` INT,
+  `Id_UsuarioFK` INT,
+  `Causa` VARCHAR(64),
+  `Fecha_Bi` DATETIME,
+  `Falla` VARCHAR(64),
+  `Id_EquipoFK` INT,
+  `Observacion` VARCHAR(64),
+  PRIMARY KEY (`Id_Bitacora`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Incidencias` (
+  `Id_Incidencias` INT,
+  `Id_UsuarioFK` INT,
+  `Area` VARCHAR(64),
+  `Fecha_Inci` DATETIME,
+  `Incidencia` VARCHAR(64),
+  `Id_EquipoFK` INT,
+  PRIMARY KEY (`Id_Incidencias`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Usuarios` (
+  `Id_Usuario` INT,
+  `Tipo_Usuarios` VARCHAR(64),
+  `Nombre_Usuario` VARCHAR(64),
+  `Tipo_Documento` VARCHAR(64),
+  `Nick_name` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `Contrase√±a` VARCHAR(64),
+  `Celular` VARCHAR(64),
+  PRIMARY KEY (`Id_Usuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `D_Entrada` (
+  `Id_Entrada` INT,
+  `Id_Hoja_VidaFK` INT,
+  `Id_UsuarioFK` INT,
+  `Fech_Entrada` DATETIME,
+  PRIMARY KEY (`Id_Entrada`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `D_Salida` (
+  `Id_Salida` INT,
+  `Id_Hoja_VidaFK` INT,
+  `Id_UsuarioFK` INT,
+  `Fech_Sal` DATETIME,
+  PRIMARY KEY (`Id_Salida`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_195654_SCRIPT_BASE_DE_DATOS_INFRAESTRUCTURAEF') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_195654_SCRIPT_BASE_DE_DATOS_INFRAESTRUCTURAEF') AS relationships;
+DROP DATABASE `db_195654_SCRIPT_BASE_DE_DATOS_INFRAESTRUCTURAEF`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 084546_1_CREATE_TABLES
+#
+CREATE DATABASE `db_084546_1_CREATE_TABLES`;
+USE `db_084546_1_CREATE_TABLES`;
+CREATE TABLE `Postcode` (
+`POST` INT,
+`CITY` VARCHAR(64),
+`POSTSTATE` VARCHAR(64),
+PRIMARY KEY (`POST`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer` (
+`C_ID` INT,
+`CNAME` VARCHAR(64),
+`CPOST` INT,
+PRIMARY KEY (`C_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Supplier` (
+`S_ID` INT,
+`SNAME` VARCHAR(64),
+`SPOST` INT,
+PRIMARY KEY (`S_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Item` (
+`I_ID` INT,
+`INAME` VARCHAR(64),
+`SALEPRICE` DECIMAL(10,2),
+PRIMARY KEY (`I_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SupplierItem` (
+`S_ID` INT,
+`I_ID` INT,
+`PURCHPRICE` DECIMAL(10,2),
+PRIMARY KEY (`S_ID`, `I_ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `SupplierItemCustomer` (
+`S_ID` INT,
+`I_ID` INT,
+`C_ID` INT,
+PRIMARY KEY (`S_ID`, `I_ID`, `C_ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_084546_1_CREATE_TABLES') AS relationships;
+relationships
+Database: db_084546_1_CREATE_TABLES
+
+Table Connections:
+------------------
+[Implied]  Customer.CPOST -> Postcode.POST
+[Implied]  Supplier.SPOST -> Postcode.POST
+[Implied]  SupplierItem.I_ID -> Item.I_ID
+[Implied]  SupplierItem.S_ID -> Supplier.S_ID
+[Implied]  SupplierItemCustomer.C_ID -> Customer.C_ID
+[Implied]  SupplierItemCustomer.I_ID -> Item.I_ID
+[Implied]  SupplierItemCustomer.S_ID -> Supplier.S_ID
+
+DROP DATABASE `db_084546_1_CREATE_TABLES`;
+UNINSTALL EXTENSION vsql_schematron;

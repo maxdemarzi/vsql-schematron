@@ -1,0 +1,101 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 669512_Demo_Database
+--echo #
+CREATE DATABASE `db_669512_Demo_Database`;
+USE `db_669512_Demo_Database`;
+
+CREATE TABLE `ANALISTA` (
+  `Analista_id` VARCHAR(64),
+  `Password` VARCHAR(64),
+  PRIMARY KEY (`Analista_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `COMUNE` (
+  `ISTAT` INT,
+  `Responsabile_c` VARCHAR(64),
+  `Nome` VARCHAR(64),
+  `Provincia_App` VARCHAR(64),
+  `Istituzione` INT,
+  `Superficie` INT,
+  `Tipo_Territorio` VARCHAR(64),
+  `Mare` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CONTRATTO` (
+  `Contratto_id` VARCHAR(64),
+  `Nome` VARCHAR(64),
+  `Cognome` VARCHAR(64),
+  `Password` VARCHAR(64),
+  PRIMARY KEY (`Contratto_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DECESSI` (
+  `Provincia` VARCHAR(64),
+  `Anno` VARCHAR(64),
+  `Incidenti` INT,
+  `Malattie_tumorali` INT,
+  `Malattie_cardiovascolari` INT,
+  `Influenza_dec` INT,
+  `Polmonite_dec` INT,
+  `Meningite_dec` INT,
+  `Epatiti_dec` INT,
+  `Morbillo_dec` INT,
+  `Tubercolosi_dec` INT,
+  `Gastroenteriti_dec` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `ENGISS` (
+  `Eng_id` VARCHAR(64),
+  `Nome` VARCHAR(64),
+  `Cognome` VARCHAR(64),
+  `Password` VARCHAR(64),
+  PRIMARY KEY (`Eng_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EPIDEMIOLOGICI` (
+  `Comune` INT,
+  `Data` DATETIME,
+  `InCura` VARCHAR(64),
+  `Influenza` INT,
+  `Polmonite` INT,
+  `Meningite` INT,
+  `Epatite` INT,
+  `Morbillo` INT,
+  `Tubercolosi` INT,
+  `Gastroenteriti` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROVINCIA` (
+  `Nome_Provincia` VARCHAR(64),
+  `Regione_App` VARCHAR(64),
+  `Superficie` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `REGIONE` (
+  `Nome_Regione` VARCHAR(64),
+  `Capoluogo` VARCHAR(64),
+  `Superficie` INT,
+  PRIMARY KEY (`Nome_Regione`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_669512_Demo_Database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_669512_Demo_Database') AS relationships;
+DROP DATABASE `db_669512_Demo_Database`;
+UNINSTALL EXTENSION vsql_schematron;

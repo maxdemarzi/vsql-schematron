@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 457887_data
+#
+CREATE DATABASE `db_457887_data`;
+USE `db_457887_data`;
+CREATE TABLE `users` (
+`userid` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`passwordHash` VARCHAR(64),
+`isStudent` BOOL,
+PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+CREATE TABLE `class` (
+`classid` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`classid`)
+) CHARACTER SET latin1;
+CREATE TABLE `teaches` (
+`classid` INT,
+`instructorid` INT,
+PRIMARY KEY (`classid`, `instructorid`)
+) CHARACTER SET latin1;
+CREATE TABLE `member` (
+`studentid` INT,
+`classid` INT,
+PRIMARY KEY (`studentid`, `classid`)
+) CHARACTER SET latin1;
+CREATE TABLE `lecture` (
+`lectureid` INT,
+`classid` INT,
+`starttime` DATETIME,
+`endtime` DATETIME,
+`lectureurl` VARCHAR(64),
+`day` DATETIME,
+PRIMARY KEY (`lectureid`)
+) CHARACTER SET latin1;
+CREATE TABLE `muted` (
+`studentid` INT,
+`lectureid` INT,
+PRIMARY KEY (`studentid`, `lectureid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_457887_data') AS relationships;
+relationships
+Database: db_457887_data
+
+Table Connections:
+------------------
+[Implied]  lecture.classid -> class.classid
+[Implied]  member.classid -> class.classid
+[Implied]  member.studentid -> muted.studentid
+[Implied]  member.studentid -> users.userid
+[Implied]  muted.lectureid -> lecture.lectureid
+[Implied]  muted.studentid -> member.studentid
+[Implied]  muted.studentid -> users.userid
+[Implied]  teaches.classid -> class.classid
+
+DROP DATABASE `db_457887_data`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 649242_script%20banco
+--echo #
+CREATE DATABASE `db_649242_script_20banco`;
+USE `db_649242_script_20banco`;
+
+CREATE TABLE `servico` (
+  `idServico` INT,
+  `descricao` VARCHAR(64),
+  `maoDeObra` VARCHAR(64),
+  `valor` DECIMAL(10,2),
+  PRIMARY KEY (`idServico`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `endereco` (
+  `idEndereco` INT,
+  `logradouro` VARCHAR(64),
+  `numero` VARCHAR(64),
+  `cep` VARCHAR(64),
+  `bairro` VARCHAR(64),
+  `cidade` VARCHAR(64),
+  `uf` VARCHAR(64),
+  `complemento` VARCHAR(64),
+  PRIMARY KEY (`idEndereco`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contato` (
+  `idContato` INT,
+  `tel` VARCHAR(64),
+  `cel` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`idContato`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cliente` (
+  `idCliente` INT,
+  `nome` VARCHAR(64),
+  `cpf` VARCHAR(64),
+  `rg` VARCHAR(64),
+  `contato_cliente` INT,
+  `endereco_cliente` INT,
+  PRIMARY KEY (`idCliente`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dadoCarro` (
+  `idCarro` INT,
+  `marca` VARCHAR(64),
+  `modelo` VARCHAR(64),
+  `cor` VARCHAR(64),
+  `placa` VARCHAR(64),
+  `anoCarro` VARCHAR(64),
+  `FK_Cliente` INT,
+  PRIMARY KEY (`idCarro`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ordemServico` (
+  `idordemServico` INT,
+  `funcionario` VARCHAR(64),
+  `dataEntrada` DATETIME,
+  `dataSaida` VARCHAR(64),
+  `valorTotal` DECIMAL(10,2),
+  `carro_ordemServ` INT,
+  `servico_ordemServ` INT,
+  `cliente_ordemServ` INT,
+  PRIMARY KEY (`idordemServico`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `evento` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `data` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_649242_script_20banco') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_649242_script_20banco') AS relationships;
+DROP DATABASE `db_649242_script_20banco`;
+UNINSTALL EXTENSION vsql_schematron;

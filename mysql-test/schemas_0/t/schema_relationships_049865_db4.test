@@ -1,0 +1,248 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 049865_db4
+--echo #
+CREATE DATABASE `db_049865_db4`;
+USE `db_049865_db4`;
+
+CREATE TABLE `bail` (
+  `id` INT,
+  `amount` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `casestatus` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `casetype` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `courtlevel` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `gender` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hearingtype` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `lawfirm` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notification` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `prison` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `prosecutorteam` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `region` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `district` (
+  `id` INT,
+  `region` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `town` (
+  `id` INT,
+  `district` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `court` (
+  `id` INT,
+  `town` INT,
+  `court_level` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `policestation` (
+  `id` INT,
+  `town` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `person` (
+  `id` INT,
+  `xname` VARCHAR(64),
+  `address` VARCHAR(64),
+  `gender` INT,
+  `classtype` VARCHAR(64),
+  `service_number` VARCHAR(64),
+  `reg_date` DATETIME,
+  `bar_number` VARCHAR(64),
+  `prosecutor_team` INT,
+  `law_firm` INT,
+  `phone` VARCHAR(64),
+  `complaint` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `offender_prison` (
+  `offender` INT,
+  `prison` INT,
+  PRIMARY KEY (`offender`, `prison`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hearing_witness` (
+  `hearing` INT,
+  `witness` INT,
+  PRIMARY KEY (`hearing`, `witness`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hearing_prosecutor` (
+  `hearing` INT,
+  `prosecutor` INT,
+  PRIMARY KEY (`hearing`, `prosecutor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hearing_notification` (
+  `hearing` INT,
+  `notification` INT,
+  PRIMARY KEY (`hearing`, `notification`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hearing` (
+  `id` INT,
+  `case` INT,
+  `hearing_date` DATETIME,
+  `judge` INT,
+  `hearing_type` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `filing` (
+  `id` INT,
+  `hearing` INT,
+  `file_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `document` (
+  `id` INT,
+  `filing` INT,
+  `content` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `defenseatt_hearing` (
+  `defenseatt` INT,
+  `hearing` INT,
+  PRIMARY KEY (`defenseatt`, `hearing`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `court_judge` (
+  `court` INT,
+  `judge` INT,
+  PRIMARY KEY (`court`, `judge`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `complaint` (
+  `id` INT,
+  `complainant` INT,
+  `policeman` INT,
+  `police_station` INT,
+  `statement` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `case_witness` (
+  `case` INT,
+  `witness` INT,
+  PRIMARY KEY (`case`, `witness`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `case_prison` (
+  `case` INT,
+  `prison` INT,
+  PRIMARY KEY (`case`, `prison`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `case_policestation` (
+  `case` INT,
+  `policestation` INT,
+  PRIMARY KEY (`case`, `policestation`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `case_offender` (
+  `case` INT,
+  `offender` INT,
+  PRIMARY KEY (`case`, `offender`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `case_complaint` (
+  `case` INT,
+  `complaint` INT,
+  PRIMARY KEY (`case`, `complaint`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `case` (
+  `id` INT,
+  `prosecutor_team` INT,
+  `complainant` INT,
+  `defense_att` INT,
+  `court` INT,
+  `judge` INT,
+  `case_type` INT,
+  `case_status` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bail_surety` (
+  `bail` INT,
+  `surety` INT,
+  PRIMARY KEY (`bail`, `surety`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bail_hearing` (
+  `bail` INT,
+  `hearing` INT,
+  PRIMARY KEY (`bail`, `hearing`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_049865_db4') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_049865_db4') AS relationships;
+DROP DATABASE `db_049865_db4`;
+UNINSTALL EXTENSION vsql_schematron;

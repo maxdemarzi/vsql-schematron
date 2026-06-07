@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 261344_HW5SQLScriptForSampleData
+--echo #
+CREATE DATABASE `db_261344_HW5SQLScriptForSampleData`;
+USE `db_261344_HW5SQLScriptForSampleData`;
+
+CREATE TABLE `Product` (
+  `manufacturer` VARCHAR(64),
+  `model` VARCHAR(64),
+  `type` VARCHAR(64),
+  PRIMARY KEY (`model`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PC` (
+  `model` VARCHAR(64),
+  `speed` INT,
+  `ram` INT,
+  `hd` INT,
+  `rd` VARCHAR(64),
+  `price` INT,
+  PRIMARY KEY (`model`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Laptop` (
+  `model` VARCHAR(64),
+  `speed` INT,
+  `ram` INT,
+  `hd` INT,
+  `screen` DECIMAL(10,2),
+  `price` INT,
+  PRIMARY KEY (`model`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_261344_HW5SQLScriptForSampleData') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_261344_HW5SQLScriptForSampleData') AS relationships;
+DROP DATABASE `db_261344_HW5SQLScriptForSampleData`;
+UNINSTALL EXTENSION vsql_schematron;

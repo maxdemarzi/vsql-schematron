@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 502413_creacionProyecto
+#
+CREATE DATABASE `db_502413_creacionProyecto`;
+USE `db_502413_creacionProyecto`;
+CREATE TABLE `Usuarios` (
+`Correo` VARCHAR(64),
+`Contrasena` VARCHAR(64),
+`Roll` VARCHAR(64),
+PRIMARY KEY (`Correo`)
+) CHARACTER SET latin1;
+CREATE TABLE `Familiares` (
+`Correo_Familiar` VARCHAR(64),
+PRIMARY KEY (`Correo_Familiar`)
+) CHARACTER SET latin1;
+CREATE TABLE `Supervisor` (
+`Correo_Supervisor` VARCHAR(64),
+PRIMARY KEY (`Correo_Supervisor`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pacientes` (
+`Correo_Usuario` VARCHAR(64),
+`Nombre` VARCHAR(64),
+`Fecha_Nacimiento` DATETIME,
+`Direccion` VARCHAR(64),
+`Telefono` VARCHAR(64),
+`Luz_Activado` BOOL,
+`Monitoreo_Activado` BOOL,
+`Pastillero_Activado` BOOL,
+`Caida_Activado` BOOL,
+`Correo_Familiar` VARCHAR(64),
+`Correo_Supervisor` VARCHAR(64),
+PRIMARY KEY (`Correo_Usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `Datos` (
+`ID` INT,
+`Fecha` DATETIME,
+`Correo_Paciente` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Presion` (
+`ID` INT,
+`Sensor_Presion` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Acelerometro` (
+`ID` INT,
+`Sensor_Acelerometro` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Caida` (
+`ID` INT,
+`Sensor_Caida` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Mensajes` (
+`ID` INT,
+`Fecha` DATETIME,
+`Texto` VARCHAR(64),
+`Correo_Emisor` VARCHAR(64),
+`Correo_Receptor` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pastillero` (
+`ID` INT,
+`Correo_Paciente` VARCHAR(64),
+`Fecha` DATETIME,
+`Dia` VARCHAR(64),
+`Pastilla` VARCHAR(64),
+`Dosis` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `RecuperarContrasena` (
+`Correo` VARCHAR(64),
+`Codigo` VARCHAR(64),
+PRIMARY KEY (`Correo`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_502413_creacionProyecto') AS relationships;
+relationships
+Database: db_502413_creacionProyecto
+
+Table Connections:
+------------------
+[Implied]  Datos.Correo_Paciente -> Pacientes.Correo_Usuario
+[Implied]  Pacientes.Correo_Familiar -> Familiares.Correo_Familiar
+[Implied]  Pacientes.Correo_Supervisor -> Supervisor.Correo_Supervisor
+[Implied]  Pastillero.Correo_Paciente -> Pacientes.Correo_Usuario
+
+DROP DATABASE `db_502413_creacionProyecto`;
+UNINSTALL EXTENSION vsql_schematron;

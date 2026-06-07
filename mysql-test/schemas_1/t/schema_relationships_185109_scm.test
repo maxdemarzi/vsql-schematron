@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 185109_scm
+--echo #
+CREATE DATABASE `db_185109_scm`;
+USE `db_185109_scm`;
+
+CREATE TABLE `equipe` (
+  `idequ` INT,
+  `nomeequ` VARCHAR(64),
+  `paisequ` VARCHAR(64),
+  `titulosequ` VARCHAR(64),
+  PRIMARY KEY (`idequ`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pessoa` (
+  `idpes` INT,
+  `nomepes` VARCHAR(64),
+  `tipopes` VARCHAR(64),
+  `idequ` INT,
+  PRIMARY KEY (`idpes`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `piloto` (
+  `idpes` INT,
+  `titulospes` VARCHAR(64),
+  `pontuacao` INT,
+  PRIMARY KEY (`idpes`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mecanico` (
+  `idpes` INT,
+  `especialidademec` VARCHAR(64),
+  PRIMARY KEY (`idpes`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `circuito` (
+  `idcir` INT,
+  `nomecir` VARCHAR(64),
+  `paiscir` VARCHAR(64),
+  PRIMARY KEY (`idcir`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `corrida` (
+  `idcor` INT,
+  `datacor` DATETIME,
+  `idcir` INT,
+  `categoria` VARCHAR(64),
+  `nvoltas` INT,
+  PRIMARY KEY (`idcor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `participacao` (
+  `idpes` INT,
+  `idcor` INT,
+  `tempo` INT,
+  PRIMARY KEY (`idpes`, `idcor`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_185109_scm') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_185109_scm') AS relationships;
+DROP DATABASE `db_185109_scm`;
+UNINSTALL EXTENSION vsql_schematron;

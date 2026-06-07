@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 008533_create_tables
+#
+CREATE DATABASE `db_008533_create_tables`;
+USE `db_008533_create_tables`;
+CREATE TABLE `_allowed_types` (
+`type_name` VARCHAR(64),
+PRIMARY KEY (`type_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `_refined_types_base` (
+`type_name` VARCHAR(64),
+`refined_type_name` VARCHAR(64),
+PRIMARY KEY (`type_name`, `refined_type_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `_vertexes` (
+`vertex_id` VARCHAR(64),
+`type_name` VARCHAR(64),
+PRIMARY KEY (`vertex_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_ports` (
+`port_id` VARCHAR(64),
+`vertex_id` VARCHAR(64),
+`type_name` VARCHAR(64),
+PRIMARY KEY (`vertex_id`, `port_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_properties` (
+`prop_id` VARCHAR(64),
+`vertex_id` VARCHAR(64),
+`prop_value` VARCHAR(64),
+PRIMARY KEY (`vertex_id`, `prop_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_edges` (
+`source_vertex_id` VARCHAR(64),
+`target_vertex_id` VARCHAR(64),
+`source_vertex_port_id` VARCHAR(64),
+`target_vertex_port_id` VARCHAR(64),
+`type_name` VARCHAR(64),
+PRIMARY KEY (`source_vertex_id`, `target_vertex_id`, `source_vertex_port_id`, `target_vertex_port_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_008533_create_tables') AS relationships;
+relationships
+Database: db_008533_create_tables
+
+Table Connections:
+------------------
+[Implied]  _edges.source_vertex_id -> _vertexes.vertex_id
+[Implied]  _edges.target_vertex_id -> _vertexes.vertex_id
+[Implied]  _edges.type_name -> _allowed_types.type_name
+[Implied]  _ports.type_name -> _allowed_types.type_name
+[Implied]  _ports.vertex_id -> _vertexes.vertex_id
+[Implied]  _properties.vertex_id -> _vertexes.vertex_id
+[Implied]  _refined_types_base.refined_type_name -> _allowed_types.type_name
+[Implied]  _refined_types_base.type_name -> _allowed_types.type_name
+[Implied]  _vertexes.type_name -> _allowed_types.type_name
+
+DROP DATABASE `db_008533_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

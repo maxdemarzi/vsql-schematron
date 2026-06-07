@@ -1,0 +1,145 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 268719_codewars_script
+--echo #
+CREATE DATABASE `db_268719_codewars_script`;
+USE `db_268719_codewars_script`;
+
+CREATE TABLE `week` (
+  `id` INT,
+  `number` INT,
+  `start_date` DATETIME,
+  `is_active` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `exercise` (
+  `id` INT,
+  `week_id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `cash_reward` INT,
+  `difficulty` INT,
+  `execution_exemple` VARCHAR(64),
+  `point_reward` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tips` (
+  `id` INT,
+  `tip` VARCHAR(64),
+  `exercise_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `team` (
+  `id` INT,
+  `color` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `person` (
+  `da` INT,
+  `firstname` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  PRIMARY KEY (`da`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `da` INT,
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `student` (
+  `da` INT,
+  `team_id` INT,
+  `cash` INT,
+  PRIMARY KEY (`da`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `teacher` (
+  `da` INT,
+  PRIMARY KEY (`da`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `studentExercise` (
+  `id` INT,
+  `student_da` INT,
+  `exercise_id` INT,
+  `completed` BOOL,
+  `corrected` BOOL,
+  `comments` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `file` (
+  `student_exercise_id` INT,
+  `file_path` VARCHAR(64),
+  `corrected_file_path` VARCHAR(64),
+  PRIMARY KEY (`student_exercise_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `item` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `price` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `studentItem` (
+  `id` INT,
+  `item_id` INT,
+  `student_da` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `token` (
+  `user_id` INT,
+  `token` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notification` (
+  `id` INT,
+  `user_id` INT,
+  `name` VARCHAR(64),
+  `is_seen` BOOL,
+  `description` VARCHAR(64),
+  `date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `log` (
+  `id` INT,
+  `date` DATETIME,
+  `ip` VARCHAR(64),
+  `da` INT,
+  `method` VARCHAR(64),
+  `action` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_268719_codewars_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_268719_codewars_script') AS relationships;
+DROP DATABASE `db_268719_codewars_script`;
+UNINSTALL EXTENSION vsql_schematron;

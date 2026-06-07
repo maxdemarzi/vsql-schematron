@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 055623_Company
+#
+CREATE DATABASE `db_055623_Company`;
+USE `db_055623_Company`;
+CREATE TABLE `EMPLOYEE` (
+`SSN` VARCHAR(64),
+`Name` VARCHAR(64),
+`Address` VARCHAR(64),
+`Sex` VARCHAR(64),
+`Salary` DECIMAL(10,2),
+`SuperSSN` VARCHAR(64),
+`DNo` VARCHAR(64),
+PRIMARY KEY (`SSN`)
+) CHARACTER SET latin1;
+CREATE TABLE `DEPARTMENT` (
+`DNo` VARCHAR(64),
+`DName` VARCHAR(64),
+`MgrSSN` VARCHAR(64),
+`MgrStartDate` DATETIME,
+PRIMARY KEY (`DNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `DLOCATION` (
+`DNo` VARCHAR(64),
+`DLoc` VARCHAR(64),
+PRIMARY KEY (`DNo`, `DLoc`)
+) CHARACTER SET latin1;
+CREATE TABLE `PROJECT` (
+`PNo` VARCHAR(64),
+`PName` VARCHAR(64),
+`PLocation` VARCHAR(64),
+`DNo` VARCHAR(64),
+PRIMARY KEY (`PNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `WORKS_ON` (
+`SSN` VARCHAR(64),
+`PNo` VARCHAR(64),
+`Hours` DECIMAL(10,2),
+PRIMARY KEY (`PNo`, `SSN`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_055623_Company') AS relationships;
+relationships
+Database: db_055623_Company
+
+Table Connections:
+------------------
+[Implied]  DEPARTMENT.MgrSSN -> EMPLOYEE.SSN
+[Implied]  DLOCATION.DNo -> DEPARTMENT.DNo
+[Implied]  EMPLOYEE.DNo -> DEPARTMENT.DNo
+[Implied]  PROJECT.DNo -> DEPARTMENT.DNo
+[Implied]  WORKS_ON.PNo -> PROJECT.PNo
+[Implied]  WORKS_ON.SSN -> EMPLOYEE.SSN
+
+DROP DATABASE `db_055623_Company`;
+UNINSTALL EXTENSION vsql_schematron;

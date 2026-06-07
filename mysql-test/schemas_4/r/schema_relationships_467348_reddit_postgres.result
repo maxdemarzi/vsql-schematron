@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 467348_reddit.postgres
+#
+CREATE DATABASE `db_467348_reddit_postgres`;
+USE `db_467348_reddit_postgres`;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`username` VARCHAR(64),
+`password_digest` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `submissions` (
+`id` INT,
+`author_id` INT,
+`url` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `submission_votes` (
+`id` INT,
+`submission_id` INT,
+`voter_id` INT,
+`score` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`author_id` INT,
+`submission_id` INT,
+`parent_id` INT,
+`body` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment_votes` (
+`id` INT,
+`comment_id` INT,
+`voter_id` INT,
+`score` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_467348_reddit_postgres') AS relationships;
+relationships
+Database: db_467348_reddit_postgres
+
+Table Connections:
+------------------
+[Implied]  comment_votes.comment_id -> comments.id
+[Implied]  comments.author_id -> users.id
+[Implied]  comments.parent_id -> comments.id
+[Implied]  comments.submission_id -> submissions.id
+[Implied]  submission_votes.submission_id -> submissions.id
+[Implied]  submissions.author_id -> users.id
+
+DROP DATABASE `db_467348_reddit_postgres`;
+UNINSTALL EXTENSION vsql_schematron;

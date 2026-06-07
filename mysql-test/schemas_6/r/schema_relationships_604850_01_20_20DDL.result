@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 604850_01%20-%20DDL
+#
+CREATE DATABASE `db_604850_01_20_20DDL`;
+USE `db_604850_01_20_20DDL`;
+CREATE TABLE `Users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Repositories` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Repositories_Contributors` (
+`repository_id` INT,
+`contributor_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Issues` (
+`id` INT,
+`title` VARCHAR(64),
+`issue_status` VARCHAR(64),
+`repository_id` INT,
+`assignee_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Commits` (
+`id` INT,
+`message` VARCHAR(64),
+`issue_id` INT,
+`repository_id` INT,
+`contributor_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_604850_01_20_20DDL') AS relationships;
+relationships
+Database: db_604850_01_20_20DDL
+
+Table Connections:
+------------------
+[Implied]  Commits.issue_id -> Issues.id
+[Implied]  Commits.repository_id -> Repositories.id
+[Implied]  Issues.assignee_id -> Users.id
+[Implied]  Issues.repository_id -> Repositories.id
+[Implied]  Repositories_Contributors.repository_id -> Repositories.id
+
+DROP DATABASE `db_604850_01_20_20DDL`;
+UNINSTALL EXTENSION vsql_schematron;

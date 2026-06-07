@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 504248_initial
+--echo #
+CREATE DATABASE `db_504248_initial`;
+USE `db_504248_initial`;
+
+CREATE TABLE `user_type` (
+  `id` INT,
+  `type` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `preference` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `password` VARCHAR(64),
+  `address` VARCHAR(64),
+  `created_at` DATETIME,
+  `preference` INT,
+  `type` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `food` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `thumbnail` VARCHAR(64),
+  `created_at` DATETIME,
+  `type` INT,
+  `created_by` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cart` (
+  `food_id` INT,
+  `user_id` INT,
+  `quantity` INT,
+  PRIMARY KEY (`food_id`, `user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `food_order` (
+  `id` INT,
+  `food_id` INT,
+  `user_id` INT,
+  `status` VARCHAR(64),
+  `quantity` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_504248_initial') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_504248_initial') AS relationships;
+DROP DATABASE `db_504248_initial`;
+UNINSTALL EXTENSION vsql_schematron;

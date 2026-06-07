@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 521886_DataTypes
+--echo #
+CREATE DATABASE `db_521886_DataTypes`;
+USE `db_521886_DataTypes`;
+
+CREATE TABLE `AAC_SUB` (
+  `AAC_ET_ALTERNATE_AUTO_COUNTER` INT,
+  PRIMARY KEY (`AAC_ET_ALTERNATE_AUTO_COUNTER`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AG_ET` (
+  `ALTERNATE_GUID` VARCHAR(64),
+  PRIMARY KEY (`ALTERNATE_GUID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AG_SUB` (
+  `AG_ET_ALTERNATE_GUID` VARCHAR(64),
+  PRIMARY KEY (`AG_ET_ALTERNATE_GUID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_521886_DataTypes') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_521886_DataTypes') AS relationships;
+DROP DATABASE `db_521886_DataTypes`;
+UNINSTALL EXTENSION vsql_schematron;

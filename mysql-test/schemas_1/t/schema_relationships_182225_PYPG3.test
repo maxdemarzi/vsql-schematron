@@ -1,0 +1,124 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 182225_PYPG3
+--echo #
+CREATE DATABASE `db_182225_PYPG3`;
+USE `db_182225_PYPG3`;
+
+CREATE TABLE `Rol` (
+  `PK_IDROL` INT,
+  `DescripcionRol` VARCHAR(64),
+  PRIMARY KEY (`PK_IDROL`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Usuario` (
+  `PK_IDUsuario` INT,
+  `Correo` VARCHAR(64),
+  `Contrasena` VARCHAR(64),
+  `Salt` VARCHAR(64),
+  `FechaRegistro` DATETIME,
+  `Activo` BOOL,
+  `IDRol` INT,
+  PRIMARY KEY (`PK_IDUsuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Cliente` (
+  `Nombre` VARCHAR(64),
+  `Apellido` VARCHAR(64),
+  `FechaNacimiento` DATETIME,
+  `PK_IDCliente` INT,
+  `Activo` BOOL,
+  PRIMARY KEY (`PK_IDCliente`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Proveedor` (
+  `NombreEmpresa` VARCHAR(64),
+  `Activo` BOOL,
+  `PK_IDProveedor` INT,
+  `URL` VARCHAR(64),
+  `NombrePersonaConacto` VARCHAR(64),
+  `EmailPersonaContacto` VARCHAR(64),
+  PRIMARY KEY (`PK_IDProveedor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TipoSoftware` (
+  `PK_IDTipoSoftware` INT,
+  `DescripcionTipoSoftware` VARCHAR(64),
+  PRIMARY KEY (`PK_IDTipoSoftware`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Software` (
+  `PK_IDSoftware` INT,
+  `NombreSoftware` VARCHAR(64),
+  `DescripcionSoftware` VARCHAR(64),
+  `Activo` BOOL,
+  `TipoSoftware` INT,
+  `IDProveedor` INT,
+  PRIMARY KEY (`PK_IDSoftware`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TipoIncidente` (
+  `PK_IDTipoIncidente` INT,
+  `DescripcionTipoIncidente` VARCHAR(64),
+  PRIMARY KEY (`PK_IDTipoIncidente`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EstadoIncidente` (
+  `PK_IDEstadoIncidente` INT,
+  `DescripcionEstadoIncidente` VARCHAR(64),
+  PRIMARY KEY (`PK_IDEstadoIncidente`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Incidente` (
+  `PK_IDIncidente` INT,
+  `NombreIncidente` VARCHAR(64),
+  `DescripcionIncidente` VARCHAR(64),
+  `EstadoIncidente` INT,
+  `TipoIncidente` INT,
+  `Cliente` INT,
+  `Proveedor` INT,
+  `IDSoftware` INT,
+  `FechaIncidente` DATETIME,
+  `Activo` BOOL,
+  PRIMARY KEY (`PK_IDIncidente`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Comentarios` (
+  `PK_IDComentarios` INT,
+  `DescripcionComentario` VARCHAR(64),
+  `Incidente` INT,
+  `Usuario` INT,
+  `Activo` BOOL,
+  `FechaComentario` DATETIME,
+  PRIMARY KEY (`PK_IDComentarios`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Documentos` (
+  `PK_IDDocumentos` INT,
+  `DescripcionDocumentos` VARCHAR(64),
+  `Documento` VARCHAR(64),
+  `Incidente` INT,
+  `Activo` BOOL,
+  PRIMARY KEY (`PK_IDDocumentos`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_182225_PYPG3') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_182225_PYPG3') AS relationships;
+DROP DATABASE `db_182225_PYPG3`;
+UNINSTALL EXTENSION vsql_schematron;

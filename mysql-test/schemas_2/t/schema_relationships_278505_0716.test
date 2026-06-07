@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 278505_0716
+--echo #
+CREATE DATABASE `db_278505_0716`;
+USE `db_278505_0716`;
+
+CREATE TABLE `jsh_accounthead` (
+  `Id` INT,
+  `Type` VARCHAR(64),
+  `OrganId` INT,
+  `HandsPersonId` INT,
+  `ChangeAmount` DECIMAL(10,2),
+  `TotalPrice` DECIMAL(10,2),
+  `AccountId` INT,
+  `BillNo` VARCHAR(64),
+  `BillTime` DATETIME,
+  `Remark` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `jsh_accountitem` (
+  `Id` INT,
+  `HeaderId` INT,
+  `AccountId` INT,
+  `InOutItemId` INT,
+  `EachAmount` DECIMAL(10,2),
+  `Remark` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `jsh_role` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `jsh_visitaccount` (
+  `Id` INT,
+  `ProjectId` INT,
+  `LouHao` VARCHAR(64),
+  `HuHao` VARCHAR(64),
+  `HuiFang` VARCHAR(64),
+  `LuoShi` VARCHAR(64),
+  `Name` VARCHAR(64),
+  `Tel` VARCHAR(64),
+  `AddTime` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_278505_0716') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_278505_0716') AS relationships;
+DROP DATABASE `db_278505_0716`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,102 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 230430_database
+#
+CREATE DATABASE `db_230430_database`;
+USE `db_230430_database`;
+CREATE TABLE `admin` (
+`admin_id` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`admin_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `app` (
+`student_id` VARCHAR(64),
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`gpa` INT,
+`degree` VARCHAR(64),
+`phoneNumber` VARCHAR(64),
+`email` VARCHAR(64),
+`graduateDate` DATETIME,
+`workPlace` VARCHAR(64),
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`student_id` VARCHAR(64),
+`faculty_id` VARCHAR(64),
+`comment` VARCHAR(64),
+PRIMARY KEY (`student_id`, `faculty_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`courseName` VARCHAR(64),
+`deptment` VARCHAR(64),
+PRIMARY KEY (`courseName`)
+) CHARACTER SET latin1;
+CREATE TABLE `curTeach` (
+`student_id` VARCHAR(64),
+`courseName` VARCHAR(64),
+PRIMARY KEY (`student_id`, `courseName`)
+) CHARACTER SET latin1;
+CREATE TABLE `graduate` (
+`student_id` VARCHAR(64),
+`degree` VARCHAR(64),
+`adviseName` VARCHAR(64),
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `instructor` (
+`faculty_id` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`faculty_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `interStudent` (
+`student_id` VARCHAR(64),
+`score` VARCHAR(64),
+`semester` VARCHAR(64),
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `likeTeach` (
+`student_id` VARCHAR(64),
+`courseName` VARCHAR(64),
+`score` DECIMAL(10,2),
+PRIMARY KEY (`student_id`, `courseName`)
+) CHARACTER SET latin1;
+CREATE TABLE `preTeach` (
+`student_id` VARCHAR(64),
+`courseName` VARCHAR(64),
+PRIMARY KEY (`student_id`, `courseName`)
+) CHARACTER SET latin1;
+CREATE TABLE `undergraduate` (
+`student_id` VARCHAR(64),
+`program` VARCHAR(64),
+`level` VARCHAR(64),
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`student_id` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_230430_database') AS relationships;
+relationships
+Database: db_230430_database
+
+Table Connections:
+------------------
+[Implied]  app.student_id -> student.student_id
+[Implied]  comment.faculty_id -> instructor.faculty_id
+[Implied]  comment.student_id -> student.student_id
+[Implied]  curTeach.courseName -> course.courseName
+[Implied]  curTeach.student_id -> student.student_id
+[Implied]  graduate.student_id -> student.student_id
+[Implied]  interStudent.student_id -> student.student_id
+[Implied]  likeTeach.courseName -> course.courseName
+[Implied]  likeTeach.student_id -> student.student_id
+[Implied]  preTeach.courseName -> course.courseName
+[Implied]  preTeach.student_id -> student.student_id
+[Implied]  undergraduate.student_id -> student.student_id
+
+DROP DATABASE `db_230430_database`;
+UNINSTALL EXTENSION vsql_schematron;

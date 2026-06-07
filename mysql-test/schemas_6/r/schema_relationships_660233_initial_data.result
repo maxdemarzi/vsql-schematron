@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 660233_initial_data
+#
+CREATE DATABASE `db_660233_initial_data`;
+USE `db_660233_initial_data`;
+CREATE TABLE `changeset_comments` (
+`id` VARCHAR(64),
+`changeset_id` INT,
+`user_id` INT,
+`username` VARCHAR(64),
+`timestamp` DATETIME,
+`comment` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `changeset_tags` (
+`id` VARCHAR(64),
+`changeset_id` INT,
+`key` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `changesets` (
+`id` INT,
+`created_at` DATETIME,
+`closed_at` DATETIME,
+`is_open` BOOL,
+`user_id` INT,
+`username` VARCHAR(64),
+`comment` VARCHAR(64),
+`source` VARCHAR(64),
+`created_by` VARCHAR(64),
+`imagery_used` VARCHAR(64),
+`min_lon` DECIMAL(10,2),
+`min_lat` DECIMAL(10,2),
+`max_lon` DECIMAL(10,2),
+`max_lat` DECIMAL(10,2),
+`bbox` VARCHAR(64),
+`num_changes` INT,
+`discussion_count` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `note_comments` (
+`id` VARCHAR(64),
+`note_id` INT,
+`action` VARCHAR(64),
+`comment` VARCHAR(64),
+`timestamp` DATETIME,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notes` (
+`id` INT,
+`created_at` DATETIME,
+`closed_at` DATETIME,
+`opened_by` INT,
+`point` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stats` (
+`id` INT,
+`change_at` DATETIME,
+`uid` INT,
+`nodes` VARCHAR(64),
+`ways` VARCHAR(64),
+`relations` VARCHAR(64),
+`changesets` VARCHAR(64),
+`tags_created` VARCHAR(64),
+`tags_modified` VARCHAR(64),
+`tags_deleted` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`name` VARCHAR(64),
+`first_edit` DATETIME,
+`changeset_count` INT,
+`num_changes` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_660233_initial_data') AS relationships;
+relationships
+Database: db_660233_initial_data
+
+Table Connections:
+------------------
+[Implied]  changeset_comments.changeset_id -> changesets.id
+[Implied]  changeset_comments.user_id -> users.id
+[Implied]  changeset_tags.changeset_id -> changesets.id
+[Implied]  changesets.user_id -> users.id
+[Implied]  note_comments.note_id -> notes.id
+[Implied]  note_comments.user_id -> users.id
+
+DROP DATABASE `db_660233_initial_data`;
+UNINSTALL EXTENSION vsql_schematron;

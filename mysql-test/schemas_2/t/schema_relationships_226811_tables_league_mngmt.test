@@ -1,0 +1,113 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 226811_tables-league_mngmt
+--echo #
+CREATE DATABASE `db_226811_tables_league_mngmt`;
+USE `db_226811_tables_league_mngmt`;
+
+CREATE TABLE `privileges` (
+  `privilegesID` INT,
+  `privilegesType` VARCHAR(64),
+  `cancelGame` BOOL,
+  `updateScore` BOOL,
+  `createPlayer` BOOL,
+  `createGame` BOOL,
+  `createUser` BOOL,
+  `createTeam` BOOL,
+  `createLeague` BOOL,
+  `assignPlayer` BOOL,
+  `assignManager` BOOL,
+  `assignCoordinator` BOOL,
+  `assignprivileges` BOOL,
+  PRIMARY KEY (`privilegesID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `userID` INT,
+  `privilegesID` INT,
+  `userType` VARCHAR(64),
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  `email` VARCHAR(64),
+  `hash` VARCHAR(64),
+  `lastLogin` DATETIME,
+  PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `leagues` (
+  `leagueID` INT,
+  `coordinatorID` INT,
+  `leagueName` VARCHAR(64),
+  `season` VARCHAR(64),
+  `pointScheme` VARCHAR(64),
+  PRIMARY KEY (`leagueID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `teams` (
+  `teamID` INT,
+  `leagueID` INT,
+  `managerID` INT,
+  `teamName` VARCHAR(64),
+  `colour` VARCHAR(64),
+  `leaguePoints` INT,
+  `wins` INT,
+  `losses` INT,
+  `draws` INT,
+  PRIMARY KEY (`teamID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `games` (
+  `gameID` INT,
+  `leagueID` INT,
+  `homeTeamID` INT,
+  `awayTeamID` INT,
+  `refereeID` INT,
+  `gameTime` DATETIME,
+  `fieldName` VARCHAR(64),
+  `status` VARCHAR(64),
+  PRIMARY KEY (`gameID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `players` (
+  `playerID` INT,
+  `teamID` INT,
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  `email` VARCHAR(64),
+  `number` INT,
+  `loanedGames` INT,
+  PRIMARY KEY (`playerID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `gameMembers` (
+  `gameID` INT,
+  `teamID` INT,
+  `playerID` INT,
+  `number` INT,
+  `goals` INT,
+  `cleanSheet` INT,
+  `yellowCards` INT,
+  `redCards` INT,
+  PRIMARY KEY (`playerID`, `teamID`, `gameID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_226811_tables_league_mngmt') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_226811_tables_league_mngmt') AS relationships;
+DROP DATABASE `db_226811_tables_league_mngmt`;
+UNINSTALL EXTENSION vsql_schematron;

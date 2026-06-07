@@ -1,0 +1,139 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 021946_20140721-151024
+--echo #
+CREATE DATABASE `db_021946_20140721_151024`;
+USE `db_021946_20140721_151024`;
+
+CREATE TABLE `organizations` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `notification_url` VARCHAR(64),
+  `cluster` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `teams` (
+  `id` INT,
+  `organization_id` INT,
+  `name` VARCHAR(64),
+  `cluster` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tokens` (
+  `id` INT,
+  `organization_id` INT,
+  `team_id` INT,
+  `description` VARCHAR(64),
+  `value` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `alerts` (
+  `id` INT,
+  `organization_id` INT,
+  `team_id` INT,
+  `description` VARCHAR(64),
+  `status` BOOL,
+  `handbook_url` VARCHAR(64),
+  `condition` VARCHAR(64),
+  `period` VARCHAR(64),
+  `routing` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `queries` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `alert_queries` (
+  `id` INT,
+  `alert_id` INT,
+  `query_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schedulers` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `salt` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `session_tokens` (
+  `id` INT,
+  `user_id` INT,
+  `token` VARCHAR(64),
+  `creation_time` DATETIME,
+  `expiration_time` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `confirmation_tokens` (
+  `id` INT,
+  `uuid` VARCHAR(64),
+  `email` VARCHAR(64),
+  `creation_time` DATETIME,
+  `expiration_time` DATETIME,
+  `is_sign_up` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `organization_users` (
+  `id` INT,
+  `organization_id` INT,
+  `user_id` INT,
+  `role` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `team_users` (
+  `id` INT,
+  `team_id` INT,
+  `user_id` INT,
+  `role` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `status` (
+  `id` INT,
+  `description` VARCHAR(64),
+  `since` DATETIME,
+  `until` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_021946_20140721_151024') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_021946_20140721_151024') AS relationships;
+DROP DATABASE `db_021946_20140721_151024`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 567751_id15623369_recruitmentdb
+--echo #
+CREATE DATABASE `db_567751_id15623369_recruitmentdb`;
+USE `db_567751_id15623369_recruitmentdb`;
+
+CREATE TABLE `Company` (
+  `CID` INT,
+  `Cname` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `Cphone` INT,
+  PRIMARY KEY (`CID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Job` (
+  `JID` INT,
+  `Jtitle` VARCHAR(64),
+  `Jdescription` VARCHAR(64),
+  `Jaddress` VARCHAR(64),
+  `Posted_On` DATETIME,
+  `C_ID` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_567751_id15623369_recruitmentdb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_567751_id15623369_recruitmentdb') AS relationships;
+DROP DATABASE `db_567751_id15623369_recruitmentdb`;
+UNINSTALL EXTENSION vsql_schematron;

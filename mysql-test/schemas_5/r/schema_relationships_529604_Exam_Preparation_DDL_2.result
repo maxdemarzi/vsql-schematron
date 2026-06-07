@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 529604_Exam_Preparation_DDL_2
+#
+CREATE DATABASE `db_529604_Exam_Preparation_DDL_2`;
+USE `db_529604_Exam_Preparation_DDL_2`;
+CREATE TABLE `pictures` (
+`id` INT,
+`path` VARCHAR(64),
+`size` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`profile_picture_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`caption` VARCHAR(64),
+`user_id` INT,
+`picture_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`content` VARCHAR(64),
+`user_id` INT,
+`post_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_followers` (
+`user_id` INT,
+`follower_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_529604_Exam_Preparation_DDL_2') AS relationships;
+relationships
+Database: db_529604_Exam_Preparation_DDL_2
+
+Table Connections:
+------------------
+[Implied]  comments.post_id -> posts.id
+[Implied]  comments.user_id -> users.id
+[Implied]  posts.picture_id -> pictures.id
+[Implied]  posts.user_id -> users.id
+[Implied]  users.profile_picture_id -> pictures.id
+[Implied]  users_followers.follower_id -> users.id
+[Implied]  users_followers.user_id -> users.id
+
+DROP DATABASE `db_529604_Exam_Preparation_DDL_2`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,143 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 159721_V1__initial_setup
+#
+CREATE DATABASE `db_159721_V1_initial_setup`;
+USE `db_159721_V1_initial_setup`;
+CREATE TABLE `maat_addresses` (
+`id` INT,
+`street` VARCHAR(64),
+`city` VARCHAR(64),
+`postal_code` VARCHAR(64),
+`region` VARCHAR(64),
+`country_code` VARCHAR(64),
+`country` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `maat_customers` (
+`id` INT,
+`identifier` VARCHAR(64),
+`a_type` VARCHAR(64),
+`given_name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`surname` VARCHAR(64),
+`date_of_birth` DATETIME,
+`account_beneficiary` VARCHAR(64),
+`reference_customer` VARCHAR(64),
+`assigned_office` VARCHAR(64),
+`assigned_employee` VARCHAR(64),
+`current_state` VARCHAR(64),
+`address_id` INT,
+`created_by` VARCHAR(64),
+`created_on` DATETIME,
+`last_modified_by` VARCHAR(64),
+`last_modified_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `maat_identification_cards` (
+`id` INT,
+`a_type` VARCHAR(64),
+`customer_id` INT,
+`a_number` VARCHAR(64),
+`expiration_date` DATETIME,
+`issuer` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `maat_contact_details` (
+`id` INT,
+`customer_id` INT,
+`a_type` VARCHAR(64),
+`a_group` VARCHAR(64),
+`a_value` VARCHAR(64),
+`preference_level` INT,
+`validated` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `maat_commands` (
+`id` INT,
+`customer_id` INT,
+`a_type` VARCHAR(64),
+`a_comment` VARCHAR(64),
+`created_by` VARCHAR(64),
+`created_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `maat_task_definitions` (
+`id` INT,
+`identifier` VARCHAR(64),
+`a_type` VARCHAR(64),
+`a_name` VARCHAR(64),
+`description` VARCHAR(64),
+`assigned_commands` VARCHAR(64),
+`mandatory` BOOL,
+`predefined` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `maat_task_instances` (
+`id` INT,
+`task_definition_id` INT,
+`customer_id` INT,
+`a_comment` VARCHAR(64),
+`executed_on` DATETIME,
+`executed_by` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nun_catalogs` (
+`id` INT,
+`identifier` VARCHAR(64),
+`a_name` VARCHAR(64),
+`description` VARCHAR(64),
+`created_by` VARCHAR(64),
+`created_on` DATETIME,
+`last_modified_by` VARCHAR(64),
+`last_modified_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nun_fields` (
+`id` INT,
+`catalog_id` INT,
+`identifier` VARCHAR(64),
+`data_type` VARCHAR(64),
+`a_label` VARCHAR(64),
+`a_hint` VARCHAR(64),
+`description` VARCHAR(64),
+`mandatory` BOOL,
+`a_length` INT,
+`a_precision` INT,
+`min_value` INT,
+`max_value` INT,
+`created_by` VARCHAR(64),
+`created_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nun_options` (
+`id` INT,
+`field_id` INT,
+`a_label` VARCHAR(64),
+`a_value` INT,
+`created_by` VARCHAR(64),
+`created_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `nun_field_values` (
+`id` INT,
+`entity_id` INT,
+`field_id` INT,
+`a_value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_159721_V1_initial_setup') AS relationships;
+relationships
+Database: db_159721_V1_initial_setup
+
+Table Connections:
+------------------
+[Implied]  maat_commands.customer_id -> maat_customers.id
+[Implied]  maat_contact_details.customer_id -> maat_customers.id
+[Implied]  maat_customers.address_id -> maat_addresses.id
+[Implied]  maat_identification_cards.customer_id -> maat_customers.id
+[Implied]  maat_task_instances.customer_id -> maat_customers.id
+[Implied]  maat_task_instances.task_definition_id -> maat_task_definitions.id
+
+DROP DATABASE `db_159721_V1_initial_setup`;
+UNINSTALL EXTENSION vsql_schematron;

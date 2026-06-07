@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 051971_tarea2
+--echo #
+CREATE DATABASE `db_051971_tarea2`;
+USE `db_051971_tarea2`;
+
+CREATE TABLE `cc500209_db.region` (
+  `id` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cc500209_db.comuna` (
+  `id` INT,
+  `nombre` VARCHAR(64),
+  `region_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cc500209_db.avistamiento` (
+  `id` INT,
+  `comuna_id` INT,
+  `dia_hora` DATETIME,
+  `sector` VARCHAR(64),
+  `nombre` VARCHAR(64),
+  `email` VARCHAR(64),
+  `celular` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cc500209_db.detalle_avistamiento` (
+  `id` INT,
+  `dia_hora` DATETIME,
+  `tipo` VARCHAR(64),
+  `estado` VARCHAR(64),
+  `avistamiento_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cc500209_db.foto` (
+  `id` INT,
+  `ruta_archivo` VARCHAR(64),
+  `nombre_archivo` VARCHAR(64),
+  `detalle_avistamiento_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_051971_tarea2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_051971_tarea2') AS relationships;
+DROP DATABASE `db_051971_tarea2`;
+UNINSTALL EXTENSION vsql_schematron;

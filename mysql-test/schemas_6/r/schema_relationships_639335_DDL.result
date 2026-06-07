@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 639335_DDL
+#
+CREATE DATABASE `db_639335_DDL`;
+USE `db_639335_DDL`;
+CREATE TABLE `faction` (
+`faction_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`faction_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ship` (
+`ship_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`ship_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pilot` (
+`pilot_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`pilot_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `faction_ship_pilot` (
+`faction_ship_pilot_id` INT,
+`faction_id` INT,
+`ship_id` INT,
+`pilot_id` INT,
+`pilot_skill` INT,
+PRIMARY KEY (`faction_ship_pilot_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `game_event` (
+`game_event_id` INT,
+`name` VARCHAR(64),
+`game_order` INT,
+PRIMARY KEY (`game_event_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `upgrade_type` (
+`upgrade_type_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`upgrade_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `upgrade` (
+`upgrade_id` INT,
+`upgrade_type_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`upgrade_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `upgrade_game_event` (
+`upgrade_game_event_id` INT,
+`upgrade_id` INT,
+`game_event_id` INT,
+PRIMARY KEY (`upgrade_game_event_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ship_list` (
+`ship_list_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`ship_list_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ship_list_item` (
+`ship_list_item_id` INT,
+`ship_list_id` INT,
+`faction_ship_pilot_id` INT,
+`upgrade_id` INT,
+PRIMARY KEY (`ship_list_item_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_639335_DDL') AS relationships;
+relationships
+Database: db_639335_DDL
+
+Table Connections:
+------------------
+[Implied]  faction_ship_pilot.faction_id -> faction.faction_id
+[Implied]  faction_ship_pilot.pilot_id -> pilot.pilot_id
+[Implied]  faction_ship_pilot.ship_id -> ship.ship_id
+[Implied]  ship_list_item.faction_ship_pilot_id -> faction_ship_pilot.faction_ship_pilot_id
+[Implied]  ship_list_item.ship_list_id -> ship_list.ship_list_id
+[Implied]  ship_list_item.upgrade_id -> upgrade.upgrade_id
+[Implied]  upgrade.upgrade_type_id -> upgrade_type.upgrade_type_id
+[Implied]  upgrade_game_event.game_event_id -> game_event.game_event_id
+[Implied]  upgrade_game_event.upgrade_id -> upgrade.upgrade_id
+
+DROP DATABASE `db_639335_DDL`;
+UNINSTALL EXTENSION vsql_schematron;

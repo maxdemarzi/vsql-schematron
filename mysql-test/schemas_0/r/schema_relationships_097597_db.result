@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 097597_db
+#
+CREATE DATABASE `db_097597_db`;
+USE `db_097597_db`;
+CREATE TABLE `File` (
+`filename` VARCHAR(64),
+`curhash` INT,
+`curversion` INT,
+`numversions` INT,
+PRIMARY KEY (`filename`)
+) CHARACTER SET latin1;
+CREATE TABLE `Version` (
+`id` INT,
+`filename` VARCHAR(64),
+`size` INT,
+`time` INT,
+`filemodtime` INT,
+`comment` VARCHAR(64),
+`version` INT,
+`hash` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Block` (
+`id` INT,
+`hash1` INT,
+`hash2` INT,
+`data` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `VtoB` (
+`id` INT,
+`versionid` INT,
+`blockid` INT,
+`versionindex` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_097597_db') AS relationships;
+relationships
+Database: db_097597_db
+
+Table Connections:
+------------------
+[Implied]  Version.filename -> File.filename
+[Implied]  VtoB.blockid -> Block.id
+[Implied]  VtoB.versionid -> Version.id
+
+DROP DATABASE `db_097597_db`;
+UNINSTALL EXTENSION vsql_schematron;

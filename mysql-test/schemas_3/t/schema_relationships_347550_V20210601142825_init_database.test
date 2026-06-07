@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 347550_V20210601142825__init_database
+--echo #
+CREATE DATABASE `db_347550_V20210601142825_init_database`;
+USE `db_347550_V20210601142825_init_database`;
+
+CREATE TABLE `user` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `username` VARCHAR(64),
+  `type` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product_category` (
+  `id` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `product` (
+  `id` INT,
+  `user_id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `type` VARCHAR(64),
+  `brand` VARCHAR(64),
+  `color` VARCHAR(64),
+  `category_id` INT,
+  `notes` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activity_follows` (
+  `id` VARCHAR(64),
+  `source_user` VARCHAR(64),
+  `target_user` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activity_post` (
+  `id` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  `product_id` INT,
+  `price` DECIMAL(10,2),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activity_promo` (
+  `id` VARCHAR(64),
+  `post_id` VARCHAR(64),
+  `discount` DECIMAL(10,2),
+  `created_at` DATETIME,
+  `active` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_347550_V20210601142825_init_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_347550_V20210601142825_init_database') AS relationships;
+DROP DATABASE `db_347550_V20210601142825_init_database`;
+UNINSTALL EXTENSION vsql_schematron;

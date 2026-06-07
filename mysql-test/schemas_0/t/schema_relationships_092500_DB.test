@@ -1,0 +1,167 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 092500_DB
+--echo #
+CREATE DATABASE `db_092500_DB`;
+USE `db_092500_DB`;
+
+CREATE TABLE `categorias` (
+  `id_categoria` INT,
+  `nombre_categoria` VARCHAR(64),
+  `descripcion_categoria` VARCHAR(64),
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_categoria`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `unidad_medida` (
+  `id_unidad` INT,
+  `nombre_unidad` VARCHAR(64),
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_unidad`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tipo_usuarios` (
+  `id_tipo` INT,
+  `nombre_tipo` VARCHAR(64),
+  PRIMARY KEY (`id_tipo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `lineas` (
+  `id_linea` INT,
+  `nombre_linea` VARCHAR(64),
+  PRIMARY KEY (`id_linea`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `estados_productos` (
+  `id_estado` INT,
+  `descripcion_estado` VARCHAR(64),
+  PRIMARY KEY (`id_estado`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `personas_externas` (
+  `documento_exterior` VARCHAR(64),
+  `nombre_exterior` VARCHAR(64),
+  `empresa_exterior` VARCHAR(64),
+  `cargo_exterior` VARCHAR(64),
+  `telefono_exterior` VARCHAR(64),
+  PRIMARY KEY (`documento_exterior`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `proveedores` (
+  `id_proveedor` INT,
+  `nit` VARCHAR(64),
+  `nombre_proveedor` VARCHAR(64),
+  `telefono_proveedor` VARCHAR(64),
+  `correo_proveedor` VARCHAR(64),
+  `estado` VARCHAR(64),
+  `url` VARCHAR(64),
+  PRIMARY KEY (`id_proveedor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `personas` (
+  `documento_persona` VARCHAR(64),
+  `nombre_persona` VARCHAR(64),
+  `apellido_persona` VARCHAR(64),
+  `telefono_persona` VARCHAR(64),
+  PRIMARY KEY (`documento_persona`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `galeria_productos` (
+  `id_galeria` INT,
+  `nombre` VARCHAR(64),
+  `imagen` VARCHAR(64),
+  `tipo_img` VARCHAR(64),
+  PRIMARY KEY (`id_galeria`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuarios` (
+  `id_usuario` VARCHAR(64),
+  `usuario` VARCHAR(64),
+  `password` VARCHAR(64),
+  `tipo_usuario` INT,
+  `linea` INT,
+  `img` VARCHAR(64),
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `consumibles` (
+  `id_consumible` INT,
+  `cantidad_consumible` INT,
+  PRIMARY KEY (`id_consumible`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `historial_consumible` (
+  `fecha` DATETIME,
+  `consumible` INT,
+  `cantidad` INT,
+  PRIMARY KEY (`fecha`, `consumible`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `devolutivo` (
+  `id_devolutivo` INT,
+  `placa` VARCHAR(64),
+  `codigo_sena` VARCHAR(64),
+  `serial` VARCHAR(64),
+  PRIMARY KEY (`id_devolutivo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mantenimiento_equipos` (
+  `devolutivo` INT,
+  `registrado` DATETIME,
+  `fecha_inicio` DATETIME,
+  `fecha_fin` DATETIME,
+  `tipo_matenimiento` VARCHAR(64),
+  `estado_matenimiento` VARCHAR(64),
+  PRIMARY KEY (`devolutivo`, `registrado`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `prestamos` (
+  `id_prestamo` INT,
+  `fecha_prestamo` DATETIME,
+  `linea_prestamo` INT,
+  `emisor` VARCHAR(64),
+  `receptor` VARCHAR(64),
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`id_prestamo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `detalle_prestamo` (
+  `prestamo` INT,
+  `producto` INT,
+  PRIMARY KEY (`prestamo`, `producto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `salidas` (
+  `id_salida` INT,
+  `solicitud_salida` INT,
+  `producto_salida` INT,
+  `fecha_salida` DATETIME,
+  `cantidad_salida` INT,
+  `estado_salida` VARCHAR(64),
+  `tipo_salida` VARCHAR(64),
+  `persona_exterior` VARCHAR(64),
+  `persona_usuario` VARCHAR(64),
+  PRIMARY KEY (`id_salida`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_092500_DB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_092500_DB') AS relationships;
+DROP DATABASE `db_092500_DB`;
+UNINSTALL EXTENSION vsql_schematron;

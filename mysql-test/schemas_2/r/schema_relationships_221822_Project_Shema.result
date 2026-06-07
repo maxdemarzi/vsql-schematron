@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 221822_Project_Shema
+#
+CREATE DATABASE `db_221822_Project_Shema`;
+USE `db_221822_Project_Shema`;
+CREATE TABLE `FootballClub` (
+`id` INT,
+`c_name` VARCHAR(64),
+`homwCourt_advantage` INT,
+`league` VARCHAR(64),
+`teamInfo` INT,
+`logo` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Player` (
+`id` INT,
+`p_name` VARCHAR(64),
+`age` INT,
+`numberOnBack` INT,
+`attack` INT,
+`defence` INT,
+`stamina` INT,
+`overall` INT,
+`injuryResistance` INT,
+`foot` VARCHAR(64),
+`position` VARCHAR(64),
+`partOf` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Injury` (
+`id` INT,
+`name` VARCHAR(64),
+`rcoveryTime` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LineUp` (
+`id` INT,
+`attack` INT,
+`defence` INT,
+`overall` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TeamInformation` (
+`id` INT,
+`formation` VARCHAR(64),
+`lineup` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `GetInjured` (
+`startTime` INT,
+`has` INT,
+`belongsTo` INT,
+PRIMARY KEY (`has`, `belongsTo`)
+) CHARACTER SET latin1;
+CREATE TABLE `PosOnField` (
+`positionNum` INT,
+`has` INT,
+`isIn` INT,
+PRIMARY KEY (`has`, `isIn`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_221822_Project_Shema') AS relationships;
+relationships
+Database: db_221822_Project_Shema
+
+Table Connections:
+------------------
+[Implied]  FootballClub.teamInfo -> TeamInformation.id
+[Implied]  GetInjured.has -> PosOnField.has
+[Implied]  Player.partOf -> Player.id
+[Implied]  PosOnField.has -> GetInjured.has
+[Implied]  TeamInformation.lineup -> LineUp.id
+
+DROP DATABASE `db_221822_Project_Shema`;
+UNINSTALL EXTENSION vsql_schematron;

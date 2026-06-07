@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 139486_Project4-PostgreSQL-ETL
+--echo #
+CREATE DATABASE `db_139486_Project4_PostgreSQL_ETL`;
+USE `db_139486_Project4_PostgreSQL_ETL`;
+
+CREATE TABLE `state` (
+  `id` INT,
+  `state_abbrev` VARCHAR(64),
+  `code` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `area` (
+  `id` INT,
+  `area_name` VARCHAR(64),
+  `stateid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `county` (
+  `id` INT,
+  `county_name` VARCHAR(64),
+  `code` INT,
+  `areaid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `county_town` (
+  `id` INT,
+  `county_town_name` VARCHAR(64),
+  `pop2010` INT,
+  `countyid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `fmr` (
+  `id` INT,
+  `bedrooms` INT,
+  `fmr` INT,
+  `county_townid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `staging` (
+  `fips2000` VARCHAR(64),
+  `fips2010` VARCHAR(64),
+  `fmr2` VARCHAR(64),
+  `fmr0` VARCHAR(64),
+  `fmr1` VARCHAR(64),
+  `fmr3` VARCHAR(64),
+  `fmr4` VARCHAR(64),
+  `county` VARCHAR(64),
+  `state` VARCHAR(64),
+  `cousub` VARCHAR(64),
+  `countyname` VARCHAR(64),
+  `metro_code` VARCHAR(64),
+  `areaname` VARCHAR(64),
+  `county_town_name` VARCHAR(64),
+  `pop2010` VARCHAR(64),
+  `state_alpha` VARCHAR(64),
+  `fmr_type` VARCHAR(64),
+  `metro` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_139486_Project4_PostgreSQL_ETL') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_139486_Project4_PostgreSQL_ETL') AS relationships;
+DROP DATABASE `db_139486_Project4_PostgreSQL_ETL`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,129 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 257450_easyMoveFinal
+--echo #
+CREATE DATABASE `db_257450_easyMoveFinal`;
+USE `db_257450_easyMoveFinal`;
+
+CREATE TABLE `agencies` (
+  `agencies_id` INT,
+  `agencies_name` VARCHAR(64),
+  `town` VARCHAR(64),
+  `quarter` VARCHAR(64),
+  PRIMARY KEY (`agencies_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bus_trips` (
+  `id_` INT,
+  `trips_id` INT,
+  PRIMARY KEY (`id_`, `trips_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `buses` (
+  `id_` INT,
+  `bus_number` VARCHAR(64),
+  `colour` VARCHAR(64),
+  `num_of_sits` INT,
+  PRIMARY KEY (`id_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mails` (
+  `mails_id` INT,
+  `users_id` INT,
+  `use_users_id` INT,
+  `id_` INT,
+  `trips_id` INT,
+  `mails_type` VARCHAR(64),
+  `receiver_name` VARCHAR(64),
+  `receiver_number` VARCHAR(64),
+  `mail_state` VARCHAR(64),
+  `mails_name` VARCHAR(64),
+  `sender_name` VARCHAR(64),
+  `sender_number` VARCHAR(64),
+  PRIMARY KEY (`mails_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `operations` (
+  `id_operations` INT,
+  `users_id` INT,
+  `operations_name` VARCHAR(64),
+  `operation_target` VARCHAR(64),
+  `operation_date` DATETIME,
+  PRIMARY KEY (`id_operations`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `priviledges` (
+  `users_id` INT,
+  `idmenu` INT,
+  PRIMARY KEY (`users_id`, `idmenu`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reservations` (
+  `users_id` INT,
+  `trips_id` INT,
+  `reservation_date` DATETIME,
+  `quantity` INT,
+  PRIMARY KEY (`users_id`, `trips_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trips` (
+  `trips_id` INT,
+  `agencies_id` INT,
+  `users_id` INT,
+  `age_agencies_id` INT,
+  `departure` DATETIME,
+  `arrival` DATETIME,
+  `depart_agency` VARCHAR(64),
+  `arrival_agency` VARCHAR(64),
+  `trips_type` VARCHAR(64),
+  `price` VARCHAR(64),
+  PRIMARY KEY (`trips_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `users_id` INT,
+  `agencies_id` INT,
+  `use_users_id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `lusers_ogin` VARCHAR(64),
+  `users_password` VARCHAR(64),
+  `users_role` VARCHAR(64),
+  `users_status` VARCHAR(64),
+  `email` VARCHAR(64),
+  `id_card` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `phone_num` VARCHAR(64),
+  `adresse` VARCHAR(64),
+  `photo` VARCHAR(64),
+  PRIMARY KEY (`users_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_menu` (
+  `idmenu` INT,
+  `use_idmenu` INT,
+  `menu_name` VARCHAR(64),
+  `menu_key` VARCHAR(64),
+  PRIMARY KEY (`idmenu`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_257450_easyMoveFinal') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_257450_easyMoveFinal') AS relationships;
+DROP DATABASE `db_257450_easyMoveFinal`;
+UNINSTALL EXTENSION vsql_schematron;

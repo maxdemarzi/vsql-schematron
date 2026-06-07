@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 298869_Movie
+--echo #
+CREATE DATABASE `db_298869_Movie`;
+USE `db_298869_Movie`;
+
+CREATE TABLE `ACTOR` (
+  `ACT_ID` INT,
+  `ACT_NAME` VARCHAR(64),
+  `ACT_GENDER` VARCHAR(64),
+  PRIMARY KEY (`ACT_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DIRECTOR` (
+  `DIR_ID` INT,
+  `DIR_NAME` VARCHAR(64),
+  `DIR_PHONE` INT,
+  PRIMARY KEY (`DIR_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MOVIES` (
+  `MOV_ID` INT,
+  `MOV_TITLE` VARCHAR(64),
+  `MOV_YEAR` INT,
+  `MOV_LANG` VARCHAR(64),
+  `DIR_ID` INT,
+  PRIMARY KEY (`MOV_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MOVIE_CAST` (
+  `ACT_ID` INT,
+  `MOV_ID` INT,
+  `ROLE` VARCHAR(64),
+  PRIMARY KEY (`ACT_ID`, `MOV_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RATING` (
+  `MOV_ID` INT,
+  `REV_STARS` VARCHAR(64),
+  PRIMARY KEY (`MOV_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_298869_Movie') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_298869_Movie') AS relationships;
+DROP DATABASE `db_298869_Movie`;
+UNINSTALL EXTENSION vsql_schematron;

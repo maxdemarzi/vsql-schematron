@@ -1,0 +1,121 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 652405_target-schema-derby
+--echo #
+CREATE DATABASE `db_652405_target_schema_derby`;
+USE `db_652405_target_schema_derby`;
+
+CREATE TABLE `etl10t` (
+  `e9_id` INT,
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etl9t` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etl2t` (
+  `address` VARCHAR(64),
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etl6t` (
+  `date` DATETIME,
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etl8t` (
+  `c_decimal1` DECIMAL(10,2),
+  `c_decimal2` DECIMAL(10,2),
+  `c_decimal3` DECIMAL(10,2),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etl4t` (
+  `c_boolean` BOOL,
+  `c_date` DATETIME,
+  `c_decimal` DECIMAL(10,2),
+  `c_enum` VARCHAR(64),
+  `c_int` INT,
+  `c_time` DATETIME,
+  `c_timestamp` DATETIME,
+  `c_varchar` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etl7t` (
+  `first_name` VARCHAR(64),
+  `id` INT,
+  `last_name` VARCHAR(64),
+  `sex` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etl1t` (
+  `age` INT,
+  `description` VARCHAR(64),
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etl5t` (
+  `date` DATETIME,
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `etl3t` (
+  `e2_id` INT,
+  `e5_id` INT,
+  `id` INT,
+  `name` VARCHAR(64),
+  `phone_number` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ti_super` (
+  `id` INT,
+  `super_key` VARCHAR(64),
+  `type` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ti_sub1` (
+  `id` INT,
+  `sub_key` VARCHAR(64),
+  `subp1` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_652405_target_schema_derby') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_652405_target_schema_derby') AS relationships;
+DROP DATABASE `db_652405_target_schema_derby`;
+UNINSTALL EXTENSION vsql_schematron;

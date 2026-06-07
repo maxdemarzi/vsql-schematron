@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 217658_collection
+--echo #
+CREATE DATABASE `db_217658_collection`;
+USE `db_217658_collection`;
+
+CREATE TABLE `PUBLISHER` (
+  `PUBLISHER_NAME` VARCHAR(64),
+  `ADDRESS` VARCHAR(64),
+  `PHONE` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ONLINE_USER` (
+  `USER_NAME` VARCHAR(64),
+  `PASSWORD` VARCHAR(64),
+  `EMAIL_ADDRESS` VARCHAR(64),
+  `FNAME` VARCHAR(64),
+  `LNAME` VARCHAR(64),
+  `PHONE_NO` VARCHAR(64),
+  `SHIPPING_ADDRESS` VARCHAR(64),
+  `MANAGER` BOOL,
+  PRIMARY KEY (`USER_NAME`, `EMAIL_ADDRESS`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUTHOR` (
+  `AUTHOR_NAME` VARCHAR(64),
+  `AUTHOR_ID` VARCHAR(64),
+  PRIMARY KEY (`AUTHOR_NAME`, `AUTHOR_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BOOK` (
+  `ISBN` VARCHAR(64),
+  `AUTHOR` VARCHAR(64),
+  `TITLE` VARCHAR(64),
+  `PUBLISHER_NAME` VARCHAR(64),
+  `PUBLICATION_YEAR` VARCHAR(64),
+  `CATEGORY` VARCHAR(64),
+  `SELLING_PRICE` DECIMAL(10,2),
+  `THRESHOLD` INT,
+  `COPIES` INT,
+  PRIMARY KEY (`ISBN`, `TITLE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BOOK_ORDER` (
+  `ISBN` VARCHAR(64),
+  `TITLE` VARCHAR(64),
+  `DATE_ORDERED` DATETIME,
+  `USER_NAME` VARCHAR(64),
+  `COPIES` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `SALES` (
+  `ISBN` VARCHAR(64),
+  `TITLE` VARCHAR(64),
+  `DATE_ORDERED` DATETIME,
+  `USER_NAME` VARCHAR(64),
+  `COPIES` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_217658_collection') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_217658_collection') AS relationships;
+DROP DATABASE `db_217658_collection`;
+UNINSTALL EXTENSION vsql_schematron;

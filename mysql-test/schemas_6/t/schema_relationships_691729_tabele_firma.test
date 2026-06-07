@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 691729_tabele_firma
+--echo #
+CREATE DATABASE `db_691729_tabele_firma`;
+USE `db_691729_tabele_firma`;
+
+CREATE TABLE `PLACOWKI` (
+  `ID_PLACOWKI` DECIMAL(10,2),
+  `NAZWA` VARCHAR(64),
+  `MIEJSCOWOSC` VARCHAR(64),
+  `KOD` VARCHAR(64),
+  `ULICA` VARCHAR(64),
+  `NR_DOMU` VARCHAR(64),
+  PRIMARY KEY (`ID_PLACOWKI`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `WYKSZTALCENIE` (
+  `ID_WYKSZTALCENIA` DECIMAL(10,2),
+  `POZIOM` VARCHAR(64),
+  PRIMARY KEY (`ID_WYKSZTALCENIA`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PRACOWNICY` (
+  `ID_PRACOWNIKA` DECIMAL(10,2),
+  `IMIE` VARCHAR(64),
+  `NAZWISKO` VARCHAR(64),
+  `PLEC` VARCHAR(64),
+  `DATA_URODZENIA` DATETIME,
+  `PESEL` VARCHAR(64),
+  `DATA_ZATRUDNIENIA` DATETIME,
+  `ZAWOD` VARCHAR(64),
+  `PENSJA` DECIMAL(10,2),
+  `DODATEK` DECIMAL(10,2),
+  `ID_SZEFA` DECIMAL(10,2),
+  `ID_PLACOWKI` DECIMAL(10,2),
+  `ID_WYKSZTALCENIA` DECIMAL(10,2),
+  PRIMARY KEY (`ID_PRACOWNIKA`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `KURSY` (
+  `ID_KURSU` DECIMAL(10,2),
+  `NAZWA` VARCHAR(64),
+  `LICZBA_GODZIN` DECIMAL(10,2),
+  PRIMARY KEY (`ID_KURSU`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UCZESTNICTWO` (
+  `ID_KURSU` DECIMAL(10,2),
+  `ID_PRACOWNIKA` DECIMAL(10,2),
+  PRIMARY KEY (`ID_KURSU`, `ID_PRACOWNIKA`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_691729_tabele_firma') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_691729_tabele_firma') AS relationships;
+DROP DATABASE `db_691729_tabele_firma`;
+UNINSTALL EXTENSION vsql_schematron;

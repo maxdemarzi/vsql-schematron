@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 608702_schema_data
+--echo #
+CREATE DATABASE `db_608702_schema_data`;
+USE `db_608702_schema_data`;
+
+CREATE TABLE `APP_ROLE` (
+  `ROLE_ID` INT,
+  `ROLE_NAME` VARCHAR(64),
+  PRIMARY KEY (`ROLE_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `APP_USER` (
+  `USER_ID` INT,
+  `USER_NAME` VARCHAR(64),
+  `ENCRYPTED_PASSWORD` VARCHAR(64),
+  `ENABLED` BOOL,
+  `USER_REAL_NAME` VARCHAR(64),
+  `USER_REAL_SURNAME` VARCHAR(64),
+  PRIMARY KEY (`USER_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `APP_TASKS` (
+  `TID` INT,
+  `TITLE` VARCHAR(64),
+  `DESCRIPTION` VARCHAR(64),
+  `START_DATE` DATETIME,
+  `END_DATE` DATETIME,
+  `UID` INT,
+  PRIMARY KEY (`TID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Persistent_Logins` (
+  `username` VARCHAR(64),
+  `series` VARCHAR(64),
+  `token` VARCHAR(64),
+  `last_used` DATETIME,
+  PRIMARY KEY (`series`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USER_ROLE` (
+  `ID` INT,
+  `USER_ID` INT,
+  `ROLE_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_608702_schema_data') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_608702_schema_data') AS relationships;
+DROP DATABASE `db_608702_schema_data`;
+UNINSTALL EXTENSION vsql_schematron;

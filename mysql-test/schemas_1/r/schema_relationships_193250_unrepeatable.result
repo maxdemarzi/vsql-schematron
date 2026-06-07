@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 193250_unrepeatable
+#
+CREATE DATABASE `db_193250_unrepeatable`;
+USE `db_193250_unrepeatable`;
+CREATE TABLE `m1397_unrepeatable.keys` (
+`id` INT,
+`secret` VARCHAR(64),
+`name` VARCHAR(64),
+`created` INT,
+`disabled` INT,
+`distance` DECIMAL(10,2),
+`seed_latitude` DECIMAL(10,2),
+`seed_longitude` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `m1397_unrepeatable.providers` (
+`id` INT,
+`identifier` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `m1397_unrepeatable.users` (
+`id` INT,
+`fd_id` INT,
+`profile_picture` VARCHAR(64),
+`name` VARCHAR(64),
+`anonymous` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `m1397_unrepeatable.posts` (
+`id` INT,
+`key_id` INT,
+`created_by` INT,
+`created` INT,
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`location_name` VARCHAR(64),
+`provider_id` INT,
+`provider_source` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`, `key_id`, `provider_id`, `created_by`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_193250_unrepeatable') AS relationships;
+relationships
+Database: db_193250_unrepeatable
+
+Table Connections:
+------------------
+[Implied]  m1397_unrepeatable.posts.created_by -> m1397_unrepeatable.providers.id
+[Implied]  m1397_unrepeatable.posts.created_by -> m1397_unrepeatable.users.id
+[Implied]  m1397_unrepeatable.posts.key_id -> m1397_unrepeatable.keys.id
+[Implied]  m1397_unrepeatable.posts.provider_id -> m1397_unrepeatable.providers.id
+
+DROP DATABASE `db_193250_unrepeatable`;
+UNINSTALL EXTENSION vsql_schematron;

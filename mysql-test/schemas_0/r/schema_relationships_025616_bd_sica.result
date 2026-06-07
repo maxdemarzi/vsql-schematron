@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 025616_bd_sica
+#
+CREATE DATABASE `db_025616_bd_sica`;
+USE `db_025616_bd_sica`;
+CREATE TABLE `usuarios` (
+`id` INT,
+`nome` VARCHAR(64),
+`email` VARCHAR(64),
+`senha` VARCHAR(64),
+`atividade` BOOL,
+`root` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dispositivos` (
+`id` INT,
+`identificacao` VARCHAR(64),
+`atividade` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `modelos` (
+`id` INT,
+`nome` VARCHAR(64),
+`detalhe` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `materiais` (
+`id` INT,
+`username` VARCHAR(64),
+`valor` DECIMAL(10,2),
+`contidade` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `material_modelo` (
+`id_modelo` INT,
+`id_material` INT
+) CHARACTER SET latin1;
+CREATE TABLE `modelo_dispositivo` (
+`id_dispositivo` INT,
+`id_modelo` INT
+) CHARACTER SET latin1;
+CREATE TABLE `campos` (
+`id` INT,
+`id_user` INT,
+`username` VARCHAR(64),
+`lagura` INT,
+`distancia` INT,
+`l_um` VARCHAR(64),
+`d_um` VARCHAR(64),
+`_end` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `blocos` (
+`id` INT,
+`id_campo` INT,
+`username` VARCHAR(64),
+`lagura` INT,
+`distancia` INT,
+`l_um` VARCHAR(64),
+`d_um` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dispositivo_usando` (
+`id` INT,
+`id_bloco` INT,
+`id_dispositivo` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dados` (
+`id` INT,
+`id_dispositivo_usando` INT,
+`data_s` DATETIME,
+`dados` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_025616_bd_sica') AS relationships;
+relationships
+Database: db_025616_bd_sica
+
+Table Connections:
+------------------
+[Implied]  blocos.id_campo -> campos.id
+[Implied]  dados.id_dispositivo_usando -> dispositivo_usando.id
+[Implied]  dispositivo_usando.id_bloco -> blocos.id
+[Implied]  dispositivo_usando.id_dispositivo -> dispositivos.id
+[Implied]  material_modelo.id_modelo -> modelos.id
+[Implied]  modelo_dispositivo.id_dispositivo -> dispositivos.id
+[Implied]  modelo_dispositivo.id_modelo -> modelos.id
+
+DROP DATABASE `db_025616_bd_sica`;
+UNINSTALL EXTENSION vsql_schematron;

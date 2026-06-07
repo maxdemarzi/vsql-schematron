@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 052136_Pratica1
+--echo #
+CREATE DATABASE `db_052136_Pratica1`;
+USE `db_052136_Pratica1`;
+
+CREATE TABLE `FUNCIONARIO` (
+  `FUN_COD_FUNC` DECIMAL(10,2),
+  `FUN_NOME` VARCHAR(64),
+  `FUN_CPF` VARCHAR(64),
+  `FUN_SALARIO` DECIMAL(10,2),
+  `FUN_ENDERECO` VARCHAR(64),
+  `FUN_SEXO` VARCHAR(64),
+  `FUN_COD_SUPER` DECIMAL(10,2),
+  `FUN_COD_DEPART` DECIMAL(10,2),
+  PRIMARY KEY (`FUN_COD_FUNC`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DEPARTAMENTO` (
+  `DEP_COD_DEPART` DECIMAL(10,2),
+  `DEP_NOME` VARCHAR(64),
+  `DEP_DATA_INICIAL` DATETIME,
+  PRIMARY KEY (`DEP_COD_DEPART`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LOCALIZACAO` (
+  `LOC_COD_DEPART` DECIMAL(10,2),
+  `LOC_LOCAL` VARCHAR(64),
+  PRIMARY KEY (`LOC_COD_DEPART`, `LOC_LOCAL`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DEPENDENTE` (
+  `DEPE_COD_FUNC` DECIMAL(10,2),
+  `DEPE_SEQ` DECIMAL(10,2),
+  `DEPE_NOME` VARCHAR(64),
+  `DEPE_PARENTESCO` VARCHAR(64),
+  `DEPE_DATA_NASC` DATETIME,
+  PRIMARY KEY (`DEPE_COD_FUNC`, `DEPE_SEQ`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROJETO` (
+  `PRO_COD_PROJ` DECIMAL(10,2),
+  `PRO_COD_DEPART` DECIMAL(10,2),
+  `PRO_TITULO` VARCHAR(64),
+  `PRO_DESCRICAO` VARCHAR(64),
+  `PRO_DATA_CAD` DATETIME,
+  PRIMARY KEY (`PRO_COD_PROJ`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PARTICIPA` (
+  `PAR_COD_FUNC` DECIMAL(10,2),
+  `PAR_COD_PROJ` DECIMAL(10,2),
+  `PAR_HORAS` VARCHAR(64),
+  PRIMARY KEY (`PAR_COD_FUNC`, `PAR_COD_PROJ`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_052136_Pratica1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_052136_Pratica1') AS relationships;
+DROP DATABASE `db_052136_Pratica1`;
+UNINSTALL EXTENSION vsql_schematron;

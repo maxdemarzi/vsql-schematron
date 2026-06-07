@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 570025_securevision_schema_generated
+#
+CREATE DATABASE `db_570025_securevision_schema_generated`;
+USE `db_570025_securevision_schema_generated`;
+CREATE TABLE `user` (
+`id` INT,
+`name` VARCHAR(64),
+`user_pass` VARCHAR(64),
+`user_rights` INT,
+`num_feedback` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `camera` (
+`id` INT,
+`is_running` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `image` (
+`id` INT,
+`img_path` VARCHAR(64),
+`cam_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `detection` (
+`id` INT,
+`img_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `annotation` (
+`id` INT,
+`obj_type` VARCHAR(64),
+`left_x` DECIMAL(10,2),
+`left_y` DECIMAL(10,2),
+`length` DECIMAL(10,2),
+`width` DECIMAL(10,2),
+`detection_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `feedback` (
+`id` INT,
+`corr_obj_type` VARCHAR(64),
+`corr_left_x` DECIMAL(10,2),
+`corr_left_y` DECIMAL(10,2),
+`corr_length` DECIMAL(10,2),
+`corr_width` DECIMAL(10,2),
+`detection_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_570025_securevision_schema_generated') AS relationships;
+relationships
+Database: db_570025_securevision_schema_generated
+
+Table Connections:
+------------------
+[Implied]  annotation.detection_id -> detection.id
+[Implied]  feedback.detection_id -> detection.id
+[Implied]  image.cam_id -> camera.id
+
+DROP DATABASE `db_570025_securevision_schema_generated`;
+UNINSTALL EXTENSION vsql_schematron;

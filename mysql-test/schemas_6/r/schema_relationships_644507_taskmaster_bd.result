@@ -1,0 +1,142 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 644507_taskmaster_bd
+#
+CREATE DATABASE `db_644507_taskmaster_bd`;
+USE `db_644507_taskmaster_bd`;
+CREATE TABLE `city` (
+`id` INT,
+`name` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`id` INT,
+`name` VARCHAR(64),
+`icon` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`reg_date` DATETIME,
+`last_visit_date` DATETIME,
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_profile` (
+`id` INT,
+`user_id` INT,
+`birth_date` DATETIME,
+`description` VARCHAR(64),
+`avatar` VARCHAR(64),
+`city_id` INT,
+`address` VARCHAR(64),
+`phone` VARCHAR(64),
+`skype` VARCHAR(64),
+`other` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `task` (
+`id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`category_id` INT,
+`client_id` INT,
+`executor_id` INT,
+`budget` INT,
+`status` INT,
+`due_date` DATETIME,
+`creation_date` DATETIME,
+`city_id` INT,
+`address` VARCHAR(64),
+`comments` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_portfolio` (
+`id` INT,
+`user_id` INT,
+`file` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `task_files` (
+`id` INT,
+`task_id` INT,
+`file` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_category` (
+`user_id` INT,
+`category_id` INT,
+`active` INT
+) CHARACTER SET latin1;
+CREATE TABLE `respond` (
+`id` INT,
+`user_id` INT,
+`task_id` INT,
+`description` VARCHAR(64),
+`rate` INT,
+`status` INT,
+`creation_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recall` (
+`id` INT,
+`task_id` INT,
+`description` VARCHAR(64),
+`rating` INT,
+`creation_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `correspondence` (
+`id` INT,
+`task_id` INT,
+`user_id` INT,
+`content` VARCHAR(64),
+`creation_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_favorite` (
+`chooser_id` INT,
+`chosen_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `user_settings` (
+`user_id` INT,
+`new_message` INT,
+`task_actions` INT,
+`new_recall` INT,
+`hide_profile` INT,
+`contacts_only_for_client` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_644507_taskmaster_bd') AS relationships;
+relationships
+Database: db_644507_taskmaster_bd
+
+Table Connections:
+------------------
+[Implied]  correspondence.task_id -> task.id
+[Implied]  correspondence.user_id -> user.id
+[Implied]  recall.task_id -> task.id
+[Implied]  respond.task_id -> task.id
+[Implied]  respond.user_id -> user.id
+[Implied]  task.category_id -> category.id
+[Implied]  task.city_id -> city.id
+[Implied]  task.client_id -> user.id
+[Implied]  task_files.task_id -> task.id
+[Implied]  user_category.category_id -> category.id
+[Implied]  user_category.user_id -> user.id
+[Implied]  user_portfolio.user_id -> user.id
+[Implied]  user_profile.city_id -> city.id
+[Implied]  user_profile.user_id -> user.id
+[Implied]  user_settings.contacts_only_for_client -> user.id
+[Implied]  user_settings.hide_profile -> user_profile.id
+[Implied]  user_settings.new_recall -> recall.id
+[Implied]  user_settings.task_actions -> task.id
+[Implied]  user_settings.user_id -> user.id
+
+DROP DATABASE `db_644507_taskmaster_bd`;
+UNINSTALL EXTENSION vsql_schematron;

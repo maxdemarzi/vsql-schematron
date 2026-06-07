@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 022479_oracle
+#
+CREATE DATABASE `db_022479_oracle`;
+USE `db_022479_oracle`;
+CREATE TABLE `t_gtr_departamento` (
+`id_departamento` DECIMAL(10,2),
+`nm_departamento` VARCHAR(64),
+`dt_criacao` DATETIME,
+`dt_atualizacao` DATETIME,
+`dt_exclusao` DATETIME,
+PRIMARY KEY (`id_departamento`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_gtr_funcionario` (
+`id_funcionario` DECIMAL(10,2),
+`id_departamento` DECIMAL(10,2),
+`id_acesso` VARCHAR(64),
+`nr_cpf_cnpj` VARCHAR(64),
+`nm_funcionario` VARCHAR(64),
+`ds_email` VARCHAR(64),
+`ds_senha` VARCHAR(64),
+`in_ativo` DECIMAL(10,2),
+`st_primeiro_acesso` DECIMAL(10,2),
+`dt_criacao` DATETIME,
+`dt_atualizacao` DATETIME,
+`dt_exclusao` DATETIME,
+PRIMARY KEY (`id_funcionario`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_gtr_reuniao` (
+`id_reuniao` DECIMAL(10,2),
+`id_gestor` DECIMAL(10,2),
+`ds_reuniao` VARCHAR(64),
+`in_status` VARCHAR(64),
+`dt_criacao` DATETIME,
+`dt_atualizacao` DATETIME,
+`dt_exclusao` DATETIME,
+PRIMARY KEY (`id_reuniao`)
+) CHARACTER SET latin1;
+CREATE TABLE `t_gtr_tarefa` (
+`id_tarefa` DECIMAL(10,2),
+`id_funcionario` DECIMAL(10,2),
+`id_reuniao` DECIMAL(10,2),
+`ds_tarefa` VARCHAR(64),
+`ob_tarefa` VARCHAR(64),
+`in_status` VARCHAR(64),
+`dt_criacao` DATETIME,
+`dt_atualizacao` DATETIME,
+`dt_exclusao` DATETIME,
+PRIMARY KEY (`id_tarefa`, `id_funcionario`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_022479_oracle') AS relationships;
+relationships
+Database: db_022479_oracle
+
+Table Connections:
+------------------
+[Implied]  t_gtr_funcionario.id_departamento -> t_gtr_departamento.id_departamento
+[Implied]  t_gtr_tarefa.id_funcionario -> t_gtr_funcionario.id_funcionario
+[Implied]  t_gtr_tarefa.id_reuniao -> t_gtr_reuniao.id_reuniao
+
+DROP DATABASE `db_022479_oracle`;
+UNINSTALL EXTENSION vsql_schematron;

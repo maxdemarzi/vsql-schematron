@@ -1,0 +1,135 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 025949_main-db
+#
+CREATE DATABASE `db_025949_main_db`;
+USE `db_025949_main_db`;
+CREATE TABLE `Roles` (
+`RoleID` INT,
+`Role` VARCHAR(64),
+`RoleDesc` VARCHAR(64),
+PRIMARY KEY (`RoleID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+`UserID` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`Email` VARCHAR(64),
+`Phone` VARCHAR(64),
+`Pwd` VARCHAR(64),
+`CurrentRole` INT,
+`IDNumber` VARCHAR(64),
+`JoinDate` DATETIME,
+`BirthYear` INT,
+`BirthMonth` INT,
+`BirthDay` INT,
+`Gender` VARCHAR(64),
+`Country` VARCHAR(64),
+`Region` VARCHAR(64),
+`City` VARCHAR(64),
+`Street` VARCHAR(64),
+`Building` VARCHAR(64),
+`HouseNumber` VARCHAR(64),
+`ZipCode` VARCHAR(64),
+`Active` BOOL,
+`LastCheck` DATETIME,
+`IsValid` BOOL,
+`ResetToken` VARCHAR(64),
+`Latitude` DECIMAL(10,2),
+`Longitude` DECIMAL(10,2),
+`ECoin` DECIMAL(10,2),
+`Deleted` BOOL,
+`DeletionDate` DATETIME,
+PRIMARY KEY (`UserID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Orders` (
+`OrderID` INT,
+`Consumer` INT,
+`Deliveryman` INT,
+`Provider` INT,
+`Status` VARCHAR(64),
+`Public` BOOL,
+`Amount` DECIMAL(10,2),
+`Tax` DECIMAL(10,2),
+`Weight` DECIMAL(10,2),
+`City` VARCHAR(64),
+`Street` VARCHAR(64),
+`Building` VARCHAR(64),
+`HouseNumber` VARCHAR(64),
+`Published` DATETIME,
+`Deleted` BOOL,
+`DeletionDate` DATETIME,
+PRIMARY KEY (`OrderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Stock` (
+`ItemID` INT,
+`ItemName` VARCHAR(64),
+`ItemWeight` DECIMAL(10,2),
+`ItemPrice` DECIMAL(10,2),
+`ItemProvider` INT,
+`ItemQuantity` INT,
+PRIMARY KEY (`ItemID`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderedSupplies` (
+`OrderNumber` INT,
+`ItemNumber` INT,
+`Quantity` DECIMAL(10,2),
+`Deleted` BOOL,
+PRIMARY KEY (`OrderNumber`, `ItemNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `Rates` (
+`Deliveryman` INT,
+`Consumer` INT,
+`Stars` INT,
+`Comment` VARCHAR(64),
+PRIMARY KEY (`Deliveryman`, `Consumer`)
+) CHARACTER SET latin1;
+CREATE TABLE `Matche` (
+`OrderID` INT,
+`Deliveryman` INT,
+`Consumer` INT,
+`MatchTime` DATETIME,
+PRIMARY KEY (`OrderID`)
+) CHARACTER SET latin1;
+CREATE TABLE `EcoinTransfers` (
+`TransferID` INT,
+`Sender` INT,
+`Receiver` INT,
+`LinkedOrder` INT,
+`Amount` DECIMAL(10,2),
+PRIMARY KEY (`TransferID`)
+) CHARACTER SET latin1;
+CREATE TABLE `EcoinPurchase` (
+`PurchaseID` INT,
+`Buyer` INT,
+`Amount` DECIMAL(10,2),
+`PurchasedAt` DATETIME,
+PRIMARY KEY (`PurchaseID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Notifications` (
+`NotifID` INT,
+`ToNotify` INT,
+`NotifText` VARCHAR(64),
+`NotifLink` VARCHAR(64),
+`Seen` BOOL,
+PRIMARY KEY (`NotifID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_025949_main_db') AS relationships;
+relationships
+Database: db_025949_main_db
+
+Table Connections:
+------------------
+[Implied]  EcoinTransfers.LinkedOrder -> Orders.OrderID
+[Implied]  Matche.Consumer -> Rates.Consumer
+[Implied]  Matche.Deliveryman -> Rates.Deliveryman
+[Implied]  Matche.OrderID -> Orders.OrderID
+[Implied]  OrderedSupplies.OrderNumber -> Orders.OrderID
+[Implied]  Orders.Consumer -> Rates.Consumer
+[Implied]  Orders.Deliveryman -> Rates.Deliveryman
+[Implied]  Users.CurrentRole -> Roles.RoleID
+[Implied]  Users.ECoin -> EcoinPurchase.PurchaseID
+[Implied]  Users.ECoin -> EcoinTransfers.TransferID
+
+DROP DATABASE `db_025949_main_db`;
+UNINSTALL EXTENSION vsql_schematron;

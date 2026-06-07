@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 232397_orcl_create_table
+--echo #
+CREATE DATABASE `db_232397_orcl_create_table`;
+USE `db_232397_orcl_create_table`;
+
+CREATE TABLE `moerogAdmin` (
+  `admin_id` VARCHAR(64),
+  `admin_password` VARCHAR(64),
+  `admin_nickname` VARCHAR(64),
+  `admin_email` VARCHAR(64),
+  PRIMARY KEY (`admin_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `moerogUser` (
+  `user_id` VARCHAR(64),
+  `user_password` VARCHAR(64),
+  `user_nickname` VARCHAR(64),
+  `user_email` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `moerogPost` (
+  `post_id` DECIMAL(10,2),
+  `post_category` DECIMAL(10,2),
+  `post_title` VARCHAR(64),
+  `post_datetime` DATETIME,
+  `post_content` VARCHAR(64),
+  `admin_nickname` VARCHAR(64),
+  PRIMARY KEY (`post_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `moerogComment` (
+  `comment_id` DECIMAL(10,2),
+  `comment_datetime` DATETIME,
+  `comment_content` VARCHAR(64),
+  `admin_nickname` VARCHAR(64),
+  `user_nickname` VARCHAR(64),
+  `post_id` DECIMAL(10,2),
+  PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_232397_orcl_create_table') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_232397_orcl_create_table') AS relationships;
+DROP DATABASE `db_232397_orcl_create_table`;
+UNINSTALL EXTENSION vsql_schematron;

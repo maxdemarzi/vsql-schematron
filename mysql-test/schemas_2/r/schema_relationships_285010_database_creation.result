@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 285010_database_creation
+#
+CREATE DATABASE `db_285010_database_creation`;
+USE `db_285010_database_creation`;
+CREATE TABLE `Users` (
+`Id` INT,
+`Login` VARCHAR(64),
+`Email` VARCHAR(64),
+`Password` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Collections` (
+`Id` INT,
+`Title` VARCHAR(64),
+`User` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Images` (
+`Id` INT,
+`Title` VARCHAR(64),
+`Comment` VARCHAR(64),
+`Url` VARCHAR(64),
+`Path` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CollectionItems` (
+`Collection` INT,
+`Item` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_285010_database_creation') AS relationships;
+relationships
+Database: db_285010_database_creation
+
+Table Connections:
+------------------
+[Implied]  CollectionItems.Collection -> Collections.Id
+[Implied]  Collections.User -> Users.Id
+
+DROP DATABASE `db_285010_database_creation`;
+UNINSTALL EXTENSION vsql_schematron;

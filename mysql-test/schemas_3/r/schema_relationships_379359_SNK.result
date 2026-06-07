@@ -1,0 +1,128 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 379359_SNK
+#
+CREATE DATABASE `db_379359_SNK`;
+USE `db_379359_SNK`;
+CREATE TABLE `UserConfigs` (
+`id` INT,
+`userId` INT,
+`isLocked` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+`id` INT,
+`name` VARCHAR(64),
+`dateCreated` DATETIME,
+`password` VARCHAR(64),
+`isAdmin` BOOL,
+`lastSeen` DATETIME,
+`avatarUrl` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`id` INT,
+`expiresAt` INT,
+`data` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Videos` (
+`url` VARCHAR(64),
+`playlistId` INT,
+`addedBy` INT,
+`positionInList` INT,
+`dateAdded` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `Playlists` (
+`id` INT,
+`createdBy` INT,
+`isLocked` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ChannelPlaylists` (
+`channelId` INT,
+`playlistId` INT,
+`addedBy` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Channels` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`owner` INT,
+`isLocked` BOOL,
+`isPublic` BOOL,
+`password` VARCHAR(64),
+`dateCreated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ChannelConfigs` (
+`id` INT,
+`channelId` INT,
+`name` VARCHAR(64),
+`isActivated` BOOL,
+`logFileUrl` VARCHAR(64),
+`customValue` VARCHAR(64),
+`MOTD` VARCHAR(64),
+`bannerUrl` VARCHAR(64),
+`coverUrl` VARCHAR(64),
+`logoUrl` VARCHAR(64),
+`emojiListUrl` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Roles` (
+`id` INT,
+`name` VARCHAR(64),
+`level` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ChannelRoles` (
+`channelId` INT,
+`userId` INT,
+`roleID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `ChannelPermissions` (
+`permissionId` INT,
+`channelId` INT,
+`userId` INT,
+`roleID` INT,
+`requiredLevel` INT,
+`isActive` BOOL
+) CHARACTER SET latin1;
+CREATE TABLE `Permssion` (
+`id` INT,
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bans` (
+`id` INT,
+`userId` INT,
+`channelId` INT,
+`IP` VARCHAR(64),
+`isGlobal` BOOL,
+`reason` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_379359_SNK') AS relationships;
+relationships
+Database: db_379359_SNK
+
+Table Connections:
+------------------
+[Implied]  Bans.channelId -> Channels.id
+[Implied]  Bans.userId -> Users.id
+[Implied]  ChannelConfigs.channelId -> Channels.id
+[Implied]  ChannelPermissions.channelId -> Channels.id
+[Implied]  ChannelPermissions.roleID -> Roles.id
+[Implied]  ChannelPermissions.userId -> Users.id
+[Implied]  ChannelPlaylists.channelId -> Channels.id
+[Implied]  ChannelPlaylists.playlistId -> Playlists.id
+[Implied]  ChannelRoles.channelId -> Channels.id
+[Implied]  ChannelRoles.roleID -> Roles.id
+[Implied]  ChannelRoles.userId -> Users.id
+[Implied]  Channels.owner -> Users.id
+[Implied]  UserConfigs.userId -> Users.id
+[Implied]  Videos.playlistId -> Playlists.id
+
+DROP DATABASE `db_379359_SNK`;
+UNINSTALL EXTENSION vsql_schematron;

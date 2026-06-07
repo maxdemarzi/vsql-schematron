@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 148506_tabelas01
+--echo #
+CREATE DATABASE `db_148506_tabelas01`;
+USE `db_148506_tabelas01`;
+
+CREATE TABLE `Funcionario` (
+  `id_func` INT,
+  `nome` VARCHAR(64),
+  `fk_id_financiamento` INT,
+  PRIMARY KEY (`id_func`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Concessionaria` (
+  `cnpj` INT,
+  `nome` VARCHAR(64),
+  `endereco` VARCHAR(64),
+  PRIMARY KEY (`cnpj`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Financiamento` (
+  `id_financiamento` INT,
+  `descricao` VARCHAR(64),
+  `endereco` VARCHAR(64),
+  `num_parcelas` INT,
+  `valor_parcela` INT,
+  `data_financiamento` DATETIME,
+  `data_pagamento` DATETIME,
+  `fk_cpf` INT,
+  PRIMARY KEY (`id_financiamento`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Cliente` (
+  `cpf_cliente` INT,
+  `fone_1` VARCHAR(64),
+  `fone_2` VARCHAR(64),
+  `fone_3` VARCHAR(64),
+  PRIMARY KEY (`cpf_cliente`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Carro` (
+  `id_carro` INT,
+  `modelo` VARCHAR(64),
+  `cor` VARCHAR(64),
+  `ano` INT,
+  `marca` VARCHAR(64),
+  `importado` BOOL,
+  `valor` INT,
+  `fk_id_concessionaria` INT,
+  `fk_id_func` INT,
+  PRIMARY KEY (`id_carro`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `VENDE` (
+  `data_venda` DATETIME,
+  `valor` INT,
+  `fk_cpf_cliente` INT,
+  `fk_id_funcionario` INT,
+  `fk_id_carro` INT,
+  PRIMARY KEY (`fk_id_carro`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_148506_tabelas01') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_148506_tabelas01') AS relationships;
+DROP DATABASE `db_148506_tabelas01`;
+UNINSTALL EXTENSION vsql_schematron;

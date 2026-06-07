@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 491279_01_create_tables
+#
+CREATE DATABASE `db_491279_01_create_tables`;
+USE `db_491279_01_create_tables`;
+CREATE TABLE `employer` (
+`id` INT,
+`name` VARCHAR(64),
+`vacation_days` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employer_working_time` (
+`id` INT,
+`employer_id` INT,
+`description` VARCHAR(64),
+`working_time` INT,
+`working_break` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employer_time_account` (
+`employer_id` INT,
+`time_account` INT,
+PRIMARY KEY (`employer_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `working_times` (
+`id` INT,
+`employer_id` INT,
+`employer_working_time_id` INT,
+`date` DATETIME,
+`mode` VARCHAR(64),
+`begin_timestamp` INT,
+`end_timestamp` INT,
+`break` INT,
+`delta` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_491279_01_create_tables') AS relationships;
+relationships
+Database: db_491279_01_create_tables
+
+Table Connections:
+------------------
+[Implied]  employer_time_account.employer_id -> employer.id
+[Implied]  employer_working_time.employer_id -> employer.id
+[Implied]  working_times.employer_id -> employer.id
+[Implied]  working_times.employer_working_time_id -> employer_working_time.id
+
+DROP DATABASE `db_491279_01_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

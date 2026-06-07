@@ -1,0 +1,137 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 524284_ccs
+--echo #
+CREATE DATABASE `db_524284_ccs`;
+USE `db_524284_ccs`;
+
+CREATE TABLE `State` (
+  `state_id` VARCHAR(64),
+  `state_name` VARCHAR(64),
+  PRIMARY KEY (`state_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `City` (
+  `city_id` VARCHAR(64),
+  `city_name` VARCHAR(64),
+  `state_id` VARCHAR(64),
+  PRIMARY KEY (`city_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `User` (
+  `user_id` INT,
+  `username` VARCHAR(64),
+  `display_name` VARCHAR(64),
+  `position` VARCHAR(64),
+  `password` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `nric` VARCHAR(64),
+  `date_of_birth` DATETIME,
+  `phone_number` VARCHAR(64),
+  `email` VARCHAR(64),
+  `address` VARCHAR(64),
+  `city_id` VARCHAR(64),
+  `status` VARCHAR(64),
+  `last_online` DATETIME,
+  `last_longitude` DECIMAL(10,2),
+  `last_latitude` DECIMAL(10,2),
+  `public_key` VARCHAR(64),
+  `profile_picture` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserActivityLog` (
+  `log_id` INT,
+  `user_id` INT,
+  `description` VARCHAR(64),
+  `date_created` DATETIME,
+  PRIMARY KEY (`log_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Student` (
+  `student_id` VARCHAR(64),
+  `faculty` VARCHAR(64),
+  `course` VARCHAR(64),
+  `tutorial_group` INT,
+  `intake` VARCHAR(64),
+  `academic_year` INT,
+  `user_id` INT,
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Friendship` (
+  `user_id` INT,
+  `friend_id` INT,
+  `status` VARCHAR(64),
+  `date_created` DATETIME,
+  `sender_id` INT,
+  PRIMARY KEY (`user_id`, `friend_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Chat_Room` (
+  `room_id` INT,
+  `owner_id` INT,
+  `room_name` VARCHAR(64),
+  `room_type` VARCHAR(64),
+  `date_created` DATETIME,
+  `last_update` DATETIME,
+  `topic_address` VARCHAR(64),
+  `group_photo` VARCHAR(64),
+  PRIMARY KEY (`room_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Participant` (
+  `room_id` INT,
+  `user_id` INT,
+  `role` VARCHAR(64),
+  `join_date` DATETIME,
+  `status` VARCHAR(64),
+  PRIMARY KEY (`room_id`, `user_id`, `join_date`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Message` (
+  `message_id` INT,
+  `message` VARCHAR(64),
+  `sender_id` INT,
+  `date_created` DATETIME,
+  `room_id` INT,
+  `message_type` VARCHAR(64),
+  `media_path` VARCHAR(64),
+  `status` VARCHAR(64),
+  PRIMARY KEY (`message_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Message_Image` (
+  `message_id` INT,
+  `image` VARCHAR(64),
+  PRIMARY KEY (`message_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RoomSecret` (
+  `room_id` INT,
+  `user_id` INT,
+  `secret_key` VARCHAR(64),
+  `status` VARCHAR(64),
+  PRIMARY KEY (`room_id`, `user_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_524284_ccs') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_524284_ccs') AS relationships;
+DROP DATABASE `db_524284_ccs`;
+UNINSTALL EXTENSION vsql_schematron;

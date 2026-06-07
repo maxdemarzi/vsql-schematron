@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 397347_v0
+--echo #
+CREATE DATABASE `db_397347_v0`;
+USE `db_397347_v0`;
+
+CREATE TABLE `chat.DbUpgrade` (
+  `Version` INT,
+  `DateInstalled` DATETIME,
+  PRIMARY KEY (`Version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chat.USERS` (
+  `Id` VARCHAR(64),
+  `UserName` VARCHAR(64),
+  `FullName` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `Bio` VARCHAR(64),
+  `AccountCreated` DATETIME,
+  `LastLogin` DATETIME,
+  `LastSeen` DATETIME,
+  `DateOfBirth` DATETIME,
+  `FindInSearch` BOOL,
+  `OpenChat` BOOL,
+  `PasswordHash` VARCHAR(64),
+  `PasswordSalt` VARCHAR(64),
+  `DataHash` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chat.FRIENDS` (
+  `A` VARCHAR(64),
+  `B` VARCHAR(64),
+  `SentDate` DATETIME,
+  `AcceptDate` DATETIME,
+  PRIMARY KEY (`A`, `B`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chat.REQUESTS` (
+  `Id` INT,
+  `SourceId` VARCHAR(64),
+  `TargetId` VARCHAR(64),
+  `SentDate` DATETIME,
+  `Accepted` BOOL,
+  `AnswerDate` DATETIME,
+  `Active` BOOL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chat.BLOCKLIST` (
+  `UserId` VARCHAR(64),
+  `BlockedId` VARCHAR(64),
+  `BlockDate` DATETIME,
+  PRIMARY KEY (`UserId`, `BlockedId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chat.MESSAGES` (
+  `Id` INT,
+  `SourceId` VARCHAR(64),
+  `TargetId` VARCHAR(64),
+  `DateSent` DATETIME,
+  `DateSeen` DATETIME,
+  `Content` VARCHAR(64),
+  `InReplyTo` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chat.EDITED` (
+  `Id` INT,
+  `MessageId` INT,
+  `NewContent` VARCHAR(64),
+  `DateEdited` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chat.DELETED` (
+  `Id` INT,
+  `MessageId` INT,
+  `DateDeleted` DATETIME,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_397347_v0') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_397347_v0') AS relationships;
+DROP DATABASE `db_397347_v0`;
+UNINSTALL EXTENSION vsql_schematron;

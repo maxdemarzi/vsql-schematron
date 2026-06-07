@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 004269_schema
+#
+CREATE DATABASE `db_004269_schema`;
+USE `db_004269_schema`;
+CREATE TABLE `public.accounts` (
+`id` VARCHAR(64),
+`account_id` VARCHAR(64),
+`birth_date` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.posts` (
+`id` VARCHAR(64),
+`author_id` VARCHAR(64),
+`body` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.comments` (
+`id` VARCHAR(64),
+`post_id` VARCHAR(64),
+`author_id` VARCHAR(64),
+`body` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.relationships` (
+`id` VARCHAR(64),
+`follower_id` VARCHAR(64),
+`followee_id` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_004269_schema') AS relationships;
+relationships
+Database: db_004269_schema
+
+Table Connections:
+------------------
+[Implied]  public.comments.author_id -> public.accounts.id
+[Implied]  public.comments.post_id -> public.posts.id
+[Implied]  public.posts.author_id -> public.accounts.id
+[Implied]  public.relationships.follower_id -> public.accounts.id
+
+DROP DATABASE `db_004269_schema`;
+UNINSTALL EXTENSION vsql_schematron;

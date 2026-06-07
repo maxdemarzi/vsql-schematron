@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 635336_data
+--echo #
+CREATE DATABASE `db_635336_data`;
+USE `db_635336_data`;
+
+CREATE TABLE `USERS` (
+  `ID` INT,
+  `FIRST_NAME` VARCHAR(64),
+  `LAST_NAME` VARCHAR(64),
+  `USER_NAME` VARCHAR(64),
+  `EMAIL` VARCHAR(64),
+  `PASSWORD` VARCHAR(64),
+  `ENCRYPTION_TYPE` VARCHAR(64),
+  `FAILED_LOGIN_ATTEMPTS` INT,
+  `LAST_SUCCESS_LOGIN` DATETIME,
+  `ENABLED` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ROLES` (
+  `ID` INT,
+  `NAME` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FEATURES` (
+  `ID` INT,
+  `NAME` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACCOUNTS` (
+  `ID` INT,
+  `NAME` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USER_ROLES` (
+  `ID` INT,
+  `USER_ID` INT,
+  `ROLES_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ROLES_FEATURES` (
+  `ID` INT,
+  `ROLES_ID` INT,
+  `FEATURES_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USER_ACCOUNT` (
+  `ID` INT,
+  `USER_ID` INT,
+  `ACCOUNT_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ADAPTER_CONFIG` (
+  `ID` INT,
+  `DATA` VARCHAR(64),
+  `HREF` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `REPORTS` (
+  `ID` INT,
+  `NAME` VARCHAR(64),
+  `ACCOUNT_ID` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_635336_data') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_635336_data') AS relationships;
+DROP DATABASE `db_635336_data`;
+UNINSTALL EXTENSION vsql_schematron;

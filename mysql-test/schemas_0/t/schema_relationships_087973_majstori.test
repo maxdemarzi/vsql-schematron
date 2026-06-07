@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 087973_majstori
+--echo #
+CREATE DATABASE `db_087973_majstori`;
+USE `db_087973_majstori`;
+
+CREATE TABLE `majstori` (
+  `id` INT,
+  `ime_prezime` VARCHAR(64),
+  `kontakt` VARCHAR(64),
+  `cena_vf` VARCHAR(64),
+  `cena_mf` VARCHAR(64),
+  `cena_cokna` VARCHAR(64),
+  `cena_ravnajucisloj` VARCHAR(64),
+  `komentar` VARCHAR(64),
+  `created_by` INT,
+  `created_at` DATETIME,
+  `edited_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `usr_id` INT,
+  `username` VARCHAR(64),
+  `pwd` VARCHAR(64),
+  `email` VARCHAR(64),
+  `activated` INT,
+  `created_at` DATETIME,
+  `activation_code` VARCHAR(64),
+  `reset_code` VARCHAR(64),
+  PRIMARY KEY (`usr_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_087973_majstori') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_087973_majstori') AS relationships;
+DROP DATABASE `db_087973_majstori`;
+UNINSTALL EXTENSION vsql_schematron;

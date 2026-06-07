@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 420731_create_table
+#
+CREATE DATABASE `db_420731_create_table`;
+USE `db_420731_create_table`;
+CREATE TABLE `user` (
+`user_id` INT,
+`email` VARCHAR(64),
+`username` VARCHAR(64),
+`password_hash` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`post_id` INT,
+`author_id` INT,
+`title` VARCHAR(64),
+`content` VARCHAR(64),
+`create_time` DATETIME,
+`update_time` DATETIME,
+PRIMARY KEY (`post_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`comment_id` INT,
+`author_id` INT,
+`post_id` INT,
+`content` VARCHAR(64),
+`create_time` DATETIME,
+PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `follow` (
+`follower_id` INT,
+`followed_id` INT,
+`follow_time` DATETIME,
+PRIMARY KEY (`follower_id`, `followed_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `postlike` (
+`author_id` INT,
+`post_id` INT,
+`like_status` INT,
+`create_time` DATETIME,
+PRIMARY KEY (`author_id`, `post_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `collection` (
+`author_id` INT,
+`post_id` INT,
+`create_time` DATETIME,
+PRIMARY KEY (`author_id`, `post_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_420731_create_table') AS relationships;
+relationships
+Database: db_420731_create_table
+
+Table Connections:
+------------------
+[Implied]  collection.author_id -> postlike.author_id
+[Implied]  collection.author_id -> user.user_id
+[Implied]  collection.post_id -> posts.post_id
+[Implied]  comment.author_id -> collection.author_id
+[Implied]  comment.author_id -> postlike.author_id
+[Implied]  comment.author_id -> user.user_id
+[Implied]  comment.post_id -> posts.post_id
+[Implied]  follow.follower_id -> user.user_id
+[Implied]  postlike.author_id -> collection.author_id
+[Implied]  postlike.author_id -> user.user_id
+[Implied]  postlike.post_id -> posts.post_id
+[Implied]  posts.author_id -> collection.author_id
+[Implied]  posts.author_id -> postlike.author_id
+[Implied]  posts.author_id -> user.user_id
+
+DROP DATABASE `db_420731_create_table`;
+UNINSTALL EXTENSION vsql_schematron;

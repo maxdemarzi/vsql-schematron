@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 243774_init
+#
+CREATE DATABASE `db_243774_init`;
+USE `db_243774_init`;
+CREATE TABLE `__EFMigrationsHistory` (
+`MigrationId` VARCHAR(64),
+`ProductVersion` VARCHAR(64),
+PRIMARY KEY (`MigrationId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Address` (
+`Id` VARCHAR(64),
+`City` VARCHAR(64),
+`Country` VARCHAR(64),
+`Number` VARCHAR(64),
+`Street` VARCHAR(64),
+`ZipCode` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Customer` (
+`Id` VARCHAR(64),
+`BillingAddressId` VARCHAR(64),
+`Birthday` DATETIME,
+`DeliveryAddressId` VARCHAR(64),
+`Email` VARCHAR(64),
+`FirstName` VARCHAR(64),
+`Name` VARCHAR(64),
+`Number` VARCHAR(64),
+`Title` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Bill` (
+`Id` VARCHAR(64),
+`AddressId` VARCHAR(64),
+`Customerid` VARCHAR(64),
+`DocumentDate` DATETIME,
+`Number` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Position` (
+`Id` VARCHAR(64),
+`Article` VARCHAR(64),
+`BillId` VARCHAR(64),
+`Comment` VARCHAR(64),
+`GrossAmmount` DECIMAL(10,2),
+`NetAmount` DECIMAL(10,2),
+`Number` INT,
+`TaxAmmount` DECIMAL(10,2),
+`ValidFrom` DATETIME,
+`ValidTo` DATETIME,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reversal` (
+`Id` VARCHAR(64),
+`DocumentDate` DATETIME,
+`Number` VARCHAR(64),
+`ReferenceBillId` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_243774_init') AS relationships;
+relationships
+Database: db_243774_init
+
+Table Connections:
+------------------
+[Implied]  Bill.AddressId -> Address.Id
+[Implied]  Bill.Customerid -> Customer.Id
+[Implied]  Customer.BillingAddressId -> Bill.Id
+[Implied]  Customer.DeliveryAddressId -> Address.Id
+[Implied]  Position.BillId -> Bill.Id
+[Implied]  Reversal.ReferenceBillId -> Bill.Id
+
+DROP DATABASE `db_243774_init`;
+UNINSTALL EXTENSION vsql_schematron;

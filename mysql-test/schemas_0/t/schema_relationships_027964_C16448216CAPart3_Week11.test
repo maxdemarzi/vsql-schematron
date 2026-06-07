@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 027964_C16448216CAPart3-Week11
+--echo #
+CREATE DATABASE `db_027964_C16448216CAPart3_Week11`;
+USE `db_027964_C16448216CAPart3_Week11`;
+
+CREATE TABLE `Role` (
+  `roleID` DECIMAL(10,2),
+  `roleName` VARCHAR(64),
+  PRIMARY KEY (`roleID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Staff` (
+  `staffID` DECIMAL(10,2),
+  `staffName` VARCHAR(64),
+  `staffAddress` VARCHAR(64),
+  `staffPhoneNo` VARCHAR(64),
+  `staffEmail` VARCHAR(64),
+  `staffPPS` VARCHAR(64),
+  `roleID` DECIMAL(10,2),
+  PRIMARY KEY (`staffID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Supplier` (
+  `supplierID` DECIMAL(10,2),
+  `supplierName` VARCHAR(64),
+  `supplierAddress` VARCHAR(64),
+  `supplierContactNo` VARCHAR(64),
+  PRIMARY KEY (`supplierID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Product` (
+  `stockCode` DECIMAL(10,2),
+  `stockDescription` VARCHAR(64),
+  `costPrice` DECIMAL(10,2),
+  `retailPrice` DECIMAL(10,2),
+  `drugnondrug` DECIMAL(10,2),
+  `supplierID` DECIMAL(10,2),
+  PRIMARY KEY (`stockCode`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `NonDrugSale` (
+  `ndsDate` DATETIME,
+  `staffID` DECIMAL(10,2),
+  `stockCode` DECIMAL(10,2),
+  `amountSold` DECIMAL(10,2),
+  PRIMARY KEY (`ndsDate`, `staffID`, `stockCode`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Customer` (
+  `custID` DECIMAL(10,2),
+  `custName` VARCHAR(64),
+  `custAddress` VARCHAR(64),
+  `custPhone` DECIMAL(10,2),
+  `medCard` DECIMAL(10,2),
+  PRIMARY KEY (`custID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Doctor` (
+  `docID` DECIMAL(10,2),
+  `docName` VARCHAR(64),
+  `surgName` VARCHAR(64),
+  `surgAddress` VARCHAR(64),
+  PRIMARY KEY (`docID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Prescription` (
+  `prescriptionID` DECIMAL(10,2),
+  `custID` DECIMAL(10,2),
+  `docID` DECIMAL(10,2),
+  `staffID` DECIMAL(10,2),
+  PRIMARY KEY (`prescriptionID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PrescriptionItem` (
+  `prescriptionID` DECIMAL(10,2),
+  `stockCode` DECIMAL(10,2),
+  `staffID` DECIMAL(10,2),
+  `preDosage` DECIMAL(10,2),
+  `preInstructions` VARCHAR(64),
+  PRIMARY KEY (`prescriptionID`, `stockCode`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_027964_C16448216CAPart3_Week11') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_027964_C16448216CAPart3_Week11') AS relationships;
+DROP DATABASE `db_027964_C16448216CAPart3_Week11`;
+UNINSTALL EXTENSION vsql_schematron;

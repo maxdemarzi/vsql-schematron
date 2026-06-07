@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 566309_V1.0.0.2017102301__Initial_Schema
+--echo #
+CREATE DATABASE `db_566309_V1_0_0_2017102301_Initial_Schema`;
+USE `db_566309_V1_0_0_2017102301_Initial_Schema`;
+
+CREATE TABLE `sender` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `sms_sender_id` VARCHAR(64),
+  `sms_username` VARCHAR(64),
+  `sms_password` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `template_email` (
+  `id` VARCHAR(64),
+  `id_sender` VARCHAR(64),
+  `subject` VARCHAR(64),
+  `description` VARCHAR(64),
+  `file_location` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `template_sms` (
+  `id` VARCHAR(64),
+  `id_sender` VARCHAR(64),
+  `description` VARCHAR(64),
+  `template_content` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notification_configuration` (
+  `id` VARCHAR(64),
+  `id_sender` VARCHAR(64),
+  `id_template_email` VARCHAR(64),
+  `id_template_sms` VARCHAR(64),
+  `configuration_name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notification_configuration_variable` (
+  `id` VARCHAR(64),
+  `id_notification_configuration` VARCHAR(64),
+  `variable_name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `required` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notification` (
+  `id` VARCHAR(64),
+  `id_notification_configuration` VARCHAR(64),
+  `submit_time` DATETIME,
+  `notification_data` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sms_notification` (
+  `id` VARCHAR(64),
+  `id_notification` VARCHAR(64),
+  `sender_id` VARCHAR(64),
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `destination_number` VARCHAR(64),
+  `content` VARCHAR(64),
+  `send_time` DATETIME,
+  `notification_status` VARCHAR(64),
+  `delivery_remarks` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `email_notification` (
+  `id` VARCHAR(64),
+  `id_notification` VARCHAR(64),
+  `mail_from` VARCHAR(64),
+  `mail_to` VARCHAR(64),
+  `subject` VARCHAR(64),
+  `body` VARCHAR(64),
+  `send_time` DATETIME,
+  `notification_status` VARCHAR(64),
+  `delivery_remarks` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_566309_V1_0_0_2017102301_Initial_Schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_566309_V1_0_0_2017102301_Initial_Schema') AS relationships;
+DROP DATABASE `db_566309_V1_0_0_2017102301_Initial_Schema`;
+UNINSTALL EXTENSION vsql_schematron;

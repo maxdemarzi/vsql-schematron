@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 049022_Parcial2
+--echo #
+CREATE DATABASE `db_049022_Parcial2`;
+USE `db_049022_Parcial2`;
+
+CREATE TABLE `barco` (
+  `nombre` VARCHAR(64),
+  `propietario` VARCHAR(64),
+  PRIMARY KEY (`nombre`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tipo_barco` (
+  `nombre_barco` VARCHAR(64),
+  `tipo` VARCHAR(64),
+  `casco` VARCHAR(64),
+  `tonelaje` INT,
+  PRIMARY KEY (`nombre_barco`, `tipo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mov_barco` (
+  `nombre_barco` VARCHAR(64),
+  `latitud` INT,
+  `longitud` INT,
+  PRIMARY KEY (`nombre_barco`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `marca_tiempo` (
+  `nombre_barco` VARCHAR(64),
+  `fecha` DATETIME,
+  `hora` INT,
+  PRIMARY KEY (`nombre_barco`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `puerto` (
+  `nombre_barco` VARCHAR(64),
+  `nombreP` VARCHAR(64),
+  PRIMARY KEY (`nombreP`, `nombre_barco`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `visita_puerto` (
+  `nombre_barco` VARCHAR(64),
+  `nombrePuerto` VARCHAR(64),
+  `dtInicio` DATETIME,
+  `dtFin` DATETIME,
+  PRIMARY KEY (`nombre_barco`, `nombrePuerto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `estado` (
+  `nombrePuerto` VARCHAR(64),
+  `continente` VARCHAR(64),
+  `nombrePais` VARCHAR(64),
+  PRIMARY KEY (`nombrePuerto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mar` (
+  `nombrePuerto` VARCHAR(64),
+  `nombreMar` VARCHAR(64),
+  PRIMARY KEY (`nombrePuerto`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_049022_Parcial2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_049022_Parcial2') AS relationships;
+DROP DATABASE `db_049022_Parcial2`;
+UNINSTALL EXTENSION vsql_schematron;

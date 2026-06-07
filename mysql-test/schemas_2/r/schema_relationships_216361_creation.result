@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 216361_creation
+#
+CREATE DATABASE `db_216361_creation`;
+USE `db_216361_creation`;
+CREATE TABLE `JOUEUR` (
+`pseudo` VARCHAR(64),
+`email` VARCHAR(64),
+`mdp` VARCHAR(64),
+`avatar` VARCHAR(64),
+`etat` INT,
+`desactive` BOOL,
+`admin` BOOL,
+PRIMARY KEY (`pseudo`)
+) CHARACTER SET latin1;
+CREATE TABLE `ETREAMIS` (
+`pseudo` VARCHAR(64),
+`amis` VARCHAR(64),
+PRIMARY KEY (`pseudo`, `amis`)
+) CHARACTER SET latin1;
+CREATE TABLE `INVITATION` (
+`idinv` INT,
+`dateinv` DATETIME,
+`etatinv` INT,
+`type` BOOL,
+PRIMARY KEY (`idinv`)
+) CHARACTER SET latin1;
+CREATE TABLE `INVITER` (
+`expediteurInvit` VARCHAR(64),
+`destinataireInvit` VARCHAR(64),
+`idinv` INT,
+PRIMARY KEY (`expediteurInvit`, `destinataireInvit`, `idinv`)
+) CHARACTER SET latin1;
+CREATE TABLE `PARTIE` (
+`gameID` INT,
+`nomJeu` VARCHAR(64),
+`plate` VARCHAR(64),
+`currentPlayer` VARCHAR(64),
+`state` INT,
+`startTime` DATETIME,
+`finishTime` DATETIME,
+`elementPlaced` INT,
+`winner` VARCHAR(64),
+`looser` VARCHAR(64),
+PRIMARY KEY (`gameID`)
+) CHARACTER SET latin1;
+CREATE TABLE `JOUER` (
+`pseudo` VARCHAR(64),
+`adversaire` VARCHAR(64),
+`gameID` INT,
+`score` INT,
+PRIMARY KEY (`pseudo`, `adversaire`, `gameID`)
+) CHARACTER SET latin1;
+CREATE TABLE `COMMUNIQUER` (
+`pseudo` VARCHAR(64),
+`destinataire` VARCHAR(64),
+`idMessage` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_216361_creation') AS relationships;
+relationships
+Database: db_216361_creation
+
+Table Connections:
+------------------
+[Implied]  COMMUNIQUER.pseudo -> JOUEUR.pseudo
+[Implied]  ETREAMIS.pseudo -> JOUEUR.pseudo
+[Implied]  INVITER.idinv -> INVITATION.idinv
+[Implied]  JOUER.gameID -> PARTIE.gameID
+[Implied]  JOUER.pseudo -> JOUEUR.pseudo
+
+DROP DATABASE `db_216361_creation`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 642081_DB%20Setup
+#
+CREATE DATABASE `db_642081_DB_20Setup`;
+USE `db_642081_DB_20Setup`;
+CREATE TABLE `ers.ers_user_roles` (
+`ers_user_role_id` INT,
+`user_role` VARCHAR(64),
+PRIMARY KEY (`ers_user_role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ers.ers_reimbursement_type` (
+`reimb_type_id` INT,
+`reimb_type` VARCHAR(64),
+PRIMARY KEY (`reimb_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ers.ers_reimbursement_status` (
+`reimb_status_id` INT,
+`reimb_status` VARCHAR(64),
+PRIMARY KEY (`reimb_status_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ers.ers_users` (
+`ers_users_id` INT,
+`ers_username` VARCHAR(64),
+`ers_password` VARCHAR(64),
+`user_first_name` VARCHAR(64),
+`user_last_name` VARCHAR(64),
+`user_email` VARCHAR(64),
+`user_role_id` INT,
+PRIMARY KEY (`ers_users_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ers.ers_reimbursement` (
+`reimb_id` INT,
+`reimb_amount` DECIMAL(10,2),
+`reimb_submitted` DATETIME,
+`reimb_resolved` DATETIME,
+`reimb_description` VARCHAR(64),
+`reimb_receipt` VARCHAR(64),
+`reimb_author` INT,
+`reimb_resolver` INT,
+`reimb_status_id` INT,
+`reimb_type_id` INT,
+PRIMARY KEY (`reimb_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_642081_DB_20Setup') AS relationships;
+relationships
+Database: db_642081_DB_20Setup
+
+Table Connections:
+------------------
+[Implied]  ers.ers_reimbursement.reimb_status_id -> ers.ers_reimbursement_status.reimb_status_id
+[Implied]  ers.ers_reimbursement.reimb_type_id -> ers.ers_reimbursement_type.reimb_type_id
+[Implied]  ers.ers_users.user_role_id -> ers.ers_user_roles.ers_user_role_id
+
+DROP DATABASE `db_642081_DB_20Setup`;
+UNINSTALL EXTENSION vsql_schematron;

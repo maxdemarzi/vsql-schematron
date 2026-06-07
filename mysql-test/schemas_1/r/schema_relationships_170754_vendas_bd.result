@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 170754_vendas_bd
+#
+CREATE DATABASE `db_170754_vendas_bd`;
+USE `db_170754_vendas_bd`;
+CREATE TABLE `Clientes` (
+`Codcli` INT,
+`Nome` VARCHAR(64),
+`Ender` VARCHAR(64),
+`Bairro` VARCHAR(64),
+`Cidade` VARCHAR(64),
+`CEP` VARCHAR(64),
+`UF` VARCHAR(64),
+`Email` VARCHAR(64),
+`Fone` VARCHAR(64),
+`Celular` VARCHAR(64),
+PRIMARY KEY (`Codcli`)
+) CHARACTER SET latin1;
+CREATE TABLE `Produtos` (
+`CodProd` INT,
+`Descricao` VARCHAR(64),
+`Preco` DECIMAL(10,2),
+`Unidade` VARCHAR(64),
+`Qtde_inicial` DECIMAL(10,2),
+`Data_cad` DATETIME,
+`Qtde_atual` DECIMAL(10,2),
+PRIMARY KEY (`CodProd`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pedidos` (
+`CodPed` INT,
+`CodCliente` INT,
+`nomeCli` VARCHAR(64),
+`Data` DATETIME,
+PRIMARY KEY (`CodPed`)
+) CHARACTER SET latin1;
+CREATE TABLE `Itens_Ped` (
+`CodPed` INT,
+`CodProd` INT,
+`NomeCli` VARCHAR(64),
+`ProdDesc` VARCHAR(64),
+`Quantidade` DECIMAL(10,2),
+PRIMARY KEY (`CodPed`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_170754_vendas_bd') AS relationships;
+relationships
+Database: db_170754_vendas_bd
+
+Table Connections:
+------------------
+[Implied]  Itens_Ped.CodProd -> Produtos.CodProd
+[Implied]  Pedidos.CodCliente -> Clientes.Codcli
+
+DROP DATABASE `db_170754_vendas_bd`;
+UNINSTALL EXTENSION vsql_schematron;

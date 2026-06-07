@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 147722_ocr
+--echo #
+CREATE DATABASE `db_147722_ocr`;
+USE `db_147722_ocr`;
+
+CREATE TABLE `category` (
+  `cid` INT,
+  `categoryname` VARCHAR(64),
+  `picname` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mealtype` (
+  `mid` INT,
+  `mealname` VARCHAR(64),
+  PRIMARY KEY (`mid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recipe` (
+  `rid` INT,
+  `uid` INT,
+  `name` VARCHAR(64),
+  `rdate` DATETIME,
+  `ptime` VARCHAR(64),
+  `ctime` VARCHAR(64),
+  `servings` INT,
+  `psteps` VARCHAR(64),
+  `mealtype` VARCHAR(64),
+  `picturename` VARCHAR(64),
+  `rating` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recipecategories` (
+  `cid` INT,
+  `rid` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `uid` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `utype` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_147722_ocr') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_147722_ocr') AS relationships;
+DROP DATABASE `db_147722_ocr`;
+UNINSTALL EXTENSION vsql_schematron;

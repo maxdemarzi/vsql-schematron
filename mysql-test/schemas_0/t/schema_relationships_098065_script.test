@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 098065_script
+--echo #
+CREATE DATABASE `db_098065_script`;
+USE `db_098065_script`;
+
+CREATE TABLE `users` (
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `win` INT,
+  `draw` INT,
+  `loss` INT,
+  `registered` DATETIME,
+  `waiting` BOOL,
+  `ipAddress` VARCHAR(64),
+  `portNumber` INT,
+  `connected` BOOL,
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `generalChat` (
+  `id_message` INT,
+  `id_user` VARCHAR(64),
+  `content` VARCHAR(64),
+  `sent_at` DATETIME,
+  PRIMARY KEY (`id_message`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `games` (
+  `id_game` INT,
+  `playerX` VARCHAR(64),
+  `playerO` VARCHAR(64),
+  `state` VARCHAR(64),
+  `userTurn` VARCHAR(64),
+  `isFinished` BOOL,
+  `isDraw` BOOL,
+  `winner` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id_game`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_098065_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_098065_script') AS relationships;
+DROP DATABASE `db_098065_script`;
+UNINSTALL EXTENSION vsql_schematron;

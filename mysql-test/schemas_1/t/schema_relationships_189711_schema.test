@@ -1,0 +1,146 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 189711_schema
+--echo #
+CREATE DATABASE `db_189711_schema`;
+USE `db_189711_schema`;
+
+CREATE TABLE `companies` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `logo_url` VARCHAR(64),
+  `address` VARCHAR(64),
+  `country` VARCHAR(64),
+  `tax_rate` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `password` VARCHAR(64),
+  `avatar_url` VARCHAR(64),
+  `email` VARCHAR(64),
+  `role` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customers` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `user_id` INT,
+  `name` VARCHAR(64),
+  `address` VARCHAR(64),
+  `phone` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employees` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `company_id` INT,
+  `user_id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `hourly_rate` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `holidays` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `company_id` INT,
+  `employee_id` INT,
+  `start_date` DATETIME,
+  `end_date` DATETIME,
+  `approved` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `service_categories` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `services` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `service_category_id` INT,
+  `company_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `service_rates` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `service_id` INT,
+  `unit` DECIMAL(10,2),
+  `amount` DECIMAL(10,2),
+  `duration` DECIMAL(10,2),
+  `supply_markup` DECIMAL(10,2),
+  `overhead_markup` DECIMAL(10,2),
+  `misc_markup` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `service_requests` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `service_id` INT,
+  `customer_id` INT,
+  `proposed_start_date` DATETIME,
+  `proposed_end_date` DATETIME,
+  `actual_start_date` DATETIME,
+  `actual_end_date` DATETIME,
+  `title` VARCHAR(64),
+  `status` VARCHAR(64),
+  `adjustment` DECIMAL(10,2),
+  `total` DECIMAL(10,2),
+  `unit` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `work_orders` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `service_request_id` INT,
+  `employee_id` INT,
+  `status` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_189711_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_189711_schema') AS relationships;
+DROP DATABASE `db_189711_schema`;
+UNINSTALL EXTENSION vsql_schematron;

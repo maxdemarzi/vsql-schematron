@@ -1,0 +1,191 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 144119_sigvisa
+#
+CREATE DATABASE `db_144119_sigvisa`;
+USE `db_144119_sigvisa`;
+CREATE TABLE `sigvisa_coda_fitting_run` (
+`runid` INT,
+`run_name` VARCHAR(64),
+`iter` INT,
+PRIMARY KEY (`runid`)
+) CHARACTER SET latin1;
+CREATE TABLE `sigvisa_noise_model` (
+`nmid` INT,
+`timestamp` DECIMAL(10,2),
+`sta` VARCHAR(64),
+`chan` VARCHAR(64),
+`band` VARCHAR(64),
+`smooth` INT,
+`env` VARCHAR(64),
+`hz` DECIMAL(10,2),
+`window_stime` DECIMAL(10,2),
+`window_len` DECIMAL(10,2),
+`model_type` VARCHAR(64),
+`nparams` INT,
+`mean` DECIMAL(10,2),
+`std` DECIMAL(10,2),
+`fname` VARCHAR(64),
+`created_for_hour` INT,
+PRIMARY KEY (`nmid`)
+) CHARACTER SET latin1;
+CREATE TABLE `sigvisa_coda_fit` (
+`fitid` INT,
+`runid` INT,
+`evid` INT,
+`sta` VARCHAR(64),
+`chan` VARCHAR(64),
+`band` VARCHAR(64),
+`smooth` INT,
+`hz` DECIMAL(10,2),
+`tmpl_optim_method` VARCHAR(64),
+`wiggle_optim_method` VARCHAR(64),
+`optim_log` VARCHAR(64),
+`iid` INT,
+`stime` DECIMAL(10,2),
+`etime` DECIMAL(10,2),
+`acost` DECIMAL(10,2),
+`dist` DECIMAL(10,2),
+`azi` DECIMAL(10,2),
+`timestamp` DECIMAL(10,2),
+`elapsed` DECIMAL(10,2),
+`human_approved` VARCHAR(64),
+`env` VARCHAR(64),
+`nmid` INT,
+PRIMARY KEY (`fitid`)
+) CHARACTER SET latin1;
+CREATE TABLE `sigvisa_coda_fit_phase` (
+`fpid` INT,
+`fitid` INT,
+`phase` VARCHAR(64),
+`template_model` VARCHAR(64),
+`arrival_time` DECIMAL(10,2),
+`tt_residual` DECIMAL(10,2),
+`peak_offset` DECIMAL(10,2),
+`coda_height` DECIMAL(10,2),
+`peak_decay` DECIMAL(10,2),
+`coda_decay` DECIMAL(10,2),
+`amp_transfer` DECIMAL(10,2),
+`mult_wiggle_std` DECIMAL(10,2),
+`wiggle_stime` DECIMAL(10,2),
+`message_fname` VARCHAR(64),
+`wiggle_family` VARCHAR(64),
+PRIMARY KEY (`fpid`)
+) CHARACTER SET latin1;
+CREATE TABLE `sigvisa_wiggle_basis` (
+`basisid` INT,
+`family_name` VARCHAR(64),
+`basis_type` VARCHAR(64),
+`srate` DECIMAL(10,2),
+`logscale` VARCHAR(64),
+`env` VARCHAR(64),
+`npts` INT,
+`dimension` INT,
+`max_freq` DECIMAL(10,2),
+`training_runid` INT,
+`training_set_fname` VARCHAR(64),
+`training_sta` VARCHAR(64),
+`training_chan` VARCHAR(64),
+`training_band` VARCHAR(64),
+`training_phase` VARCHAR(64),
+`basis_fname` VARCHAR(64),
+PRIMARY KEY (`basisid`)
+) CHARACTER SET latin1;
+CREATE TABLE `sigvisa_param_model` (
+`modelid` INT,
+`fitting_runid` INT,
+`template_shape` VARCHAR(64),
+`param` VARCHAR(64),
+`site` VARCHAR(64),
+`chan` VARCHAR(64),
+`band` VARCHAR(64),
+`phase` VARCHAR(64),
+`max_acost` DECIMAL(10,2),
+`min_amp` DECIMAL(10,2),
+`require_human_approved` VARCHAR(64),
+`model_type` VARCHAR(64),
+`model_fname` VARCHAR(64),
+`training_set_fname` VARCHAR(64),
+`n_evids` INT,
+`wiggle_basisid` INT,
+`training_ll` DECIMAL(10,2),
+`timestamp` DECIMAL(10,2),
+`elapsed` DECIMAL(10,2),
+`hyperparams` VARCHAR(64),
+`shrinkage` VARCHAR(64),
+`shrinkage_iter` INT,
+`optim_method` VARCHAR(64),
+PRIMARY KEY (`modelid`)
+) CHARACTER SET latin1;
+CREATE TABLE `sigvisa_gridsearch_run` (
+`gsid` INT,
+`evid` INT,
+`timestamp` DECIMAL(10,2),
+`elapsed` DECIMAL(10,2),
+`lon_nw` DECIMAL(10,2),
+`lat_nw` DECIMAL(10,2),
+`lon_se` DECIMAL(10,2),
+`lat_se` DECIMAL(10,2),
+`pts_per_side` INT,
+`max_evtime_proposals` INT,
+`true_depth` VARCHAR(64),
+`true_time` VARCHAR(64),
+`true_mb` VARCHAR(64),
+`phases` VARCHAR(64),
+`likelihood_method` VARCHAR(64),
+`optim_method` VARCHAR(64),
+`wiggle_model_type` VARCHAR(64),
+`heatmap_fname` VARCHAR(64),
+PRIMARY KEY (`gsid`)
+) CHARACTER SET latin1;
+CREATE TABLE `sigvisa_gsrun_wave` (
+`gswid` INT,
+`gsid` INT,
+`nmid` INT,
+`sta` VARCHAR(64),
+`chan` VARCHAR(64),
+`band` VARCHAR(64),
+`hz` DECIMAL(10,2),
+`stime` DECIMAL(10,2),
+`etime` DECIMAL(10,2),
+PRIMARY KEY (`gswid`)
+) CHARACTER SET latin1;
+CREATE TABLE `sigvisa_gsrun_model` (
+`gsmid` INT,
+`gswid` INT,
+`modelid` INT,
+PRIMARY KEY (`gsmid`)
+) CHARACTER SET latin1;
+CREATE TABLE `sigvisa_wiggle` (
+`wiggleid` INT,
+`basisid` INT,
+`fpid` INT,
+`timestamp` DECIMAL(10,2),
+`params` VARCHAR(64),
+PRIMARY KEY (`wiggleid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_144119_sigvisa') AS relationships;
+relationships
+Database: db_144119_sigvisa
+
+Table Connections:
+------------------
+[Implied]  sigvisa_coda_fit.nmid -> sigvisa_noise_model.nmid
+[Implied]  sigvisa_coda_fit.runid -> sigvisa_coda_fitting_run.runid
+[Implied]  sigvisa_coda_fit.runid -> sigvisa_gridsearch_run.gsid
+[Implied]  sigvisa_coda_fit_phase.fitid -> sigvisa_coda_fit.fitid
+[Implied]  sigvisa_coda_fit_phase.mult_wiggle_std -> sigvisa_wiggle.wiggleid
+[Implied]  sigvisa_coda_fit_phase.wiggle_stime -> sigvisa_wiggle.wiggleid
+[Implied]  sigvisa_gsrun_model.gswid -> sigvisa_gsrun_wave.gswid
+[Implied]  sigvisa_gsrun_model.modelid -> sigvisa_noise_model.nmid
+[Implied]  sigvisa_gsrun_model.modelid -> sigvisa_param_model.modelid
+[Implied]  sigvisa_gsrun_wave.gsid -> sigvisa_gridsearch_run.gsid
+[Implied]  sigvisa_gsrun_wave.nmid -> sigvisa_noise_model.nmid
+[Implied]  sigvisa_param_model.fitting_runid -> sigvisa_coda_fitting_run.runid
+[Implied]  sigvisa_param_model.wiggle_basisid -> sigvisa_wiggle.wiggleid
+[Implied]  sigvisa_wiggle.basisid -> sigvisa_wiggle_basis.basisid
+[Implied]  sigvisa_wiggle.fpid -> sigvisa_coda_fit_phase.fpid
+[Implied]  sigvisa_wiggle_basis.training_runid -> sigvisa_coda_fitting_run.runid
+
+DROP DATABASE `db_144119_sigvisa`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,115 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 141653_tables
+--echo #
+CREATE DATABASE `db_141653_tables`;
+USE `db_141653_tables`;
+
+CREATE TABLE `theater` (
+  `t_id` INT,
+  `name` VARCHAR(64),
+  `location` VARCHAR(64),
+  `rating` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `theater_user` (
+  `theater_id` INT,
+  `password` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `movies` (
+  `m_id` INT,
+  `name` VARCHAR(64),
+  `release_date` DATETIME,
+  `language` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genre` (
+  `m_id` INT,
+  `Genre` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `shows` (
+  `show_id` INT,
+  `slot` DATETIME,
+  `price` INT,
+  `t_id` INT,
+  `weekend_price` INT,
+  `m_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `seats` (
+  `s_id` INT,
+  `seat_price` INT,
+  `theater_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `person` (
+  `p_id` INT,
+  `name` VARCHAR(64),
+  `gender` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customer` (
+  `p_id` INT,
+  `Email` VARCHAR(64),
+  `Phone` VARCHAR(64),
+  `password` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `payment` (
+  `payment_id` INT,
+  `timeAndDateOfPurchase` DATETIME,
+  `amount` INT,
+  `c_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `ticket` (
+  `ticket_id` INT,
+  `dt` DATETIME,
+  `show_id` INT,
+  `payment_id` INT,
+  `p_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `booking` (
+  `payment` INT,
+  `seat_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `actor` (
+  `p_id` INT,
+  `rating` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `acted_in` (
+  `p_id` INT,
+  `m_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `review` (
+  `m_id` INT,
+  `p_id` INT,
+  `description` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_141653_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_141653_tables') AS relationships;
+DROP DATABASE `db_141653_tables`;
+UNINSTALL EXTENSION vsql_schematron;

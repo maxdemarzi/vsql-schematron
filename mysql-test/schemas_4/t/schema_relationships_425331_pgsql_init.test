@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 425331_pgsql-init
+--echo #
+CREATE DATABASE `db_425331_pgsql_init`;
+USE `db_425331_pgsql_init`;
+
+CREATE TABLE `second_schema.authors` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `web` VARCHAR(64),
+  `born` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `publishers` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tags` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `eans` (
+  `id` INT,
+  `code` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `books` (
+  `id` INT,
+  `author_id` INT,
+  `translator_id` INT,
+  `title` VARCHAR(64),
+  `publisher_id` INT,
+  `ean_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `books_x_tags` (
+  `book_id` INT,
+  `tag_id` INT,
+  PRIMARY KEY (`book_id`, `tag_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tag_followers` (
+  `tag_id` INT,
+  `author_id` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`tag_id`, `author_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `table_with_defaults` (
+  `name` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_425331_pgsql_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_425331_pgsql_init') AS relationships;
+DROP DATABASE `db_425331_pgsql_init`;
+UNINSTALL EXTENSION vsql_schematron;

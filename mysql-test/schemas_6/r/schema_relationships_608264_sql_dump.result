@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 608264_sql_dump
+#
+CREATE DATABASE `db_608264_sql_dump`;
+USE `db_608264_sql_dump`;
+CREATE TABLE `Users` (
+`id` INT,
+`display_name` VARCHAR(64),
+`slack_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Stories` (
+`id` INT,
+`max_lines` INT,
+`locked` BOOL,
+`locked_by` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `StoryLines` (
+`id` INT,
+`author` INT,
+`story` INT,
+`line_idx` INT,
+`text` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_608264_sql_dump') AS relationships;
+relationships
+Database: db_608264_sql_dump
+
+Table Connections:
+------------------
+[Implied]  StoryLines.author -> Users.id
+[Implied]  StoryLines.story -> Stories.id
+
+DROP DATABASE `db_608264_sql_dump`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,163 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 377787_schema
+#
+CREATE DATABASE `db_377787_schema`;
+USE `db_377787_schema`;
+CREATE TABLE `campus` (
+`shallow_spidered_at` DATETIME,
+`name` VARCHAR(64),
+`slug` VARCHAR(64),
+`school_id` INT,
+`spidered_at` DATETIME,
+`touched` INT,
+`b_id` VARCHAR(64),
+`bookstore_type` VARCHAR(64),
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `school` (
+`shallow_spidered_at` DATETIME,
+`enabled` INT,
+`name` VARCHAR(64),
+`short_name` VARCHAR(64),
+`slug` VARCHAR(64),
+`state` VARCHAR(64),
+`zip` VARCHAR(64),
+`local_tax` DECIMAL(10,2),
+`amazon_tag` VARCHAR(64),
+`subdomain` VARCHAR(64),
+`depts_to_ignore` VARCHAR(64),
+`nb_campuses` INT,
+`spidered_at` DATETIME,
+`touched` INT,
+`b_id` VARCHAR(64),
+`bookstore_type` VARCHAR(64),
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `term` (
+`shallow_spidered_at` DATETIME,
+`name` VARCHAR(64),
+`slug` VARCHAR(64),
+`status` INT,
+`has_course_info` INT,
+`campus_id` INT,
+`spidered_at` DATETIME,
+`touched` INT,
+`b_id` VARCHAR(64),
+`bookstore_type` VARCHAR(64),
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dept` (
+`abbr` VARCHAR(64),
+`name` VARCHAR(64),
+`term_id` INT,
+`spidered_at` DATETIME,
+`shallow_spidered_at` DATETIME,
+`touched` INT,
+`b_id` VARCHAR(64),
+`bookstore_type` VARCHAR(64),
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `section` (
+`num` VARCHAR(64),
+`requires_books` INT,
+`name` VARCHAR(64),
+`slug` VARCHAR(64),
+`school_slug` VARCHAR(64),
+`campus_slug` VARCHAR(64),
+`term_slug` VARCHAR(64),
+`f_id` VARCHAR(64),
+`nb_items` INT,
+`professor` VARCHAR(64),
+`course_id` INT,
+`spidered_at` DATETIME,
+`shallow_spidered_at` DATETIME,
+`touched` INT,
+`b_id` VARCHAR(64),
+`bookstore_type` VARCHAR(64),
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`num` VARCHAR(64),
+`nb_sections` INT,
+`name` VARCHAR(64),
+`dept_id` INT,
+`spidered_at` DATETIME,
+`shallow_spidered_at` DATETIME,
+`touched` INT,
+`b_id` VARCHAR(64),
+`bookstore_type` VARCHAR(64),
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `item` (
+`id` INT,
+`isbn` VARCHAR(64),
+`package_id` INT,
+`is_package` INT,
+`title` VARCHAR(64),
+`author` VARCHAR(64),
+`edition` VARCHAR(64),
+`publisher` VARCHAR(64),
+`b_new` DECIMAL(10,2),
+`b_used` DECIMAL(10,2),
+`b_ebook` DECIMAL(10,2),
+`image_url` VARCHAR(64),
+`product_id` VARCHAR(64),
+`part_number` VARCHAR(64),
+`spidered_at` DATETIME,
+`shallow_spidered_at` DATETIME,
+`touched` INT,
+`b_id` VARCHAR(64),
+`bookstore_type` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `section_has_item` (
+`section_id` INT,
+`item_id` INT,
+`required_status` INT,
+`spidered_at` DATETIME,
+`shallow_spidered_at` DATETIME,
+`touched` INT,
+`b_id` VARCHAR(64),
+`bookstore_type` VARCHAR(64),
+`id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_377787_schema') AS relationships;
+relationships
+Database: db_377787_schema
+
+Table Connections:
+------------------
+[Implied]  campus.school_id -> school.id
+[Implied]  course.dept_id -> dept.id
+[Implied]  dept.term_id -> term.id
+[Implied]  section.course_id -> course.id
+[Implied]  section_has_item.item_id -> item.id
+[Implied]  section_has_item.section_id -> section.id
+[Implied]  term.campus_id -> campus.id
+
+DROP DATABASE `db_377787_schema`;
+UNINSTALL EXTENSION vsql_schematron;

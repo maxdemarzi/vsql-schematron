@@ -1,0 +1,248 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 025999_create
+--echo #
+CREATE DATABASE `db_025999_create`;
+USE `db_025999_create`;
+
+CREATE TABLE `addresses` (
+  `num` INT,
+  `street` VARCHAR(64),
+  `apt` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `zip` VARCHAR(64),
+  PRIMARY KEY (`num`, `street`, `apt`, `zip`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `payment` VARCHAR(64),
+  `dt_joined` DATETIME,
+  `dt_last_active` DATETIME,
+  `is_blocked` BOOL,
+  `session` VARCHAR(64),
+  `address_num` INT,
+  `address_street` VARCHAR(64),
+  `address_apt` VARCHAR(64),
+  `address_zip` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `profiles` (
+  `phone` VARCHAR(64),
+  `has_pic` BOOL,
+  `bio` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `carts` (
+  `total` DECIMAL(10,2),
+  `total_deposit` DECIMAL(10,2),
+  `total_tax` DECIMAL(10,2),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `items` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `is_available` BOOL,
+  `is_featured` BOOL,
+  `dt_created` DATETIME,
+  `is_locked` BOOL,
+  `last_locked` INT,
+  `is_routed` BOOL,
+  `lister_id` INT,
+  `address_num` INT,
+  `address_street` VARCHAR(64),
+  `address_apt` VARCHAR(64),
+  `address_zip` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `details` (
+  `condition` INT,
+  `weight` INT,
+  `volume` INT,
+  `description` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `calendars` (
+  `date_started` DATETIME,
+  `date_ended` DATETIME,
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `shopping` (
+  `cart_id` INT,
+  `item_id` INT,
+  PRIMARY KEY (`cart_id`, `item_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `listers` (
+  `lister_id` INT,
+  PRIMARY KEY (`lister_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `couriers` (
+  `courier_id` INT,
+  PRIMARY KEY (`courier_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `renters` (
+  `renter_id` INT,
+  PRIMARY KEY (`renter_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reservations` (
+  `date_started` DATETIME,
+  `date_ended` DATETIME,
+  `is_calendared` BOOL,
+  `is_extended` BOOL,
+  `is_in_cart` BOOL,
+  `renter_id` INT,
+  `item_id` INT,
+  `charge` DECIMAL(10,2),
+  `deposit` DECIMAL(10,2),
+  `tax` DECIMAL(10,2),
+  `dt_created` DATETIME,
+  PRIMARY KEY (`date_started`, `date_ended`, `renter_id`, `item_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `id` INT,
+  `date_placed` DATETIME,
+  `is_online_pay` BOOL,
+  `is_dropoff_sched` BOOL,
+  `is_pickup_sched` BOOL,
+  `lister_id` INT,
+  `item_id` INT,
+  `renter_id` INT,
+  `res_date_start` DATETIME,
+  `res_date_end` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reviews` (
+  `id` INT,
+  `body` VARCHAR(64),
+  `dt_created` DATETIME,
+  `rating` DECIMAL(10,2),
+  `item_id` INT,
+  `author_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `testimonials` (
+  `date_created` DATETIME,
+  `description` VARCHAR(64),
+  `user_id` INT,
+  PRIMARY KEY (`user_id`, `date_created`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `extensions` (
+  `order_id` INT,
+  `renter_id` INT,
+  `item_id` INT,
+  `res_date_start` DATETIME,
+  `res_date_end` DATETIME,
+  PRIMARY KEY (`order_id`, `res_date_end`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `logistics` (
+  `dt_sched` DATETIME,
+  `notes` VARCHAR(64),
+  `referral` VARCHAR(64),
+  `timeslots` VARCHAR(64),
+  `renter_id` INT,
+  `address_num` INT,
+  `address_street` VARCHAR(64),
+  `address_apt` VARCHAR(64),
+  `address_zip` VARCHAR(64),
+  `chosen_time` DATETIME,
+  PRIMARY KEY (`dt_sched`, `renter_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pickups` (
+  `pickup_date` DATETIME,
+  `dt_sched` DATETIME,
+  `renter_id` INT,
+  PRIMARY KEY (`pickup_date`, `dt_sched`, `renter_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dropoffs` (
+  `dropoff_date` DATETIME,
+  `dt_sched` DATETIME,
+  `renter_id` INT,
+  PRIMARY KEY (`dropoff_date`, `dt_sched`, `renter_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tags` (
+  `tag_name` VARCHAR(64),
+  PRIMARY KEY (`tag_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tagging` (
+  `item_id` INT,
+  `tag_name` VARCHAR(64),
+  PRIMARY KEY (`item_id`, `tag_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_pickups` (
+  `order_id` INT,
+  `pickup_date` DATETIME,
+  `renter_id` INT,
+  `dt_sched` DATETIME,
+  `dt_completed` DATETIME,
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_dropoffs` (
+  `order_id` INT,
+  `dropoff_date` DATETIME,
+  `renter_id` INT,
+  `dt_sched` DATETIME,
+  `dt_completed` DATETIME,
+  PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `issues` (
+  `id` INT,
+  `complaint` VARCHAR(64),
+  `link` VARCHAR(64),
+  `user_id` INT,
+  `resolution` VARCHAR(64),
+  `is_resolved` BOOL,
+  `dt_created` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_025999_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_025999_create') AS relationships;
+DROP DATABASE `db_025999_create`;
+UNINSTALL EXTENSION vsql_schematron;

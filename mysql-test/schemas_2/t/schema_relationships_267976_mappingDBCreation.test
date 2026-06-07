@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 267976_mappingDBCreation
+--echo #
+CREATE DATABASE `db_267976_mappingDBCreation`;
+USE `db_267976_mappingDBCreation`;
+
+CREATE TABLE `mapping.cabinets` (
+  `id` INT,
+  `rid` INT,
+  `name` VARCHAR(64),
+  `clientName` VARCHAR(64),
+  `uHeight` INT,
+  `depth` INT,
+  `width` INT,
+  `height` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mapping.cabinetPowerPlugs` (
+  `id` INT,
+  `cabid` INT,
+  `typeid` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mapping.cabinetPowerOutlets` (
+  `id` INT,
+  `cabid` INT,
+  `outTypeid` INT,
+  `amount` INT,
+  `plugid` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mapping.slots` (
+  `id` INT,
+  `devid` INT,
+  `name` VARCHAR(64),
+  `faceFront` BOOL,
+  `topLeftX` INT,
+  `topLeftY` INT,
+  `bottomRightX` INT,
+  `bottomRightY` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mapping.ports` (
+  `id` INT,
+  `devid` INT,
+  `slotid` INT,
+  `port` VARCHAR(64),
+  `plugTypeid` INT,
+  `portType` INT,
+  `topLeftX` INT,
+  `topLeftY` INT,
+  `bottomRightX` INT,
+  `bottomRightY` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mapping.connections` (
+  `portIdA` INT,
+  `portIdZ` INT,
+  `color` VARCHAR(64),
+  `tag` VARCHAR(64),
+  PRIMARY KEY (`portIdZ`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_267976_mappingDBCreation') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_267976_mappingDBCreation') AS relationships;
+DROP DATABASE `db_267976_mappingDBCreation`;
+UNINSTALL EXTENSION vsql_schematron;

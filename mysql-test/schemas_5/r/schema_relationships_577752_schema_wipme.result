@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 577752_schema-wipme
+#
+CREATE DATABASE `db_577752_schema_wipme`;
+USE `db_577752_schema_wipme`;
+CREATE TABLE `event` (
+`id` INT,
+`item_type` VARCHAR(64),
+`batch_id` INT,
+`line_id` INT,
+`process` VARCHAR(64),
+`action` VARCHAR(64),
+`operator` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `slide` (
+`id` INT,
+`label` VARCHAR(64),
+`batch_id` INT,
+`member` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `slot` (
+`id` INT,
+`slide_id` INT,
+`line_id` INT,
+`position` INT,
+`is_redo` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `process_flow` (
+`id` INT,
+`name` VARCHAR(64),
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `process_step` (
+`id` INT,
+`name` VARCHAR(64),
+`process_flow_id` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `process_decision` (
+`id` INT,
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+`process_step_id` INT,
+`next_process_step_id` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cv` (
+`id` INT,
+`name` VARCHAR(64),
+`definition` VARCHAR(64),
+`version` INT,
+`is_current` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cv_relationship` (
+`id` INT,
+`type_id` INT,
+`subject_id` INT,
+`object_id` INT,
+`is_current` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cv_term_relationship` (
+`id` INT,
+`type_id` INT,
+`subject_id` INT,
+`object_id` INT,
+`is_current` INT,
+`create_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_577752_schema_wipme') AS relationships;
+relationships
+Database: db_577752_schema_wipme
+
+Table Connections:
+------------------
+[Implied]  process_decision.next_process_step_id -> process_decision.id
+[Implied]  process_decision.next_process_step_id -> process_step.id
+[Implied]  process_decision.process_step_id -> process_step.id
+[Implied]  process_step.process_flow_id -> process_flow.id
+[Implied]  slot.slide_id -> slide.id
+
+DROP DATABASE `db_577752_schema_wipme`;
+UNINSTALL EXTENSION vsql_schematron;

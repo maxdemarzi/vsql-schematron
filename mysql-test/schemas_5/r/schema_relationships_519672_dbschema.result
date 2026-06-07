@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 519672_dbschema
+#
+CREATE DATABASE `db_519672_dbschema`;
+USE `db_519672_dbschema`;
+CREATE TABLE `PracticeQuestions` (
+`questionId` INT,
+`questionName` VARCHAR(64),
+`questionStatement` VARCHAR(64),
+`difficulty` INT,
+`UserId` INT,
+PRIMARY KEY (`questionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Scoreboard` (
+`submissionId` INT,
+`questionId` INT,
+`Status` VARCHAR(64),
+`SourceCode` VARCHAR(64),
+`Time` VARCHAR(64),
+`Memory` VARCHAR(64),
+`UserId` INT,
+`startTime` DATETIME,
+`endTime` DATETIME,
+PRIMARY KEY (`submissionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `TestCases` (
+`questionId` INT,
+`tid` INT,
+`inputCase` VARCHAR(64),
+`outputCase` VARCHAR(64),
+`isSample` VARCHAR(64),
+PRIMARY KEY (`tid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Challenge` (
+`cId` INT,
+`cName` INT,
+`cStatement` INT,
+`startDate` DATETIME,
+`endDate` DATETIME,
+`cType` VARCHAR(64),
+PRIMARY KEY (`cId`)
+) CHARACTER SET latin1;
+CREATE TABLE `ChallengeQuestions` (
+`cId` INT,
+`questionId` INT,
+PRIMARY KEY (`questionId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_519672_dbschema') AS relationships;
+relationships
+Database: db_519672_dbschema
+
+Table Connections:
+------------------
+[Implied]  ChallengeQuestions.cId -> Challenge.cId
+[Implied]  Scoreboard.questionId -> ChallengeQuestions.questionId
+[Implied]  Scoreboard.questionId -> PracticeQuestions.questionId
+[Implied]  TestCases.questionId -> ChallengeQuestions.questionId
+[Implied]  TestCases.questionId -> PracticeQuestions.questionId
+
+DROP DATABASE `db_519672_dbschema`;
+UNINSTALL EXTENSION vsql_schematron;

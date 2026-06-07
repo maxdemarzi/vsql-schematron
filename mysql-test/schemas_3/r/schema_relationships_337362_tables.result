@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 337362_tables
+#
+CREATE DATABASE `db_337362_tables`;
+USE `db_337362_tables`;
+CREATE TABLE `games` (
+`id` INT,
+`created` DATETIME,
+`modified` DATETIME,
+`organizer` INT,
+`capacity` INT,
+`date` DATETIME,
+`game` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`created` DATETIME,
+`modified` DATETIME,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`username` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `players` (
+`id` INT,
+`created` DATETIME,
+`modified` DATETIME,
+`game` INT,
+`player` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_337362_tables') AS relationships;
+relationships
+Database: db_337362_tables
+
+Table Connections:
+------------------
+[Implied]  games.organizer -> players.id
+[Implied]  players.game -> games.id
+
+DROP DATABASE `db_337362_tables`;
+UNINSTALL EXTENSION vsql_schematron;

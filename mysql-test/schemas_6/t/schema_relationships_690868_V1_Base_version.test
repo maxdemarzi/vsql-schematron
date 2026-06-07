@@ -1,0 +1,115 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 690868_V1__Base_version
+--echo #
+CREATE DATABASE `db_690868_V1_Base_version`;
+USE `db_690868_V1_Base_version`;
+
+CREATE TABLE `stactionruns` (
+  `id` INT,
+  `description` VARCHAR(64),
+  `failreason` VARCHAR(64),
+  `passed` BOOL,
+  `rank` INT,
+  `action_id` INT,
+  `msg_type_id` INT,
+  `service_id` INT,
+  `tc_run_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stactions` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stenvironments` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stmatrices` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stmatrixruns` (
+  `id` INT,
+  `finishtime` DATETIME,
+  `sfrunid` INT,
+  `starttime` DATETIME,
+  `environment_id` INT,
+  `matrix_id` INT,
+  `sf_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stmessagetypes` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stservices` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stsfinstances` (
+  `id` INT,
+  `host` VARCHAR(64),
+  `name` VARCHAR(64),
+  `port` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sttestcaseruns` (
+  `id` INT,
+  `description` VARCHAR(64),
+  `failreason` VARCHAR(64),
+  `finishtime` DATETIME,
+  `passed` BOOL,
+  `rank` INT,
+  `starttime` DATETIME,
+  `matrix_run_id` INT,
+  `tc_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sttestcases` (
+  `id` INT,
+  `testcaseid` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stusers` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_690868_V1_Base_version') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_690868_V1_Base_version') AS relationships;
+DROP DATABASE `db_690868_V1_Base_version`;
+UNINSTALL EXTENSION vsql_schematron;

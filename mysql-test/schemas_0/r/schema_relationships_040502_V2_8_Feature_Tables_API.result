@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 040502_V2.8__Feature_Tables_API
+#
+CREATE DATABASE `db_040502_V2_8_Feature_Tables_API`;
+USE `db_040502_V2_8_Feature_Tables_API`;
+CREATE TABLE `data_sources` (
+`id` INT,
+`type` VARCHAR(64),
+`field_mapping` VARCHAR(64),
+`timestamp_column` VARCHAR(64),
+`date_partition_column` VARCHAR(64),
+`config` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `feature_tables` (
+`id` INT,
+`project_name` VARCHAR(64),
+`name` VARCHAR(64),
+`created` DATETIME,
+`last_updated` DATETIME,
+`labels` VARCHAR(64),
+`max_age` INT,
+`stream_source_id` INT,
+`batch_source_id` INT,
+`revision` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `feature_tables_entities_v2` (
+`feature_table_id` INT,
+`entity_v2_id` INT,
+PRIMARY KEY (`feature_table_id`, `entity_v2_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `features_v2` (
+`id` INT,
+`feature_table_id` INT,
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`labels` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_040502_V2_8_Feature_Tables_API') AS relationships;
+relationships
+Database: db_040502_V2_8_Feature_Tables_API
+
+Table Connections:
+------------------
+[Implied]  feature_tables_entities_v2.feature_table_id -> feature_tables.id
+[Implied]  features_v2.feature_table_id -> feature_tables.id
+
+DROP DATABASE `db_040502_V2_8_Feature_Tables_API`;
+UNINSTALL EXTENSION vsql_schematron;

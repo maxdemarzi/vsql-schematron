@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 508854_createTables
+#
+CREATE DATABASE `db_508854_createTables`;
+USE `db_508854_createTables`;
+CREATE TABLE `employee` (
+`fname` VARCHAR(64),
+`minit` VARCHAR(64),
+`lname` VARCHAR(64),
+`ssn` VARCHAR(64),
+`bdate` DATETIME,
+`address` VARCHAR(64),
+`sex` VARCHAR(64),
+`salary` DECIMAL(10,2),
+`superssn` VARCHAR(64),
+`dno` INT,
+PRIMARY KEY (`ssn`)
+) CHARACTER SET latin1;
+CREATE TABLE `department` (
+`dname` VARCHAR(64),
+`dnumber` INT,
+`mgrssn` VARCHAR(64),
+`mgrstartdate` DATETIME,
+PRIMARY KEY (`dnumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `dependent` (
+`essn` VARCHAR(64),
+`dependent_name` VARCHAR(64),
+`sex` VARCHAR(64),
+`bdate` DATETIME,
+`relationship` VARCHAR(64),
+PRIMARY KEY (`essn`, `dependent_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `dept_locations` (
+`dnumber` INT,
+`dlocation` VARCHAR(64),
+PRIMARY KEY (`dnumber`, `dlocation`)
+) CHARACTER SET latin1;
+CREATE TABLE `project` (
+`pname` VARCHAR(64),
+`pnumber` INT,
+`plocation` VARCHAR(64),
+`dnum` INT,
+PRIMARY KEY (`pnumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `works_on` (
+`essn` VARCHAR(64),
+`pno` INT,
+`hours` DECIMAL(10,2),
+PRIMARY KEY (`essn`, `pno`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_508854_createTables') AS relationships;
+relationships
+Database: db_508854_createTables
+
+Table Connections:
+------------------
+[Implied]  department.mgrssn -> employee.ssn
+[Implied]  dependent.essn -> employee.ssn
+[Implied]  dept_locations.dnumber -> department.dnumber
+[Implied]  works_on.essn -> employee.ssn
+
+DROP DATABASE `db_508854_createTables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,147 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 025949_main-db
+--echo #
+CREATE DATABASE `db_025949_main_db`;
+USE `db_025949_main_db`;
+
+CREATE TABLE `Roles` (
+  `RoleID` INT,
+  `Role` VARCHAR(64),
+  `RoleDesc` VARCHAR(64),
+  PRIMARY KEY (`RoleID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Users` (
+  `UserID` INT,
+  `FirstName` VARCHAR(64),
+  `LastName` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `Phone` VARCHAR(64),
+  `Pwd` VARCHAR(64),
+  `CurrentRole` INT,
+  `IDNumber` VARCHAR(64),
+  `JoinDate` DATETIME,
+  `BirthYear` INT,
+  `BirthMonth` INT,
+  `BirthDay` INT,
+  `Gender` VARCHAR(64),
+  `Country` VARCHAR(64),
+  `Region` VARCHAR(64),
+  `City` VARCHAR(64),
+  `Street` VARCHAR(64),
+  `Building` VARCHAR(64),
+  `HouseNumber` VARCHAR(64),
+  `ZipCode` VARCHAR(64),
+  `Active` BOOL,
+  `LastCheck` DATETIME,
+  `IsValid` BOOL,
+  `ResetToken` VARCHAR(64),
+  `Latitude` DECIMAL(10,2),
+  `Longitude` DECIMAL(10,2),
+  `ECoin` DECIMAL(10,2),
+  `Deleted` BOOL,
+  `DeletionDate` DATETIME,
+  PRIMARY KEY (`UserID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Orders` (
+  `OrderID` INT,
+  `Consumer` INT,
+  `Deliveryman` INT,
+  `Provider` INT,
+  `Status` VARCHAR(64),
+  `Public` BOOL,
+  `Amount` DECIMAL(10,2),
+  `Tax` DECIMAL(10,2),
+  `Weight` DECIMAL(10,2),
+  `City` VARCHAR(64),
+  `Street` VARCHAR(64),
+  `Building` VARCHAR(64),
+  `HouseNumber` VARCHAR(64),
+  `Published` DATETIME,
+  `Deleted` BOOL,
+  `DeletionDate` DATETIME,
+  PRIMARY KEY (`OrderID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Stock` (
+  `ItemID` INT,
+  `ItemName` VARCHAR(64),
+  `ItemWeight` DECIMAL(10,2),
+  `ItemPrice` DECIMAL(10,2),
+  `ItemProvider` INT,
+  `ItemQuantity` INT,
+  PRIMARY KEY (`ItemID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `OrderedSupplies` (
+  `OrderNumber` INT,
+  `ItemNumber` INT,
+  `Quantity` DECIMAL(10,2),
+  `Deleted` BOOL,
+  PRIMARY KEY (`OrderNumber`, `ItemNumber`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Rates` (
+  `Deliveryman` INT,
+  `Consumer` INT,
+  `Stars` INT,
+  `Comment` VARCHAR(64),
+  PRIMARY KEY (`Deliveryman`, `Consumer`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Matche` (
+  `OrderID` INT,
+  `Deliveryman` INT,
+  `Consumer` INT,
+  `MatchTime` DATETIME,
+  PRIMARY KEY (`OrderID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EcoinTransfers` (
+  `TransferID` INT,
+  `Sender` INT,
+  `Receiver` INT,
+  `LinkedOrder` INT,
+  `Amount` DECIMAL(10,2),
+  PRIMARY KEY (`TransferID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EcoinPurchase` (
+  `PurchaseID` INT,
+  `Buyer` INT,
+  `Amount` DECIMAL(10,2),
+  `PurchasedAt` DATETIME,
+  PRIMARY KEY (`PurchaseID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Notifications` (
+  `NotifID` INT,
+  `ToNotify` INT,
+  `NotifText` VARCHAR(64),
+  `NotifLink` VARCHAR(64),
+  `Seen` BOOL,
+  PRIMARY KEY (`NotifID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_025949_main_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_025949_main_db') AS relationships;
+DROP DATABASE `db_025949_main_db`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 034796_Konopolis
+--echo #
+CREATE DATABASE `db_034796_Konopolis`;
+USE `db_034796_Konopolis`;
+
+CREATE TABLE `tbAdmins` (
+  `username` VARCHAR(64),
+  `hash` VARCHAR(64),
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbLanguages` (
+  `language_id` INT,
+  `language` VARCHAR(64),
+  PRIMARY KEY (`language_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbMovies` (
+  `movie_id` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `director` VARCHAR(64),
+  `time` INT,
+  `language_id` INT,
+  `price` DECIMAL(10,2),
+  PRIMARY KEY (`movie_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbGenres` (
+  `genre_id` INT,
+  `genre` VARCHAR(64),
+  PRIMARY KEY (`genre_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbMoviesGenres` (
+  `movie_genre_id` INT,
+  `movie_id` INT,
+  `genre_id` INT,
+  PRIMARY KEY (`movie_genre_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbCasts` (
+  `cast_id` INT,
+  `cast` VARCHAR(64),
+  PRIMARY KEY (`cast_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbMoviesCasts` (
+  `movie_cast_id` INT,
+  `movie_id` INT,
+  `cast_id` INT,
+  PRIMARY KEY (`movie_cast_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbMoviesRooms` (
+  `movie_room_id` INT,
+  `movie_id` INT,
+  `room_id` INT,
+  `show_start` DATETIME,
+  PRIMARY KEY (`movie_room_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbRooms` (
+  `room_id` INT,
+  `rows` INT,
+  `seats_by_row` INT,
+  PRIMARY KEY (`room_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbCustomersType` (
+  `customer_type_id` INT,
+  `customer_type` VARCHAR(64),
+  `reduction` DECIMAL(10,2),
+  PRIMARY KEY (`customer_type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbCustomers` (
+  `customer_id` INT,
+  `sRow` INT,
+  `sColumn` INT,
+  `movie_room_id` INT,
+  `customer_type_id` INT,
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_034796_Konopolis') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_034796_Konopolis') AS relationships;
+DROP DATABASE `db_034796_Konopolis`;
+UNINSTALL EXTENSION vsql_schematron;

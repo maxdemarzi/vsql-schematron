@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 055379_tables
+--echo #
+CREATE DATABASE `db_055379_tables`;
+USE `db_055379_tables`;
+
+CREATE TABLE `users_fullstack` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `nickname` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `songs_fullstack` (
+  `id` VARCHAR(64),
+  `title` VARCHAR(64),
+  `author` VARCHAR(64),
+  `date` DATETIME,
+  `file` VARCHAR(64),
+  `album` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genres_fullstack` (
+  `id` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `songs_genres_fullstack` (
+  `song_id` VARCHAR(64),
+  `genre_id` VARCHAR(64),
+  PRIMARY KEY (`genre_id`, `song_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_055379_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_055379_tables') AS relationships;
+DROP DATABASE `db_055379_tables`;
+UNINSTALL EXTENSION vsql_schematron;

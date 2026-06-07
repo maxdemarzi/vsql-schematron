@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 481230_000001_init_schema.up
+#
+CREATE DATABASE `db_481230_000001_init_schema_up`;
+USE `db_481230_000001_init_schema_up`;
+CREATE TABLE `users` (
+`user_id` INT,
+`username` VARCHAR(64),
+`profile_name` VARCHAR(64),
+`bio` VARCHAR(64),
+`avatar` VARCHAR(64),
+`password_hash` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`post_id` INT,
+`user_id` INT,
+`content` VARCHAR(64),
+`date_created` DATETIME,
+`date_updated` DATETIME,
+PRIMARY KEY (`post_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `topics` (
+`topic_id` INT,
+`topic_name` VARCHAR(64),
+PRIMARY KEY (`topic_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts_to_topics` (
+`post_id` INT,
+`topic_id` INT,
+PRIMARY KEY (`post_id`, `topic_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_to_topics` (
+`user_id` INT,
+`topic_id` INT,
+PRIMARY KEY (`user_id`, `topic_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `followings` (
+`user_id` INT,
+`following_id` INT,
+`date_created` DATETIME,
+PRIMARY KEY (`user_id`, `following_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `upvotes` (
+`user_id` INT,
+`post_id` INT,
+`date_created` DATETIME,
+PRIMARY KEY (`user_id`, `post_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bookmarks` (
+`user_id` INT,
+`post_id` INT,
+`date_created` DATETIME,
+PRIMARY KEY (`user_id`, `post_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_481230_000001_init_schema_up') AS relationships;
+relationships
+Database: db_481230_000001_init_schema_up
+
+Table Connections:
+------------------
+[Implied]  bookmarks.post_id -> posts.post_id
+[Implied]  bookmarks.user_id -> users.user_id
+[Implied]  followings.user_id -> users.user_id
+[Implied]  posts.user_id -> users.user_id
+[Implied]  posts_to_topics.post_id -> posts.post_id
+[Implied]  posts_to_topics.topic_id -> topics.topic_id
+[Implied]  upvotes.post_id -> posts.post_id
+[Implied]  upvotes.user_id -> users.user_id
+[Implied]  users_to_topics.topic_id -> topics.topic_id
+[Implied]  users_to_topics.user_id -> users.user_id
+
+DROP DATABASE `db_481230_000001_init_schema_up`;
+UNINSTALL EXTENSION vsql_schematron;

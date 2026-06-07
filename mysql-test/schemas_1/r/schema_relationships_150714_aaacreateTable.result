@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 150714_aaacreateTable
+#
+CREATE DATABASE `db_150714_aaacreateTable`;
+USE `db_150714_aaacreateTable`;
+CREATE TABLE `artigo` (
+`artigoid` INT,
+`nome` VARCHAR(64),
+PRIMARY KEY (`artigoid`)
+) CHARACTER SET latin1;
+CREATE TABLE `utilizador` (
+`userid` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+CREATE TABLE `licita` (
+`licitaid` INT,
+`valor` DECIMAL(10,2),
+`licita_hora` DATETIME,
+`leilao_leilaoid` INT,
+`utilizador_userid` INT,
+PRIMARY KEY (`licitaid`)
+) CHARACTER SET latin1;
+CREATE TABLE `token` (
+`authtoken` VARCHAR(64),
+`expira_token` DATETIME,
+`utilizador_userid` INT
+) CHARACTER SET latin1;
+CREATE TABLE `leilao` (
+`leilaoid` INT,
+`titulo` VARCHAR(64),
+`descricao` VARCHAR(64),
+`precominimo` DECIMAL(10,2),
+`precoatual` DECIMAL(10,2),
+`expira_leilao` DATETIME,
+`dataabertura` DATETIME,
+`versao_atual` INT,
+`utilizador_userid` INT,
+`artigo_artigoid` INT,
+`acabou` BOOL,
+PRIMARY KEY (`leilaoid`)
+) CHARACTER SET latin1;
+CREATE TABLE `mensagem` (
+`msg_id` INT,
+`conteudo` VARCHAR(64),
+`data` DATETIME,
+`utilizador_userid` INT,
+`leilao_leilaoid` INT,
+PRIMARY KEY (`msg_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notificacao` (
+`id_notif` INT,
+`assunto` VARCHAR(64),
+`conteudo` VARCHAR(64),
+`data` DATETIME,
+PRIMARY KEY (`id_notif`)
+) CHARACTER SET latin1;
+CREATE TABLE `notificacao_msg` (
+`mensagem_msg_id` INT,
+`notificacao_id_notif` INT,
+PRIMARY KEY (`notificacao_id_notif`)
+) CHARACTER SET latin1;
+CREATE TABLE `notificacao_licita` (
+`licita_licitaid` INT,
+`notificacao_id_notif` INT,
+PRIMARY KEY (`notificacao_id_notif`)
+) CHARACTER SET latin1;
+CREATE TABLE `utilizador_notificacao` (
+`utilizador_userid` INT,
+`notificacao_id_notif` INT,
+`lida` BOOL,
+PRIMARY KEY (`utilizador_userid`, `notificacao_id_notif`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_150714_aaacreateTable') AS relationships;
+relationships
+Database: db_150714_aaacreateTable
+
+Table Connections:
+------------------
+[Implied]  leilao.artigo_artigoid -> artigo.artigoid
+[Implied]  leilao.utilizador_userid -> utilizador.userid
+[Implied]  licita.leilao_leilaoid -> leilao.leilaoid
+[Implied]  licita.utilizador_userid -> utilizador.userid
+[Implied]  mensagem.leilao_leilaoid -> leilao.leilaoid
+[Implied]  mensagem.utilizador_userid -> utilizador.userid
+[Implied]  notificacao_licita.licita_licitaid -> licita.licitaid
+[Implied]  notificacao_msg.mensagem_msg_id -> mensagem.msg_id
+[Implied]  token.utilizador_userid -> utilizador.userid
+[Implied]  utilizador_notificacao.notificacao_id_notif -> notificacao.id_notif
+[Implied]  utilizador_notificacao.utilizador_userid -> utilizador.userid
+
+DROP DATABASE `db_150714_aaacreateTable`;
+UNINSTALL EXTENSION vsql_schematron;

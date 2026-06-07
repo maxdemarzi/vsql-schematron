@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 573387_TPscriptEtudiant
+#
+CREATE DATABASE `db_573387_TPscriptEtudiant`;
+USE `db_573387_TPscriptEtudiant`;
+CREATE TABLE `etudiant` (
+`matricule_etu` INT,
+`nom_etu` VARCHAR(64),
+`prenom_etu` VARCHAR(64),
+`date_naissance` DATETIME,
+PRIMARY KEY (`matricule_etu`)
+) CHARACTER SET latin1;
+CREATE TABLE `enseignant` (
+`matricule_ens` INT,
+`nom_ens` VARCHAR(64),
+`prenom_ens` VARCHAR(64),
+`age` INT,
+PRIMARY KEY (`matricule_ens`)
+) CHARACTER SET latin1;
+CREATE TABLE `etudiantunite` (
+`matricule_etu` INT,
+`code_unite` VARCHAR(64),
+`note_cc` INT,
+`note_tp` INT,
+`note_examen` INT,
+PRIMARY KEY (`matricule_etu`, `code_unite`)
+) CHARACTER SET latin1;
+CREATE TABLE `unite` (
+`code_unite` INT,
+`matricule_ens` INT,
+`libelle` VARCHAR(64),
+`nbr_heur` INT,
+PRIMARY KEY (`code_unite`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_573387_TPscriptEtudiant') AS relationships;
+relationships
+Database: db_573387_TPscriptEtudiant
+
+Table Connections:
+------------------
+[Implied]  etudiantunite.matricule_etu -> etudiant.matricule_etu
+[Implied]  unite.matricule_ens -> enseignant.matricule_ens
+
+DROP DATABASE `db_573387_TPscriptEtudiant`;
+UNINSTALL EXTENSION vsql_schematron;

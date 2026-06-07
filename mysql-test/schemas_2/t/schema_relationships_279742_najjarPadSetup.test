@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 279742_najjarPadSetup
+--echo #
+CREATE DATABASE `db_279742_najjarPadSetup`;
+USE `db_279742_najjarPadSetup`;
+
+CREATE TABLE `pad` (
+  `id_pad` INT,
+  `name` VARCHAR(64),
+  `markdown` VARCHAR(64),
+  `id_pad_father` INT,
+  `read_only` INT,
+  `pass` VARCHAR(64),
+  PRIMARY KEY (`id_pad`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_279742_najjarPadSetup') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_279742_najjarPadSetup') AS relationships;
+DROP DATABASE `db_279742_najjarPadSetup`;
+UNINSTALL EXTENSION vsql_schematron;

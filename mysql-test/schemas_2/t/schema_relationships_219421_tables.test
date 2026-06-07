@@ -1,0 +1,146 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 219421_tables
+--echo #
+CREATE DATABASE `db_219421_tables`;
+USE `db_219421_tables`;
+
+CREATE TABLE `user_detail` (
+  `id` INT,
+  `fname` VARCHAR(64),
+  `mname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `username` VARCHAR(64),
+  `contact` VARCHAR(64),
+  `email` VARCHAR(64),
+  `passw` VARCHAR(64),
+  `address_line_1` VARCHAR(64),
+  `address_line_2` VARCHAR(64),
+  `city` VARCHAR(64),
+  `pincode` INT,
+  `state_name` VARCHAR(64),
+  `landmark` VARCHAR(64),
+  `is_verified` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ticket` (
+  `id` INT,
+  `ticket_subject` VARCHAR(64),
+  `ticket_description` VARCHAR(64),
+  `ticket_status` VARCHAR(64),
+  `ticket_type` VARCHAR(64),
+  `ticket_date` VARCHAR(64),
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_order` (
+  `id` INT,
+  `user_id` INT,
+  `order_description` VARCHAR(64),
+  `order_date` VARCHAR(64),
+  `payment_type` VARCHAR(64),
+  `order_status` VARCHAR(64),
+  `total` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `owner_detail` (
+  `id` INT,
+  `fname` VARCHAR(64),
+  `mname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `contact` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `restaurant` (
+  `id` INT,
+  `rest_name` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `email` VARCHAR(64),
+  `pan` VARCHAR(64),
+  `fssai_number` VARCHAR(64),
+  `ec_certificate_no` VARCHAR(64),
+  `health_trade_licence` VARCHAR(64),
+  `address_line_1` VARCHAR(64),
+  `address_line_2` VARCHAR(64),
+  `city` VARCHAR(64),
+  `pincode` INT,
+  `state_name` VARCHAR(64),
+  `landmark` VARCHAR(64),
+  `bank_name` VARCHAR(64),
+  `bank_account_no` VARCHAR(64),
+  `bank_branch` VARCHAR(64),
+  `ifsc_code` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `restaurant_owners` (
+  `id` INT,
+  `owner_id` INT,
+  `restaurant_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `item` (
+  `id` INT,
+  `restaurant_id` INT,
+  `bestseller` INT,
+  `item_type` VARCHAR(64),
+  `item_name` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_items` (
+  `id` INT,
+  `order_id` INT,
+  `item_id` INT,
+  `quantity` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `item_ingredients` (
+  `id` INT,
+  `item_id` INT,
+  `ingredient_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `special_item` (
+  `id` INT,
+  `restaurant_id` INT,
+  `bestseller` INT,
+  `item_type` VARCHAR(64),
+  `item_name` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `order_notification` (
+  `noti` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_219421_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_219421_tables') AS relationships;
+DROP DATABASE `db_219421_tables`;
+UNINSTALL EXTENSION vsql_schematron;

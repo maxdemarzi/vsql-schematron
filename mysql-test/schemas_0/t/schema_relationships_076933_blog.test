@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 076933_blog
+--echo #
+CREATE DATABASE `db_076933_blog`;
+USE `db_076933_blog`;
+
+CREATE TABLE `usuarios` (
+  `id` INT,
+  `nombre` VARCHAR(64),
+  `apellido` VARCHAR(64),
+  `cedula` INT,
+  `expediente` INT,
+  `especialidad` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `fecha_registro` DATETIME,
+  `activo` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entradas` (
+  `id` INT,
+  `autor_id` INT,
+  `url` VARCHAR(64),
+  `titulo` VARCHAR(64),
+  `texto` VARCHAR(64),
+  `tipo` VARCHAR(64),
+  `fecha` DATETIME,
+  `activa` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comentarios` (
+  `id` INT,
+  `autor_id` INT,
+  `entrada_id` INT,
+  `titulo` VARCHAR(64),
+  `texto` VARCHAR(64),
+  `fecha` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tramites` (
+  `id` INT,
+  `autor_id` INT,
+  `tipo` VARCHAR(64),
+  `fecha` DATETIME,
+  `referencia_tramite` INT,
+  `tramite_activo` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recuperacion_clave` (
+  `id` INT,
+  `usuario_id` INT,
+  `url_secreta` VARCHAR(64),
+  `fecha` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_076933_blog') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_076933_blog') AS relationships;
+DROP DATABASE `db_076933_blog`;
+UNINSTALL EXTENSION vsql_schematron;

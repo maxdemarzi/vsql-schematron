@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 044566_retroboxDB
+--echo #
+CREATE DATABASE `db_044566_retroboxDB`;
+USE `db_044566_retroboxDB`;
+
+CREATE TABLE `article` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `content` VARCHAR(64),
+  `last_modified_at` DATETIME,
+  `image` VARCHAR(64),
+  `discr` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comment` (
+  `id` INT,
+  `related_to_id` INT,
+  `author` VARCHAR(64),
+  `content` VARCHAR(64),
+  `created_at` DATETIME,
+  `is_reported` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `doctrine_migration_versions` (
+  `version` VARCHAR(64),
+  `executed_at` DATETIME,
+  `execution_time` INT,
+  PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `games` (
+  `id` INT,
+  `emulated_on_id` INT,
+  `name` VARCHAR(64),
+  `release_year` INT,
+  `type` VARCHAR(64),
+  `description` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mini_console` (
+  `id` INT,
+  `release_year` VARCHAR(64),
+  `price` VARCHAR(64),
+  `opinion` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `id` INT,
+  `email` VARCHAR(64),
+  `role` VARCHAR(64),
+  `pseudo` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_044566_retroboxDB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_044566_retroboxDB') AS relationships;
+DROP DATABASE `db_044566_retroboxDB`;
+UNINSTALL EXTENSION vsql_schematron;

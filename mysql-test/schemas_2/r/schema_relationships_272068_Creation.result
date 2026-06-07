@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 272068_Creation
+#
+CREATE DATABASE `db_272068_Creation`;
+USE `db_272068_Creation`;
+CREATE TABLE `Users` (
+`User_id` DECIMAL(10,2),
+`Name` VARCHAR(64),
+`CNIC` DECIMAL(10,2),
+`Gender` VARCHAR(64),
+`Height` DECIMAL(10,2),
+`Weight` DECIMAL(10,2),
+`BMI` DECIMAL(10,2),
+`Goal_weight` DECIMAL(10,2),
+`nutritional_intake` VARCHAR(64),
+`Plan_id` DECIMAL(10,2),
+`Progress_id` DECIMAL(10,2),
+PRIMARY KEY (`User_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Plan` (
+`Plan_id` DECIMAL(10,2),
+`Plan_type` VARCHAR(64),
+PRIMARY KEY (`Plan_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Exercise` (
+`Name` VARCHAR(64),
+`Muscle` VARCHAR(64),
+`Equipment` VARCHAR(64),
+`Optimal_sets` DECIMAL(10,2),
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Contain` (
+`Plan_id` DECIMAL(10,2),
+`Name` VARCHAR(64),
+`Day` VARCHAR(64),
+PRIMARY KEY (`Plan_id`, `Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `Progress` (
+`Progress_id` DECIMAL(10,2),
+`Targets_fulfilled` DECIMAL(10,2),
+`Weight_change` DECIMAL(10,2),
+`BMI_change` DECIMAL(10,2),
+PRIMARY KEY (`Progress_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_272068_Creation') AS relationships;
+relationships
+Database: db_272068_Creation
+
+Table Connections:
+------------------
+[Implied]  Contain.Plan_id -> Plan.Plan_id
+[Implied]  Users.Plan_id -> Plan.Plan_id
+[Implied]  Users.Progress_id -> Progress.Progress_id
+
+DROP DATABASE `db_272068_Creation`;
+UNINSTALL EXTENSION vsql_schematron;

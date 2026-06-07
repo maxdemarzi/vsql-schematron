@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 479349_schema
+#
+CREATE DATABASE `db_479349_schema`;
+USE `db_479349_schema`;
+CREATE TABLE `users` (
+`user_id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`role` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `locations` (
+`location_name` VARCHAR(64),
+PRIMARY KEY (`location_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`product_id` INT,
+`product_name` VARCHAR(64),
+`product_desc` VARCHAR(64),
+`category` VARCHAR(64),
+`value` INT,
+PRIMARY KEY (`product_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_details` (
+`product_id` INT,
+`sku_id` INT,
+`size` VARCHAR(64),
+`gender` VARCHAR(64),
+`color` VARCHAR(64),
+`product_location` VARCHAR(64),
+`product_count` INT,
+`product_img` VARCHAR(64),
+PRIMARY KEY (`sku_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`order_id` INT,
+`requester_id` INT,
+`fulfiller_id` INT,
+`status` VARCHAR(64),
+`request_type` VARCHAR(64),
+`date_created` DATETIME,
+`date_completed` DATETIME,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_lines` (
+`order_id` INT,
+`sku_id` INT,
+`order_count` INT,
+PRIMARY KEY (`order_id`, `sku_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_479349_schema') AS relationships;
+relationships
+Database: db_479349_schema
+
+Table Connections:
+------------------
+[Implied]  order_lines.order_id -> orders.order_id
+[Implied]  order_lines.sku_id -> product_details.sku_id
+[Implied]  product_details.product_id -> products.product_id
+[Implied]  product_details.product_location -> locations.location_name
+
+DROP DATABASE `db_479349_schema`;
+UNINSTALL EXTENSION vsql_schematron;

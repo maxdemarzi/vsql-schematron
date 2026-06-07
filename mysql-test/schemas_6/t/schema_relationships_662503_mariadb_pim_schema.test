@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 662503_mariadb-pim-schema
+--echo #
+CREATE DATABASE `db_662503_mariadb_pim_schema`;
+USE `db_662503_mariadb_pim_schema`;
+
+CREATE TABLE `migration_report_logs` (
+  `report_id` INT,
+  `log` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `migration_reports` (
+  `id` INT,
+  `end_date` DATETIME,
+  `migration_id` INT,
+  `process_instance_id` INT,
+  `start_date` DATETIME,
+  `success` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `migrations` (
+  `id` INT,
+  `cancelled_at` DATETIME,
+  `created_at` DATETIME,
+  `callback_url` VARCHAR(64),
+  `scheduled_start_time` DATETIME,
+  `execution_type` INT,
+  `kieServerId` VARCHAR(64),
+  `plan_id` INT,
+  `requester` VARCHAR(64),
+  `error_message` VARCHAR(64),
+  `finished_at` DATETIME,
+  `started_at` DATETIME,
+  `status` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `plan_mappings` (
+  `plan_id` INT,
+  `target` VARCHAR(64),
+  `source` VARCHAR(64),
+  PRIMARY KEY (`plan_id`, `source`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `plans` (
+  `id` INT,
+  `description` VARCHAR(64),
+  `name` VARCHAR(64),
+  `source_container_id` VARCHAR(64),
+  `source_process_id` VARCHAR(64),
+  `target_container_id` VARCHAR(64),
+  `target_process_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `process_instance_ids` (
+  `migration_definition_id` INT,
+  `processInstanceIds` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_662503_mariadb_pim_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_662503_mariadb_pim_schema') AS relationships;
+DROP DATABASE `db_662503_mariadb_pim_schema`;
+UNINSTALL EXTENSION vsql_schematron;

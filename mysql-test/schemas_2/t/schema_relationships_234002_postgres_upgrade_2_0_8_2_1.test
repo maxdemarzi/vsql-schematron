@@ -1,0 +1,124 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 234002_postgres-upgrade-2.0.8-2.1
+--echo #
+CREATE DATABASE `db_234002_postgres_upgrade_2_0_8_2_1`;
+USE `db_234002_postgres_upgrade_2_0_8_2_1`;
+
+CREATE TABLE `ir_item.place_of_publication` (
+  `place_of_publication_id` INT,
+  `version` INT,
+  `name` VARCHAR(64),
+  `letter_code` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`place_of_publication_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `metadata.marc_data_field` (
+  `marc_data_field_id` INT,
+  `version` INT,
+  `name` VARCHAR(64),
+  `code` VARCHAR(64),
+  `repeatable` BOOL,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`marc_data_field_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `metadata.marc_sub_field` (
+  `marc_sub_field_id` INT,
+  `version` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`marc_sub_field_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `metadata.marc_relator_code` (
+  `marc_relator_code_id` INT,
+  `version` INT,
+  `name` VARCHAR(64),
+  `relator_code` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`marc_relator_code_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `metadata.marc_type_of_record` (
+  `marc_type_of_record_id` INT,
+  `version` INT,
+  `name` VARCHAR(64),
+  `record_type` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`marc_type_of_record_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ir_metadata_marc.content_type_field_mapping` (
+  `content_type_field_mapping_id` INT,
+  `content_type_id` INT,
+  `marc_type_of_record_id` INT,
+  `control_field_006` VARCHAR(64),
+  `control_field_007` VARCHAR(64),
+  `control_field_008` VARCHAR(64),
+  `is_thesis` BOOL,
+  `encoding_level` VARCHAR(64),
+  `record_status` VARCHAR(64),
+  `bibliographic_level` VARCHAR(64),
+  `type_of_control` VARCHAR(64),
+  `descriptive_cataloging_form` VARCHAR(64),
+  `version` INT,
+  PRIMARY KEY (`content_type_field_mapping_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ir_metadata_marc.contributor_type_relator_code` (
+  `contributor_type_relator_code_id` INT,
+  `contributor_type_id` INT,
+  `marc_relator_code_id` INT,
+  `version` INT,
+  PRIMARY KEY (`contributor_type_relator_code_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ir_metadata_marc.data_field_mapper` (
+  `data_field_mapper_id` INT,
+  `marc_data_field_id` INT,
+  `indicator_1` VARCHAR(64),
+  `indicator_2` VARCHAR(64),
+  `version` INT,
+  PRIMARY KEY (`data_field_mapper_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ir_metadata_marc.identifier_type_sub_field_mapper` (
+  `identifier_type_sub_field_mapper_id` INT,
+  `data_field_mapper_id` INT,
+  `marc_sub_field_id` INT,
+  `identifier_type_id` INT,
+  `version` INT,
+  PRIMARY KEY (`identifier_type_sub_field_mapper_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ir_metadata_marc.extent_type_sub_field_mapper` (
+  `extent_type_sub_field_mapper_id` INT,
+  `data_field_mapper_id` INT,
+  `marc_sub_field_id` INT,
+  `extent_type_id` INT,
+  `version` INT,
+  PRIMARY KEY (`extent_type_sub_field_mapper_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_234002_postgres_upgrade_2_0_8_2_1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_234002_postgres_upgrade_2_0_8_2_1') AS relationships;
+DROP DATABASE `db_234002_postgres_upgrade_2_0_8_2_1`;
+UNINSTALL EXTENSION vsql_schematron;

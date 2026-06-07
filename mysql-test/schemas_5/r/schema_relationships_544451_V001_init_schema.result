@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 544451_V001__init-schema
+#
+CREATE DATABASE `db_544451_V001_init_schema`;
+USE `db_544451_V001_init_schema`;
+CREATE TABLE `tbl_sport` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`venue` VARCHAR(64),
+`start_time` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_team` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`sport_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_player` (
+`id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`dob` DATETIME,
+`home_city` VARCHAR(64),
+`home_country` VARCHAR(64),
+`team_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_sponsor` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`mission_statement` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_prize` (
+`id` VARCHAR(64),
+`rank` INT,
+`title` VARCHAR(64),
+`prize_value` DECIMAL(10,2),
+`value_currency` VARCHAR(64),
+`sponsor_id` VARCHAR(64),
+`sport_id` VARCHAR(64),
+`winner_id` VARCHAR(64),
+`date_awarded` DATETIME,
+`date_created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_544451_V001_init_schema') AS relationships;
+relationships
+Database: db_544451_V001_init_schema
+
+Table Connections:
+------------------
+[Implied]  tbl_player.team_id -> tbl_team.id
+[Implied]  tbl_prize.sponsor_id -> tbl_sponsor.id
+[Implied]  tbl_prize.sport_id -> tbl_sport.id
+[Implied]  tbl_team.sport_id -> tbl_sport.id
+
+DROP DATABASE `db_544451_V001_init_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,116 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 594365_SVPEntities.edmx
+--echo #
+CREATE DATABASE `db_594365_SVPEntities_edmx`;
+USE `db_594365_SVPEntities_edmx`;
+
+CREATE TABLE `Clubs` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Profiles` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  `Value` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Sequences` (
+  `Id` INT,
+  `Date` DATETIME,
+  `Profile_Id` INT,
+  `Member_Id` INT,
+  `Price_Id` INT,
+  `PreviousSequence_Id` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Shots` (
+  `Id` INT,
+  `Value` DECIMAL(10,2),
+  `ShotNumber` INT,
+  `FactorValue` DECIMAL(10,2),
+  `Angle` DECIMAL(10,2),
+  `Valid` BOOL,
+  `Sequence_Id` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Competitions` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  `Date` DATETIME,
+  `Finished` BOOL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Awards` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  `Competition_Id` INT,
+  `Winner_Id` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Participants` (
+  `Id` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Participants_Member` (
+  `Firstname` VARCHAR(64),
+  `Name` VARCHAR(64),
+  `Birthday` DATETIME,
+  `Shortname` VARCHAR(64),
+  `Id` INT,
+  `Club_Id` INT,
+  `SingleCompetition_Id` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Participants_Group` (
+  `Name` VARCHAR(64),
+  `Id` INT,
+  `GroupCompetition_Id` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Competitions_GroupCompetition` (
+  `Id` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Competitions_SingleCompetition` (
+  `Id` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MemberGroup` (
+  `Member_Id` INT,
+  `Groups_Id` INT,
+  PRIMARY KEY (`Member_Id`, `Groups_Id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_594365_SVPEntities_edmx') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_594365_SVPEntities_edmx') AS relationships;
+DROP DATABASE `db_594365_SVPEntities_edmx`;
+UNINSTALL EXTENSION vsql_schematron;

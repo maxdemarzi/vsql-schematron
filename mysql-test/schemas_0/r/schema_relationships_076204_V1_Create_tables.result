@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 076204_V1__Create_tables
+#
+CREATE DATABASE `db_076204_V1_Create_tables`;
+USE `db_076204_V1_Create_tables`;
+CREATE TABLE `student` (
+`id` INT,
+`name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`surname` VARCHAR(64),
+`nationality` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document` (
+`id` INT,
+`student_id` INT,
+`name` VARCHAR(64),
+`uuid` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `course` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `semester` (
+`id` INT,
+`year` INT,
+`part` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_course_segment` (
+`id` INT,
+`student_id` INT,
+`course_id` INT,
+`semester_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `grade` (
+`id` INT,
+`student_course_segment_id` INT,
+`grade` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_076204_V1_Create_tables') AS relationships;
+relationships
+Database: db_076204_V1_Create_tables
+
+Table Connections:
+------------------
+[Implied]  document.student_id -> student.id
+[Implied]  grade.student_course_segment_id -> student_course_segment.id
+[Implied]  student_course_segment.course_id -> course.id
+[Implied]  student_course_segment.semester_id -> semester.id
+[Implied]  student_course_segment.student_id -> student.id
+
+DROP DATABASE `db_076204_V1_Create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

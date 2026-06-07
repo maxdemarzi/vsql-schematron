@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 358710_V0_2_2_0__initial_version
+#
+CREATE DATABASE `db_358710_V0_2_2_0_initial_version`;
+USE `db_358710_V0_2_2_0_initial_version`;
+CREATE TABLE `physical_port` (
+`id` INT,
+`display_name` VARCHAR(64),
+`name` VARCHAR(64),
+`version` INT,
+`physical_resource_group` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `physical_resource_group` (
+`id` INT,
+`admin_group` VARCHAR(64),
+`institution_name` VARCHAR(64),
+`name` VARCHAR(64),
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reservation` (
+`id` INT,
+`end_date` VARCHAR(64),
+`end_time` VARCHAR(64),
+`start_date` VARCHAR(64),
+`start_time` VARCHAR(64),
+`status` VARCHAR(64),
+`user_created` VARCHAR(64),
+`version` INT,
+`destination_port` INT,
+`source_port` INT,
+`virtual_resource_group` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `virtual_port` (
+`id` INT,
+`name` VARCHAR(64),
+`version` INT,
+`physical_port` INT,
+`virtual_resource_group` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `virtual_resource_group` (
+`id` INT,
+`name` VARCHAR(64),
+`surf_conext_group_name` VARCHAR(64),
+`version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_358710_V0_2_2_0_initial_version') AS relationships;
+relationships
+Database: db_358710_V0_2_2_0_initial_version
+
+Table Connections:
+------------------
+[Implied]  physical_port.physical_resource_group -> physical_resource_group.id
+[Implied]  reservation.source_port -> physical_port.id
+[Implied]  reservation.source_port -> virtual_port.id
+[Implied]  reservation.virtual_resource_group -> virtual_resource_group.id
+[Implied]  virtual_port.physical_port -> physical_port.id
+[Implied]  virtual_port.virtual_resource_group -> virtual_resource_group.id
+
+DROP DATABASE `db_358710_V0_2_2_0_initial_version`;
+UNINSTALL EXTENSION vsql_schematron;

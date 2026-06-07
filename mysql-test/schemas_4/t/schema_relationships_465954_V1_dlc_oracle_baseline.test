@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 465954_V1__dlc_oracle_baseline
+--echo #
+CREATE DATABASE `db_465954_V1_dlc_oracle_baseline`;
+USE `db_465954_V1_dlc_oracle_baseline`;
+
+CREATE TABLE `r_values` (
+  `nonce` VARCHAR(64),
+  `event_name` VARCHAR(64),
+  `hd_purpose` INT,
+  `coin` INT,
+  `account_index` INT,
+  `chain_type` INT,
+  `key_index` INT,
+  `announcement_signature` VARCHAR(64),
+  PRIMARY KEY (`nonce`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `events` (
+  `nonce` VARCHAR(64),
+  `pubkey` VARCHAR(64),
+  `event_name` VARCHAR(64),
+  `num_outcomes` INT,
+  `signing_version` VARCHAR(64),
+  `maturation_time` DATETIME,
+  `attestation` VARCHAR(64),
+  PRIMARY KEY (`nonce`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event_outcomes` (
+  `nonce` VARCHAR(64),
+  `message` VARCHAR(64),
+  `hashed_message` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_465954_V1_dlc_oracle_baseline') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_465954_V1_dlc_oracle_baseline') AS relationships;
+DROP DATABASE `db_465954_V1_dlc_oracle_baseline`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 582684_createTables
+--echo #
+CREATE DATABASE `db_582684_createTables`;
+USE `db_582684_createTables`;
+
+CREATE TABLE `users` (
+  `_id` INT,
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  `affiliation` VARCHAR(64),
+  `points` INT,
+  PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `shoutouts` (
+  `_id` INT,
+  `contents` VARCHAR(64),
+  `sender_id` INT,
+  `recipient_id` INT,
+  `timestamp` VARCHAR(64),
+  PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stats` (
+  `totalShoutouts` INT,
+  `lastShoutoutId` VARCHAR(64),
+  `lastShoutoutTimestamp` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sessions` (
+  `_id` INT,
+  `user_id` INT,
+  `token` VARCHAR(64),
+  PRIMARY KEY (`_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_582684_createTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_582684_createTables') AS relationships;
+DROP DATABASE `db_582684_createTables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 184475_Pojeto-escola
+--echo #
+CREATE DATABASE `db_184475_Pojeto_escola`;
+USE `db_184475_Pojeto_escola`;
+
+CREATE TABLE `alunos` (
+  `matricula_alu` INT,
+  `nome_alu` VARCHAR(64),
+  `CPF_alu` VARCHAR(64),
+  `endereço` VARCHAR(64),
+  `pai_alu_nome` VARCHAR(64),
+  `mae_alu_nome` VARCHAR(64),
+  `turma_alu` INT,
+  PRIMARY KEY (`matricula_alu`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `professores` (
+  `id_prof` INT,
+  `nome_prof` VARCHAR(64),
+  `CPF_prof` VARCHAR(64),
+  `turma_prof` INT,
+  PRIMARY KEY (`id_prof`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_184475_Pojeto_escola') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_184475_Pojeto_escola') AS relationships;
+DROP DATABASE `db_184475_Pojeto_escola`;
+UNINSTALL EXTENSION vsql_schematron;

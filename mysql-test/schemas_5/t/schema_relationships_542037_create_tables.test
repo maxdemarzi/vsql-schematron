@@ -1,0 +1,102 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 542037_create-tables
+--echo #
+CREATE DATABASE `db_542037_create_tables`;
+USE `db_542037_create_tables`;
+
+CREATE TABLE `castle` (
+  `name` VARCHAR(64),
+  `last_date_modified` DATETIME,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cost` (
+  `id` INT,
+  `gold` INT,
+  `wood` INT,
+  `ore` INT,
+  `mercury` INT,
+  `sulfur` INT,
+  `crystal` INT,
+  `gems` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `unit` (
+  `name` VARCHAR(64),
+  `castle_name` VARCHAR(64),
+  `level` INT,
+  `upgraded` BOOL,
+  `cost_id` INT,
+  `last_date_modified` DATETIME,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `map` (
+  `name` VARCHAR(64),
+  `size` VARCHAR(64),
+  `last_date_modified` DATETIME,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `building` (
+  `name` VARCHAR(64),
+  `castle_name` VARCHAR(64),
+  `level` INT,
+  `cost_id` INT,
+  `last_date_modified` DATETIME,
+  PRIMARY KEY (`name`, `castle_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `requirement` (
+  `building_name` VARCHAR(64),
+  `castle_name` VARCHAR(64),
+  `requirement_name` VARCHAR(64),
+  PRIMARY KEY (`building_name`, `castle_name`, `requirement_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `player` (
+  `name` VARCHAR(64),
+  `last_date_modified` DATETIME,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `token` (
+  `token` VARCHAR(64),
+  PRIMARY KEY (`token`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `game` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `last_date_modified` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `game_player` (
+  `game_id` INT,
+  `player_name` VARCHAR(64),
+  PRIMARY KEY (`game_id`, `player_name`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_542037_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_542037_create_tables') AS relationships;
+DROP DATABASE `db_542037_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

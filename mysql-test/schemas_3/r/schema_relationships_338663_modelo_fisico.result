@@ -1,0 +1,117 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 338663_modelo_fisico
+#
+CREATE DATABASE `db_338663_modelo_fisico`;
+USE `db_338663_modelo_fisico`;
+CREATE TABLE `TIPO_USUARIO` (
+`cd_tipo_usuario` INT,
+`descricao` VARCHAR(64),
+PRIMARY KEY (`cd_tipo_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `USUARIO` (
+`cd_usuario` INT,
+`fk_tipo_usuario` INT,
+`nome` VARCHAR(64),
+`data_nascimento` DATETIME,
+`cpf` VARCHAR(64),
+`senha` VARCHAR(64),
+`email` VARCHAR(64),
+`foto` VARCHAR(64),
+PRIMARY KEY (`cd_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `ENDERECO` (
+`cd_endereco` INT,
+`fk_usuario` INT,
+`cep` VARCHAR(64),
+`estado` VARCHAR(64),
+`cidade` VARCHAR(64),
+`bairro` VARCHAR(64),
+`rua` VARCHAR(64),
+`numero` INT,
+`ponto_referencia` VARCHAR(64),
+PRIMARY KEY (`cd_endereco`)
+) CHARACTER SET latin1;
+CREATE TABLE `FORMA_PAGAMENTO` (
+`cd_forma_pagamento` INT,
+`descricao` VARCHAR(64),
+PRIMARY KEY (`cd_forma_pagamento`)
+) CHARACTER SET latin1;
+CREATE TABLE `PEDIDO` (
+`cd_pedido` INT,
+`fk_usuario` INT,
+`fk_forma_pagamento` INT,
+`preco` DECIMAL(10,2),
+`data` DATETIME,
+PRIMARY KEY (`cd_pedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `STATUS_PEDIDO` (
+`cd_status_pedido` INT,
+`descricao` VARCHAR(64),
+PRIMARY KEY (`cd_status_pedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `HISTORICO_PEDIDO` (
+`cd_historico_pedido` INT,
+`fk_status_pedido` INT,
+`fk_pedido` INT,
+PRIMARY KEY (`cd_historico_pedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `TIPO_PRODUTO` (
+`cd_tipo_produto` INT,
+`descricao` VARCHAR(64),
+PRIMARY KEY (`cd_tipo_produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRODUTO` (
+`cd_produto` INT,
+`fk_tipo_produto` INT,
+`preco` DECIMAL(10,2),
+`descricao` VARCHAR(64),
+`nome` VARCHAR(64),
+`imagem` VARCHAR(64),
+PRIMARY KEY (`cd_produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `PRODUTO_PEDIDO` (
+`cd_produto_pedido` INT,
+`fk_pedido` INT,
+`fk_produto` INT,
+`valor_unitario` DECIMAL(10,2),
+`desconto` DECIMAL(10,2),
+`quantidade` INT,
+PRIMARY KEY (`cd_produto_pedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `INGREDIENTE` (
+`cd_ingrediente` INT,
+`preco` DECIMAL(10,2),
+`nome` VARCHAR(64),
+`imagem` VARCHAR(64),
+PRIMARY KEY (`cd_ingrediente`)
+) CHARACTER SET latin1;
+CREATE TABLE `INGREDIENTE_PRODUTO` (
+`cd_ingrediente_produto` INT,
+`fk_ingrediente` INT,
+`fk_produto` INT,
+PRIMARY KEY (`cd_ingrediente_produto`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_338663_modelo_fisico') AS relationships;
+relationships
+Database: db_338663_modelo_fisico
+
+Table Connections:
+------------------
+[Implied]  ENDERECO.fk_usuario -> USUARIO.cd_usuario
+[Implied]  HISTORICO_PEDIDO.fk_pedido -> PEDIDO.cd_pedido
+[Implied]  HISTORICO_PEDIDO.fk_pedido -> STATUS_PEDIDO.cd_status_pedido
+[Implied]  HISTORICO_PEDIDO.fk_status_pedido -> PEDIDO.cd_pedido
+[Implied]  HISTORICO_PEDIDO.fk_status_pedido -> STATUS_PEDIDO.cd_status_pedido
+[Implied]  INGREDIENTE_PRODUTO.fk_ingrediente -> INGREDIENTE.cd_ingrediente
+[Implied]  INGREDIENTE_PRODUTO.fk_produto -> PRODUTO.cd_produto
+[Implied]  PEDIDO.fk_forma_pagamento -> FORMA_PAGAMENTO.cd_forma_pagamento
+[Implied]  PEDIDO.fk_usuario -> USUARIO.cd_usuario
+[Implied]  PRODUTO.fk_tipo_produto -> TIPO_PRODUTO.cd_tipo_produto
+[Implied]  PRODUTO_PEDIDO.fk_pedido -> PEDIDO.cd_pedido
+[Implied]  PRODUTO_PEDIDO.fk_pedido -> STATUS_PEDIDO.cd_status_pedido
+[Implied]  PRODUTO_PEDIDO.fk_produto -> PRODUTO.cd_produto
+[Implied]  USUARIO.fk_tipo_usuario -> TIPO_USUARIO.cd_tipo_usuario
+
+DROP DATABASE `db_338663_modelo_fisico`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,191 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 105628_create_banco
+#
+CREATE DATABASE `db_105628_create_banco`;
+USE `db_105628_create_banco`;
+CREATE TABLE `bd_deliverall.admins` (
+`id` INT,
+`login` VARCHAR(64),
+`senha` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.estados` (
+`id` INT,
+`nome` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.cidades` (
+`id` INT,
+`nome` VARCHAR(64),
+`estado_id` INT,
+PRIMARY KEY (`id`, `estado_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.clientes` (
+`id` INT,
+`nome` VARCHAR(64),
+`email` VARCHAR(64),
+`senha` VARCHAR(64),
+`telefone1` VARCHAR(64),
+`telefone2` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.gerentes` (
+`id` INT,
+`nome` VARCHAR(64),
+`email` VARCHAR(64),
+`senha` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.restaurantes` (
+`id` INT,
+`nome` VARCHAR(64),
+`cnpj` VARCHAR(64),
+`email` VARCHAR(64),
+`descricao` VARCHAR(64),
+`foto` VARCHAR(64),
+`horario_abre` VARCHAR(64),
+`horario_fecha` VARCHAR(64),
+`tempo_mercado` VARCHAR(64),
+`valor_min` VARCHAR(64),
+`telefone1` VARCHAR(64),
+`telefone2` VARCHAR(64),
+`gerente_id` INT,
+PRIMARY KEY (`id`, `gerente_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.atendentes` (
+`id` INT,
+`nome` VARCHAR(64),
+`email` VARCHAR(64),
+`senha` VARCHAR(64),
+`restaurante_id` INT,
+PRIMARY KEY (`id`, `restaurante_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.produtos` (
+`id` INT,
+`nome` VARCHAR(64),
+`tipo` INT,
+`descricao` VARCHAR(64),
+`preco` DECIMAL(10,2),
+`foto` VARCHAR(64),
+`qtd_max_complemento` INT,
+`restaurante_id` INT,
+PRIMARY KEY (`id`, `restaurante_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.sugestaos` (
+`id` INT,
+`nome_restaurante` VARCHAR(64),
+`mensagem` VARCHAR(64),
+`tel_restaurante` VARCHAR(64),
+`cliente_id` INT,
+PRIMARY KEY (`id`, `cliente_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.pedidos` (
+`id` INT,
+`total` DECIMAL(10,2),
+`status` INT,
+`data` DATETIME,
+`cliente_id` INT,
+PRIMARY KEY (`id`, `cliente_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.enderecos` (
+`id` INT,
+`rua` VARCHAR(64),
+`numero` INT,
+`bairro` VARCHAR(64),
+`complemento` VARCHAR(64),
+`cep` VARCHAR(64),
+`tipo` INT,
+`cidade_id` INT,
+PRIMARY KEY (`id`, `cidade_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.classificacaos` (
+`id` INT,
+`nota` DECIMAL(10,2),
+`comentario` VARCHAR(64),
+`restaurante_id` INT,
+`cliente_id` INT,
+PRIMARY KEY (`id`, `restaurante_id`, `cliente_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.complementos` (
+`id` INT,
+`nome` VARCHAR(64),
+`tipo` INT,
+`descricao` VARCHAR(64),
+`preco` DECIMAL(10,2),
+`produto_id` INT,
+PRIMARY KEY (`id`, `produto_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.culinarias` (
+`id` INT,
+`tipo` INT,
+`restaurante_id` INT,
+PRIMARY KEY (`id`, `restaurante_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.pagamentos` (
+`id` INT,
+`descricao` VARCHAR(64),
+`restaurante_id` INT,
+PRIMARY KEY (`id`, `restaurante_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.pedido_produtos` (
+`pedido_id` INT,
+`produto_id` INT,
+`qtd` INT,
+PRIMARY KEY (`pedido_id`, `produto_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.cliente_enderecos` (
+`cliente_id` INT,
+`endereco_id` INT,
+PRIMARY KEY (`cliente_id`, `endereco_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.restaurante_enderecos` (
+`endereco_id` INT,
+`restaurante_id` INT,
+PRIMARY KEY (`endereco_id`, `restaurante_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bd_deliverall.promocaos` (
+`id` INT,
+`restaurante_id` INT,
+`produto_id` INT,
+`data_ini` DATETIME,
+`data_fim` DATETIME,
+`desconto` INT,
+`tipo` INT,
+PRIMARY KEY (`id`, `restaurante_id`, `produto_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_105628_create_banco') AS relationships;
+relationships
+Database: db_105628_create_banco
+
+Table Connections:
+------------------
+[Implied]  bd_deliverall.atendentes.restaurante_id -> bd_deliverall.restaurante_enderecos.restaurante_id
+[Implied]  bd_deliverall.cidades.estado_id -> bd_deliverall.estados.id
+[Implied]  bd_deliverall.classificacaos.cliente_id -> bd_deliverall.clientes.id
+[Implied]  bd_deliverall.classificacaos.restaurante_id -> bd_deliverall.restaurante_enderecos.restaurante_id
+[Implied]  bd_deliverall.cliente_enderecos.cliente_id -> bd_deliverall.clientes.id
+[Implied]  bd_deliverall.cliente_enderecos.endereco_id -> bd_deliverall.restaurante_enderecos.endereco_id
+[Implied]  bd_deliverall.complementos.produto_id -> bd_deliverall.pedido_produtos.produto_id
+[Implied]  bd_deliverall.complementos.produto_id -> bd_deliverall.promocaos.produto_id
+[Implied]  bd_deliverall.culinarias.restaurante_id -> bd_deliverall.restaurante_enderecos.restaurante_id
+[Implied]  bd_deliverall.pagamentos.restaurante_id -> bd_deliverall.restaurante_enderecos.restaurante_id
+[Implied]  bd_deliverall.pedido_produtos.produto_id -> bd_deliverall.complementos.produto_id
+[Implied]  bd_deliverall.pedido_produtos.produto_id -> bd_deliverall.promocaos.produto_id
+[Implied]  bd_deliverall.pedidos.cliente_id -> bd_deliverall.clientes.id
+[Implied]  bd_deliverall.produtos.restaurante_id -> bd_deliverall.restaurante_enderecos.restaurante_id
+[Implied]  bd_deliverall.promocaos.produto_id -> bd_deliverall.complementos.produto_id
+[Implied]  bd_deliverall.promocaos.produto_id -> bd_deliverall.pedido_produtos.produto_id
+[Implied]  bd_deliverall.promocaos.restaurante_id -> bd_deliverall.restaurante_enderecos.restaurante_id
+[Implied]  bd_deliverall.restaurante_enderecos.endereco_id -> bd_deliverall.cliente_enderecos.endereco_id
+[Implied]  bd_deliverall.restaurante_enderecos.restaurante_id -> bd_deliverall.atendentes.restaurante_id
+[Implied]  bd_deliverall.restaurante_enderecos.restaurante_id -> bd_deliverall.classificacaos.restaurante_id
+[Implied]  bd_deliverall.restaurante_enderecos.restaurante_id -> bd_deliverall.culinarias.restaurante_id
+[Implied]  bd_deliverall.restaurante_enderecos.restaurante_id -> bd_deliverall.pagamentos.restaurante_id
+[Implied]  bd_deliverall.restaurante_enderecos.restaurante_id -> bd_deliverall.produtos.restaurante_id
+[Implied]  bd_deliverall.restaurante_enderecos.restaurante_id -> bd_deliverall.promocaos.restaurante_id
+[Implied]  bd_deliverall.restaurantes.gerente_id -> bd_deliverall.gerentes.id
+[Implied]  bd_deliverall.sugestaos.cliente_id -> bd_deliverall.clientes.id
+
+DROP DATABASE `db_105628_create_banco`;
+UNINSTALL EXTENSION vsql_schematron;

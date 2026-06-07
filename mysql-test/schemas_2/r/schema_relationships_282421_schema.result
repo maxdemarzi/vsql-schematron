@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 282421_schema
+#
+CREATE DATABASE `db_282421_schema`;
+USE `db_282421_schema`;
+CREATE TABLE `Employees` (
+`tfn` VARCHAR(64),
+`givenName` VARCHAR(64),
+`familyName` VARCHAR(64),
+`hoursPweek` DECIMAL(10,2),
+PRIMARY KEY (`tfn`)
+) CHARACTER SET latin1;
+CREATE TABLE `Departments` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`manager` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `DeptMissions` (
+`department` VARCHAR(64),
+`keyword` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `WorksFor` (
+`employee` VARCHAR(64),
+`department` VARCHAR(64),
+`percentage` DECIMAL(10,2)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_282421_schema') AS relationships;
+relationships
+Database: db_282421_schema
+
+Table Connections:
+------------------
+[Implied]  Departments.manager -> Departments.id
+[Implied]  DeptMissions.department -> Departments.id
+[Implied]  WorksFor.department -> Departments.id
+[Implied]  WorksFor.employee -> Employees.tfn
+
+DROP DATABASE `db_282421_schema`;
+UNINSTALL EXTENSION vsql_schematron;

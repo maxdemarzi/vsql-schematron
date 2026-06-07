@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 213517_appsDB
+--echo #
+CREATE DATABASE `db_213517_appsDB`;
+USE `db_213517_appsDB`;
+
+CREATE TABLE `accounts` (
+  `UID` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `email` VARCHAR(64),
+  `role` VARCHAR(64),
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `birthday` VARCHAR(64),
+  `ssn` VARCHAR(64),
+  `addr` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `country` VARCHAR(64),
+  `zipcode` VARCHAR(64),
+  PRIMARY KEY (`UID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `letters` (
+  `UID` INT,
+  `fullname1` VARCHAR(64),
+  `rec_email1` VARCHAR(64),
+  `title1` VARCHAR(64),
+  `affiliation1` VARCHAR(64),
+  `fullname2` VARCHAR(64),
+  `rec_email2` VARCHAR(64),
+  `title2` VARCHAR(64),
+  `affiliation2` VARCHAR(64),
+  `fullname3` VARCHAR(64),
+  `rec_email3` VARCHAR(64),
+  `title3` VARCHAR(64),
+  `affiliation3` VARCHAR(64),
+  PRIMARY KEY (`UID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_213517_appsDB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_213517_appsDB') AS relationships;
+DROP DATABASE `db_213517_appsDB`;
+UNINSTALL EXTENSION vsql_schematron;

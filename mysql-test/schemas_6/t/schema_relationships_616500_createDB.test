@@ -1,0 +1,109 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 616500_createDB
+--echo #
+CREATE DATABASE `db_616500_createDB`;
+USE `db_616500_createDB`;
+
+CREATE TABLE `Inventory` (
+  `Id` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Player` (
+  `Username` VARCHAR(64),
+  `Password` VARCHAR(64),
+  `Email` VARCHAR(64),
+  `Inventory_id` INT,
+  PRIMARY KEY (`Username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Defensive_item` (
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Bonus_Health` INT,
+  PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Offensive_item` (
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Bonus_Damage` INT,
+  PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Inventory_DefItem` (
+  `Id` INT,
+  `Item_name` VARCHAR(64),
+  PRIMARY KEY (`Id`, `Item_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Inventory_OffItem` (
+  `Id` INT,
+  `Item_name` VARCHAR(64),
+  PRIMARY KEY (`Id`, `Item_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Aggresive_NPC` (
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Inventory_id` INT,
+  PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Neutral_NPC` (
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Inventory_id` INT,
+  PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Character` (
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Offensive_skill` (
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Bonus_Damage` INT,
+  `Character_name` VARCHAR(64),
+  PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Defensive_skill` (
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Bonus_Health` INT,
+  `Character_Name` VARCHAR(64),
+  PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Player_Character` (
+  `Username` VARCHAR(64),
+  `Character_Name` VARCHAR(64),
+  `Lvl` INT,
+  PRIMARY KEY (`Username`, `Character_Name`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_616500_createDB') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_616500_createDB') AS relationships;
+DROP DATABASE `db_616500_createDB`;
+UNINSTALL EXTENSION vsql_schematron;

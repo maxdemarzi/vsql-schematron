@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 620296_meme_db_init
+--echo #
+CREATE DATABASE `db_620296_meme_db_init`;
+USE `db_620296_meme_db_init`;
+
+CREATE TABLE `pending_meme` (
+  `user_id` INT,
+  `u_message_id` INT,
+  `g_message_id` INT,
+  `group_id` INT,
+  PRIMARY KEY (`group_id`, `g_message_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `published_meme` (
+  `channel_id` INT,
+  `c_message_id` INT,
+  PRIMARY KEY (`channel_id`, `c_message_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `votes` (
+  `user_id` INT,
+  `c_message_id` INT,
+  `channel_id` INT,
+  `is_upvote` BOOL,
+  PRIMARY KEY (`user_id`, `c_message_id`, `channel_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `admin_votes` (
+  `admin_id` INT,
+  `g_message_id` INT,
+  `group_id` INT,
+  `is_upvote` BOOL,
+  PRIMARY KEY (`admin_id`, `g_message_id`, `group_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `credited_users` (
+  `user_id` INT,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `banned_users` (
+  `user_id` INT,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_620296_meme_db_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_620296_meme_db_init') AS relationships;
+DROP DATABASE `db_620296_meme_db_init`;
+UNINSTALL EXTENSION vsql_schematron;

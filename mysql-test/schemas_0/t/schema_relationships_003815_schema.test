@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 003815_schema
+--echo #
+CREATE DATABASE `db_003815_schema`;
+USE `db_003815_schema`;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `login` VARCHAR(64),
+  `salutation` VARCHAR(64),
+  `name` VARCHAR(64),
+  `surname` VARCHAR(64),
+  `email` VARCHAR(64),
+  `state` VARCHAR(64),
+  `last_login` DATETIME,
+  `failed_logins` INT,
+  `last_failed_login` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_roles` (
+  `role_id` INT,
+  `child_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_roles` (
+  `user_id` INT,
+  `role_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_protocols` (
+  `id` INT,
+  `user_id` INT,
+  `key` VARCHAR(64),
+  `value` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_options` (
+  `id` INT,
+  `user_id` INT,
+  `key` VARCHAR(64),
+  `value` VARCHAR(64),
+  `hide` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `routes` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `pattern` VARCHAR(64),
+  `public` INT,
+  `frontend` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  `method` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `refresh_tokens` (
+  `id` INT,
+  `token` VARCHAR(64),
+  `user_id` INT,
+  `expire` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_003815_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_003815_schema') AS relationships;
+DROP DATABASE `db_003815_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 278263_sql_cmds_to_create_tables
+--echo #
+CREATE DATABASE `db_278263_sql_cmds_to_create_tables`;
+USE `db_278263_sql_cmds_to_create_tables`;
+
+CREATE TABLE `department_code` (
+  `did` DECIMAL(10,2),
+  `dname` VARCHAR(64),
+  `location` VARCHAR(64),
+  PRIMARY KEY (`did`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `course_code` (
+  `cid` DECIMAL(10,2),
+  `cname` VARCHAR(64),
+  `trade` VARCHAR(64),
+  `f_did` DECIMAL(10,2),
+  PRIMARY KEY (`cid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `student_code` (
+  `rollno` DECIMAL(10,2),
+  `sname` VARCHAR(64),
+  `saddress` VARCHAR(64),
+  `smob` DECIMAL(10,2),
+  `dob` DATETIME,
+  `f_cid` DECIMAL(10,2),
+  PRIMARY KEY (`rollno`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `faculty_code` (
+  `empid` DECIMAL(10,2),
+  `name` VARCHAR(64),
+  `address` VARCHAR(64),
+  `mob` DECIMAL(10,2),
+  `email` VARCHAR(64),
+  `salary` DECIMAL(10,2),
+  `femp_did` DECIMAL(10,2),
+  `doj` DATETIME,
+  PRIMARY KEY (`empid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `paper_subject_code` (
+  `pcode` DECIMAL(10,2),
+  `pname` VARCHAR(64),
+  `semester` DECIMAL(10,2),
+  PRIMARY KEY (`pcode`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `content_of_code` (
+  `content_pcode` DECIMAL(10,2),
+  `content_cid` DECIMAL(10,2),
+  PRIMARY KEY (`content_pcode`, `content_cid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `teaching_code` (
+  `t_pcode` DECIMAL(10,2),
+  `t_empid` DECIMAL(10,2),
+  `session_sem` VARCHAR(64),
+  PRIMARY KEY (`t_pcode`, `t_empid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `exam_appeared_in_code` (
+  `stu_roll` DECIMAL(10,2),
+  `exam_pcode` DECIMAL(10,2),
+  `sem_session` VARCHAR(64),
+  `marks` DECIMAL(10,2),
+  PRIMARY KEY (`stu_roll`, `exam_pcode`, `sem_session`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_278263_sql_cmds_to_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_278263_sql_cmds_to_create_tables') AS relationships;
+DROP DATABASE `db_278263_sql_cmds_to_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

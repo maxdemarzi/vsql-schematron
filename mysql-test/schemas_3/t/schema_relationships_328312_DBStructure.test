@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 328312_DBStructure
+--echo #
+CREATE DATABASE `db_328312_DBStructure`;
+USE `db_328312_DBStructure`;
+
+CREATE TABLE `FacturasTbl` (
+  `ID` INT,
+  `Nomer` VARCHAR(64),
+  `Data` VARCHAR(64),
+  `CompanyName` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MatTbl` (
+  `ID` INT,
+  `Name` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SalesTbl` (
+  `ID` INT,
+  `FID` INT,
+  `MID` INT,
+  `Quantity` DECIMAL(10,2),
+  `SPrice` DECIMAL(10,2),
+  `TotalPrice` DECIMAL(10,2),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_328312_DBStructure') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_328312_DBStructure') AS relationships;
+DROP DATABASE `db_328312_DBStructure`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 034170_College-Create%20Table%20Scripts
+--echo #
+CREATE DATABASE `db_034170_College_Create_20Table_20Scripts`;
+USE `db_034170_College_Create_20Table_20Scripts`;
+
+CREATE TABLE `STUDENT` (
+  `USN` VARCHAR(64),
+  `SNAME` VARCHAR(64),
+  `ADDRESS` VARCHAR(64),
+  `PHONE` INT,
+  `GENDER` VARCHAR(64),
+  PRIMARY KEY (`USN`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SEMSEC` (
+  `SSID` VARCHAR(64),
+  `SEM` INT,
+  `SEC` VARCHAR(64),
+  PRIMARY KEY (`SSID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CLASS` (
+  `USN` VARCHAR(64),
+  `SSID` VARCHAR(64),
+  PRIMARY KEY (`USN`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SUBJECT` (
+  `SUBCODE` VARCHAR(64),
+  `TITLE` VARCHAR(64),
+  `SEM` INT,
+  `CREDITS` INT,
+  PRIMARY KEY (`SUBCODE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `IAMARKS` (
+  `USN` VARCHAR(64),
+  `SUBCODE` VARCHAR(64),
+  `SSID` VARCHAR(64),
+  `TEST1` INT,
+  `TEST2` INT,
+  `TEST3` INT,
+  `FINALIA` INT,
+  PRIMARY KEY (`SUBCODE`, `USN`, `SSID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_034170_College_Create_20Table_20Scripts') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_034170_College_Create_20Table_20Scripts') AS relationships;
+DROP DATABASE `db_034170_College_Create_20Table_20Scripts`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,219 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 367652_migration
+#
+CREATE DATABASE `db_367652_migration`;
+USE `db_367652_migration`;
+CREATE TABLE `NotAvailable` (
+`id` INT,
+`fs_path` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Movie` (
+`id` INT,
+`type` VARCHAR(64),
+`tmdb_id` INT,
+`fs_path` VARCHAR(64),
+`url_path` VARCHAR(64),
+`ctime` DATETIME,
+`mtime` DATETIME,
+`adult` BOOL,
+`backdrop_path` VARCHAR(64),
+`budget` INT,
+`imdb_id` VARCHAR(64),
+`overview` VARCHAR(64),
+`popularity` DECIMAL(10,2),
+`poster_path` VARCHAR(64),
+`release_date` VARCHAR(64),
+`revenue` INT,
+`runtime` INT,
+`tagline` VARCHAR(64),
+`title` VARCHAR(64),
+`vote_average` DECIMAL(10,2),
+`vote_count` INT,
+`logo_path` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Genre` (
+`id` INT,
+`tmdb_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProductionCompany` (
+`id` INT,
+`tmdb_id` INT,
+`logo_path` VARCHAR(64),
+`name` VARCHAR(64),
+`origin_country` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Credit` (
+`id` INT,
+`movie_tmdb_id` INT,
+`tv_show_tmdb_id` INT,
+`tmdb_id` INT,
+`adult` BOOL,
+`gender` INT,
+`known_for_department` VARCHAR(64),
+`name` VARCHAR(64),
+`popularity` DECIMAL(10,2),
+`profile_path` VARCHAR(64),
+`character` VARCHAR(64),
+`credit_id` VARCHAR(64),
+`order` INT,
+`department` VARCHAR(64),
+`job` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Similar` (
+`id` INT,
+`tmdb_id` INT,
+`title` VARCHAR(64),
+`name` VARCHAR(64),
+`release_date` VARCHAR(64),
+`first_air_date` VARCHAR(64),
+`overview` VARCHAR(64),
+`backdrop_path` VARCHAR(64),
+`poster_path` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TVShow` (
+`id` INT,
+`type` VARCHAR(64),
+`tmdb_id` INT,
+`backdrop_path` VARCHAR(64),
+`name` VARCHAR(64),
+`overview` VARCHAR(64),
+`popularity` DECIMAL(10,2),
+`poster_path` VARCHAR(64),
+`tagline` VARCHAR(64),
+`vote_average` DECIMAL(10,2),
+`vote_count` INT,
+`logo_path` VARCHAR(64),
+`imdb_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Season` (
+`id` INT,
+`tv_show_tmdb_id` INT,
+`tmdb_id` INT,
+`air_date` VARCHAR(64),
+`name` VARCHAR(64),
+`overview` VARCHAR(64),
+`poster_path` VARCHAR(64),
+`season_number` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Episode` (
+`id` INT,
+`type` VARCHAR(64),
+`season_tmdb_id` INT,
+`tmdb_id` INT,
+`fs_path` VARCHAR(64),
+`url_path` VARCHAR(64),
+`ctime` DATETIME,
+`mtime` DATETIME,
+`air_date` VARCHAR(64),
+`episode_number` INT,
+`name` VARCHAR(64),
+`overview` VARCHAR(64),
+`season_number` INT,
+`still_path` VARCHAR(64),
+`vote_average` DECIMAL(10,2),
+`vote_count` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Album` (
+`id` INT,
+`type` VARCHAR(64),
+`spotify_id` VARCHAR(64),
+`album_type` VARCHAR(64),
+`image_url` VARCHAR(64),
+`label` VARCHAR(64),
+`name` VARCHAR(64),
+`popularity` INT,
+`release_date` VARCHAR(64),
+`total_tracks` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Artist` (
+`id` INT,
+`type` VARCHAR(64),
+`spotify_id` VARCHAR(64),
+`name` VARCHAR(64),
+`image_url` VARCHAR(64),
+`popularity` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Song` (
+`id` INT,
+`album_spotify_id` VARCHAR(64),
+`spotify_id` VARCHAR(64),
+`fs_path` VARCHAR(64),
+`url_path` VARCHAR(64),
+`ctime` DATETIME,
+`mtime` DATETIME,
+`disc_number` INT,
+`duration_ms` INT,
+`explicit` BOOL,
+`name` VARCHAR(64),
+`preview_url` VARCHAR(64),
+`track_number` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_GenreToMovie` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_MovieToProductionCompany` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_MovieToSimilar` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_GenreToTVShow` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_ProductionCompanyToTVShow` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_SimilarToTVShow` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+CREATE TABLE `_AlbumToArtist` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_367652_migration') AS relationships;
+relationships
+Database: db_367652_migration
+
+Table Connections:
+------------------
+[Implied]  Credit.movie_tmdb_id -> Movie.id
+[Implied]  Credit.tv_show_tmdb_id -> TVShow.id
+[Implied]  Episode.season_tmdb_id -> Season.id
+[Implied]  Season.tv_show_tmdb_id -> TVShow.id
+[Implied]  _AlbumToArtist.A -> Album.id
+[Implied]  _AlbumToArtist.B -> Artist.id
+[Implied]  _GenreToMovie.A -> Genre.id
+[Implied]  _GenreToMovie.B -> Movie.id
+[Implied]  _GenreToTVShow.A -> Genre.id
+[Implied]  _GenreToTVShow.B -> TVShow.id
+[Implied]  _MovieToProductionCompany.A -> Movie.id
+[Implied]  _MovieToProductionCompany.B -> ProductionCompany.id
+[Implied]  _MovieToSimilar.A -> Movie.id
+[Implied]  _MovieToSimilar.B -> Similar.id
+[Implied]  _ProductionCompanyToTVShow.A -> ProductionCompany.id
+[Implied]  _ProductionCompanyToTVShow.B -> TVShow.id
+[Implied]  _SimilarToTVShow.A -> Similar.id
+[Implied]  _SimilarToTVShow.B -> TVShow.id
+
+DROP DATABASE `db_367652_migration`;
+UNINSTALL EXTENSION vsql_schematron;

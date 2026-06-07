@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 687187_dbSchema
+#
+CREATE DATABASE `db_687187_dbSchema`;
+USE `db_687187_dbSchema`;
+CREATE TABLE `Movie` (
+`id` INT,
+`title` VARCHAR(64),
+`duration` INT,
+`rating` INT,
+`imageurl` VARCHAR(64),
+`trailerurl` VARCHAR(64),
+`description` VARCHAR(64),
+`genres` VARCHAR(64),
+`directors` VARCHAR(64),
+`cast` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Room` (
+`id` INT,
+`rows` INT,
+`columns` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Projection` (
+`id` INT,
+`datetime` INT,
+`price` DECIMAL(10,2),
+`movie` INT,
+`room` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Discount` (
+`id` INT,
+`type` VARCHAR(64),
+`percentage` DECIMAL(10,2),
+`minage` INT,
+`maxage` INT,
+`date` INT,
+`numberpeople` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reservation` (
+`id` INT,
+`date` INT,
+`projection` INT,
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`email` VARCHAR(64),
+`paymentcardowner` VARCHAR(64),
+`paymentcard` VARCHAR(64),
+`coupon` VARCHAR(64),
+`discount` INT,
+`numberpeopleunderage` INT,
+`numberpeopleoverage` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OccupiedSeat` (
+`projection` INT,
+`row` INT,
+`column` INT,
+`reservation` INT,
+PRIMARY KEY (`projection`, `row`, `column`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cinema` (
+`id` INT,
+`name` VARCHAR(64),
+`city` VARCHAR(64),
+`country` VARCHAR(64),
+`zipCode` VARCHAR(64),
+`address` VARCHAR(64),
+`email` VARCHAR(64),
+`mailPassword` VARCHAR(64),
+`adminPassword` VARCHAR(64),
+`logoURL` VARCHAR(64),
+`discountstrategy` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_687187_dbSchema') AS relationships;
+relationships
+Database: db_687187_dbSchema
+
+Table Connections:
+------------------
+[Implied]  OccupiedSeat.projection -> Projection.id
+[Implied]  OccupiedSeat.reservation -> Reservation.id
+[Implied]  Projection.movie -> Movie.id
+[Implied]  Projection.room -> Room.id
+[Implied]  Reservation.discount -> Discount.id
+[Implied]  Reservation.projection -> Projection.id
+
+DROP DATABASE `db_687187_dbSchema`;
+UNINSTALL EXTENSION vsql_schematron;

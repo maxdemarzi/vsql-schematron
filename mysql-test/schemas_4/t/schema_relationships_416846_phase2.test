@@ -1,0 +1,124 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 416846_phase2
+--echo #
+CREATE DATABASE `db_416846_phase2`;
+USE `db_416846_phase2`;
+
+CREATE TABLE `Doctor` (
+  `dID` INT,
+  `Gender` VARCHAR(64),
+  `Specialty` VARCHAR(64),
+  `dFName` VARCHAR(64),
+  `dLName` VARCHAR(64),
+  PRIMARY KEY (`dID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Patient` (
+  `SSN` INT,
+  `pFName` VARCHAR(64),
+  `pLName` VARCHAR(64),
+  `Address` VARCHAR(64),
+  `TelNum` INT,
+  PRIMARY KEY (`SSN`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Examine` (
+  `dID` INT,
+  `AdmissionNum` INT,
+  `DoctorComment` VARCHAR(64),
+  PRIMARY KEY (`dID`, `AdmissionNum`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Admission` (
+  `AdmissionNum` INT,
+  `AdmissionDate` DATETIME,
+  `LeaveDate` DATETIME,
+  `TotalPayment` DECIMAL(10,2),
+  `InsurancePayment` DECIMAL(10,2),
+  `SSN` INT,
+  `FutureVisit` DATETIME,
+  PRIMARY KEY (`AdmissionNum`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Employee` (
+  `eID` INT,
+  `eFName` VARCHAR(64),
+  `eLName` VARCHAR(64),
+  `Salary` DECIMAL(10,2),
+  `jobTitle` VARCHAR(64),
+  `OfficeNum` INT,
+  `empRank` INT,
+  `supervisorID` INT,
+  PRIMARY KEY (`eID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Room` (
+  `Num` INT,
+  `OccupiedFlag` INT,
+  PRIMARY KEY (`Num`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RoomService` (
+  `Num` INT,
+  `Service` VARCHAR(64),
+  PRIMARY KEY (`Num`, `Service`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RoomAccess` (
+  `Num` INT,
+  `eID` INT,
+  PRIMARY KEY (`Num`, `eID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EquipmentType` (
+  `qid` INT,
+  `Description` VARCHAR(64),
+  `Model` VARCHAR(64),
+  `Instructions` VARCHAR(64),
+  PRIMARY KEY (`qid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Equipment` (
+  `serial#` VARCHAR(64),
+  `typeID` INT,
+  `purchaseyear` INT,
+  `lastInspection` DATETIME,
+  `roomNum` INT,
+  PRIMARY KEY (`serial#`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `StayIn` (
+  `AdmissionNum` INT,
+  `RoomNum` INT,
+  `startDate` DATETIME,
+  `endDate` DATETIME,
+  PRIMARY KEY (`AdmissionNum`, `RoomNum`, `startDate`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RankNames` (
+  `RankName` VARCHAR(64),
+  `RankNum` INT,
+  PRIMARY KEY (`RankName`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_416846_phase2') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_416846_phase2') AS relationships;
+DROP DATABASE `db_416846_phase2`;
+UNINSTALL EXTENSION vsql_schematron;

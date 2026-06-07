@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 273768_DBProjectScript
+#
+CREATE DATABASE `db_273768_DBProjectScript`;
+USE `db_273768_DBProjectScript`;
+CREATE TABLE `Cardholder` (
+`cardNumber` INT,
+`lastName` VARCHAR(64),
+`firstName` VARCHAR(64),
+`address` VARCHAR(64),
+`phoneNumber` DECIMAL(10,2),
+`email` VARCHAR(64),
+PRIMARY KEY (`cardNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `Publisher` (
+`publisherID` INT,
+`publisherName` VARCHAR(64),
+PRIMARY KEY (`publisherID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Location` (
+`floorNumber` INT,
+`studyrooms` INT,
+`computers` INT,
+PRIMARY KEY (`floorNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employee` (
+`employeeID` INT,
+`lastName` VARCHAR(64),
+`firstName` VARCHAR(64),
+`extension` INT,
+`floorNumber` INT,
+`salary` INT,
+PRIMARY KEY (`employeeID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Book` (
+`bookID` INT,
+`publisherID` INT,
+`floorLocation` INT,
+`ISBN` VARCHAR(64),
+`title` VARCHAR(64),
+`author` VARCHAR(64),
+`copies` INT,
+`publicationYear` INT,
+`bookInfo` VARCHAR(64),
+PRIMARY KEY (`bookID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Borrows` (
+`borrowerID` INT,
+`bookID` INT,
+`borrowDate` DATETIME,
+`dueDate` DATETIME,
+`returnDate` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `Reserves` (
+`memberID` INT,
+`floorLocation` INT,
+`computer` BOOL,
+`studyroom` BOOL
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_273768_DBProjectScript') AS relationships;
+relationships
+Database: db_273768_DBProjectScript
+
+Table Connections:
+------------------
+[Implied]  Book.floorLocation -> Location.floorNumber
+[Implied]  Book.publisherID -> Publisher.publisherID
+[Implied]  Borrows.bookID -> Book.bookID
+[Implied]  Borrows.borrowerID -> Employee.employeeID
+[Implied]  Employee.floorNumber -> Location.floorNumber
+[Implied]  Reserves.floorLocation -> Location.floorNumber
+[Implied]  Reserves.memberID -> Employee.employeeID
+
+DROP DATABASE `db_273768_DBProjectScript`;
+UNINSTALL EXTENSION vsql_schematron;

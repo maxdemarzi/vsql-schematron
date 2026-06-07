@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 139611_mysql
+--echo #
+CREATE DATABASE `db_139611_mysql`;
+USE `db_139611_mysql`;
+
+CREATE TABLE `0010_pk_ai` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `0020_pk_not_ai` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `0030_pk_bigint_ai` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `0040_pk_unsigned_ai` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `0050_pk_bigint_unsigned_ai` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `0060_composite_pks` (
+  `foo_id` INT,
+  `bar_id` INT,
+  PRIMARY KEY (`foo_id`, `bar_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `0200_default_values` (
+  `integer` INT,
+  `string` VARCHAR(64),
+  `timestamp` DATETIME,
+  `enum` VARCHAR(64),
+  `enum_foo` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `0300_comment` (
+  `username` VARCHAR(64),
+  `enum` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `0400_fk_parent` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `0410_fk_child` (
+  `id` INT,
+  `parent_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_139611_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_139611_mysql') AS relationships;
+DROP DATABASE `db_139611_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

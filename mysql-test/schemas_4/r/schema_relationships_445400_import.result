@@ -1,0 +1,46 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 445400_import
+#
+CREATE DATABASE `db_445400_import`;
+USE `db_445400_import`;
+CREATE TABLE `persons` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pets` (
+`id` INT,
+`name` VARCHAR(64),
+`owner_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `addresses` (
+`id` INT,
+`name` VARCHAR(64),
+`owner_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`id` INT,
+`message` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `person_post` (
+`id` INT,
+`person_id` VARCHAR(64),
+`post_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_445400_import') AS relationships;
+relationships
+Database: db_445400_import
+
+Table Connections:
+------------------
+[Implied]  addresses.owner_id -> persons.id
+[Implied]  person_post.post_id -> posts.id
+[Implied]  pets.owner_id -> persons.id
+
+DROP DATABASE `db_445400_import`;
+UNINSTALL EXTENSION vsql_schematron;

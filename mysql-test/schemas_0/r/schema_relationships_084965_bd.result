@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 084965_bd
+#
+CREATE DATABASE `db_084965_bd`;
+USE `db_084965_bd`;
+CREATE TABLE `ADMINISTRADOR` (
+`ID_ADMIN` INT,
+PRIMARY KEY (`ID_ADMIN`)
+) CHARACTER SET latin1;
+CREATE TABLE `USUARIO` (
+`id_usuario` INT,
+`tipo` VARCHAR(64),
+`nombre` VARCHAR(64),
+`fecha_nacimiento` DATETIME,
+`telefono` INT,
+`email` VARCHAR(64),
+`contrase√±a` VARCHAR(64),
+`id_admin` INT,
+PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `PROFESOR` (
+`id_profesor` INT,
+`cedula` VARCHAR(64),
+PRIMARY KEY (`id_profesor`)
+) CHARACTER SET latin1;
+CREATE TABLE `CURSO` (
+`id_curso` INT,
+`materia` VARCHAR(64),
+`num_estudiante` INT,
+`archivos` DATETIME,
+PRIMARY KEY (`id_curso`)
+) CHARACTER SET latin1;
+CREATE TABLE `TAREA` (
+`id_tarea` INT,
+`materia` VARCHAR(64),
+`puntuacion` INT,
+`fecha_publicacion` DATETIME,
+`fecha_plazo` DATETIME,
+`fecha_entrega` DATETIME,
+`id_curso` INT,
+`id_profesor` INT,
+PRIMARY KEY (`id_tarea`)
+) CHARACTER SET latin1;
+CREATE TABLE `ESTUDIANTE` (
+`id_estudiante` INT,
+`matricula` VARCHAR(64),
+`ayudante` BOOL,
+`estado` DATETIME,
+`id_curso` INT,
+PRIMARY KEY (`id_estudiante`)
+) CHARACTER SET latin1;
+CREATE TABLE `HORARIO` (
+`id_horario` INT,
+`fecha` DATETIME,
+`h_inicio` DATETIME,
+`h_fin` DATETIME,
+`N_sem` INT,
+`id_ayudante` INT,
+PRIMARY KEY (`id_horario`)
+) CHARACTER SET latin1;
+CREATE TABLE `AYUDANTIAS` (
+`id_tutoria` INT,
+`id_ayudante` INT,
+`tema` VARCHAR(64),
+`estado` BOOL,
+`rating` INT,
+`id_horario` INT,
+`id_estudiante` INT,
+`zoom` INT,
+`link_grabacion` VARCHAR(64),
+PRIMARY KEY (`id_tutoria`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_084965_bd') AS relationships;
+relationships
+Database: db_084965_bd
+
+Table Connections:
+------------------
+[Implied]  AYUDANTIAS.id_estudiante -> ESTUDIANTE.id_estudiante
+[Implied]  AYUDANTIAS.id_horario -> HORARIO.id_horario
+[Implied]  ESTUDIANTE.id_curso -> CURSO.id_curso
+[Implied]  TAREA.id_curso -> CURSO.id_curso
+[Implied]  TAREA.id_profesor -> PROFESOR.id_profesor
+[Implied]  USUARIO.id_admin -> ADMINISTRADOR.ID_ADMIN
+
+DROP DATABASE `db_084965_bd`;
+UNINSTALL EXTENSION vsql_schematron;

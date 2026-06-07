@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 180382_Query_CRUD_Livros
+--echo #
+CREATE DATABASE `db_180382_Query_CRUD_Livros`;
+USE `db_180382_Query_CRUD_Livros`;
+
+CREATE TABLE `tbl_Livro` (
+  `ID` INT,
+  `Nome` VARCHAR(64),
+  `Preco` DECIMAL(10,2),
+  `Data_Pub` DATETIME,
+  `Num_Paginas` INT,
+  `Sinopse` VARCHAR(64),
+  `Cod_Editora` INT,
+  `ID_Idioma` INT,
+  `ID_Img` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_Autor` (
+  `ID` INT,
+  `Nome` VARCHAR(64),
+  `Sobrenome` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_Categoria` (
+  `Cod` INT,
+  `Nome` VARCHAR(64),
+  PRIMARY KEY (`Cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_Editora` (
+  `Cod` INT,
+  `Nome` VARCHAR(64),
+  PRIMARY KEY (`Cod`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_Idioma` (
+  `ID` INT,
+  `Nome` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_Imagem` (
+  `ID` INT,
+  `Nome` VARCHAR(64),
+  `Extension` VARCHAR(64),
+  `Tamanho_KB` DECIMAL(10,2),
+  `Data` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_Categoriza` (
+  `ID_Livro` INT,
+  `Cod_Categoria` INT,
+  PRIMARY KEY (`Cod_Categoria`, `ID_Livro`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tbl_Escreve` (
+  `ID_Livro` INT,
+  `ID_Autor` INT,
+  PRIMARY KEY (`ID_Livro`, `ID_Autor`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_180382_Query_CRUD_Livros') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_180382_Query_CRUD_Livros') AS relationships;
+DROP DATABASE `db_180382_Query_CRUD_Livros`;
+UNINSTALL EXTENSION vsql_schematron;

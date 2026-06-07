@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 115551_01-CreateTables
+#
+CREATE DATABASE `db_115551_01_CreateTables`;
+USE `db_115551_01_CreateTables`;
+CREATE TABLE `cpUser` (
+`idUser` INT,
+`username` VARCHAR(64),
+`passwordHash` VARCHAR(64),
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`email` VARCHAR(64),
+`userBirthday` DATETIME,
+PRIMARY KEY (`idUser`)
+) CHARACTER SET latin1;
+CREATE TABLE `cpCountry` (
+`idCountry` INT,
+`nameCountry` VARCHAR(64),
+PRIMARY KEY (`idCountry`)
+) CHARACTER SET latin1;
+CREATE TABLE `cpCity` (
+`idCity` INT,
+`nameCity` VARCHAR(64),
+`fkCountry` INT,
+PRIMARY KEY (`idCity`)
+) CHARACTER SET latin1;
+CREATE TABLE `cpSport` (
+`idSport` INT,
+`nameSport` VARCHAR(64),
+PRIMARY KEY (`idSport`)
+) CHARACTER SET latin1;
+CREATE TABLE `cpCourtType` (
+`idCourtType` INT,
+`courtType` VARCHAR(64),
+`isIndoor` BOOL,
+PRIMARY KEY (`idCourtType`)
+) CHARACTER SET latin1;
+CREATE TABLE `cpClub` (
+`idClub` INT,
+`nameClub` VARCHAR(64),
+`addressClub` VARCHAR(64),
+`fkCity` INT,
+PRIMARY KEY (`idClub`)
+) CHARACTER SET latin1;
+CREATE TABLE `cpPlayground` (
+`idPg` INT,
+`fkClub` INT,
+`fkSport` INT,
+`fkCourtType` INT,
+`nameCourt` VARCHAR(64),
+`isDoubleOk` BOOL,
+PRIMARY KEY (`idPg`)
+) CHARACTER SET latin1;
+CREATE TABLE `cpGame` (
+`idGame` INT,
+`fkPlayground` INT,
+`fkUserCreator` INT,
+`isSingle` BOOL,
+`isPrivate` BOOL,
+`duration` INT,
+`startDate` DATETIME,
+`startTime` DATETIME,
+`description` VARCHAR(64),
+PRIMARY KEY (`idGame`)
+) CHARACTER SET latin1;
+CREATE TABLE `cpJoin` (
+`fkUserJoin` INT,
+`fkGameJoin` INT,
+PRIMARY KEY (`fkUserJoin`, `fkGameJoin`)
+) CHARACTER SET latin1;
+CREATE TABLE `cpIsMember` (
+`fkUserIsM` INT,
+`fkClubIsM` INT,
+`isAdmin` BOOL,
+`endSubsctiption` DATETIME,
+PRIMARY KEY (`fkUserIsM`, `fkClubIsM`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_115551_01_CreateTables') AS relationships;
+relationships
+Database: db_115551_01_CreateTables
+
+Table Connections:
+------------------
+[Implied]  cpCity.fkCountry -> cpCountry.idCountry
+[Implied]  cpClub.fkCity -> cpCity.idCity
+[Implied]  cpPlayground.fkClub -> cpClub.idClub
+[Implied]  cpPlayground.fkSport -> cpSport.idSport
+
+DROP DATABASE `db_115551_01_CreateTables`;
+UNINSTALL EXTENSION vsql_schematron;

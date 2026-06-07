@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 328560_columbidae
+#
+CREATE DATABASE `db_328560_columbidae`;
+USE `db_328560_columbidae`;
+CREATE TABLE `auditory_signal` (
+`Name` VARCHAR(64),
+`Audio` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `behavior` (
+`Name` VARCHAR(64),
+`Video` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`Name`)
+) CHARACTER SET latin1;
+CREATE TABLE `common_names` (
+`SLatinName` VARCHAR(64),
+`VernacularName` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `conservation` (
+`SLatinName` VARCHAR(64),
+`Category` VARCHAR(64),
+`PrevCategory` VARCHAR(64),
+`PopTrend` VARCHAR(64),
+`LastAssesed` DATETIME,
+PRIMARY KEY (`SLatinName`)
+) CHARACTER SET latin1;
+CREATE TABLE `exhibits_auditory_signal` (
+`Name` VARCHAR(64),
+`SLatinName` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `exhibits_behavior` (
+`Name` VARCHAR(64),
+`SLatinName` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `family` (
+`FamilyName` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`FamilyName`)
+) CHARACTER SET latin1;
+CREATE TABLE `genus` (
+`GenusName` VARCHAR(64),
+`SubFamilyName` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`GenusName`)
+) CHARACTER SET latin1;
+CREATE TABLE `habitat` (
+`SLatinName` VARCHAR(64),
+`System` VARCHAR(64),
+`Biomes` VARCHAR(64),
+`Countries` VARCHAR(64),
+PRIMARY KEY (`SLatinName`)
+) CHARACTER SET latin1;
+CREATE TABLE `nat_predator` (
+`SLatinName` VARCHAR(64),
+`VernacularName` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `pigeons` (
+`SerialNumber` VARCHAR(64),
+`EyeColor` VARCHAR(64),
+`Weight` INT,
+`Breed` VARCHAR(64),
+`DateOfBirth` DATETIME,
+PRIMARY KEY (`SerialNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `species` (
+`LatinName` VARCHAR(64),
+`GenusName` VARCHAR(64),
+`Diet` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`LatinName`)
+) CHARACTER SET latin1;
+CREATE TABLE `subfamily` (
+`SubFamilyName` VARCHAR(64),
+`FamilyName` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`SubFamilyName`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_328560_columbidae') AS relationships;
+relationships
+Database: db_328560_columbidae
+
+Table Connections:
+------------------
+[Implied]  common_names.SLatinName -> conservation.SLatinName
+[Implied]  common_names.SLatinName -> habitat.SLatinName
+[Implied]  common_names.SLatinName -> species.LatinName
+[Implied]  exhibits_auditory_signal.Name -> auditory_signal.Name
+[Implied]  exhibits_auditory_signal.SLatinName -> conservation.SLatinName
+[Implied]  exhibits_auditory_signal.SLatinName -> habitat.SLatinName
+[Implied]  exhibits_auditory_signal.SLatinName -> species.LatinName
+[Implied]  exhibits_behavior.Name -> behavior.Name
+[Implied]  exhibits_behavior.SLatinName -> conservation.SLatinName
+[Implied]  exhibits_behavior.SLatinName -> habitat.SLatinName
+[Implied]  exhibits_behavior.SLatinName -> species.LatinName
+[Implied]  genus.SubFamilyName -> subfamily.SubFamilyName
+[Implied]  nat_predator.SLatinName -> conservation.SLatinName
+[Implied]  nat_predator.SLatinName -> habitat.SLatinName
+[Implied]  nat_predator.SLatinName -> species.LatinName
+[Implied]  species.GenusName -> genus.GenusName
+[Implied]  subfamily.FamilyName -> family.FamilyName
+
+DROP DATABASE `db_328560_columbidae`;
+UNINSTALL EXTENSION vsql_schematron;

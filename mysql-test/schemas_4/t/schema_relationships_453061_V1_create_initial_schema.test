@@ -1,0 +1,84 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 453061_V1__create_initial_schema
+--echo #
+CREATE DATABASE `db_453061_V1_create_initial_schema`;
+USE `db_453061_V1_create_initial_schema`;
+
+CREATE TABLE `client` (
+  `id` VARCHAR(64),
+  `created` DATETIME,
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  `birthday` DATETIME,
+  `gender_enum` VARCHAR(64),
+  `countryOfOrigin` VARCHAR(64),
+  `relationship_enum` VARCHAR(64),
+  `job` VARCHAR(64),
+  `children` VARCHAR(64),
+  `note` VARCHAR(64),
+  `mail` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `street` VARCHAR(64),
+  `zipCode` VARCHAR(64),
+  `city` VARCHAR(64),
+  `picture` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `xprops` (
+  `id_client` VARCHAR(64),
+  `key` VARCHAR(64),
+  `val` VARCHAR(64),
+  PRIMARY KEY (`id_client`, `key`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `treatment` (
+  `id` VARCHAR(64),
+  `id_client` VARCHAR(64),
+  `created` DATETIME,
+  `number` INT,
+  `date` DATETIME,
+  `durationInMin` INT,
+  `aboutDiscomfort` VARCHAR(64),
+  `aboutDiagnosis` VARCHAR(64),
+  `aboutContent` VARCHAR(64),
+  `aboutFeedback` VARCHAR(64),
+  `aboutHomework` VARCHAR(64),
+  `aboutUpcoming` VARCHAR(64),
+  `note` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `appointment` (
+  `id` VARCHAR(64),
+  `id_client` VARCHAR(64),
+  `created` DATETIME,
+  `startDate` DATETIME,
+  `endDate` DATETIME,
+  `note` VARCHAR(64),
+  `gcal_id` VARCHAR(64),
+  `gcal_url` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_453061_V1_create_initial_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_453061_V1_create_initial_schema') AS relationships;
+DROP DATABASE `db_453061_V1_create_initial_schema`;
+UNINSTALL EXTENSION vsql_schematron;

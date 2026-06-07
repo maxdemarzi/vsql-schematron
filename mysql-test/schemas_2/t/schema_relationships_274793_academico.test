@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 274793_academico
+--echo #
+CREATE DATABASE `db_274793_academico`;
+USE `db_274793_academico`;
+
+CREATE TABLE `curso` (
+  `idcur` INT,
+  `nomecur` VARCHAR(64),
+  PRIMARY KEY (`idcur`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `aluno` (
+  `idalu` INT,
+  `nomealu` VARCHAR(64),
+  `tipoalu` VARCHAR(64),
+  `idcurso` INT,
+  PRIMARY KEY (`idalu`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `disciplina` (
+  `iddis` INT,
+  `nomedis` VARCHAR(64),
+  PRIMARY KEY (`iddis`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pre_requisito` (
+  `iddis` INT,
+  `idpre` INT,
+  PRIMARY KEY (`iddis`, `idpre`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `professor` (
+  `idprof` INT,
+  `nomepro` VARCHAR(64),
+  PRIMARY KEY (`idprof`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `turma` (
+  `idtur` INT,
+  `iddis` INT,
+  `ano` INT,
+  `semestre` INT,
+  `codtur` VARCHAR(64),
+  PRIMARY KEY (`idtur`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `turpro` (
+  `idtur` INT,
+  `idprof` INT,
+  PRIMARY KEY (`idtur`, `idprof`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `historico` (
+  `idtur` INT,
+  `idalu` INT,
+  `nota` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_274793_academico') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_274793_academico') AS relationships;
+DROP DATABASE `db_274793_academico`;
+UNINSTALL EXTENSION vsql_schematron;

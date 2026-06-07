@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 208283_main
+--echo #
+CREATE DATABASE `db_208283_main`;
+USE `db_208283_main`;
+
+CREATE TABLE `student` (
+  `student_id` INT,
+  `name` VARCHAR(64),
+  `major` VARCHAR(64),
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employee` (
+  `emp_id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `birth_day` DATETIME,
+  `sex` VARCHAR(64),
+  `salary` INT,
+  `super_id` INT,
+  `branch_id` INT,
+  PRIMARY KEY (`emp_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `branch` (
+  `branch_id` INT,
+  `branch_name` VARCHAR(64),
+  `mgr_id` INT,
+  `mgr_start_date` DATETIME,
+  PRIMARY KEY (`branch_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `client` (
+  `client_id` INT,
+  `client_name` VARCHAR(64),
+  `branch_id` INT,
+  PRIMARY KEY (`client_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `works_with` (
+  `emp_id` INT,
+  `client_id` INT,
+  `total_sales` INT,
+  PRIMARY KEY (`emp_id`, `client_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `branch_supplier` (
+  `branch_id` INT,
+  `supplier_name` VARCHAR(64),
+  `supply_type` VARCHAR(64),
+  PRIMARY KEY (`branch_id`, `supplier_name`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_208283_main') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_208283_main') AS relationships;
+DROP DATABASE `db_208283_main`;
+UNINSTALL EXTENSION vsql_schematron;

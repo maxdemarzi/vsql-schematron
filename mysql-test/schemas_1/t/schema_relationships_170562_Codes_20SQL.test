@@ -1,0 +1,121 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 170562_Codes%20SQL
+--echo #
+CREATE DATABASE `db_170562_Codes_20SQL`;
+USE `db_170562_Codes_20SQL`;
+
+CREATE TABLE `PROTEINS` (
+  `id_protein_PT` INT,
+  `designation_PT` VARCHAR(64),
+  `sequence_PT` VARCHAR(64),
+  `DNA_sequence_PT` VARCHAR(64),
+  PRIMARY KEY (`id_protein_PT`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SOURCES` (
+  `id_source_SO` INT,
+  `designation_SO` VARCHAR(64),
+  PRIMARY KEY (`id_source_SO`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FAMILIES` (
+  `id_family_FA` INT,
+  `designation_FA` VARCHAR(64),
+  PRIMARY KEY (`id_family_FA`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GENUSES` (
+  `id_genus_GE` INT,
+  `FK_id_family_FA_GE` INT,
+  `designation_GE` VARCHAR(64),
+  PRIMARY KEY (`id_genus_GE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SPECIES` (
+  `id_specie_SP` INT,
+  `FK_id_genus_GE_SP` INT,
+  `designation_SP` VARCHAR(64),
+  PRIMARY KEY (`id_specie_SP`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `STRAINS` (
+  `id_strain_ST` INT,
+  `FK_id_specie_SP_ST` INT,
+  `designation_ST` VARCHAR(64),
+  PRIMARY KEY (`id_strain_ST`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TYPE_ORGANISM` (
+  `id_type_TO` INT,
+  `designation_TO` VARCHAR(64),
+  PRIMARY KEY (`id_type_TO`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `WHOLE_DNA` (
+  `id_dna_WD` INT,
+  `head_WD` VARCHAR(64),
+  `sequence_WD` VARCHAR(64),
+  PRIMARY KEY (`id_dna_WD`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ORGANISMS` (
+  `id_organism_OR` INT,
+  `FK_id_source_SO_OR` INT,
+  `FK_id_strain_ST_OR` INT,
+  `FK_id_type_TY_OR` INT,
+  `FK_id_whole_DNA_DNA_OR` INT,
+  `gi_OR` VARCHAR(64),
+  `acc_num_OR` VARCHAR(64),
+  `qty_proteins_OR` INT,
+  `assembled_OR` INT,
+  `qty_contigue` INT,
+  PRIMARY KEY (`id_organism_OR`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GENE` (
+  `id_gene_GE` INT,
+  `FK_id_organism_OR_GE` INT,
+  `FK_id_protein_PT_GE` INT,
+  `dna_head_GE` VARCHAR(64),
+  `dna_sequence_GE` VARCHAR(64),
+  `start_position_GE` INT,
+  `end_position_GE` INT,
+  PRIMARY KEY (`id_gene_GE`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `INTERACTIONS_TYPES` (
+  `id_type_inter_IT` INT,
+  `designation_IT` VARCHAR(64),
+  PRIMARY KEY (`id_type_inter_IT`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `COUPLE` (
+  `id_couple_CP` INT,
+  `FK_id_organism_bact_OR_CP` INT,
+  `FK_id_organism_phage_OR_CP` INT,
+  `FK_id_type_inter_IT_CP` INT,
+  `interaction_CP` BOOL,
+  PRIMARY KEY (`id_couple_CP`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_170562_Codes_20SQL') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_170562_Codes_20SQL') AS relationships;
+DROP DATABASE `db_170562_Codes_20SQL`;
+UNINSTALL EXTENSION vsql_schematron;

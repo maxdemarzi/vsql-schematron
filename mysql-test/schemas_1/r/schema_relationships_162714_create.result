@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 162714_create
+#
+CREATE DATABASE `db_162714_create`;
+USE `db_162714_create`;
+CREATE TABLE `users` (
+`id` DECIMAL(10,2),
+`first_name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`rank` DECIMAL(10,2),
+`birth_date` DATETIME,
+`entry_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tournament_systems` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tournaments` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+`price` DECIMAL(10,2),
+`start_date` DATETIME,
+`end_date` DATETIME,
+`system_id` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `game_debutes` (
+`id` DECIMAL(10,2),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tournament_payments` (
+`id` DECIMAL(10,2),
+`created_at` DATETIME,
+`user_id` DECIMAL(10,2),
+`tournament_id` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `membership_fees` (
+`id` DECIMAL(10,2),
+`created_at` DATETIME,
+`user_id` DECIMAL(10,2),
+`amount` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_discounts_mapper` (
+`id` DECIMAL(10,2),
+`user_id` DECIMAL(10,2),
+`discount_id` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_162714_create') AS relationships;
+relationships
+Database: db_162714_create
+
+Table Connections:
+------------------
+[Implied]  membership_fees.user_id -> users.id
+[Implied]  tournament_payments.tournament_id -> tournaments.id
+[Implied]  tournament_payments.user_id -> users.id
+[Implied]  user_discounts_mapper.user_id -> users.id
+
+DROP DATABASE `db_162714_create`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,139 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 068144_init
+#
+CREATE DATABASE `db_068144_init`;
+USE `db_068144_init`;
+CREATE TABLE `CRYPTOADDRESS` (
+`ID` INT,
+`TYPE` INT,
+`ADDRESS` VARCHAR(64),
+`CURRENCY` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `DEPOSITACCOUNT` (
+`ID` INT,
+`depositAccountId` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `DEPOSITADDRESS` (
+`ID` INT,
+`cryptoAddressId` INT,
+`depositAccountId` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `ENABLEDCURRENCY` (
+`ID` INT,
+`CURRENCY` INT,
+`depositAccountId` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `PAYMENT` (
+`ID` INT,
+`STATUS` INT,
+`FEE` DECIMAL(10,2),
+`paymentId` VARCHAR(64),
+`AMOUNT` DECIMAL(10,2),
+`TAG` VARCHAR(64),
+`cryptoAddressId` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `INVOICE` (
+`ID` INT,
+`STATUS` INT,
+`RECEIVED` DECIMAL(10,2),
+`invoiceId` VARCHAR(64),
+`AMOUNT` DECIMAL(10,2),
+`TAG` VARCHAR(64),
+`cryptoAddressId` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `TX` (
+`ID` INT,
+`STATUS` INT,
+`TAG` VARCHAR(64),
+`AMOUNT` DECIMAL(10,2),
+`FEE` DECIMAL(10,2),
+`HASH` VARCHAR(64),
+`cryptoAddressId` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `BTCTX` (
+`ID` INT,
+`CONFIRMATIONS` INT,
+`ADDRESS` VARCHAR(64),
+`TxId` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `TRXTX` (
+`ID` INT,
+`ADDRESS` VARCHAR(64),
+`TxId` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `CONTRACTRET` (
+`ID` INT,
+`contractRet` VARCHAR(64),
+`TrxTable` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `XRPTX` (
+`ID` INT,
+`FEE` DECIMAL(10,2),
+`ACCOUNT` VARCHAR(64),
+`SEQUENCE` INT,
+`VALIDATED` BOOL,
+`TxId` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `GRMINMSG` (
+`ID` INT,
+`sourceAddress` VARCHAR(64),
+`DESTINATION` VARCHAR(64),
+`VALUE` INT,
+`fwdFee` INT,
+`ihrFee` INT,
+`createdLt` INT,
+`bodyHash` VARCHAR(64),
+`msgText` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `GRMTX` (
+`ID` INT,
+`UTIME` INT,
+`inMsg` INT,
+`TxId` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `GRMOUTMSG` (
+`ID` INT,
+`grmTx` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `GRMQUERYINFO` (
+`ID` INT,
+`queryId` INT,
+`validUntil` INT,
+`bodyHash` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_068144_init') AS relationships;
+relationships
+Database: db_068144_init
+
+Table Connections:
+------------------
+[Implied]  BTCTX.TxId -> TX.ID
+[Implied]  DEPOSITADDRESS.cryptoAddressId -> CRYPTOADDRESS.ID
+[Implied]  DEPOSITADDRESS.depositAccountId -> DEPOSITACCOUNT.ID
+[Implied]  ENABLEDCURRENCY.depositAccountId -> DEPOSITACCOUNT.ID
+[Implied]  GRMOUTMSG.grmTx -> GRMTX.ID
+[Implied]  GRMTX.TxId -> TX.ID
+[Implied]  INVOICE.cryptoAddressId -> CRYPTOADDRESS.ID
+[Implied]  PAYMENT.cryptoAddressId -> CRYPTOADDRESS.ID
+[Implied]  TRXTX.TxId -> TX.ID
+[Implied]  TX.cryptoAddressId -> CRYPTOADDRESS.ID
+[Implied]  XRPTX.TxId -> TX.ID
+
+DROP DATABASE `db_068144_init`;
+UNINSTALL EXTENSION vsql_schematron;

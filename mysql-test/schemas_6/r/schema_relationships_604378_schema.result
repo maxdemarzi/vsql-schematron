@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 604378_schema
+#
+CREATE DATABASE `db_604378_schema`;
+USE `db_604378_schema`;
+CREATE TABLE `users` (
+`userID` VARCHAR(64),
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`followers` INT,
+`mentionCount` INT,
+`profileURL` VARCHAR(64),
+`bio` VARCHAR(64),
+PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `posts` (
+`postID` VARCHAR(64),
+`userID` VARCHAR(64),
+`postURL` VARCHAR(64),
+`title` VARCHAR(64),
+`username` VARCHAR(64),
+`profileURL` VARCHAR(64),
+`loveCount` INT,
+`commentCount` INT,
+PRIMARY KEY (`postID`)
+) CHARACTER SET latin1;
+CREATE TABLE `votes` (
+`love` VARCHAR(64),
+`postID` VARCHAR(64),
+`userID` VARCHAR(64),
+PRIMARY KEY (`postID`, `userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`commentID` VARCHAR(64),
+`userID` VARCHAR(64),
+`parentCommentID` VARCHAR(64),
+`postID` VARCHAR(64),
+`body` VARCHAR(64),
+`createdAt` DATETIME,
+`mentions` VARCHAR(64),
+PRIMARY KEY (`commentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `follows` (
+`userID` VARCHAR(64),
+`followID` VARCHAR(64),
+PRIMARY KEY (`followID`, `userID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_604378_schema') AS relationships;
+relationships
+Database: db_604378_schema
+
+Table Connections:
+------------------
+[Implied]  comments.postID -> posts.postID
+[Implied]  comments.userID -> users.userID
+[Implied]  follows.userID -> users.userID
+[Implied]  posts.userID -> users.userID
+[Implied]  posts.username -> users.username
+[Implied]  votes.postID -> posts.postID
+[Implied]  votes.userID -> users.userID
+
+DROP DATABASE `db_604378_schema`;
+UNINSTALL EXTENSION vsql_schematron;

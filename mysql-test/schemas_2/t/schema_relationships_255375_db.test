@@ -1,0 +1,121 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 255375_db
+--echo #
+CREATE DATABASE `db_255375_db`;
+USE `db_255375_db`;
+
+CREATE TABLE `rs_users` (
+  `user_id` INT,
+  `user_link` VARCHAR(64),
+  `user_name` VARCHAR(64),
+  `user_email` VARCHAR(64),
+  `user_password` VARCHAR(64),
+  `user_chatkey` VARCHAR(64),
+  `user_registration` DATETIME,
+  `user_bio` VARCHAR(64),
+  `user_status` VARCHAR(64),
+  `user_grade` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rs_posts` (
+  `post_id` INT,
+  `post_title` VARCHAR(64),
+  `post_content` VARCHAR(64),
+  `post_user` INT,
+  `post_date` DATETIME,
+  `post_edit_date` DATETIME,
+  PRIMARY KEY (`post_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rs_comments` (
+  `comment_id` INT,
+  `comment_post` INT,
+  `comment_user` INT,
+  `comment_content` VARCHAR(64),
+  `comment_date` DATETIME,
+  PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rs_answers` (
+  `answer_comment` INT,
+  `answer_user` INT,
+  `answer_content` VARCHAR(64),
+  `answer_date` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `rs_relations` (
+  `relation_user1` INT,
+  `relation_user2` INT,
+  `relation_status` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rs_chatrooms` (
+  `chatroom_id` INT,
+  `chatroom_admin` INT,
+  `chatroom_name` VARCHAR(64),
+  `chatroom_password_required` BOOL,
+  `chatroom_grant_required` BOOL,
+  `chatroom_password` VARCHAR(64),
+  `chatroom_creation_date` DATETIME,
+  PRIMARY KEY (`chatroom_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rs_chat_messages` (
+  `message_user` INT,
+  `message_content` VARCHAR(64),
+  `message_date` DATETIME,
+  `message_chatroom` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `rs_private_messages` (
+  `mp_user` INT,
+  `mp_content` VARCHAR(64),
+  `mp_date` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `rs_chatroom_grants` (
+  `grant_chatroom` INT,
+  `grant_user` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `rs_reports` (
+  `report_user` INT,
+  `report_post` INT,
+  `report_comment` INT,
+  `report_reason` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rs_votes` (
+  `vote_user` INT,
+  `vote_post` INT,
+  `vote_value` BOOL
+) CHARACTER SET latin1;
+
+CREATE TABLE `rs_files` (
+  `file_post` INT,
+  `file_path` VARCHAR(64),
+  `file_type` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_255375_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_255375_db') AS relationships;
+DROP DATABASE `db_255375_db`;
+UNINSTALL EXTENSION vsql_schematron;

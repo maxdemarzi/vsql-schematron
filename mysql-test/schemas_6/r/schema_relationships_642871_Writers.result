@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 642871_Writers
+#
+CREATE DATABASE `db_642871_Writers`;
+USE `db_642871_Writers`;
+CREATE TABLE `Writers` (
+`id` INT,
+`first_name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`birth_date` VARCHAR(64),
+`death_date` VARCHAR(64),
+`country_of_origin` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Works` (
+`work_id` INT,
+`author_id` INT,
+`title` VARCHAR(64),
+`publication_year` DECIMAL(10,2),
+`genre` VARCHAR(64),
+`form` VARCHAR(64),
+PRIMARY KEY (`work_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Contemporaries` (
+`writer_id` INT,
+`contemporary_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Publication_Covers` (
+`work_id` INT,
+`image` VARCHAR(64),
+PRIMARY KEY (`work_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Quotes` (
+`work_id` INT,
+`quote` VARCHAR(64),
+`type` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_642871_Writers') AS relationships;
+relationships
+Database: db_642871_Writers
+
+Table Connections:
+------------------
+[Implied]  Contemporaries.writer_id -> Writers.id
+[Implied]  Publication_Covers.work_id -> Works.work_id
+[Implied]  Quotes.work_id -> Works.work_id
+
+DROP DATABASE `db_642871_Writers`;
+UNINSTALL EXTENSION vsql_schematron;

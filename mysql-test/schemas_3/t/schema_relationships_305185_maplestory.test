@@ -1,0 +1,120 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 305185_maplestory
+--echo #
+CREATE DATABASE `db_305185_maplestory`;
+USE `db_305185_maplestory`;
+
+CREATE TABLE `accounts` (
+  `accountID` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `isLogedIn` INT,
+  `adminLevel` INT,
+  `isBanned` INT,
+  `gender` INT,
+  `dob` INT,
+  PRIMARY KEY (`accountID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `buddy` (
+  `id` INT,
+  `characterID` INT,
+  `friendID` INT,
+  `accepted` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `characters` (
+  `id` INT,
+  `accountID` INT,
+  `worldID` INT,
+  `channelID` INT,
+  `migrationID` INT,
+  `name` VARCHAR(64),
+  `gender` INT,
+  `skin` INT,
+  `hair` INT,
+  `face` INT,
+  `level` INT,
+  `job` INT,
+  `str` INT,
+  `dex` INT,
+  `intt` INT,
+  `luk` INT,
+  `hp` INT,
+  `maxHP` INT,
+  `mp` INT,
+  `maxMP` INT,
+  `ap` INT,
+  `sp` INT,
+  `exp` INT,
+  `fame` INT,
+  `mapID` INT,
+  `mapPos` INT,
+  `previousMapID` INT,
+  `mesos` INT,
+  `equipSlotSize` INT,
+  `useSlotSize` INT,
+  `setupSlotSize` INT,
+  `etcSlotSize` INT,
+  `cashSlotSize` INT,
+  `miniGameWins` INT,
+  `miniGameDraw` INT,
+  `miniGameLoss` INT,
+  `miniGamePoints` INT,
+  `buddyListSize` INT,
+  `inCashShop` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `items` (
+  `id` INT,
+  `characterID` INT,
+  `itemID` INT,
+  `inventoryID` INT,
+  `slotNumber` INT,
+  `amount` INT,
+  `flag` INT,
+  `upgradeSlots` INT,
+  `level` INT,
+  `str` INT,
+  `dex` INT,
+  `intt` INT,
+  `luk` INT,
+  `hp` INT,
+  `mp` INT,
+  `watk` INT,
+  `matk` INT,
+  `wdef` INT,
+  `mdef` INT,
+  `accuracy` INT,
+  `avoid` INT,
+  `hands` INT,
+  `speed` INT,
+  `jump` INT,
+  `expireTime` INT,
+  `creatorName` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_305185_maplestory') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_305185_maplestory') AS relationships;
+DROP DATABASE `db_305185_maplestory`;
+UNINSTALL EXTENSION vsql_schematron;

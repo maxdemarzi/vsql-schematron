@@ -1,0 +1,156 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 436037_dbinit
+--echo #
+CREATE DATABASE `db_436037_dbinit`;
+USE `db_436037_dbinit`;
+
+CREATE TABLE `playerdata` (
+  `id` INT,
+  `uuid` VARCHAR(64),
+  `username` VARCHAR(64),
+  `joined` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `playerprofile` (
+  `id` INT,
+  `playerid` INT,
+  `twitter` VARCHAR(64),
+  `youtube` VARCHAR(64),
+  `instagram` VARCHAR(64),
+  `steam` VARCHAR(64),
+  `github` VARCHAR(64),
+  `facebook` VARCHAR(64),
+  `snapchat` VARCHAR(64),
+  `discord` VARCHAR(64),
+  `aboutpage` VARCHAR(64),
+  `coverart` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `gamesessions` (
+  `id` INT,
+  `playerid` INT,
+  `sessionstart` DATETIME,
+  `sessionend` DATETIME,
+  `ipaddress` VARCHAR(64),
+  `server` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `gamepunishments` (
+  `id` INT,
+  `punisheduserid` INT,
+  `punisherid` INT,
+  `type` VARCHAR(64),
+  `reason` VARCHAR(64),
+  `appealed` BOOL,
+  `punishtimestamp` DATETIME,
+  `appealpunishtimestamp` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `discordpunishments` (
+  `id` INT,
+  `punishedid` VARCHAR(64),
+  `punisherid` VARCHAR(64),
+  `punishtype` VARCHAR(64),
+  `reason` VARCHAR(64),
+  `appealed` BOOL,
+  `punishtimestamp` DATETIME,
+  `appealpunishtimestamp` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `webaccounts` (
+  `id` INT,
+  `playerid` INT,
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `registrationtoken` VARCHAR(64),
+  `registered` BOOL,
+  `disabled` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `events` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `icon` VARCHAR(64),
+  `eventdatetime` DATETIME,
+  `information` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `servers` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `icon` VARCHAR(64),
+  `description` VARCHAR(64),
+  `disclaimer` VARCHAR(64),
+  `ipaddress` VARCHAR(64),
+  `position` VARCHAR(64),
+  `visable` BOOL,
+  `playersonline` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ccstreams` (
+  `id` INT,
+  `playerid` INT,
+  `channelname` VARCHAR(64),
+  `viewercount` VARCHAR(64),
+  `status` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ccvideos` (
+  `id` INT,
+  `playerid` INT,
+  `channelid` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `votes` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `service` VARCHAR(64),
+  `time` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `indexslides` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `bannerimage` VARCHAR(64),
+  `bannerimagealttext` VARCHAR(64),
+  `description` VARCHAR(64),
+  `buttontext` VARCHAR(64),
+  `buttonstyle` VARCHAR(64),
+  `linkreference` VARCHAR(64),
+  `position` VARCHAR(64),
+  `visable` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_436037_dbinit') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_436037_dbinit') AS relationships;
+DROP DATABASE `db_436037_dbinit`;
+UNINSTALL EXTENSION vsql_schematron;

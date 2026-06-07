@@ -1,0 +1,142 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 387716_bancodedados
+#
+CREATE DATABASE `db_387716_bancodedados`;
+USE `db_387716_bancodedados`;
+CREATE TABLE `pessoa` (
+`IdPessoa` INT,
+`cpf` VARCHAR(64),
+`nome` VARCHAR(64),
+`endereco` VARCHAR(64),
+`telefone` VARCHAR(64),
+`email` VARCHAR(64),
+`IsExcluido` BOOL,
+PRIMARY KEY (`IdPessoa`)
+) CHARACTER SET latin1;
+CREATE TABLE `LoginUsuario` (
+`IdLoginUsuario` INT,
+`IdPessoa` INT,
+`senha` VARCHAR(64),
+`isBloqueado` BOOL,
+PRIMARY KEY (`IdLoginUsuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `TiposDeFuncao` (
+`IdFuncao` INT,
+`NomeFuncao` VARCHAR(64),
+PRIMARY KEY (`IdFuncao`)
+) CHARACTER SET latin1;
+CREATE TABLE `Funcionario` (
+`IdFuncionario` INT,
+`IdPessoa` INT,
+`NumeroRegistro` INT,
+`IdFuncao` INT,
+`IsGerente` BOOL,
+`IsExcluido` BOOL,
+PRIMARY KEY (`IdFuncionario`)
+) CHARACTER SET latin1;
+CREATE TABLE `LoginFuncionario` (
+`IdLoginFuncionario` INT,
+`IdFuncionario` INT,
+`senha` VARCHAR(64),
+`NivelDeAcesso` INT,
+`IsBloqueado` BOOL,
+PRIMARY KEY (`IdLoginFuncionario`)
+) CHARACTER SET latin1;
+CREATE TABLE `TipoDeProduto` (
+`Id` INT,
+`Nome` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProdutoCardapio` (
+`IdProdutoCardapio` INT,
+`Nome` VARCHAR(64),
+`Peso` DECIMAL(10,2),
+`Descricao` VARCHAR(64),
+`Valor` DECIMAL(10,2),
+`InformacaoesNutricionais` VARCHAR(64),
+`QuantidadeDePessoasQueServe` INT,
+`IsExcluido` BOOL,
+PRIMARY KEY (`IdProdutoCardapio`)
+) CHARACTER SET latin1;
+CREATE TABLE `Pedido` (
+`IdPedido` INT,
+PRIMARY KEY (`IdPedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProdutoCardapioPedido` (
+`Id` INT,
+`IdProdutoCardapio` INT,
+`IdPedido` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProdutoEstoque` (
+`IdProdutoEstoque` INT,
+`Nome` VARCHAR(64),
+`Peso` DECIMAL(10,2),
+`Descricao` VARCHAR(64),
+`InformacoesAdicionais` VARCHAR(64),
+`IsExcluido` BOOL,
+PRIMARY KEY (`IdProdutoEstoque`)
+) CHARACTER SET latin1;
+CREATE TABLE `Estoque` (
+`IdEstoque` INT,
+`IdProdutoEstoque` INT,
+`Quantidade` INT,
+PRIMARY KEY (`IdEstoque`)
+) CHARACTER SET latin1;
+CREATE TABLE `Mesa` (
+`IdMesa` INT,
+`Nome` VARCHAR(64),
+PRIMARY KEY (`IdMesa`)
+) CHARACTER SET latin1;
+CREATE TABLE `MesaPedido` (
+`IdMesaPedido` INT,
+`IdMesa` INT,
+`ValorTotal` DECIMAL(10,2),
+`Data` DATETIME,
+PRIMARY KEY (`IdMesaPedido`)
+) CHARACTER SET latin1;
+CREATE TABLE `PedidoMesaPedido` (
+`Id` INT,
+`IdPedido` INT,
+`IdMesaPedido` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Cozinha` (
+`IdPedidoCozinha` INT,
+`IdPedido` INT,
+`idMesa` INT,
+`Status` VARCHAR(64),
+PRIMARY KEY (`IdPedidoCozinha`)
+) CHARACTER SET latin1;
+CREATE TABLE `Delivery` (
+`IdDelivery` INT,
+`IdPessoa` INT,
+`IdCozinha` INT,
+`ValorTotal` DECIMAL(10,2),
+`Data` DATETIME,
+PRIMARY KEY (`IdDelivery`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_387716_bancodedados') AS relationships;
+relationships
+Database: db_387716_bancodedados
+
+Table Connections:
+------------------
+[Implied]  Cozinha.IdPedido -> Pedido.IdPedido
+[Implied]  Cozinha.idMesa -> Mesa.IdMesa
+[Implied]  Delivery.IdCozinha -> Cozinha.IdPedidoCozinha
+[Implied]  Delivery.IdPessoa -> pessoa.IdPessoa
+[Implied]  Estoque.IdProdutoEstoque -> ProdutoEstoque.IdProdutoEstoque
+[Implied]  Funcionario.IdFuncao -> TiposDeFuncao.IdFuncao
+[Implied]  Funcionario.IdPessoa -> pessoa.IdPessoa
+[Implied]  LoginFuncionario.IdFuncionario -> Funcionario.IdFuncionario
+[Implied]  LoginUsuario.IdPessoa -> pessoa.IdPessoa
+[Implied]  MesaPedido.IdMesa -> Mesa.IdMesa
+[Implied]  PedidoMesaPedido.IdMesaPedido -> Pedido.IdPedido
+[Implied]  PedidoMesaPedido.IdPedido -> Pedido.IdPedido
+[Implied]  ProdutoCardapioPedido.IdPedido -> Pedido.IdPedido
+[Implied]  ProdutoCardapioPedido.IdProdutoCardapio -> ProdutoCardapio.IdProdutoCardapio
+
+DROP DATABASE `db_387716_bancodedados`;
+UNINSTALL EXTENSION vsql_schematron;

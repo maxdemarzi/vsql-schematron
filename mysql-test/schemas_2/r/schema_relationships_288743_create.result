@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 288743_create
+#
+CREATE DATABASE `db_288743_create`;
+USE `db_288743_create`;
+CREATE TABLE `account` (
+`account_id` INT,
+`password` VARCHAR(64),
+`username` VARCHAR(64),
+PRIMARY KEY (`account_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`role_id` INT,
+`role_name` VARCHAR(64),
+PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_role` (
+`account_role_id` INT,
+`account_id` INT,
+`role_id` INT,
+PRIMARY KEY (`account_role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role_hierarchy` (
+`role_hierarchy_id` INT,
+`role_id` INT,
+`parent_id` INT,
+PRIMARY KEY (`role_hierarchy_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `board` (
+`board_id` INT,
+`no` INT,
+`title` VARCHAR(64),
+`writer` VARCHAR(64),
+`content` VARCHAR(64),
+`created_date` DATETIME,
+`hit` INT,
+PRIMARY KEY (`board_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`comment_id` INT,
+`writer` VARCHAR(64),
+`content` VARCHAR(64),
+`order_number` VARCHAR(64),
+`created_date` DATETIME,
+`board_id` INT,
+`main_comment_id` INT,
+PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `image` (
+`image_id` INT,
+`name` VARCHAR(64),
+`board_id` INT,
+PRIMARY KEY (`image_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chat` (
+`chat_id` INT,
+`writer` VARCHAR(64),
+`text` VARCHAR(64),
+`is_day_first` BOOL,
+`created_date` DATETIME,
+PRIMARY KEY (`chat_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_288743_create') AS relationships;
+relationships
+Database: db_288743_create
+
+Table Connections:
+------------------
+[Implied]  account_role.account_id -> account.account_id
+[Implied]  account_role.role_id -> role.role_id
+[Implied]  comment.board_id -> board.board_id
+[Implied]  image.board_id -> board.board_id
+[Implied]  role_hierarchy.parent_id -> role_hierarchy.role_hierarchy_id
+[Implied]  role_hierarchy.role_id -> role.role_id
+
+DROP DATABASE `db_288743_create`;
+UNINSTALL EXTENSION vsql_schematron;

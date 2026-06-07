@@ -1,0 +1,32 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 565471_FKProb
+#
+CREATE DATABASE `db_565471_FKProb`;
+USE `db_565471_FKProb`;
+CREATE TABLE `ot` (
+`name` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `vtp` (
+`vt_name` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`vt_name`, `name`)
+) CHARACTER SET latin1;
+CREATE TABLE `vtp_restriction` (
+`vt_name` VARCHAR(64),
+`vtp_vt_name` VARCHAR(64),
+`vtp_name` VARCHAR(64),
+PRIMARY KEY (`vt_name`, `vtp_vt_name`, `vtp_name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_565471_FKProb') AS relationships;
+relationships
+Database: db_565471_FKProb
+
+Table Connections:
+------------------
+[Implied]  vtp.vt_name -> vtp_restriction.vt_name
+[Implied]  vtp_restriction.vt_name -> vtp.vt_name
+
+DROP DATABASE `db_565471_FKProb`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,78 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 160190_earsip
+--echo #
+CREATE DATABASE `db_160190_earsip`;
+USE `db_160190_earsip`;
+
+CREATE TABLE `perusahaan` (
+  `id` INT,
+  `nama` VARCHAR(64),
+  `alamat` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `surat_keluar` (
+  `id` INT,
+  `nomor_surat` VARCHAR(64),
+  `nomor_agenda` INT,
+  `tanggal_surat` DATETIME,
+  `tanggal_keluar` DATETIME,
+  `perihal` VARCHAR(64),
+  `penerima` VARCHAR(64),
+  `alamat_penerima` VARCHAR(64),
+  `lampiran` INT,
+  `kode` VARCHAR(64),
+  `keterangan` VARCHAR(64),
+  `file` VARCHAR(64),
+  `registrar` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `surat_masuk` (
+  `id` INT,
+  `nomor_surat` VARCHAR(64),
+  `nomor_agenda` INT,
+  `tanggal_surat` DATETIME,
+  `tanggal_masuk` DATETIME,
+  `perihal` VARCHAR(64),
+  `pengirim` VARCHAR(64),
+  `alamat_pengirim` VARCHAR(64),
+  `lampiran` INT,
+  `kode` VARCHAR(64),
+  `keterangan` VARCHAR(64),
+  `file` VARCHAR(64),
+  `alamat_aksi` VARCHAR(64),
+  `informasi` VARCHAR(64),
+  `catatan` VARCHAR(64),
+  `registrar` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `username` VARCHAR(64),
+  `nama` VARCHAR(64),
+  `password` VARCHAR(64),
+  `level` INT,
+  `gambar` VARCHAR(64),
+  `id_perusahaan` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_160190_earsip') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_160190_earsip') AS relationships;
+DROP DATABASE `db_160190_earsip`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 019099_create
+--echo #
+CREATE DATABASE `db_019099_create`;
+USE `db_019099_create`;
+
+CREATE TABLE `client` (
+  `id` INT,
+  `nom` VARCHAR(64),
+  `prenom` VARCHAR(64),
+  `email` VARCHAR(64),
+  `motdepasse` VARCHAR(64),
+  `emailVerifie` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categorie` (
+  `id` INT,
+  `nom` VARCHAR(64),
+  `idpere` INT,
+  `idTitreGlobal` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `annonce` (
+  `id` INT,
+  `idClient` INT,
+  `categorie` INT,
+  `titre` VARCHAR(64),
+  `contenu` VARCHAR(64),
+  `adresse` VARCHAR(64),
+  `nbParticipant` INT,
+  `nbInteresse` INT,
+  `departement` VARCHAR(64),
+  `datePrevu` INT,
+  `dateHeure` INT,
+  `photo1` VARCHAR(64),
+  `photo2` VARCHAR(64),
+  `photo3` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `favoris` (
+  `idClient` INT,
+  `idAnnonce` INT,
+  PRIMARY KEY (`idClient`, `idAnnonce`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `interesse` (
+  `idClient` INT,
+  `idAnnonce` INT,
+  PRIMARY KEY (`idClient`, `idAnnonce`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `departement` (
+  `id` INT,
+  `departement_code` VARCHAR(64),
+  `region_nom` VARCHAR(64),
+  `departement_nom` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `admin` (
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_019099_create') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_019099_create') AS relationships;
+DROP DATABASE `db_019099_create`;
+UNINSTALL EXTENSION vsql_schematron;

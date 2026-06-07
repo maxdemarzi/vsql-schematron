@@ -1,0 +1,113 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 440593_db_schema
+#
+CREATE DATABASE `db_440593_db_schema`;
+USE `db_440593_db_schema`;
+CREATE TABLE `analyses` (
+`id` INT,
+`posmatchid` VARCHAR(64),
+`move` VARCHAR(64),
+`equity` DECIMAL(10,2),
+`ply` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`id` INT,
+`username` VARCHAR(64),
+`posmatchid` VARCHAR(64),
+`postedat` VARCHAR(64),
+`parentid` INT,
+`comment` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posmatchids` (
+`id` INT,
+`posmatchid` VARCHAR(64),
+`decisiontype` VARCHAR(64),
+`rating` DECIMAL(10,2),
+`version` INT,
+`exported` BOOL,
+`matchid` VARCHAR(64),
+`createddate` VARCHAR(64),
+`cluster` INT,
+`submissions` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `postags` (
+`id` INT,
+`POSMATCHID` VARCHAR(64),
+`TAG` VARCHAR(64),
+`CREATEDAT` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `preferences` (
+`id` INT,
+`username` VARCHAR(64),
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `reports` (
+`id` INT,
+`username` VARCHAR(64),
+`posmatchid` VARCHAR(64),
+`postedat` VARCHAR(64),
+`comment` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stats` (
+`id` INT,
+`numofpositions` INT,
+`numofsubmissionslast24h` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`id` INT,
+`TAG` VARCHAR(64),
+`DONETAGGING` VARCHAR(64),
+`CREATEDAT` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`rating` DECIMAL(10,2),
+`submissions` INT,
+`pwhash` VARCHAR(64),
+`email` VARCHAR(64),
+`lastsubmission` VARCHAR(64),
+`CREATEDAT` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `usersposmatchids` (
+`id` INT,
+`username` VARCHAR(64),
+`posmatchid` VARCHAR(64),
+`move` VARCHAR(64),
+`submittedat` VARCHAR(64),
+`ratinguser` DECIMAL(10,2),
+`ratingpos` DECIMAL(10,2),
+`eqdiff` DECIMAL(10,2),
+`increment` DECIMAL(10,2),
+`plasubms` INT,
+`possubms` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_440593_db_schema') AS relationships;
+relationships
+Database: db_440593_db_schema
+
+Table Connections:
+------------------
+[Implied]  comments.parentid -> comments.id
+[Implied]  comments.username -> users.username
+[Implied]  preferences.username -> users.username
+[Implied]  reports.username -> users.username
+[Implied]  tags.id -> postags.id
+[Implied]  usersposmatchids.id -> posmatchids.id
+[Implied]  usersposmatchids.ratinguser -> users.id
+[Implied]  usersposmatchids.username -> users.username
+
+DROP DATABASE `db_440593_db_schema`;
+UNINSTALL EXTENSION vsql_schematron;

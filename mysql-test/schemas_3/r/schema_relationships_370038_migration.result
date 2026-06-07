@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 370038_migration
+#
+CREATE DATABASE `db_370038_migration`;
+USE `db_370038_migration`;
+CREATE TABLE `User` (
+`id` INT,
+`createdAt` DATETIME,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`issuer` VARCHAR(64),
+`imageUrl` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Entry` (
+`id` INT,
+`createdAt` DATETIME,
+`userId` INT,
+`title` VARCHAR(64),
+`tagsText` VARCHAR(64),
+`body` VARCHAR(64),
+`code` VARCHAR(64),
+`dateUpdated` DATETIME,
+`teamId` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag` (
+`id` INT,
+`createdAt` DATETIME,
+`entryId` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `EntryHistory` (
+`id` INT,
+`createdAt` DATETIME,
+`entryId` INT,
+`title` VARCHAR(64),
+`tagsText` VARCHAR(64),
+`body` VARCHAR(64),
+`code` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Log` (
+`id` INT,
+`createdAt` DATETIME,
+`userId` INT,
+`historyId` INT,
+`entryId` INT,
+`note` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Team` (
+`id` INT,
+`createdAt` DATETIME,
+`name` VARCHAR(64),
+`handle` VARCHAR(64),
+`imageUrl` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Member` (
+`id` INT,
+`createdAt` DATETIME,
+`teamId` INT,
+`userId` INT,
+`memberType` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_370038_migration') AS relationships;
+relationships
+Database: db_370038_migration
+
+Table Connections:
+------------------
+[Implied]  Entry.teamId -> Team.id
+[Implied]  Entry.userId -> Member.id
+[Implied]  EntryHistory.entryId -> Entry.id
+[Implied]  Log.entryId -> Entry.id
+[Implied]  Log.userId -> Member.id
+[Implied]  Member.teamId -> Team.id
+[Implied]  Member.userId -> User.id
+[Implied]  Tag.entryId -> Entry.id
+
+DROP DATABASE `db_370038_migration`;
+UNINSTALL EXTENSION vsql_schematron;

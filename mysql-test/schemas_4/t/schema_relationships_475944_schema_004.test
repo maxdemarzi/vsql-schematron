@@ -1,0 +1,97 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 475944_schema-004
+--echo #
+CREATE DATABASE `db_475944_schema_004`;
+USE `db_475944_schema_004`;
+
+CREATE TABLE `DATA_COLUMN_VALUES` (
+  `DACO_ID` VARCHAR(64),
+  `ROW_ID` VARCHAR(64),
+  `VALUE` DECIMAL(10,2),
+  PRIMARY KEY (`DACO_ID`, `ROW_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SAMPLES` (
+  `ID` INT,
+  `PERM_ID` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DATA_SETS` (
+  `ID` INT,
+  `EXPE_ID` VARCHAR(64),
+  `PERM_ID` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EXPERIMENTS` (
+  `ID` INT,
+  `PERM_ID` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EVENTS` (
+  `LAST_SEEN_DELETION_EVENT_ID` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `COLUMNS` (
+  `ID` INT,
+  `DASE_ID` VARCHAR(64),
+  `HEADER` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DATA_COLUMNS` (
+  `ID` INT,
+  `SAMP_ID` VARCHAR(64),
+  `DASE_ID` VARCHAR(64),
+  `EXPERIMENT_CODE` VARCHAR(64),
+  `CULTIVATION_METHOD` VARCHAR(64),
+  `BIOLOGICAL_REPLICATE_CODE` VARCHAR(64),
+  `TIME_POINT` INT,
+  `TIME_POINT_TYPE` VARCHAR(64),
+  `TECHNICAL_REPLICATE_CODE` VARCHAR(64),
+  `CELLOC` VARCHAR(64),
+  `TIME_SERIES_DATA_SET_TYPE` VARCHAR(64),
+  `VALUE_TYPE` VARCHAR(64),
+  `SCALE` VARCHAR(64),
+  `BI_ID` VARCHAR(64),
+  `CONTROLLED_GENE` VARCHAR(64),
+  `GROWTH_PHASE` VARCHAR(64),
+  `GENOTYPE` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `COLUMN_VALUES` (
+  `COLU_ID` VARCHAR(64),
+  `ROW_ID` VARCHAR(64),
+  `VALUE` VARCHAR(64),
+  PRIMARY KEY (`COLU_ID`, `ROW_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ROWS` (
+  `ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_475944_schema_004') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_475944_schema_004') AS relationships;
+DROP DATABASE `db_475944_schema_004`;
+UNINSTALL EXTENSION vsql_schematron;

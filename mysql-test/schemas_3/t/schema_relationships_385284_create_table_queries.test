@@ -1,0 +1,159 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 385284_create_table_queries
+--echo #
+CREATE DATABASE `db_385284_create_table_queries`;
+USE `db_385284_create_table_queries`;
+
+CREATE TABLE `security_question_user` (
+  `security_question_id` INT,
+  `security_question` VARCHAR(64),
+  PRIMARY KEY (`security_question_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `user_id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `date_of_birth` DATETIME,
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `contact_number` VARCHAR(64),
+  `blood_group` VARCHAR(64),
+  `address_first_line` VARCHAR(64),
+  `address_street` VARCHAR(64),
+  `address_city` VARCHAR(64),
+  `address_province` VARCHAR(64),
+  `address_zip_code` VARCHAR(64),
+  `address_country` VARCHAR(64),
+  `account_active` BOOL,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_security_question_user` (
+  `user_id` INT,
+  `security_question_id` INT,
+  `security_question_ans` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `security_question_blood_bank` (
+  `security_question_id` INT,
+  `security_question` VARCHAR(64),
+  PRIMARY KEY (`security_question_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `blood_bank` (
+  `blood_bank_id` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `contact_number` VARCHAR(64),
+  `address_first_line` VARCHAR(64),
+  `address_street` VARCHAR(64),
+  `address_city` VARCHAR(64),
+  `address_province` VARCHAR(64),
+  `address_zip_code` VARCHAR(64),
+  `address_country` VARCHAR(64),
+  `account_active` BOOL,
+  PRIMARY KEY (`blood_bank_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `blood_bank_security_question_blood_bank` (
+  `blood_bank_id` INT,
+  `security_question_id` INT,
+  `security_question_ans` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `blood_stock` (
+  `blood_stock_id` INT,
+  `blood_bank_id` INT,
+  `blood_group` VARCHAR(64),
+  `quantity` INT,
+  `threshold` INT,
+  `unit_price` DECIMAL(10,2),
+  PRIMARY KEY (`blood_stock_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `blood_bank_rating` (
+  `rating_id` INT,
+  `blood_bank_id` INT,
+  `user_id` INT,
+  `comment` VARCHAR(64),
+  `star` DECIMAL(10,2),
+  `age_during_rating` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`rating_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vaccine` (
+  `vaccine_id` INT,
+  `user_id` INT,
+  `vaccine_type` VARCHAR(64),
+  `registration_date` VARCHAR(64),
+  `first_dose_date` VARCHAR(64),
+  `second_dose_date` VARCHAR(64),
+  PRIMARY KEY (`vaccine_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `blood_donation_request` (
+  `request_id` INT,
+  `user_id` INT,
+  `request_date` VARCHAR(64),
+  `status_change_date` VARCHAR(64),
+  `status` VARCHAR(64),
+  `certificate_id` VARCHAR(64),
+  PRIMARY KEY (`request_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `blood_receiver_request` (
+  `request_id` INT,
+  `user_id` INT,
+  `blood_group` VARCHAR(64),
+  `quantity` INT,
+  `request_date` DATETIME,
+  `status` VARCHAR(64),
+  `status_change_date` DATETIME,
+  PRIMARY KEY (`request_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `camp` (
+  `camp_id` INT,
+  `organizer_name` VARCHAR(64),
+  `blood_bank_id` INT,
+  `camp_date` VARCHAR(64),
+  `camp_time` VARCHAR(64),
+  `available_capacity` INT,
+  `venue` VARCHAR(64),
+  `city` VARCHAR(64),
+  `contact` VARCHAR(64),
+  PRIMARY KEY (`camp_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `admin` (
+  `admin_id` INT,
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`admin_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_385284_create_table_queries') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_385284_create_table_queries') AS relationships;
+DROP DATABASE `db_385284_create_table_queries`;
+UNINSTALL EXTENSION vsql_schematron;

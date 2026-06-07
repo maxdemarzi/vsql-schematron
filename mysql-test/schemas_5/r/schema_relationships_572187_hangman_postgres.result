@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 572187_hangman.postgres
+#
+CREATE DATABASE `db_572187_hangman_postgres`;
+USE `db_572187_hangman_postgres`;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`password_digest` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `phrases` (
+`id` INT,
+`body` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `games` (
+`id` INT,
+`player_id` INT,
+`phrase_id` INT,
+`guess_limit` INT,
+`completed_at` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `turns` (
+`id` INT,
+`game_id` INT,
+`letter_guessed` VARCHAR(64),
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_572187_hangman_postgres') AS relationships;
+relationships
+Database: db_572187_hangman_postgres
+
+Table Connections:
+------------------
+[Implied]  games.phrase_id -> phrases.id
+[Implied]  turns.game_id -> games.id
+
+DROP DATABASE `db_572187_hangman_postgres`;
+UNINSTALL EXTENSION vsql_schematron;

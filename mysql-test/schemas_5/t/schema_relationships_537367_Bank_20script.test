@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 537367_Bank%20script
+--echo #
+CREATE DATABASE `db_537367_Bank_20script`;
+USE `db_537367_Bank_20script`;
+
+CREATE TABLE `Employees` (
+  `Emp_id` INT,
+  `First_name` VARCHAR(64),
+  `Last_name` VARCHAR(64),
+  `Sex` VARCHAR(64),
+  `Dob` DATETIME,
+  `Employement_year` VARCHAR(64),
+  `Marital_status` VARCHAR(64),
+  `Branch_id` INT,
+  PRIMARY KEY (`Emp_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Branch` (
+  `Branch_id` INT,
+  `Branch_name` VARCHAR(64),
+  `Mgr_id` INT,
+  PRIMARY KEY (`Branch_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Clients` (
+  `Client_id` INT,
+  `First_name` VARCHAR(64),
+  `Last_name` VARCHAR(64),
+  `Branch_id` INT,
+  `Account_officer_id` INT,
+  `Registered_Date` VARCHAR(64),
+  `Account_Balance` INT,
+  PRIMARY KEY (`Client_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_537367_Bank_20script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_537367_Bank_20script') AS relationships;
+DROP DATABASE `db_537367_Bank_20script`;
+UNINSTALL EXTENSION vsql_schematron;

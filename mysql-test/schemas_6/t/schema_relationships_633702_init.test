@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 633702_init
+--echo #
+CREATE DATABASE `db_633702_init`;
+USE `db_633702_init`;
+
+CREATE TABLE `Cliente` (
+  `CPF` VARCHAR(64),
+  `CNH` VARCHAR(64),
+  `Nome` VARCHAR(64),
+  `Endereco` VARCHAR(64),
+  `CreditCard` VARCHAR(64),
+  `DataDeNascimento` VARCHAR(64),
+  `NecessidadesEspeciais` INT,
+  `DataDeCadastro` VARCHAR(64),
+  `DataDeAlteracao` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Veiculos` (
+  `CarId` INT,
+  `Modelo` VARCHAR(64),
+  `Marca` VARCHAR(64),
+  `Placa` VARCHAR(64),
+  `Grupo` VARCHAR(64),
+  PRIMARY KEY (`CarId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `HistoricoVeiculos` (
+  `HistoricoId` INT,
+  `CarId` INT,
+  `DataDeInicio` VARCHAR(64),
+  `DataDeTermino` VARCHAR(64),
+  `ClienteCPF` VARCHAR(64),
+  PRIMARY KEY (`HistoricoId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_633702_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_633702_init') AS relationships;
+DROP DATABASE `db_633702_init`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,156 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 234235_commands
+--echo #
+CREATE DATABASE `db_234235_commands`;
+USE `db_234235_commands`;
+
+CREATE TABLE `staff` (
+  `emp_id` INT,
+  `current_version` INT,
+  `is_deleted` INT,
+  `creation_date` DATETIME,
+  `created_by` VARCHAR(64),
+  `last_updated` DATETIME,
+  `updated_by` VARCHAR(64),
+  PRIMARY KEY (`emp_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `staff_data` (
+  `record_id` INT,
+  `emp_id` INT,
+  `VERSION` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `middle_name` VARCHAR(64),
+  `birth_date` DATETIME,
+  `salary` DECIMAL(10,2),
+  `address` VARCHAR(64),
+  `is_deleted` INT,
+  `creation_date` DATETIME,
+  `created_by` VARCHAR(64),
+  PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cohort` (
+  `student_id` INT,
+  `current_version` INT,
+  `is_deleted` INT,
+  `creation_date` DATETIME,
+  `created_by` VARCHAR(64),
+  `last_updated` DATETIME,
+  `updated_by` VARCHAR(64),
+  PRIMARY KEY (`student_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cohort_data` (
+  `record_id` INT,
+  `student_id` INT,
+  `VERSION` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `middle_name` VARCHAR(64),
+  `birth_date` DATETIME,
+  `city_id` INT,
+  `is_deleted` INT,
+  `creation_date` DATETIME,
+  `created_by` VARCHAR(64),
+  PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `courses` (
+  `course_id` VARCHAR(64),
+  `current_version` INT,
+  `is_deleted` INT,
+  `creation_date` DATETIME,
+  `created_by` VARCHAR(64),
+  `last_updated` DATETIME,
+  `updated_by` VARCHAR(64),
+  PRIMARY KEY (`course_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `courses_data` (
+  `record_id` INT,
+  `course_id` VARCHAR(64),
+  `department_id` VARCHAR(64),
+  `VERSION` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `is_deleted` INT,
+  `creation_date` DATETIME,
+  `created_by` VARCHAR(64),
+  PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `worker` (
+  `worker_id` INT,
+  `current_version` INT,
+  `is_deleted` INT,
+  `creation_date` DATETIME,
+  `created_by` VARCHAR(64),
+  `last_updated` DATETIME,
+  `updated_by` VARCHAR(64),
+  PRIMARY KEY (`worker_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `worker_data` (
+  `record_id` INT,
+  `worker_id` INT,
+  `VERSION` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `middle_name` VARCHAR(64),
+  `birth_date` DATETIME,
+  `is_deleted` INT,
+  `creation_date` DATETIME,
+  `created_by` VARCHAR(64),
+  PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `faculty` (
+  `instructor_id` INT,
+  `current_version` INT,
+  `is_deleted` INT,
+  `creation_date` DATETIME,
+  `created_by` VARCHAR(64),
+  `last_updated` DATETIME,
+  `updated_by` VARCHAR(64),
+  PRIMARY KEY (`instructor_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `faculty_data` (
+  `record_id` INT,
+  `instructor_id` INT,
+  `department_id` VARCHAR(64),
+  `VERSION` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `middle_name` VARCHAR(64),
+  `POSITION` VARCHAR(64),
+  `address` VARCHAR(64),
+  `is_deleted` INT,
+  `creation_date` DATETIME,
+  `created_by` VARCHAR(64),
+  PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_234235_commands') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_234235_commands') AS relationships;
+DROP DATABASE `db_234235_commands`;
+UNINSTALL EXTENSION vsql_schematron;

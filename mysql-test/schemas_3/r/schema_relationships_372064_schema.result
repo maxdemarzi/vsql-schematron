@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 372064_schema
+#
+CREATE DATABASE `db_372064_schema`;
+USE `db_372064_schema`;
+CREATE TABLE `Titles` (
+`Title_id` VARCHAR(64),
+`Title` VARCHAR(64),
+PRIMARY KEY (`Title_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employees` (
+`id` INT,
+`Emp_no` INT,
+`Title_id` VARCHAR(64),
+`Birth_date` VARCHAR(64),
+`First_name` VARCHAR(64),
+`Last_name` VARCHAR(64),
+`Sex` VARCHAR(64),
+`Hire_date` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Salaries` (
+`id` INT,
+`Emp_no` INT,
+`Salary` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Departments` (
+`Dept_no` VARCHAR(64),
+`Dept_name` VARCHAR(64),
+PRIMARY KEY (`Dept_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `Dept_emp_juncion` (
+`id` INT,
+`emp_no` INT,
+`Dept_no` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Dept_manager_junction` (
+`id` INT,
+`Dept_no` VARCHAR(64),
+`Emp_no` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_372064_schema') AS relationships;
+relationships
+Database: db_372064_schema
+
+Table Connections:
+------------------
+[Implied]  Dept_emp_juncion.Dept_no -> Departments.Dept_no
+[Implied]  Dept_manager_junction.Dept_no -> Departments.Dept_no
+[Implied]  Employees.Title_id -> Titles.Title_id
+
+DROP DATABASE `db_372064_schema`;
+UNINSTALL EXTENSION vsql_schematron;

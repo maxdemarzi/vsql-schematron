@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 387128_sqlITCfinal
+#
+CREATE DATABASE `db_387128_sqlITCfinal`;
+USE `db_387128_sqlITCfinal`;
+CREATE TABLE `Membre` (
+`Id` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`dep` VARCHAR(64),
+`email` VARCHAR(64),
+`Phone` VARCHAR(64),
+`Teamname` VARCHAR(64),
+`grad` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Team` (
+`Teamname` VARCHAR(64),
+`TeamleaderId` INT,
+PRIMARY KEY (`Teamname`)
+) CHARACTER SET latin1;
+CREATE TABLE `Event` (
+`EventName` VARCHAR(64),
+`EventChargeId` INT,
+`describetion` VARCHAR(64),
+PRIMARY KEY (`EventName`)
+) CHARACTER SET latin1;
+CREATE TABLE `organ` (
+`organId` INT,
+`Eventname` VARCHAR(64),
+`job` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `Skill` (
+`IdSkill` INT,
+`descrebtion` VARCHAR(64),
+PRIMARY KEY (`IdSkill`)
+) CHARACTER SET latin1;
+CREATE TABLE `Partenaire` (
+`IdPartenaire` INT,
+`Firstname` VARCHAR(64),
+`Lastname` VARCHAR(64),
+`Phone` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`IdPartenaire`)
+) CHARACTER SET latin1;
+CREATE TABLE `PartenaireSkill` (
+`IdSkill` INT,
+`IdPartenaire` INT
+) CHARACTER SET latin1;
+CREATE TABLE `SkillM` (
+`IdSkillMembre` INT,
+`IdMembre` INT
+) CHARACTER SET latin1;
+CREATE TABLE `EventPartenaire` (
+`Eventname` VARCHAR(64),
+`IdPartenaire` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Formation` (
+`IdFormation` INT,
+`formationName` VARCHAR(64),
+`formationDescription` VARCHAR(64),
+`IdFormerMembre` INT,
+`IdFormerPartenaire` INT,
+`temp` DATETIME,
+PRIMARY KEY (`IdFormation`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_387128_sqlITCfinal') AS relationships;
+relationships
+Database: db_387128_sqlITCfinal
+
+Table Connections:
+------------------
+[Implied]  EventPartenaire.Eventname -> Event.EventName
+[Implied]  EventPartenaire.IdPartenaire -> Partenaire.IdPartenaire
+[Implied]  Formation.IdFormerMembre -> Membre.Id
+[Implied]  Formation.IdFormerPartenaire -> Partenaire.IdPartenaire
+[Implied]  Membre.Teamname -> Team.Teamname
+[Implied]  PartenaireSkill.IdPartenaire -> Partenaire.IdPartenaire
+[Implied]  PartenaireSkill.IdSkill -> Skill.IdSkill
+[Implied]  SkillM.IdMembre -> Membre.Id
+[Implied]  SkillM.IdSkillMembre -> Membre.Id
+[Implied]  organ.Eventname -> Event.EventName
+
+DROP DATABASE `db_387128_sqlITCfinal`;
+UNINSTALL EXTENSION vsql_schematron;

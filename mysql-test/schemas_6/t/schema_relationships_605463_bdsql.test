@@ -1,0 +1,114 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 605463_bdsql
+--echo #
+CREATE DATABASE `db_605463_bdsql`;
+USE `db_605463_bdsql`;
+
+CREATE TABLE `ejemplo_nomina.tipos_documento` (
+  `id` INT,
+  `descripcion` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ejemplo_nomina.paises` (
+  `id` VARCHAR(64),
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ejemplo_nomina.departamentos` (
+  `id` INT,
+  `nombre` VARCHAR(64),
+  `id_pais` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ejemplo_nomina.ciudades` (
+  `id` INT,
+  `nombre` VARCHAR(64),
+  `id_departamento` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ejemplo_nomina.cargos` (
+  `id` INT,
+  `descripcion` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ejemplo_nomina.usuarios` (
+  `id` INT,
+  `nombres` VARCHAR(64),
+  `apellidos` VARCHAR(64),
+  `num_documento` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `direccion` VARCHAR(64),
+  `sueldo_basico` DECIMAL(10,2),
+  `activo` INT,
+  `id_jefe_inmediato` INT,
+  `id_tipo_documento` INT,
+  `id_ciudad` INT,
+  `id_cargo` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ejemplo_nomina.roles` (
+  `id` VARCHAR(64),
+  `descripcion` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ejemplo_nomina.usuarios_has_roles` (
+  `id_usuario` INT,
+  `id_rol` VARCHAR(64),
+  `activo` INT,
+  PRIMARY KEY (`id_usuario`, `id_rol`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ejemplo_nomina.nominas` (
+  `id` INT,
+  `descripcion` VARCHAR(64),
+  `mes` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ejemplo_nomina.detalle_nomina` (
+  `id` INT,
+  `dias_laborados` INT,
+  `sueldo_devengado` DECIMAL(10,2),
+  `auxilio_transporte` DECIMAL(10,2),
+  `valor_horas_extras` DECIMAL(10,2),
+  `descuento_salud` DECIMAL(10,2),
+  `descuento_pension` DECIMAL(10,2),
+  `descuento_fondo_solidaridad` DECIMAL(10,2),
+  `otros_descuentos` DECIMAL(10,2),
+  `total_devengado` DECIMAL(10,2),
+  `total_descuento` DECIMAL(10,2),
+  `neto_pagar` DECIMAL(10,2),
+  `id_usuario` INT,
+  `id_nomina` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_605463_bdsql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_605463_bdsql') AS relationships;
+DROP DATABASE `db_605463_bdsql`;
+UNINSTALL EXTENSION vsql_schematron;

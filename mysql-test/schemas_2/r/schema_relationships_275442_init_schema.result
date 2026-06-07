@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 275442_init-schema
+#
+CREATE DATABASE `db_275442_init_schema`;
+USE `db_275442_init_schema`;
+CREATE TABLE `tbl_member` (
+`id` VARCHAR(64),
+`full_name` VARCHAR(64),
+`email_addr` VARCHAR(64),
+`city` VARCHAR(64),
+`state_prov` VARCHAR(64),
+`zip_code` VARCHAR(64),
+`date_created` DATETIME,
+`last_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_account` (
+`id` VARCHAR(64),
+`username` VARCHAR(64),
+`access_code` VARCHAR(64),
+`member_id` VARCHAR(64),
+`date_created` DATETIME,
+`last_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_club` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`activity` VARCHAR(64),
+`date_created` DATETIME,
+`last_updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_membership` (
+`member_id` VARCHAR(64),
+`club_id` VARCHAR(64),
+`member_alias` VARCHAR(64),
+`member_status` VARCHAR(64),
+`date_created` DATETIME,
+`last_updated` DATETIME,
+PRIMARY KEY (`member_id`, `club_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_275442_init_schema') AS relationships;
+relationships
+Database: db_275442_init_schema
+
+Table Connections:
+------------------
+[Implied]  tbl_account.member_id -> tbl_member.id
+[Implied]  tbl_membership.club_id -> tbl_club.id
+[Implied]  tbl_membership.member_id -> tbl_member.id
+
+DROP DATABASE `db_275442_init_schema`;
+UNINSTALL EXTENSION vsql_schematron;

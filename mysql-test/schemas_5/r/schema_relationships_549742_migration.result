@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 549742_migration
+#
+CREATE DATABASE `db_549742_migration`;
+USE `db_549742_migration`;
+CREATE TABLE `User` (
+`id` INT,
+`bio` VARCHAR(64),
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`lastLogin` VARCHAR(64),
+`isAdmin` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Follow` (
+`userId` INT,
+`followerId` INT,
+`followedAt` VARCHAR(64),
+PRIMARY KEY (`followerId`, `userId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Post` (
+`id` INT,
+`title` VARCHAR(64),
+`content` VARCHAR(64),
+`contentType` VARCHAR(64),
+`visibility` VARCHAR(64),
+`authorId` INT,
+`createdAt` VARCHAR(64),
+`updatedAt` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag` (
+`name` VARCHAR(64),
+`postId` INT,
+PRIMARY KEY (`name`, `postId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Comment` (
+`id` INT,
+`postId` INT,
+`authorId` INT,
+`content` VARCHAR(64),
+`createdAt` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Like` (
+`postId` INT,
+`authorId` INT,
+PRIMARY KEY (`postId`, `authorId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_549742_migration') AS relationships;
+relationships
+Database: db_549742_migration
+
+Table Connections:
+------------------
+[Implied]  Comment.authorId -> Like.authorId
+[Implied]  Comment.authorId -> User.id
+[Implied]  Comment.postId -> Post.id
+[Implied]  Follow.followerId -> User.id
+[Implied]  Follow.userId -> User.id
+[Implied]  Like.authorId -> User.id
+[Implied]  Like.postId -> Post.id
+[Implied]  Post.authorId -> Like.authorId
+[Implied]  Post.authorId -> User.id
+[Implied]  Tag.postId -> Post.id
+
+DROP DATABASE `db_549742_migration`;
+UNINSTALL EXTENSION vsql_schematron;

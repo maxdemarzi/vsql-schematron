@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 576928_0001_base.up
+#
+CREATE DATABASE `db_576928_0001_base_up`;
+USE `db_576928_0001_base_up`;
+CREATE TABLE `topics` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`created_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subscriptions` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`created_at` DATETIME,
+`deleted_at` DATETIME,
+`message_ttl` INT,
+`topic_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+`id` VARCHAR(64),
+`payload` VARCHAR(64),
+`published_at` DATETIME,
+`topic_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `deliveries` (
+`id` VARCHAR(64),
+`attempt_at` DATETIME,
+`last_attempted_at` DATETIME,
+`attempts` INT,
+`completed_at` DATETIME,
+`expires_at` DATETIME,
+`message_id` VARCHAR(64),
+`subscription_id` VARCHAR(64),
+`not_before_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_576928_0001_base_up') AS relationships;
+relationships
+Database: db_576928_0001_base_up
+
+Table Connections:
+------------------
+[Implied]  deliveries.message_id -> messages.id
+[Implied]  deliveries.subscription_id -> subscriptions.id
+[Implied]  messages.topic_id -> topics.id
+[Implied]  subscriptions.topic_id -> topics.id
+
+DROP DATABASE `db_576928_0001_base_up`;
+UNINSTALL EXTENSION vsql_schematron;

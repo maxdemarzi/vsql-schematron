@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 300251_migration
+#
+CREATE DATABASE `db_300251_migration`;
+USE `db_300251_migration`;
+CREATE TABLE `Organization` (
+`id` INT,
+`owner_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` INT,
+`email` VARCHAR(64),
+`organization_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Project` (
+`id` INT,
+`api_key` VARCHAR(64),
+`name` VARCHAR(64),
+`owner_id` INT,
+`default_locale` VARCHAR(64),
+`locales` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Permission` (
+`organization_id` INT,
+`project_id` INT,
+`user_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`organization_id`, `project_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Key` (
+`id` INT,
+`project_id` INT,
+`key` VARCHAR(64),
+`locale` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Translation` (
+`id` INT,
+`key_id` INT,
+`locale` VARCHAR(64),
+`translated_text` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_300251_migration') AS relationships;
+relationships
+Database: db_300251_migration
+
+Table Connections:
+------------------
+[Implied]  Key.project_id -> Project.id
+[Implied]  Organization.owner_id -> User.id
+[Implied]  Permission.organization_id -> Organization.id
+[Implied]  Permission.project_id -> Project.id
+[Implied]  Permission.user_id -> User.id
+[Implied]  Project.owner_id -> User.id
+[Implied]  Translation.key_id -> Key.id
+[Implied]  User.organization_id -> Organization.id
+
+DROP DATABASE `db_300251_migration`;
+UNINSTALL EXTENSION vsql_schematron;

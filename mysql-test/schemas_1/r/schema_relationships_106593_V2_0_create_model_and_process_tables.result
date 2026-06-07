@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 106593_V2_0__create_model_and_process_tables
+#
+CREATE DATABASE `db_106593_V2_0_create_model_and_process_tables`;
+USE `db_106593_V2_0_create_model_and_process_tables`;
+CREATE TABLE `T_MODEL_STATE` (
+`ID` INT,
+`STATE` VARCHAR(64),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_MODEL_EDGE` (
+`ID` INT,
+`FROM_ID` INT,
+`TO_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_MODEL_ACTION` (
+`ID` INT,
+`ACTION` VARCHAR(64),
+`TYPE` VARCHAR(64),
+`EDGE_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_MODEL_GUARD` (
+`ID` INT,
+`GUARD` VARCHAR(64),
+`EDGE_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_PROCESS_STATE` (
+`ID` INT,
+`DOMAINOBJECT_NAME` VARCHAR(64),
+`DOMAINOBJECT_ID` INT,
+`PARENT_ID` INT,
+`STATE_ID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_106593_V2_0_create_model_and_process_tables') AS relationships;
+relationships
+Database: db_106593_V2_0_create_model_and_process_tables
+
+Table Connections:
+------------------
+[Implied]  T_MODEL_ACTION.EDGE_ID -> T_MODEL_EDGE.ID
+[Implied]  T_MODEL_GUARD.EDGE_ID -> T_MODEL_EDGE.ID
+[Implied]  T_PROCESS_STATE.PARENT_ID -> T_PROCESS_STATE.ID
+[Implied]  T_PROCESS_STATE.STATE_ID -> T_MODEL_STATE.ID
+
+DROP DATABASE `db_106593_V2_0_create_model_and_process_tables`;
+UNINSTALL EXTENSION vsql_schematron;

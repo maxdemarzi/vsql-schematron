@@ -1,0 +1,134 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 604533_librarydb
+--echo #
+CREATE DATABASE `db_604533_librarydb`;
+USE `db_604533_librarydb`;
+
+CREATE TABLE `login` (
+  `login_ID` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `user_ID` INT,
+  PRIMARY KEY (`login_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `shelf` (
+  `shelf_ID` INT,
+  `snumber` INT,
+  PRIMARY KEY (`shelf_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `research_papers` (
+  `research_id` INT,
+  `topic` VARCHAR(64),
+  `faculty_name` VARCHAR(64),
+  `faculty_ID` INT,
+  PRIMARY KEY (`research_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recommended_books` (
+  `book_ID` INT,
+  `book_name` VARCHAR(64),
+  `faculty_id` INT,
+  `faculty_name` VARCHAR(64),
+  PRIMARY KEY (`book_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `admin` (
+  `admin_ID` INT,
+  `salary` INT,
+  PRIMARY KEY (`admin_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reference_books` (
+  `CR_ID` INT,
+  PRIMARY KEY (`CR_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `borrowable_books` (
+  `bbook_ID` INT,
+  `status` BOOL,
+  PRIMARY KEY (`bbook_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `books` (
+  `ISBN` INT,
+  `bookname` VARCHAR(64),
+  `author` VARCHAR(64),
+  `edition_b` VARCHAR(64),
+  `shelf_ID` INT,
+  PRIMARY KEY (`ISBN`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `student` (
+  `student_ID` INT,
+  `program` VARCHAR(64),
+  `rollno` VARCHAR(64),
+  PRIMARY KEY (`student_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `faculty` (
+  `faculty_ID` INT,
+  `department` VARCHAR(64),
+  PRIMARY KEY (`faculty_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `librarian` (
+  `librarian_ID` INT,
+  `salary` INT,
+  `work_shift` VARCHAR(64),
+  PRIMARY KEY (`librarian_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `users_ID` INT,
+  `username` VARCHAR(64),
+  `profession` VARCHAR(64),
+  PRIMARY KEY (`users_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `borrower` (
+  `b_ID` INT,
+  `borrower_type` VARCHAR(64),
+  PRIMARY KEY (`b_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `issue_log` (
+  `issue_ID` INT,
+  `book_ID` INT,
+  `student_ID` INT,
+  `date_issued` DATETIME,
+  `expected_return` DATETIME,
+  `return_date` DATETIME,
+  PRIMARY KEY (`issue_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `penalty` (
+  `penalty_ID` INT,
+  `issue_ID` INT,
+  `amount` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`penalty_ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_604533_librarydb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_604533_librarydb') AS relationships;
+DROP DATABASE `db_604533_librarydb`;
+UNINSTALL EXTENSION vsql_schematron;

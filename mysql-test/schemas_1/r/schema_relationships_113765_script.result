@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 113765_script
+#
+CREATE DATABASE `db_113765_script`;
+USE `db_113765_script`;
+CREATE TABLE `AVISOS` (
+`IDAviso` DECIMAL(10,2),
+`Descripcion` VARCHAR(64),
+`PARTE_IDViaje` DECIMAL(10,2),
+PRIMARY KEY (`IDAviso`)
+) CHARACTER SET latin1;
+CREATE TABLE `CENTROS` (
+`IDCent` DECIMAL(10,2),
+`Nombre` VARCHAR(64),
+`Calle` VARCHAR(64),
+`Numero` DECIMAL(10,2),
+`Ciudad` VARCHAR(64),
+`CodigoPostal` DECIMAL(10,2),
+`Provincia` VARCHAR(64),
+`Telefono` DECIMAL(10,2),
+PRIMARY KEY (`IDCent`)
+) CHARACTER SET latin1;
+CREATE TABLE `CONDUCEN` (
+`TRABAJADORES_IDLog` DECIMAL(10,2),
+`VEHICULOS_IDVehi` DECIMAL(10,2),
+`Fecha` DATETIME,
+PRIMARY KEY (`TRABAJADORES_IDLog`, `VEHICULOS_IDVehi`)
+) CHARACTER SET latin1;
+CREATE TABLE `PARTE` (
+`IDParte` DECIMAL(10,2),
+`Fecha` DATETIME,
+`KmInicial` DECIMAL(10,2),
+`KmFinal` DECIMAL(10,2),
+`GastosPeaje` DECIMAL(10,2),
+`GastosDietas` DECIMAL(10,2),
+`GastosCombustible` DECIMAL(10,2),
+`GastosOtros` DECIMAL(10,2),
+`Incidencias` VARCHAR(64),
+`NotaAdministrativa` VARCHAR(64),
+PRIMARY KEY (`IDParte`)
+) CHARACTER SET latin1;
+CREATE TABLE `TRABAJADORES` (
+`ID` DECIMAL(10,2),
+`DNI` VARCHAR(64),
+`Nombre` VARCHAR(64),
+`PrimerApellido` VARCHAR(64),
+`SegundoApellido` VARCHAR(64),
+`Categoria` VARCHAR(64),
+`Calle` VARCHAR(64),
+`Numero` DECIMAL(10,2),
+`Piso` DECIMAL(10,2),
+`Mano` VARCHAR(64),
+`Ciudad` VARCHAR(64),
+`CodigoPostal` DECIMAL(10,2),
+`Provincia` VARCHAR(64),
+`MovilEmpresa` DECIMAL(10,2),
+`MovilPersonal` DECIMAL(10,2),
+`Salario` DECIMAL(10,2),
+`FechaNacimiento` DATETIME,
+`CENTROS_IDCent` DECIMAL(10,2),
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+CREATE TABLE `USUARIOS` (
+`Usuario` VARCHAR(64),
+`Password` VARCHAR(64),
+`TRABAJADORES_ID` DECIMAL(10,2),
+PRIMARY KEY (`Usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `VEHICULOS` (
+`IDVehi` DECIMAL(10,2),
+`Matricula` VARCHAR(64),
+`Marca` VARCHAR(64),
+`Modelo` VARCHAR(64),
+`Km` DECIMAL(10,2),
+PRIMARY KEY (`IDVehi`)
+) CHARACTER SET latin1;
+CREATE TABLE `VIAJE` (
+`IDViaje` DECIMAL(10,2),
+`HoraInicio` DECIMAL(10,2),
+`HoraFinal` DECIMAL(10,2),
+`Fecha` DATETIME,
+`TRABAJADORES_ID` DECIMAL(10,2),
+`VALIDACION_IDParte` DECIMAL(10,2),
+`Estado` VARCHAR(64),
+PRIMARY KEY (`IDViaje`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_113765_script') AS relationships;
+relationships
+Database: db_113765_script
+
+Table Connections:
+------------------
+[Implied]  AVISOS.PARTE_IDViaje -> PARTE.IDParte
+[Implied]  CONDUCEN.TRABAJADORES_IDLog -> TRABAJADORES.ID
+[Implied]  CONDUCEN.VEHICULOS_IDVehi -> VEHICULOS.IDVehi
+[Implied]  TRABAJADORES.CENTROS_IDCent -> CENTROS.IDCent
+[Implied]  USUARIOS.TRABAJADORES_ID -> TRABAJADORES.ID
+[Implied]  VIAJE.TRABAJADORES_ID -> TRABAJADORES.ID
+[Implied]  VIAJE.VALIDACION_IDParte -> PARTE.IDParte
+
+DROP DATABASE `db_113765_script`;
+UNINSTALL EXTENSION vsql_schematron;

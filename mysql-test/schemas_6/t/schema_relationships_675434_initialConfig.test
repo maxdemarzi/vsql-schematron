@@ -1,0 +1,121 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 675434_initialConfig
+--echo #
+CREATE DATABASE `db_675434_initialConfig`;
+USE `db_675434_initialConfig`;
+
+CREATE TABLE `agents` (
+  `id` INT,
+  `created_by` VARCHAR(64),
+  `created_datetime` DATETIME,
+  `descr` VARCHAR(64),
+  `last_updated_by` VARCHAR(64),
+  `updated_datetime` DATETIME,
+  `version` INT,
+  `alt_id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `trust_score` DECIMAL(10,2)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notification_logs` (
+  `id` INT,
+  `created_by` VARCHAR(64),
+  `created_datetime` DATETIME,
+  `descr` VARCHAR(64),
+  `last_updated_by` VARCHAR(64),
+  `updated_datetime` DATETIME,
+  `version` INT,
+  `content` VARCHAR(64),
+  `type` VARCHAR(64),
+  `status_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `statuses` (
+  `id` INT,
+  `created_by` VARCHAR(64),
+  `created_datetime` DATETIME,
+  `descr` VARCHAR(64),
+  `last_updated_by` VARCHAR(64),
+  `updated_datetime` DATETIME,
+  `version` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trust_attribute_types` (
+  `id` INT,
+  `created_by` VARCHAR(64),
+  `created_datetime` DATETIME,
+  `descr` VARCHAR(64),
+  `last_updated_by` VARCHAR(64),
+  `updated_datetime` DATETIME,
+  `version` INT,
+  `name` VARCHAR(64),
+  `parent_type_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trust_attributes` (
+  `id` INT,
+  `created_by` VARCHAR(64),
+  `created_datetime` DATETIME,
+  `descr` VARCHAR(64),
+  `last_updated_by` VARCHAR(64),
+  `updated_datetime` DATETIME,
+  `version` INT,
+  `importance` DECIMAL(10,2),
+  `max_value` VARCHAR(64),
+  `min_value` VARCHAR(64),
+  `value` VARCHAR(64),
+  `trust_attribute_type_id` INT,
+  `trust_policy_id` INT,
+  `trust_profile_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trust_policies` (
+  `id` INT,
+  `created_by` VARCHAR(64),
+  `created_datetime` DATETIME,
+  `descr` VARCHAR(64),
+  `last_updated_by` VARCHAR(64),
+  `updated_datetime` DATETIME,
+  `version` INT,
+  `owner_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trust_profiles` (
+  `id` INT,
+  `created_by` VARCHAR(64),
+  `created_datetime` DATETIME,
+  `descr` VARCHAR(64),
+  `last_updated_by` VARCHAR(64),
+  `updated_datetime` DATETIME,
+  `version` INT,
+  `owner_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_675434_initialConfig') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_675434_initialConfig') AS relationships;
+DROP DATABASE `db_675434_initialConfig`;
+UNINSTALL EXTENSION vsql_schematron;

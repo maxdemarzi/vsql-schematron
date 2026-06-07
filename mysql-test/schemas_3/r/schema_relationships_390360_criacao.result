@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 390360_criacao
+#
+CREATE DATABASE `db_390360_criacao`;
+USE `db_390360_criacao`;
+CREATE TABLE `autor` (
+`idAut` INT,
+`nome` VARCHAR(64),
+PRIMARY KEY (`idAut`)
+) CHARACTER SET latin1;
+CREATE TABLE `tipo_texto` (
+`idTipText` INT,
+`nome` VARCHAR(64),
+PRIMARY KEY (`idTipText`)
+) CHARACTER SET latin1;
+CREATE TABLE `idioma` (
+`idIdioma` INT,
+`nome` VARCHAR(64),
+PRIMARY KEY (`idIdioma`)
+) CHARACTER SET latin1;
+CREATE TABLE `palavra` (
+`idPal` INT,
+`nome` VARCHAR(64),
+`fk_idioma` INT,
+PRIMARY KEY (`idPal`)
+) CHARACTER SET latin1;
+CREATE TABLE `texto` (
+`idTex` INT,
+`nome` VARCHAR(64),
+`fk_tipTex` INT,
+`fk_autor` INT,
+`fk_idioma` INT,
+PRIMARY KEY (`idTex`)
+) CHARACTER SET latin1;
+CREATE TABLE `palavra_texto` (
+`idPalTex` INT,
+`fk_text` INT,
+`fk_pal` INT,
+`ocorrencia` INT,
+PRIMARY KEY (`idPalTex`)
+) CHARACTER SET latin1;
+CREATE TABLE `pal_tex_prox` (
+`idPalTexProx` INT,
+`fk_palTex` INT,
+`fk_pal` INT,
+`ocorrencia` INT,
+PRIMARY KEY (`idPalTexProx`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_390360_criacao') AS relationships;
+relationships
+Database: db_390360_criacao
+
+Table Connections:
+------------------
+[Implied]  pal_tex_prox.fk_pal -> palavra.idPal
+[Implied]  palavra.fk_idioma -> idioma.idIdioma
+[Implied]  palavra_texto.fk_pal -> pal_tex_prox.idPalTexProx
+[Implied]  palavra_texto.fk_pal -> palavra.idPal
+[Implied]  palavra_texto.fk_text -> texto.idTex
+[Implied]  texto.fk_autor -> autor.idAut
+[Implied]  texto.fk_idioma -> idioma.idIdioma
+
+DROP DATABASE `db_390360_criacao`;
+UNINSTALL EXTENSION vsql_schematron;

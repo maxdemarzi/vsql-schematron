@@ -1,0 +1,107 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 150714_aaacreateTable
+--echo #
+CREATE DATABASE `db_150714_aaacreateTable`;
+USE `db_150714_aaacreateTable`;
+
+CREATE TABLE `artigo` (
+  `artigoid` INT,
+  `nome` VARCHAR(64),
+  PRIMARY KEY (`artigoid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `utilizador` (
+  `userid` INT,
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `licita` (
+  `licitaid` INT,
+  `valor` DECIMAL(10,2),
+  `licita_hora` DATETIME,
+  `leilao_leilaoid` INT,
+  `utilizador_userid` INT,
+  PRIMARY KEY (`licitaid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `token` (
+  `authtoken` VARCHAR(64),
+  `expira_token` DATETIME,
+  `utilizador_userid` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `leilao` (
+  `leilaoid` INT,
+  `titulo` VARCHAR(64),
+  `descricao` VARCHAR(64),
+  `precominimo` DECIMAL(10,2),
+  `precoatual` DECIMAL(10,2),
+  `expira_leilao` DATETIME,
+  `dataabertura` DATETIME,
+  `versao_atual` INT,
+  `utilizador_userid` INT,
+  `artigo_artigoid` INT,
+  `acabou` BOOL,
+  PRIMARY KEY (`leilaoid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mensagem` (
+  `msg_id` INT,
+  `conteudo` VARCHAR(64),
+  `data` DATETIME,
+  `utilizador_userid` INT,
+  `leilao_leilaoid` INT,
+  PRIMARY KEY (`msg_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notificacao` (
+  `id_notif` INT,
+  `assunto` VARCHAR(64),
+  `conteudo` VARCHAR(64),
+  `data` DATETIME,
+  PRIMARY KEY (`id_notif`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notificacao_msg` (
+  `mensagem_msg_id` INT,
+  `notificacao_id_notif` INT,
+  PRIMARY KEY (`notificacao_id_notif`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notificacao_licita` (
+  `licita_licitaid` INT,
+  `notificacao_id_notif` INT,
+  PRIMARY KEY (`notificacao_id_notif`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `utilizador_notificacao` (
+  `utilizador_userid` INT,
+  `notificacao_id_notif` INT,
+  `lida` BOOL,
+  PRIMARY KEY (`utilizador_userid`, `notificacao_id_notif`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_150714_aaacreateTable') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_150714_aaacreateTable') AS relationships;
+DROP DATABASE `db_150714_aaacreateTable`;
+UNINSTALL EXTENSION vsql_schematron;

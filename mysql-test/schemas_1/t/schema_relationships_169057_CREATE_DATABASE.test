@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 169057_CREATE_DATABASE
+--echo #
+CREATE DATABASE `db_169057_CREATE_DATABASE`;
+USE `db_169057_CREATE_DATABASE`;
+
+CREATE TABLE `users` (
+  `user_id` INT,
+  `user_handle` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `email_address` VARCHAR(64),
+  `phone_number` VARCHAR(64),
+  `birthday` DATETIME,
+  `created_at` DATETIME,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `followers` (
+  `follower_id` INT,
+  `following_id` INT,
+  PRIMARY KEY (`follower_id`, `following_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tweets` (
+  `tweet_id` INT,
+  `user_id` INT,
+  `tweet_text` VARCHAR(64),
+  `num_comments` INT,
+  `num_likes` INT,
+  `num_retweets` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`tweet_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comments` (
+  `comment_id` INT,
+  `parent_comment_id` INT,
+  `op_tweet_id` INT,
+  `commenter_id` INT,
+  `comment_text` VARCHAR(64),
+  `num_likes` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `retweets` (
+  `retweet_id` INT,
+  `op_tweet_id` INT,
+  `comment_id` INT,
+  `retweeter_id` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`retweet_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hashtag_list` (
+  `hashtag_id` INT,
+  `hashtag_name` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`hashtag_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hashtag_instances` (
+  `hashtag_id` INT,
+  `tweet_id` INT,
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `tweet_likes` (
+  `user_id` INT,
+  `tweet_id` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`user_id`, `tweet_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comment_likes` (
+  `comment_id` INT,
+  `commenter_id` INT,
+  `created_at` DATETIME,
+  PRIMARY KEY (`comment_id`, `commenter_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_169057_CREATE_DATABASE') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_169057_CREATE_DATABASE') AS relationships;
+DROP DATABASE `db_169057_CREATE_DATABASE`;
+UNINSTALL EXTENSION vsql_schematron;

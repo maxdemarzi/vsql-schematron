@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 308094_db_creation
+#
+CREATE DATABASE `db_308094_db_creation`;
+USE `db_308094_db_creation`;
+CREATE TABLE `person` (
+`IDUser` INT,
+`Name` VARCHAR(64),
+`Surname` VARCHAR(64),
+`Gender` VARCHAR(64),
+`DoB` DATETIME,
+`Email` VARCHAR(64),
+`Passwd` VARCHAR(64),
+`Phone` VARCHAR(64),
+`City` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`IDUser`)
+) CHARACTER SET latin1;
+CREATE TABLE `feedback` (
+`TeacherID` INT,
+`StudentID` INT,
+`Score` INT,
+`Description` VARCHAR(64),
+`ReviewDate` DATETIME,
+PRIMARY KEY (`TeacherID`, `StudentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `lesson` (
+`IDLesson` INT,
+`TeacherID` INT,
+`StudentID` INT,
+`LessonDate` DATETIME,
+`LessonTime` DATETIME,
+`LessonDuration` DATETIME,
+`LessonTariff` INT,
+`Payment` DATETIME,
+PRIMARY KEY (`IDLesson`)
+) CHARACTER SET latin1;
+CREATE TABLE `chat` (
+`TeacherID` INT,
+`StudentID` INT,
+`Confirmed` BOOL,
+`Messages` VARCHAR(64),
+`LastMessage` DATETIME,
+PRIMARY KEY (`TeacherID`, `StudentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `topic` (
+`IDTopic` INT,
+`Label` VARCHAR(64),
+PRIMARY KEY (`IDTopic`)
+) CHARACTER SET latin1;
+CREATE TABLE `teacher_topic` (
+`TeacherID` INT,
+`TopicID` INT,
+`Tariff` INT,
+PRIMARY KEY (`TeacherID`, `TopicID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_308094_db_creation') AS relationships;
+relationships
+Database: db_308094_db_creation
+
+Table Connections:
+------------------
+[Implied]  chat.StudentID -> feedback.StudentID
+[Implied]  chat.StudentID -> person.IDUser
+[Implied]  chat.TeacherID -> teacher_topic.TeacherID
+[Implied]  feedback.StudentID -> chat.StudentID
+[Implied]  feedback.StudentID -> person.IDUser
+[Implied]  feedback.TeacherID -> teacher_topic.TeacherID
+[Implied]  lesson.StudentID -> chat.StudentID
+[Implied]  lesson.StudentID -> feedback.StudentID
+[Implied]  lesson.StudentID -> person.IDUser
+[Implied]  lesson.TeacherID -> teacher_topic.TeacherID
+[Implied]  teacher_topic.TeacherID -> chat.TeacherID
+[Implied]  teacher_topic.TeacherID -> feedback.TeacherID
+[Implied]  teacher_topic.TeacherID -> person.IDUser
+[Implied]  teacher_topic.TopicID -> topic.IDTopic
+
+DROP DATABASE `db_308094_db_creation`;
+UNINSTALL EXTENSION vsql_schematron;

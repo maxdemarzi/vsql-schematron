@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 171697_bloodbank
+--echo #
+CREATE DATABASE `db_171697_bloodbank`;
+USE `db_171697_bloodbank`;
+
+CREATE TABLE `bloodinfo` (
+  `bid` INT,
+  `hid` INT,
+  `bg` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bloodrequest` (
+  `reqid` INT,
+  `hid` INT,
+  `rid` INT,
+  `bg` VARCHAR(64),
+  `status` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hospitals` (
+  `id` INT,
+  `hname` VARCHAR(64),
+  `hemail` VARCHAR(64),
+  `hpassword` VARCHAR(64),
+  `hphone` VARCHAR(64),
+  `hcity` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `receivers` (
+  `id` INT,
+  `rname` VARCHAR(64),
+  `remail` VARCHAR(64),
+  `rpassword` VARCHAR(64),
+  `rphone` VARCHAR(64),
+  `rbg` VARCHAR(64),
+  `rcity` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_171697_bloodbank') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_171697_bloodbank') AS relationships;
+DROP DATABASE `db_171697_bloodbank`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 630202_create
+#
+CREATE DATABASE `db_630202_create`;
+USE `db_630202_create`;
+CREATE TABLE `hero` (
+`id` INT,
+`username` VARCHAR(64),
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`gender` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hero_relation` (
+`hero_id_1` INT,
+`hero_id_2` INT,
+`is_friendly` BOOL,
+PRIMARY KEY (`hero_id_1`, `hero_id_2`)
+) CHARACTER SET latin1;
+CREATE TABLE `alias` (
+`id` INT,
+`name` VARCHAR(64),
+`hero_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ability` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hero_ability` (
+`hero_id` INT,
+`ability_id` INT,
+PRIMARY KEY (`hero_id`, `ability_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `team` (
+`id` INT,
+`name` VARCHAR(64),
+`leader_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `hero_team` (
+`hero_id` INT,
+`team_id` INT,
+PRIMARY KEY (`hero_id`, `team_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_630202_create') AS relationships;
+relationships
+Database: db_630202_create
+
+Table Connections:
+------------------
+[Implied]  alias.hero_id -> hero.id
+[Implied]  hero_ability.ability_id -> ability.id
+[Implied]  hero_ability.hero_id -> hero.id
+[Implied]  hero_relation.hero_id_1 -> hero.id
+[Implied]  hero_relation.hero_id_2 -> hero.id
+[Implied]  hero_team.hero_id -> hero.id
+[Implied]  hero_team.team_id -> team.id
+[Implied]  team.leader_id -> team.id
+
+DROP DATABASE `db_630202_create`;
+UNINSTALL EXTENSION vsql_schematron;

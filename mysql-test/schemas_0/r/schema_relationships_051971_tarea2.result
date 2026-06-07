@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 051971_tarea2
+#
+CREATE DATABASE `db_051971_tarea2`;
+USE `db_051971_tarea2`;
+CREATE TABLE `cc500209_db.region` (
+`id` INT,
+`nombre` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cc500209_db.comuna` (
+`id` INT,
+`nombre` VARCHAR(64),
+`region_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cc500209_db.avistamiento` (
+`id` INT,
+`comuna_id` INT,
+`dia_hora` DATETIME,
+`sector` VARCHAR(64),
+`nombre` VARCHAR(64),
+`email` VARCHAR(64),
+`celular` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cc500209_db.detalle_avistamiento` (
+`id` INT,
+`dia_hora` DATETIME,
+`tipo` VARCHAR(64),
+`estado` VARCHAR(64),
+`avistamiento_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cc500209_db.foto` (
+`id` INT,
+`ruta_archivo` VARCHAR(64),
+`nombre_archivo` VARCHAR(64),
+`detalle_avistamiento_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_051971_tarea2') AS relationships;
+relationships
+Database: db_051971_tarea2
+
+Table Connections:
+------------------
+[Implied]  cc500209_db.avistamiento.comuna_id -> cc500209_db.comuna.id
+[Implied]  cc500209_db.comuna.region_id -> cc500209_db.region.id
+[Implied]  cc500209_db.detalle_avistamiento.avistamiento_id -> cc500209_db.avistamiento.id
+[Implied]  cc500209_db.foto.detalle_avistamiento_id -> cc500209_db.detalle_avistamiento.id
+
+DROP DATABASE `db_051971_tarea2`;
+UNINSTALL EXTENSION vsql_schematron;

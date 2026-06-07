@@ -1,0 +1,79 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 108018_Creating_DB
+#
+CREATE DATABASE `db_108018_Creating_DB`;
+USE `db_108018_Creating_DB`;
+CREATE TABLE `users` (
+`username` VARCHAR(64),
+`name` VARCHAR(64),
+`pwd` VARCHAR(64),
+`dp` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `videos` (
+`video_id` INT,
+`description` VARCHAR(64),
+`upload_date` DATETIME,
+`username` VARCHAR(64),
+`title` VARCHAR(64),
+`video_path` VARCHAR(64),
+`thumbnail` VARCHAR(64),
+PRIMARY KEY (`video_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `video_ratings` (
+`username` VARCHAR(64),
+`video_id` INT,
+`rating` INT,
+PRIMARY KEY (`username`, `video_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comments` (
+`comment_id` INT,
+`username` VARCHAR(64),
+`video_id` INT,
+`comment` VARCHAR(64),
+`comment_date` DATETIME,
+PRIMARY KEY (`comment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `replies` (
+`reply_id` INT,
+`comment_id` INT,
+`username` VARCHAR(64),
+`reply_text` VARCHAR(64),
+`reply_date` DATETIME,
+PRIMARY KEY (`reply_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subscriptions` (
+`username` VARCHAR(64),
+`subscriber` VARCHAR(64),
+PRIMARY KEY (`username`, `subscriber`)
+) CHARACTER SET latin1;
+CREATE TABLE `feedback` (
+`username` VARCHAR(64),
+`comment` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+CREATE TABLE `video_views` (
+`video_id` INT,
+`views` INT,
+PRIMARY KEY (`video_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_108018_Creating_DB') AS relationships;
+relationships
+Database: db_108018_Creating_DB
+
+Table Connections:
+------------------
+[Implied]  comments.username -> users.username
+[Implied]  comments.video_id -> videos.video_id
+[Implied]  feedback.username -> users.username
+[Implied]  replies.comment_id -> comments.comment_id
+[Implied]  replies.username -> users.username
+[Implied]  subscriptions.username -> users.username
+[Implied]  video_ratings.username -> users.username
+[Implied]  video_ratings.video_id -> videos.video_id
+[Implied]  video_views.video_id -> videos.video_id
+[Implied]  videos.username -> users.username
+
+DROP DATABASE `db_108018_Creating_DB`;
+UNINSTALL EXTENSION vsql_schematron;

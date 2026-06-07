@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 422874_migration
+#
+CREATE DATABASE `db_422874_migration`;
+USE `db_422874_migration`;
+CREATE TABLE `comments` (
+`id` VARCHAR(64),
+`message` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`taskId` VARCHAR(64),
+`authorId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `projects` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`accessibility` BOOL,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`owner` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sections` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`order` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`projectId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tasks` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`dueDate` DATETIME,
+`description` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`sectionId` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`name` VARCHAR(64),
+`role` VARCHAR(64),
+`reset_token` VARCHAR(64),
+`reset_token_expires` DATETIME,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_422874_migration') AS relationships;
+relationships
+Database: db_422874_migration
+
+Table Connections:
+------------------
+[Implied]  comments.authorId -> users.id
+[Implied]  comments.taskId -> tasks.id
+[Implied]  projects.owner -> users.id
+[Implied]  sections.projectId -> projects.id
+[Implied]  tasks.sectionId -> sections.id
+
+DROP DATABASE `db_422874_migration`;
+UNINSTALL EXTENSION vsql_schematron;

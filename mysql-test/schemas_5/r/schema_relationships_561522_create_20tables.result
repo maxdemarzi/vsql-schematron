@@ -1,0 +1,38 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 561522_create%20tables
+#
+CREATE DATABASE `db_561522_create_20tables`;
+USE `db_561522_create_20tables`;
+CREATE TABLE `Emp` (
+`eid` INT,
+`ename` VARCHAR(64),
+`age` INT,
+`salary` DECIMAL(10,2),
+PRIMARY KEY (`eid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Works` (
+`eid` INT,
+`did` INT,
+`pct_time` INT,
+PRIMARY KEY (`eid`, `did`)
+) CHARACTER SET latin1;
+CREATE TABLE `Dept` (
+`did` INT,
+`dname` VARCHAR(64),
+`budget` DECIMAL(10,2),
+`managerid` INT,
+PRIMARY KEY (`did`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_561522_create_20tables') AS relationships;
+relationships
+Database: db_561522_create_20tables
+
+Table Connections:
+------------------
+[Implied]  Dept.managerid -> Dept.did
+[Implied]  Works.did -> Dept.did
+[Implied]  Works.eid -> Emp.eid
+
+DROP DATABASE `db_561522_create_20tables`;
+UNINSTALL EXTENSION vsql_schematron;

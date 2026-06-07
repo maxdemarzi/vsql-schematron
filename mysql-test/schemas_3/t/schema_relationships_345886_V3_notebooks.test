@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 345886_V3__notebooks
+--echo #
+CREATE DATABASE `db_345886_V3_notebooks`;
+USE `db_345886_V3_notebooks`;
+
+CREATE TABLE `users.nb_descriptor` (
+  `id` INT,
+  `owner_id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `visibility` INT,
+  `created` DATETIME,
+  `updated` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users.nb_version` (
+  `id` INT,
+  `notebook_id` INT,
+  `parent_id` INT,
+  `owner_id` INT,
+  `created` DATETIME,
+  `updated` DATETIME,
+  `type` VARCHAR(64),
+  `label` VARCHAR(64),
+  `description` VARCHAR(64),
+  `nb_definition` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users.nb_variable` (
+  `id` INT,
+  `source_id` INT,
+  `cell_id` INT,
+  `var_name` VARCHAR(64),
+  `var_key` VARCHAR(64),
+  `created` DATETIME,
+  `updated` DATETIME,
+  `val_text` VARCHAR(64),
+  `val_blob` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_345886_V3_notebooks') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_345886_V3_notebooks') AS relationships;
+DROP DATABASE `db_345886_V3_notebooks`;
+UNINSTALL EXTENSION vsql_schematron;

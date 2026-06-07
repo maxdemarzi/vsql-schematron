@@ -1,0 +1,168 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 663305_DATABASE
+#
+CREATE DATABASE `db_663305_DATABASE`;
+USE `db_663305_DATABASE`;
+CREATE TABLE `rol` (
+`rol_id` INT,
+`nombre` VARCHAR(64),
+`create_at` DATETIME,
+`updated_at` DATETIME,
+`created_by` INT,
+`updated_by` INT,
+`is_deleted` BOOL,
+PRIMARY KEY (`rol_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `parametros` (
+`parametros_id` INT,
+`type` INT,
+`nombre` VARCHAR(64),
+`descripcion` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`created_by` INT,
+`updated_by` INT,
+`is_deleted` BOOL,
+PRIMARY KEY (`parametros_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ticket` (
+`ticket_id` INT,
+`titulo` VARCHAR(64),
+`descripcion` VARCHAR(64),
+`persona_id` INT,
+`estado_id` INT,
+`catalogo_id` INT,
+`impacto_id` INT,
+`responsable_id` INT,
+`responsable_solucion_id` INT,
+`fecha_solucion` DATETIME,
+`solucion` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`created_by` INT,
+`updated_by` INT,
+`is_deleted` BOOL,
+PRIMARY KEY (`ticket_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `criticidad` (
+`criticidad_id` INT,
+`nombre` VARCHAR(64),
+`valor` DECIMAL(10,2),
+`descripcion` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`created_by` INT,
+`updated_by` INT,
+`is_deleted` BOOL,
+PRIMARY KEY (`criticidad_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categoria` (
+`categoria_id` INT,
+`nombre_categoria` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`created_by` INT,
+`updated_by` INT,
+`is_deleted` BOOL,
+PRIMARY KEY (`categoria_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `servicio` (
+`servicio_id` INT,
+`nombre_servicio` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`created_by` INT,
+`updated_by` INT,
+`is_deleted` BOOL,
+`categoria_id` INT,
+PRIMARY KEY (`servicio_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `catalogo` (
+`catalogo_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`created_by` INT,
+`updated_by` INT,
+`is_deleted` BOOL,
+`descripcion` VARCHAR(64),
+`tipo_servicio_id` INT,
+`servicio_id` INT,
+PRIMARY KEY (`catalogo_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `historial` (
+`historial_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`created_by` INT,
+`updated_by` INT,
+`is_deleted` BOOL,
+`accion` VARCHAR(64),
+`ticket_id` INT,
+PRIMARY KEY (`historial_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `medio_comunicacion` (
+`medio_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`created_by` INT,
+`updated_by` INT,
+`is_deleted` BOOL,
+`descripcion` VARCHAR(64),
+`ticket_id` INT,
+PRIMARY KEY (`medio_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `encuesta_satisfaccion` (
+`encuesta_satisfaccion_id` INT,
+`calificacion` INT,
+`comentario` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`is_deleted` BOOL,
+`ticket_id` INT,
+PRIMARY KEY (`encuesta_satisfaccion_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `public.adjuntos` (
+`id_adjuntos` INT,
+`url` VARCHAR(64),
+`created_at` DATETIME,
+`update_at` DATETIME,
+`created_by` INT,
+`update_by` INT,
+`is_deleted` BOOL,
+`ticket_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `public.sla` (
+`id_sla` INT,
+`tiempo_resolucion` DATETIME,
+`tiempo_respuesta` DATETIME,
+`reglas_escala` VARCHAR(64),
+`criticidad_id` INT,
+`impacto_id` INT,
+`nivel_prioridad_id` INT,
+`created_at` DATETIME,
+`update_at` DATETIME,
+`created_by` INT,
+`update_by` INT,
+`is_deleted` INT,
+`catalogo_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_663305_DATABASE') AS relationships;
+relationships
+Database: db_663305_DATABASE
+
+Table Connections:
+------------------
+[Implied]  catalogo.servicio_id -> servicio.servicio_id
+[Implied]  catalogo.tipo_servicio_id -> servicio.servicio_id
+[Implied]  encuesta_satisfaccion.ticket_id -> ticket.ticket_id
+[Implied]  historial.ticket_id -> ticket.ticket_id
+[Implied]  medio_comunicacion.ticket_id -> ticket.ticket_id
+[Implied]  public.adjuntos.ticket_id -> ticket.ticket_id
+[Implied]  public.sla.catalogo_id -> catalogo.catalogo_id
+[Implied]  public.sla.criticidad_id -> criticidad.criticidad_id
+[Implied]  servicio.categoria_id -> categoria.categoria_id
+[Implied]  ticket.catalogo_id -> catalogo.catalogo_id
+
+DROP DATABASE `db_663305_DATABASE`;
+UNINSTALL EXTENSION vsql_schematron;

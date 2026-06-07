@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 431613_V1__Create_candles
+#
+CREATE DATABASE `db_431613_V1_Create_candles`;
+USE `db_431613_V1_Create_candles`;
+CREATE TABLE `timeframes` (
+`id` INT,
+`unit` VARCHAR(64),
+`value` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `exchanges` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `coins` (
+`id` INT,
+`symbol` VARCHAR(64),
+`name` VARCHAR(64),
+`decimals` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pairs` (
+`id` INT,
+`base_id` INT,
+`quote_id` INT,
+`exchange_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `candles` (
+`id` INT,
+`date` DATETIME,
+`timeframe_id` INT,
+`pair_id` INT,
+`low` INT,
+`high` INT,
+`open` INT,
+`close` INT,
+`volume` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_431613_V1_Create_candles') AS relationships;
+relationships
+Database: db_431613_V1_Create_candles
+
+Table Connections:
+------------------
+[Implied]  candles.pair_id -> pairs.id
+[Implied]  candles.timeframe_id -> timeframes.id
+[Implied]  pairs.exchange_id -> exchanges.id
+
+DROP DATABASE `db_431613_V1_Create_candles`;
+UNINSTALL EXTENSION vsql_schematron;

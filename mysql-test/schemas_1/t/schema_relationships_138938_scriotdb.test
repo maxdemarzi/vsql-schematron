@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 138938_scriotdb
+--echo #
+CREATE DATABASE `db_138938_scriotdb`;
+USE `db_138938_scriotdb`;
+
+CREATE TABLE `dbsistemaLaravel.categoria` (
+  `idcategoria` INT,
+  `nome` VARCHAR(64),
+  `descricao` VARCHAR(64),
+  `condicao` INT,
+  PRIMARY KEY (`idcategoria`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dbsistemaLaravel.pessoa` (
+  `idpessoa` INT,
+  `tipo_pessoa` VARCHAR(64),
+  `nome` VARCHAR(64),
+  `tipo_documento` VARCHAR(64),
+  `num_doc` VARCHAR(64),
+  `endereco` VARCHAR(64),
+  `telefone` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`idpessoa`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dbsistemaLaravel.entrada` (
+  `identrada` INT,
+  `idfornecedor` INT,
+  `tipo_comprovante` VARCHAR(64),
+  `serie_comprovante` VARCHAR(64),
+  `num_comprovante` VARCHAR(64),
+  `data_hora` DATETIME,
+  `taxa` DECIMAL(10,2),
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`identrada`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dbsistemaLaravel.detalhe_entrada` (
+  `iddetalhe_entrada` INT,
+  `identrada` INT,
+  `idproduto` INT,
+  `quantidade` INT,
+  `preco_compra` DECIMAL(10,2),
+  `preco_venda` DECIMAL(10,2),
+  PRIMARY KEY (`iddetalhe_entrada`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dbsistemaLaravel.venda` (
+  `idvenda` INT,
+  `idcliente` INT,
+  `tipo_comprovante` VARCHAR(64),
+  `serie` VARCHAR(64),
+  `num_comprovante` VARCHAR(64),
+  `data_hora` DATETIME,
+  `taxa` DECIMAL(10,2),
+  `total_venda` DECIMAL(10,2),
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`idvenda`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dbsistemaLaravel.detalhe_venda` (
+  `iddetalhe_venda` INT,
+  `idvenda` INT,
+  `idproduto` INT,
+  `quantidade` INT,
+  `preco_venda` DECIMAL(10,2),
+  `desconto` DECIMAL(10,2),
+  PRIMARY KEY (`iddetalhe_venda`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_138938_scriotdb') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_138938_scriotdb') AS relationships;
+DROP DATABASE `db_138938_scriotdb`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,145 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 358545_V1_8__create_tables
+--echo #
+CREATE DATABASE `db_358545_V1_8_create_tables`;
+USE `db_358545_V1_8_create_tables`;
+
+CREATE TABLE `region` (
+  `region_id` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_time` DATETIME,
+  `updated_time` DATETIME,
+  `welsh_description` VARCHAR(64),
+  PRIMARY KEY (`region_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `building_location` (
+  `building_location_id` VARCHAR(64),
+  `epimms_id` VARCHAR(64),
+  `building_location_name` VARCHAR(64),
+  `created_time` DATETIME,
+  `updated_time` DATETIME,
+  `building_location_status_id` VARCHAR(64),
+  `area` VARCHAR(64),
+  `region_id` VARCHAR(64),
+  `cluster_id` VARCHAR(64),
+  `court_finder_url` VARCHAR(64),
+  `postcode` VARCHAR(64),
+  `address` VARCHAR(64),
+  PRIMARY KEY (`building_location_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `district_family_jurisdiction` (
+  `district_family_jurisdiction_id` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_time` DATETIME,
+  `updated_time` DATETIME,
+  `welsh_description` VARCHAR(64),
+  PRIMARY KEY (`district_family_jurisdiction_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `court_district_family_jurisdiction_assoc` (
+  `court_district_family_jurisdiction_assoc_id` VARCHAR(64),
+  `district_family_jurisdiction_id` VARCHAR(64),
+  `court_location_id` VARCHAR(64),
+  `created_time` DATETIME,
+  `updated_time` DATETIME,
+  PRIMARY KEY (`court_district_family_jurisdiction_assoc_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `district_civil_jurisdiction` (
+  `district_civil_jurisdiction_id` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_time` DATETIME,
+  `updated_time` DATETIME,
+  `welsh_description` VARCHAR(64),
+  PRIMARY KEY (`district_civil_jurisdiction_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `court_district_civil_jurisdiction_assoc` (
+  `court_district_civil_jurisdiction_assoc_id` VARCHAR(64),
+  `district_civil_jurisdiction_id` VARCHAR(64),
+  `court_location_id` VARCHAR(64),
+  `created_time` DATETIME,
+  `updated_time` DATETIME,
+  PRIMARY KEY (`court_district_civil_jurisdiction_assoc_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cluster` (
+  `cluster_id` VARCHAR(64),
+  `cluster_name` VARCHAR(64),
+  `welsh_cluster_name` VARCHAR(64),
+  `created_time` DATETIME,
+  `updated_time` DATETIME,
+  PRIMARY KEY (`cluster_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `court_location_category` (
+  `court_location_category_id` VARCHAR(64),
+  `court_location_category` VARCHAR(64),
+  `welsh_court_location_category` VARCHAR(64),
+  `created_time` DATETIME,
+  `updated_time` DATETIME,
+  PRIMARY KEY (`court_location_category_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `court_location_category_service_assoc` (
+  `court_location_category_service_assoc_id` VARCHAR(64),
+  `service_code` VARCHAR(64),
+  `court_location_category_id` VARCHAR(64),
+  `created_time` DATETIME,
+  `updated_time` DATETIME,
+  PRIMARY KEY (`court_location_category_service_assoc_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `building_location_status` (
+  `building_location_status_id` VARCHAR(64),
+  `status` VARCHAR(64),
+  `welsh_status` VARCHAR(64),
+  `created_time` DATETIME,
+  `updated_time` DATETIME,
+  PRIMARY KEY (`building_location_status_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `court_location` (
+  `court_location_id` VARCHAR(64),
+  `epimms_id` VARCHAR(64),
+  `court_location_name` VARCHAR(64),
+  `created_time` DATETIME,
+  `updated_time` DATETIME,
+  `region_id` VARCHAR(64),
+  `court_location_category_id` VARCHAR(64),
+  `cluster_id` VARCHAR(64),
+  `open_for_public` BOOL,
+  `court_address` VARCHAR(64),
+  `postcode` VARCHAR(64),
+  `phone_number` VARCHAR(64),
+  `closed_date` DATETIME,
+  `court_location_code` VARCHAR(64),
+  `dx_address` VARCHAR(64),
+  `welsh_court_location_name` VARCHAR(64),
+  `welsh_court_address` VARCHAR(64),
+  PRIMARY KEY (`court_location_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_358545_V1_8_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_358545_V1_8_create_tables') AS relationships;
+DROP DATABASE `db_358545_V1_8_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

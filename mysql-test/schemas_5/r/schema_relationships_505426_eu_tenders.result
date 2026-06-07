@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 505426_eu-tenders
+#
+CREATE DATABASE `db_505426_eu_tenders`;
+USE `db_505426_eu_tenders`;
+CREATE TABLE `program` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contractor` (
+`id` INT,
+`name` VARCHAR(64),
+`address` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project` (
+`id` INT,
+`isun` VARCHAR(64),
+`project_number` INT,
+`name` VARCHAR(64),
+`beneficiary_id` INT,
+`program_id` INT,
+`date_contract` DATETIME,
+`date_begin` DATETIME,
+`date_end` DATETIME,
+`status` VARCHAR(64),
+`place` VARCHAR(64),
+`activities` VARCHAR(64),
+`budget_approved` INT,
+`budget_total` INT,
+`budget_fin_help` INT,
+`budget_paid` INT,
+`duration` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project_has_contractor` (
+`project_id` INT,
+`contractor_id` INT,
+PRIMARY KEY (`project_id`, `contractor_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project_has_partner` (
+`project_id` INT,
+`contractor_id` INT,
+PRIMARY KEY (`project_id`, `contractor_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_505426_eu_tenders') AS relationships;
+relationships
+Database: db_505426_eu_tenders
+
+Table Connections:
+------------------
+[Implied]  project.program_id -> program.id
+[Implied]  project_has_contractor.contractor_id -> contractor.id
+[Implied]  project_has_contractor.project_id -> project.id
+[Implied]  project_has_partner.contractor_id -> contractor.id
+[Implied]  project_has_partner.project_id -> project.id
+
+DROP DATABASE `db_505426_eu_tenders`;
+UNINSTALL EXTENSION vsql_schematron;

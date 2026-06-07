@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 280105_usertable
+--echo #
+CREATE DATABASE `db_280105_usertable`;
+USE `db_280105_usertable`;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `profile` (
+  `id` INT,
+  `image` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mysports` (
+  `id` INT,
+  `baseball` INT,
+  `hockey` INT,
+  `lacrosse` INT,
+  `ski` INT,
+  `snowboard` INT,
+  `soccer` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_280105_usertable') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_280105_usertable') AS relationships;
+DROP DATABASE `db_280105_usertable`;
+UNINSTALL EXTENSION vsql_schematron;

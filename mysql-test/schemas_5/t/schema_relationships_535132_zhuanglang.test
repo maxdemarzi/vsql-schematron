@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 535132_zhuanglang
+--echo #
+CREATE DATABASE `db_535132_zhuanglang`;
+USE `db_535132_zhuanglang`;
+
+CREATE TABLE `teacher` (
+  `username` VARCHAR(64),
+  `pwd` VARCHAR(64),
+  `salt` VARCHAR(64),
+  `nkuorzhuanglang` VARCHAR(64),
+  `name` VARCHAR(64),
+  `person_no` VARCHAR(64),
+  `mail` VARCHAR(64),
+  PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `book` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `upload` VARCHAR(64),
+  `discipline` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `section` (
+  `id` INT,
+  `number` INT,
+  `upload` VARCHAR(64),
+  `note` VARCHAR(64),
+  `belong` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `class` (
+  `id` INT,
+  `number` INT,
+  `upload` VARCHAR(64),
+  `note` VARCHAR(64),
+  `belong` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `resources` (
+  `id` INT,
+  `md5` VARCHAR(64),
+  `name` VARCHAR(64),
+  `path` VARCHAR(64),
+  `upload` VARCHAR(64),
+  `videoorslide` VARCHAR(64),
+  `bilibili` VARCHAR(64),
+  `note` VARCHAR(64),
+  `belong` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_535132_zhuanglang') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_535132_zhuanglang') AS relationships;
+DROP DATABASE `db_535132_zhuanglang`;
+UNINSTALL EXTENSION vsql_schematron;

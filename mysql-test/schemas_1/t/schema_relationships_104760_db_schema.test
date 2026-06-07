@@ -1,0 +1,99 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 104760_db_schema
+--echo #
+CREATE DATABASE `db_104760_db_schema`;
+USE `db_104760_db_schema`;
+
+CREATE TABLE `Users` (
+  `id` VARCHAR(64),
+  `lang` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Guilds` (
+  `id` VARCHAR(64),
+  `default_hook` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LocalPrefixes` (
+  `prefix` VARCHAR(64),
+  `guild` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Badwords` (
+  `id` INT,
+  `word` VARCHAR(64),
+  `guild` VARCHAR(64),
+  `active` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BadwordPunishment` (
+  `badword` INT,
+  `duser` VARCHAR(64),
+  `date` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `Statistics` (
+  `id` INT,
+  `date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TicTacToeStatistics` (
+  `id` INT,
+  `thetable` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TTTPlayers` (
+  `statistic` INT,
+  `duser` VARCHAR(64),
+  `slot` INT,
+  `winner` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `Permissions` (
+  `guild` VARCHAR(64),
+  `role` VARCHAR(64),
+  `permission` VARCHAR(64),
+  `type` INT,
+  `is_default` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `Tokens` (
+  `token` VARCHAR(64),
+  `duser` VARCHAR(64),
+  `type` VARCHAR(64),
+  `expires_in` DATETIME,
+  `auth_time` DATETIME,
+  PRIMARY KEY (`token`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TokenScopes` (
+  `token` VARCHAR(64),
+  `scope` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_104760_db_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_104760_db_schema') AS relationships;
+DROP DATABASE `db_104760_db_schema`;
+UNINSTALL EXTENSION vsql_schematron;

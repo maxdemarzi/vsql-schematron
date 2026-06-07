@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 145269_V76_6_0__add_competition_template_tables
+#
+CREATE DATABASE `db_145269_V76_6_0_add_competition_template_tables`;
+USE `db_145269_V76_6_0_add_competition_template_tables`;
+CREATE TABLE `form_input_template` (
+`id` INT,
+`form_input_type_id` INT,
+`guidance_question` VARCHAR(64),
+`guidance_answer` VARCHAR(64),
+`description` VARCHAR(64),
+`included_in_application_summary` INT,
+`priority` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `form_input_template_form_validator` (
+`form_input_template_id` INT,
+`form_validator_id` INT,
+PRIMARY KEY (`form_input_template_id`, `form_validator_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `competition_template` (
+`id` INT,
+`competition_type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `section_template` (
+`id` INT,
+`section_type` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`assessor_guidance_description` VARCHAR(64),
+`parent_section_template_id` INT,
+`competition_template_id` INT,
+`priority` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question_template` (
+`id` INT,
+`section_template_id` INT,
+`name` VARCHAR(64),
+`short_name` VARCHAR(64),
+`question_number` VARCHAR(64),
+`description` VARCHAR(64),
+`assessor_guidance_question` VARCHAR(64),
+`assessor_guidance_answer` VARCHAR(64),
+`priority` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question_template_form_input_template` (
+`question_template_id` INT,
+`form_input_template_id` INT,
+PRIMARY KEY (`question_template_id`, `form_input_template_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_145269_V76_6_0_add_competition_template_tables') AS relationships;
+relationships
+Database: db_145269_V76_6_0_add_competition_template_tables
+
+Table Connections:
+------------------
+[Implied]  form_input_template_form_validator.form_input_template_id -> form_input_template.id
+[Implied]  question_template.section_template_id -> section_template.id
+[Implied]  question_template_form_input_template.form_input_template_id -> form_input_template.id
+[Implied]  question_template_form_input_template.question_template_id -> question_template.id
+[Implied]  section_template.competition_template_id -> competition_template.id
+[Implied]  section_template.parent_section_template_id -> competition_template.id
+[Implied]  section_template.parent_section_template_id -> form_input_template.id
+[Implied]  section_template.parent_section_template_id -> question_template.id
+[Implied]  section_template.parent_section_template_id -> section_template.id
+
+DROP DATABASE `db_145269_V76_6_0_add_competition_template_tables`;
+UNINSTALL EXTENSION vsql_schematron;

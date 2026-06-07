@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 175300_db_creation
+--echo #
+CREATE DATABASE `db_175300_db_creation`;
+USE `db_175300_db_creation`;
+
+CREATE TABLE `vehiculo` (
+  `fabricante` VARCHAR(64),
+  PRIMARY KEY (`fabricante`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bicicleta` (
+  `id_bicicleta` INT,
+  `fabricante_fk` VARCHAR(64),
+  `precio` INT,
+  `anio_fabrica` INT,
+  PRIMARY KEY (`id_bicicleta`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Proveedor_motor` (
+  `nombre` VARCHAR(64),
+  `direccion` VARCHAR(64),
+  `telefono` VARCHAR(64),
+  PRIMARY KEY (`nombre`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `moto_electrica` (
+  `id_moto` INT,
+  `fabricante_fk` VARCHAR(64),
+  `precio` INT,
+  `proveedor_motor_fk` VARCHAR(64),
+  `autonomia` INT,
+  PRIMARY KEY (`id_moto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cliente` (
+  `alias` VARCHAR(64),
+  `nombres` VARCHAR(64),
+  `apellidos` VARCHAR(64),
+  `email` VARCHAR(64),
+  `contrasena` INT,
+  `celular` VARCHAR(64),
+  `dob` DATETIME,
+  PRIMARY KEY (`alias`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `intencion` (
+  `id_intencion` INT,
+  `alias_cliente_fk` VARCHAR(64),
+  `fabricante_fk` VARCHAR(64),
+  `fechahora` DATETIME,
+  PRIMARY KEY (`id_intencion`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_175300_db_creation') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_175300_db_creation') AS relationships;
+DROP DATABASE `db_175300_db_creation`;
+UNINSTALL EXTENSION vsql_schematron;

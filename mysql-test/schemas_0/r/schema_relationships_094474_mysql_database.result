@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 094474_mysql_database
+#
+CREATE DATABASE `db_094474_mysql_database`;
+USE `db_094474_mysql_database`;
+CREATE TABLE `confirmation` (
+`id` INT,
+`username` VARCHAR(64),
+`status` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `marker` (
+`id` INT,
+`species_name` VARCHAR(64),
+`username` VARCHAR(64),
+`date` VARCHAR(64),
+`text` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `species` (
+`species_name` VARCHAR(64),
+`username` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`species_name`)
+) CHARACTER SET latin1;
+CREATE TABLE `synonym` (
+`id` INT,
+`species_name` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`username` VARCHAR(64),
+`type` VARCHAR(64),
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`birth_date` VARCHAR(64),
+`mail` VARCHAR(64),
+`pass` VARCHAR(64),
+PRIMARY KEY (`username`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_094474_mysql_database') AS relationships;
+relationships
+Database: db_094474_mysql_database
+
+Table Connections:
+------------------
+[Implied]  confirmation.username -> user.username
+[Implied]  marker.species_name -> species.species_name
+[Implied]  marker.username -> user.username
+[Implied]  species.username -> user.username
+[Implied]  synonym.species_name -> species.species_name
+
+DROP DATABASE `db_094474_mysql_database`;
+UNINSTALL EXTENSION vsql_schematron;

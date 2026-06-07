@@ -1,0 +1,115 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 570344_create_schema
+#
+CREATE DATABASE `db_570344_create_schema`;
+USE `db_570344_create_schema`;
+CREATE TABLE `feature_type` (
+`id` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_type` (
+`id` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_status` (
+`id` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `system_user` (
+`id` INT,
+`name` VARCHAR(64),
+`login` VARCHAR(64),
+`email` VARCHAR(64),
+`active` BOOL,
+`manager_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `feature` (
+`id` INT,
+`parent_id` INT,
+`code` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`feature_type_id` INT,
+`owner_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `role` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_role` (
+`user_id` INT,
+`role_id` INT,
+PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `access` (
+`role_id` INT,
+`feature_id` INT,
+PRIMARY KEY (`role_id`, `feature_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `version` (
+`id` INT,
+`feature_id` INT,
+`release_date` DATETIME,
+`version_number` DECIMAL(10,2),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`mandatory` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `session` (
+`id` INT,
+`user_id` INT,
+`start_date` DATETIME,
+`end_date` DATETIME,
+`ip_address` VARCHAR(64),
+`host_name` VARCHAR(64),
+`external_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`id` INT,
+`event_type_id` INT,
+`event_status_id` INT,
+`feature_id` INT,
+`session_id` INT,
+`event_date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_detail` (
+`id` INT,
+`event_id` INT,
+`field_name` VARCHAR(64),
+`field_value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_570344_create_schema') AS relationships;
+relationships
+Database: db_570344_create_schema
+
+Table Connections:
+------------------
+[Implied]  access.feature_id -> feature.id
+[Implied]  access.role_id -> role.id
+[Implied]  event.event_status_id -> event_status.id
+[Implied]  event.event_type_id -> event_type.id
+[Implied]  event.feature_id -> feature.id
+[Implied]  event.session_id -> session.id
+[Implied]  event_detail.event_id -> event.id
+[Implied]  feature.feature_type_id -> feature_type.id
+[Implied]  feature.parent_id -> feature.id
+[Implied]  session.user_id -> user_role.user_id
+[Implied]  system_user.manager_id -> system_user.id
+[Implied]  user_role.role_id -> role.id
+[Implied]  user_role.user_id -> system_user.id
+[Implied]  version.feature_id -> feature.id
+
+DROP DATABASE `db_570344_create_schema`;
+UNINSTALL EXTENSION vsql_schematron;

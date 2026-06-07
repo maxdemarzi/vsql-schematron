@@ -1,0 +1,63 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 032492_modelagem
+--echo #
+CREATE DATABASE `db_032492_modelagem`;
+USE `db_032492_modelagem`;
+
+CREATE TABLE `clientes` (
+  `id_cliente` INT,
+  `nome_cliente` VARCHAR(64),
+  `endereco_cliente` VARCHAR(64),
+  `cpf_cliente` VARCHAR(64),
+  PRIMARY KEY (`id_cliente`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `conta` (
+  `agencia_cliente` VARCHAR(64),
+  `saldo_cliente` DECIMAL(10,2),
+  `cliente_id` INT,
+  `conta_cliente` VARCHAR(64),
+  PRIMARY KEY (`conta_cliente`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `login_cliente` (
+  `id_login` INT,
+  `password` VARCHAR(64),
+  `username` VARCHAR(64),
+  PRIMARY KEY (`id_login`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `transacao` (
+  `id_transacao` INT,
+  `cliente_conta` VARCHAR(64),
+  `data_transacao` DATETIME,
+  `valor_transacao` DECIMAL(10,2),
+  `banco_transacao` VARCHAR(64),
+  `agencia_transacao` VARCHAR(64),
+  `conta_transacao` VARCHAR(64),
+  `digito_transacao` VARCHAR(64),
+  `tipo_transacao` VARCHAR(64),
+  PRIMARY KEY (`id_transacao`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_032492_modelagem') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_032492_modelagem') AS relationships;
+DROP DATABASE `db_032492_modelagem`;
+UNINSTALL EXTENSION vsql_schematron;
