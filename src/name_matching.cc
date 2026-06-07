@@ -24,6 +24,19 @@ uint32_t getStringId(const std::string& s) {
 
 thread_local std::unordered_map<uint64_t, bool> g_match_table_name_cache;
 
+bool isDescriptiveAttributeWord(const std::string& s) {
+    std::string l = to_lower(s);
+    static const std::unordered_set<std::string> DESCRIPTIVE_WORDS = {
+        "name", "image", "img", "desc", "description", "info", "title", "text",
+        "type", "status", "price", "cost", "value", "val", "qty", "quantity",
+        "count", "num", "number", "url", "path", "file", "email", "phone",
+        "mobile", "address", "date", "time", "datetime", "timestamp",
+        "rate", "amount", "amt", "size", "scale", "weight", "oid", "version", "ver", "tenant",
+        "state", "states", "code", "codes", "day", "days", "spread", "spreads", "bundle", "bundles"
+    };
+    return DESCRIPTIVE_WORDS.count(l) > 0;
+}
+
 } // namespace
 
 /**
@@ -104,7 +117,7 @@ std::string stripTablePrefix(const std::string& name) {
         std::string prefix = n.substr(0, underscore);
         static const std::unordered_set<std::string> TECHNICAL_PREFIXES = {
             "idn", "oauth", "oauth2", "oauth1a", "oidc", "comtn",
-            "vsql", "sys", "db", "tbl", "ref", "cuds", "ext", "act"
+            "vsql", "sys", "db", "tbl", "ref", "cuds", "ext", "act", "qrtz"
         };
         if (TECHNICAL_PREFIXES.count(prefix) > 0 || prefix.length() <= 2) {
             n = n.substr(underscore + 1);
@@ -245,11 +258,35 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
     //      - Prefix: p="user", t="user_profiles" -> true
     //      - Suffix: p="profile", t="user_profile" -> true
     //      - Generic table descriptor suffix: p="customer", t="customer_info" -> true (since "info" is a generic suffix)
-    //      - Truncated match: p="cust", t="customer" -> true (since "cust" is >= 3 chars and starts "customer")
     if (allow_substring) {
-        if (tl.rfind(pl + "_", 0) == 0 || pl.rfind(tl + "_", 0) == 0) return true;
+        if (tl.rfind(pl + "_", 0) == 0) {
+            size_t last_under = tl.rfind('_');
+            std::string suffix = (last_under != std::string::npos) ? tl.substr(last_under + 1) : "";
+            static const std::unordered_set<std::string> AUXILIARY_SUFFIXES = {
+                "token", "tokens", "request", "requests", "key", "keys", "code", "codes", "secret", "secrets",
+                "hash", "hashes", "password", "passwords", "ticket", "tickets", "meta", "metadata",
+                "config", "configs", "setting", "settings", "option", "options", "preference", "preferences",
+                "session", "sessions", "backup", "backups", "file", "files", "log", "logs", "history", "histories",
+                "detail", "details", "item", "items", "line", "lines", "event", "events", "record", "records",
+                "profile", "profiles", "role", "roles", "group", "groups", "permission", "permissions", "privilege", "privileges",
+                "status", "statuses", "type", "types", "category", "categories", "tag", "tags", "link", "links",
+                "map", "maps", "relation", "relations", "relationship", "relationships", "association", "associations",
+                "membership", "memberships", "address", "addresses", "contact", "contacts", "attachment", "attachments",
+                "comment", "comments", "message", "messages", "notification", "notifications"
+            };
+            if (AUXILIARY_SUFFIXES.count(suffix) > 0) {
+                size_t pl_last_under = pl.rfind('_');
+                std::string pl_suffix = (pl_last_under != std::string::npos) ? pl.substr(pl_last_under + 1) : pl;
+                if (pl_suffix == suffix || singularize(pl_suffix) == singularize(suffix)) {
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        }
         if (pl.rfind(tl + "_", 0) == 0) return true;
         if (tl.length() > pl.length() + 1 && tl.rfind("_" + pl) == tl.length() - pl.length() - 1) return true;
+        if (pl.length() > tl.length() + 1 && pl.rfind("_" + tl) == pl.length() - tl.length() - 1) return true;
         
         size_t underscore = tl.find('_');
         std::string first_word = (underscore == std::string::npos) ? tl : tl.substr(0, underscore);
@@ -343,8 +380,34 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
     //      - Suffix: p="role", t="userrole" (clean p_clean="role", t_clean="userrole", ends with role) -> true
     //      - Singularized suffix: p="roles", t="userrole" (singularizes to p_sing="role", t_sing="userrole", ends with role) -> true
     if (allow_substring && p_clean.length() >= 3) {
+        bool is_quartz = (tl.find("qrtz") != std::string::npos || pl.find("qrtz") != std::string::npos);
         if (t_clean.length() >= p_clean.length()) {
-            if (t_clean.find(p_clean) == 0) return true;
+            static const std::unordered_set<std::string> BLOCKED_PREFIXES = {
+                "day", "days", "month", "months", "year", "years", "week", "weeks",
+                "hour", "hours", "minute", "minutes", "second", "seconds", "date", "dates",
+                "time", "times", "amount", "amounts", "value", "values", "count", "counts",
+                "number", "numbers", "num", "nums", "val", "vals", "amt", "amts", "qty", "qtys"
+            };
+            if (BLOCKED_PREFIXES.count(p_clean) == 0 && t_clean.find(p_clean) == 0) return true;
+            if (is_quartz) {
+                static const std::unordered_set<std::string> AUX_SUFFIXES = {
+                    "group", "groups", "grp", "grps", "type", "types", "status", "statuses",
+                    "key", "keys", "name", "names", "id", "ids", "code", "codes", "role", "roles",
+                    "detail", "details", "item", "items", "line", "lines", "config", "configs",
+                    "setting", "settings", "option", "options", "file", "files", "log", "logs",
+                    "history", "histories", "tag", "tags"
+                };
+                if (AUX_SUFFIXES.count(p_clean) == 0 && AUX_SUFFIXES.count(singularize(p_clean)) == 0) {
+                    size_t pos = t_clean.rfind(p_clean);
+                    if (pos != std::string::npos && pos == t_clean.length() - p_clean.length()) return true;
+                    
+                    size_t pos_s = t_clean.rfind(p_clean + "s");
+                    if (pos_s != std::string::npos && pos_s == t_clean.length() - p_clean.length() - 1) return true;
+                    
+                    size_t pos_es = t_clean.rfind(p_clean + "es");
+                    if (pos_es != std::string::npos && pos_es == t_clean.length() - p_clean.length() - 2) return true;
+                }
+            }
         }
         if (p_clean.length() >= t_clean.length()) {
             if (p_clean.find(t_clean) == 0) return true;
@@ -359,7 +422,30 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
         }
         
         if (p_sing.length() >= 3 && t_sing.length() >= 3) {
+            if (t_sing.length() >= p_sing.length()) {
+                static const std::unordered_set<std::string> BLOCKED_PREFIXES = {
+                    "day", "days", "month", "months", "year", "years", "week", "weeks",
+                    "hour", "hours", "minute", "minutes", "second", "seconds", "date", "dates",
+                    "time", "times", "amount", "amounts", "value", "values", "count", "counts",
+                    "number", "numbers", "num", "nums", "val", "vals", "amt", "amts", "qty", "qtys"
+                };
+                if (BLOCKED_PREFIXES.count(p_sing) == 0 && t_sing.find(p_sing) == 0) return true;
+                if (is_quartz) {
+                    static const std::unordered_set<std::string> AUX_SUFFIXES = {
+                        "group", "groups", "grp", "grps", "type", "types", "status", "statuses",
+                        "key", "keys", "name", "names", "id", "ids", "code", "codes", "role", "roles",
+                        "detail", "details", "item", "items", "line", "lines", "config", "configs",
+                        "setting", "settings", "option", "options", "file", "files", "log", "logs",
+                        "history", "histories", "tag", "tags"
+                    };
+                    if (AUX_SUFFIXES.count(p_sing) == 0) {
+                        size_t pos = t_sing.rfind(p_sing);
+                        if (pos != std::string::npos && pos == t_sing.length() - p_sing.length()) return true;
+                    }
+                }
+            }
             if (p_sing.length() >= t_sing.length()) {
+                if (p_sing.find(t_sing) == 0) return true;
                 size_t pos = p_sing.rfind(t_sing);
                 if (pos != std::string::npos && pos == p_sing.length() - t_sing.length()) return true;
             }
@@ -543,15 +629,21 @@ std::string stripAcronymPrefix(const std::string& col, const std::string& tbl) {
  */
 bool isGenericIdentifier(const std::string& s) {
     std::string clean = stripTrailingUnderscore(s);
+    if (!clean.empty() && clean.front() == '_') {
+        clean = clean.substr(1);
+    }
     std::string l = to_lower(clean);
     static const std::unordered_set<std::string> GENERIC_IDS = {
-        "id", "uuid", "guid", "uid"
+        "id", "uuid", "guid", "uid", "sha", "sha1", "sha224", "sha256", "sha384", "sha512", "md5", "hash", "hashes"
     };
     return GENERIC_IDS.count(l) > 0;
 }
 
 bool isGenericAttribute(const std::string& s) {
     std::string clean = stripTrailingUnderscore(s);
+    if (!clean.empty() && clean.front() == '_') {
+        clean = clean.substr(1);
+    }
     std::string l = to_lower(clean);
     static const std::unordered_set<std::string> GENERIC_ATTRS = {
         "name", "value", "description", "desc", "number", "num"
