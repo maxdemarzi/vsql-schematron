@@ -1,0 +1,93 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 408813_structure
+#
+CREATE DATABASE `db_408813_structure`;
+USE `db_408813_structure`;
+CREATE TABLE `denkmal_model_venue` (
+`id` INT,
+`name` VARCHAR(64),
+`url` VARCHAR(64),
+`address` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`queued` INT,
+`ignore` INT,
+`suspended` INT,
+`secret` INT,
+`email` VARCHAR(64),
+`twitterUsername` VARCHAR(64),
+`facebookPage` INT,
+`region` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `denkmal_model_venuealias` (
+`id` INT,
+`name` VARCHAR(64),
+`venue` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `denkmal_model_event` (
+`id` INT,
+`venue` INT,
+`from` INT,
+`until` INT,
+`description` VARCHAR(64),
+`genres` VARCHAR(64),
+`song` INT,
+`queued` INT,
+`enabled` INT,
+`hidden` INT,
+`starred` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `denkmal_model_eventlink` (
+`id` INT,
+`event` INT,
+`label` VARCHAR(64),
+`url` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `denkmal_model_userinvite` (
+`id` INT,
+`inviter` INT,
+`key` VARCHAR(64),
+`email` VARCHAR(64),
+`expires` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `denkmal_scraper_sourceresult` (
+`id` INT,
+`sourceType` INT,
+`created` INT,
+`eventDataCount` INT,
+`error` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `denkmal_scraper_facebookpage` (
+`id` INT,
+`facebookPage` INT,
+`region` INT,
+`created` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `denkmal_push_notification_message` (
+`id` INT,
+`subscription` INT,
+`created` INT,
+`expires` INT,
+`data` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_408813_structure') AS relationships;
+relationships
+Database: db_408813_structure
+
+Table Connections:
+------------------
+[Implied]  denkmal_model_event.venue -> denkmal_model_venue.id
+[Implied]  denkmal_model_eventlink.event -> denkmal_model_event.id
+[Implied]  denkmal_model_venuealias.venue -> denkmal_model_venue.id
+
+DROP DATABASE `db_408813_structure`;
+UNINSTALL EXTENSION vsql_schematron;

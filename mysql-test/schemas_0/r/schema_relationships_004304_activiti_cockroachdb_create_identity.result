@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 004304_activiti.cockroachdb.create.identity
+#
+CREATE DATABASE `db_004304_activiti_cockroachdb_create_identity`;
+USE `db_004304_activiti_cockroachdb_create_identity`;
+CREATE TABLE `ACT_ID_GROUP` (
+`ID_` VARCHAR(64),
+`REV_` INT,
+`NAME_` VARCHAR(64),
+`TYPE_` VARCHAR(64),
+PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+CREATE TABLE `ACT_ID_MEMBERSHIP` (
+`USER_ID_` VARCHAR(64),
+`GROUP_ID_` VARCHAR(64),
+PRIMARY KEY (`USER_ID_`, `GROUP_ID_`)
+) CHARACTER SET latin1;
+CREATE TABLE `ACT_ID_USER` (
+`ID_` VARCHAR(64),
+`REV_` INT,
+`FIRST_` VARCHAR(64),
+`LAST_` VARCHAR(64),
+`EMAIL_` VARCHAR(64),
+`PWD_` VARCHAR(64),
+`SALT_` VARCHAR(64),
+`LOCK_EXP_TIME_` DATETIME,
+`ATTEMPTS_` INT,
+`PICTURE_ID_` VARCHAR(64),
+PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+CREATE TABLE `ACT_ID_INFO` (
+`ID_` VARCHAR(64),
+`REV_` INT,
+`USER_ID_` VARCHAR(64),
+`TYPE_` VARCHAR(64),
+`KEY_` VARCHAR(64),
+`VALUE_` VARCHAR(64),
+`PASSWORD_` VARCHAR(64),
+`PARENT_ID_` VARCHAR(64),
+PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+CREATE TABLE `ACT_ID_TENANT` (
+`ID_` VARCHAR(64),
+`REV_` INT,
+`NAME_` VARCHAR(64),
+PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+CREATE TABLE `ACT_ID_TENANT_MEMBER` (
+`ID_` VARCHAR(64),
+`TENANT_ID_` VARCHAR(64),
+`USER_ID_` VARCHAR(64),
+`GROUP_ID_` VARCHAR(64),
+PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_004304_activiti_cockroachdb_create_identity') AS relationships;
+relationships
+Database: db_004304_activiti_cockroachdb_create_identity
+
+Table Connections:
+------------------
+[Implied]  ACT_ID_MEMBERSHIP.GROUP_ID_ -> ACT_ID_GROUP.ID_
+[Implied]  ACT_ID_MEMBERSHIP.USER_ID_ -> ACT_ID_USER.ID_
+[Implied]  ACT_ID_TENANT_MEMBER.GROUP_ID_ -> ACT_ID_GROUP.ID_
+[Implied]  ACT_ID_TENANT_MEMBER.TENANT_ID_ -> ACT_ID_TENANT.ID_
+[Implied]  ACT_ID_TENANT_MEMBER.USER_ID_ -> ACT_ID_USER.ID_
+
+DROP DATABASE `db_004304_activiti_cockroachdb_create_identity`;
+UNINSTALL EXTENSION vsql_schematron;

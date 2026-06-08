@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 438535_2019-03-06-1419_create_initial_schema
+#
+CREATE DATABASE `db_438535_2019_03_06_1419_create_initial_schema`;
+USE `db_438535_2019_03_06_1419_create_initial_schema`;
+CREATE TABLE `record` (
+`id` INT,
+`aggregate_report_id` INT,
+`source_ip` VARCHAR(64),
+`count` INT,
+`disposition` VARCHAR(64),
+`dkim` VARCHAR(64),
+`spf` VARCHAR(64),
+`envelope_to` VARCHAR(64),
+`envelope_from` VARCHAR(64),
+`header_from` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dkim_auth_result` (
+`id` INT,
+`record_id` INT,
+`domain` VARCHAR(64),
+`selector` VARCHAR(64),
+`dkim_result` VARCHAR(64),
+`human_result` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `policy_override_reason` (
+`id` INT,
+`record_id` INT,
+`policy_override` VARCHAR(64),
+`comment` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `spf_auth_result` (
+`id` INT,
+`record_id` INT,
+`domain` VARCHAR(64),
+`scope` VARCHAR(64),
+`spf_result` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_438535_2019_03_06_1419_create_initial_schema') AS relationships;
+relationships
+Database: db_438535_2019_03_06_1419_create_initial_schema
+
+Table Connections:
+------------------
+[Implied]  dkim_auth_result.record_id -> record.id
+[Implied]  policy_override_reason.record_id -> record.id
+[Implied]  record.aggregate_report_id -> record.id
+[Implied]  spf_auth_result.record_id -> record.id
+
+DROP DATABASE `db_438535_2019_03_06_1419_create_initial_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 534050_Dump20210428
+--echo #
+CREATE DATABASE `db_534050_Dump20210428`;
+USE `db_534050_Dump20210428`;
+
+CREATE TABLE `auth_assignment` (
+  `item_name` VARCHAR(64),
+  `user_id` INT,
+  `created_at` INT,
+  PRIMARY KEY (`item_name`, `user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_item` (
+  `name` VARCHAR(64),
+  `type` INT,
+  `description` VARCHAR(64),
+  `rule_name` VARCHAR(64),
+  `data` VARCHAR(64),
+  `created_at` INT,
+  `updated_at` INT,
+  `group_code` VARCHAR(64),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_item_child` (
+  `parent` VARCHAR(64),
+  `child` VARCHAR(64),
+  PRIMARY KEY (`parent`, `child`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_item_group` (
+  `code` VARCHAR(64),
+  `name` VARCHAR(64),
+  `created_at` INT,
+  `updated_at` INT,
+  PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_rule` (
+  `name` VARCHAR(64),
+  `data` VARCHAR(64),
+  `created_at` INT,
+  `updated_at` INT,
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `migration` (
+  `version` VARCHAR(64),
+  `apply_time` INT,
+  PRIMARY KEY (`version`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_groups` (
+  `id` INT,
+  `group_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_534050_Dump20210428') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_534050_Dump20210428') AS relationships;
+DROP DATABASE `db_534050_Dump20210428`;
+UNINSTALL EXTENSION vsql_schematron;

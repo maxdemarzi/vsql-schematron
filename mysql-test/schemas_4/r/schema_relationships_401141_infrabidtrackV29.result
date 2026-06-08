@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 401141_infrabidtrackV29
+#
+CREATE DATABASE `db_401141_infrabidtrackV29`;
+USE `db_401141_infrabidtrackV29`;
+CREATE TABLE `contractors` (
+`contractor_id` INT,
+`businessname` VARCHAR(64),
+`owner` VARCHAR(64),
+`address` VARCHAR(64),
+`contactnumber` VARCHAR(64),
+`status` VARCHAR(64),
+PRIMARY KEY (`contractor_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `document_logs` (
+`doc_log_id` INT,
+`log_id` INT,
+`project_document_id` INT,
+PRIMARY KEY (`doc_log_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `logs` (
+`log_id` INT,
+`remark` VARCHAR(64),
+`log_type` VARCHAR(64),
+`sender` INT,
+`receiver` INT,
+`log_date` DATETIME,
+PRIMARY KEY (`log_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project_document` (
+`project_document_id` INT,
+`plan_id` INT,
+`doc_type_id` INT,
+`added_by` INT,
+`previous_doc_loc` VARCHAR(64),
+`current_doc_loc` VARCHAR(64),
+`receiver` VARCHAR(64),
+`status` VARCHAR(64),
+`image_status` VARCHAR(64),
+PRIMARY KEY (`project_document_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project_document_images` (
+`document_image_id` INT,
+`project_document_id` INT,
+`image_url` VARCHAR(64),
+PRIMARY KEY (`document_image_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `project_logs` (
+`project_log_id` INT,
+`plan_id` INT,
+`user_id` INT,
+`log_date` DATETIME,
+`remark` VARCHAR(64),
+PRIMARY KEY (`project_log_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_401141_infrabidtrackV29') AS relationships;
+relationships
+Database: db_401141_infrabidtrackV29
+
+Table Connections:
+------------------
+[Implied]  document_logs.log_id -> logs.log_id
+[Implied]  document_logs.project_document_id -> project_document.project_document_id
+[Implied]  project_document_images.project_document_id -> project_document.project_document_id
+[Implied]  project_logs.project_log_id -> logs.log_id
+
+DROP DATABASE `db_401141_infrabidtrackV29`;
+UNINSTALL EXTENSION vsql_schematron;

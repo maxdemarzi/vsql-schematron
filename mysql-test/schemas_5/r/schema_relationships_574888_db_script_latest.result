@@ -1,0 +1,133 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 574888_db_script_latest
+#
+CREATE DATABASE `db_574888_db_script_latest`;
+USE `db_574888_db_script_latest`;
+CREATE TABLE `workflow` (
+`name` VARCHAR(64),
+`is_active` BOOL,
+`project` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+`id` INT,
+`scheduler_instance_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `job_instance` (
+`job_name` VARCHAR(64),
+`job_status` VARCHAR(64),
+`executor_job_id` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+`order` INT,
+`dag_instance_id` INT,
+`id` INT,
+`application_id` VARCHAR(64),
+`job_parameters` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `job_definition` (
+`dag_definition_id` INT,
+`name` VARCHAR(64),
+`order` INT,
+`id` INT,
+`job_template_id` INT,
+`job_parameters` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sensor` (
+`workflow_id` INT,
+`sensor_type_old` VARCHAR(64),
+`variables_old` VARCHAR(64),
+`maps_old` VARCHAR(64),
+`match_properties_old` VARCHAR(64),
+`id` INT,
+`properties` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event` (
+`sensor_event_id` VARCHAR(64),
+`sensor_id` INT,
+`dag_instance_id` INT,
+`id` INT,
+`payload` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dag_definition` (
+`workflow_id` INT,
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dag_instance` (
+`status` VARCHAR(64),
+`workflow_id` INT,
+`id` INT,
+`started` DATETIME,
+`finished` DATETIME,
+`triggered_by` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `workflow_history` (
+`id` INT,
+`changed_on` DATETIME,
+`changed_by` VARCHAR(64),
+`operation` VARCHAR(64),
+`workflow_id` INT,
+`workflow` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `job_template` (
+`name` VARCHAR(64),
+`id` INT,
+`form_config` VARCHAR(64),
+`job_parameters` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `scheduler_instance` (
+`id` INT,
+`status` VARCHAR(64),
+`last_heartbeat` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notification_rule` (
+`id` INT,
+`is_active` BOOL,
+`project` VARCHAR(64),
+`workflow_prefix` VARCHAR(64),
+`min_elapsed_secs_last_success` INT,
+`statuses` VARCHAR(64),
+`recipients` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `notification_rule_history` (
+`id` INT,
+`changed_on` DATETIME,
+`changed_by` VARCHAR(64),
+`operation` VARCHAR(64),
+`notification_rule_id` INT,
+`notification_rule` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_574888_db_script_latest') AS relationships;
+relationships
+Database: db_574888_db_script_latest
+
+Table Connections:
+------------------
+[Implied]  dag_definition.workflow_id -> workflow.id
+[Implied]  dag_instance.workflow_id -> workflow.id
+[Implied]  event.dag_instance_id -> dag_instance.id
+[Implied]  event.sensor_id -> sensor.id
+[Implied]  job_definition.dag_definition_id -> dag_definition.id
+[Implied]  job_definition.job_template_id -> job_template.id
+[Implied]  job_instance.dag_instance_id -> dag_instance.id
+[Implied]  notification_rule_history.notification_rule_id -> notification_rule.id
+[Implied]  sensor.workflow_id -> workflow.id
+[Implied]  workflow.scheduler_instance_id -> scheduler_instance.id
+[Implied]  workflow_history.workflow_id -> workflow.id
+
+DROP DATABASE `db_574888_db_script_latest`;
+UNINSTALL EXTENSION vsql_schematron;

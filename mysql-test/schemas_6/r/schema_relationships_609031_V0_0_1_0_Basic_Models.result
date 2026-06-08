@@ -1,0 +1,65 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 609031_V0_0_1_0__Basic_Models
+#
+CREATE DATABASE `db_609031_V0_0_1_0_Basic_Models`;
+USE `db_609031_V0_0_1_0_Basic_Models`;
+CREATE TABLE `exams` (
+`id` INT,
+`description` VARCHAR(64),
+`starting_at` DATETIME,
+`duration` INT,
+`state` VARCHAR(64),
+`actual_starting_moment` DATETIME,
+`actual_duration` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `exercises` (
+`id` INT,
+`question` VARCHAR(64),
+`belongs_to` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `test_cases` (
+`id` INT,
+`visibility` VARCHAR(64),
+`belongs_to` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `test_case_inputs` (
+`test_case_id` INT,
+`input` VARCHAR(64),
+`input_order` INT
+) CHARACTER SET latin1;
+CREATE TABLE `test_case_expected_outputs` (
+`test_case_id` INT,
+`expected_output` VARCHAR(64),
+`expected_output_order` INT
+) CHARACTER SET latin1;
+CREATE TABLE `exercise_solutions` (
+`id` INT,
+`answer` VARCHAR(64),
+`belongs_to` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `exercise_solution_results` (
+`id` INT,
+`solution_id` INT,
+`test_case_id` INT,
+`result` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_609031_V0_0_1_0_Basic_Models') AS relationships;
+relationships
+Database: db_609031_V0_0_1_0_Basic_Models
+
+Table Connections:
+------------------
+[Implied]  exercise_solution_results.test_case_id -> test_cases.id
+[Implied]  exercise_solutions.id -> exercises.id
+[Implied]  exercises.id -> exercise_solution_results.id
+[Implied]  test_case_expected_outputs.test_case_id -> test_cases.id
+[Implied]  test_case_inputs.test_case_id -> test_cases.id
+
+DROP DATABASE `db_609031_V0_0_1_0_Basic_Models`;
+UNINSTALL EXTENSION vsql_schematron;

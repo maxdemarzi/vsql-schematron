@@ -1,0 +1,169 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 410969_id15166930_dbpertamina7
+--echo #
+CREATE DATABASE `db_410969_id15166930_dbpertamina7`;
+USE `db_410969_id15166930_dbpertamina7`;
+
+CREATE TABLE `auth_activation_attempts` (
+  `id` INT,
+  `ip_address` VARCHAR(64),
+  `user_agent` VARCHAR(64),
+  `token` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_groups` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_groups_permissions` (
+  `group_id` INT,
+  `permission_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_groups_users` (
+  `group_id` INT,
+  `user_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_logins` (
+  `id` INT,
+  `ip_address` VARCHAR(64),
+  `email` VARCHAR(64),
+  `user_id` INT,
+  `date` DATETIME,
+  `success` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_permissions` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_reset_attempts` (
+  `id` INT,
+  `email` VARCHAR(64),
+  `ip_address` VARCHAR(64),
+  `user_agent` VARCHAR(64),
+  `token` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_tokens` (
+  `id` INT,
+  `selector` VARCHAR(64),
+  `hashedValidator` VARCHAR(64),
+  `user_id` INT,
+  `expires` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_users_permissions` (
+  `user_id` INT,
+  `permission_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `info` (
+  `id` INT,
+  `judul` VARCHAR(64),
+  `slug` VARCHAR(64),
+  `id_menu` VARCHAR(64),
+  `subcategory1` VARCHAR(64),
+  `status` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `komik` (
+  `id` INT,
+  `judul` VARCHAR(64),
+  `slug` VARCHAR(64),
+  `penulis` VARCHAR(64),
+  `penerbit` VARCHAR(64),
+  `sampul` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `migrations` (
+  `id` INT,
+  `version` VARCHAR(64),
+  `class` VARCHAR(64),
+  `group` VARCHAR(64),
+  `namespace` VARCHAR(64),
+  `time` INT,
+  `batch` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orang` (
+  `id` INT,
+  `nama` VARCHAR(64),
+  `alamat` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pansol` (
+  `id` INT,
+  `judul` VARCHAR(64),
+  `slug` VARCHAR(64),
+  `id_menu` VARCHAR(64),
+  `sla` VARCHAR(64),
+  `subcategory1` VARCHAR(64),
+  `status` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `email` VARCHAR(64),
+  `username` VARCHAR(64),
+  `fullname` VARCHAR(64),
+  `user_image` VARCHAR(64),
+  `password_hash` VARCHAR(64),
+  `reset_hash` VARCHAR(64),
+  `reset_at` DATETIME,
+  `reset_expires` DATETIME,
+  `activate_hash` VARCHAR(64),
+  `status` VARCHAR(64),
+  `status_message` VARCHAR(64),
+  `active` INT,
+  `force_pass_reset` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_410969_id15166930_dbpertamina7') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_410969_id15166930_dbpertamina7') AS relationships;
+DROP DATABASE `db_410969_id15166930_dbpertamina7`;
+UNINSTALL EXTENSION vsql_schematron;

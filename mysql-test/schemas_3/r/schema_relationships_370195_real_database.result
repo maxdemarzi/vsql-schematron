@@ -1,0 +1,174 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 370195__real_database
+#
+CREATE DATABASE `db_370195_real_database`;
+USE `db_370195_real_database`;
+CREATE TABLE `user_type` (
+`type_no` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`type_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_info` (
+`user_no` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`type_no` INT,
+`firstname` VARCHAR(64),
+`lastname` VARCHAR(64),
+`birthday` DATETIME,
+`gender` VARCHAR(64),
+`address` VARCHAR(64),
+`mobile_number` VARCHAR(64),
+`img_source` VARCHAR(64),
+`is_online` BOOL,
+`ip_address` VARCHAR(64),
+`login_attempt` INT,
+`verify` BOOL,
+`is_active` BOOL,
+`create_date` DATETIME,
+`update_date` DATETIME,
+PRIMARY KEY (`user_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `modules` (
+`module_no` INT,
+`module_serial_no` INT,
+`name` VARCHAR(64),
+`created_by` INT,
+PRIMARY KEY (`module_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_access_module` (
+`module_serial_no` INT,
+`user_no` INT
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`category_no` INT,
+`name` VARCHAR(64),
+`create_date` DATETIME,
+`update_date` DATETIME,
+`user_no` INT,
+PRIMARY KEY (`category_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `status` (
+`status_no` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`status_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `post` (
+`post_no` INT,
+`title` VARCHAR(64),
+`thumbnail` VARCHAR(64),
+`content` VARCHAR(64),
+`status_no` INT,
+`user_no` INT,
+`category_no` INT,
+`create_date` DATETIME,
+`update_date` DATETIME,
+PRIMARY KEY (`post_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `coordinates` (
+`post_no` INT,
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `product_availability` (
+`availability_no` INT,
+`name` VARCHAR(64),
+`create_date` DATETIME,
+`update_date` DATETIME,
+`user_no` INT,
+PRIMARY KEY (`availability_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_category` (
+`p_category_no` INT,
+`name` VARCHAR(64),
+`create_date` DATETIME,
+`update_date` DATETIME,
+`user_no` INT,
+PRIMARY KEY (`p_category_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_brand` (
+`brand_no` INT,
+`name` VARCHAR(64),
+`create_date` DATETIME,
+`update_date` DATETIME,
+`user_no` INT,
+PRIMARY KEY (`brand_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `page_type` (
+`page_type_no` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`page_type_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `page` (
+`page_no` INT,
+`name` VARCHAR(64),
+`url` VARCHAR(64),
+`page_type_no` INT,
+`category_no` INT,
+`p_category_no` INT,
+`post_no` INT,
+`order_by` VARCHAR(64),
+PRIMARY KEY (`page_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `page_tree_view` (
+`page_no_tree_view` INT,
+`page_no_under` INT,
+PRIMARY KEY (`page_no_tree_view`, `page_no_under`)
+) CHARACTER SET latin1;
+CREATE TABLE `web_configuration` (
+`web_configuration_no` INT,
+`show_header` BOOL,
+`header_left` VARCHAR(64),
+`header_right` VARCHAR(64),
+`logo` VARCHAR(64),
+`bg_image` VARCHAR(64),
+`default_text_color` VARCHAR(64),
+`default_btn_color` VARCHAR(64),
+`h_menu_bg_color` VARCHAR(64),
+`h_tag_color` VARCHAR(64),
+`a_tag_color` VARCHAR(64),
+`a_tag_focus_color` VARCHAR(64),
+`a_tag_active_color` VARCHAR(64),
+`h_category_bg_color` VARCHAR(64),
+`category_bg_color` VARCHAR(64),
+`carousel` VARCHAR(64),
+`n_img_collection` VARCHAR(64),
+`footer_text` VARCHAR(64),
+`fb_link` VARCHAR(64),
+`g_link` VARCHAR(64),
+`twit_link` VARCHAR(64),
+`insta_link` VARCHAR(64),
+`pin_link` VARCHAR(64),
+`page_treeview_1no` INT,
+`page_treeview_2no` INT,
+PRIMARY KEY (`web_configuration_no`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_370195_real_database') AS relationships;
+relationships
+Database: db_370195_real_database
+
+Table Connections:
+------------------
+[Implied]  category.user_no -> user_info.user_no
+[Implied]  coordinates.post_no -> post.post_no
+[Implied]  page.category_no -> category.category_no
+[Implied]  page.order_by -> user_info.email
+[Implied]  page.p_category_no -> category.category_no
+[Implied]  page.page_type_no -> user_type.type_no
+[Implied]  page.post_no -> post.post_no
+[Implied]  page_tree_view.page_no_tree_view -> page.page_no
+[Implied]  page_tree_view.page_no_under -> page.page_no
+[Implied]  page_type.page_type_no -> user_type.type_no
+[Implied]  post.category_no -> category.category_no
+[Implied]  post.status_no -> status.status_no
+[Implied]  post.user_no -> user_info.user_no
+[Implied]  product_availability.user_no -> user_info.user_no
+[Implied]  product_brand.user_no -> user_info.user_no
+[Implied]  product_category.user_no -> user_info.user_no
+[Implied]  user_access_module.module_serial_no -> modules.module_no
+[Implied]  user_access_module.user_no -> user_info.user_no
+[Implied]  user_info.type_no -> user_type.type_no
+
+DROP DATABASE `db_370195_real_database`;
+UNINSTALL EXTENSION vsql_schematron;

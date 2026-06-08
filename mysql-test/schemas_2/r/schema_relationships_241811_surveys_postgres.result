@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 241811_surveys.postgres
+#
+CREATE DATABASE `db_241811_surveys_postgres`;
+USE `db_241811_surveys_postgres`;
+CREATE TABLE `users` (
+`id` INT,
+`email` VARCHAR(64),
+`password_digest` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `surveys` (
+`id` INT,
+`author_id` INT,
+`title` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `survey_choices` (
+`id` INT,
+`survey_id` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `survey_responses` (
+`id` INT,
+`survey_id` INT,
+`respondent_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `survey_response_choices` (
+`id` INT,
+`survey_choice_id` INT,
+`survey_response_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_241811_surveys_postgres') AS relationships;
+relationships
+Database: db_241811_surveys_postgres
+
+Table Connections:
+------------------
+[Implied]  survey_choices.survey_id -> surveys.id
+[Implied]  survey_response_choices.survey_choice_id -> survey_choices.id
+[Implied]  survey_response_choices.survey_response_id -> survey_responses.id
+[Implied]  survey_responses.respondent_id -> users.id
+[Implied]  survey_responses.survey_id -> surveys.id
+[Implied]  surveys.author_id -> users.id
+
+DROP DATABASE `db_241811_surveys_postgres`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -12,7 +12,7 @@ struct Relationship {
     std::string from_column;
     std::string to_table;
     std::string to_column;
-    bool is_explicit;
+    bool is_explicit = false;
 
     bool operator<(const Relationship& other) const {
         if (from_table != other.from_table) return from_table < other.from_table;

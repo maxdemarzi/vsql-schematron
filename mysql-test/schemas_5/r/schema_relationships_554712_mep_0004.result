@@ -1,0 +1,167 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 554712_mep_0004
+#
+CREATE DATABASE `db_554712_mep_0004`;
+USE `db_554712_mep_0004`;
+CREATE TABLE `accounts_account` (
+`id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `accounts_accountaddress` (
+`id` INT,
+`notes` VARCHAR(64),
+`start_date` DATETIME,
+`end_date` DATETIME,
+`account_id` INT,
+`address_id` INT,
+`care_of_person_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `accounts_address` (
+`id` INT,
+`notes` VARCHAR(64),
+`address_line_1` VARCHAR(64),
+`address_line_2` VARCHAR(64),
+`city_town` VARCHAR(64),
+`postal_code` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`country_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `accounts_borrow` (
+`event_ptr_id` INT,
+`purchase_id_id` INT,
+PRIMARY KEY (`event_ptr_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `accounts_event` (
+`id` INT,
+`notes` VARCHAR(64),
+`start_date` DATETIME,
+`end_date` DATETIME,
+`account_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `accounts_purchase` (
+`event_ptr_id` INT,
+`price` DECIMAL(10,2),
+`currency` VARCHAR(64),
+`item_id` INT,
+PRIMARY KEY (`event_ptr_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `accounts_reimbursement` (
+`event_ptr_id` INT,
+`price` DECIMAL(10,2),
+`currency` VARCHAR(64),
+PRIMARY KEY (`event_ptr_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `accounts_subscribe` (
+`event_ptr_id` INT,
+`duration` INT,
+`volumes` INT,
+`sub_type` VARCHAR(64),
+`price_paid` DECIMAL(10,2),
+`deposit` DECIMAL(10,2),
+`currency` VARCHAR(64),
+`modification` VARCHAR(64),
+PRIMARY KEY (`event_ptr_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books_item` (
+`id` INT,
+`notes` VARCHAR(64),
+`mep_id` VARCHAR(64),
+`title` VARCHAR(64),
+`volume` INT,
+`number` INT,
+`year` INT,
+`season` VARCHAR(64),
+`edition` VARCHAR(64),
+`viaf_id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `django_admin_log` (
+`id` INT,
+`action_time` DATETIME,
+`object_id` VARCHAR(64),
+`object_repr` VARCHAR(64),
+`action_flag` INT,
+`change_message` VARCHAR(64),
+`content_type_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `django_cas_ng_sessionticket` (
+`id` INT,
+`session_key` VARCHAR(64),
+`ticket` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `django_session` (
+`session_key` VARCHAR(64),
+`session_data` VARCHAR(64),
+`expire_date` DATETIME,
+PRIMARY KEY (`session_key`)
+) CHARACTER SET latin1;
+CREATE TABLE `footnotes_bibliography` (
+`id` INT,
+`notes` VARCHAR(64),
+`bibliographic_note` VARCHAR(64),
+`source_type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `footnotes_footnote` (
+`id` INT,
+`notes` VARCHAR(64),
+`location` VARCHAR(64),
+`snippet_text` VARCHAR(64),
+`object_id` INT,
+`is_agree` INT,
+`bibliography_id` INT,
+`content_type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `people_infourl` (
+`id` INT,
+`notes` VARCHAR(64),
+`url` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `people_person` (
+`id` INT,
+`notes` VARCHAR(64),
+`start_year` INT,
+`end_year` INT,
+`mep_id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`viaf_id` VARCHAR(64),
+`sex` VARCHAR(64),
+`title` VARCHAR(64),
+`profession_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `people_relationship` (
+`id` INT,
+`from_person_id` INT,
+`relationship_type_id` INT,
+`to_person_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_554712_mep_0004') AS relationships;
+relationships
+Database: db_554712_mep_0004
+
+Table Connections:
+------------------
+[Implied]  accounts_accountaddress.account_id -> accounts_account.id
+[Implied]  accounts_accountaddress.address_id -> accounts_address.id
+[Implied]  accounts_accountaddress.care_of_person_id -> people_person.id
+[Implied]  accounts_event.account_id -> accounts_account.id
+[Implied]  accounts_purchase.item_id -> books_item.id
+[Implied]  footnotes_footnote.bibliography_id -> footnotes_bibliography.id
+[Implied]  people_relationship.from_person_id -> people_person.id
+[Implied]  people_relationship.to_person_id -> people_person.id
+
+DROP DATABASE `db_554712_mep_0004`;
+UNINSTALL EXTENSION vsql_schematron;

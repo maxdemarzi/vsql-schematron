@@ -1,0 +1,111 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 600792_TechQuiz
+#
+CREATE DATABASE `db_600792_TechQuiz`;
+USE `db_600792_TechQuiz`;
+CREATE TABLE `evento` (
+`id` INT,
+`nome` VARCHAR(64),
+`semestre` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `gerenciador` (
+`id` INT,
+`login` VARCHAR(64),
+`senha` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `membros` (
+`matricula` INT,
+`nome` VARCHAR(64),
+PRIMARY KEY (`matricula`)
+) CHARACTER SET latin1;
+CREATE TABLE `questoes` (
+`id` INT,
+`nome` VARCHAR(64),
+`texto` VARCHAR(64),
+`urlimagem` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bloco` (
+`id` INT,
+`nome` VARCHAR(64),
+`evento_id` INT,
+`tempoinicial_questaoatual` DATETIME,
+`limite_tempo` DATETIME,
+`ponto_acerto` INT,
+`ponto_erro` INT,
+PRIMARY KEY (`id`, `evento_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `equipe` (
+`id` INT,
+`nome` VARCHAR(64),
+`evento_id` INT,
+`login` VARCHAR(64),
+`senha` VARCHAR(64),
+PRIMARY KEY (`id`, `evento_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questaomultipla` (
+`questoes_id` INT,
+`alternativa_a` VARCHAR(64),
+`alternativa_b` VARCHAR(64),
+`alternativa_c` VARCHAR(64),
+`alternativa_d` VARCHAR(64),
+`alternativa_correta` INT,
+PRIMARY KEY (`questoes_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questaovf` (
+`questoes_id` INT,
+`alternativa_correta` INT,
+PRIMARY KEY (`questoes_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `questao_aberta` (
+`questoes_id` INT,
+`rubrica` VARCHAR(64),
+PRIMARY KEY (`questoes_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bloco_questoes` (
+`id` INT,
+`questoes_id` INT,
+`bloco_id` INT,
+`evento_id` INT,
+`questaoatual` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bloco_questoes_equipe` (
+`questao_id` INT,
+`bloco_id` INT,
+`evento_id` INT,
+`equipe_id` INT,
+`resposta` INT,
+PRIMARY KEY (`questao_id`, `bloco_id`, `evento_id`, `equipe_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vinculo` (
+`equipe_id` INT,
+`membros_matricula` INT,
+`evento_id` INT,
+PRIMARY KEY (`equipe_id`, `membros_matricula`, `evento_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_600792_TechQuiz') AS relationships;
+relationships
+Database: db_600792_TechQuiz
+
+Table Connections:
+------------------
+[Implied]  bloco.evento_id -> evento.id
+[Implied]  bloco_questoes.bloco_id -> bloco_questoes_equipe.bloco_id
+[Implied]  bloco_questoes.evento_id -> evento.id
+[Implied]  bloco_questoes.questoes_id -> questoes.id
+[Implied]  bloco_questoes_equipe.equipe_id -> vinculo.equipe_id
+[Implied]  bloco_questoes_equipe.evento_id -> evento.id
+[Implied]  equipe.evento_id -> evento.id
+[Implied]  questao_aberta.questoes_id -> questoes.id
+[Implied]  questaomultipla.questoes_id -> questoes.id
+[Implied]  questaovf.questoes_id -> questoes.id
+[Implied]  vinculo.equipe_id -> bloco_questoes_equipe.equipe_id
+[Implied]  vinculo.evento_id -> evento.id
+[Implied]  vinculo.membros_matricula -> membros.matricula
+
+DROP DATABASE `db_600792_TechQuiz`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,156 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 470577_pos
+#
+CREATE DATABASE `db_470577_pos`;
+USE `db_470577_pos`;
+CREATE TABLE `tbl_brand` (
+`id_brand` INT,
+`nama_brand` VARCHAR(64),
+PRIMARY KEY (`id_brand`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_customer` (
+`id_customer` INT,
+`nama_customer` VARCHAR(64),
+`npwp_customer` VARCHAR(64),
+`alamat_customer` VARCHAR(64),
+`no_telp_customer` VARCHAR(64),
+`email_customer` VARCHAR(64),
+PRIMARY KEY (`id_customer`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_kategori` (
+`id_kategori` INT,
+`nama_kategori` VARCHAR(64),
+PRIMARY KEY (`id_kategori`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_perusahaan` (
+`id_perusahaan` INT,
+`nama_perusahaan` VARCHAR(64),
+`npwp_perusahaan` VARCHAR(64),
+`alamat_perusahaan` VARCHAR(64),
+`no_telp_perusahaan` VARCHAR(64),
+`email_perusahaan` VARCHAR(64),
+PRIMARY KEY (`id_perusahaan`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_po` (
+`id_po` INT,
+`tanggal_po` DATETIME,
+`alamat_pengiriman_po` VARCHAR(64),
+`tax_po` INT,
+`status_po` INT,
+`id_rfq` INT,
+`id_user` INT,
+PRIMARY KEY (`id_po`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_po_detail` (
+`id_po_detail` INT,
+`harga_po_detail` INT,
+`qty_po_detail` INT,
+`disc_po_detail` INT,
+`id_po` INT,
+`id_produk` INT,
+PRIMARY KEY (`id_po_detail`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_produk` (
+`id_produk` INT,
+`nama_produk` VARCHAR(64),
+`size_produk` VARCHAR(64),
+`cost_produk` INT,
+`price_produk` INT,
+`alert_quantity` INT,
+`image_produk` VARCHAR(64),
+`id_kategori` INT,
+`id_unit` INT,
+`id_brand` INT,
+PRIMARY KEY (`id_produk`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_rfq` (
+`id_rfq` INT,
+`tanggal_rfq` DATETIME,
+`alamat_pengiriman_rfq` VARCHAR(64),
+`tax_rfq` INT,
+`jenis_rfq` INT,
+`id_supplier` INT,
+`id_user` INT,
+`id_perusahaan` INT,
+`id_customer` INT,
+PRIMARY KEY (`id_rfq`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_rfq_detail` (
+`id_rfq_detail` INT,
+`harga_rfq_detail` INT,
+`qty_rfq_detail` INT,
+`disc_rfq_detail` INT,
+`id_rfq` INT,
+`id_produk` INT,
+PRIMARY KEY (`id_rfq_detail`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_stockopname` (
+`id_stockopname` INT,
+`tanggal_stockopname` DATETIME,
+`id_produk` INT,
+`qty_stocksistem` INT,
+`qty_stokcopname` INT,
+PRIMARY KEY (`id_stockopname`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_supplier` (
+`id_supplier` INT,
+`nama_supplier` VARCHAR(64),
+`npwp_supplier` VARCHAR(64),
+`alamat_supplier` VARCHAR(64),
+`no_telp_supplier` VARCHAR(64),
+`email_supplier` VARCHAR(64),
+PRIMARY KEY (`id_supplier`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_surat_jalan` (
+`id_surat_jalan` INT,
+`tanggal_pengiriman` DATETIME,
+`id_user` INT,
+`id_warehouse` INT,
+PRIMARY KEY (`id_surat_jalan`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_unit` (
+`id_unit` INT,
+`nama_unit` VARCHAR(64),
+PRIMARY KEY (`id_unit`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_warehouse` (
+`id_warehouse` INT,
+`tanggal_warehouse` DATETIME,
+`upload_warehouse` VARCHAR(64),
+`id_user` INT,
+PRIMARY KEY (`id_warehouse`)
+) CHARACTER SET latin1;
+CREATE TABLE `tbl_warehouse_detail` (
+`id_warehouse_detail` INT,
+`qty_warehouse_detail` INT,
+`id_po_detail` INT,
+`id_warehouse` INT,
+PRIMARY KEY (`id_warehouse_detail`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_470577_pos') AS relationships;
+relationships
+Database: db_470577_pos
+
+Table Connections:
+------------------
+[Implied]  tbl_po.id_rfq -> tbl_rfq.id_rfq
+[Implied]  tbl_po_detail.id_po -> tbl_po.id_po
+[Implied]  tbl_po_detail.id_produk -> tbl_produk.id_produk
+[Implied]  tbl_produk.id_brand -> tbl_brand.id_brand
+[Implied]  tbl_produk.id_kategori -> tbl_kategori.id_kategori
+[Implied]  tbl_produk.id_unit -> tbl_unit.id_unit
+[Implied]  tbl_rfq.id_customer -> tbl_customer.id_customer
+[Implied]  tbl_rfq.id_perusahaan -> tbl_perusahaan.id_perusahaan
+[Implied]  tbl_rfq.id_supplier -> tbl_supplier.id_supplier
+[Implied]  tbl_rfq_detail.disc_rfq_detail -> tbl_po_detail.id_po_detail
+[Implied]  tbl_rfq_detail.harga_rfq_detail -> tbl_po_detail.id_po_detail
+[Implied]  tbl_rfq_detail.id_produk -> tbl_produk.id_produk
+[Implied]  tbl_rfq_detail.id_rfq -> tbl_rfq.id_rfq
+[Implied]  tbl_stockopname.id_produk -> tbl_produk.id_produk
+[Implied]  tbl_surat_jalan.id_warehouse -> tbl_warehouse.id_warehouse
+[Implied]  tbl_warehouse_detail.id_po_detail -> tbl_po_detail.id_po_detail
+[Implied]  tbl_warehouse_detail.id_warehouse -> tbl_warehouse.id_warehouse
+
+DROP DATABASE `db_470577_pos`;
+UNINSTALL EXTENSION vsql_schematron;

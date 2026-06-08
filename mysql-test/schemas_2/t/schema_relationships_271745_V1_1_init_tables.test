@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 271745_V1_1__init_tables
+--echo #
+CREATE DATABASE `db_271745_V1_1_init_tables`;
+USE `db_271745_V1_1_init_tables`;
+
+CREATE TABLE `ORG_UNIT` (
+  `org_unit_id` INT,
+  `description` VARCHAR(64),
+  `last_update` DATETIME,
+  PRIMARY KEY (`org_unit_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ORG_BUSINESS_AREA` (
+  `business_area_id` INT,
+  `description` VARCHAR(64),
+  `last_update` DATETIME,
+  PRIMARY KEY (`business_area_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ORG_SUB_BUSINESS_AREA` (
+  `sub_business_area_id` INT,
+  `description` VARCHAR(64),
+  `last_update` DATETIME,
+  PRIMARY KEY (`sub_business_area_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `JURISDICTION` (
+  `jurisdiction_id` INT,
+  `description` VARCHAR(64),
+  `last_update` DATETIME,
+  PRIMARY KEY (`jurisdiction_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SERVICE` (
+  `service_id` INT,
+  `org_unit_id` INT,
+  `business_area_id` INT,
+  `sub_business_area_id` INT,
+  `jurisdiction_id` INT,
+  `service_code` VARCHAR(64),
+  `service_description` VARCHAR(64),
+  `service_short_description` VARCHAR(64),
+  `last_update` DATETIME,
+  PRIMARY KEY (`service_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SERVICE_TO_CCD_CASE_TYPE_ASSOC` (
+  `id` INT,
+  `service_code` VARCHAR(64),
+  `ccd_service_name` VARCHAR(64),
+  `ccd_case_type` VARCHAR(64),
+  `created_date` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_271745_V1_1_init_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_271745_V1_1_init_tables') AS relationships;
+DROP DATABASE `db_271745_V1_1_init_tables`;
+UNINSTALL EXTENSION vsql_schematron;

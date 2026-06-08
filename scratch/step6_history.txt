@@ -1,0 +1,46 @@
+     p_clean.erase(std::remove(p_clean.begin(), p_clean.end(), '_'), p_clean.end());
+@@ -202,6 +249,11 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
+     std::string t_sing = singularize(t_clean);
+     if (p_sing == t_sing) return true;
+     
++    // 6. Loose suffix/prefix and singularized suffix/prefix matching (for words with length >= 3)
++    //    Examples:
++    //      - Prefix: p="user", t="userroles" (clean p_clean="user", t_clean="userrole", starts with user) -> true
++    //      - Suffix: p="role", t="userrole" (clean p_clean="role", t_clean="userrole", ends with role) -> true
++    //      - Singularized suffix: p="roles", t="userrole" (singularizes to p_sing="role", t_sing="userrole", ends with role) -> true
+     if (allow_substring && p_clean.length() >= 3) {
+         if (t_clean.length() >= p_clean.length()) {
+             if (t_clean.find(p_clean) == 0) return true;
+@@ -242,6 +294,11 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
+ 
+ /**
+  * Multi-level comparison helper to check if a column's prefix matches a target table name.
++ *
++ * Examples:
++ *   - matchTableName("user", "users") -> true (direct match)
++ *   - matchTableName("parent_company", "companies") -> true (strips parent_ role and matches company to companies)
++ *   - matchTableName("mgr", "employees") -> true (expands abbreviation mgr to manager, matches employee person table rules)
+  */
+ bool matchTableName(const std::string& col_prefix, const std::string& tbl_name, bool allow_substring) {
+     std::string prefix = to_lower(col_prefix);
+@@ -253,6 +310,7 @@ bool matchTableName(const std::string& col_prefix, const std::string& tbl_name,
+     std::string prefix_norole = stripRolePrefix(prefix);
+     std::string clean_prefix_norole = stripRolePrefix(clean_prefix);
+     
++    // Check raw, stripped prefix, and role-stripped variants against clean table name variations
+     if (matchCleanTableNames(prefix, tbl, allow_substring)) return true;
+     if (matchCleanTableNames(clean_prefix, clean_tbl, allow_substring)) return true;
+     if (matchCleanTableNames(prefix, clean_tbl, allow_substring)) return true;
+@@ -268,8 +326,9 @@ bool matchTableName(const std::string& col_prefix, const std::string& tbl_name,
+  * Tokenizes snake_case or camelCase column names into prefix and suffix parts.
+  *
+  * Examples:
+- *   "customer_id" -> prefix: "customer", suffix: "id"
+- *   "customerId" -> prefix: "customer", suffix: "Id"
++ *   - splitColumnName("customer_id", prefix, suffix) -> prefix: "customer", suffix: "id" (returns true)
++ *   - splitColumnName("customerId", prefix, suffix) -> prefix: "customer", suffix: "Id" (returns true)
++ *   - splitColumnName("customeruuid", prefix, suffix) -> prefix: "customer", suffix: "uuid" (returns true)
+  */
+ bool splitColumnName(const std::string& col, std::string& prefix, std::string& suffix) {
+     size_t underscore_pos = col.rfind('_');
+@@ -287,7 +346,7 @@ bool splitColumnName(const std::string& col, std::string& prefix, std::string& s

@@ -1,0 +1,160 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 435217_mezzanine_mysql_dump
+--echo #
+CREATE DATABASE `db_435217_mezzanine_mysql_dump`;
+USE `db_435217_mezzanine_mysql_dump`;
+
+CREATE TABLE `categories_categoryrelation` (
+  `id` INT,
+  `object_id` INT,
+  `relation_type` VARCHAR(64),
+  `category_id` INT,
+  `content_type_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `django_comments` (
+  `id` INT,
+  `object_pk` VARCHAR(64),
+  `user_name` VARCHAR(64),
+  `user_email` VARCHAR(64),
+  `user_url` VARCHAR(64),
+  `comment` VARCHAR(64),
+  `submit_date` DATETIME,
+  `ip_address` VARCHAR(64),
+  `is_public` INT,
+  `is_removed` INT,
+  `content_type_id` INT,
+  `site_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `django_session` (
+  `session_key` VARCHAR(64),
+  `session_data` VARCHAR(64),
+  `expire_date` DATETIME,
+  PRIMARY KEY (`session_key`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `forms_form` (
+  `page_ptr_id` INT,
+  `content` VARCHAR(64),
+  `button_text` VARCHAR(64),
+  `response` VARCHAR(64),
+  `send_email` INT,
+  `email_from` VARCHAR(64),
+  `email_copies` VARCHAR(64),
+  `email_subject` VARCHAR(64),
+  `email_message` VARCHAR(64),
+  PRIMARY KEY (`page_ptr_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `galleries_gallery` (
+  `page_ptr_id` INT,
+  `content` VARCHAR(64),
+  `zip_import` VARCHAR(64),
+  PRIMARY KEY (`page_ptr_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `galleries_galleryimage` (
+  `id` INT,
+  `_order` INT,
+  `file` VARCHAR(64),
+  `description` VARCHAR(64),
+  `gallery_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `generic_assignedkeyword` (
+  `id` INT,
+  `_order` INT,
+  `object_pk` INT,
+  `content_type_id` INT,
+  `keyword_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `generic_keyword` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `slug` VARCHAR(64),
+  `site_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `generic_rating` (
+  `id` INT,
+  `value` INT,
+  `rating_date` DATETIME,
+  `object_pk` INT,
+  `content_type_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `generic_threadedcomment` (
+  `comment_ptr_id` INT,
+  `rating_count` INT,
+  `rating_sum` INT,
+  `rating_average` DECIMAL(10,2),
+  `by_author` INT,
+  `replied_to_id` INT,
+  PRIMARY KEY (`comment_ptr_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pages_link` (
+  `page_ptr_id` INT,
+  PRIMARY KEY (`page_ptr_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pages_richtextpage` (
+  `page_ptr_id` INT,
+  `content` VARCHAR(64),
+  PRIMARY KEY (`page_ptr_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `twitter_query` (
+  `id` INT,
+  `type` VARCHAR(64),
+  `value` VARCHAR(64),
+  `interested` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `twitter_tweet` (
+  `id` INT,
+  `remote_id` VARCHAR(64),
+  `created_at` DATETIME,
+  `text` VARCHAR(64),
+  `profile_image_url` VARCHAR(64),
+  `user_name` VARCHAR(64),
+  `full_name` VARCHAR(64),
+  `retweeter_profile_image_url` VARCHAR(64),
+  `retweeter_user_name` VARCHAR(64),
+  `retweeter_full_name` VARCHAR(64),
+  `query_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_435217_mezzanine_mysql_dump') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_435217_mezzanine_mysql_dump') AS relationships;
+DROP DATABASE `db_435217_mezzanine_mysql_dump`;
+UNINSTALL EXTENSION vsql_schematron;

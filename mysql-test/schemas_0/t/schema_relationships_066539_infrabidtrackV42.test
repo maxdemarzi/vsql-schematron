@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 066539_infrabidtrackV42
+--echo #
+CREATE DATABASE `db_066539_infrabidtrackV42`;
+USE `db_066539_infrabidtrackV42`;
+
+CREATE TABLE `disqualification_records` (
+  `record_id` INT,
+  `project_bid` INT,
+  `project_log_id` INT,
+  PRIMARY KEY (`record_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `document_logs` (
+  `doc_log_id` INT,
+  `log_id` INT,
+  `project_document_id` INT,
+  PRIMARY KEY (`doc_log_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `logs` (
+  `log_id` INT,
+  `remark` VARCHAR(64),
+  `log_type` VARCHAR(64),
+  `sender` INT,
+  `receiver` INT,
+  `log_date` DATETIME,
+  PRIMARY KEY (`log_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `project_document` (
+  `project_document_id` INT,
+  `plan_id` INT,
+  `doc_type_id` INT,
+  `contractor_id` INT,
+  `added_by` INT,
+  `previous_doc_loc` VARCHAR(64),
+  `current_doc_loc` VARCHAR(64),
+  `receiver` VARCHAR(64),
+  `status` VARCHAR(64),
+  `image_status` VARCHAR(64),
+  PRIMARY KEY (`project_document_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `project_document_images` (
+  `document_image_id` INT,
+  `project_document_id` INT,
+  `image_url` VARCHAR(64),
+  `upload_path` VARCHAR(64),
+  PRIMARY KEY (`document_image_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `project_logs` (
+  `project_log_id` INT,
+  `plan_id` INT,
+  `user_id` INT,
+  `log_date` DATETIME,
+  `remark` VARCHAR(64),
+  PRIMARY KEY (`project_log_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `project_observers` (
+  `activity_observer` INT,
+  `plan_id` INT,
+  `observer_id` INT,
+  `name_of_observer` VARCHAR(64),
+  PRIMARY KEY (`activity_observer`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_066539_infrabidtrackV42') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_066539_infrabidtrackV42') AS relationships;
+DROP DATABASE `db_066539_infrabidtrackV42`;
+UNINSTALL EXTENSION vsql_schematron;

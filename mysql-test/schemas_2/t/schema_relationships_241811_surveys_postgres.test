@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 241811_surveys.postgres
+--echo #
+CREATE DATABASE `db_241811_surveys_postgres`;
+USE `db_241811_surveys_postgres`;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `email` VARCHAR(64),
+  `password_digest` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `surveys` (
+  `id` INT,
+  `author_id` INT,
+  `title` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `survey_choices` (
+  `id` INT,
+  `survey_id` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `survey_responses` (
+  `id` INT,
+  `survey_id` INT,
+  `respondent_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `survey_response_choices` (
+  `id` INT,
+  `survey_choice_id` INT,
+  `survey_response_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_241811_surveys_postgres') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_241811_surveys_postgres') AS relationships;
+DROP DATABASE `db_241811_surveys_postgres`;
+UNINSTALL EXTENSION vsql_schematron;

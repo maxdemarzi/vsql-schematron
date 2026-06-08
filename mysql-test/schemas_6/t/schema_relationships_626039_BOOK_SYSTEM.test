@@ -1,0 +1,91 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 626039_BOOK_SYSTEM
+--echo #
+CREATE DATABASE `db_626039_BOOK_SYSTEM`;
+USE `db_626039_BOOK_SYSTEM`;
+
+CREATE TABLE `T_USER` (
+  `ID` INT,
+  `USER_NAME` VARCHAR(64),
+  `USER_PASSWORD` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_BOOK_TYPE` (
+  `ID` INT,
+  `TYPE_NAME` VARCHAR(64),
+  `TYPE_INTRO` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_PUBLISHER` (
+  `ID` INT,
+  `PUB_NAME` VARCHAR(64),
+  `PUB_TEL` VARCHAR(64),
+  `PUB_LINK_MAN` VARCHAR(64),
+  `PUB_INTRO` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_BOOK` (
+  `ID` INT,
+  `BOOK_NAME` VARCHAR(64),
+  `BOOK_INTRO` VARCHAR(64),
+  `BOOK_PRICE` DECIMAL(10,2),
+  `TYPE_ID_FK` INT,
+  `PUB_ID_FK` INT,
+  `IMAGE_URL` VARCHAR(64),
+  `AUTHOR` VARCHAR(64),
+  `REPERTORY_SIZE` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_SALE_RECORD` (
+  `ID` INT,
+  `RECORD_DATE` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_BOOK_SALE_RECORD` (
+  `ID` INT,
+  `BOOK_ID_FK` INT,
+  `T_SALE_RECORD_ID_FK` INT,
+  `TRADE_SUM` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_IN_RECORD` (
+  `ID` INT,
+  `RECORD_DATE` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `T_BOOK_IN_RECORD` (
+  `ID` INT,
+  `BOOK_ID_FK` INT,
+  `T_IN_RECORD_ID_FK` INT,
+  `IN_SUM` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_626039_BOOK_SYSTEM') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_626039_BOOK_SYSTEM') AS relationships;
+DROP DATABASE `db_626039_BOOK_SYSTEM`;
+UNINSTALL EXTENSION vsql_schematron;

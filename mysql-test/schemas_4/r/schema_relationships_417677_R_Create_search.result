@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 417677_R__Create_search
+#
+CREATE DATABASE `db_417677_R_Create_search`;
+USE `db_417677_R_Create_search`;
+CREATE TABLE `simple_search` (
+`id` INT,
+`fedora_id` VARCHAR(64),
+`created` DATETIME,
+`modified` DATETIME,
+`content_size` INT,
+`mime_type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `simple_search_transactions` (
+`id` INT,
+`fedora_id` VARCHAR(64),
+`created` DATETIME,
+`modified` DATETIME,
+`content_size` INT,
+`mime_type` VARCHAR(64),
+`transaction_id` VARCHAR(64),
+`operation` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `search_rdf_type` (
+`id` INT,
+`rdf_type_uri` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `search_resource_rdf_type` (
+`resource_id` INT,
+`rdf_type_id` INT,
+PRIMARY KEY (`resource_id`, `rdf_type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `search_resource_rdf_type_transactions` (
+`fedora_id` VARCHAR(64),
+`rdf_type_uri` VARCHAR(64),
+`transaction_id` VARCHAR(64),
+PRIMARY KEY (`fedora_id`, `rdf_type_uri`, `transaction_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_417677_R_Create_search') AS relationships;
+relationships
+Database: db_417677_R_Create_search
+
+Table Connections:
+------------------
+[Implied]  search_rdf_type.rdf_type_uri -> search_resource_rdf_type_transactions.rdf_type_uri
+[Implied]  search_resource_rdf_type.rdf_type_id -> search_rdf_type.id
+[Implied]  simple_search.fedora_id -> search_resource_rdf_type_transactions.fedora_id
+[Implied]  simple_search_transactions.fedora_id -> search_resource_rdf_type_transactions.fedora_id
+[Implied]  simple_search_transactions.transaction_id -> search_resource_rdf_type_transactions.transaction_id
+
+DROP DATABASE `db_417677_R_Create_search`;
+UNINSTALL EXTENSION vsql_schematron;

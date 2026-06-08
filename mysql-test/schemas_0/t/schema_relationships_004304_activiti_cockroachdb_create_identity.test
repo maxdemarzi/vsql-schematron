@@ -1,0 +1,82 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 004304_activiti.cockroachdb.create.identity
+--echo #
+CREATE DATABASE `db_004304_activiti_cockroachdb_create_identity`;
+USE `db_004304_activiti_cockroachdb_create_identity`;
+
+CREATE TABLE `ACT_ID_GROUP` (
+  `ID_` VARCHAR(64),
+  `REV_` INT,
+  `NAME_` VARCHAR(64),
+  `TYPE_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_ID_MEMBERSHIP` (
+  `USER_ID_` VARCHAR(64),
+  `GROUP_ID_` VARCHAR(64),
+  PRIMARY KEY (`USER_ID_`, `GROUP_ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_ID_USER` (
+  `ID_` VARCHAR(64),
+  `REV_` INT,
+  `FIRST_` VARCHAR(64),
+  `LAST_` VARCHAR(64),
+  `EMAIL_` VARCHAR(64),
+  `PWD_` VARCHAR(64),
+  `SALT_` VARCHAR(64),
+  `LOCK_EXP_TIME_` DATETIME,
+  `ATTEMPTS_` INT,
+  `PICTURE_ID_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_ID_INFO` (
+  `ID_` VARCHAR(64),
+  `REV_` INT,
+  `USER_ID_` VARCHAR(64),
+  `TYPE_` VARCHAR(64),
+  `KEY_` VARCHAR(64),
+  `VALUE_` VARCHAR(64),
+  `PASSWORD_` VARCHAR(64),
+  `PARENT_ID_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_ID_TENANT` (
+  `ID_` VARCHAR(64),
+  `REV_` INT,
+  `NAME_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ACT_ID_TENANT_MEMBER` (
+  `ID_` VARCHAR(64),
+  `TENANT_ID_` VARCHAR(64),
+  `USER_ID_` VARCHAR(64),
+  `GROUP_ID_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_004304_activiti_cockroachdb_create_identity') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_004304_activiti_cockroachdb_create_identity') AS relationships;
+DROP DATABASE `db_004304_activiti_cockroachdb_create_identity`;
+UNINSTALL EXTENSION vsql_schematron;

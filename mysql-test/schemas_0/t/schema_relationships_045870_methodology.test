@@ -1,0 +1,207 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 045870_methodology
+--echo #
+CREATE DATABASE `db_045870_methodology`;
+USE `db_045870_methodology`;
+
+CREATE TABLE `methodologies` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `brief_description` VARCHAR(64),
+  `version` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `processes` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `brief_description` VARCHAR(64),
+  `methodology` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_sets` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `brief_description` VARCHAR(64),
+  `methodology` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `brief_description` VARCHAR(64),
+  `role_set` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `domains` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `brief_description` VARCHAR(64),
+  `methodology` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `disciplines` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `brief_description` VARCHAR(64),
+  `methodology` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `practices` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `brief_description` VARCHAR(64),
+  `methodology` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `phases` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `brief_description` VARCHAR(64),
+  `process` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iterations` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `brief_description` VARCHAR(64),
+  `phase` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activities` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `brief_description` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `phase_activities` (
+  `phase` VARCHAR(64),
+  `activity` VARCHAR(64),
+  PRIMARY KEY (`phase`, `activity`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iteration_activities` (
+  `iteration` VARCHAR(64),
+  `activity` VARCHAR(64),
+  PRIMARY KEY (`iteration`, `activity`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tasks` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `brief_description` VARCHAR(64),
+  `discipline` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_tasks` (
+  `role` VARCHAR(64),
+  `task` VARCHAR(64),
+  PRIMARY KEY (`role`, `task`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `phase_tasks` (
+  `phase` VARCHAR(64),
+  `task` VARCHAR(64),
+  PRIMARY KEY (`phase`, `task`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `iteration_tasks` (
+  `iteration` VARCHAR(64),
+  `task` VARCHAR(64),
+  PRIMARY KEY (`iteration`, `task`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activity_tasks` (
+  `activity` VARCHAR(64),
+  `task` VARCHAR(64),
+  PRIMARY KEY (`activity`, `task`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `task_sections` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `section_description` VARCHAR(64),
+  `task` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `templates` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `brief_description` VARCHAR(64),
+  `attachment` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `artifacts` (
+  `guid` VARCHAR(64),
+  `name` VARCHAR(64),
+  `presentation_name` VARCHAR(64),
+  `brief_description` VARCHAR(64),
+  `domain` VARCHAR(64),
+  `template` VARCHAR(64),
+  PRIMARY KEY (`guid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `input_artifacts` (
+  `task` VARCHAR(64),
+  `artifact` VARCHAR(64),
+  PRIMARY KEY (`task`, `artifact`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `output_artifacts` (
+  `task` VARCHAR(64),
+  `artifact` VARCHAR(64),
+  PRIMARY KEY (`task`, `artifact`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_artifacts` (
+  `role` VARCHAR(64),
+  `artifact` VARCHAR(64),
+  PRIMARY KEY (`role`, `artifact`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_045870_methodology') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_045870_methodology') AS relationships;
+DROP DATABASE `db_045870_methodology`;
+UNINSTALL EXTENSION vsql_schematron;

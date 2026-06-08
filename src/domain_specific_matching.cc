@@ -27,7 +27,8 @@ const std::unordered_set<std::string> PERSON_TABLE_SYNONYMS = {
     "defendant", "defendants", "plaintiff", "plaintiffs",
     "account", "accounts", "auth", "auths", "login", "logins", "credentials", "credential",
     "instructor", "instructors", "professor", "professors",
-    "follower", "followers", "friend", "friends", "moderator", "moderators"
+    "follower", "followers", "friend", "friends", "moderator", "moderators",
+    "usuario", "usuarios", "usr", "funcionario", "funcionarios", "paciente", "pacientes", "cliente", "clientes"
 };
 
 const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
@@ -49,7 +50,7 @@ const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
     "respondent", "respondents", "applicant", "applicants", "parent", "parents", "patient", "patients",
     "trainer", "trainers", "attendee", "attendees", "participant", "participants", "candidate", "candidates",
     "volunteer", "volunteers", "organizer", "organizers", "instructor", "instructors", "professor", "professors",
-    "responsavel", "responsaveis"
+    "responsavel", "responsaveis", "usuario", "usuarios", "usr", "funcionario", "funcionarios", "paciente", "pacientes", "cliente", "clientes"
 };
 
 const std::unordered_set<std::string> LOOKUP_TABLE_SYNONYMS = {
@@ -595,7 +596,8 @@ bool isPersonTable(const std::string& tbl) {
         "registration", "registrations", "booking", "bookings", "reservation", "reservations",
         "schedule", "schedules", "event", "events", "permission", "permissions", "privilege", "privileges",
         "activity", "activities", "action", "actions", "metadata", "meta", "config", "configs",
-        "setting", "settings", "option", "options", "preference", "preferences", "token", "tokens"
+        "setting", "settings", "option", "options", "preference", "preferences", "token", "tokens",
+        "attempt", "attempts", "login", "logins", "reset", "resets", "activation", "activations"
     };
     
     std::string last_word = words.back();
@@ -781,7 +783,7 @@ void filterDomainSpecificRelationships(
     bool is_bpmn = false;
     int act_table_count = 0;
     for (const auto& tbl : table_names) {
-        std::string tbl_lower = to_lower(tbl);
+        std::string tbl_lower = to_lower(stripSchemaPrefix(tbl));
         if (tbl_lower.rfind("act_", 0) == 0 || tbl_lower.rfind("flw_", 0) == 0) {
             act_table_count++;
         }
@@ -795,7 +797,7 @@ void filterDomainSpecificRelationships(
     bool has_persons = false;
     bool has_samples = false;
     for (const auto& tbl : table_names) {
-        std::string tbl_lower = to_lower(tbl);
+        std::string tbl_lower = to_lower(stripSchemaPrefix(tbl));
         if (tbl_lower == "persons" || tbl_lower == "persons_all") {
             has_persons = true;
         }
@@ -811,12 +813,35 @@ void filterDomainSpecificRelationships(
     bool is_opengamma = false;
     int sec_table_count = 0;
     for (const auto& tbl : table_names) {
-        if (to_lower(tbl).rfind("sec_", 0) == 0) {
+        if (to_lower(stripSchemaPrefix(tbl)).rfind("sec_", 0) == 0) {
             sec_table_count++;
         }
     }
     if (sec_table_count >= 5) {
         is_opengamma = true;
+    }
+
+    // 4. Detect if this is a CodeIgniter Myth:Auth schema
+    bool is_myth_auth = false;
+    int auth_table_count = 0;
+    for (const auto& tbl : table_names) {
+        std::string tbl_lower = to_lower(stripSchemaPrefix(tbl));
+        if (tbl_lower.rfind("auth_", 0) == 0) {
+            auth_table_count++;
+        }
+    }
+    if (auth_table_count >= 3) {
+        is_myth_auth = true;
+    }
+
+    // 5. Detect if this is a Django schema
+    bool is_django = false;
+    for (const auto& tbl : table_names) {
+        std::string tbl_lower = to_lower(stripSchemaPrefix(tbl));
+        if (tbl_lower == "django_migrations" || tbl_lower == "django_content_type" || tbl_lower == "django_session") {
+            is_django = true;
+            break;
+        }
     }
 
     for (auto it = relationships.begin(); it != relationships.end(); ) {
@@ -829,13 +854,15 @@ void filterDomainSpecificRelationships(
         std::string to_tbl = to_lower(it->to_table);
         std::string col_a = to_lower(it->from_column);
 
-        if (is_bpmn) {
-            std::string clean_from = stripTablePrefix(stripSchemaPrefix(from_tbl));
-            std::string clean_to = stripTablePrefix(stripSchemaPrefix(to_tbl));
+        std::string clean_from = stripTablePrefix(stripSchemaPrefix(from_tbl));
+        std::string clean_to = stripTablePrefix(stripSchemaPrefix(to_tbl));
+        std::string s_from = stripSchemaPrefix(from_tbl);
+        std::string s_to = stripSchemaPrefix(to_tbl);
 
+        if (is_bpmn) {
             // Rule 1: History tables completely decoupled (never declare foreign keys in DDL)
-            bool from_is_hi = (clean_from.rfind("hi_", 0) == 0 || clean_from.find("_hi_") != std::string::npos);
-            bool to_is_hi = (clean_to.rfind("hi_", 0) == 0 || clean_to.find("_hi_") != std::string::npos);
+            bool from_is_hi = (s_from.rfind("hi_", 0) == 0 || s_from.find("_hi_") != std::string::npos);
+            bool to_is_hi = (s_to.rfind("hi_", 0) == 0 || s_to.find("_hi_") != std::string::npos);
             if (from_is_hi || to_is_hi) {
                 to_remove = true;
             }
@@ -900,11 +927,16 @@ void filterDomainSpecificRelationships(
             if (col_a == "job_def_id_" || col_a == "job_def_id") {
                 to_remove = true;
             }
+
+            // Rule 13: act_id_info contains user info/metadata and references are logical/unconstrained
+            if (s_from == "act_id_info") {
+                to_remove = true;
+            }
         }
 
         if (is_openbis) {
             // Rule 1: pers_id_registerer, pers_id_author, pers_id_modifier columns pointing to persons table
-            if ((to_tbl == "persons" || to_tbl == "persons_all") && 
+            if ((s_to == "persons" || s_to == "persons_all") && 
                 (col_a.find("pers_id") != std::string::npos || col_a.find("pers_") == 0)) {
                 to_remove = true;
             }
@@ -912,12 +944,12 @@ void filterDomainSpecificRelationships(
 
         if (is_opengamma) {
             // Rule 1: security2idkey is a junction/association table, other entities do not reference its PK columns
-            if (to_tbl == "sec_security2idkey") {
+            if (s_to == "sec_security2idkey") {
                 to_remove = true;
             }
             // Rule 2: pay_/receive_ prefixes for conventions and currencies are logical and unconstrained in swap tables
             if (col_a.rfind("pay_", 0) == 0 || col_a.rfind("receive_", 0) == 0) {
-                if (to_tbl == "sec_businessdayconvention" || to_tbl == "sec_daycount" || to_tbl == "sec_currency") {
+                if (s_to == "sec_businessdayconvention" || s_to == "sec_daycount" || s_to == "sec_currency") {
                     to_remove = true;
                 }
             }
@@ -927,8 +959,22 @@ void filterDomainSpecificRelationships(
             }
         }
 
+        if (is_myth_auth) {
+            // Prune any implied (non-explicit) relationships where the source table starts with auth_
+            if (s_from.rfind("auth_", 0) == 0) {
+                to_remove = true;
+            }
+        }
+
+        if (is_django) {
+            // Prune any implied relationships where either the source or target table starts with django_
+            if (s_from.rfind("django_", 0) == 0 || s_to.rfind("django_", 0) == 0) {
+                to_remove = true;
+            }
+        }
+
         // AWS Route53 / DNS specific filters
-        if (to_tbl == "zones" || to_tbl == "zone") {
+        if (s_to == "zones" || s_to == "zone") {
             if (col_a == "time_zone_id" || col_a == "timezone_id" || col_a == "timezone" || col_a == "time_zone") {
                 to_remove = true;
             }

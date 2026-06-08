@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <cstdint>
+#include <iostream>
 
 namespace {
 
@@ -34,7 +35,7 @@ bool isDescriptiveAttributeWord(const std::string& s) {
         "rate", "amount", "amt", "size", "scale", "weight", "oid", "version", "ver", "tenant",
         "state", "states", "code", "codes", "day", "days", "spread", "spreads", "bundle", "bundles",
         "message", "messages", "msg", "msgs", "error", "errors", "err", "errs", "comment", "comments",
-        "warning", "warnings"
+        "warning", "warnings", "page", "pages", "percent", "percentage", "pct", "year", "month"
     };
     return DESCRIPTIVE_WORDS.count(l) > 0;
 }
@@ -105,6 +106,11 @@ std::string stripTablePrefix(const std::string& name) {
         n = n.substr(10);
     }
     
+    size_t dbl_under = n.find("__");
+    if (dbl_under != std::string::npos && dbl_under > 0 && n.rfind("__prefix__", 0) != 0) {
+        n = n.substr(dbl_under + 2);
+    }
+    
     if (!g_dynamic_prefix.empty()) {
         std::string dp = to_lower(g_dynamic_prefix) + "_";
         if (n.rfind(dp, 0) == 0) {
@@ -112,7 +118,7 @@ std::string stripTablePrefix(const std::string& name) {
         }
     }
     if (n.rfind("tbl_", 0) == 0) n = n.substr(4);
-    if (n.rfind("ref", 0) == 0) n = n.substr(3);
+    if (n.rfind("ref_", 0) == 0) n = n.substr(4);
     
     size_t underscore = n.find('_');
     while (underscore != std::string::npos && underscore > 0) {
@@ -141,7 +147,7 @@ std::string stripTableSuffix(const std::string& name) {
         std::string suffix = n.substr(underscore + 1);
         static const std::unordered_set<std::string> TECHNICAL_SUFFIXES = {
             "all", "ext", "base", "v", "b", "t", "all_v",
-            "tbl", "table", "tab", "pk", "fk"
+            "tbl", "table", "tab", "pk", "fk", "ptr"
         };
         if (TECHNICAL_SUFFIXES.count(suffix) > 0) {
             n = n.substr(0, underscore);
@@ -487,14 +493,16 @@ bool matchTableName(const std::string& col_prefix, const std::string& tbl_name, 
         std::string prefix_norole = stripRolePrefix(prefix);
         std::string clean_prefix_norole = stripRolePrefix(clean_prefix);
         
-        // Check raw, stripped prefix, and role-stripped variants against clean table name variations
-        if (matchCleanTableNames(prefix, tbl, allow_substring)) return true;
-        if (matchCleanTableNames(clean_prefix, clean_tbl, allow_substring)) return true;
-        if (matchCleanTableNames(prefix, clean_tbl, allow_substring)) return true;
-        if (matchCleanTableNames(clean_prefix, tbl, allow_substring)) return true;
-        
-        if (matchCleanTableNames(prefix_norole, tbl, allow_substring)) return true;
-        if (matchCleanTableNames(clean_prefix_norole, clean_tbl, allow_substring)) return true;
+        bool r1 = matchCleanTableNames(prefix, tbl, allow_substring);
+        bool r2 = matchCleanTableNames(clean_prefix, clean_tbl, allow_substring);
+        bool r3 = matchCleanTableNames(prefix, clean_tbl, allow_substring);
+        bool r4 = matchCleanTableNames(clean_prefix, tbl, allow_substring);
+        bool r5 = matchCleanTableNames(prefix_norole, tbl, allow_substring);
+        bool r6 = matchCleanTableNames(clean_prefix_norole, clean_tbl, allow_substring);
+
+
+
+        if (r1 || r2 || r3 || r4 || r5 || r6) return true;
         
         return false;
     };
@@ -636,7 +644,7 @@ bool isGenericIdentifier(const std::string& s) {
     }
     std::string l = to_lower(clean);
     static const std::unordered_set<std::string> GENERIC_IDS = {
-        "id", "uuid", "guid", "uid", "sha", "sha1", "sha224", "sha256", "sha384", "sha512", "md5", "hash", "hashes"
+        "id", "uuid", "guid", "uid", "sha", "sha1", "sha224", "sha256", "sha384", "sha512", "md5", "hash", "hashes", "ptr"
     };
     return GENERIC_IDS.count(l) > 0;
 }

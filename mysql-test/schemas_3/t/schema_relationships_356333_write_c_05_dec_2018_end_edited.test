@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 356333_write_c_05_dec_2018_end_edited
+--echo #
+CREATE DATABASE `db_356333_write_c_05_dec_2018_end_edited`;
+USE `db_356333_write_c_05_dec_2018_end_edited`;
+
+CREATE TABLE `arrest_complaint_category` (
+  `id` INT,
+  `category_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `arrest_complaint_details` (
+  `id` INT,
+  `arrest_complaint_category_id` INT,
+  `arrest_complaint_details` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `arrest_complaint_transit_details` (
+  `id` INT,
+  `arrest_complaint_transit_details_category_name` VARCHAR(64),
+  `arrest_complaint_transit_details_section` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `oath_details` (
+  `id` INT,
+  `oath_category_name` VARCHAR(64),
+  `oath_title` VARCHAR(64),
+  `oath_section` VARCHAR(64),
+  `oath_code` VARCHAR(64),
+  `min` INT,
+  `max` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `summons_category` (
+  `id` INT,
+  `category_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `summons_details` (
+  `id` INT,
+  `summons_category_id` INT,
+  `summons_title` VARCHAR(64),
+  `summons_section` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_356333_write_c_05_dec_2018_end_edited') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_356333_write_c_05_dec_2018_end_edited') AS relationships;
+DROP DATABASE `db_356333_write_c_05_dec_2018_end_edited`;
+UNINSTALL EXTENSION vsql_schematron;

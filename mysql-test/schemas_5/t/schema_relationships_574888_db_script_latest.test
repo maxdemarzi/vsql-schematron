@@ -1,0 +1,146 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 574888_db_script_latest
+--echo #
+CREATE DATABASE `db_574888_db_script_latest`;
+USE `db_574888_db_script_latest`;
+
+CREATE TABLE `workflow` (
+  `name` VARCHAR(64),
+  `is_active` BOOL,
+  `project` VARCHAR(64),
+  `created` DATETIME,
+  `updated` DATETIME,
+  `id` INT,
+  `scheduler_instance_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `job_instance` (
+  `job_name` VARCHAR(64),
+  `job_status` VARCHAR(64),
+  `executor_job_id` VARCHAR(64),
+  `created` DATETIME,
+  `updated` DATETIME,
+  `order` INT,
+  `dag_instance_id` INT,
+  `id` INT,
+  `application_id` VARCHAR(64),
+  `job_parameters` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `job_definition` (
+  `dag_definition_id` INT,
+  `name` VARCHAR(64),
+  `order` INT,
+  `id` INT,
+  `job_template_id` INT,
+  `job_parameters` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sensor` (
+  `workflow_id` INT,
+  `sensor_type_old` VARCHAR(64),
+  `variables_old` VARCHAR(64),
+  `maps_old` VARCHAR(64),
+  `match_properties_old` VARCHAR(64),
+  `id` INT,
+  `properties` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `event` (
+  `sensor_event_id` VARCHAR(64),
+  `sensor_id` INT,
+  `dag_instance_id` INT,
+  `id` INT,
+  `payload` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dag_definition` (
+  `workflow_id` INT,
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dag_instance` (
+  `status` VARCHAR(64),
+  `workflow_id` INT,
+  `id` INT,
+  `started` DATETIME,
+  `finished` DATETIME,
+  `triggered_by` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `workflow_history` (
+  `id` INT,
+  `changed_on` DATETIME,
+  `changed_by` VARCHAR(64),
+  `operation` VARCHAR(64),
+  `workflow_id` INT,
+  `workflow` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `job_template` (
+  `name` VARCHAR(64),
+  `id` INT,
+  `form_config` VARCHAR(64),
+  `job_parameters` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `scheduler_instance` (
+  `id` INT,
+  `status` VARCHAR(64),
+  `last_heartbeat` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notification_rule` (
+  `id` INT,
+  `is_active` BOOL,
+  `project` VARCHAR(64),
+  `workflow_prefix` VARCHAR(64),
+  `min_elapsed_secs_last_success` INT,
+  `statuses` VARCHAR(64),
+  `recipients` VARCHAR(64),
+  `created` DATETIME,
+  `updated` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `notification_rule_history` (
+  `id` INT,
+  `changed_on` DATETIME,
+  `changed_by` VARCHAR(64),
+  `operation` VARCHAR(64),
+  `notification_rule_id` INT,
+  `notification_rule` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_574888_db_script_latest') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_574888_db_script_latest') AS relationships;
+DROP DATABASE `db_574888_db_script_latest`;
+UNINSTALL EXTENSION vsql_schematron;

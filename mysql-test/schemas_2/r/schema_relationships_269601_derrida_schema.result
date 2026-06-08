@@ -1,0 +1,177 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 269601_derrida_schema
+#
+CREATE DATABASE `db_269601_derrida_schema`;
+USE `db_269601_derrida_schema`;
+CREATE TABLE `annotator_store_annotation` (
+`id` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+`text` VARCHAR(64),
+`quote` VARCHAR(64),
+`uri` VARCHAR(64),
+`extra_data` VARCHAR(64),
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `annotator_store_annotationgroup` (
+`group_ptr_id` INT,
+`notes` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+PRIMARY KEY (`group_ptr_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books_instancecatalogue` (
+`id` INT,
+`notes` VARCHAR(64),
+`start_year` INT,
+`end_year` INT,
+`is_current` INT,
+`call_number` VARCHAR(64),
+`instance_id` INT,
+`institution_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books_instancecreator` (
+`id` INT,
+`notes` VARCHAR(64),
+`creator_type_id` INT,
+`instance_id` INT,
+`person_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books_personbook` (
+`id` INT,
+`notes` VARCHAR(64),
+`start_year` INT,
+`end_year` INT,
+`book_id` INT,
+`person_id` INT,
+`relationship_type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books_reference` (
+`id` INT,
+`derridawork_page` VARCHAR(64),
+`derridawork_pageloc` VARCHAR(64),
+`book_page` VARCHAR(64),
+`anchor_text` VARCHAR(64),
+`derridawork_id` INT,
+`instance_id` INT,
+`reference_type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `books_work` (
+`id` INT,
+`notes` VARCHAR(64),
+`primary_title` VARCHAR(64),
+`short_title` VARCHAR(64),
+`year` INT,
+`uri` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `django_admin_log` (
+`id` INT,
+`action_time` DATETIME,
+`object_id` VARCHAR(64),
+`object_repr` VARCHAR(64),
+`action_flag` INT,
+`change_message` VARCHAR(64),
+`content_type_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `django_cas_ng_sessionticket` (
+`id` INT,
+`session_key` VARCHAR(64),
+`ticket` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `django_session` (
+`session_key` VARCHAR(64),
+`session_data` VARCHAR(64),
+`expire_date` DATETIME,
+PRIMARY KEY (`session_key`)
+) CHARACTER SET latin1;
+CREATE TABLE `footnotes_bibliography` (
+`id` INT,
+`notes` VARCHAR(64),
+`bibliographic_note` VARCHAR(64),
+`source_type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `footnotes_footnote` (
+`id` INT,
+`notes` VARCHAR(64),
+`location` VARCHAR(64),
+`snippet_text` VARCHAR(64),
+`object_id` INT,
+`is_agree` INT,
+`bibliography_id` INT,
+`content_type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `interventions_intervention` (
+`id` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+`text` VARCHAR(64),
+`quote` VARCHAR(64),
+`uri` VARCHAR(64),
+`extra_data` VARCHAR(64),
+`intervention_type` VARCHAR(64),
+`text_translation` VARCHAR(64),
+`author_id` INT,
+`canvas_id` INT,
+`quote_language_id` INT,
+`text_language_id` INT,
+`user_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `people_person` (
+`id` INT,
+`notes` VARCHAR(64),
+`start_year` INT,
+`end_year` INT,
+`authorized_name` VARCHAR(64),
+`viaf_id` VARCHAR(64),
+`sort_name` VARCHAR(64),
+`family_group` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `people_relationship` (
+`id` INT,
+`notes` VARCHAR(64),
+`start_year` INT,
+`end_year` INT,
+`from_person_id` INT,
+`relationship_type_id` INT,
+`to_person_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `people_residence` (
+`id` INT,
+`notes` VARCHAR(64),
+`start_year` INT,
+`end_year` INT,
+`person_id` INT,
+`place_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_269601_derrida_schema') AS relationships;
+relationships
+Database: db_269601_derrida_schema
+
+Table Connections:
+------------------
+[Implied]  books_instancecreator.person_id -> people_person.id
+[Implied]  books_personbook.person_id -> people_person.id
+[Implied]  footnotes_footnote.bibliography_id -> footnotes_bibliography.id
+[Implied]  people_relationship.from_person_id -> people_person.id
+[Implied]  people_relationship.to_person_id -> people_person.id
+[Implied]  people_residence.person_id -> people_person.id
+[Implied]  people_residence.person_id -> people_residence.id
+
+DROP DATABASE `db_269601_derrida_schema`;
+UNINSTALL EXTENSION vsql_schematron;

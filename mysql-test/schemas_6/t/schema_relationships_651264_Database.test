@@ -1,0 +1,298 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 651264_Database
+--echo #
+CREATE DATABASE `db_651264_Database`;
+USE `db_651264_Database`;
+
+CREATE TABLE `additional_information` (
+  `additional_information_id` INT,
+  `information` VARCHAR(64),
+  PRIMARY KEY (`additional_information_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `address` (
+  `address_id` INT,
+  `street_name` VARCHAR(64),
+  `address_number` INT,
+  `geografical_coordinates` VARCHAR(64),
+  `complement` VARCHAR(64),
+  `neighborhood_id` INT,
+  PRIMARY KEY (`address_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `attendance_time` (
+  `entity_id` INT,
+  `high_priority_time` INT,
+  `medium_priority_time` INT,
+  `low_priority_time` INT,
+  `enabled` INT,
+  PRIMARY KEY (`entity_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `broadcast_message` (
+  `broadcast_message_id` INT,
+  `subject` VARCHAR(64),
+  `message_body` VARCHAR(64),
+  `broadcast_message_category_id` INT,
+  `registration_date` DATETIME,
+  `publication_date` DATETIME,
+  `created_by` VARCHAR(64),
+  `creation_date` DATETIME,
+  `enabled` INT,
+  `expiration_date` DATETIME,
+  `days_expiration` INT,
+  PRIMARY KEY (`broadcast_message_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `broadcast_message_category` (
+  `broadcast_message_category_id` INT,
+  `name` INT,
+  PRIMARY KEY (`broadcast_message_category_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `call_classification` (
+  `call_classification_id` INT,
+  `name` VARCHAR(64),
+  `address_required` BOOL,
+  `enabled` INT,
+  PRIMARY KEY (`call_classification_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `citizen` (
+  `citizen_cpf` VARCHAR(64),
+  `name` VARCHAR(64),
+  `phone_number` VARCHAR(64),
+  `email` VARCHAR(64),
+  `enabled` INT,
+  `password` VARCHAR(64),
+  `facebook_id` VARCHAR(64),
+  `gender` INT,
+  `neighborhood_id` INT,
+  `public_key` VARCHAR(64),
+  PRIMARY KEY (`citizen_cpf`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `citizen_login` (
+  `citizen_login_id` INT,
+  `citizen_id` VARCHAR(64),
+  `token` VARCHAR(64),
+  PRIMARY KEY (`citizen_login_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `city` (
+  `city_id` INT,
+  `name` VARCHAR(64),
+  `state_id` VARCHAR(64),
+  PRIMARY KEY (`city_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entity` (
+  `entity_id` INT,
+  `name` VARCHAR(64),
+  `enabled` INT,
+  `icon` VARCHAR(64),
+  PRIMARY KEY (`entity_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entity_category` (
+  `entity_category_id` INT,
+  `name` VARCHAR(64),
+  `enabled` INT,
+  `send_message` INT,
+  PRIMARY KEY (`entity_category_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `entity_entity_category_maps` (
+  `entity_category_id` INT,
+  `entity_id` INT,
+  PRIMARY KEY (`entity_category_id`, `entity_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `unsolved_call` (
+  `unsolved_call_id` INT,
+  `creation_or_update_date` DATETIME,
+  `citizen_cpf` VARCHAR(64),
+  `call_classification_id` INT,
+  `updated_or_moderated_by` VARCHAR(64),
+  `parent_call_id` INT,
+  `call_status` INT,
+  `call_progress` INT,
+  `priority` INT,
+  `secret` INT,
+  `anonymity` INT,
+  `call_source` INT,
+  `no_midia` BOOL,
+  `entity_id` INT,
+  `entity_category_id` INT,
+  `address_id` INT,
+  `description` INT,
+  `observation` INT,
+  `qualification` INT,
+  `remove` BOOL,
+  PRIMARY KEY (`unsolved_call_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `log` (
+  `log_id` INT,
+  `change_date` DATETIME,
+  `operation_type` INT,
+  `information_type` INT,
+  `system_user_username` VARCHAR(64),
+  `content2` VARCHAR(64),
+  PRIMARY KEY (`log_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `media` (
+  `media_id` INT,
+  `media` VARCHAR(64),
+  `unsolved_call_id` INT,
+  `solved_call_id` INT,
+  PRIMARY KEY (`media_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `message_model` (
+  `message_model_id` INT,
+  `name` VARCHAR(64),
+  `subject` VARCHAR(64),
+  `message_body` VARCHAR(64),
+  `enabled` INT,
+  PRIMARY KEY (`message_model_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `neighborhood` (
+  `neighborhood_id` INT,
+  `city_id` INT,
+  `name` VARCHAR(64),
+  `nome_abrev` VARCHAR(64),
+  PRIMARY KEY (`neighborhood_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `persistent_logins` (
+  `username` VARCHAR(64),
+  `series` VARCHAR(64),
+  `token` VARCHAR(64),
+  `last_used` DATETIME,
+  PRIMARY KEY (`series`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `read_broadcast_message` (
+  `citizen_cpf` VARCHAR(64),
+  `broadcast_message_id` INT,
+  PRIMARY KEY (`citizen_cpf`, `broadcast_message_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `solved_call` (
+  `solved_call_id` INT,
+  `creation_or_update_date` DATETIME,
+  `citizen_cpf` VARCHAR(64),
+  `call_classification_id` INT,
+  `updated_or_moderated_by` VARCHAR(64),
+  `parent_call_id` INT,
+  `call_status` INT,
+  `call_progress` INT,
+  `priority` INT,
+  `secret` INT,
+  `anonymity` INT,
+  `call_source` INT,
+  `no_midia` BOOL,
+  `observation` INT,
+  `description` INT,
+  `address_id` INT,
+  `entity_id` INT,
+  `entity_category_id` INT,
+  `qualification` INT,
+  `remove` BOOL,
+  PRIMARY KEY (`solved_call_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `state` (
+  `state_id` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`state_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `system_parameter` (
+  `system_parameter_id` INT,
+  `number_of_days_to_solve_a_call` INT,
+  `city_hall_name` VARCHAR(64),
+  `city_name` VARCHAR(64),
+  `state_name` VARCHAR(64),
+  `state_acronym` VARCHAR(64),
+  `google_maps_key` VARCHAR(64),
+  PRIMARY KEY (`system_parameter_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `system_user` (
+  `system_user_username` VARCHAR(64),
+  `password` VARCHAR(64),
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `commercial_phone` VARCHAR(64),
+  `personal_phone` VARCHAR(64),
+  `sector` VARCHAR(64),
+  `job_position` VARCHAR(64),
+  `system_user_profile_id` INT,
+  `works_at_entity` INT,
+  `enabled` INT,
+  PRIMARY KEY (`system_user_username`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `system_user_profile` (
+  `system_user_profile_id` INT,
+  `name` VARCHAR(64),
+  `enabled` INT,
+  PRIMARY KEY (`system_user_profile_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `system_user_profile_permission` (
+  `system_user_profile_permission_id` INT,
+  `name` VARCHAR(64),
+  `role` VARCHAR(64),
+  PRIMARY KEY (`system_user_profile_permission_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `system_user_profile_system_user_profile_permission_maps` (
+  `system_user_profile_id` INT,
+  `system_user_profile_permission_id` INT,
+  PRIMARY KEY (`system_user_profile_id`, `system_user_profile_permission_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `unread_call` (
+  `unread_call_id` INT,
+  `unsolved_call_id` INT,
+  `solved_call_id` INT,
+  `read` BOOL,
+  PRIMARY KEY (`unread_call_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `web_user` (
+  `public_identification_key` VARCHAR(64),
+  `unsolved_call_id` INT,
+  `solved_call_id` INT,
+  `name` VARCHAR(64),
+  `web_user_cpf` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`public_identification_key`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_651264_Database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_651264_Database') AS relationships;
+DROP DATABASE `db_651264_Database`;
+UNINSTALL EXTENSION vsql_schematron;

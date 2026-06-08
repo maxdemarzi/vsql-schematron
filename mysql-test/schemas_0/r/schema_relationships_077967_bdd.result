@@ -1,0 +1,61 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 077967_bdd
+#
+CREATE DATABASE `db_077967_bdd`;
+USE `db_077967_bdd`;
+CREATE TABLE `Centre_de_Test` (
+`idSeance` INT,
+`date` DATETIME,
+PRIMARY KEY (`idSeance`)
+) CHARACTER SET latin1;
+CREATE TABLE `Test` (
+`id_test` INT,
+`type` VARCHAR(64),
+`date_dispo` DATETIME,
+PRIMARY KEY (`id_test`)
+) CHARACTER SET latin1;
+CREATE TABLE `Individu` (
+`id_individu` INT,
+`sexe` VARCHAR(64),
+`age` INT,
+`date_rdv_test` DATETIME,
+PRIMARY KEY (`id_individu`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tested_Individu` (
+`id_testedindividu` INT,
+`sexe` VARCHAR(64),
+`age` INT,
+`date_tested` DATETIME,
+PRIMARY KEY (`id_testedindividu`)
+) CHARACTER SET latin1;
+CREATE TABLE `Centre_de_Test_has_Individu` (
+`Centre_de_Test_idSeance` INT,
+`Individu_id_individu` INT,
+PRIMARY KEY (`Centre_de_Test_idSeance`, `Individu_id_individu`)
+) CHARACTER SET latin1;
+CREATE TABLE `Centre_de_Test_has_Test` (
+`Centre_de_Test_idSeance` INT,
+`Test_id_test` INT,
+PRIMARY KEY (`Centre_de_Test_idSeance`, `Test_id_test`)
+) CHARACTER SET latin1;
+CREATE TABLE `Centre_de_Test_has_Tested_Individu` (
+`Centre_de_Test_idSeance` INT,
+`Tested_Individu_id_testedindividu` INT,
+PRIMARY KEY (`Centre_de_Test_idSeance`, `Tested_Individu_id_testedindividu`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_077967_bdd') AS relationships;
+relationships
+Database: db_077967_bdd
+
+Table Connections:
+------------------
+[Implied]  Centre_de_Test_has_Individu.Centre_de_Test_idSeance -> Centre_de_Test.idSeance
+[Implied]  Centre_de_Test_has_Individu.Individu_id_individu -> Individu.id_individu
+[Implied]  Centre_de_Test_has_Test.Centre_de_Test_idSeance -> Centre_de_Test.idSeance
+[Implied]  Centre_de_Test_has_Test.Test_id_test -> Test.id_test
+[Implied]  Centre_de_Test_has_Tested_Individu.Centre_de_Test_idSeance -> Centre_de_Test.idSeance
+[Implied]  Centre_de_Test_has_Tested_Individu.Tested_Individu_id_testedindividu -> Tested_Individu.id_testedindividu
+
+DROP DATABASE `db_077967_bdd`;
+UNINSTALL EXTENSION vsql_schematron;

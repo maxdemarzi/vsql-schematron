@@ -1,0 +1,129 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 024476_store
+--echo #
+CREATE DATABASE `db_024476_store`;
+USE `db_024476_store`;
+
+CREATE TABLE `PROJECT_COLLABORATION_TYPE` (
+  `project_collaboration_type_id` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`project_collaboration_type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROJECT` (
+  `project_id` VARCHAR(64),
+  `project_collaboration_type_id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `date_created` DATETIME,
+  `created_by_user_id` VARCHAR(64),
+  `date_updated` DATETIME,
+  `updated_by_user_id` VARCHAR(64),
+  PRIMARY KEY (`project_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROJECT_ROLE` (
+  `project_role_id` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`project_role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROJECT_GROUP` (
+  `project_group_id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `date_created` DATETIME,
+  `created_by_user_id` VARCHAR(64),
+  `date_updated` DATETIME,
+  `updated_by_user_id` VARCHAR(64),
+  PRIMARY KEY (`project_group_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROJECT_GROUP_ROLE` (
+  `project_group_role_id` VARCHAR(64),
+  `project_group_id` VARCHAR(64),
+  `project_role_id` VARCHAR(64),
+  `date_created` DATETIME,
+  `created_by_user_id` VARCHAR(64),
+  PRIMARY KEY (`project_group_role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROJECT_GROUP_USER` (
+  `project_group_user_id` VARCHAR(64),
+  `project_group_id` VARCHAR(64),
+  `user_id` VARCHAR(64),
+  `date_created` DATETIME,
+  `created_by_user_id` VARCHAR(64),
+  PRIMARY KEY (`project_group_user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROJECT_GROUP_ACCESS` (
+  `project_group_access_id` VARCHAR(64),
+  `project_id` VARCHAR(64),
+  `project_group_id` VARCHAR(64),
+  `date_created` DATETIME,
+  `created_by_user_id` VARCHAR(64),
+  PRIMARY KEY (`project_group_access_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `STEM` (
+  `stem_id` VARCHAR(64),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`stem_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `WORKSPACE` (
+  `workspace_id` VARCHAR(64),
+  `project_id` VARCHAR(64),
+  `stem_id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `asset_amount_limit` DECIMAL(10,2),
+  `x_max` DECIMAL(10,2),
+  `y_max` DECIMAL(10,2),
+  `z_max` DECIMAL(10,2),
+  `date_created` DATETIME,
+  `created_by_user_id` VARCHAR(64),
+  `date_updated` DATETIME,
+  `updated_by_user_id` VARCHAR(64),
+  PRIMARY KEY (`workspace_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ASSET` (
+  `asset_id` VARCHAR(64),
+  `workspace_id` VARCHAR(64),
+  `asset_external_ref_id` VARCHAR(64),
+  `position_x` DECIMAL(10,2),
+  `position_y` DECIMAL(10,2),
+  `position_z` DECIMAL(10,2),
+  `scale` DECIMAL(10,2),
+  `height_by_y` DECIMAL(10,2),
+  `width_by_x` DECIMAL(10,2),
+  `length_by_z` DECIMAL(10,2),
+  `date_created` DATETIME,
+  `created_by_user_id` VARCHAR(64),
+  `date_updated` DATETIME,
+  `updated_by_user_id` VARCHAR(64),
+  PRIMARY KEY (`asset_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_024476_store') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_024476_store') AS relationships;
+DROP DATABASE `db_024476_store`;
+UNINSTALL EXTENSION vsql_schematron;

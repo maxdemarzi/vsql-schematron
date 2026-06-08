@@ -1,0 +1,111 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 043479_202002051322_initialize_schema.up
+--echo #
+CREATE DATABASE `db_043479_202002051322_initialize_schema_up`;
+USE `db_043479_202002051322_initialize_schema_up`;
+
+CREATE TABLE `cluster` (
+  `id` VARCHAR(64),
+  `kubeconfig` VARCHAR(64),
+  `terraform_state` VARCHAR(64),
+  `tenant` VARCHAR(64),
+  `credentials_secret_name` VARCHAR(64),
+  `creation_timestamp` DATETIME,
+  `deleted` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `gardener_config` (
+  `id` VARCHAR(64),
+  `cluster_id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `project_name` VARCHAR(64),
+  `kubernetes_version` VARCHAR(64),
+  `node_Count` INT,
+  `volume_size_gb` VARCHAR(64),
+  `machine_type` VARCHAR(64),
+  `region` VARCHAR(64),
+  `provider` VARCHAR(64),
+  `seed` VARCHAR(64),
+  `target_secret` VARCHAR(64),
+  `disk_type` VARCHAR(64),
+  `worker_cidr` VARCHAR(64),
+  `auto_scaler_min` INT,
+  `auto_scaler_max` INT,
+  `max_surge` INT,
+  `max_unavailable` INT,
+  `provider_specific_config` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `gcp_config` (
+  `id` VARCHAR(64),
+  `cluster_id` VARCHAR(64),
+  `name` VARCHAR(64),
+  `project_name` VARCHAR(64),
+  `kubernetes_version` VARCHAR(64),
+  `number_of_nodes` INT,
+  `boot_disk_size_gb` VARCHAR(64),
+  `machine_type` VARCHAR(64),
+  `region` VARCHAR(64),
+  `zone` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `operation` (
+  `id` VARCHAR(64),
+  `type` VARCHAR(64),
+  `state` VARCHAR(64),
+  `message` VARCHAR(64),
+  `start_timestamp` DATETIME,
+  `end_timestamp` DATETIME,
+  `cluster_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kyma_release` (
+  `id` VARCHAR(64),
+  `version` VARCHAR(64),
+  `tiller_yaml` VARCHAR(64),
+  `installer_yaml` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kyma_config` (
+  `id` VARCHAR(64),
+  `release_id` VARCHAR(64),
+  `cluster_id` VARCHAR(64),
+  `global_configuration` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `kyma_component_config` (
+  `id` VARCHAR(64),
+  `component` VARCHAR(64),
+  `namespace` VARCHAR(64),
+  `configuration` VARCHAR(64),
+  `kyma_config_id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_043479_202002051322_initialize_schema_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_043479_202002051322_initialize_schema_up') AS relationships;
+DROP DATABASE `db_043479_202002051322_initialize_schema_up`;
+UNINSTALL EXTENSION vsql_schematron;

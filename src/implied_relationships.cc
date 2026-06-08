@@ -36,7 +36,7 @@ bool isDescriptiveAttribute(const std::string& s) {
         "rate", "amount", "amt", "size", "scale", "weight", "oid", "version", "ver", "tenant",
         "state", "states", "code", "codes", "day", "days", "spread", "spreads", "bundle", "bundles",
         "message", "messages", "msg", "msgs", "error", "errors", "err", "errs", "comment", "comments",
-        "warning", "warnings"
+        "warning", "warnings", "page", "pages", "percent", "percentage", "pct", "year", "month"
     };
     return DESCRIPTIVE_WORDS.count(l) > 0;
 }
@@ -896,6 +896,8 @@ void findPass1ImpliedRelationships(
                         const std::string& pk_b_lower_clean = prep_b.pks_lower_clean[pk_idx];
                         const std::string& type_b = prep_b.pk_types[pk_idx];
 
+
+
                         if (is_composite) {
                             // If table B has a composite primary key, we allow matching by exact column name match,
                             // but exclude generic columns (like "id", "key", "type") to avoid false-positive relationships.
@@ -1112,16 +1114,27 @@ void findPass1ImpliedRelationships(
                         if (isGenericIdentifier(pk_b)) {
                             if (has_split) {
                                 if (isGenericIdentifier(suffix_a)) {
-                                    bool has_alt_key = (prep_b.columns_lower.count(to_lower(prefix_a)) > 0);
-                                    if (has_alt_key) {
-                                        Relationship rel;
-                                        rel.from_table = tbl_a;
-                                        rel.from_column = col_a;
-                                        rel.to_table = tbl_b;
-                                        rel.to_column = pk_b;
-                                        rel.is_explicit = false;
-                                        relationships.insert(rel);
-                                        continue;
+                                    bool is_prefix_match_table = false;
+                                    for (size_t idx : prefix_a_matches) {
+                                        if (idx == tbl_b_idx) {
+                                            is_prefix_match_table = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!prefix_a_matches.empty() && !is_prefix_match_table) {
+                                        // Skip matching to tbl_b if there is a prefix table match for another table
+                                    } else {
+                                        bool has_alt_key = (prep_b.columns_lower.count(to_lower(prefix_a)) > 0);
+                                        if (has_alt_key) {
+                                            Relationship rel;
+                                            rel.from_table = tbl_a;
+                                            rel.from_column = col_a;
+                                            rel.to_table = tbl_b;
+                                            rel.to_column = pk_b;
+                                            rel.is_explicit = false;
+                                            relationships.insert(rel);
+                                            continue;
+                                        }
                                     }
                                 }
                             }
@@ -1439,6 +1452,9 @@ void findPass2ImpliedRelationships(
             
             bool is_parent = false;
             if (isSubtypeTable(tbl_a, tbl_b)) {
+                if (tbl_a == "logs" || tbl_a == "project_logs") {
+                    std::cerr << "[DEBUG IS_PARENT_DETECTION] isSubtypeTable(" << tbl_a << ", " << tbl_b << ") is true" << std::endl;
+                }
                 is_parent = true;
             } else {
                 std::string clean_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
@@ -1467,21 +1483,57 @@ void findPass2ImpliedRelationships(
                     std::string pk_a_clean = stripAcronymPrefix(pk_a, tbl_a);
                     if (isGenericIdentifier(pk_a_clean)) continue;
                     if (matchTableName(pk_a_clean, tbl_b, false)) {
+                        if (tbl_a == "logs" || tbl_a == "project_logs") {
+                            std::cerr << "[DEBUG IS_PARENT_DETECTION] matchTableName(" << pk_a_clean << ", " << tbl_b << ", false) is true" << std::endl;
+                        }
                         is_parent = true;
                         break;
                     }
                     std::string prefix_a, suffix_a;
-                    if (splitColumnName(pk_a_clean, prefix_a, suffix_a)) {
+                    bool has_split = splitColumnName(pk_a_clean, prefix_a, suffix_a);
+                    if (has_split) {
                         if (isCatalogSuffix(suffix_a)) continue;
                         if (matchTableName(prefix_a, tbl_b, false)) {
+                            if (tbl_a == "logs" || tbl_a == "project_logs") {
+                                std::cerr << "[DEBUG IS_PARENT_DETECTION] matchTableName(prefix: " << prefix_a << ", " << tbl_b << ", false) is true" << std::endl;
+                            }
                             is_parent = true;
                             break;
                         }
                     }
+                    
+                    // If pk_a matches the primary key of tbl_b, and it's non-generic, tbl_b is a parent
+                    const auto& pks_b = effective_pks.at(tbl_b);
+                    for (const auto& pk_b : pks_b) {
+                        if (isGenericIdentifier(pk_b) || isGenericAttribute(pk_b)) continue;
+                        if (to_lower(stripTrailingUnderscore(pk_a_clean)) == to_lower(stripTrailingUnderscore(pk_b))) {
+                            is_parent = true;
+                            break;
+                        }
+                        if (has_split && to_lower(suffix_a) == to_lower(stripTrailingUnderscore(pk_b))) {
+                            is_parent = true;
+                            break;
+                        }
+                        std::string prefix_b, suffix_b;
+                        if (has_split && splitColumnName(pk_b, prefix_b, suffix_b)) {
+                            if (to_lower(suffix_a) == to_lower(suffix_b) &&
+                                to_lower(prefix_a).length() > to_lower(prefix_b).length()) {
+                                size_t pos = to_lower(prefix_a).rfind(to_lower(prefix_b));
+                                if (pos != std::string::npos && pos == to_lower(prefix_a).length() - to_lower(prefix_b).length()) {
+                                    if (prefix_a[pos - 1] == '_' || prefix_a[pos - 1] == ' ' || std::isupper(prefix_a[pos])) {
+                                        is_parent = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (is_parent) break;
                 }
             }
             
             if (is_parent) {
+                std::cerr << "[DEBUG IS_PARENT] " << tbl_a << " -> " << tbl_b << std::endl;
                 subtype_parents[tbl_a].push_back(j);
             }
         }
@@ -1605,6 +1657,19 @@ void findPass2ImpliedRelationships(
                                 } else if (to_lower(suffix_a) == to_lower(stripTrailingUnderscore(pk_b)) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b))) {
                                     if (matchTableName(prefix_a, tbl_b, false)) {
                                         col_name_matches = true;
+                                    }
+                                } else {
+                                    std::string prefix_b, suffix_b;
+                                    if (splitColumnName(pk_b, prefix_b, suffix_b)) {
+                                        if (to_lower(suffix_a) == to_lower(suffix_b) &&
+                                            to_lower(prefix_a).length() > to_lower(prefix_b).length()) {
+                                            size_t pos = to_lower(prefix_a).rfind(to_lower(prefix_b));
+                                            if (pos != std::string::npos && pos == to_lower(prefix_a).length() - to_lower(prefix_b).length()) {
+                                                if (prefix_a[pos - 1] == '_' || prefix_a[pos - 1] == ' ' || std::isupper(prefix_a[pos])) {
+                                                    col_name_matches = true;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -1972,7 +2037,14 @@ void findImpliedRelationships(
     for (const auto& tbl : table_names) {
         auto it = tables_info.find(tbl);
         if (it != tables_info.end()) {
-            effective_pks[tbl] = getEffectivePKs(tbl, it->second, table_names, tables_info);
+            auto val = getEffectivePKs(tbl, it->second, table_names, tables_info);
+            std::cerr << "getEffectivePKs returned for " << tbl << " size=" << val.size() << " elements:";
+            for (const auto& pk : val) std::cerr << " " << pk;
+            std::cerr << std::endl;
+            effective_pks[tbl] = val;
+            std::cerr << "effective_pks[" << tbl << "] now has:";
+            for (const auto& pk : effective_pks[tbl]) std::cerr << " " << pk;
+            std::cerr << std::endl;
         }
     }
 
@@ -2018,12 +2090,20 @@ void findImpliedRelationships(
     // Resolve single vs composite PK conflicts (prefer single-column PK targets over composite/multi-column PK targets)
     for (auto it = relationships.begin(); it != relationships.end(); ) {
         bool to_remove = false;
-        if (!it->is_explicit && effective_pks.at(it->to_table).size() > 1) {
-            for (const auto& other : relationships) {
-                if (it->from_table == other.from_table && it->from_column == other.from_column && it->to_table != other.to_table) {
-                    if (effective_pks.at(other.to_table).size() == 1) {
-                        to_remove = true;
-                        break;
+        if (!it->is_explicit) {
+            auto it_to = tables_info.find(it->to_table);
+            bool to_is_composite = (it_to != tables_info.end() && 
+                                    (it_to->second.pk_columns.empty() ? effective_pks.at(it->to_table).size() > 1 : it_to->second.pk_columns.size() > 1));
+            if (to_is_composite) {
+                for (const auto& other : relationships) {
+                    if (it->from_table == other.from_table && it->from_column == other.from_column && it->to_table != other.to_table) {
+                        auto it_oth = tables_info.find(other.to_table);
+                        bool oth_is_single = (it_oth != tables_info.end() && 
+                                              (it_oth->second.pk_columns.empty() ? effective_pks.at(other.to_table).size() == 1 : it_oth->second.pk_columns.size() == 1));
+                        if (oth_is_single) {
+                            to_remove = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -2033,6 +2113,139 @@ void findImpliedRelationships(
         } else {
             ++it;
         }
+    }
+
+    // Resolve exact column name match vs prefix/suffix match conflicts (prefer exact name matches)
+    std::set<Relationship> to_remove_exact;
+    for (auto it = relationships.begin(); it != relationships.end(); ) {
+        bool to_remove = false;
+        if (!it->is_explicit) {
+            bool has_exact_name_match = false;
+            std::string it_from_clean = to_lower(stripTrailingUnderscore(it->from_column));
+            std::string it_to_clean = to_lower(stripTrailingUnderscore(it->to_column));
+            if (it_from_clean == it_to_clean) {
+                // This is already an exact match
+            } else {
+                for (const auto& other : relationships) {
+                    if (it->from_table == other.from_table && it->from_column == other.from_column && it->to_table != other.to_table) {
+                        std::string other_to_clean = to_lower(stripTrailingUnderscore(other.to_column));
+                        std::string other_from_clean = to_lower(stripTrailingUnderscore(other.from_column));
+                        if (other_from_clean == other_to_clean) {
+                            // Check if other.to_table is a subtype of it->to_table
+                            bool other_is_subtype = isSubtypeTable(other.to_table, it->to_table);
+                            if (!other_is_subtype) {
+                                for (const auto& rel2 : relationships) {
+                                    if (rel2.from_table == other.to_table && rel2.to_table == it->to_table) {
+                                        auto it_oth_pks = effective_pks.find(other.to_table);
+                                        if (it_oth_pks != effective_pks.end()) {
+                                            const auto& pks = it_oth_pks->second;
+                                            if (std::find(pks.begin(), pks.end(), rel2.from_column) != pks.end()) {
+                                                other_is_subtype = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (other_is_subtype) {
+                                if (!other.is_explicit) {
+                                    to_remove_exact.insert(other);
+                                }
+                            } else {
+                                has_exact_name_match = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (has_exact_name_match) {
+                to_remove = true;
+            }
+        }
+        if (to_remove) {
+            it = relationships.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    for (auto it = relationships.begin(); it != relationships.end(); ) {
+        if (to_remove_exact.count(*it) > 0) {
+            it = relationships.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    // Resolve bidirectional / opposing relationship conflicts
+    std::set<Relationship> to_remove_bidirectional;
+    std::cerr << "--- DEBUG BIDIRECTIONAL ---" << std::endl;
+    for (const auto& rel1 : relationships) {
+        for (const auto& rel2 : relationships) {
+            if (rel1.from_table == rel2.to_table && rel1.to_table == rel2.from_table &&
+                rel1.from_column == rel2.to_column && rel1.to_column == rel2.from_column) {
+                if (rel1 < rel2) {
+                    int score1 = getTableParentScore(rel1.to_table);
+                    int score2 = getTableParentScore(rel2.to_table);
+                    bool rel1_is_subtype = isSubtypeTable(rel1.from_table, rel1.to_table);
+                    bool rel2_is_subtype = isSubtypeTable(rel2.from_table, rel2.to_table);
+                    auto it1 = tables_info.find(rel1.from_table);
+                    auto it2 = tables_info.find(rel1.to_table);
+                    int pk_size1 = (it1 != tables_info.end()) ? it1->second.pk_columns.size() : -1;
+                    int pk_size2 = (it2 != tables_info.end()) ? it2->second.pk_columns.size() : -1;
+                    bool both_single_pk = (pk_size1 == 1 && pk_size2 == 1);
+                    std::cerr << "Pair: " << rel1.from_table << "." << rel1.from_column << " <-> " 
+                              << rel2.from_table << "." << rel2.from_column 
+                              << " | scores: " << score1 << " vs " << score2
+                              << " | subtypes: " << rel1_is_subtype << " vs " << rel2_is_subtype
+                              << " | pk_sizes: " << pk_size1 << ", " << pk_size2
+                              << " | both_single: " << both_single_pk << std::endl;
+                    if (rel1.is_explicit && !rel2.is_explicit) {
+                        std::cerr << "Branch: rel1.is_explicit" << std::endl;
+                        to_remove_bidirectional.insert(rel2);
+                    } else if (!rel1.is_explicit && rel2.is_explicit) {
+                        std::cerr << "Branch: rel2.is_explicit" << std::endl;
+                        to_remove_bidirectional.insert(rel1);
+                    } else if (!rel1.is_explicit && !rel2.is_explicit) {
+                        if (score1 > score2) {
+                            std::cerr << "Branch: score1 > score2" << std::endl;
+                            to_remove_bidirectional.insert(rel2);
+                        } else if (score2 > score1) {
+                            std::cerr << "Branch: score2 > score1" << std::endl;
+                            to_remove_bidirectional.insert(rel1);
+                        } else {
+                            if (rel1_is_subtype && !rel2_is_subtype) {
+                                std::cerr << "Branch: rel1_is_subtype" << std::endl;
+                                to_remove_bidirectional.insert(rel2);
+                            } else if (!rel1_is_subtype && rel2_is_subtype) {
+                                std::cerr << "Branch: rel2_is_subtype" << std::endl;
+                                to_remove_bidirectional.insert(rel1);
+                            } else {
+                                std::cerr << "Branch: equal scores and no subtypes" << std::endl;
+                                // Only prune both if they are both single-column DDL primary key tables
+                                auto it1 = tables_info.find(rel1.from_table);
+                                auto it2 = tables_info.find(rel1.to_table);
+                                bool both_single_pk = (it1 != tables_info.end() && it1->second.pk_columns.size() == 1 &&
+                                                       it2 != tables_info.end() && it2->second.pk_columns.size() == 1);
+                                if (both_single_pk) {
+                                    std::cerr << "  Pruning both!" << std::endl;
+                                    to_remove_bidirectional.insert(rel1);
+                                    to_remove_bidirectional.insert(rel2);
+                                } else {
+                                    std::cerr << "  Not both single PK!" << std::endl;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    for (const auto& rel : to_remove_bidirectional) {
+        std::cerr << "Erasing: " << rel.from_table << "." << rel.from_column << " -> " << rel.to_table << "." << rel.to_column << std::endl;
+        size_t count = relationships.erase(rel);
+        std::cerr << "  Erase count: " << count << std::endl;
     }
 
     // Discard acronym matches if there is any stronger (non-acronym) match for the same column
@@ -2098,6 +2311,45 @@ void findImpliedRelationships(
                         break;
                     }
                 }
+            }
+        }
+        if (to_remove) {
+            it = relationships.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    // Resolve self-referencing vs other target conflicts (prefer self-referencing target over external targets)
+    std::unordered_map<std::string, bool> has_self_ref;
+    static const std::vector<std::string> HIERARCHICAL_WORDS = {
+        "parent", "child", "prev", "previous", "next", "successor", "predecessor", "manager", "mgr", "reports", "report", "part_of", "partof",
+        "superior", "inferior", "cause", "self", "self_reference", "selfref",
+        "pid", "parent_id", "parentid", "encar", "encargado", "chefe", "jefe", "gerente", "lider", "selfservice",
+        "comment_on", "reply_to", "in_reply_to", "reply", "response", "kierownik"
+    };
+    for (const auto& rel : relationships) {
+        if (rel.from_table == rel.to_table) {
+            std::string col_lower = to_lower(rel.from_column);
+            bool is_hierarchical = false;
+            for (const auto& word : HIERARCHICAL_WORDS) {
+                if (col_lower.find(word) != std::string::npos) {
+                    is_hierarchical = true;
+                    break;
+                }
+            }
+            if (is_hierarchical) {
+                std::string key = rel.from_table + "." + col_lower;
+                has_self_ref[key] = true;
+            }
+        }
+    }
+    for (auto it = relationships.begin(); it != relationships.end(); ) {
+        bool to_remove = false;
+        if (!it->is_explicit && it->from_table != it->to_table) {
+            std::string key = it->from_table + "." + to_lower(it->from_column);
+            if (has_self_ref.count(key) > 0) {
+                to_remove = true;
             }
         }
         if (to_remove) {

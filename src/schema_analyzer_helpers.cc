@@ -4,6 +4,7 @@
 #include <mutex>
 #include <cctype>
 #include <algorithm>
+#include <iostream>
 #include <sstream>
 #include <unordered_set>
 #include <unordered_map>
@@ -135,6 +136,12 @@ std::vector<std::string> getEffectivePKs(
     const std::unordered_map<std::string, TableInfo>& tables_info,
     const std::unordered_map<std::string, std::vector<std::string>>& pk_column_to_tables
 ) {
+    std::cerr << "getEffectivePKs called for table: " << tbl_name << " with info.pk_columns:";
+    for (const auto& pk : info.pk_columns) std::cerr << " " << pk;
+    std::cerr << " and columns:";
+    for (const auto& pair : info.column_types) std::cerr << " " << pair.first;
+    std::cerr << std::endl;
+
     if (!info.pk_columns.empty()) {
         std::vector<std::string> res = info.pk_columns;
         for (const auto& col : info.uni_columns) {
@@ -171,6 +178,9 @@ std::vector<std::string> getEffectivePKs(
                 }
             }
         }
+        std::cerr << "getEffectivePKs returning res:";
+        for (const auto& r : res) std::cerr << " " << r;
+        std::cerr << std::endl;
         return res;
     }
     
@@ -511,7 +521,7 @@ std::string detectSharedTablePrefix(const std::vector<std::string>& table_names)
         std::string prefix = pair.first;
         int count = pair.second;
         if (count >= 2) {
-            if (count >= 3 || count == table_names.size()) {
+            if ((count >= 3 && count >= (int)(table_names.size() * 0.75)) || count == table_names.size()) {
                 if (best_prefix.empty()) {
                     best_prefix = prefix;
                     best_count = count;
@@ -605,7 +615,8 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
         "metadata", "meta", "lang", "langs", "language", "languages",
         "info", "information", "config", "configs", "configuration", "configurations",
         "def", "defs", "definition", "definitions",
-        "setting", "settings", "option", "options", "preference", "preferences"
+        "setting", "settings", "option", "options", "preference", "preferences",
+        "set", "sets"
     };
 
     auto compute = [&]() -> bool {
@@ -792,7 +803,7 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
                 "info", "information", "config", "configs", "setting", "settings", "option", "options",
                 "preference", "preferences", "backup", "backups", "temp", "tmp", "metadata", "meta",
                 "lang", "langs", "language", "languages",
-                "password", "passwords", "execution", "executions"
+                "password", "passwords", "execution", "executions", "set", "sets"
             };
             if (CATALOG_WORDS.count(clean_b) > 0) {
                 return false;

@@ -1,0 +1,100 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 612415_website
+#
+CREATE DATABASE `db_612415_website`;
+USE `db_612415_website`;
+CREATE TABLE `article` (
+`id` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`content` VARCHAR(64),
+`date` DATETIME,
+`viewed` INT,
+`user_id` INT,
+`status` INT,
+`category_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `article_tag` (
+`id` INT,
+`article_id` INT,
+`tag_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `auth_assignment` (
+`item_name` VARCHAR(64),
+`user_id` VARCHAR(64),
+`created_at` INT
+) CHARACTER SET latin1;
+CREATE TABLE `auth_item` (
+`name` VARCHAR(64),
+`type` INT,
+`description` VARCHAR(64),
+`rule_name` VARCHAR(64),
+`data` VARCHAR(64),
+`created_at` INT,
+`updated_at` INT
+) CHARACTER SET latin1;
+CREATE TABLE `auth_item_child` (
+`parent` VARCHAR(64),
+`child` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_rule` (
+`name` VARCHAR(64),
+`data` VARCHAR(64),
+`created_at` INT,
+`updated_at` INT,
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `comment` (
+`id` INT,
+`text` VARCHAR(64),
+`user_id` INT,
+`article_id` INT,
+`status` INT,
+`date` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `image` (
+`id` INT,
+`filePath` VARCHAR(64),
+`itemId` INT,
+`isMain` INT,
+`modelName` VARCHAR(64),
+`urlAlias` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tag` (
+`id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user` (
+`id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`auth_key` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_612415_website') AS relationships;
+relationships
+Database: db_612415_website
+
+Table Connections:
+------------------
+[Implied]  article.category_id -> category.id
+[Implied]  article.user_id -> user.id
+[Implied]  article_tag.article_id -> article.id
+[Implied]  article_tag.tag_id -> tag.id
+[Implied]  comment.article_id -> article.id
+[Implied]  comment.user_id -> user.id
+
+DROP DATABASE `db_612415_website`;
+UNINSTALL EXTENSION vsql_schematron;

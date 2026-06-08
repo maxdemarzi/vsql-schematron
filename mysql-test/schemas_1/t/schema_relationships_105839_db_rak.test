@@ -1,0 +1,181 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 105839_db_rak
+--echo #
+CREATE DATABASE `db_105839_db_rak`;
+USE `db_105839_db_rak`;
+
+CREATE TABLE `auth_activation_attempts` (
+  `id` INT,
+  `ip_address` VARCHAR(64),
+  `user_agent` VARCHAR(64),
+  `token` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_groups` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_groups_permissions` (
+  `group_id` INT,
+  `permission_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_groups_users` (
+  `group_id` INT,
+  `user_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_logins` (
+  `id` INT,
+  `ip_address` VARCHAR(64),
+  `email` VARCHAR(64),
+  `user_id` INT,
+  `date` DATETIME,
+  `success` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_permissions` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_reset_attempts` (
+  `id` INT,
+  `email` VARCHAR(64),
+  `ip_address` VARCHAR(64),
+  `user_agent` VARCHAR(64),
+  `token` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_tokens` (
+  `id` INT,
+  `selector` VARCHAR(64),
+  `hashedValidator` VARCHAR(64),
+  `user_id` INT,
+  `expires` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `auth_users_permissions` (
+  `user_id` INT,
+  `permission_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `caras` (
+  `cara_id` INT,
+  `cara_order` VARCHAR(64),
+  PRIMARY KEY (`cara_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categorys` (
+  `category_id` INT,
+  `category_nama` VARCHAR(64),
+  PRIMARY KEY (`category_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contacts` (
+  `contact_id` INT,
+  `contact_facebook` VARCHAR(64),
+  `contact_twitter` VARCHAR(64),
+  `contact_instagram` VARCHAR(64),
+  `contact_email` VARCHAR(64),
+  `contact_alamat` VARCHAR(64),
+  `contact_no_tlp` VARCHAR(64),
+  `contact_no_wa` VARCHAR(64),
+  PRIMARY KEY (`contact_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `gallery` (
+  `gallery_id` INT,
+  `gallery_nama` VARCHAR(64),
+  `gallery_tgl` DATETIME,
+  `gallery_foto` VARCHAR(64),
+  PRIMARY KEY (`gallery_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `migrations` (
+  `id` INT,
+  `version` VARCHAR(64),
+  `class` VARCHAR(64),
+  `group` VARCHAR(64),
+  `namespace` VARCHAR(64),
+  `time` INT,
+  `batch` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `news` (
+  `news_id` INT,
+  `news_judul` VARCHAR(64),
+  `news_isi` VARCHAR(64),
+  `news_tgl` DATETIME,
+  `news_foto` VARCHAR(64),
+  PRIMARY KEY (`news_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `products` (
+  `products_id` INT,
+  `category_id` INT,
+  `product_nama` VARCHAR(64),
+  `product_desc` VARCHAR(64),
+  `product_spec` VARCHAR(64),
+  `product_foto` VARCHAR(64),
+  `product_harga` INT,
+  PRIMARY KEY (`products_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `profils` (
+  `profil_id` INT,
+  `profil_nama` VARCHAR(64),
+  `profil_headline` VARCHAR(64),
+  `profil_tentang` VARCHAR(64),
+  PRIMARY KEY (`profil_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `email` VARCHAR(64),
+  `username` VARCHAR(64),
+  `password_hash` VARCHAR(64),
+  `reset_hash` VARCHAR(64),
+  `reset_at` DATETIME,
+  `reset_expires` DATETIME,
+  `activate_hash` VARCHAR(64),
+  `status` VARCHAR(64),
+  `status_message` VARCHAR(64),
+  `active` INT,
+  `force_pass_reset` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_105839_db_rak') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_105839_db_rak') AS relationships;
+DROP DATABASE `db_105839_db_rak`;
+UNINSTALL EXTENSION vsql_schematron;

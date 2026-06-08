@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 418947_051_purchasing.mysql
+--echo #
+CREATE DATABASE `db_418947_051_purchasing_mysql`;
+USE `db_418947_051_purchasing_mysql`;
+
+CREATE TABLE `pur_header` (
+  `purchase_order_number` INT,
+  `vendor_id` INT,
+  `order_date` DATETIME,
+  `purchase_order_reference` VARCHAR(64),
+  `entity_id` INT,
+  `division_id` INT,
+  `department_id` INT,
+  `terms` INT,
+  `rev_enabled` VARCHAR(64),
+  `rev_number` INT,
+  `created_by` INT,
+  `creation_date` DATETIME,
+  `last_update_by` INT,
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`purchase_order_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pur_detail` (
+  `pur_detail_id` INT,
+  `purchase_order_number` INT,
+  `po_line` INT,
+  `parent_line` INT,
+  `entity_id` INT,
+  `division_id` INT,
+  `department_id` INT,
+  `item_id` INT,
+  `quantity` INT,
+  `quantity_uom` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `gl_account_id` INT,
+  `fv_vendor_id` INT,
+  `quantity_shipped` DECIMAL(10,2),
+  `date_shipped` DATETIME,
+  `tracking_number` VARCHAR(64),
+  `quantity_received` DECIMAL(10,2),
+  `date_received` DATETIME,
+  `received_by` INT,
+  `rev_enabled` VARCHAR(64),
+  `rev_number` INT,
+  `created_by` INT,
+  `creation_date` DATETIME,
+  `last_update_by` INT,
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`pur_detail_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pur_header_notes` (
+  `note_id` INT,
+  `purchase_order_number` INT,
+  `note_type_id` INT,
+  `seq` INT,
+  `note_text` VARCHAR(64),
+  `rev_enabled` VARCHAR(64),
+  `rev_number` INT,
+  `created_by` INT,
+  `creation_date` DATETIME,
+  `last_update_by` INT,
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`note_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pur_detail_notes` (
+  `note_id` INT,
+  `pur_detail_id` INT,
+  `note_type_id` INT,
+  `seq` INT,
+  `note_text` VARCHAR(64),
+  `rev_enabled` VARCHAR(64),
+  `rev_number` INT,
+  `created_by` INT,
+  `creation_date` DATETIME,
+  `last_update_by` INT,
+  `last_update_date` DATETIME,
+  PRIMARY KEY (`note_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_418947_051_purchasing_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_418947_051_purchasing_mysql') AS relationships;
+DROP DATABASE `db_418947_051_purchasing_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

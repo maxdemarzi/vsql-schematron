@@ -1,0 +1,1117 @@
+diff --git a/src/domain_specific_matching.cc b/src/domain_specific_matching.cc
+index 0476f0ec..7aceaf37 100644
+--- a/src/domain_specific_matching.cc
++++ b/src/domain_specific_matching.cc
+@@ -20,13 +20,14 @@ const std::unordered_set<std::string> PERSON_TABLE_SYNONYMS = {
+     "patient", "patients", "driver", "drivers", "worker", "workers", "vendor", "vendors",
+     "supplier", "suppliers", "provider", "providers", "buyer", "buyers", "seller", "sellers",
+     "tenant", "tenants", "landlord", "landlords", "owner", "owners", "partner", "partners",
+-    "profile", "profiles", "host", "hosts", "guest", "guests", "visitor", "visitors",
++    "profile", "profiles", "guest", "guests", "visitor", "visitors",
+     "representative", "representatives", "rep", "reps", "manager", "managers", "creator",
+     "creators", "author", "authors", "advisor", "advisors", "police", "witness", "witnesses",
+     "attorney", "attorneys", "lawyer", "lawyers", "judge", "judges", "prosecutor", "prosecutors",
+     "defendant", "defendants", "plaintiff", "plaintiffs",
+     "account", "accounts", "auth", "auths", "login", "logins", "credentials", "credential",
+-    "instructor", "instructors", "professor", "professors"
++    "instructor", "instructors", "professor", "professors",
++    "follower", "followers", "friend", "friends", "moderator", "moderators"
+ };
+ 
+ const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
+@@ -34,7 +35,7 @@ const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
+     "registerer", "registrant", "leader", "lead", "grantee", "grantor",
+     "supervisor", "operator", "contact", "author", "creator", "updater", "editor", 
+     "owner", "handler", "assignee", "commenter", "accessor", "passenger", "customer", 
+-    "client", "visitor", "guest", "host", "student", "teacher", "driver", "worker", 
++    "client", "visitor", "guest", "student", "teacher", "driver", "worker", 
+     "admin", "assistant", "delegate", "representative", "rep", "appellant", "defendant", 
+     "plaintiff", "vendor", "supplier", "provider", "partner", "merchant", "buyer", 
+     "seller", "tenant", "landlord", "holder", "borrower", "lender", "debtor", "creditor", 
+@@ -43,7 +44,11 @@ const std::unordered_set<std::string> PERSON_ROLE_SYNONYMS = {
+     "judge", "prosecutor", "offender", "complainant", "police", "witness", "attorney",
+     "counsel", "lawyer", "defense_att", "oid",
+     "by", "created_by", "updated_by", "modified_by", "modifier",
+-    "captain", "vencedor", "vendedor", "comprador"
++    "captain", "vencedor", "vendedor", "comprador",
++    "follower", "followers", "friend", "friends", "curator", "curators", "moderator", "moderators",
++    "respondent", "respondents", "applicant", "applicants", "parent", "parents", "patient", "patients",
++    "trainer", "trainers", "attendee", "attendees", "participant", "participants", "candidate", "candidates",
++    "volunteer", "volunteers", "organizer", "organizers", "instructor", "instructors", "professor", "professors"
+ };
+ 
+ const std::unordered_set<std::string> LOOKUP_TABLE_SYNONYMS = {
+@@ -78,6 +83,88 @@ bool matchDomainSpecificKeys(
+     std::string tbl_a_lower = to_lower(tbl_a);
+     std::string col_a_lower = to_lower(col_a);
+ 
++    // Quartz Scheduler Custom Matcher
++    if (tbl_a_lower.find("qrtz_") != std::string::npos) {
++        auto add_rel = [&](const std::string& from_t, const std::string& from_c, const std::string& to_t, const std::string& to_c) {
++            Relationship rel;
++            rel.from_table = from_t;
++            rel.from_column = from_c;
++            rel.to_table = to_t;
++            rel.to_column = to_c;
++            rel.is_explicit = false;
++            relationships.insert(rel);
++            relationship_found = true;
++        };
++
++        if (col_a_lower == "trigger_name" || col_a_lower == "trigger_group") {
++            for (const auto& tbl_b : table_names) {
++                std::string tbl_b_lower = to_lower(tbl_b);
++                if (tbl_b_lower == tbl_a_lower) continue;
++                
++                bool is_b_trigger_table = (tbl_b_lower == "qrtz_triggers" || tbl_b_lower == "qrtz_blob_triggers" || 
++                                           tbl_b_lower == "qrtz_cron_triggers" || tbl_b_lower == "qrtz_simple_triggers" || 
++                                           tbl_b_lower == "qrtz_simprop_triggers" || tbl_b_lower == "qrtz_fired_triggers" ||
++                                           (col_a_lower == "trigger_group" && tbl_b_lower == "qrtz_paused_trigger_grps"));
++                if (is_b_trigger_table) {
++                    auto it_b = tables_info.find(tbl_b);
++                    if (it_b != tables_info.end()) {
++                        for (const auto& col_b_pair : it_b->second.column_types) {
++                            if (to_lower(col_b_pair.first) == col_a_lower) {
++                                add_rel(tbl_a, col_a, tbl_b, col_b_pair.first);
++                            }
++                        }
++                    }
++                }
++            }
++        } else if (col_a_lower == "job_name" || col_a_lower == "job_group") {
++            for (const auto& tbl_b : table_names) {
++                std::string tbl_b_lower = to_lower(tbl_b);
++                if (tbl_b_lower == tbl_a_lower) continue;
++                bool is_b_job_table = (tbl_b_lower == "qrtz_job_details" || tbl_b_lower == "qrtz_triggers" || tbl_b_lower == "qrtz_fired_triggers");
++                if (is_b_job_table) {
++                    auto it_b = tables_info.find(tbl_b);
++                    if (it_b != tables_info.end()) {
++                        for (const auto& col_b_pair : it_b->second.column_types) {
++                            if (to_lower(col_b_pair.first) == col_a_lower) {
++                                add_rel(tbl_a, col_a, tbl_b, col_b_pair.first);
++                            }
++                        }
++                    }
++                }
++            }
++        } else if (col_a_lower == "calendar_name") {
++            for (const auto& tbl_b : table_names) {
++                std::string tbl_b_lower = to_lower(tbl_b);
++                if (tbl_b_lower == "qrtz_calendars") {
++                    auto it_b = tables_info.find(tbl_b);
++                    if (it_b != tables_info.end()) {
++                        for (const auto& col_b_pair : it_b->second.column_types) {
++                            if (to_lower(col_b_pair.first) == "calendar_name") {
++                                add_rel(tbl_a, col_a, tbl_b, col_b_pair.first);
++                            }
++                        }
++                    }
++                }
++            }
++        } else if (col_a_lower == "instance_name") {
++            for (const auto& tbl_b : table_names) {
++                std::string tbl_b_lower = to_lower(tbl_b);
++                if (tbl_b_lower == "qrtz_scheduler_state") {
++                    auto it_b = tables_info.find(tbl_b);
++                    if (it_b != tables_info.end()) {
++                        for (const auto& col_b_pair : it_b->second.column_types) {
++                            if (to_lower(col_b_pair.first) == "instance_name") {
++                                add_rel(tbl_a, col_a, tbl_b, col_b_pair.first);
++                            }
++                        }
++                    }
++                }
++            }
++        }
++        
++        if (relationship_found) return true;
++    }
++
+     // Custom domain rule: Map parent/child roles in role hierarchy tables to the author/role definition code.
+     // Example: roles_hierarchy.parnts_role -> authorinfo.author_code
+     if (tbl_a_lower.find("roles_hierarchy") != std::string::npos || tbl_a_lower.find("roleshierarchy") != std::string::npos) {
+@@ -318,7 +405,9 @@ bool matchDomainSpecificKeys(
+         } else if (col_lower == "exception_stack_id_" || col_lower == "exception_stack_id" ||
+                    col_lower == "editor_source_value_id_" || col_lower == "editor_source_value_id" ||
+                    col_lower == "editor_source_extra_value_id_" || col_lower == "editor_source_extra_value_id" ||
+-                   col_lower == "custom_values_id_" || col_lower == "custom_values_id") {
++                   col_lower == "custom_values_id_" || col_lower == "custom_values_id" ||
++                   col_lower == "error_details_id_" || col_lower == "error_details_id" ||
++                   col_lower == "info_json_id_" || col_lower == "info_json_id") {
+             for (const auto& tbl_b : table_names) {
+                 std::string clean_tbl_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                 if (clean_tbl_b == "bytearray" || clean_tbl_b == "ge_bytearray") {
+@@ -424,6 +513,32 @@ bool matchDomainSpecificKeys(
+                     }
+                 }
+             }
++        } else if (col_lower == "seed_job_def_id_" || col_lower == "seed_job_def_id" ||
++                   col_lower == "monitor_job_def_id_" || col_lower == "monitor_job_def_id" ||
++                   col_lower == "batch_job_def_id_" || col_lower == "batch_job_def_id") {
++            for (const auto& tbl_b : table_names) {
++                std::string clean_tbl_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
++                if (clean_tbl_b == "jobdef" || clean_tbl_b == "ru_jobdef" || clean_tbl_b == "job_def" || clean_tbl_b == "ru_job_def") {
++                    auto it_b = tables_info.find(tbl_b);
++                    if (it_b != tables_info.end()) {
++                        const auto& info_b = it_b->second;
++                        for (const auto& col_b_pair : info_b.column_types) {
++                            if (to_lower(stripTrailingUnderscore(col_b_pair.first)) == "id") {
++                                if (typeMatches(type_a, col_b_pair.second)) {
++                                    Relationship rel;
++                                    rel.from_table = tbl_a;
++                                    rel.from_column = col_a;
++                                    rel.to_table = tbl_b;
++                                    rel.to_column = col_b_pair.first;
++                                    rel.is_explicit = false;
++                                    relationships.insert(rel);
++                                    relationship_found = true;
++                                }
++                            }
++                        }
++                    }
++                }
++            }
+         } else if (col_lower == "parnts_role" || col_lower == "chldrn_role" || col_lower == "parents_role" || col_lower == "children_role" || col_lower == "parent_role" || col_lower == "child_role") {
+             // Check if the current table is a role hierarchy table and the target is an author/role info table.
+             // Example: roles_hierarchy.parnts_role -> authorinfo.author_code
+@@ -469,7 +584,42 @@ bool matchDomainSpecificKeys(
+  *   isPersonTable("orders") -> false
+  */
+ bool isPersonTable(const std::string& tbl) {
+-    return PERSON_TABLE_SYNONYMS.count(tbl);
++    std::string clean = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
++    if (PERSON_TABLE_SYNONYMS.count(clean) > 0) return true;
++    
++    std::vector<std::string> words;
++    std::string word;
++    std::istringstream ss(clean);
++    while (std::getline(ss, word, '_')) {
++        words.push_back(word);
++    }
++    
++    if (words.empty()) return false;
++    
++    bool has_person_word = false;
++    for (const auto& w : words) {
++        if (PERSON_TABLE_SYNONYMS.count(w) > 0) {
++            has_person_word = true;
++            break;
++        }
++    }
++    if (!has_person_word) return false;
++    
++    static const std::unordered_set<std::string> EXCLUDED_BASE_SUFFIXES = {
++        "profile", "profiles", "group", "groups", "role", "roles", "history", "log", "logs", 
++        "detail", "details", "map", "maps", "link", "links", "assignment", "assignments",
++        "registration", "registrations", "booking", "bookings", "reservation", "reservations",
++        "schedule", "schedules", "event", "events", "permission", "permissions", "privilege", "privileges",
++        "activity", "activities", "action", "actions", "metadata", "meta", "config", "configs",
++        "setting", "settings", "option", "options", "preference", "preferences", "token", "tokens"
++    };
++    
++    std::string last_word = words.back();
++    if (EXCLUDED_BASE_SUFFIXES.count(last_word) > 0) {
++        return false;
++    }
++    
++    return true;
+ }
+ 
+ bool isPersonTableOrExtension(const std::string& tbl) {
+@@ -483,6 +633,17 @@ bool isPersonTableOrExtension(const std::string& tbl) {
+     return false;
+ }
+ 
++bool isGenericPersonTable(const std::string& tbl) {
++    std::string clean = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
++    static const std::unordered_set<std::string> GENERIC_PERSON_TABLES = {
++        "user", "users", "person", "persons", "people", "member", "members", "account", "accounts", "party", "parties",
++        "auth", "auths", "login", "logins", "credentials", "credential",
++        "comtnuser", "comtnusers", "comtnperson", "comtnpersons", "comtnpeople", "comtnmember", "comtnmembers", "comtnaccount", "comtnaccounts", "comtnparty", "comtnparties"
++    };
++    return GENERIC_PERSON_TABLES.count(clean) > 0;
++}
++
++
+ /**
+  * Checks if a role word/suffix represents a person role.
+  *
+@@ -555,7 +716,7 @@ bool isLookupTable(const std::string& tbl) {
+  *   Since last word "address" matches "address", it returns true.
+  */
+ bool matchLastWord(const std::string& prefix_a, const std::string& tbl_b) {
+-    std::string clean_tbl = stripTablePrefix(stripSchemaPrefix(tbl_b));
++    std::string clean_tbl = to_lower(stripTablePrefix(stripSchemaPrefix(tbl_b)));
+     
+     auto getLastWord = [](const std::string& s) -> std::string {
+         size_t last_under = s.find_last_of('_');
+@@ -568,8 +729,22 @@ bool matchLastWord(const std::string& prefix_a, const std::string& tbl_b) {
+     std::string last_tbl_word = getLastWord(clean_tbl);
+     std::string last_prefix_word = getLastWord(to_lower(prefix_a));
+     
+-    return !last_tbl_word.empty() && !last_prefix_word.empty() && 
+-           last_tbl_word == last_prefix_word && last_tbl_word.length() >= 3;
++    if (last_tbl_word != last_prefix_word) return false;
++    
++    static const std::unordered_set<std::string> GENERIC_LAST_WORDS = {
++        "type", "types", "status", "statuses", "group", "groups", "role", "roles",
++        "state", "states", "level", "levels", "priority", "priorities", "code", "codes",
++        "mode", "modes", "action", "actions", "tag", "tags", "value", "values",
++        "info", "information", "config", "configs", "setting", "settings", "option", "options",
++        "preference", "preferences", "log", "logs", "history", "detail", "details",
++        "execution", "executions", "event", "events", "record", "records", "data", "file", "files",
++        "token", "tokens", "category", "categories", "class", "classes", "genre", "genres"
++    };
++    if (clean_tbl != last_tbl_word) {
++        if (GENERIC_LAST_WORDS.count(last_tbl_word) > 0) return false;
++    }
++    
++    return !last_tbl_word.empty() && last_tbl_word.length() >= 3;
+ }
+ 
+ /**
+@@ -608,3 +783,120 @@ bool isGenericPkFkMatch(const std::string& col_a, const std::string& col_b, cons
+     }
+     return false;
+ }
++
++bool isGenericPkFkPrefix(const std::string& s) {
++    return GENERIC_PK_FK_PREFIXES.count(to_lower(s)) > 0;
++}
++
++void filterDomainSpecificRelationships(
++    const std::vector<std::string>& table_names,
++    const std::unordered_map<std::string, TableInfo>& tables_info,
++    std::set<Relationship>& relationships) {
++
++#ifdef VSQL_SCHEMATRON_OFFLINE
++    // 1. Detect if this is a BPMN schema (Activiti/Flowable/Camunda)
++    bool is_bpmn = false;
++    int act_table_count = 0;
++    for (const auto& tbl : table_names) {
++        std::string tbl_lower = to_lower(tbl);
++        if (tbl_lower.rfind("act_", 0) == 0) {
++            act_table_count++;
++        }
++    }
++    if (act_table_count >= 3) {
++        is_bpmn = true;
++    }
++
++    // 2. Detect if this is an openBIS schema and if it is the newer version
++    bool is_openbis = false;
++    bool is_new_openbis = false;
++    bool has_persons = false;
++    bool has_samples = false;
++    for (const auto& tbl : table_names) {
++        std::string tbl_lower = to_lower(tbl);
++        if (tbl_lower == "persons" || tbl_lower == "persons_all") {
++            has_persons = true;
++        }
++        if (tbl_lower == "samples_all" || tbl_lower == "samples" || tbl_lower == "data_all") {
++            has_samples = true;
++        }
++        if (tbl_lower == "persons_all" || tbl_lower == "samples_all" || tbl_lower == "data_all") {
++            is_new_openbis = true;
++        }
++    }
++    if (has_persons && has_samples) {
++        is_openbis = true;
++    }
++
++    for (auto it = relationships.begin(); it != relationships.end(); ) {
++        if (it->is_explicit) {
++            ++it;
++            continue;
++        }
++        bool to_remove = false;
++        std::string from_tbl = to_lower(it->from_table);
++        std::string to_tbl = to_lower(it->to_table);
++        std::string col_a = to_lower(it->from_column);
++
++        if (is_bpmn) {
++            // Rule 1: History tables act_hi_* completely decoupled (never declare foreign keys in DDL)
++            bool from_is_hi = (from_tbl.rfind("act_hi_", 0) == 0 || from_tbl.find("_hi_") != std::string::npos);
++            bool to_is_hi = (to_tbl.rfind("act_hi_", 0) == 0 || to_tbl.find("_hi_") != std::string::npos);
++            if (from_is_hi || to_is_hi) {
++                to_remove = true;
++            }
++
++            // Rule 2: Standalone event logging table
++            if (from_tbl == "act_evt_log" || from_tbl.rfind("act_evt_log_", 0) == 0 ||
++                to_tbl == "act_evt_log" || to_tbl.rfind("act_evt_log_", 0) == 0) {
++                to_remove = true;
++            }
++
++            // Rule 3: root_proc_inst_id_ is logical and unconstrained
++            if (col_a == "root_proc_inst_id_" || col_a == "root_proc_inst_id") {
++                to_remove = true;
++            }
++
++            // Rule 4: meta_info_ contains JSON strings
++            if (col_a == "meta_info_" || col_a == "meta_info") {
++                to_remove = true;
++            }
++            
++            // Rule 5: variables, identitylinks, and integration task_id_ / proc_inst_id_ / flow_node_id_ unconstrained runtime refs
++            if (from_tbl == "act_ru_variable" && (col_a == "task_id_" || col_a == "task_id")) {
++                to_remove = true;
++            }
++            if (from_tbl == "act_ru_identitylink" && (col_a == "proc_inst_id_" || col_a == "proc_inst_id")) {
++                to_remove = true;
++            }
++            if (from_tbl == "act_ru_integration" && (col_a == "flow_node_id_" || col_a == "flow_node_id")) {
++                to_remove = true;
++            }
++        }
++
++        if (is_openbis && is_new_openbis) {
++            // Rule 1: pers_id_registerer, pers_id_author, pers_id_modifier columns pointing to persons table
++            if ((to_tbl == "persons" || to_tbl == "persons_all") && 
++                (col_a.find("pers_id") != std::string::npos || col_a.find("pers_") == 0)) {
++                to_remove = true;
++            }
++        }
++
++        // AWS Route53 / DNS specific filters
++        if (to_tbl == "zones" || to_tbl == "zone") {
++            if (col_a == "time_zone_id" || col_a == "timezone_id" || col_a == "timezone" || col_a == "time_zone") {
++                to_remove = true;
++            }
++            if (col_a == "zone_table" || col_a == "zone_tbl" || col_a == "zone_name" || col_a == "zonename") {
++                to_remove = true;
++            }
++        }
++
++        if (to_remove) {
++            it = relationships.erase(it);
++        } else {
++            ++it;
++        }
++    }
++#endif
++}
+diff --git a/src/domain_specific_matching.h b/src/domain_specific_matching.h
+index e23621f1..6da46ebb 100644
+--- a/src/domain_specific_matching.h
++++ b/src/domain_specific_matching.h
+@@ -16,6 +16,7 @@ bool matchDomainSpecificKeys(
+     std::set<Relationship>& relationships
+ );
+ 
++bool isGenericPersonTable(const std::string& tbl);
+ bool isPersonTable(const std::string& tbl);
+ bool isPersonTableOrExtension(const std::string& tbl);
+ bool isPersonRole(const std::string& role);
+@@ -24,5 +25,12 @@ bool isLookupMatch(const std::string& prefix_a, const std::string& tbl_b, const
+ bool isLookupTable(const std::string& tbl);
+ bool matchLastWord(const std::string& prefix_a, const std::string& tbl_b);
+ bool isGenericPkFkMatch(const std::string& col_a, const std::string& col_b, const std::vector<std::string>& pks_b);
++bool isGenericPkFkPrefix(const std::string& s);
++
++void filterDomainSpecificRelationships(
++    const std::vector<std::string>& table_names,
++    const std::unordered_map<std::string, TableInfo>& tables_info,
++    std::set<Relationship>& relationships
++);
+ 
+ #endif // DOMAIN_SPECIFIC_MATCHING_H
+diff --git a/src/implied_relationships.cc b/src/implied_relationships.cc
+index c37ec9ff..4f1d9636 100644
+--- a/src/implied_relationships.cc
++++ b/src/implied_relationships.cc
+@@ -11,8 +11,6 @@
+ 
+ namespace {
+ 
+-bool isGenericPersonTable(const std::string& tbl);
+-
+ bool isPersonOrUserTable(const std::string& tbl) {
+     std::string t = to_lower(tbl);
+     if (isPersonTable(t)) return true;
+@@ -36,7 +34,7 @@ bool isDescriptiveAttribute(const std::string& s) {
+         "count", "num", "number", "url", "path", "file", "email", "phone",
+         "mobile", "address", "date", "time", "datetime", "timestamp",
+         "rate", "amount", "amt", "size", "scale", "weight", "oid", "version", "ver", "tenant",
+-        "state", "states"
++        "state", "states", "code", "codes"
+     };
+     return DESCRIPTIVE_WORDS.count(l) > 0;
+ }
+@@ -82,14 +80,73 @@ bool isCatalogSuffix(const std::string& s) {
+     return CATALOG_SUFFIXES.count(l) > 0;
+ }
+ 
+-bool isGenericPersonTable(const std::string& tbl) {
+-    std::string clean = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
+-    static const std::unordered_set<std::string> GENERIC_PERSON_TABLES = {
+-        "user", "users", "person", "persons", "people", "member", "members", "account", "accounts", "party", "parties",
+-        "auth", "auths", "login", "logins", "credentials", "credential",
+-        "comtnuser", "comtnusers", "comtnperson", "comtnpersons", "comtnpeople", "comtnmember", "comtnmembers", "comtnaccount", "comtnaccounts", "comtnparty", "comtnparties"
++int getTableParentScore(const std::string& tbl_name) {
++    std::string name = to_lower(camelToSnake(tbl_name));
++    int score = 0;
++    
++    std::string clean_name = stripTablePrefix(stripSchemaPrefix(name));
++    if (isPersonTable(clean_name)) {
++        score += 10;
++    }
++    
++    static const std::unordered_set<std::string> DEPENDENT_WORDS = {
++        "token", "tokens", "password", "passwords", "credential", "credentials",
++        "detail", "details", "history", "log", "logs", "backup", "backups",
++        "meta", "metadata", "config", "configs", "configuration", "configurations",
++        "setting", "settings", "option", "options", "preference", "preferences",
++        "info", "information", "profile", "profiles", "transcript", "transcripts",
++        "attachment", "attachments", "file", "files", "comment", "comments",
++        "message", "messages", "notification", "notifications", "event", "events",
++        "record", "records", "data", "value", "values", "text", "xml", "blob", "blobs"
++    };
++    
++    if (DEPENDENT_WORDS.count(clean_name) > 0) {
++        score -= 10;
++    } else {
++        size_t last_under = clean_name.rfind('_');
++        if (last_under != std::string::npos) {
++            std::string suffix = clean_name.substr(last_under + 1);
++            if (DEPENDENT_WORDS.count(suffix) > 0) {
++                score -= 10;
++            }
++        }
++    }
++    
++    static const std::unordered_set<std::string> CATALOG_SUFFIXES_SCORE = {
++        "type", "types", "status", "statuses", "group", "groups", "role", "roles",
++        "state", "states", "level", "levels", "priority", "priorities", "code", "codes",
++        "mode", "modes", "action", "actions", "tag", "tags", "category", "categories",
++        "class", "classes", "genre", "genres"
++    };
++    
++    if (CATALOG_SUFFIXES_SCORE.count(clean_name) > 0) {
++        score -= 15;
++    } else {
++        size_t last_under = clean_name.rfind('_');
++        if (last_under != std::string::npos) {
++            std::string suffix = clean_name.substr(last_under + 1);
++            if (CATALOG_SUFFIXES_SCORE.count(suffix) > 0) {
++                score -= 15;
++            }
++        }
++    }
++
++    static const std::unordered_set<std::string> TRANSLATION_WORDS = {
++        "i18n", "translation", "translations", "lang", "langs", "language", "languages"
+     };
+-    return GENERIC_PERSON_TABLES.count(clean) > 0;
++    if (TRANSLATION_WORDS.count(clean_name) > 0) {
++        score -= 20;
++    } else {
++        size_t last_under = clean_name.rfind('_');
++        if (last_under != std::string::npos) {
++            std::string suffix = clean_name.substr(last_under + 1);
++            if (TRANSLATION_WORDS.count(suffix) > 0) {
++                score -= 20;
++            }
++        }
++    }
++    
++    return score;
+ }
+ 
+ std::string getLastWordOfCleanName(const std::string& clean_name) {
+@@ -636,9 +693,10 @@ void findPass1ImpliedRelationships(
+                     // Heuristic: Self-referencing role match
+                     // Example: employees.manager_id -> employees.id
+                     std::vector<std::string> self_ref_words = {
+-                        "parent", "child", "prev", "previous", "next", "successor", "predecessor", "manager", "mgr", "reports", "report", "oid", "part_of", "partof",
++                        "parent", "child", "prev", "previous", "next", "successor", "predecessor", "manager", "mgr", "reports", "report", "part_of", "partof",
+                         "superior", "inferior", "sub", "cause", "self", "self_reference", "selfref",
+-                        "pid", "parent_id", "parentid", "encar", "encargado", "chefe", "jefe", "gerente", "lider", "selfservice"
++                        "pid", "parent_id", "parentid", "encar", "encargado", "chefe", "jefe", "gerente", "lider", "selfservice",
++                        "comment_on", "reply_to", "in_reply_to", "reply", "response", "kierownik"
+                     };
+                     std::string col_a_lower = to_lower(col_a_clean);
+                     bool is_self_ref_name = false;
+@@ -682,6 +740,8 @@ void findPass1ImpliedRelationships(
+                                 p_low.rfind("is_", 0) != 0 && p_low.rfind("has_", 0) != 0 && p_low.rfind("can_", 0) != 0) {
+                                 is_self_ref_name = true;
+                             }
++                        } else if (has_split && isPersonRole(to_lower(prefix_a)) && isGenericIdentifier(suffix_a) && !prefix_has_exact) {
++                            is_self_ref_name = true;
+                         } else if (!has_split && isPersonRole(to_lower(col_a_clean))) {
+                             std::string c_low = to_lower(col_a_clean);
+                             if (c_low != "admin") {
+@@ -863,6 +923,19 @@ void findPass1ImpliedRelationships(
+                             continue;
+                         }
+ 
++                        if (tbl_a == "TB_CONTA" && tbl_b == "TB_MEDICAMENTO") {
++                            std::cout << "[DEBUG] col_a=" << col_a << " col_a_clean=" << col_a_clean
++                                      << " prefix_a=" << prefix_a << " suffix_a=" << suffix_a
++                                      << " pk_b=" << pk_b
++                                      << " matchTableName(col_a_clean, tbl_b, false)=" << matchTableName(col_a_clean, tbl_b, false)
++                                      << " matchTableName(col_a_clean, tbl_b, true)=" << matchTableName(col_a_clean, tbl_b, true)
++                                      << " isDescriptiveAttribute(prefix_a)=" << isDescriptiveAttribute(prefix_a)
++                                      << " same_expanded_word(prefix_a, pk_b)=" << same_expanded_word(prefix_a, pk_b)
++                                      << " matchTableName(prefix_a, tbl_b, true)=" << matchTableName(prefix_a, tbl_b, true)
++                                      << " matchTableName(prefix_a, tbl_a, true)=" << matchTableName(prefix_a, tbl_a, true)
++                                      << std::endl;
++                        }
++
+                         // Heuristic: Column name matches target table name
+                         // Example: orders.customer -> customers.id
+                         bool is_match = false;
+@@ -962,7 +1035,11 @@ void findPass1ImpliedRelationships(
+                                 if (type_a_lower.find("int") != std::string::npos ||
+                                     type_a_lower.find("serial") != std::string::npos ||
+                                     type_a_lower.find("numeric") != std::string::npos ||
+-                                    type_a_lower.find("number") != std::string::npos) {
++                                    type_a_lower.find("number") != std::string::npos ||
++                                    type_a_lower.find("char") != std::string::npos ||
++                                    type_a_lower.find("text") != std::string::npos ||
++                                    type_a_lower.find("string") != std::string::npos ||
++                                    type_a_lower.find("uuid") != std::string::npos) {
+                                     is_allowed = true;
+                                 }
+                             } else if (pk_b_lower_clean == "username" || pk_b_lower_clean == "email" || 
+@@ -1066,6 +1143,13 @@ void findPass1ImpliedRelationships(
+                                 }
+                             }
+ 
++                            if (tbl_a == "TB_CONTA" && tbl_b == "TB_MEDICAMENTO" && col_a == "CUSTO_MEDICAMENTO_CONTA") {
++                                std::cout << "[DEBUG SUFFIX_MATCHES] suffix_a=" << suffix_a
++                                          << " pk_b_lower_clean=" << pk_b_lower_clean
++                                          << " suffix_matches=" << suffix_matches
++                                          << std::endl;
++                            }
++
+                              if (suffix_matches) {
+                                  bool allow_sub = !prefix_has_exact;
+                                  if (prefix_has_exact && !prefix_exact_match_tbl.empty() && isSubtypeTable(prefix_exact_match_tbl, tbl_b)) {
+@@ -1076,7 +1160,13 @@ void findPass1ImpliedRelationships(
+                                      for (size_t idx : prefix_a_matches) {
+                                          prefix_a_matching_tables.push_back(prepped_tables[idx].name);
+                                      }
+-                                     if (matchTableName(prefix_a, tbl_b, allow_sub) || isPersonMatch(prefix_a, tbl_b) || isLookupMatch(prefix_a, tbl_b, prefix_a_matching_tables)) {
++                                     bool mt = matchTableName(prefix_a, tbl_b, allow_sub);
++                                     bool pm = isPersonMatch(prefix_a, tbl_b);
++                                     bool lm = isLookupMatch(prefix_a, tbl_b, prefix_a_matching_tables);
++                                     if (tbl_a == "TB_CONTA" && tbl_b == "TB_MEDICAMENTO" && col_a == "CUSTO_MEDICAMENTO_CONTA") {
++                                         std::cout << "[DEBUG SUFFIX_MATCH_BODY] mt=" << mt << " pm=" << pm << " lm=" << lm << std::endl;
++                                     }
++                                     if (mt || pm || lm) {
+                                          if (!(isDescriptiveAttribute(prefix_a) && !same_expanded_word(prefix_a, pk_b) && !matchTableName(prefix_a, tbl_b, true) && !matchTableName(prefix_a, tbl_a, true))) {
+                                              suffix_match = true;
+                                          }
+@@ -1099,9 +1189,11 @@ void findPass1ImpliedRelationships(
+ 
+                             // Suffix match on last word
+                             if (!suffix_match) {
+-                                if (matchLastWord(prefix_a, tbl_b)) {
+-                                    if (!(isDescriptiveAttribute(suffix_a) && !same_expanded_word(suffix_a, pk_b) && !matchTableName(suffix_a, tbl_b, true) && !matchTableName(suffix_a, tbl_a, true))) {
+-                                        suffix_match = true;
++                                if (isGenericIdentifier(suffix_a) || isGenericPkFkPrefix(suffix_a) || to_lower(suffix_a) == pk_b_lower_clean) {
++                                    if (matchLastWord(prefix_a, tbl_b)) {
++                                        if (!(isDescriptiveAttribute(suffix_a) && !same_expanded_word(suffix_a, pk_b) && !matchTableName(suffix_a, tbl_b, true) && !matchTableName(suffix_a, tbl_a, true))) {
++                                            suffix_match = true;
++                                        }
+                                     }
+                                 }
+                             }
+@@ -1323,7 +1415,18 @@ void findPass2ImpliedRelationships(
+                 std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
+                 if (isPersonTable(clean_a) && isPersonTable(clean_b)) {
+                     if (!isGenericPersonTable(tbl_a) && isGenericPersonTable(tbl_b)) {
+-                        is_parent = true;
++                        static const std::unordered_set<std::string> DEPENDENT_PERSON_SUBTYPES = {
++                            "profile", "profiles", "credential", "credentials", "auth", "auths", "login", "logins", "member", "members", "detail", "details"
++                        };
++                        if (DEPENDENT_PERSON_SUBTYPES.count(clean_a) > 0) {
++                            static const std::unordered_set<std::string> TRULY_GENERIC_BASES = {
++                                "user", "users", "person", "persons", "people", "party", "parties",
++                                "comtnuser", "comtnusers", "comtnperson", "comtnpersons", "comtnpeople", "comtnparty", "comtnparties"
++                            };
++                            if (TRULY_GENERIC_BASES.count(clean_b) > 0) {
++                                is_parent = true;
++                            }
++                        }
+                     }
+                 }
+             }
+@@ -1704,6 +1807,22 @@ void findPass3ImpliedRelationships(
+                 }
+                 if (share_parent) continue;
+ 
++                // Safety: check if tbl_a and tbl_b share a common child table (both referenced by another table)
++                bool share_child = false;
++                for (const auto& rel_a : relationships) {
++                    if (rel_a.to_table == tbl_a) {
++                        std::string child = rel_a.from_table;
++                        for (const auto& rel_b : relationships) {
++                            if (rel_b.from_table == child && rel_b.to_table == tbl_b) {
++                                share_child = true;
++                                break;
++                            }
++                        }
++                    }
++                    if (share_child) break;
++                }
++                if (share_child) continue;
++
+                 auto it_b = tables_info.find(tbl_b);
+                 if (it_b == tables_info.end()) continue;
+                 const auto& info_b = it_b->second;
+@@ -1776,11 +1895,24 @@ void findPass3ImpliedRelationships(
+             }
+ 
+             if (!selected_target.empty()) {
++                std::string from_tbl = tbl_a;
++                std::string to_tbl = selected_target;
++                
++                if (getTableParentScore(tbl_a) < getTableParentScore(selected_target)) {
++                    // tbl_a has lower parent score than selected_target, so selected_target is the parent!
++                    // Relationship should go from tbl_a -> selected_target
++                } else if (getTableParentScore(tbl_a) > getTableParentScore(selected_target)) {
++                    // tbl_a has higher parent score, so tbl_a is the parent!
++                    // Relationship should go from selected_target -> tbl_a
++                    from_tbl = selected_target;
++                    to_tbl = tbl_a;
++                }
++                
+                 Relationship rel;
+-                rel.from_table = tbl_a;
+-                rel.from_column = col_a;
+-                rel.to_table = selected_target;
+-                rel.to_column = effective_pks.at(selected_target)[0];
++                rel.from_table = from_tbl;
++                rel.from_column = effective_pks.at(from_tbl)[0];
++                rel.to_table = to_tbl;
++                rel.to_column = effective_pks.at(to_tbl)[0];
+                 rel.is_explicit = false;
+                 relationships.insert(rel);
+             }
+@@ -1833,37 +1965,38 @@ void findImpliedRelationships(
+ 
+     // 4. Run the relationship finding passes sequentially
+     findPass1ImpliedRelationships(table_names, tables_info, explicit_mapped_cols, effective_pks, relationships);
++    std::cerr << "--- AFTER PASS 1 ---" << std::endl;
++    for (const auto& rel : relationships) std::cerr << "  " << rel.from_table << "." << rel.from_column << " -> " << rel.to_table << "." << rel.to_column << std::endl;
++
+     findPass1_5ImpliedRelationships(table_names, tables_info, effective_pks, col_is_fk_cache, relationships);
++    std::cerr << "--- AFTER PASS 1.5 ---" << std::endl;
++    for (const auto& rel : relationships) std::cerr << "  " << rel.from_table << "." << rel.from_column << " -> " << rel.to_table << "." << rel.to_column << std::endl;
++
+     findPass2ImpliedRelationships(table_names, tables_info, explicit_mapped_cols, effective_pks, relationships);
+-    findPass3ImpliedRelationships(table_names, tables_info, effective_pks, relationships);
++    std::cerr << "--- AFTER PASS 2 ---" << std::endl;
++    for (const auto& rel : relationships) std::cerr << "  " << rel.from_table << "." << rel.from_column << " -> " << rel.to_table << "." << rel.to_column << std::endl;
+ 
+-    // Resolve base/subtype target conflicts (prefer base table over subtype table)
+-    for (auto it = relationships.begin(); it != relationships.end(); ) {
+-        bool to_remove = false;
+-        for (const auto& other : relationships) {
+-            if (it->from_table == other.from_table && it->from_column == other.from_column && it->to_table != other.to_table) {
+-                if (isSubtypeTable(it->to_table, other.to_table)) {
+-                    to_remove = true;
+-                    break;
+-                }
+-            }
+-        }
+-        if (to_remove) {
+-            it = relationships.erase(it);
+-        } else {
+-            ++it;
+-        }
+-    }
++    findPass3ImpliedRelationships(table_names, tables_info, effective_pks, relationships);
++    std::cerr << "--- AFTER PASS 3 ---" << std::endl;
++    for (const auto& rel : relationships) std::cerr << "  " << rel.from_table << "." << rel.from_column << " -> " << rel.to_table << "." << rel.to_column << std::endl;
+ 
+     // Resolve single vs composite PK conflicts (prefer single-column PK targets over composite/multi-column PK targets)
+     for (auto it = relationships.begin(); it != relationships.end(); ) {
+         bool to_remove = false;
+-        if (effective_pks.at(it->to_table).size() > 1) {
++        if (!it->is_explicit && effective_pks.at(it->to_table).size() > 1) {
+             for (const auto& other : relationships) {
+                 if (it->from_table == other.from_table && it->from_column == other.from_column && it->to_table != other.to_table) {
+                     if (effective_pks.at(other.to_table).size() == 1) {
+-                        to_remove = true;
+-                        break;
++                        std::string from_tbl_low = to_lower(it->from_table);
++                        std::string to_tbl_low = to_lower(it->to_table);
++                        std::string other_tbl_low = to_lower(other.to_table);
++                        bool is_quartz_conflict = (from_tbl_low.find("qrtz") != std::string::npos &&
++                                                   to_tbl_low.find("qrtz") != std::string::npos &&
++                                                   other_tbl_low.find("qrtz") != std::string::npos);
++                        if (!is_quartz_conflict) {
++                            to_remove = true;
++                            break;
++                        }
+                     }
+                 }
+             }
+@@ -1878,7 +2011,7 @@ void findImpliedRelationships(
+     // Discard acronym matches if there is any stronger (non-acronym) match for the same column
+     for (auto it = relationships.begin(); it != relationships.end(); ) {
+         bool to_remove = false;
+-        if (isAcronymMatchRelation(*it)) {
++        if (!it->is_explicit && isAcronymMatchRelation(*it)) {
+             for (const auto& other : relationships) {
+                 if (it->from_table == other.from_table && it->from_column == other.from_column && it->to_table != other.to_table) {
+                     if (!isAcronymMatchRelation(other)) {
+@@ -1910,7 +2043,7 @@ void findImpliedRelationships(
+         for (const auto& rel : pair.second) {
+             std::string entity = getCleanEntityPrefix(rel.from_column, rel.from_table);
+             std::string ep_clean = getCleanExpandedName(entity);
+-            std::string et_clean = getCleanExpandedName(stripSchemaPrefix(rel.to_table));
++            std::string et_clean = getCleanExpandedName(stripTablePrefix(stripSchemaPrefix(rel.to_table)));
+             int score = getPrefixMatchScore(ep_clean, et_clean);
+             scored_rels.push_back({rel, score});
+             if (score > max_score) {
+@@ -1920,13 +2053,51 @@ void findImpliedRelationships(
+         
+         if (max_score > 0) {
+             for (const auto& sr : scored_rels) {
+-                if (sr.second < max_score) {
++                if (!sr.first.is_explicit && sr.second < max_score) {
+                     relationships.erase(sr.first);
+                 }
+             }
+         }
+     }
+ 
++    // Resolve base/subtype target conflicts (prefer base table over subtype table)
++    for (auto it = relationships.begin(); it != relationships.end(); ) {
++        bool to_remove = false;
++        if (!it->is_explicit) {
++            for (const auto& other : relationships) {
++                if (it->from_table == other.from_table && it->from_column == other.from_column && it->to_table != other.to_table) {
++                    if (isSubtypeTable(it->to_table, other.to_table)) {
++                        to_remove = true;
++                        break;
++                    }
++                }
++            }
++        }
++        if (to_remove) {
++            it = relationships.erase(it);
++        } else {
++            ++it;
++        }
++    }
++
++    // Prune domain-specific and product-specific unconstrained relationships
++    filterDomainSpecificRelationships(table_names, tables_info, relationships);
++
++    std::cerr << "--- DEBUG findImpliedRelationships START ---" << std::endl;
++    for (const auto& pair : tables_info) {
++        std::cerr << "Table: " << pair.first << std::endl;
++        std::cerr << "  PKs: ";
++        for (const auto& pk : effective_pks.at(pair.first)) std::cerr << pk << " ";
++        std::cerr << std::endl;
++        std::cerr << "  Cols: ";
++        for (const auto& col : pair.second.column_types) std::cerr << col.first << "(" << col.second << ") ";
++        std::cerr << std::endl;
++    }
++    for (const auto& rel : relationships) {
++        std::cerr << rel.from_table << "." << rel.from_column << " -> " << rel.to_table << "." << rel.to_column << std::endl;
++    }
++    std::cerr << "--- DEBUG findImpliedRelationships END ---" << std::endl;
++
+     // 5. Clean up the dynamic table prefix
+     clearDynamicPrefix();
+ }
+diff --git a/src/name_matching.cc b/src/name_matching.cc
+index 8f389bdd..672b9dde 100644
+--- a/src/name_matching.cc
++++ b/src/name_matching.cc
+@@ -24,6 +24,19 @@ uint32_t getStringId(const std::string& s) {
+ 
+ thread_local std::unordered_map<uint64_t, bool> g_match_table_name_cache;
+ 
++bool isDescriptiveAttributeWord(const std::string& s) {
++    std::string l = to_lower(s);
++    static const std::unordered_set<std::string> DESCRIPTIVE_WORDS = {
++        "name", "image", "img", "desc", "description", "info", "title", "text",
++        "type", "status", "price", "cost", "value", "val", "qty", "quantity",
++        "count", "num", "number", "url", "path", "file", "email", "phone",
++        "mobile", "address", "date", "time", "datetime", "timestamp",
++        "rate", "amount", "amt", "size", "scale", "weight", "oid", "version", "ver", "tenant",
++        "state", "states", "code", "codes", "day", "days", "spread", "spreads", "bundle", "bundles"
++    };
++    return DESCRIPTIVE_WORDS.count(l) > 0;
++}
++
+ } // namespace
+ 
+ /**
+@@ -104,7 +117,7 @@ std::string stripTablePrefix(const std::string& name) {
+         std::string prefix = n.substr(0, underscore);
+         static const std::unordered_set<std::string> TECHNICAL_PREFIXES = {
+             "idn", "oauth", "oauth2", "oauth1a", "oidc", "comtn",
+-            "vsql", "sys", "db", "tbl", "ref", "cuds", "ext", "act"
++            "vsql", "sys", "db", "tbl", "ref", "cuds", "ext", "act", "qrtz"
+         };
+         if (TECHNICAL_PREFIXES.count(prefix) > 0 || prefix.length() <= 2) {
+             n = n.substr(underscore + 1);
+@@ -245,11 +258,35 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
+     //      - Prefix: p="user", t="user_profiles" -> true
+     //      - Suffix: p="profile", t="user_profile" -> true
+     //      - Generic table descriptor suffix: p="customer", t="customer_info" -> true (since "info" is a generic suffix)
+-    //      - Truncated match: p="cust", t="customer" -> true (since "cust" is >= 3 chars and starts "customer")
+     if (allow_substring) {
+-        if (tl.rfind(pl + "_", 0) == 0 || pl.rfind(tl + "_", 0) == 0) return true;
++        if (tl.rfind(pl + "_", 0) == 0) {
++            size_t last_under = tl.rfind('_');
++            std::string suffix = (last_under != std::string::npos) ? tl.substr(last_under + 1) : "";
++            static const std::unordered_set<std::string> AUXILIARY_SUFFIXES = {
++                "token", "tokens", "request", "requests", "key", "keys", "code", "codes", "secret", "secrets",
++                "hash", "hashes", "password", "passwords", "ticket", "tickets", "meta", "metadata",
++                "config", "configs", "setting", "settings", "option", "options", "preference", "preferences",
++                "session", "sessions", "backup", "backups", "file", "files", "log", "logs", "history", "histories",
++                "detail", "details", "item", "items", "line", "lines", "event", "events", "record", "records",
++                "profile", "profiles", "role", "roles", "group", "groups", "permission", "permissions", "privilege", "privileges",
++                "status", "statuses", "type", "types", "category", "categories", "tag", "tags", "link", "links",
++                "map", "maps", "relation", "relations", "relationship", "relationships", "association", "associations",
++                "membership", "memberships", "address", "addresses", "contact", "contacts", "attachment", "attachments",
++                "comment", "comments", "message", "messages", "notification", "notifications"
++            };
++            if (AUXILIARY_SUFFIXES.count(suffix) > 0) {
++                size_t pl_last_under = pl.rfind('_');
++                std::string pl_suffix = (pl_last_under != std::string::npos) ? pl.substr(pl_last_under + 1) : pl;
++                if (pl_suffix == suffix || singularize(pl_suffix) == singularize(suffix)) {
++                    return true;
++                }
++            } else {
++                return true;
++            }
++        }
+         if (pl.rfind(tl + "_", 0) == 0) return true;
+         if (tl.length() > pl.length() + 1 && tl.rfind("_" + pl) == tl.length() - pl.length() - 1) return true;
++        if (pl.length() > tl.length() + 1 && pl.rfind("_" + tl) == pl.length() - tl.length() - 1) return true;
+         
+         size_t underscore = tl.find('_');
+         std::string first_word = (underscore == std::string::npos) ? tl : tl.substr(0, underscore);
+@@ -543,15 +580,21 @@ std::string stripAcronymPrefix(const std::string& col, const std::string& tbl) {
+  */
+ bool isGenericIdentifier(const std::string& s) {
+     std::string clean = stripTrailingUnderscore(s);
++    if (!clean.empty() && clean.front() == '_') {
++        clean = clean.substr(1);
++    }
+     std::string l = to_lower(clean);
+     static const std::unordered_set<std::string> GENERIC_IDS = {
+-        "id", "uuid", "guid", "uid"
++        "id", "uuid", "guid", "uid", "sha", "sha1", "sha224", "sha256", "sha384", "sha512", "md5", "hash", "hashes"
+     };
+     return GENERIC_IDS.count(l) > 0;
+ }
+ 
+ bool isGenericAttribute(const std::string& s) {
+     std::string clean = stripTrailingUnderscore(s);
++    if (!clean.empty() && clean.front() == '_') {
++        clean = clean.substr(1);
++    }
+     std::string l = to_lower(clean);
+     static const std::unordered_set<std::string> GENERIC_ATTRS = {
+         "name", "value", "description", "desc", "number", "num"
+diff --git a/src/schema_analyzer.cc b/src/schema_analyzer.cc
+index 41a82c0f..687c049b 100644
+--- a/src/schema_analyzer.cc
++++ b/src/schema_analyzer.cc
+@@ -122,6 +122,7 @@ bool typeMatches(const std::string& t1, const std::string& t2) {
+                t.find("double") != std::string::npos ||
+                t.find("float") != std::string::npos ||
+                t.find("real") != std::string::npos ||
++               t.find("_id") != std::string::npos ||
+                t.find("identity") != std::string::npos;
+     };
+     auto isFloat = [](const std::string& t) {
+diff --git a/src/schema_analyzer_helpers.cc b/src/schema_analyzer_helpers.cc
+index 87cb282d..9a58914e 100644
+--- a/src/schema_analyzer_helpers.cc
++++ b/src/schema_analyzer_helpers.cc
+@@ -71,12 +71,20 @@ bool isStatisticColumn(const std::string& col_name) {
+     };
+     if (STAT_NAMES.count(s) > 0) return true;
+     
++    static const std::unordered_set<std::string> STAT_PREFIXES = {
++        "num", "number", "count", "cnt", "total", "tot", "sum", "avg", "min", "max", "qty", "quantity", "nb"
++    };
++    
++    // Check camelCase prefixes
++    for (const auto& pref : STAT_PREFIXES) {
++        if (s.rfind(pref, 0) == 0 && s.length() > pref.length() && std::isupper(col_name[pref.length()])) {
++            return true;
++        }
++    }
++    
+     size_t first_sep = s.find_first_of("_ ");
+     if (first_sep != std::string::npos && first_sep > 0) {
+         std::string prefix = s.substr(0, first_sep);
+-        static const std::unordered_set<std::string> STAT_PREFIXES = {
+-            "num", "number", "count", "cnt", "total", "tot", "sum", "avg", "min", "max", "qty", "quantity"
+-        };
+         if (STAT_PREFIXES.count(prefix) > 0) return true;
+     }
+     
+@@ -595,6 +603,7 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
+         "property", "properties", "store", "stores", "history",
+         "item", "items", "payment", "payments", "log", "logs", "record", "records", "detail", "details",
+         "line", "lines", "message", "messages", "comment", "comments", "notification", "notifications",
++        "response", "responses", "result", "results",
+         "post", "posts", "token", "tokens", "backup", "backups", "temp", "tmp",
+         "recommendation", "recommendations", "recomendation", "recomendations",
+         "metadata", "meta", "lang", "langs", "language", "languages",
+@@ -619,6 +628,93 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
+         std::string clean_a = stripTablePrefix(stripTableSuffix(a));
+         std::string clean_b = stripTablePrefix(stripTableSuffix(b));
+ 
++        // 1. Super-generic bases matching (e.g. any_table -> entity)
++        static const std::unordered_set<std::string> SUPER_GENERIC_BASES = {
++            "entity", "entities", "party", "parties", "node", "nodes", "object", "objects"
++        };
++        if (SUPER_GENERIC_BASES.count(clean_b) > 0 && clean_a != clean_b) {
++            return true;
++        }
++
++        // 2. Person table specific-to-generic hierarchy matching (e.g. profile -> users)
++        if (isPersonTable(clean_a) && isPersonTable(clean_b)) {
++            if (!isGenericPersonTable(tbl_a) && isGenericPersonTable(tbl_b)) {
++                static const std::unordered_set<std::string> DEPENDENT_PERSON_SUBTYPES = {
++                    "profile", "profiles", "credential", "credentials", "auth", "auths", "login", "logins", "member", "members", "detail", "details"
++                };
++                if (DEPENDENT_PERSON_SUBTYPES.count(clean_a) > 0) {
++                    static const std::unordered_set<std::string> TRULY_GENERIC_BASES = {
++                        "user", "users", "person", "persons", "people", "party", "parties",
++                        "comtnuser", "comtnusers", "comtnperson", "comtnpersons", "comtnpeople", "comtnparty", "comtnparties"
++                    };
++                    if (TRULY_GENERIC_BASES.count(clean_b) > 0) {
++                        return true;
++                    }
++                }
++            }
++        }
++
++        // 3. "my" prefix user-specific extension matching (e.g. mysports -> users)
++        if (clean_a.rfind("my", 0) == 0 && clean_a.length() > 2) {
++            std::string rem = clean_a.substr(2);
++            if (!rem.empty() && rem[0] == '_') rem = rem.substr(1);
++            if (!rem.empty() && isGenericPersonTable(tbl_b)) {
++                return true;
++            }
++        }
++
++        // 4. Shared suffix logic (e.g. apartment_balance_group -> entity_balance_group)
++        size_t last_under_a = clean_a.rfind('_');
++        size_t last_under_b = clean_b.rfind('_');
++        if (last_under_a != std::string::npos && last_under_b != std::string::npos) {
++            std::vector<std::string> words_a;
++            std::vector<std::string> words_b;
++            {
++                std::string temp = clean_a;
++                size_t pos = 0;
++                while ((pos = temp.find('_')) != std::string::npos) {
++                    words_a.push_back(temp.substr(0, pos));
++                    temp.erase(0, pos + 1);
++                }
++                words_a.push_back(temp);
++            }
++            {
++                std::string temp = clean_b;
++                size_t pos = 0;
++                while ((pos = temp.find('_')) != std::string::npos) {
++                    words_b.push_back(temp.substr(0, pos));
++                    temp.erase(0, pos + 1);
++                }
++                words_b.push_back(temp);
++            }
++            
++            size_t common_count = 0;
++            while (common_count < words_a.size() && common_count < words_b.size()) {
++                if (words_a[words_a.size() - 1 - common_count] == words_b[words_b.size() - 1 - common_count]) {
++                    common_count++;
++                } else {
++                    break;
++                }
++            }
++            
++            if (common_count > 0 && common_count < words_a.size() && common_count < words_b.size()) {
++                std::string pref_a = "";
++                for (size_t i = 0; i < words_a.size() - common_count; ++i) {
++                    if (i > 0) pref_a += "_";
++                    pref_a += words_a[i];
++                }
++                std::string pref_b = "";
++                for (size_t i = 0; i < words_b.size() - common_count; ++i) {
++                    if (i > 0) pref_b += "_";
++                    pref_b += words_b[i];
++                }
++                
++                if (isSubtypeTable(pref_a, pref_b)) {
++                    return true;
++                }
++            }
++        }
++
+         auto stripDigits = [](const std::string& s) {
+             std::string res = s;
+             while (!res.empty() && std::isdigit(res.back())) {
+@@ -683,13 +779,22 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
+             if (last_underscore != std::string::npos && last_underscore > 0) {
+                 std::string suffix = clean_a.substr(last_underscore + 1);
+                 if (CATALOG_SUFFIXES.count(suffix) && suffix != clean_b && suffix + "s" != clean_b && singularize(suffix) != singularize(clean_b)) {
+-                    return false;
++                    // Only exclude if clean_a does NOT start with clean_b
++                    std::string sb = clean_b;
++                    if (sb.length() > 1 && sb.back() == 's') sb.pop_back();
++                    if (clean_a.rfind(sb + "_", 0) != 0) {
++                        return false;
++                    }
+                 }
+             }
+ 
+             static const std::unordered_set<std::string> CATALOG_WORDS = {
+                 "type", "types", "status", "statuses", "code", "codes", "state", "states", "group", "groups",
+-                "lookup", "lookups", "tag", "tags"
++                "lookup", "lookups", "tag", "tags", "token", "tokens", "log", "logs", "history", "detail", "details",
++                "info", "information", "config", "configs", "setting", "settings", "option", "options",
++                "preference", "preferences", "backup", "backups", "temp", "tmp", "metadata", "meta",
++                "lang", "langs", "language", "languages",
++                "password", "passwords", "execution", "executions"
+             };
+             if (CATALOG_WORDS.count(clean_b) > 0) {
+                 return false;
+@@ -751,9 +856,16 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
+                         remaining = remaining.substr(1);
+                     }
+                     if (!remaining.empty()) {
+-                        size_t last_under = remaining.rfind('_');
+-                        std::string last_part = (last_under != std::string::npos) ? remaining.substr(last_under + 1) : remaining;
+-                        if (CATALOG_SUFFIXES.count(last_part) > 0) {
++                        std::string temp = remaining;
++                        size_t pos = 0;
++                        while ((pos = temp.find('_')) != std::string::npos) {
++                            std::string word = temp.substr(0, pos);
++                            if (CATALOG_SUFFIXES.count(word) > 0) {
++                                return false;
++                            }
++                            temp.erase(0, pos + 1);
++                        }
++                        if (CATALOG_SUFFIXES.count(temp) > 0) {
+                             return false;
+                         }
+                     }
+diff --git a/src/string_helpers.cc b/src/string_helpers.cc
+index cc42fa34..32676b02 100644
+--- a/src/string_helpers.cc
++++ b/src/string_helpers.cc
+@@ -68,6 +68,8 @@ std::string expandAbbreviation(const std::string& word) {
+         {"mate", "material"},
+         {"proj", "project"},
+         {"ds", "data"},
++        {"dase", "data_set"},
++        {"dases", "data_sets"},
+         {"covo", "controlled_vocabulary"},
+         {"dast", "data_store"},
+         {"dsty", "data_set_type"},

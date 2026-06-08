@@ -52,3 +52,20 @@ VEF_CREATE_VEB(
     LIBRARY_TARGET vsql_schematron_lib
     MANIFEST ${CMAKE_CURRENT_SOURCE_DIR}/manifest.json
 )
+
+# Add schema_checker executable for offline testing and evaluation
+add_executable(schema_checker
+    /home/maxdemarzi/.gemini/antigravity-ide/brain/b52a7292-4558-472c-82c1-d49e9c4294bb/scratch/schema_checker.cc
+    src/schema_analyzer.cc
+    src/schema_analyzer_helpers.cc
+    src/domain_specific_matching.cc
+    src/data_analyzer.cc
+    src/implied_relationships.cc
+    src/string_helpers.cc
+    src/name_matching.cc
+)
+
+target_include_directories(schema_checker PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${VillageSQLExtensionFramework_INCLUDE_DIR}
+)

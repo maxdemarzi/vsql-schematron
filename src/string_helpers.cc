@@ -57,6 +57,7 @@ std::string expandAbbreviation(const std::string& word) {
         {"mgr", "manager"},
         {"exec", "execution"},
         {"org", "organization"},
+        {"chem", "chemical"},
         {"dbin", "database_instance"},
         {"expe", "experiment"},
         {"samp", "sample"},

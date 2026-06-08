@@ -1,0 +1,242 @@
+commit dc6c19ee1093b1fdbd098ba0828e29fb906b11e9
+Author: Max De Marzi <maxdemarzi@hotmail.com>
+Date:   Wed Jun 3 16:51:30 2026 +0000
+
+    docs: enrich name matching helper comments with clear matching examples
+
+diff --git a/src/name_matching.cc b/src/name_matching.cc
+index ca30d92b..5ce4da57 100644
+--- a/src/name_matching.cc
++++ b/src/name_matching.cc
+@@ -14,6 +14,10 @@ thread_local std::string g_dynamic_prefix = "";
+ 
+ /**
+  * Sets the dynamic table prefix used for filtering prefix-like parts of table names.
++ *
++ * Example:
++ *   If prefix = "wp", then g_dynamic_prefix is set to "wp".
++ *   This tells the table prefix stripper to ignore "wp_" when cleaning table names (e.g. "wp_posts" -> "posts").
+  */
+ void setDynamicPrefix(const std::string& prefix) {
+     g_dynamic_prefix = prefix;
+@@ -21,6 +25,9 @@ void setDynamicPrefix(const std::string& prefix) {
+ 
+ /**
+  * Clears the dynamic table prefix.
++ *
++ * Example:
++ *   Resets g_dynamic_prefix to "".
+  */
+ void clearDynamicPrefix() {
+     g_dynamic_prefix = "";
+@@ -29,8 +36,10 @@ void clearDynamicPrefix() {
+ /**
+  * Strips any schema/database prefix from a table name.
+  *
+- * Example:
++ * Examples:
+  *   stripSchemaPrefix("sales.orders") -> "orders"
++ *   stripSchemaPrefix("public.users") -> "users"
++ *   stripSchemaPrefix("customers") -> "customers" (no schema prefix detected, returns as is)
+  */
+ std::string stripSchemaPrefix(const std::string& name) {
+     size_t dot = name.find_last_of('.');
+@@ -47,6 +56,11 @@ std::string stripSchemaPrefix(const std::string& name) {
+  * Examples:
+  *   stripTablePrefix("tbl_orders") -> "orders"
+  *   stripTablePrefix("ref_customer") -> "customer"
++ *   If dynamic prefix is "wp":
++ *     stripTablePrefix("wp_comments") -> "comments"
++ *   System/technical prefixes:
++ *     stripTablePrefix("sys_config") -> "config"
++ *     stripTablePrefix("vsql_session") -> "session"
+  */
+ std::string stripTablePrefix(const std::string& name) {
+     std::string n = to_lower(name);
+@@ -79,8 +93,11 @@ std::string stripTablePrefix(const std::string& name) {
+ /**
+  * Strips common role prefixes (like first_, secondary_, parent_, from_) from column names.
+  *
+- * Example:
+- *   stripRolePrefix("parent_company_id") -> "company_id"
++ * Examples:
++ *   stripRolePrefix("parent_company_id") -> "company_id" (strips "parent_")
++ *   stripRolePrefix("primary_address") -> "address" (strips "primary_")
++ *   stripRolePrefix("referred_by_user_id") -> "user_id" (strips "referred_" and "by_")
++ *   stripRolePrefix("from_account_id") -> "account_id" (strips "from_")
+  */
+ std::string stripRolePrefix(const std::string& name) {
+     std::string n = to_lower(name);
+@@ -108,6 +125,11 @@ std::string stripRolePrefix(const std::string& name) {
+ 
+ /**
+  * Returns true if the suffix is a generic table descriptor (such as metadata, log, ref).
++ *
++ * Examples:
++ *   isGenericTableSuffix("info") -> true (from table names like "customer_info")
++ *   isGenericTableSuffix("metadata") -> true (from table names like "user_metadata")
++ *   isGenericTableSuffix("orders") -> false (not a generic descriptor)
+  */
+ bool isGenericTableSuffix(const std::string& suffix) {
+     static const std::unordered_set<std::string> SUFFIXES = {
+@@ -128,6 +150,11 @@ bool isGenericTableSuffix(const std::string& suffix) {
+  * and optional substring matches.
+  */
+ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow_substring) {
++    // 1. Direct case-insensitive comparison and standard pluralization checks (s, es, ies)
++    //    Examples:
++    //      - Exact match: p="customer", t="customer" -> true
++    //      - Plural match: p="customer", t="customers" -> true
++    //      - Plural ending in -y: p="category", t="categories" -> true
+     std::string pl = to_lower(p);
+     std::string tl = to_lower(t);
+     if (pl == tl) return true;
+@@ -141,6 +168,13 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
+         std::string ies = tl.substr(0, tl.length() - 1) + "ies";
+         if (pl == ies) return true;
+     }
++
++    // 2. Substring matches on raw inputs (checking prefix/suffix and generic descriptor suffixes)
++    //    Examples:
++    //      - Prefix: p="user", t="user_profiles" -> true
++    //      - Suffix: p="profile", t="user_profile" -> true
++    //      - Generic table descriptor suffix: p="customer", t="customer_info" -> true (since "info" is a generic suffix)
++    //      - Truncated match: p="cust", t="customer" -> true (since "cust" is >= 3 chars and starts "customer")
+     if (allow_substring) {
+         if (tl.rfind(pl + "_", 0) == 0 || pl.rfind(tl + "_", 0) == 0) return true;
+         if (pl.rfind(tl + "_", 0) == 0 || (tl.length() > pl.length() && tl.rfind("_" + pl) == tl.length() - pl.length() - 1)) return true;
+@@ -159,6 +193,10 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
+         }
+     }
+     
++    // 3. Exact and plural matching on fully expanded abbreviation strings
++    //    Examples:
++    //      - Exact matching: p="dept", t="department" (expanded ep="department", et="department") -> true
++    //      - Plural matching: p="dept", t="departments" (expanded ep="department", et="departments") -> true
+     std::string ep = expandAllAbbreviations(p);
+     std::string et = expandAllAbbreviations(t);
+     if (ep == et) return true;
+@@ -172,6 +210,11 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
+         std::string ies = et.substr(0, et.length() - 1) + "ies";
+         if (ep == ies) return true;
+     }
++
++    // 4. Substring matches on expanded abbreviation strings
++    //    Examples:
++    //      - Prefix: p="dept", t="department_managers" (expanded ep="department", et="department_managers") -> true
++    //      - Generic table descriptor suffix: p="dept", t="department_info" (expanded ep="department", et="department_info") -> true
+     if (allow_substring) {
+         if (et.rfind(ep + "_", 0) == 0 || ep.rfind(et + "_", 0) == 0) return true;
+         if (ep.rfind(et + "_", 0) == 0 || (et.length() > ep.length() && et.rfind("_" + ep) == et.length() - ep.length() - 1)) return true;
+@@ -190,6 +233,10 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
+         }
+     }
+     
++    // 5. Underscore-free comparison (removes all underscores to match e.g. "orderdetails" vs "order_details")
++    //    Examples:
++    //      - Exact: p="order_detail", t="orderdetails" (p_clean="orderdetail", t_clean="orderdetail") -> true
++    //      - Plural: p="order_detail", t="orderdetails" (p_clean="orderdetail", t_clean="orderdetails") -> true
+     std::string p_clean = ep;
+     std::string t_clean = et;
+     p_clean.erase(std::remove(p_clean.begin(), p_clean.end(), '_'), p_clean.end());
+@@ -202,6 +249,11 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
+     std::string t_sing = singularize(t_clean);
+     if (p_sing == t_sing) return true;
+     
++    // 6. Loose suffix/prefix and singularized suffix/prefix matching (for words with length >= 3)
++    //    Examples:
++    //      - Prefix: p="user", t="userroles" (clean p_clean="user", t_clean="userrole", starts with user) -> true
++    //      - Suffix: p="role", t="userrole" (clean p_clean="role", t_clean="userrole", ends with role) -> true
++    //      - Singularized suffix: p="roles", t="userrole" (singularizes to p_sing="role", t_sing="userrole", ends with role) -> true
+     if (allow_substring && p_clean.length() >= 3) {
+         if (t_clean.length() >= p_clean.length()) {
+             if (t_clean.find(p_clean) == 0) return true;
+@@ -242,6 +294,11 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
+ 
+ /**
+  * Multi-level comparison helper to check if a column's prefix matches a target table name.
++ *
++ * Examples:
++ *   - matchTableName("user", "users") -> true (direct match)
++ *   - matchTableName("parent_company", "companies") -> true (strips parent_ role and matches company to companies)
++ *   - matchTableName("mgr", "employees") -> true (expands abbreviation mgr to manager, matches employee person table rules)
+  */
+ bool matchTableName(const std::string& col_prefix, const std::string& tbl_name, bool allow_substring) {
+     std::string prefix = to_lower(col_prefix);
+@@ -253,6 +310,7 @@ bool matchTableName(const std::string& col_prefix, const std::string& tbl_name,
+     std::string prefix_norole = stripRolePrefix(prefix);
+     std::string clean_prefix_norole = stripRolePrefix(clean_prefix);
+     
++    // Check raw, stripped prefix, and role-stripped variants against clean table name variations
+     if (matchCleanTableNames(prefix, tbl, allow_substring)) return true;
+     if (matchCleanTableNames(clean_prefix, clean_tbl, allow_substring)) return true;
+     if (matchCleanTableNames(prefix, clean_tbl, allow_substring)) return true;
+@@ -268,8 +326,9 @@ bool matchTableName(const std::string& col_prefix, const std::string& tbl_name,
+  * Tokenizes snake_case or camelCase column names into prefix and suffix parts.
+  *
+  * Examples:
+- *   "customer_id" -> prefix: "customer", suffix: "id"
+- *   "customerId" -> prefix: "customer", suffix: "Id"
++ *   - splitColumnName("customer_id", prefix, suffix) -> prefix: "customer", suffix: "id" (returns true)
++ *   - splitColumnName("customerId", prefix, suffix) -> prefix: "customer", suffix: "Id" (returns true)
++ *   - splitColumnName("customeruuid", prefix, suffix) -> prefix: "customer", suffix: "uuid" (returns true)
+  */
+ bool splitColumnName(const std::string& col, std::string& prefix, std::string& suffix) {
+     size_t underscore_pos = col.rfind('_');
+@@ -287,7 +346,7 @@ bool splitColumnName(const std::string& col, std::string& prefix, std::string& s
+             }
+         }
+     }
+-    // Fallback for lowercase without underscore ending in identifier suffixes
++    // Fallback for lowercase without underscore ending in identifier suffixes (id, uuid, guid, uid)
+     std::string c_lower = to_lower(col);
+     std::vector<std::string> suffixes = {"uuid", "guid", "uid", "id"};
+     for (const auto& sfx : suffixes) {
+@@ -303,8 +362,9 @@ bool splitColumnName(const std::string& col, std::string& prefix, std::string& s
+ /**
+  * Checks for middle identifier conventions in column names.
+  *
+- * Example:
+- *   "customer_id_seq" or "id_customer" -> returns true if target table B matches "customer".
++ * Examples:
++ *   - matchMiddleIdConvention("customer_id_seq", "customers") -> returns true (identifies "_id_" and matches entity "customer" to "customers")
++ *   - matchMiddleIdConvention("id_user", "users") -> returns true (identifies leading "id_" and matches "user" to "users")
+  */
+ bool matchMiddleIdConvention(const std::string& col, const std::string& tbl_b, bool allow_substring) {
+     std::string c = to_lower(col);
+@@ -339,8 +399,10 @@ bool matchMiddleIdConvention(const std::string& col, const std::string& tbl_b, b
+ /**
+  * Computes table name acronyms.
+  *
+- * Example:
++ * Examples:
+  *   getTableAcronym("order_items") -> "oi"
++ *   getTableAcronym("customer_orders") -> "co"
++ *   getTableAcronym("users") -> "" (no acronym generated for single-word tables)
+  */
+ std::string getTableAcronym(const std::string& tbl) {
+     std::string name = stripTablePrefix(stripSchemaPrefix(to_lower(tbl)));
+@@ -363,8 +425,9 @@ std::string getTableAcronym(const std::string& tbl) {
+ /**
+  * Strips the initials of a table name if it prefixes a column name.
+  *
+- * Example:
+- *   stripAcronymPrefix("oi_quantity", "order_items") -> "quantity"
++ * Examples:
++ *   - stripAcronymPrefix("oi_quantity", "order_items") -> "quantity" (acronym of order_items is "oi")
++ *   - stripAcronymPrefix("co_date", "customer_orders") -> "date" (acronym of customer_orders is "co")
+  */
+ std::string stripAcronymPrefix(const std::string& col, const std::string& tbl) {
+     std::string acronym = getTableAcronym(tbl);
+@@ -379,6 +442,11 @@ std::string stripAcronymPrefix(const std::string& col, const std::string& tbl) {
+ 
+ /**
+  * Returns true if string matches standard identifier keywords.
++ *
++ * Examples:
++ *   isGenericIdentifier("id") -> true
++ *   isGenericIdentifier("uuid") -> true
++ *   isGenericIdentifier("customer_id") -> false (only direct standard abbreviations match)
+  */
+ bool isGenericIdentifier(const std::string& s) {
+     std::string l = to_lower(s);

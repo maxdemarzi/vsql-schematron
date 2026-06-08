@@ -1,0 +1,159 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 608199_dump
+#
+CREATE DATABASE `db_608199_dump`;
+USE `db_608199_dump`;
+CREATE TABLE `version` (
+`id` INT,
+`number` VARCHAR(64),
+`at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `attachment` (
+`id` INT,
+`campaign_id` INT,
+`path` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_right` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_unit` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_unit_right` (
+`id` INT,
+`auth_unit_id` INT,
+`auth_right_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_user` (
+`id` INT,
+`auth_unit_id` INT,
+`name` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth_user_group` (
+`id` INT,
+`auth_user_id` INT,
+`group_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `campaign` (
+`id` INT,
+`group_id` INT,
+`profile_id` INT,
+`sender_id` INT,
+`name` VARCHAR(64),
+`subject` VARCHAR(64),
+`template_html` VARCHAR(64),
+`template_text` VARCHAR(64),
+`template_amp` VARCHAR(64),
+`start_time` DATETIME,
+`end_time` DATETIME,
+`send_unsubscribe` INT,
+`accepted` INT,
+`compress_html` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group` (
+`id` INT,
+`name` VARCHAR(64),
+`template` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `jumping` (
+`id` INT,
+`campaign_id` INT,
+`recipient_id` INT,
+`url` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `parameter` (
+`id` INT,
+`recipient_id` INT,
+`key` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipient` (
+`id` INT,
+`campaign_id` INT,
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`status` VARCHAR(64),
+`date` DATETIME,
+`client_agent` VARCHAR(64),
+`web_agent` VARCHAR(64),
+`amp_open` INT,
+`removed` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sender` (
+`id` INT,
+`group_id` INT,
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`utm_url` VARCHAR(64),
+`bimi_selector` VARCHAR(64),
+`dkim_selector` VARCHAR(64),
+`dkim_key` VARCHAR(64),
+`dkim_use` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `unsubscribe` (
+`id` INT,
+`group_id` INT,
+`campaign_id` INT,
+`email` VARCHAR(64),
+`date` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `unsubscribe_extra` (
+`id` INT,
+`unsubscribe_id` INT,
+`name` VARCHAR(64),
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `question` (
+`id` INT,
+`recipient_id` INT,
+`at` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `question_data` (
+`id` INT,
+`question_id` INT,
+`name` VARCHAR(64),
+`value` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_608199_dump') AS relationships;
+relationships
+Database: db_608199_dump
+
+Table Connections:
+------------------
+[Implied]  attachment.campaign_id -> campaign.id
+[Implied]  campaign.group_id -> group.id
+[Implied]  campaign.send_unsubscribe -> unsubscribe.id
+[Implied]  campaign.sender_id -> sender.id
+[Implied]  jumping.campaign_id -> campaign.id
+[Implied]  jumping.recipient_id -> recipient.id
+[Implied]  parameter.recipient_id -> recipient.id
+[Implied]  question.recipient_id -> recipient.id
+[Implied]  question_data.question_id -> question.id
+[Implied]  recipient.campaign_id -> campaign.id
+[Implied]  sender.group_id -> group.id
+[Implied]  unsubscribe.campaign_id -> campaign.id
+[Implied]  unsubscribe.group_id -> group.id
+[Implied]  unsubscribe_extra.unsubscribe_id -> unsubscribe.id
+
+DROP DATABASE `db_608199_dump`;
+UNINSTALL EXTENSION vsql_schematron;

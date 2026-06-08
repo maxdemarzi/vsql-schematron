@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 371307_main
+#
+CREATE DATABASE `db_371307_main`;
+USE `db_371307_main`;
+CREATE TABLE `msg_history` (
+`id_msg` INT,
+`id_msg_key` INT,
+`msg_text` VARCHAR(64),
+`msg_date` VARCHAR(64),
+PRIMARY KEY (`id_msg`)
+) CHARACTER SET latin1;
+CREATE TABLE `msg_key_friend` (
+`id_msg_key` INT,
+`id_user_name` INT,
+`msg_key` VARCHAR(64),
+PRIMARY KEY (`id_msg_key`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_friend` (
+`id_user_friend` INT,
+`user_name` VARCHAR(64),
+`user_contact` INT,
+PRIMARY KEY (`id_user_friend`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_voice_key` (
+`id_voice` INT,
+`id_friend` INT,
+`key_my` VARCHAR(64),
+`key_friend` VARCHAR(64),
+`secret_key1` VARCHAR(64),
+`secret_key2` VARCHAR(64),
+PRIMARY KEY (`id_voice`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_371307_main') AS relationships;
+relationships
+Database: db_371307_main
+
+Table Connections:
+------------------
+[Implied]  msg_history.id_msg_key -> msg_key_friend.id_msg_key
+[Implied]  user_friend.user_contact -> user_friend.id_user_friend
+[Implied]  user_voice_key.id_friend -> msg_key_friend.id_msg_key
+[Implied]  user_voice_key.id_friend -> user_friend.id_user_friend
+[Implied]  user_voice_key.id_friend -> user_voice_key.id_voice
+
+DROP DATABASE `db_371307_main`;
+UNINSTALL EXTENSION vsql_schematron;

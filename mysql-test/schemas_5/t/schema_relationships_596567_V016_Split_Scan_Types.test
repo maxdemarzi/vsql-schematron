@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 596567_V016__Split_Scan_Types
+--echo #
+CREATE DATABASE `db_596567_V016_Split_Scan_Types`;
+USE `db_596567_V016_Split_Scan_Types`;
+
+CREATE TABLE `pull_request_container` (
+  `container_id` INT,
+  `c_id` INT,
+  `resolved` BOOL,
+  `api_label` VARCHAR(64),
+  `author` VARCHAR(64),
+  `source_branch` VARCHAR(64),
+  `destination_branch` VARCHAR(64),
+  `pr_id` VARCHAR(64),
+  `repo_name` VARCHAR(64),
+  `last_review_date` INT,
+  PRIMARY KEY (`container_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pull_request_scans` (
+  `scan_entity_id` INT,
+  `s_id` INT,
+  `container_id` INT,
+  `c_id` INT,
+  `submit_date` INT,
+  `start_date` INT,
+  `end_date` INT,
+  `status` VARCHAR(64),
+  `error` VARCHAR(64),
+  PRIMARY KEY (`scan_entity_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pull_request_violations` (
+  `vio_entity_id` INT,
+  `v_id` INT,
+  `scan_entity_id` INT,
+  `s_id` INT,
+  `violation_name` VARCHAR(64),
+  `line_number` INT,
+  `severity_name` VARCHAR(64),
+  `severity_value` INT,
+  `file_path` VARCHAR(64),
+  PRIMARY KEY (`vio_entity_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `upload_container` (
+  `container_id` INT,
+  `c_id` INT,
+  `name` VARCHAR(64),
+  `submitter` VARCHAR(64),
+  `ticket` VARCHAR(64),
+  `ruleset` VARCHAR(64),
+  `file_location` VARCHAR(64),
+  `last_review_date` INT,
+  PRIMARY KEY (`container_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `upload_scans` (
+  `scan_entity_id` INT,
+  `s_id` INT,
+  `container_id` INT,
+  `c_id` INT,
+  `submit_date` INT,
+  `start_date` INT,
+  `end_date` INT,
+  `status` VARCHAR(64),
+  `error` VARCHAR(64),
+  PRIMARY KEY (`scan_entity_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `upload_violations` (
+  `vio_entity_id` INT,
+  `v_id` INT,
+  `scan_entity_id` INT,
+  `s_id` INT,
+  `violation_name` VARCHAR(64),
+  `line_number` INT,
+  `severity_name` VARCHAR(64),
+  `severity_value` INT,
+  `file_path` VARCHAR(64),
+  PRIMARY KEY (`vio_entity_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_596567_V016_Split_Scan_Types') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_596567_V016_Split_Scan_Types') AS relationships;
+DROP DATABASE `db_596567_V016_Split_Scan_Types`;
+UNINSTALL EXTENSION vsql_schematron;

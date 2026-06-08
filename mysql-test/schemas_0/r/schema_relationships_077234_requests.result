@@ -1,0 +1,106 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 077234_requests
+#
+CREATE DATABASE `db_077234_requests`;
+USE `db_077234_requests`;
+CREATE TABLE `additional_charges` (
+`option` INT,
+`daily_situation_choice` INT,
+`charge` DECIMAL(10,2),
+PRIMARY KEY (`option`, `daily_situation_choice`)
+) CHARACTER SET latin1;
+CREATE TABLE `choices` (
+`id` INT,
+`label` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `daily_situation_choices` (
+`id` INT,
+`daily_situation` INT,
+`choice` INT,
+`concludes` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `daily_situations` (
+`id` INT,
+`day` INT,
+`event` INT,
+`locked` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`id` INT,
+`label` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `financial_choice_costs` (
+`financial_situation` INT,
+`daily_situation_choice` INT,
+`min_cost` DECIMAL(10,2),
+`max_cost` DECIMAL(10,2),
+PRIMARY KEY (`financial_situation`, `daily_situation_choice`)
+) CHARACTER SET latin1;
+CREATE TABLE `financial_daily_situations` (
+`financial_situation` INT,
+`daily_situation` INT,
+PRIMARY KEY (`financial_situation`, `daily_situation`)
+) CHARACTER SET latin1;
+CREATE TABLE `financial_situations` (
+`id` INT,
+`label` VARCHAR(64),
+`budget` DECIMAL(10,2),
+`family_situation` INT,
+`professional_situation` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `glossary` (
+`id` INT,
+`label` VARCHAR(64),
+`definition` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `option_daily_situations` (
+`option` INT,
+`daily_situation` INT,
+PRIMARY KEY (`option`, `daily_situation`)
+) CHARACTER SET latin1;
+CREATE TABLE `option_groups` (
+`id` INT,
+`label` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `options` (
+`id` INT,
+`option_group` INT,
+`label` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `unlock_daily_situations` (
+`daily_situation` INT,
+`daily_situation_choice` INT,
+PRIMARY KEY (`daily_situation`, `daily_situation_choice`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_077234_requests') AS relationships;
+relationships
+Database: db_077234_requests
+
+Table Connections:
+------------------
+[Implied]  additional_charges.daily_situation_choice -> daily_situations.id
+[Implied]  additional_charges.option -> options.id
+[Implied]  daily_situation_choices.choice -> choices.id
+[Implied]  daily_situation_choices.daily_situation -> daily_situations.id
+[Implied]  daily_situations.event -> events.id
+[Implied]  financial_choice_costs.daily_situation_choice -> daily_situations.id
+[Implied]  financial_choice_costs.financial_situation -> financial_situations.id
+[Implied]  financial_daily_situations.daily_situation -> daily_situations.id
+[Implied]  financial_daily_situations.financial_situation -> financial_situations.id
+[Implied]  option_daily_situations.daily_situation -> daily_situations.id
+[Implied]  option_daily_situations.option -> options.id
+[Implied]  options.option_group -> option_groups.id
+[Implied]  unlock_daily_situations.daily_situation -> daily_situations.id
+[Implied]  unlock_daily_situations.daily_situation_choice -> daily_situation_choices.id
+
+DROP DATABASE `db_077234_requests`;
+UNINSTALL EXTENSION vsql_schematron;

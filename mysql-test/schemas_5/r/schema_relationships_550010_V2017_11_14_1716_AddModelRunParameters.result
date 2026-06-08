@@ -1,0 +1,54 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 550010_V2017.11.14.1716__AddModelRunParameters
+#
+CREATE DATABASE `db_550010_V2017_11_14_1716_AddModelRunParameters`;
+USE `db_550010_V2017_11_14_1716_AddModelRunParameters`;
+CREATE TABLE `upload_info` (
+`id` INT,
+`uploaded_by` VARCHAR(64),
+`uploaded_on` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `model_run_parameter_set` (
+`id` INT,
+`responsibility_set` INT,
+`description` VARCHAR(64),
+`upload_info` INT,
+`model_version` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `model_run` (
+`internal_id` INT,
+`run_id` VARCHAR(64),
+`model_run_parameter_set` INT,
+PRIMARY KEY (`internal_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `model_run_parameter` (
+`id` INT,
+`key` VARCHAR(64),
+`model_run_parameter_set` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `model_run_parameter_value` (
+`id` INT,
+`model_run` INT,
+`model_run_parameter` INT,
+`value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_550010_V2017_11_14_1716_AddModelRunParameters') AS relationships;
+relationships
+Database: db_550010_V2017_11_14_1716_AddModelRunParameters
+
+Table Connections:
+------------------
+[Implied]  model_run.model_run_parameter_set -> model_run_parameter_set.id
+[Implied]  model_run_parameter.model_run_parameter_set -> model_run_parameter_set.id
+[Implied]  model_run_parameter_set.upload_info -> upload_info.id
+[Implied]  model_run_parameter_value.model_run -> model_run.internal_id
+[Implied]  model_run_parameter_value.model_run -> model_run_parameter_set.id
+[Implied]  model_run_parameter_value.model_run_parameter -> model_run_parameter.id
+
+DROP DATABASE `db_550010_V2017_11_14_1716_AddModelRunParameters`;
+UNINSTALL EXTENSION vsql_schematron;

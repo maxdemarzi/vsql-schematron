@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 095287_slurm_mgmt.db
+#
+CREATE DATABASE `db_095287_slurm_mgmt_db`;
+USE `db_095287_slurm_mgmt_db`;
+CREATE TABLE `status_enum` (
+`id` INT,
+`state` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `state` (
+`id` INT,
+`run_name` VARCHAR(64),
+`proc_type` INT,
+`status` INT,
+`job_id` INT,
+`last_modified` INT
+) CHARACTER SET latin1;
+CREATE TABLE `error` (
+`id` INT,
+`task_id` INT,
+`error` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `proc_type_enum` (
+`id` INT,
+`proc_type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `task_time_log` (
+`id` INT,
+`state_id` INT,
+`status` INT,
+`time` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `job_time_log` (
+`id` INT,
+`job_id` INT,
+`status` INT,
+`time` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_095287_slurm_mgmt_db') AS relationships;
+relationships
+Database: db_095287_slurm_mgmt_db
+
+Table Connections:
+------------------
+[Implied]  error.task_id -> task_time_log.id
+[Implied]  state.job_id -> job_time_log.id
+[Implied]  task_time_log.state_id -> state.id
+
+DROP DATABASE `db_095287_slurm_mgmt_db`;
+UNINSTALL EXTENSION vsql_schematron;
