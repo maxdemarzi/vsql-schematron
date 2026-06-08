@@ -539,11 +539,7 @@ std::string detectSharedTablePrefix(const std::vector<std::string>& table_names)
  * Returns true if the table is a system sequence, backup, or temporary table.
  */
 bool isSequenceOrSystemTable(const std::string& tbl_name) {
-    std::string tbl = to_lower(tbl_name);
-    size_t dot = tbl.rfind('.');
-    if (dot != std::string::npos) {
-        tbl = tbl.substr(dot + 1);
-    }
+    std::string tbl = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_name)));
     if (tbl.rfind("seq_", 0) == 0 || tbl.rfind("sequence_", 0) == 0) {
         return true;
     }

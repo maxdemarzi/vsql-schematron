@@ -34,7 +34,8 @@ bool isDescriptiveAttribute(const std::string& s) {
         "count", "num", "number", "url", "path", "file", "email", "phone",
         "mobile", "address", "date", "time", "datetime", "timestamp",
         "rate", "amount", "amt", "size", "scale", "weight", "oid", "version", "ver", "tenant",
-        "state", "states", "code", "codes"
+        "state", "states", "code", "codes", "message", "messages", "msg", "msgs",
+        "error", "errors", "err", "errs", "comment", "comments", "warning", "warnings"
     };
     return DESCRIPTIVE_WORDS.count(l) > 0;
 }
@@ -208,6 +209,24 @@ AmbiguityProps getAmbiguityProps(const std::string& query, const std::string& tb
             }
         }
         matching_tables = filtered_by_pk;
+
+        bool any_has_single_pk = false;
+        for (const auto& tbl : matching_tables) {
+            auto it_pks = effective_pks.find(tbl);
+            if (it_pks != effective_pks.end() && it_pks->second.size() == 1) {
+                any_has_single_pk = true;
+                break;
+            }
+        }
+        std::vector<std::string> filtered_by_single_pk;
+        for (const auto& tbl : matching_tables) {
+            auto it_pks = effective_pks.find(tbl);
+            bool has_single_pk = (it_pks != effective_pks.end() && it_pks->second.size() == 1);
+            if (!any_has_single_pk || has_single_pk) {
+                filtered_by_single_pk.push_back(tbl);
+            }
+        }
+        matching_tables = filtered_by_single_pk;
 
         std::vector<std::string> filtered;
         for (const auto& t1 : matching_tables) {
@@ -694,7 +713,7 @@ void findPass1ImpliedRelationships(
                     // Example: employees.manager_id -> employees.id
                     std::vector<std::string> self_ref_words = {
                         "parent", "child", "prev", "previous", "next", "successor", "predecessor", "manager", "mgr", "reports", "report", "part_of", "partof",
-                        "superior", "inferior", "sub", "cause", "self", "self_reference", "selfref",
+                        "superior", "inferior", "cause", "self", "self_reference", "selfref",
                         "pid", "parent_id", "parentid", "encar", "encargado", "chefe", "jefe", "gerente", "lider", "selfservice",
                         "comment_on", "reply_to", "in_reply_to", "reply", "response", "kierownik"
                     };
@@ -712,7 +731,8 @@ void findPass1ImpliedRelationships(
                             if (prev_ok && next_ok) {
                                 bool is_flag_or_label = false;
                                 static const std::unordered_set<std::string> EXCLUDED_SUFFIXES = {
-                                    "label", "name", "desc", "description", "status", "state", "metadata", "unique", "check", "flag", "is", "has"
+                                    "label", "name", "desc", "description", "status", "state", "metadata", "unique", "check", "flag", "is", "has",
+                                    "depth", "level", "count", "size", "index", "idx", "num", "number", "type", "code", "key"
                                 };
                                 size_t last_under = col_a_lower.find_last_of('_');
                                 if (last_under != std::string::npos) {
@@ -1130,14 +1150,23 @@ void findPass1ImpliedRelationships(
                             bool suffix_matches = false;
                             bool pk_is_physical = info_b.pk_columns.empty() || 
                                                   (std::find(info_b.pk_columns.begin(), info_b.pk_columns.end(), pk_b) != info_b.pk_columns.end());
+                            bool is_allowed_sfx = isGenericIdentifier(suffix_a);
+                            if (!is_allowed_sfx) {
+                                std::string s_low = to_lower(suffix_a);
+                                if (s_low == "required" || s_low == "preferred" || 
+                                    s_low == "default" || s_low == "current") {
+                                    is_allowed_sfx = true;
+                                }
+                            }
                             if (to_lower(suffix_a) == pk_b_lower_clean || 
-                                (isGenericIdentifier(suffix_a) && isGenericIdentifier(pk_b)) ||
-                                (isGenericIdentifier(suffix_a) && pk_is_physical && (info_b.pk_columns.empty() ? pks_b.size() == 1 : info_b.pk_columns.size() == 1))) {
+                                (is_allowed_sfx && isGenericIdentifier(pk_b)) ||
+                                (is_allowed_sfx && pk_is_physical && (info_b.pk_columns.empty() ? pks_b.size() == 1 : info_b.pk_columns.size() == 1))) {
                                 suffix_matches = true;
                             } else {
                                 std::string prefix_b_col, suffix_b_col;
                                 if (splitColumnName(pk_b, prefix_b_col, suffix_b_col)) {
-                                    if (to_lower(suffix_a) == to_lower(suffix_b_col) || (isGenericIdentifier(suffix_a) && isGenericIdentifier(suffix_b_col))) {
+                                    bool is_allowed_b_sfx = isGenericIdentifier(suffix_b_col);
+                                    if (to_lower(suffix_a) == to_lower(suffix_b_col) || (is_allowed_sfx && is_allowed_b_sfx)) {
                                         suffix_matches = true;
                                     }
                                 }
@@ -1719,7 +1748,12 @@ bool endsWithCatalogSuffix(const std::string& name) {
         "recommendation", "recommendations", "recomendation", "recomendations",
         "metadata", "meta", "lang", "langs", "language", "languages",
         "info", "information", "config", "configs", "configuration", "configurations",
-        "setting", "settings", "option", "options", "preference", "preferences"
+        "setting", "settings", "option", "options", "preference", "preferences",
+        "order", "orders", "booking", "bookings", "rental", "rentals", "request", "requests", "event", "events",
+        "invoice", "invoices", "receipt", "receipts", "ticket", "tickets", "reservation", "reservations",
+        "registration", "registrations", "contract", "contracts", "agreement", "agreements",
+        "subscription", "subscriptions", "transaction", "transactions", "transfer", "transfers",
+        "shipment", "shipments", "delivery", "deliveries"
     };
     size_t last_underscore = name.rfind('_');
     if (last_underscore != std::string::npos && last_underscore > 0) {

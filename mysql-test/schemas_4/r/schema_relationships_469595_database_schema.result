@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 469595_database_schema
+#
+CREATE DATABASE `db_469595_database_schema`;
+USE `db_469595_database_schema`;
+CREATE TABLE `users` (
+`user_id` INT,
+`user_url` VARCHAR(64),
+`user_image` VARCHAR(64),
+`user_alias` VARCHAR(64),
+`user_address` VARCHAR(64),
+`data_signature` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `campaigns` (
+`campaign_id` INT,
+`title` VARCHAR(64),
+`starts` INT,
+`expires` INT,
+PRIMARY KEY (`campaign_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `fullfillments` (
+`fullfillment_id` INT,
+`fullfillment_timestamp` INT,
+`fullfillment_transaction` VARCHAR(64),
+`campaign_id` INT,
+PRIMARY KEY (`fullfillment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipients` (
+`recipient_id` INT,
+`recipient_satoshis` INT,
+`user_id` INT,
+`campaign_id` INT,
+PRIMARY KEY (`recipient_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `revocations` (
+`revocation_id` INT,
+`revocation_timestamp` INT,
+`revocation_transaction` VARCHAR(64),
+`commitment_id` INT,
+PRIMARY KEY (`revocation_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `commitments` (
+`commitment_id` INT,
+`previous_transaction_hash` VARCHAR(64),
+`previous_transaction_index` INT,
+`unlock_script` VARCHAR(64),
+`sequence_number` INT,
+`satoshis` INT,
+PRIMARY KEY (`commitment_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contributions` (
+`contribution_id` INT,
+`user_id` INT,
+`campaign_id` INT,
+`contribution_timestamp` INT,
+`contribution_comment` VARCHAR(64),
+PRIMARY KEY (`contribution_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `contributionCommitments` (
+`contribution_id` INT,
+`commitment_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_469595_database_schema') AS relationships;
+relationships
+Database: db_469595_database_schema
+
+Table Connections:
+------------------
+[Implied]  contributionCommitments.commitment_id -> commitments.commitment_id
+[Implied]  contributionCommitments.contribution_id -> contributions.contribution_id
+[Implied]  contributions.campaign_id -> campaigns.campaign_id
+[Implied]  contributions.user_id -> users.user_id
+[Implied]  fullfillments.campaign_id -> campaigns.campaign_id
+[Implied]  recipients.campaign_id -> campaigns.campaign_id
+[Implied]  recipients.user_id -> users.user_id
+[Implied]  revocations.commitment_id -> commitments.commitment_id
+
+DROP DATABASE `db_469595_database_schema`;
+UNINSTALL EXTENSION vsql_schematron;

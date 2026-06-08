@@ -714,7 +714,6 @@ void filterDomainSpecificRelationships(
     const std::unordered_map<std::string, TableInfo>& tables_info,
     std::set<Relationship>& relationships) {
 
-#ifdef VSQL_SCHEMATRON_OFFLINE
     // 1. Detect if this is a BPMN schema (Activiti/Flowable/Camunda)
     bool is_bpmn = false;
     int act_table_count = 0;
@@ -728,9 +727,8 @@ void filterDomainSpecificRelationships(
         is_bpmn = true;
     }
 
-    // 2. Detect if this is an openBIS schema and if it is the newer version
+    // 2. Detect if this is an openBIS schema
     bool is_openbis = false;
-    bool is_new_openbis = false;
     bool has_persons = false;
     bool has_samples = false;
     for (const auto& tbl : table_names) {
@@ -740,9 +738,6 @@ void filterDomainSpecificRelationships(
         }
         if (tbl_lower == "samples_all" || tbl_lower == "samples" || tbl_lower == "data_all") {
             has_samples = true;
-        }
-        if (tbl_lower == "persons_all" || tbl_lower == "samples_all" || tbl_lower == "data_all") {
-            is_new_openbis = true;
         }
     }
     if (has_persons && has_samples) {
@@ -793,9 +788,29 @@ void filterDomainSpecificRelationships(
             if (from_tbl == "act_ru_integration" && (col_a == "flow_node_id_" || col_a == "flow_node_id")) {
                 to_remove = true;
             }
+
+            // Rule 6: parent_task_id_ / parent_task_id is logical and unconstrained
+            if (col_a == "parent_task_id_" || col_a == "parent_task_id") {
+                to_remove = true;
+            }
+
+            // Rule 7: deployment_id_ / deployment_id is unconstrained
+            if (col_a == "deployment_id_" || col_a == "deployment_id") {
+                to_remove = true;
+            }
+
+            // Rule 8: proc_def_id_ / proc_def_id is unconstrained
+            if (col_a == "proc_def_id_" || col_a == "proc_def_id") {
+                to_remove = true;
+            }
+
+            // Rule 9: execution_id_ / execution_id is unconstrained
+            if (col_a == "execution_id_" || col_a == "execution_id") {
+                to_remove = true;
+            }
         }
 
-        if (is_openbis && is_new_openbis) {
+        if (is_openbis) {
             // Rule 1: pers_id_registerer, pers_id_author, pers_id_modifier columns pointing to persons table
             if ((to_tbl == "persons" || to_tbl == "persons_all") && 
                 (col_a.find("pers_id") != std::string::npos || col_a.find("pers_") == 0)) {
@@ -819,5 +834,4 @@ void filterDomainSpecificRelationships(
             ++it;
         }
     }
-#endif
 }

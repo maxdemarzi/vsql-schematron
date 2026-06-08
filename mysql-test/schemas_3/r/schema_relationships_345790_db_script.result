@@ -1,0 +1,147 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 345790_db_script
+#
+CREATE DATABASE `db_345790_db_script`;
+USE `db_345790_db_script`;
+CREATE TABLE `role` (
+`id` INT,
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`fname` VARCHAR(64),
+`lname` VARCHAR(64),
+`phone` VARCHAR(64),
+`role_id` INT,
+`profile_pic` VARCHAR(64),
+`city` VARCHAR(64),
+`street` VARCHAR(64),
+`house_number` INT,
+`zip_code` INT,
+PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+CREATE TABLE `agegrade` (
+`id` INT,
+`grade` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `guide` (
+`users_email` VARCHAR(64),
+`agegrade_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `parent` (
+`users_email` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `member` (
+`users_email` VARCHAR(64),
+`parent_email` VARCHAR(64),
+`insurance` BOOL,
+`trips` BOOL,
+`membership` BOOL,
+`agegrade_id` INT,
+`notes` VARCHAR(64),
+`pending` BOOL,
+PRIMARY KEY (`users_email`)
+) CHARACTER SET latin1;
+CREATE TABLE `activity` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`time` DATETIME,
+`after_summary` VARCHAR(64),
+`agegrade_id` INT,
+`guide_email` VARCHAR(64),
+`num_participants` INT,
+`sub_req` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `health_declare` (
+`activity_id` INT,
+`member_email` VARCHAR(64),
+PRIMARY KEY (`activity_id`, `member_email`)
+) CHARACTER SET latin1;
+CREATE TABLE `rate` (
+`rate` INT,
+`activity_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `substitute` (
+`id` INT,
+`activity_id` INT,
+`guide_email` VARCHAR(64),
+`agegrade_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`id` INT,
+`recipient_email` VARCHAR(64),
+`sent_from` VARCHAR(64),
+`subject` VARCHAR(64),
+`content` VARCHAR(64),
+`date_sent` DATETIME,
+`is_read` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `meeting` (
+`id` INT,
+`booker_email` VARCHAR(64),
+`guide_email` VARCHAR(64),
+`subject` VARCHAR(64),
+`date` DATETIME,
+`booked` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment` (
+`id` INT,
+`pdate` DATETIME,
+`payment_name` VARCHAR(64),
+`parent_email` VARCHAR(64),
+`member_email` VARCHAR(64),
+`paid` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `expanse` (
+`id` INT,
+`edate` DATETIME,
+`ename` VARCHAR(64),
+`price` DECIMAL(10,2),
+`pic` VARCHAR(64),
+`guide_email` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_345790_db_script') AS relationships;
+relationships
+Database: db_345790_db_script
+
+Table Connections:
+------------------
+[Implied]  activity.agegrade_id -> agegrade.id
+[Implied]  activity.guide_email -> users.email
+[Implied]  expanse.guide_email -> users.email
+[Implied]  guide.agegrade_id -> agegrade.id
+[Implied]  guide.users_email -> users.email
+[Implied]  health_declare.activity_id -> activity.id
+[Implied]  health_declare.member_email -> member.users_email
+[Implied]  meeting.booker_email -> users.email
+[Implied]  meeting.guide_email -> users.email
+[Implied]  member.agegrade_id -> agegrade.id
+[Implied]  member.parent_email -> member.users_email
+[Implied]  member.parent_email -> users.email
+[Implied]  message.recipient_email -> member.users_email
+[Implied]  message.recipient_email -> users.email
+[Implied]  parent.users_email -> users.email
+[Implied]  payment.member_email -> member.users_email
+[Implied]  payment.parent_email -> member.users_email
+[Implied]  payment.parent_email -> users.email
+[Implied]  rate.activity_id -> activity.id
+[Implied]  substitute.activity_id -> activity.id
+[Implied]  substitute.agegrade_id -> agegrade.id
+[Implied]  substitute.guide_email -> users.email
+[Implied]  users.role_id -> role.id
+
+DROP DATABASE `db_345790_db_script`;
+UNINSTALL EXTENSION vsql_schematron;
