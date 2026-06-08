@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <set>
+#include <algorithm>
 
 namespace {
 
@@ -30,6 +31,7 @@ std::vector<std::string> getTableNames(const std::string& db_name, vsql::preview
             }
         }
     }
+    std::sort(names.begin(), names.end());
     return names;
 }
 

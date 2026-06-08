@@ -1742,7 +1742,7 @@ bool endsWithCatalogSuffix(const std::string& name) {
         "system", "systems", "service", "services", "assignment", "assignments", "map", "maps", "link", "links",
         "relation", "relations", "relationship", "relationships", "membership", "memberships", "association", "associations",
         "property", "properties", "store", "stores", "history",
-        "item", "items", "payment", "payments", "log", "logs", "record", "records", "detail", "details",
+        "item", "items", "part", "parts", "part_grp", "part_grps", "payment", "payments", "log", "logs", "record", "records", "detail", "details",
         "line", "lines", "message", "messages", "comment", "comments", "notification", "notifications",
         "post", "posts", "token", "tokens", "backup", "backups", "temp", "tmp",
         "recommendation", "recommendations", "recomendation", "recomendations",

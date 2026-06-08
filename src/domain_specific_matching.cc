@@ -257,6 +257,69 @@ bool matchDomainSpecificKeys(
                 }
             }
         }
+    } else if (col_lower == "translatable_id" || col_lower == "translatable") {
+        std::string tbl_a_lower = to_lower(tbl_a);
+        size_t trans_pos = tbl_a_lower.find("_translation");
+        if (trans_pos != std::string::npos) {
+            std::string base_name = tbl_a_lower.substr(0, trans_pos);
+            for (const auto& tbl_b : table_names) {
+                if (tbl_a == tbl_b) continue;
+                std::string tbl_b_lower = to_lower(tbl_b);
+                if (tbl_b_lower == base_name) {
+                    auto it_b = tables_info.find(tbl_b);
+                    if (it_b != tables_info.end()) {
+                        for (const auto& col_b_pair : it_b->second.column_types) {
+                            if (to_lower(col_b_pair.first) == "id") {
+                                if (typeMatches(type_a, col_b_pair.second)) {
+                                    Relationship rel;
+                                    rel.from_table = tbl_a;
+                                    rel.from_column = col_a;
+                                    rel.to_table = tbl_b;
+                                    rel.to_column = col_b_pair.first;
+                                    rel.is_explicit = false;
+                                    relationships.insert(rel);
+                                    relationship_found = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else if (col_lower == "owner_id" || col_lower == "owner") {
+        std::string tbl_a_lower = to_lower(tbl_a);
+        static const std::vector<std::string> ATTACHMENT_SUFFIXES = {
+            "_image", "_photo", "_file", "_attachment", "_picture", "_document", "_asset"
+        };
+        for (const auto& suffix : ATTACHMENT_SUFFIXES) {
+            size_t sfx_pos = tbl_a_lower.rfind(suffix);
+            if (sfx_pos != std::string::npos && sfx_pos + suffix.length() == tbl_a_lower.length()) {
+                std::string base_name = tbl_a_lower.substr(0, sfx_pos);
+                for (const auto& tbl_b : table_names) {
+                    if (tbl_a == tbl_b) continue;
+                    std::string tbl_b_lower = to_lower(tbl_b);
+                    if (tbl_b_lower == base_name) {
+                        auto it_b = tables_info.find(tbl_b);
+                        if (it_b != tables_info.end()) {
+                            for (const auto& col_b_pair : it_b->second.column_types) {
+                                if (to_lower(col_b_pair.first) == "id") {
+                                    if (typeMatches(type_a, col_b_pair.second)) {
+                                        Relationship rel;
+                                        rel.from_table = tbl_a;
+                                        rel.from_column = col_a;
+                                        rel.to_table = tbl_b;
+                                        rel.to_column = col_b_pair.first;
+                                        rel.is_explicit = false;
+                                        relationships.insert(rel);
+                                        relationship_found = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     } else {
         // BPMN / Camunda Specific Rules
         std::string clean_tbl_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
