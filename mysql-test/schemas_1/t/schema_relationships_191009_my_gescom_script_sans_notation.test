@@ -1,0 +1,134 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 191009_my_gescom_script_sans_notation
+--echo #
+CREATE DATABASE `db_191009_my_gescom_script_sans_notation`;
+USE `db_191009_my_gescom_script_sans_notation`;
+
+CREATE TABLE `suppliers` (
+  `Id_suppliers` INT,
+  `sup_nom` VARCHAR(64),
+  `sup_address` VARCHAR(64),
+  `sup_tel` INT,
+  `sup_contact` VARCHAR(64),
+  PRIMARY KEY (`Id_suppliers`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `customers` (
+  `Id_customers` INT,
+  `cus_name` VARCHAR(64),
+  `cus_fir_name` VARCHAR(64),
+  `cus_address` VARCHAR(64),
+  PRIMARY KEY (`Id_customers`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `orders` (
+  `Id_orders` INT,
+  `ord_date` DATETIME,
+  `shp_date` DATETIME,
+  `del_date` DATETIME,
+  `shp_name` VARCHAR(64),
+  `shp_address` VARCHAR(64),
+  `Id_customers` INT,
+  PRIMARY KEY (`Id_orders`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employees` (
+  `Id_employees` INT,
+  `emp_name` VARCHAR(64),
+  `emp_fir_name` VARCHAR(64),
+  `emp_address` VARCHAR(64),
+  `emp_pos` VARCHAR(64),
+  `emp_shop` VARCHAR(64),
+  `emp_dept` VARCHAR(64),
+  `gro_sal` DECIMAL(10,2),
+  `emp_yos` INT,
+  `emp_sex` VARCHAR(64),
+  `emp_chi` INT,
+  PRIMARY KEY (`Id_employees`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sales_rep` (
+  `Id_sales_rep` INT,
+  `rep_name` VARCHAR(64),
+  `rep_fir_name` VARCHAR(64),
+  `rep_tel` INT,
+  PRIMARY KEY (`Id_sales_rep`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `Id_categories` INT,
+  `cat_name` VARCHAR(64),
+  `Id_categories_1` INT,
+  PRIMARY KEY (`Id_categories`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `products` (
+  `Id_products` INT,
+  `pro_cat` VARCHAR(64),
+  `pro_int_ref` VARCHAR(64),
+  `pro_bar` INT,
+  `pro_cur_stk` INT,
+  `pro_stk_ale` INT,
+  `pro_col` VARCHAR(64),
+  `pro_lib` VARCHAR(64),
+  `pro_des` VARCHAR(64),
+  `pro_for_sale` BOOL,
+  `Id_categories` INT,
+  `Id_suppliers` INT,
+  PRIMARY KEY (`Id_products`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `passwords` (
+  `Id_passwords` INT,
+  `pass_password` VARCHAR(64),
+  `pass_date_add` DATETIME,
+  `pass_date_mod` DATETIME,
+  `Id_employees` INT,
+  `Id_customers` INT,
+  PRIMARY KEY (`Id_passwords`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `detailed` (
+  `Id_products` INT,
+  `Id_orders` INT,
+  `qty_ord` INT,
+  `pro_pri` DECIMAL(10,2),
+  `discount` DECIMAL(10,2),
+  PRIMARY KEY (`Id_products`, `Id_orders`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `add_modify` (
+  `Id_products` INT,
+  `Id_employees` INT,
+  `pro_date_add` DATETIME,
+  `pro_date_mod` DATETIME,
+  PRIMARY KEY (`Id_products`, `Id_employees`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `represent` (
+  `Id_suppliers` INT,
+  `Id_sales_rep` INT,
+  PRIMARY KEY (`Id_suppliers`, `Id_sales_rep`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_191009_my_gescom_script_sans_notation') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_191009_my_gescom_script_sans_notation') AS relationships;
+DROP DATABASE `db_191009_my_gescom_script_sans_notation`;
+UNINSTALL EXTENSION vsql_schematron;

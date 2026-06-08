@@ -1,0 +1,143 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 097621_db_mysql_create
+#
+CREATE DATABASE `db_097621_db_mysql_create`;
+USE `db_097621_db_mysql_create`;
+CREATE TABLE `Item` (
+`id` INT,
+`name` VARCHAR(64),
+`type` INT,
+`lendingDuration` DATETIME,
+`deleted` BOOL,
+`visibleFor` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ItemType` (
+`id` INT,
+`name` VARCHAR(64),
+`namescheme` VARCHAR(64),
+`lendable` BOOL,
+`lendingDuration` DATETIME,
+`deleted` BOOL,
+`visibleFor` VARCHAR(64),
+`howTo` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `AttributeDefinition` (
+`id` INT,
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`jsonscheme` VARCHAR(64),
+`visibleFor` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Attribute` (
+`id` INT,
+`value` VARCHAR(64),
+`valueText` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ItemToAttribute` (
+`item` INT,
+`metadata` INT,
+PRIMARY KEY (`item`, `metadata`)
+) CHARACTER SET latin1;
+CREATE TABLE `Tag` (
+`id` INT,
+`name` VARCHAR(64),
+`lendingDuration` DATETIME,
+`deleted` BOOL,
+`visibleFor` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TypeCanContainTypes` (
+`type` INT,
+`contains` INT,
+PRIMARY KEY (`type`, `contains`)
+) CHARACTER SET latin1;
+CREATE TABLE `ItemToTag` (
+`item` INT,
+`tag` INT,
+PRIMARY KEY (`item`, `tag`)
+) CHARACTER SET latin1;
+CREATE TABLE `ItemTypeToAttributeDefinition` (
+`itemType` INT,
+`attributeDefinition` INT,
+PRIMARY KEY (`itemType`, `attributeDefinition`)
+) CHARACTER SET latin1;
+CREATE TABLE `TagToAttributeDefinition` (
+`tag` INT,
+`attributeDefinition` INT,
+`ausleihdauer` DATETIME,
+PRIMARY KEY (`tag`, `attributeDefinition`)
+) CHARACTER SET latin1;
+CREATE TABLE `ItemToAttributeTag` (
+`item` INT,
+`tag` INT,
+`metadata` INT,
+PRIMARY KEY (`item`, `tag`, `metadata`)
+) CHARACTER SET latin1;
+CREATE TABLE `ItemToItem` (
+`parent` INT,
+`item` INT,
+PRIMARY KEY (`parent`, `item`)
+) CHARACTER SET latin1;
+CREATE TABLE `Lending` (
+`id` INT,
+`moderator` INT,
+`user` VARCHAR(64),
+`date` DATETIME,
+`deposit` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ItemToLending` (
+`item` INT,
+`lending` INT,
+`due` DATETIME,
+PRIMARY KEY (`item`, `lending`)
+) CHARACTER SET latin1;
+CREATE TABLE `File` (
+`id` INT,
+`item` INT,
+`name` VARCHAR(64),
+`path` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Blacklist` (
+`id` INT,
+`name` VARCHAR(64),
+`allTypes` BOOL,
+`reason` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `BlacklistToItemType` (
+`user` INT,
+`itemType` INT,
+PRIMARY KEY (`user`, `itemType`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_097621_db_mysql_create') AS relationships;
+relationships
+Database: db_097621_db_mysql_create
+
+Table Connections:
+------------------
+[Implied]  BlacklistToItemType.itemType -> ItemType.id
+[Implied]  File.item -> Item.id
+[Implied]  ItemToAttribute.item -> Item.id
+[Implied]  ItemToAttribute.metadata -> ItemToAttributeTag.metadata
+[Implied]  ItemToAttributeTag.item -> Item.id
+[Implied]  ItemToAttributeTag.metadata -> ItemToAttribute.metadata
+[Implied]  ItemToAttributeTag.tag -> Tag.id
+[Implied]  ItemToItem.item -> Item.id
+[Implied]  ItemToLending.item -> Item.id
+[Implied]  ItemToLending.lending -> Lending.id
+[Implied]  ItemToTag.item -> Item.id
+[Implied]  ItemToTag.tag -> Tag.id
+[Implied]  ItemTypeToAttributeDefinition.attributeDefinition -> Attribute.id
+[Implied]  ItemTypeToAttributeDefinition.itemType -> ItemType.id
+[Implied]  TagToAttributeDefinition.attributeDefinition -> Attribute.id
+[Implied]  TagToAttributeDefinition.tag -> Tag.id
+
+DROP DATABASE `db_097621_db_mysql_create`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,129 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 149205_flowable.postgres.upgradestep.6.4.2.to.6.5.0.all
+--echo #
+CREATE DATABASE `db_149205_flowable_postgres_upgradestep_6_4_2_to_6_5_0_all`;
+USE `db_149205_flowable_postgres_upgradestep_6_4_2_to_6_5_0_all`;
+
+CREATE TABLE `FLW_RU_BATCH` (
+  `ID_` VARCHAR(64),
+  `REV_` INT,
+  `TYPE_` VARCHAR(64),
+  `SEARCH_KEY_` VARCHAR(64),
+  `SEARCH_KEY2_` VARCHAR(64),
+  `CREATE_TIME_` DATETIME,
+  `COMPLETE_TIME_` DATETIME,
+  `STATUS_` VARCHAR(64),
+  `BATCH_DOC_ID_` VARCHAR(64),
+  `TENANT_ID_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FLW_RU_BATCH_PART` (
+  `ID_` VARCHAR(64),
+  `REV_` INT,
+  `BATCH_ID_` VARCHAR(64),
+  `TYPE_` VARCHAR(64),
+  `SCOPE_ID_` VARCHAR(64),
+  `SUB_SCOPE_ID_` VARCHAR(64),
+  `SCOPE_TYPE_` VARCHAR(64),
+  `SEARCH_KEY_` VARCHAR(64),
+  `SEARCH_KEY2_` VARCHAR(64),
+  `CREATE_TIME_` DATETIME,
+  `COMPLETE_TIME_` DATETIME,
+  `STATUS_` VARCHAR(64),
+  `RESULT_DOC_ID_` VARCHAR(64),
+  `TENANT_ID_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `flw_ev_databasechangeloglock` (
+  `ID` INT,
+  `LOCKED` BOOL,
+  `LOCKGRANTED` DATETIME,
+  `LOCKEDBY` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `flw_ev_databasechangelog` (
+  `ID` VARCHAR(64),
+  `AUTHOR` VARCHAR(64),
+  `FILENAME` VARCHAR(64),
+  `DATEEXECUTED` DATETIME,
+  `ORDEREXECUTED` INT,
+  `EXECTYPE` VARCHAR(64),
+  `MD5SUM` VARCHAR(64),
+  `DESCRIPTION` VARCHAR(64),
+  `COMMENTS` VARCHAR(64),
+  `TAG` VARCHAR(64),
+  `LIQUIBASE` VARCHAR(64),
+  `CONTEXTS` VARCHAR(64),
+  `LABELS` VARCHAR(64),
+  `DEPLOYMENT_ID` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FLW_EVENT_DEPLOYMENT` (
+  `ID_` VARCHAR(64),
+  `NAME_` VARCHAR(64),
+  `CATEGORY_` VARCHAR(64),
+  `DEPLOY_TIME_` DATETIME,
+  `TENANT_ID_` VARCHAR(64),
+  `PARENT_DEPLOYMENT_ID_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FLW_EVENT_RESOURCE` (
+  `ID_` VARCHAR(64),
+  `NAME_` VARCHAR(64),
+  `DEPLOYMENT_ID_` VARCHAR(64),
+  `RESOURCE_BYTES_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FLW_EVENT_DEFINITION` (
+  `ID_` VARCHAR(64),
+  `NAME_` VARCHAR(64),
+  `VERSION_` INT,
+  `KEY_` VARCHAR(64),
+  `CATEGORY_` VARCHAR(64),
+  `DEPLOYMENT_ID_` VARCHAR(64),
+  `TENANT_ID_` VARCHAR(64),
+  `RESOURCE_NAME_` VARCHAR(64),
+  `DESCRIPTION_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FLW_CHANNEL_DEFINITION` (
+  `ID_` VARCHAR(64),
+  `NAME_` VARCHAR(64),
+  `VERSION_` INT,
+  `KEY_` VARCHAR(64),
+  `CATEGORY_` VARCHAR(64),
+  `DEPLOYMENT_ID_` VARCHAR(64),
+  `CREATE_TIME_` DATETIME,
+  `TENANT_ID_` VARCHAR(64),
+  `RESOURCE_NAME_` VARCHAR(64),
+  `DESCRIPTION_` VARCHAR(64),
+  PRIMARY KEY (`ID_`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_149205_flowable_postgres_upgradestep_6_4_2_to_6_5_0_all') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_149205_flowable_postgres_upgradestep_6_4_2_to_6_5_0_all') AS relationships;
+DROP DATABASE `db_149205_flowable_postgres_upgradestep_6_4_2_to_6_5_0_all`;
+UNINSTALL EXTENSION vsql_schematron;

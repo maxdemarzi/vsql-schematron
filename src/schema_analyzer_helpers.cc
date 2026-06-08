@@ -599,11 +599,12 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
         "property", "properties", "store", "stores", "history",
         "item", "items", "payment", "payments", "log", "logs", "record", "records", "detail", "details",
         "line", "lines", "message", "messages", "comment", "comments", "notification", "notifications",
-        "response", "responses", "result", "results",
+        "response", "responses", "result", "results", "rate", "rates",
         "post", "posts", "token", "tokens", "backup", "backups", "temp", "tmp",
         "recommendation", "recommendations", "recomendation", "recomendations",
         "metadata", "meta", "lang", "langs", "language", "languages",
         "info", "information", "config", "configs", "configuration", "configurations",
+        "def", "defs", "definition", "definitions",
         "setting", "settings", "option", "options", "preference", "preferences"
     };
 
@@ -618,7 +619,8 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
             return false;
         }
 
-        if ((a.rfind("database", 0) == 0 && b == "data") || (b.rfind("database", 0) == 0 && a == "data")) {
+        if ((a.rfind("database", 0) == 0 && (b == "data" || b.rfind("data_", 0) == 0)) ||
+            (b.rfind("database", 0) == 0 && (a == "data" || a.rfind("data_", 0) == 0))) {
             return false;
         }
         std::string clean_a = stripTablePrefix(stripTableSuffix(a));

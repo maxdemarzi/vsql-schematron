@@ -1,0 +1,218 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 675240_schema
+#
+CREATE DATABASE `db_675240_schema`;
+USE `db_675240_schema`;
+CREATE TABLE `Customer` (
+`address` VARCHAR(64),
+`city` VARCHAR(64),
+`createdAt` DATETIME,
+`firstName` VARCHAR(64),
+`idCustomer` INT,
+`lastName` VARCHAR(64),
+`middleInitial` VARCHAR(64),
+`state` VARCHAR(64),
+`updatedAt` DATETIME,
+`zipCode` INT,
+PRIMARY KEY (`idCustomer`)
+) CHARACTER SET latin1;
+CREATE TABLE `Job` (
+`customerId` INT,
+`dateCompleted` DATETIME,
+`dateScheduled` DATETIME,
+`details` VARCHAR(64),
+`hoursActual` DECIMAL(10,2),
+`hoursScheduled` DECIMAL(10,2),
+`idJob` INT,
+PRIMARY KEY (`idJob`)
+) CHARACTER SET latin1;
+CREATE TABLE `Operations` (
+`chargePerHour` DECIMAL(10,2),
+`customerId` INT,
+`details` VARCHAR(64),
+`hoursCharged` DECIMAL(10,2),
+`idOperations` INT,
+`jobId` INT,
+`operationName` VARCHAR(64),
+PRIMARY KEY (`idOperations`)
+) CHARACTER SET latin1;
+CREATE TABLE `Product` (
+`brand` VARCHAR(64),
+`createdAt` DATETIME,
+`deliveryPrice` DECIMAL(10,2),
+`description` VARCHAR(64),
+`idProduct` INT,
+`listPrice` DECIMAL(10,2),
+`modelNumber` VARCHAR(64),
+`productCategory` VARCHAR(64),
+`salePrice` DECIMAL(10,2),
+`serialNumber` VARCHAR(64),
+`unitPrice` DECIMAL(10,2),
+`updatedAt` DATETIME,
+PRIMARY KEY (`idProduct`)
+) CHARACTER SET latin1;
+CREATE TABLE `StoreLocations` (
+`address` VARCHAR(64),
+`city` VARCHAR(64),
+`idStoreLocations` INT,
+`phone` VARCHAR(64),
+`state` VARCHAR(64),
+`zipCode` INT,
+PRIMARY KEY (`idStoreLocations`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employee` (
+`address` VARCHAR(64),
+`city` VARCHAR(64),
+`createdAt` DATETIME,
+`email` VARCHAR(64),
+`employeeId` INT,
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`password` VARCHAR(64),
+`positionName` VARCHAR(64),
+`roleCapability` VARCHAR(64),
+`salary` DECIMAL(10,2),
+`state` VARCHAR(64),
+`storeLocationId` INT,
+`updatedAt` DATETIME,
+`userSigningSecret` VARCHAR(64),
+`zipCode` INT,
+PRIMARY KEY (`employeeId`)
+) CHARACTER SET latin1;
+CREATE TABLE `CustomerOrder` (
+`actualDeliveryDate` DATETIME,
+`customerId` INT,
+`dateCancelled` DATETIME,
+`employeeId` INT,
+`expectedDeliveryDate` DATETIME,
+`idCustomerOrder` INT,
+`isCanceled` INT,
+`orderDate` DATETIME,
+`orderTotal` DECIMAL(10,2),
+`storeLocationId` INT,
+PRIMARY KEY (`idCustomerOrder`)
+) CHARACTER SET latin1;
+CREATE TABLE `CustomerOrderProducts` (
+`customerOrderId` INT,
+`idCustomerOrderProducts` INT,
+`perUnitCost` DECIMAL(10,2),
+`productId` INT,
+`quantity` INT,
+PRIMARY KEY (`idCustomerOrderProducts`)
+) CHARACTER SET latin1;
+CREATE TABLE `Inventory` (
+`aisle` INT,
+`bin` VARCHAR(64),
+`idInventory` INT,
+`productId` INT,
+`quantityOnHand` INT,
+`storeLocation` INT,
+PRIMARY KEY (`idInventory`)
+) CHARACTER SET latin1;
+CREATE TABLE `Invoice` (
+`createdAt` DATETIME,
+`customerId` INT,
+`customerOrderId` INT,
+`dueDate` DATETIME,
+`employeeId` INT,
+`idInvoice` INT,
+`invoiceNumber` VARCHAR(64),
+`invoiceTotal` DECIMAL(10,2),
+`jobFeeTotal` DECIMAL(10,2),
+`jobId` INT,
+`orderTotal` DECIMAL(10,2),
+`paidDate` DATETIME,
+`storeLocationId` INT,
+`updatedAt` DATETIME,
+PRIMARY KEY (`idInvoice`)
+) CHARACTER SET latin1;
+CREATE TABLE `InvoiceLineItems` (
+`dueDate` DATETIME,
+`idinvoiceLineItem` INT,
+`invoiceId` INT,
+`lineItemTotal` DECIMAL(10,2),
+PRIMARY KEY (`idinvoiceLineItem`)
+) CHARACTER SET latin1;
+CREATE TABLE `MagicCode` (
+`code` VARCHAR(64),
+`updatedAt` DATETIME,
+`userId` INT,
+PRIMARY KEY (`code`)
+) CHARACTER SET latin1;
+CREATE TABLE `Suppliers` (
+`city` VARCHAR(64),
+`createdAt` DATETIME,
+`email` VARCHAR(64),
+`idSupplier` INT,
+`name` VARCHAR(64),
+`phone` VARCHAR(64),
+`state` VARCHAR(64),
+`updatedAt` DATETIME,
+`zip` INT,
+PRIMARY KEY (`idSupplier`)
+) CHARACTER SET latin1;
+CREATE TABLE `SalesOrders` (
+`deliverDate` DATETIME,
+`employeeId` INT,
+`idSalesOrders` INT,
+`orderDate` DATETIME,
+`orderPrice` DECIMAL(10,2),
+`storeLocationId` INT,
+`supplierId` INT,
+PRIMARY KEY (`idSalesOrders`)
+) CHARACTER SET latin1;
+CREATE TABLE `SalesOrderItem` (
+`idSalesOrderItem` INT,
+`productId` INT,
+`quantityPurchased` INT,
+`salesOrderId` INT,
+`unitPrice` DECIMAL(10,2),
+PRIMARY KEY (`idSalesOrderItem`)
+) CHARACTER SET latin1;
+CREATE TABLE `_Migration` (
+`revision` INT,
+`name` VARCHAR(64),
+`datamodel` VARCHAR(64),
+`status` VARCHAR(64),
+`applied` INT,
+`rolled_back` INT,
+`datamodel_steps` VARCHAR(64),
+`database_migration` VARCHAR(64),
+`errors` VARCHAR(64),
+`started_at` DATETIME,
+`finished_at` DATETIME,
+PRIMARY KEY (`revision`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_675240_schema') AS relationships;
+relationships
+Database: db_675240_schema
+
+Table Connections:
+------------------
+[Implied]  CustomerOrder.customerId -> Customer.idCustomer
+[Implied]  CustomerOrder.employeeId -> Customer.idCustomer
+[Implied]  CustomerOrder.storeLocationId -> StoreLocations.idStoreLocations
+[Implied]  CustomerOrderProducts.customerOrderId -> CustomerOrder.idCustomerOrder
+[Implied]  CustomerOrderProducts.productId -> Product.idProduct
+[Implied]  Employee.storeLocationId -> StoreLocations.idStoreLocations
+[Implied]  Inventory.productId -> Product.idProduct
+[Implied]  Inventory.storeLocation -> StoreLocations.idStoreLocations
+[Implied]  Invoice.customerId -> Customer.idCustomer
+[Implied]  Invoice.customerOrderId -> CustomerOrder.idCustomerOrder
+[Implied]  Invoice.employeeId -> Customer.idCustomer
+[Implied]  Invoice.jobId -> Job.idJob
+[Implied]  Invoice.storeLocationId -> StoreLocations.idStoreLocations
+[Implied]  InvoiceLineItems.invoiceId -> Invoice.idInvoice
+[Implied]  Job.customerId -> Customer.idCustomer
+[Implied]  MagicCode.userId -> Customer.idCustomer
+[Implied]  Operations.customerId -> Customer.idCustomer
+[Implied]  Operations.jobId -> Job.idJob
+[Implied]  SalesOrderItem.productId -> Product.idProduct
+[Implied]  SalesOrderItem.salesOrderId -> SalesOrders.idSalesOrders
+[Implied]  SalesOrders.employeeId -> Customer.idCustomer
+[Implied]  SalesOrders.storeLocationId -> StoreLocations.idStoreLocations
+[Implied]  SalesOrders.supplierId -> Customer.idCustomer
+
+DROP DATABASE `db_675240_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 339841_schema_creation
+#
+CREATE DATABASE `db_339841_schema_creation`;
+USE `db_339841_schema_creation`;
+CREATE TABLE `movie_basic` (
+`title` VARCHAR(64),
+`genre` VARCHAR(64),
+`release_year` INT,
+`director` VARCHAR(64),
+`studio` VARCHAR(64),
+`critic_rating` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `Genre` (
+`id` INT,
+`genre` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Director` (
+`id` INT,
+`dir_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Studio` (
+`id` INT,
+`studio_name` VARCHAR(64),
+`city` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Titles` (
+`id` INT,
+`title` VARCHAR(64),
+`genre_id` INT,
+`release_year` INT,
+`director_id` INT,
+`studio_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Critic_Rating` (
+`id` INT,
+`titles_id` INT,
+`critics_rating` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `posters` (
+`titles_id` INT,
+`filename` VARCHAR(64),
+`resolution` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_339841_schema_creation') AS relationships;
+relationships
+Database: db_339841_schema_creation
+
+Table Connections:
+------------------
+[Implied]  Critic_Rating.titles_id -> Titles.id
+[Implied]  Titles.director_id -> Director.id
+[Implied]  Titles.genre_id -> Genre.id
+[Implied]  Titles.studio_id -> Studio.id
+[Implied]  posters.titles_id -> Titles.id
+
+DROP DATABASE `db_339841_schema_creation`;
+UNINSTALL EXTENSION vsql_schematron;

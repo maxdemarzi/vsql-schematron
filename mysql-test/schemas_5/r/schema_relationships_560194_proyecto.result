@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 560194_proyecto
+#
+CREATE DATABASE `db_560194_proyecto`;
+USE `db_560194_proyecto`;
+CREATE TABLE `tipo_documento` (
+`id_tipo_documento` INT,
+`descripcion` VARCHAR(64),
+PRIMARY KEY (`id_tipo_documento`)
+) CHARACTER SET latin1;
+CREATE TABLE `factura` (
+`id_factura` INT,
+`id_cliente` INT,
+`monto_final` DECIMAL(10,2),
+`descuento` VARCHAR(64),
+`fecha` DATETIME,
+PRIMARY KEY (`id_factura`)
+) CHARACTER SET latin1;
+CREATE TABLE `producto` (
+`id_producto` INT,
+`id_proveedor` INT,
+`nombre` VARCHAR(64),
+`precio` DECIMAL(10,2),
+`stock` INT,
+PRIMARY KEY (`id_producto`)
+) CHARACTER SET latin1;
+CREATE TABLE `detalle` (
+`id_detalle` INT,
+`id_factura` INT,
+`id_producto` INT,
+`monto_total_producto` DECIMAL(10,2),
+`cantidad_venta_producto` VARCHAR(64),
+`precio_unidad_producto` DECIMAL(10,2),
+PRIMARY KEY (`id_detalle`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_560194_proyecto') AS relationships;
+relationships
+Database: db_560194_proyecto
+
+Table Connections:
+------------------
+[Implied]  detalle.id_factura -> factura.id_factura
+[Implied]  detalle.id_producto -> producto.id_producto
+
+DROP DATABASE `db_560194_proyecto`;
+UNINSTALL EXTENSION vsql_schematron;

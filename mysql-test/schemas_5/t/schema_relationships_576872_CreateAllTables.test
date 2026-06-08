@@ -1,0 +1,149 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 576872_CreateAllTables
+--echo #
+CREATE DATABASE `db_576872_CreateAllTables`;
+USE `db_576872_CreateAllTables`;
+
+CREATE TABLE `ActualTotalLoad` (
+  `Id` INT,
+  `EntityCreatedAt` DATETIME,
+  `EntityModifiedAt` DATETIME,
+  `ActionTaskID` INT,
+  `Status` VARCHAR(64),
+  `Year` INT,
+  `Month` INT,
+  `Day` INT,
+  `DateTime` DATETIME,
+  `AreaName` VARCHAR(64),
+  `UpdateTime` DATETIME,
+  `TotalLoadValue` DECIMAL(10,2),
+  `AreaTypeCodeId` INT,
+  `MapCodeId` INT,
+  `AreaCodeId` INT,
+  `ResolutionCodeId` INT,
+  `RowHash` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AggregatedGenerationPerType` (
+  `Id` INT,
+  `EntityCreatedAt` DATETIME,
+  `EntityModifiedAt` DATETIME,
+  `ActionTaskID` INT,
+  `Status` VARCHAR(64),
+  `Year` INT,
+  `Month` INT,
+  `Day` INT,
+  `DateTime` DATETIME,
+  `AreaName` VARCHAR(64),
+  `UpdateTime` DATETIME,
+  `ActualGenerationOutput` DECIMAL(10,2),
+  `ActualConsuption` DECIMAL(10,2),
+  `AreaTypeCodeId` INT,
+  `ProductionTypeId` INT,
+  `ResolutionCodeId` INT,
+  `MapCodeId` INT,
+  `AreaCodeId` INT,
+  `RowHash` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AllocatedEICDetail` (
+  `Id` INT,
+  `EntityCreatedAt` DATETIME,
+  `EntityModifiedAt` DATETIME,
+  `MRID` VARCHAR(64),
+  `DocStatusValue` VARCHAR(64),
+  `AttributeInstanceComponent` VARCHAR(64),
+  `LongNames` VARCHAR(64),
+  `DisplayNames` VARCHAR(64),
+  `LastRequestDateAndOrTime` DATETIME,
+  `DeactivateRequestDateAndOrTime` DATETIME,
+  `MarketParticipantStreetAddressCountry` VARCHAR(64),
+  `MarketParticipantACERCode` VARCHAR(64),
+  `MarketParticipantVATcode` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `EICParentMarketDocumentMRID` VARCHAR(64),
+  `ELCResponsibleMarketParticipantMRID` VARCHAR(64),
+  `IsDeleted` BOOL,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AreaTypeCode` (
+  `Id` INT,
+  `EntityCreatedAt` DATETIME,
+  `EntityModifiedAt` DATETIME,
+  `AreaTypeCodeText` VARCHAR(64),
+  `AreaTypeCodeNote` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DayAheadTotalLoadForecast` (
+  `Id` INT,
+  `EntityCreatedAt` DATETIME,
+  `EntityModifiedAt` DATETIME,
+  `ActionTaskID` INT,
+  `Status` VARCHAR(64),
+  `Year` INT,
+  `Month` INT,
+  `Day` INT,
+  `DateTime` DATETIME,
+  `AreaName` VARCHAR(64),
+  `UpdateTime` DATETIME,
+  `TotalLoadValue` DECIMAL(10,2),
+  `AreaTypeCodeId` INT,
+  `MapCodeId` INT,
+  `AreaCodeId` INT,
+  `ResolutionCodeId` INT,
+  `RowHash` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `MapCode` (
+  `Id` INT,
+  `EntityCreatedAt` DATETIME,
+  `EntityModifiedAt` DATETIME,
+  `MapCodeText` VARCHAR(64),
+  `MapCodeNote` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ProductionType` (
+  `Id` INT,
+  `EntityCreatedAt` DATETIME,
+  `EntityModifiedAt` DATETIME,
+  `ProductionTypeText` VARCHAR(64),
+  `ProductionTypeNote` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ResolutionCode` (
+  `Id` INT,
+  `EntityCreatedAt` DATETIME,
+  `EntityModifiedAt` DATETIME,
+  `ResolutionCodeText` VARCHAR(64),
+  `ResolutionCodeNote` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_576872_CreateAllTables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_576872_CreateAllTables') AS relationships;
+DROP DATABASE `db_576872_CreateAllTables`;
+UNINSTALL EXTENSION vsql_schematron;

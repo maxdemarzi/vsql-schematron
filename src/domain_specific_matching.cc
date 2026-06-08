@@ -782,7 +782,7 @@ void filterDomainSpecificRelationships(
     int act_table_count = 0;
     for (const auto& tbl : table_names) {
         std::string tbl_lower = to_lower(tbl);
-        if (tbl_lower.rfind("act_", 0) == 0) {
+        if (tbl_lower.rfind("act_", 0) == 0 || tbl_lower.rfind("flw_", 0) == 0) {
             act_table_count++;
         }
     }
@@ -807,6 +807,18 @@ void filterDomainSpecificRelationships(
         is_openbis = true;
     }
 
+    // 3. Detect if this is an OpenGamma schema
+    bool is_opengamma = false;
+    int sec_table_count = 0;
+    for (const auto& tbl : table_names) {
+        if (to_lower(tbl).rfind("sec_", 0) == 0) {
+            sec_table_count++;
+        }
+    }
+    if (sec_table_count >= 5) {
+        is_opengamma = true;
+    }
+
     for (auto it = relationships.begin(); it != relationships.end(); ) {
         if (it->is_explicit) {
             ++it;
@@ -818,16 +830,18 @@ void filterDomainSpecificRelationships(
         std::string col_a = to_lower(it->from_column);
 
         if (is_bpmn) {
-            // Rule 1: History tables act_hi_* completely decoupled (never declare foreign keys in DDL)
-            bool from_is_hi = (from_tbl.rfind("act_hi_", 0) == 0 || from_tbl.find("_hi_") != std::string::npos);
-            bool to_is_hi = (to_tbl.rfind("act_hi_", 0) == 0 || to_tbl.find("_hi_") != std::string::npos);
+            std::string clean_from = stripTablePrefix(stripSchemaPrefix(from_tbl));
+            std::string clean_to = stripTablePrefix(stripSchemaPrefix(to_tbl));
+
+            // Rule 1: History tables completely decoupled (never declare foreign keys in DDL)
+            bool from_is_hi = (clean_from.rfind("hi_", 0) == 0 || clean_from.find("_hi_") != std::string::npos);
+            bool to_is_hi = (clean_to.rfind("hi_", 0) == 0 || clean_to.find("_hi_") != std::string::npos);
             if (from_is_hi || to_is_hi) {
                 to_remove = true;
             }
 
             // Rule 2: Standalone event logging table
-            if (from_tbl == "act_evt_log" || from_tbl.rfind("act_evt_log_", 0) == 0 ||
-                to_tbl == "act_evt_log" || to_tbl.rfind("act_evt_log_", 0) == 0) {
+            if (clean_from == "evt_log" || clean_to == "evt_log") {
                 to_remove = true;
             }
 
@@ -841,14 +855,14 @@ void filterDomainSpecificRelationships(
                 to_remove = true;
             }
             
-            // Rule 5: variables, identitylinks, and integration task_id_ / proc_inst_id_ / flow_node_id_ unconstrained runtime refs
-            if (from_tbl == "act_ru_variable" && (col_a == "task_id_" || col_a == "task_id")) {
+            // Rule 5: variables, identitylinks, and integration task_id_ / proc_inst_id_ / flow_node_id_ / bytearray_id_ unconstrained runtime refs
+            if (clean_from == "variable" && (col_a == "task_id_" || col_a == "task_id" || col_a == "bytearray_id_" || col_a == "bytearray_id")) {
                 to_remove = true;
             }
-            if (from_tbl == "act_ru_identitylink" && (col_a == "proc_inst_id_" || col_a == "proc_inst_id")) {
+            if (clean_from == "identitylink" && (col_a == "proc_inst_id_" || col_a == "proc_inst_id" || col_a == "task_id_" || col_a == "task_id")) {
                 to_remove = true;
             }
-            if (from_tbl == "act_ru_integration" && (col_a == "flow_node_id_" || col_a == "flow_node_id")) {
+            if (clean_from == "integration" && (col_a == "flow_node_id_" || col_a == "flow_node_id")) {
                 to_remove = true;
             }
 
@@ -857,18 +871,33 @@ void filterDomainSpecificRelationships(
                 to_remove = true;
             }
 
-            // Rule 7: deployment_id_ / deployment_id is unconstrained
+            // Rule 7: parent_deployment_id_ / parent_deployment_id is logical and unconstrained
+            if (col_a == "parent_deployment_id_" || col_a == "parent_deployment_id") {
+                to_remove = true;
+            }
+
+            // Rule 8: parent_id_ / parent_id in ru_execution is logical and unconstrained
+            if (clean_from == "execution" && (col_a == "parent_id_" || col_a == "parent_id")) {
+                to_remove = true;
+            }
+
+            // Rule 9: deployment_id_ / deployment_id is unconstrained
             if (col_a == "deployment_id_" || col_a == "deployment_id") {
                 to_remove = true;
             }
 
-            // Rule 8: proc_def_id_ / proc_def_id is unconstrained
+            // Rule 10: proc_def_id_ / proc_def_id is unconstrained
             if (col_a == "proc_def_id_" || col_a == "proc_def_id") {
                 to_remove = true;
             }
 
-            // Rule 9: execution_id_ / execution_id is unconstrained
+            // Rule 11: execution_id_ / execution_id is unconstrained
             if (col_a == "execution_id_" || col_a == "execution_id") {
+                to_remove = true;
+            }
+
+            // Rule 12: job_def_id_ / job_def_id is unconstrained
+            if (col_a == "job_def_id_" || col_a == "job_def_id") {
                 to_remove = true;
             }
         }
@@ -877,6 +906,23 @@ void filterDomainSpecificRelationships(
             // Rule 1: pers_id_registerer, pers_id_author, pers_id_modifier columns pointing to persons table
             if ((to_tbl == "persons" || to_tbl == "persons_all") && 
                 (col_a.find("pers_id") != std::string::npos || col_a.find("pers_") == 0)) {
+                to_remove = true;
+            }
+        }
+
+        if (is_opengamma) {
+            // Rule 1: security2idkey is a junction/association table, other entities do not reference its PK columns
+            if (to_tbl == "sec_security2idkey") {
+                to_remove = true;
+            }
+            // Rule 2: pay_/receive_ prefixes for conventions and currencies are logical and unconstrained in swap tables
+            if (col_a.rfind("pay_", 0) == 0 || col_a.rfind("receive_", 0) == 0) {
+                if (to_tbl == "sec_businessdayconvention" || to_tbl == "sec_daycount" || to_tbl == "sec_currency") {
+                    to_remove = true;
+                }
+            }
+            // Rule 3: std_upfrontamt_notional_currency_id is unconstrained
+            if (col_a == "std_upfrontamt_notional_currency_id") {
                 to_remove = true;
             }
         }

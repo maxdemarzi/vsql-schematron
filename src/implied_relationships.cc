@@ -34,8 +34,9 @@ bool isDescriptiveAttribute(const std::string& s) {
         "count", "num", "number", "url", "path", "file", "email", "phone",
         "mobile", "address", "date", "time", "datetime", "timestamp",
         "rate", "amount", "amt", "size", "scale", "weight", "oid", "version", "ver", "tenant",
-        "state", "states", "code", "codes", "message", "messages", "msg", "msgs",
-        "error", "errors", "err", "errs", "comment", "comments", "warning", "warnings"
+        "state", "states", "code", "codes", "day", "days", "spread", "spreads", "bundle", "bundles",
+        "message", "messages", "msg", "msgs", "error", "errors", "err", "errs", "comment", "comments",
+        "warning", "warnings"
     };
     return DESCRIPTIVE_WORDS.count(l) > 0;
 }

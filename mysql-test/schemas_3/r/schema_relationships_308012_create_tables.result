@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 308012_create_tables
+#
+CREATE DATABASE `db_308012_create_tables`;
+USE `db_308012_create_tables`;
+CREATE TABLE `carts` (
+`cart_id` INT,
+`cart_subtotal` DECIMAL(10,2),
+`cart_discount` DECIMAL(10,2),
+`cart_taxes` DECIMAL(10,2),
+`cart_total` DECIMAL(10,2),
+PRIMARY KEY (`cart_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`item_id` INT,
+`cart_id` INT,
+`item_label` VARCHAR(64),
+`item_price` DECIMAL(10,2),
+PRIMARY KEY (`item_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tax` (
+`tax_id` INT,
+`tax_label` VARCHAR(64),
+`tax_percent` DECIMAL(10,2),
+PRIMARY KEY (`tax_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_308012_create_tables') AS relationships;
+relationships
+Database: db_308012_create_tables
+
+Table Connections:
+------------------
+[Implied]  items.cart_id -> carts.cart_id
+
+DROP DATABASE `db_308012_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

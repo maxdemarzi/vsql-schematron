@@ -1,0 +1,83 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 376925_V1__create
+#
+CREATE DATABASE `db_376925_V1_create`;
+USE `db_376925_V1_create`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `roles` (
+`id` INT,
+`name` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_roles` (
+`user_id` INT,
+`role_id` INT,
+PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`title` VARCHAR(64),
+`price` DECIMAL(10,2),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`title` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products_categories` (
+`product_id` INT,
+`category_id` INT,
+PRIMARY KEY (`product_id`, `category_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`owner_id` INT,
+`total_price` DECIMAL(10,2),
+`address` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders_items` (
+`id` INT,
+`order_id` INT,
+`product_id` INT,
+`title` VARCHAR(64),
+`quantity` INT,
+`price_per_product` DECIMAL(10,2),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_376925_V1_create') AS relationships;
+relationships
+Database: db_376925_V1_create
+
+Table Connections:
+------------------
+[Implied]  orders.owner_id -> users.id
+[Implied]  orders_items.order_id -> orders.id
+[Implied]  orders_items.product_id -> products.id
+[Implied]  products_categories.category_id -> categories.id
+[Implied]  products_categories.product_id -> products.id
+[Implied]  users_roles.role_id -> roles.id
+[Implied]  users_roles.user_id -> users.id
+
+DROP DATABASE `db_376925_V1_create`;
+UNINSTALL EXTENSION vsql_schematron;

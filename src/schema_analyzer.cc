@@ -116,6 +116,7 @@ bool typeMatches(const std::string& t1, const std::string& t2) {
     if (s1 == s2) return true;
     
     auto isNumeric = [](const std::string& t) {
+        if (t.find("user_id") != std::string::npos) return false;
         return t.find("int") != std::string::npos ||
                t.find("serial") != std::string::npos ||
                t.find("numeric") != std::string::npos ||
@@ -130,7 +131,9 @@ bool typeMatches(const std::string& t1, const std::string& t2) {
     auto isFloat = [](const std::string& t) {
         return t.find("double") != std::string::npos ||
                t.find("float") != std::string::npos ||
-               t.find("real") != std::string::npos;
+               t.find("real") != std::string::npos ||
+               t.find("decimal") != std::string::npos ||
+               t.find("numeric") != std::string::npos;
     };
     
     if (isNumeric(s1) && isNumeric(s2)) {
@@ -141,7 +144,8 @@ bool typeMatches(const std::string& t1, const std::string& t2) {
         return t.find("char") != std::string::npos ||
                t.find("text") != std::string::npos ||
                t.find("string") != std::string::npos ||
-               t.find("uuid") != std::string::npos;
+               t.find("uuid") != std::string::npos ||
+               t.find("user_id") != std::string::npos;
     };
     
     if (isString(s1) && isString(s2)) return true;

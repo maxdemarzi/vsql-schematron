@@ -1,0 +1,104 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 143533_dbpuntoventa
+--echo #
+CREATE DATABASE `db_143533_dbpuntoventa`;
+USE `db_143533_dbpuntoventa`;
+
+CREATE TABLE `dbpuntoventa.categoria` (
+  `idcategoria` INT,
+  `nombre` VARCHAR(64),
+  `descripcion` VARCHAR(64),
+  `condicion` INT,
+  PRIMARY KEY (`idcategoria`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dbpuntoventa.articulo` (
+  `idarticulo` INT,
+  `idcategoria` INT,
+  `codigo` VARCHAR(64),
+  `nombre` VARCHAR(64),
+  `stock` INT,
+  `descripcion` VARCHAR(64),
+  `imagen` VARCHAR(64),
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`idarticulo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dbpuntoventa.persona` (
+  `idpersona` INT,
+  `tipo_persona` VARCHAR(64),
+  `nombre` VARCHAR(64),
+  `tipo_documento` VARCHAR(64),
+  `num_documento` VARCHAR(64),
+  `direccion` VARCHAR(64),
+  `telefono` VARCHAR(64),
+  `email` VARCHAR(64),
+  PRIMARY KEY (`idpersona`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dbpuntoventa.ingreso` (
+  `idingreso` INT,
+  `idproveedor` INT,
+  `tipo_comprobante` VARCHAR(64),
+  `serie_comprobante` VARCHAR(64),
+  `num_comprobante` VARCHAR(64),
+  `fecha_hora` DATETIME,
+  `impuesto` DECIMAL(10,2),
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`idingreso`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dbpuntoventa.detalle_ingreso` (
+  `iddetalle_ingreso` INT,
+  `idingreso` INT,
+  `idarticulo` INT,
+  `cantidad` INT,
+  `precio_compra` DECIMAL(10,2),
+  `precio_venta` DECIMAL(10,2),
+  PRIMARY KEY (`iddetalle_ingreso`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dbpuntoventa.venta` (
+  `idventa` INT,
+  `idcliente` INT,
+  `tipo_comprobante` VARCHAR(64),
+  `serie_comprobante` VARCHAR(64),
+  `num_comprobante` VARCHAR(64),
+  `fecha_hora` DATETIME,
+  `impuesto` DECIMAL(10,2),
+  `total_venta` DECIMAL(10,2),
+  `estado` VARCHAR(64),
+  PRIMARY KEY (`idventa`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dbpuntoventa.detalle_venta` (
+  `iddetalle_venta` INT,
+  `idventa` INT,
+  `idarticulo` INT,
+  `cantidad` INT,
+  `precio_venta` DECIMAL(10,2),
+  `descuento` DECIMAL(10,2),
+  PRIMARY KEY (`iddetalle_venta`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_143533_dbpuntoventa') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_143533_dbpuntoventa') AS relationships;
+DROP DATABASE `db_143533_dbpuntoventa`;
+UNINSTALL EXTENSION vsql_schematron;

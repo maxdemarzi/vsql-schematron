@@ -1,0 +1,90 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 143533_dbpuntoventa
+#
+CREATE DATABASE `db_143533_dbpuntoventa`;
+USE `db_143533_dbpuntoventa`;
+CREATE TABLE `dbpuntoventa.categoria` (
+`idcategoria` INT,
+`nombre` VARCHAR(64),
+`descripcion` VARCHAR(64),
+`condicion` INT,
+PRIMARY KEY (`idcategoria`)
+) CHARACTER SET latin1;
+CREATE TABLE `dbpuntoventa.articulo` (
+`idarticulo` INT,
+`idcategoria` INT,
+`codigo` VARCHAR(64),
+`nombre` VARCHAR(64),
+`stock` INT,
+`descripcion` VARCHAR(64),
+`imagen` VARCHAR(64),
+`estado` VARCHAR(64),
+PRIMARY KEY (`idarticulo`)
+) CHARACTER SET latin1;
+CREATE TABLE `dbpuntoventa.persona` (
+`idpersona` INT,
+`tipo_persona` VARCHAR(64),
+`nombre` VARCHAR(64),
+`tipo_documento` VARCHAR(64),
+`num_documento` VARCHAR(64),
+`direccion` VARCHAR(64),
+`telefono` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`idpersona`)
+) CHARACTER SET latin1;
+CREATE TABLE `dbpuntoventa.ingreso` (
+`idingreso` INT,
+`idproveedor` INT,
+`tipo_comprobante` VARCHAR(64),
+`serie_comprobante` VARCHAR(64),
+`num_comprobante` VARCHAR(64),
+`fecha_hora` DATETIME,
+`impuesto` DECIMAL(10,2),
+`estado` VARCHAR(64),
+PRIMARY KEY (`idingreso`)
+) CHARACTER SET latin1;
+CREATE TABLE `dbpuntoventa.detalle_ingreso` (
+`iddetalle_ingreso` INT,
+`idingreso` INT,
+`idarticulo` INT,
+`cantidad` INT,
+`precio_compra` DECIMAL(10,2),
+`precio_venta` DECIMAL(10,2),
+PRIMARY KEY (`iddetalle_ingreso`)
+) CHARACTER SET latin1;
+CREATE TABLE `dbpuntoventa.venta` (
+`idventa` INT,
+`idcliente` INT,
+`tipo_comprobante` VARCHAR(64),
+`serie_comprobante` VARCHAR(64),
+`num_comprobante` VARCHAR(64),
+`fecha_hora` DATETIME,
+`impuesto` DECIMAL(10,2),
+`total_venta` DECIMAL(10,2),
+`estado` VARCHAR(64),
+PRIMARY KEY (`idventa`)
+) CHARACTER SET latin1;
+CREATE TABLE `dbpuntoventa.detalle_venta` (
+`iddetalle_venta` INT,
+`idventa` INT,
+`idarticulo` INT,
+`cantidad` INT,
+`precio_venta` DECIMAL(10,2),
+`descuento` DECIMAL(10,2),
+PRIMARY KEY (`iddetalle_venta`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_143533_dbpuntoventa') AS relationships;
+relationships
+Database: db_143533_dbpuntoventa
+
+Table Connections:
+------------------
+[Implied]  dbpuntoventa.articulo.idcategoria -> dbpuntoventa.categoria.idcategoria
+[Implied]  dbpuntoventa.detalle_ingreso.idarticulo -> dbpuntoventa.articulo.idarticulo
+[Implied]  dbpuntoventa.detalle_ingreso.idingreso -> dbpuntoventa.ingreso.idingreso
+[Implied]  dbpuntoventa.detalle_venta.idarticulo -> dbpuntoventa.articulo.idarticulo
+[Implied]  dbpuntoventa.detalle_venta.idventa -> dbpuntoventa.venta.idventa
+
+DROP DATABASE `db_143533_dbpuntoventa`;
+UNINSTALL EXTENSION vsql_schematron;
