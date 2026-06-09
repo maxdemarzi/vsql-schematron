@@ -1,0 +1,190 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 462037_email_tb
+#
+CREATE DATABASE `db_462037_email_tb`;
+USE `db_462037_email_tb`;
+CREATE TABLE `timeline_seq` (
+`num` INT
+) CHARACTER SET latin1;
+CREATE TABLE `history_seq` (
+`num` INT
+) CHARACTER SET latin1;
+CREATE TABLE `attachment` (
+`id` VARCHAR(64),
+`owner` VARCHAR(64),
+`mimetype` VARCHAR(64),
+`filename` VARCHAR(64),
+`content` VARCHAR(64),
+`data_uri` VARCHAR(64),
+`timeline_id` INT,
+`history_id` INT,
+`deleted` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`un_deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`id` VARCHAR(64),
+`owner` VARCHAR(64),
+`mimetype` VARCHAR(64),
+`subject` VARCHAR(64),
+`snippet` VARCHAR(64),
+`content` VARCHAR(64),
+`body_uri` VARCHAR(64),
+`timeline_id` INT,
+`history_id` INT,
+`deleted` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`un_deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `email` (
+`id` VARCHAR(64),
+`owner` VARCHAR(64),
+`parent_id` VARCHAR(64),
+`thread_id` VARCHAR(64),
+`fwd` BOOL,
+`tags` VARCHAR(64),
+`message_id` VARCHAR(64),
+`sent_at` DATETIME,
+`received_at` DATETIME,
+`snoozed_at` DATETIME,
+`timeline_id` INT,
+`history_id` INT,
+`deleted` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`un_deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `recipient` (
+`id` VARCHAR(64),
+`owner` VARCHAR(64),
+`email_address` VARCHAR(64),
+`display_name` VARCHAR(64),
+`timeline_id` INT,
+`history_id` INT,
+`deleted` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`un_deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `label` (
+`id` VARCHAR(64),
+`owner` VARCHAR(64),
+`type` VARCHAR(64),
+`name` VARCHAR(64),
+`timeline_id` INT,
+`history_id` INT,
+`deleted` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`un_deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `filter` (
+`id` VARCHAR(64),
+`owner` VARCHAR(64),
+`name` VARCHAR(64),
+`criteria` VARCHAR(64),
+`timeline_id` INT,
+`history_id` INT,
+`deleted` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`un_deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `email_attachment` (
+`id` VARCHAR(64),
+`owner` VARCHAR(64),
+`email_id` VARCHAR(64),
+`attachment_id` VARCHAR(64),
+`timeline_id` INT,
+`history_id` INT,
+`deleted` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`un_deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `email_recipient` (
+`id` VARCHAR(64),
+`owner` VARCHAR(64),
+`email_id` VARCHAR(64),
+`recipient_id` VARCHAR(64),
+`type` VARCHAR(64),
+`timeline_id` INT,
+`history_id` INT,
+`deleted` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`un_deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `email_label` (
+`id` VARCHAR(64),
+`owner` VARCHAR(64),
+`email_id` VARCHAR(64),
+`label_id` VARCHAR(64),
+`timeline_id` INT,
+`history_id` INT,
+`deleted` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`un_deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `filter_label` (
+`id` VARCHAR(64),
+`owner` VARCHAR(64),
+`filter_id` VARCHAR(64),
+`label_id` VARCHAR(64),
+`timeline_id` INT,
+`history_id` INT,
+`deleted` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`un_deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `filter_recipient` (
+`id` VARCHAR(64),
+`owner` VARCHAR(64),
+`filter_id` VARCHAR(64),
+`recipient_id` VARCHAR(64),
+`type` VARCHAR(64),
+`timeline_id` INT,
+`history_id` INT,
+`deleted` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`un_deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_462037_email_tb') AS relationships;
+relationships
+Database: db_462037_email_tb
+
+Table Connections:
+------------------
+[Implied]  email.message_id -> message.id
+[Implied]  email.parent_id -> email.id
+[Implied]  email_attachment.attachment_id -> attachment.id
+[Implied]  email_attachment.email_id -> email.id
+[Implied]  email_attachment.owner -> email.id
+[Implied]  email_label.email_id -> email.id
+[Implied]  email_label.label_id -> label.id
+[Implied]  email_recipient.email_id -> email.id
+[Implied]  email_recipient.recipient_id -> recipient.id
+[Implied]  filter_label.filter_id -> filter.id
+[Implied]  filter_label.label_id -> label.id
+[Implied]  filter_recipient.filter_id -> filter.id
+[Implied]  filter_recipient.recipient_id -> recipient.id
+
+DROP DATABASE `db_462037_email_tb`;
+UNINSTALL EXTENSION vsql_schematron;

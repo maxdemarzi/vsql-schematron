@@ -705,6 +705,16 @@ void findPass1ImpliedRelationships(
 
                 // --- Scenario 1: Self-Referencing Heuristics (e.g., employee referencing employee) ---
                 if (is_self) {
+                    bool has_any_explicit_fk = false;
+                    for (const auto& pair : explicit_mapped_cols) {
+                        if (pair.first == tbl_a) {
+                            has_any_explicit_fk = true;
+                            break;
+                        }
+                    }
+                    if (has_any_explicit_fk) {
+                        continue;
+                    }
                     if (is_composite) continue;
                     bool is_junction = prep_b.is_junction_or_history;
                     if (is_junction) {

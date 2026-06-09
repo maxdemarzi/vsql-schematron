@@ -1,0 +1,77 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 651685_db
+#
+CREATE DATABASE `db_651685_db`;
+USE `db_651685_db`;
+CREATE TABLE `miners` (
+`id` INT,
+`address` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `blocks` (
+`id` VARCHAR(64),
+`height` INT,
+`previous_id` VARCHAR(64),
+`coinbase_id` VARCHAR(64),
+`coinbase_reward` INT,
+`coinbase_privkey` VARCHAR(64),
+`difficulty` VARCHAR(64),
+`timestamp` INT,
+`miner` INT,
+`pow_hash` VARCHAR(64),
+`main_height` INT,
+`main_id` VARCHAR(64),
+`main_found` BOOL,
+`miner_main_id` VARCHAR(64),
+`miner_main_difficulty` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `uncles` (
+`parent_id` VARCHAR(64),
+`parent_height` INT,
+`id` VARCHAR(64),
+`height` INT,
+`previous_id` VARCHAR(64),
+`coinbase_id` VARCHAR(64),
+`coinbase_reward` INT,
+`coinbase_privkey` VARCHAR(64),
+`difficulty` VARCHAR(64),
+`timestamp` INT,
+`miner` INT,
+`pow_hash` VARCHAR(64),
+`main_height` INT,
+`main_id` VARCHAR(64),
+`main_found` BOOL,
+`miner_main_id` VARCHAR(64),
+`miner_main_difficulty` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `subscriptions` (
+`miner` INT,
+`nick` VARCHAR(64),
+PRIMARY KEY (`miner`, `nick`)
+) CHARACTER SET latin1;
+CREATE TABLE `coinbase_outputs` (
+`id` VARCHAR(64),
+`index` INT,
+`miner` INT,
+`amount` INT,
+PRIMARY KEY (`id`, `index`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_651685_db') AS relationships;
+relationships
+Database: db_651685_db
+
+Table Connections:
+------------------
+[Implied]  blocks.miner -> miners.id
+[Implied]  blocks.previous_id -> blocks.id
+[Implied]  coinbase_outputs.miner -> miners.id
+[Implied]  subscriptions.miner -> miners.id
+[Implied]  uncles.miner -> miners.id
+[Implied]  uncles.parent_id -> uncles.id
+[Implied]  uncles.previous_id -> uncles.id
+
+DROP DATABASE `db_651685_db`;
+UNINSTALL EXTENSION vsql_schematron;

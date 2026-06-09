@@ -1,0 +1,48 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 457382_null
+#
+CREATE DATABASE `db_457382_null`;
+USE `db_457382_null`;
+CREATE TABLE `Account` (
+`id` INT,
+`Email` VARCHAR(64),
+`Name` VARCHAR(64),
+`Password` VARCHAR(64),
+`Userrole` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sheet1` (
+`id` INT,
+`IntField` INT,
+`DateField` DATETIME,
+`Text` VARCHAR(64),
+`DecimalField` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sheet1User` (
+`id` INT,
+`Userid` INT,
+`Sheet1Id` INT,
+`UserYN` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sheet2` (
+`id` INT,
+`DateField` DATETIME,
+`IntegerField` INT,
+`Text` VARCHAR(64),
+`DecimalField` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_457382_null') AS relationships;
+relationships
+Database: db_457382_null
+
+Table Connections:
+------------------
+[Implied]  Sheet1User.Sheet1Id -> Sheet1.id
+[Implied]  Sheet1User.Userid -> Account.id
+
+DROP DATABASE `db_457382_null`;
+UNINSTALL EXTENSION vsql_schematron;

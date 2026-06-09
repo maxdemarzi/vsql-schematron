@@ -1,0 +1,132 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 307416_BRAINyard%20copy
+--echo #
+CREATE DATABASE `db_307416_BRAINyard_20copy`;
+USE `db_307416_BRAINyard_20copy`;
+
+CREATE TABLE `BUser` (
+  `StudentEmail` VARCHAR(64),
+  `Faculty` VARCHAR(64),
+  `UserStatus` INT,
+  `University` VARCHAR(64),
+  `UserName` VARCHAR(64),
+  `Password` VARCHAR(64),
+  `GPA` DECIMAL(10,2),
+  `UserId` INT,
+  `CurrentYear` INT,
+  `PreferredEmail` VARCHAR(64),
+  `CorAnsTot` INT,
+  PRIMARY KEY (`StudentEmail`, `UserId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Categories` (
+  `CategoryId` INT,
+  `subjTitle` VARCHAR(64),
+  `Faculty` VARCHAR(64),
+  `Difficulty` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `Answers` (
+  `AnsId` INT,
+  `PTime` DATETIME,
+  `Category` INT,
+  `QId` INT,
+  `Description` VARCHAR(64),
+  PRIMARY KEY (`AnsId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Ratings` (
+  `UserId` INT,
+  `AnsId` INT,
+  `RatingId` INT,
+  `Score` INT,
+  `PTime` DATETIME,
+  PRIMARY KEY (`RatingId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Transactions` (
+  `Transactionid` INT,
+  `Status` INT,
+  `UserId` INT,
+  `CurrTimes` DATETIME,
+  `DogeAmo` INT,
+  `EtheAmo` INT,
+  `BitAmo` INT,
+  PRIMARY KEY (`Transactionid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Currency` (
+  `IndexName` INT,
+  `MarketPrice` DECIMAL(10,2),
+  `coinName` VARCHAR(64),
+  `CurTime` DATETIME,
+  PRIMARY KEY (`IndexName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Questions` (
+  `QId` INT,
+  `UserId` INT,
+  `Description` VARCHAR(64),
+  `Category` INT,
+  `TimeUntilClose` DATETIME,
+  `postTime` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `PayMethod` (
+  `UserId` INT,
+  `DogeAd` VARCHAR(64),
+  `BitAd` VARCHAR(64),
+  `EthAd` VARCHAR(64),
+  `DogeAmount` INT,
+  `BitAmount` INT,
+  `EthAmount` INT,
+  PRIMARY KEY (`UserId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GraveYard` (
+  `YardId` INT,
+  `AnsId` INT,
+  `Status` VARCHAR(64),
+  `QId` INT,
+  PRIMARY KEY (`YardId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UStatus` (
+  `StatId` INT,
+  `Name` VARCHAR(64),
+  `DogX` INT,
+  `BitX` DECIMAL(10,2),
+  `EthX` DECIMAL(10,2),
+  PRIMARY KEY (`StatId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserLog` (
+  `StudentEmail` VARCHAR(64),
+  `LogId` INT,
+  `AccessIp` INT,
+  `StartTime` DATETIME,
+  `EndTime` DATETIME,
+  PRIMARY KEY (`StudentEmail`, `LogId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_307416_BRAINyard_20copy') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_307416_BRAINyard_20copy') AS relationships;
+DROP DATABASE `db_307416_BRAINyard_20copy`;
+UNINSTALL EXTENSION vsql_schematron;

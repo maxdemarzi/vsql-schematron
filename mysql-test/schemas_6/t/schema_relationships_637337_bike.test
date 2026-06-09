@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 637337_bike
+--echo #
+CREATE DATABASE `db_637337_bike`;
+USE `db_637337_bike`;
+
+CREATE TABLE `users` (
+  `user_id` VARCHAR(64),
+  `user_name` VARCHAR(64),
+  `user_email` VARCHAR(64),
+  `user_pass` VARCHAR(64),
+  `user_time` DATETIME,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `manager` (
+  `work_id` VARCHAR(64),
+  `manager_name` VARCHAR(64),
+  `manager_email` VARCHAR(64),
+  `manager_pass` VARCHAR(64),
+  `manager_time` DATETIME,
+  PRIMARY KEY (`work_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rent` (
+  `_id_` INT,
+  `user_id` VARCHAR(64),
+  `bike_id` VARCHAR(64),
+  `rent_time` DATETIME,
+  PRIMARY KEY (`_id_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `retur` (
+  `_id_` INT,
+  `user_id` VARCHAR(64),
+  `bike_id` VARCHAR(64),
+  `return_time` DATETIME,
+  PRIMARY KEY (`_id_`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `news` (
+  `news_id` INT,
+  `news_title` VARCHAR(64),
+  `news_body` VARCHAR(64),
+  `news_author` VARCHAR(64),
+  `news_created` DATETIME,
+  `news_updated` DATETIME,
+  `total_views` INT,
+  PRIMARY KEY (`news_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_637337_bike') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_637337_bike') AS relationships;
+DROP DATABASE `db_637337_bike`;
+UNINSTALL EXTENSION vsql_schematron;

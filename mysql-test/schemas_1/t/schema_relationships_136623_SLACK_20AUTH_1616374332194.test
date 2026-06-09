@@ -1,0 +1,74 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 136623_SLACK%20AUTH-1616374332194
+--echo #
+CREATE DATABASE `db_136623_SLACK_20AUTH_1616374332194`;
+USE `db_136623_SLACK_20AUTH_1616374332194`;
+
+CREATE TABLE `BotUser` (
+  `ID` VARCHAR(64),
+  `SCOPE` VARCHAR(64),
+  `ACCESSTOKEN` VARCHAR(64),
+  `BOTUSERID` VARCHAR(64),
+  `CREATEDDATE` DATETIME,
+  `UPDATEDDATE` DATETIME,
+  `WorkspaceID` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Enteprise` (
+  `ID` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `CREATEDDATE` DATETIME,
+  `UPDATEDDATE` DATETIME,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GlobalUser` (
+  `ID` VARCHAR(64),
+  `SLACKGLOBALUSERID` VARCHAR(64),
+  `CREATEDDATE` DATETIME,
+  `UPDATEDDATE` DATETIME,
+  `ENTERPRISEID` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LocalUser` (
+  `ID` VARCHAR(64),
+  `LOCALUSERID` VARCHAR(64),
+  `CREATEDDATE` DATETIME,
+  `UPDATEDDATE` DATETIME,
+  `WORKSPACEID` VARCHAR(64),
+  `GLOBALUSERID` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `WorkSpace` (
+  `ID` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `ISAPPINSTALLED` BOOL,
+  `CREATEDDATE` DATETIME,
+  `UPDATEDATE` DATETIME,
+  `ENTERPRISEID` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_136623_SLACK_20AUTH_1616374332194') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_136623_SLACK_20AUTH_1616374332194') AS relationships;
+DROP DATABASE `db_136623_SLACK_20AUTH_1616374332194`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -616,7 +616,9 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
         "info", "information", "config", "configs", "configuration", "configurations",
         "def", "defs", "definition", "definitions",
         "setting", "settings", "option", "options", "preference", "preferences",
-        "set", "sets"
+        "set", "sets", "run", "runs", "execution", "executions", "ownership", "ownerships",
+        "event", "events", "activity", "activities", "session", "sessions", "request", "requests",
+        "task", "tasks", "job", "jobs", "contact", "contacts", "address", "addresses", "feed", "feeds", "rss"
     };
 
     auto compute = [&]() -> bool {
@@ -788,12 +790,7 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
             if (last_underscore != std::string::npos && last_underscore > 0) {
                 std::string suffix = clean_a.substr(last_underscore + 1);
                 if (CATALOG_SUFFIXES.count(suffix) && suffix != clean_b && suffix + "s" != clean_b && singularize(suffix) != singularize(clean_b)) {
-                    // Only exclude if clean_a does NOT start with clean_b
-                    std::string sb = clean_b;
-                    if (sb.length() > 1 && sb.back() == 's') sb.pop_back();
-                    if (clean_a.rfind(sb + "_", 0) != 0) {
-                        return false;
-                    }
+                    return false;
                 }
             }
 
@@ -803,7 +800,10 @@ bool isSubtypeTable(const std::string& tbl_a, const std::string& tbl_b) {
                 "info", "information", "config", "configs", "setting", "settings", "option", "options",
                 "preference", "preferences", "backup", "backups", "temp", "tmp", "metadata", "meta",
                 "lang", "langs", "language", "languages",
-                "password", "passwords", "execution", "executions", "set", "sets"
+                "password", "passwords", "execution", "executions", "set", "sets",
+                "run", "runs", "ownership", "ownerships", "event", "events", "activity", "activities",
+                "session", "sessions", "request", "requests", "task", "tasks", "job", "jobs",
+                "contact", "contacts", "address", "addresses", "feed", "feeds", "rss"
             };
             if (CATALOG_WORDS.count(clean_b) > 0) {
                 return false;

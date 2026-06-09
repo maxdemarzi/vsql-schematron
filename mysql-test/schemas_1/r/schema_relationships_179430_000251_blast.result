@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 179430_000251_blast
+#
+CREATE DATABASE `db_179430_000251_blast`;
+USE `db_179430_000251_blast`;
+CREATE TABLE `blast` (
+`id_blast` INT,
+`content` VARCHAR(64),
+`status` VARCHAR(64),
+`type` VARCHAR(64),
+`id_admin` INT,
+`date` DATETIME,
+`update` DATETIME,
+PRIMARY KEY (`id_blast`)
+) CHARACTER SET latin1;
+CREATE TABLE `blast_user` (
+`id_blast_user` INT,
+`id_blast` INT,
+`id_user` INT,
+`phone` VARCHAR(64),
+`email` VARCHAR(64),
+`data` VARCHAR(64),
+PRIMARY KEY (`id_blast_user`)
+) CHARACTER SET latin1;
+CREATE TABLE `blast_user_log` (
+`id_blast_user_log` INT,
+`id_blast_user` INT,
+`status` INT,
+`date` DATETIME,
+PRIMARY KEY (`id_blast_user_log`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_179430_000251_blast') AS relationships;
+relationships
+Database: db_179430_000251_blast
+
+Table Connections:
+------------------
+[Implied]  blast_user.id_blast -> blast.id_blast
+[Implied]  blast_user.id_user -> blast_user.id_blast_user
+[Implied]  blast_user_log.id_blast_user -> blast.id_blast
+
+DROP DATABASE `db_179430_000251_blast`;
+UNINSTALL EXTENSION vsql_schematron;

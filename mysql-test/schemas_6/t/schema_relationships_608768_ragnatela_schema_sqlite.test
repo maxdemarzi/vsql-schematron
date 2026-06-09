@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 608768_ragnatela-schema-sqlite
+--echo #
+CREATE DATABASE `db_608768_ragnatela_schema_sqlite`;
+USE `db_608768_ragnatela_schema_sqlite`;
+
+CREATE TABLE `RagnatelaEdges` (
+  `id` VARCHAR(64),
+  `graphId` VARCHAR(64),
+  `sourceNodeId` VARCHAR(64),
+  `targetNodeId` VARCHAR(64),
+  `title` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RagnatelaGraphProperties` (
+  `graphId` VARCHAR(64),
+  `propertyId` VARCHAR(64),
+  `id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RagnatelaNodeProperties` (
+  `nodeId` VARCHAR(64),
+  `propertyId` VARCHAR(64),
+  `id` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RagnatelaProperties` (
+  `id` VARCHAR(64),
+  `valueAsInteger` INT,
+  `valueAsText` VARCHAR(64),
+  `valueAsBlob` VARCHAR(64),
+  `valueAsReal` DECIMAL(10,2),
+  `valueAsNumeric` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_608768_ragnatela_schema_sqlite') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_608768_ragnatela_schema_sqlite') AS relationships;
+DROP DATABASE `db_608768_ragnatela_schema_sqlite`;
+UNINSTALL EXTENSION vsql_schematron;

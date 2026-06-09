@@ -1,0 +1,103 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 086864_SCRIPT%20BANCO
+#
+CREATE DATABASE `db_086864_SCRIPT_20BANCO`;
+USE `db_086864_SCRIPT_20BANCO`;
+CREATE TABLE `tb_produtos` (
+`cod_produto` INT,
+`nome_produto` VARCHAR(64),
+`descricao_produto` VARCHAR(64),
+`imagem_produto` VARCHAR(64),
+`fg_ativo` BOOL,
+PRIMARY KEY (`cod_produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_entrada_produto` (
+`numero_nota` INT,
+`valor_unitario` DECIMAL(10,2),
+`cod_produto` INT,
+`quantidade` DECIMAL(10,2),
+`desconto` DECIMAL(10,2),
+`fg_ativo` BOOL,
+PRIMARY KEY (`numero_nota`, `cod_produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_produtos_precos` (
+`cod_produtos_precos` INT,
+`cod_produto` INT,
+`preco_produto` DECIMAL(10,2),
+`fg_ativo` BOOL,
+`peso` DECIMAL(10,2),
+`un_medida` VARCHAR(64),
+PRIMARY KEY (`cod_produtos_precos`, `cod_produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_usuario` (
+`cpf_cnpj` VARCHAR(64),
+`email` VARCHAR(64),
+`nome_fantasia_nome_completo` VARCHAR(64),
+`telefone_fixo` VARCHAR(64),
+`telefone` VARCHAR(64),
+`data_nascimento` DATETIME,
+`fg_ativo` BOOL,
+PRIMARY KEY (`cpf_cnpj`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_enderecos` (
+`cod_endereco` INT,
+`cpf_cnpj` VARCHAR(64),
+`cidade` VARCHAR(64),
+`fg_ativo` BOOL,
+`estado` VARCHAR(64),
+`endereco` VARCHAR(64),
+`numero` VARCHAR(64),
+`bairro` VARCHAR(64),
+`complemento` VARCHAR(64),
+PRIMARY KEY (`cod_endereco`, `cpf_cnpj`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_gastos_mensais` (
+`cod_gasto` INT,
+`descricao` VARCHAR(64),
+`valor` DECIMAL(10,2),
+`fg_ativo` BOOL,
+PRIMARY KEY (`cod_gasto`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_lanches` (
+`cod_lanche` INT,
+`cpf_cnpj` VARCHAR(64),
+`cod_produto` INT,
+`quantidade` INT,
+`fg_ativo` BOOL,
+PRIMARY KEY (`cod_lanche`, `cpf_cnpj`, `cod_produto`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_pedidos` (
+`cod_pedido` INT,
+`cod_lanche` INT,
+`preco_total` DECIMAL(10,2),
+`desconto` DECIMAL(10,2),
+`fg_ativo` BOOL,
+`data_entrada` DATETIME,
+PRIMARY KEY (`cod_pedido`, `cod_lanche`)
+) CHARACTER SET latin1;
+CREATE TABLE `tb_caixa` (
+`cod_caixa` INT,
+`cod_pedido` INT,
+`valor` DECIMAL(10,2),
+`fg_ativo` BOOL,
+`data_entrada` DATETIME,
+PRIMARY KEY (`cod_caixa`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_086864_SCRIPT_20BANCO') AS relationships;
+relationships
+Database: db_086864_SCRIPT_20BANCO
+
+Table Connections:
+------------------
+[Implied]  tb_caixa.cod_pedido -> tb_pedidos.cod_pedido
+[Implied]  tb_enderecos.cpf_cnpj -> tb_usuario.cpf_cnpj
+[Implied]  tb_entrada_produto.cod_produto -> tb_produtos.cod_produto
+[Implied]  tb_lanches.cod_lanche -> tb_pedidos.cod_lanche
+[Implied]  tb_lanches.cod_produto -> tb_produtos.cod_produto
+[Implied]  tb_lanches.cpf_cnpj -> tb_usuario.cpf_cnpj
+[Implied]  tb_pedidos.cod_lanche -> tb_lanches.cod_lanche
+[Implied]  tb_produtos_precos.cod_produto -> tb_produtos.cod_produto
+
+DROP DATABASE `db_086864_SCRIPT_20BANCO`;
+UNINSTALL EXTENSION vsql_schematron;

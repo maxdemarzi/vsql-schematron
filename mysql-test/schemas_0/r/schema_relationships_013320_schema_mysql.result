@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 013320_schema-mysql
+#
+CREATE DATABASE `db_013320_schema_mysql`;
+USE `db_013320_schema_mysql`;
+CREATE TABLE `users` (
+`id` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`name` VARCHAR(64),
+`enabled` BOOL,
+`account_expired` BOOL,
+`account_locked` BOOL,
+`credentials_expired` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `authorities` (
+`id` INT,
+`authority` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_authorities` (
+`user_id` INT,
+`authority_id` INT,
+PRIMARY KEY (`user_id`, `authority_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `persistent_logins` (
+`username` VARCHAR(64),
+`series` VARCHAR(64),
+`token` VARCHAR(64),
+`last_used` DATETIME,
+PRIMARY KEY (`username`, `series`)
+) CHARACTER SET latin1;
+CREATE TABLE `vets` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `specialties` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vet_specialties` (
+`vet_id` INT,
+`specialty_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `pet_types` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `owners` (
+`id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`address` VARCHAR(64),
+`city` VARCHAR(64),
+`telephone` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pets` (
+`id` INT,
+`name` VARCHAR(64),
+`birth_date` DATETIME,
+`pet_type_id` INT,
+`owner_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `visits` (
+`id` INT,
+`pet_id` INT,
+`visit_date` DATETIME,
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_013320_schema_mysql') AS relationships;
+relationships
+Database: db_013320_schema_mysql
+
+Table Connections:
+------------------
+[Implied]  persistent_logins.username -> users.username
+[Implied]  pets.owner_id -> owners.id
+[Implied]  pets.pet_type_id -> pet_types.id
+[Implied]  user_authorities.authority_id -> authorities.id
+[Implied]  user_authorities.user_id -> users.id
+[Implied]  vet_specialties.specialty_id -> specialties.id
+[Implied]  vet_specialties.vet_id -> vets.id
+[Implied]  visits.pet_id -> pets.id
+
+DROP DATABASE `db_013320_schema_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

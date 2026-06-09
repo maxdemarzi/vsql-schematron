@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 383673_solution
+#
+CREATE DATABASE `db_383673_solution`;
+USE `db_383673_solution`;
+CREATE TABLE `users` (
+`userid` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+CREATE TABLE `movies` (
+`movieid` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`movieid`)
+) CHARACTER SET latin1;
+CREATE TABLE `taginfo` (
+`tagid` INT,
+`content` VARCHAR(64),
+PRIMARY KEY (`tagid`)
+) CHARACTER SET latin1;
+CREATE TABLE `genres` (
+`genreid` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`genreid`)
+) CHARACTER SET latin1;
+CREATE TABLE `ratings` (
+`userid` INT,
+`movieid` INT,
+`rating` DECIMAL(10,2),
+`timestamp` INT,
+PRIMARY KEY (`userid`, `movieid`)
+) CHARACTER SET latin1;
+CREATE TABLE `tags` (
+`userid` INT,
+`movieid` INT,
+`tagid` INT,
+`timestamp` INT
+) CHARACTER SET latin1;
+CREATE TABLE `hasagenre` (
+`movieid` INT,
+`genreid` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_383673_solution') AS relationships;
+relationships
+Database: db_383673_solution
+
+Table Connections:
+------------------
+[Implied]  hasagenre.genreid -> genres.genreid
+[Implied]  hasagenre.movieid -> movies.movieid
+[Implied]  ratings.movieid -> movies.movieid
+[Implied]  ratings.userid -> users.userid
+[Implied]  tags.movieid -> movies.movieid
+[Implied]  tags.tagid -> taginfo.tagid
+[Implied]  tags.userid -> users.userid
+
+DROP DATABASE `db_383673_solution`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 201674_ChickenStock
+#
+CREATE DATABASE `db_201674_ChickenStock`;
+USE `db_201674_ChickenStock`;
+CREATE TABLE `user` (
+`user_id` INT,
+`member_password` VARCHAR(64),
+`member_email` VARCHAR(64),
+`member_name` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `likes` (
+`likes_id` INT,
+`user_id` INT,
+`likes_age` INT,
+`likes_yearafter` INT,
+`likes_amount` INT,
+`likes_matters` VARCHAR(64),
+`likes_lossaction` VARCHAR(64),
+PRIMARY KEY (`likes_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `type` (
+`type_id` INT,
+`likes_id` INT,
+`user_id` INT,
+`type_name` VARCHAR(64),
+`type_risklevel` INT,
+PRIMARY KEY (`type_id`, `likes_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stock` (
+`stock_id` INT,
+`company_id` INT,
+`stock_name` VARCHAR(64),
+`stock_type` VARCHAR(64),
+`stock_pastyield` INT,
+`stock_futureyield` INT,
+`stock_futureprice` INT,
+`stock_netsell` INT,
+`stock_netbuy` INT,
+`stock_closingprice` INT,
+`stock_highprice` INT,
+`stock_lowprice` INT,
+`stock_per` INT,
+`stock_pbr` INT,
+PRIMARY KEY (`stock_id`, `company_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `portfolio` (
+`portfolio_id` INT,
+`type_id` INT,
+`likes_id` INT,
+`user_id` INT,
+`stock_id` INT,
+`company_id` INT,
+`portfolio_ratio` INT,
+`portfolio_amout` INT,
+`portfolio_futureyield` INT,
+`portfolio_risk` INT,
+`Field` VARCHAR(64),
+PRIMARY KEY (`portfolio_id`, `type_id`, `likes_id`, `user_id`, `stock_id`, `company_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `company` (
+`company_id` INT,
+`company_name` VARCHAR(64),
+`company_gas` INT,
+`company_energy` INT,
+`company_dust` INT,
+`company_donation` INT,
+`company_employeerate` INT,
+`company_boardrate` INT,
+`company_wagerate` INT,
+PRIMARY KEY (`company_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_201674_ChickenStock') AS relationships;
+relationships
+Database: db_201674_ChickenStock
+
+Table Connections:
+------------------
+[Implied]  likes.likes_id -> portfolio.likes_id
+[Implied]  likes.user_id -> user.user_id
+[Implied]  portfolio.company_id -> company.company_id
+[Implied]  portfolio.likes_id -> likes.likes_id
+[Implied]  portfolio.stock_id -> stock.stock_id
+[Implied]  portfolio.user_id -> user.user_id
+[Implied]  stock.company_id -> company.company_id
+[Implied]  stock.stock_id -> portfolio.stock_id
+[Implied]  type.likes_id -> likes.likes_id
+[Implied]  type.type_id -> portfolio.type_id
+[Implied]  type.user_id -> user.user_id
+
+DROP DATABASE `db_201674_ChickenStock`;
+UNINSTALL EXTENSION vsql_schematron;

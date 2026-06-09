@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 533629_normalized
+#
+CREATE DATABASE `db_533629_normalized`;
+USE `db_533629_normalized`;
+CREATE TABLE `employee` (
+`employee_id` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`hire_date` DATETIME,
+`salary` DECIMAL(10,2),
+`manager` INT,
+`dept_id` INT,
+PRIMARY KEY (`employee_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `employee_location` (
+`employee_id` INT,
+`office` VARCHAR(64),
+PRIMARY KEY (`employee_id`, `office`)
+) CHARACTER SET latin1;
+CREATE TABLE `location_phone_number` (
+`office` VARCHAR(64),
+`phone_number` VARCHAR(64),
+PRIMARY KEY (`office`)
+) CHARACTER SET latin1;
+CREATE TABLE `department` (
+`dept_id` INT,
+`dept_name` VARCHAR(64),
+PRIMARY KEY (`dept_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_533629_normalized') AS relationships;
+relationships
+Database: db_533629_normalized
+
+Table Connections:
+------------------
+[Implied]  employee.dept_id -> department.dept_id
+[Implied]  employee.manager -> employee.employee_id
+[Implied]  employee_location.employee_id -> employee.employee_id
+[Implied]  employee_location.office -> location_phone_number.office
+
+DROP DATABASE `db_533629_normalized`;
+UNINSTALL EXTENSION vsql_schematron;

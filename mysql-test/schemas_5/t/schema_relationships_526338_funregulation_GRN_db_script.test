@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 526338_funregulation_GRN_db_script
+--echo #
+CREATE DATABASE `db_526338_funregulation_GRN_db_script`;
+USE `db_526338_funregulation_GRN_db_script`;
+
+CREATE TABLE `gene` (
+  `organism` VARCHAR(64),
+  `locus_tag` VARCHAR(64),
+  `name` VARCHAR(64),
+  `is_tf` INT,
+  PRIMARY KEY (`organism`, `locus_tag`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ortho` (
+  `src_organism` VARCHAR(64),
+  `src_locus_tag` VARCHAR(64),
+  `ortho_organism` VARCHAR(64),
+  `ortho_locus_tag` VARCHAR(64),
+  PRIMARY KEY (`src_organism`, `src_locus_tag`, `ortho_organism`, `ortho_locus_tag`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pwm` (
+  `organism` VARCHAR(64),
+  `locus_tag` VARCHAR(64),
+  `motif_id` VARCHAR(64),
+  `tf_status` VARCHAR(64),
+  `family_name` VARCHAR(64),
+  `motif_type` VARCHAR(64),
+  `msource_author` VARCHAR(64),
+  `msource_year` VARCHAR(64),
+  `pmid` VARCHAR(64),
+  PRIMARY KEY (`organism`, `locus_tag`, `motif_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `regulation` (
+  `src_organism` VARCHAR(64),
+  `src_tf_locus_tag` VARCHAR(64),
+  `src_tg_locus_tag` VARCHAR(64),
+  `interaction` VARCHAR(64),
+  `ortho_organism` VARCHAR(64),
+  `ortho_tf_locus_tag` VARCHAR(64),
+  `ortho_tg_locus_tag` VARCHAR(64),
+  PRIMARY KEY (`src_organism`, `src_tf_locus_tag`, `src_tg_locus_tag`, `ortho_organism`, `ortho_tf_locus_tag`, `ortho_tg_locus_tag`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_526338_funregulation_GRN_db_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_526338_funregulation_GRN_db_script') AS relationships;
+DROP DATABASE `db_526338_funregulation_GRN_db_script`;
+UNINSTALL EXTENSION vsql_schematron;

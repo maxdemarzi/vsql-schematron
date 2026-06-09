@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 469702_create-tables
+#
+CREATE DATABASE `db_469702_create_tables`;
+USE `db_469702_create_tables`;
+CREATE TABLE `COURSE` (
+`cNo` VARCHAR(64),
+`cName` VARCHAR(64),
+`credit` INT,
+`offer` INT,
+PRIMARY KEY (`cNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `DEGREE` (
+`name` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `bucket_of_electives` (
+`dName` VARCHAR(64),
+`numOfCourses` INT,
+`bNo` INT,
+PRIMARY KEY (`bNo`, `dName`)
+) CHARACTER SET latin1;
+CREATE TABLE `contains` (
+`dName` VARCHAR(64),
+`cNo` VARCHAR(64),
+`bNo` INT,
+PRIMARY KEY (`bNo`, `cNo`, `dName`)
+) CHARACTER SET latin1;
+CREATE TABLE `prereq` (
+`prereqCNo` VARCHAR(64),
+`cNo` VARCHAR(64),
+`v` INT,
+PRIMARY KEY (`prereqCNo`, `cNo`)
+) CHARACTER SET latin1;
+CREATE TABLE `required` (
+`dName` VARCHAR(64),
+`cNo` VARCHAR(64),
+`v` INT,
+PRIMARY KEY (`dName`, `cNo`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_469702_create_tables') AS relationships;
+relationships
+Database: db_469702_create_tables
+
+Table Connections:
+------------------
+[Implied]  bucket_of_electives.bNo -> contains.bNo
+[Implied]  bucket_of_electives.dName -> contains.dName
+[Implied]  bucket_of_electives.dName -> required.dName
+[Implied]  contains.bNo -> bucket_of_electives.bNo
+[Implied]  contains.cNo -> COURSE.cNo
+[Implied]  contains.dName -> bucket_of_electives.dName
+[Implied]  contains.dName -> required.dName
+[Implied]  prereq.cNo -> COURSE.cNo
+[Implied]  prereq.prereqCNo -> COURSE.cNo
+[Implied]  required.cNo -> COURSE.cNo
+[Implied]  required.dName -> bucket_of_electives.dName
+[Implied]  required.dName -> contains.dName
+
+DROP DATABASE `db_469702_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

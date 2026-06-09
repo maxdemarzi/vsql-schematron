@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 604892_cascade_01
+#
+CREATE DATABASE `db_604892_cascade_01`;
+USE `db_604892_cascade_01`;
+CREATE TABLE `parent` (
+`a` INT,
+PRIMARY KEY (`a`)
+) CHARACTER SET latin1;
+CREATE TABLE `child1` (
+`a` INT,
+`b` INT,
+PRIMARY KEY (`b`)
+) CHARACTER SET latin1;
+CREATE TABLE `child2` (
+`a` INT,
+`b` INT,
+PRIMARY KEY (`b`)
+) CHARACTER SET latin1;
+CREATE TABLE `grand_child1` (
+`b` INT,
+`c` INT,
+PRIMARY KEY (`c`)
+) CHARACTER SET latin1;
+CREATE TABLE `grand_child2` (
+`b` INT,
+`c` INT,
+PRIMARY KEY (`c`)
+) CHARACTER SET latin1;
+CREATE TABLE `grand_child3` (
+`b` INT,
+`c` INT,
+PRIMARY KEY (`c`)
+) CHARACTER SET latin1;
+CREATE TABLE `grand_child4` (
+`b` INT,
+`c` INT,
+PRIMARY KEY (`c`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_604892_cascade_01') AS relationships;
+relationships
+Database: db_604892_cascade_01
+
+Table Connections:
+------------------
+[Implied]  child1.a -> parent.a
+[Implied]  child2.a -> parent.a
+[Implied]  grand_child1.b -> child2.b
+[Implied]  grand_child2.b -> child2.b
+[Implied]  grand_child3.b -> child2.b
+[Implied]  grand_child4.b -> child2.b
+
+DROP DATABASE `db_604892_cascade_01`;
+UNINSTALL EXTENSION vsql_schematron;

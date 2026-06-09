@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 042117_V_46__create_prt
+#
+CREATE DATABASE `db_042117_V_46_create_prt`;
+USE `db_042117_V_46_create_prt`;
+CREATE TABLE `prt_schema_version` (
+`version_key` VARCHAR(64),
+`version_value` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `prt_portfolio` (
+`id` INT,
+`oid` INT,
+`ver_from_instant` DATETIME,
+`ver_to_instant` DATETIME,
+`corr_from_instant` DATETIME,
+`corr_to_instant` DATETIME,
+`name` VARCHAR(64),
+`visibility` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `prt_node` (
+`id` INT,
+`oid` INT,
+`portfolio_id` INT,
+`portfolio_oid` INT,
+`parent_node_id` INT,
+`parent_node_oid` INT,
+`depth` INT,
+`tree_left` INT,
+`tree_right` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `prt_position` (
+`node_id` INT,
+`key_scheme` VARCHAR(64),
+`key_value` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `prt_portfolio_attribute` (
+`id` INT,
+`portfolio_id` INT,
+`portfolio_oid` INT,
+`attr_key` VARCHAR(64),
+`attr_value` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_042117_V_46_create_prt') AS relationships;
+relationships
+Database: db_042117_V_46_create_prt
+
+Table Connections:
+------------------
+[Implied]  prt_node.parent_node_id -> prt_node.id
+[Implied]  prt_node.parent_node_oid -> prt_node.id
+[Implied]  prt_node.portfolio_id -> prt_portfolio.id
+[Implied]  prt_portfolio.id -> prt_node.id
+[Implied]  prt_portfolio_attribute.portfolio_id -> prt_portfolio.id
+[Implied]  prt_position.node_id -> prt_node.id
+
+DROP DATABASE `db_042117_V_46_create_prt`;
+UNINSTALL EXTENSION vsql_schematron;

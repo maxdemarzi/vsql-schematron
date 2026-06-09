@@ -1,0 +1,135 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 580183_1-tables
+#
+CREATE DATABASE `db_580183_1_tables`;
+USE `db_580183_1_tables`;
+CREATE TABLE `Location` (
+`locationID` INT,
+`address` VARCHAR(64),
+`city` VARCHAR(64),
+`postalCode` VARCHAR(64),
+`province` VARCHAR(64),
+PRIMARY KEY (`locationID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Plans` (
+`planID` INT,
+`name` VARCHAR(64),
+`price` INT,
+`applyLimit` INT,
+`postLimit` INT,
+`userType` VARCHAR(64),
+PRIMARY KEY (`planID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Users` (
+`userNumber` INT,
+`userID` VARCHAR(64),
+`planID` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`dateCreated` DATETIME,
+`isActive` BOOL,
+`startSufferingDate` DATETIME,
+`balance` INT,
+`isAutomatic` BOOL,
+PRIMARY KEY (`userNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `Profiles` (
+`userID` VARCHAR(64),
+`locationID` INT,
+`companyName` VARCHAR(64),
+`firstName` VARCHAR(64),
+`lastName` VARCHAR(64),
+`profession` VARCHAR(64),
+`gender` VARCHAR(64),
+`displayPicture` VARCHAR(64),
+`resume` VARCHAR(64),
+`phoneNumber` VARCHAR(64),
+`dateOfBirth` DATETIME,
+PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Jobs` (
+`jobID` INT,
+`userID` VARCHAR(64),
+`locationID` INT,
+`title` VARCHAR(64),
+`salary` INT,
+`description` VARCHAR(64),
+`positionsAvailable` INT,
+`datePosted` DATETIME,
+`status` VARCHAR(64),
+PRIMARY KEY (`jobID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Payment_Methods` (
+`paymentMethodID` INT,
+`userID` VARCHAR(64),
+`isPreSelected` BOOL,
+`paymentType` VARCHAR(64),
+`cardNumber` INT,
+PRIMARY KEY (`paymentMethodID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Payments` (
+`paymentID` INT,
+`paymentMethodID` INT,
+`amount` INT,
+`paymentDate` DATETIME,
+PRIMARY KEY (`paymentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Applications` (
+`jobID` INT,
+`userID` VARCHAR(64),
+`dateApplied` DATETIME,
+`isAcceptedByEmployer` BOOL,
+`isAcceptedByEmployee` BOOL
+) CHARACTER SET latin1;
+CREATE TABLE `Job_Categories_List` (
+`jobCategoriesID` INT,
+`categoryName` VARCHAR(64),
+PRIMARY KEY (`jobCategoriesID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Job_Categories` (
+`jobID` INT,
+`jobCategoryID` INT
+) CHARACTER SET latin1;
+CREATE TABLE `Emails` (
+`emailID` INT,
+`userID` VARCHAR(64),
+`content` VARCHAR(64),
+`title` VARCHAR(64),
+`dateSent` DATETIME,
+PRIMARY KEY (`emailID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employer_Categories` (
+`employerCategoryID` INT,
+`userID` VARCHAR(64),
+`categoryName` VARCHAR(64),
+PRIMARY KEY (`employerCategoryID`)
+) CHARACTER SET latin1;
+CREATE TABLE `System_Activity` (
+`activityID` INT,
+`description` VARCHAR(64),
+`title` VARCHAR(64),
+`dateRecorded` DATETIME,
+PRIMARY KEY (`activityID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_580183_1_tables') AS relationships;
+relationships
+Database: db_580183_1_tables
+
+Table Connections:
+------------------
+[Implied]  Applications.jobID -> Jobs.jobID
+[Implied]  Applications.userID -> Profiles.userID
+[Implied]  Emails.userID -> Profiles.userID
+[Implied]  Employer_Categories.userID -> Profiles.userID
+[Implied]  Job_Categories.jobID -> Jobs.jobID
+[Implied]  Jobs.locationID -> Location.locationID
+[Implied]  Jobs.userID -> Profiles.userID
+[Implied]  Payment_Methods.userID -> Profiles.userID
+[Implied]  Payments.paymentMethodID -> Payment_Methods.paymentMethodID
+[Implied]  Profiles.locationID -> Location.locationID
+[Implied]  Users.planID -> Plans.planID
+[Implied]  Users.userID -> Profiles.userID
+
+DROP DATABASE `db_580183_1_tables`;
+UNINSTALL EXTENSION vsql_schematron;

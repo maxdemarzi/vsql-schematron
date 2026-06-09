@@ -1,0 +1,60 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 276104_schema
+#
+CREATE DATABASE `db_276104_schema`;
+USE `db_276104_schema`;
+CREATE TABLE `hashtag` (
+`id` INT,
+`internal_message_id` INT,
+`tag` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `link` (
+`id` INT,
+`internal_message_id` INT,
+`url` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `mention` (
+`id` INT,
+`chat_name` VARCHAR(64),
+`internal_message_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `message` (
+`internal_id` INT,
+`chat_id` INT,
+`message_id` INT,
+`reply_to_message_id` INT,
+`forwarded_from_chat_id` INT,
+`forwarded_from_message_id` INT,
+`type` INT,
+`text_content` VARCHAR(64),
+`publish_date` DATETIME,
+`load_date` DATETIME,
+`views` INT,
+PRIMARY KEY (`internal_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `chat` (
+`name` VARCHAR(64),
+`id` INT,
+`description` VARCHAR(64),
+`members` INT,
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_276104_schema') AS relationships;
+relationships
+Database: db_276104_schema
+
+Table Connections:
+------------------
+[Implied]  hashtag.internal_message_id -> message.internal_id
+[Implied]  link.internal_message_id -> message.internal_id
+[Implied]  mention.chat_name -> chat.name
+[Implied]  mention.internal_message_id -> message.internal_id
+[Implied]  message.message_id -> message.internal_id
+[Implied]  message.reply_to_message_id -> message.internal_id
+
+DROP DATABASE `db_276104_schema`;
+UNINSTALL EXTENSION vsql_schematron;

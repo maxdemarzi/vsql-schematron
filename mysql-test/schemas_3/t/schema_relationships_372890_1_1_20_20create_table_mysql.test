@@ -1,0 +1,143 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 372890_1.1%20-%20create_table_mysql
+--echo #
+CREATE DATABASE `db_372890_1_1_20_20create_table_mysql`;
+USE `db_372890_1_1_20_20create_table_mysql`;
+
+CREATE TABLE `COMPANY` (
+  `Company_code` VARCHAR(64),
+  `Company_name` VARCHAR(64),
+  PRIMARY KEY (`Company_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AIRPLANE_TYPE` (
+  `Airplane_type_name` VARCHAR(64),
+  `Company_code` VARCHAR(64),
+  `Max_seats` INT,
+  PRIMARY KEY (`Airplane_type_name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AIRLINE` (
+  `Airline_code` VARCHAR(64),
+  `Company_code` VARCHAR(64),
+  PRIMARY KEY (`Airline_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AIRPLANE` (
+  `Airplane_code` VARCHAR(64),
+  `Total_number_of_seats` INT,
+  `Airplane_type` VARCHAR(64),
+  `Airline_code` VARCHAR(64),
+  PRIMARY KEY (`Airplane_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AIRPORT` (
+  `Airport_code` VARCHAR(64),
+  `Name` VARCHAR(64),
+  `City` VARCHAR(64),
+  `State` VARCHAR(64),
+  PRIMARY KEY (`Airport_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CAN_LAND` (
+  `Airplane_type_name` VARCHAR(64),
+  `Airport_code` VARCHAR(64),
+  PRIMARY KEY (`Airplane_type_name`, `Airport_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CUSTOMER` (
+  `Customer_id` VARCHAR(64),
+  `Customer_name` VARCHAR(64),
+  `Passport_number` VARCHAR(64),
+  `Country` VARCHAR(64),
+  `Address` VARCHAR(64),
+  `Customer_phone` VARCHAR(64),
+  `E_mail` VARCHAR(64),
+  PRIMARY KEY (`Customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FLIGHT` (
+  `Flight_number` VARCHAR(64),
+  `Airline_code` VARCHAR(64),
+  `Weekdays` VARCHAR(64),
+  PRIMARY KEY (`Flight_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FLIGHT_LEG` (
+  `Leg_number` VARCHAR(64),
+  `Flight_number` VARCHAR(64),
+  `Departure_airport_code` VARCHAR(64),
+  `Scheduled_departure_time` DATETIME,
+  `Arrival_airport_code` VARCHAR(64),
+  `Scheduled_arrival_time` DATETIME,
+  `Millage` INT,
+  PRIMARY KEY (`Leg_number`, `Flight_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FARE` (
+  `Fare_code` VARCHAR(64),
+  `Flight_number` VARCHAR(64),
+  `Amount` INT,
+  `Restrictions` VARCHAR(64),
+  PRIMARY KEY (`Fare_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `LEG_INSTANCE` (
+  `Flight_number` VARCHAR(64),
+  `Leg_number` VARCHAR(64),
+  `Date` DATETIME,
+  `Number_of_available_seats` INT,
+  `Airplane_code` VARCHAR(64),
+  `Departure_airport_code` VARCHAR(64),
+  `Departure_time` DATETIME,
+  `Arrival_airport_code` VARCHAR(64),
+  `Arrival_time` DATETIME,
+  PRIMARY KEY (`Flight_number`, `Leg_number`, `Date`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RESERVATION` (
+  `Customer_id` VARCHAR(64),
+  `Flight_number` VARCHAR(64),
+  `Flight_leg_number` VARCHAR(64),
+  `Date` DATETIME,
+  `Seat_number` VARCHAR(64),
+  `Checked_in` INT,
+  PRIMARY KEY (`Customer_id`, `Flight_number`, `Flight_leg_number`, `Seat_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `FFC` (
+  `Customer_id` VARCHAR(64),
+  `Airline_code` VARCHAR(64),
+  `Total_millage` INT,
+  PRIMARY KEY (`Customer_id`, `Airline_code`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `SEGMENT` (
+  `Segment_name` VARCHAR(64),
+  `Millage_min` INT,
+  `Millage_max` INT,
+  `Airline_code` VARCHAR(64),
+  PRIMARY KEY (`Segment_name`, `Airline_code`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_372890_1_1_20_20create_table_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_372890_1_1_20_20create_table_mysql') AS relationships;
+DROP DATABASE `db_372890_1_1_20_20create_table_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

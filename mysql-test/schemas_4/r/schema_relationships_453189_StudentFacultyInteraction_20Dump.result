@@ -1,0 +1,196 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 453189_StudentFacultyInteraction%20Dump
+#
+CREATE DATABASE `db_453189_StudentFacultyInteraction_20Dump`;
+USE `db_453189_StudentFacultyInteraction_20Dump`;
+CREATE TABLE `courseSubtopicLinks` (
+`courseCode` VARCHAR(64),
+`session` VARCHAR(64),
+`topic` VARCHAR(64),
+`subtopic` VARCHAR(64),
+`subtopicLink` VARCHAR(64),
+PRIMARY KEY (`courseCode`, `session`, `topic`, `subtopic`, `subtopicLink`)
+) CHARACTER SET latin1;
+CREATE TABLE `courseSubtopicRating` (
+`courseCode` VARCHAR(64),
+`session` VARCHAR(64),
+`topic` VARCHAR(64),
+`subtopic` VARCHAR(64),
+`enrollmentID` VARCHAR(64),
+`subtopicRating` INT,
+`subtopicRatingTimestamp` DATETIME,
+PRIMARY KEY (`courseCode`, `session`, `topic`, `subtopic`, `enrollmentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `courseSubtopics` (
+`courseCode` VARCHAR(64),
+`session` VARCHAR(64),
+`topic` VARCHAR(64),
+`subtopic` VARCHAR(64),
+`subtopicStatus` VARCHAR(64),
+`subtopicStatusTimestamp` DATETIME,
+PRIMARY KEY (`courseCode`, `session`, `topic`, `subtopic`)
+) CHARACTER SET latin1;
+CREATE TABLE `courseTopicLinks` (
+`courseCode` VARCHAR(64),
+`session` VARCHAR(64),
+`topic` VARCHAR(64),
+`topicLink` VARCHAR(64),
+PRIMARY KEY (`courseCode`, `session`, `topic`, `topicLink`)
+) CHARACTER SET latin1;
+CREATE TABLE `courseTopicRating` (
+`courseCode` VARCHAR(64),
+`session` VARCHAR(64),
+`topic` VARCHAR(64),
+`enrollmentID` VARCHAR(64),
+`topicRating` INT,
+`topicRatingTimestamp` DATETIME,
+PRIMARY KEY (`courseCode`, `session`, `topic`, `enrollmentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `courseTopics` (
+`courseCode` VARCHAR(64),
+`session` VARCHAR(64),
+`topic` VARCHAR(64),
+`topicStatus` VARCHAR(64),
+`topicStatusTimestamp` DATETIME,
+PRIMARY KEY (`courseCode`, `session`, `topic`)
+) CHARACTER SET latin1;
+CREATE TABLE `courses` (
+`courseCode` VARCHAR(64),
+`courseName` VARCHAR(64),
+`sem` INT,
+`session` VARCHAR(64),
+PRIMARY KEY (`courseCode`, `session`)
+) CHARACTER SET latin1;
+CREATE TABLE `faculty` (
+`employeeID` VARCHAR(64),
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`contact` VARCHAR(64),
+`researchArea` VARCHAR(64),
+PRIMARY KEY (`employeeID`)
+) CHARACTER SET latin1;
+CREATE TABLE `facultyCoursesConducting` (
+`employeeID` VARCHAR(64),
+`courseCode` VARCHAR(64),
+`sem` INT,
+`session` VARCHAR(64),
+PRIMARY KEY (`employeeID`, `courseCode`, `session`)
+) CHARACTER SET latin1;
+CREATE TABLE `hodCoursesIncharge` (
+`employeeID` VARCHAR(64),
+`courseCode` VARCHAR(64),
+`sem` INT,
+`session` VARCHAR(64),
+PRIMARY KEY (`employeeID`, `courseCode`, `session`)
+) CHARACTER SET latin1;
+CREATE TABLE `student` (
+`enrollmentID` VARCHAR(64),
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+PRIMARY KEY (`enrollmentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `studentCoursesEnrolled` (
+`enrollmentID` VARCHAR(64),
+`courseCode` VARCHAR(64),
+`sem` INT,
+`session` VARCHAR(64),
+PRIMARY KEY (`enrollmentID`, `courseCode`, `session`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_453189_StudentFacultyInteraction_20Dump') AS relationships;
+relationships
+Database: db_453189_StudentFacultyInteraction_20Dump
+
+Table Connections:
+------------------
+[Implied]  courseSubtopicLinks.courseCode -> courses.courseCode
+[Implied]  courseSubtopicLinks.session -> courseTopicLinks.session
+[Implied]  courseSubtopicLinks.session -> courses.session
+[Implied]  courseSubtopicLinks.session -> facultyCoursesConducting.session
+[Implied]  courseSubtopicLinks.session -> hodCoursesIncharge.session
+[Implied]  courseSubtopicLinks.session -> studentCoursesEnrolled.session
+[Implied]  courseSubtopicLinks.subtopic -> courseSubtopics.subtopic
+[Implied]  courseSubtopicLinks.topic -> courseSubtopics.topic
+[Implied]  courseSubtopicLinks.topic -> courseTopicLinks.topic
+[Implied]  courseSubtopicLinks.topic -> courseTopics.topic
+[Implied]  courseSubtopicRating.courseCode -> courses.courseCode
+[Implied]  courseSubtopicRating.enrollmentID -> student.enrollmentID
+[Implied]  courseSubtopicRating.session -> courseSubtopicLinks.session
+[Implied]  courseSubtopicRating.session -> courseTopicLinks.session
+[Implied]  courseSubtopicRating.session -> courses.session
+[Implied]  courseSubtopicRating.session -> facultyCoursesConducting.session
+[Implied]  courseSubtopicRating.session -> hodCoursesIncharge.session
+[Implied]  courseSubtopicRating.session -> studentCoursesEnrolled.session
+[Implied]  courseSubtopicRating.subtopic -> courseSubtopicLinks.subtopic
+[Implied]  courseSubtopicRating.subtopic -> courseSubtopics.subtopic
+[Implied]  courseSubtopicRating.topic -> courseSubtopicLinks.topic
+[Implied]  courseSubtopicRating.topic -> courseSubtopics.topic
+[Implied]  courseSubtopicRating.topic -> courseTopicLinks.topic
+[Implied]  courseSubtopicRating.topic -> courseTopics.topic
+[Implied]  courseSubtopics.courseCode -> courses.courseCode
+[Implied]  courseSubtopics.session -> courseSubtopicLinks.session
+[Implied]  courseSubtopics.session -> courseTopicLinks.session
+[Implied]  courseSubtopics.session -> courses.session
+[Implied]  courseSubtopics.session -> facultyCoursesConducting.session
+[Implied]  courseSubtopics.session -> hodCoursesIncharge.session
+[Implied]  courseSubtopics.session -> studentCoursesEnrolled.session
+[Implied]  courseSubtopics.subtopic -> courseSubtopicLinks.subtopic
+[Implied]  courseSubtopics.topic -> courseSubtopicLinks.topic
+[Implied]  courseSubtopics.topic -> courseTopicLinks.topic
+[Implied]  courseSubtopics.topic -> courseTopics.topic
+[Implied]  courseTopicLinks.courseCode -> courses.courseCode
+[Implied]  courseTopicLinks.session -> courseSubtopicLinks.session
+[Implied]  courseTopicLinks.session -> courses.session
+[Implied]  courseTopicLinks.session -> facultyCoursesConducting.session
+[Implied]  courseTopicLinks.session -> hodCoursesIncharge.session
+[Implied]  courseTopicLinks.session -> studentCoursesEnrolled.session
+[Implied]  courseTopicLinks.topic -> courseSubtopicLinks.topic
+[Implied]  courseTopicLinks.topic -> courseSubtopics.topic
+[Implied]  courseTopicLinks.topic -> courseTopics.topic
+[Implied]  courseTopicRating.courseCode -> courses.courseCode
+[Implied]  courseTopicRating.enrollmentID -> student.enrollmentID
+[Implied]  courseTopicRating.session -> courseSubtopicLinks.session
+[Implied]  courseTopicRating.session -> courseTopicLinks.session
+[Implied]  courseTopicRating.session -> courses.session
+[Implied]  courseTopicRating.session -> facultyCoursesConducting.session
+[Implied]  courseTopicRating.session -> hodCoursesIncharge.session
+[Implied]  courseTopicRating.session -> studentCoursesEnrolled.session
+[Implied]  courseTopicRating.topic -> courseSubtopicLinks.topic
+[Implied]  courseTopicRating.topic -> courseSubtopics.topic
+[Implied]  courseTopicRating.topic -> courseTopicLinks.topic
+[Implied]  courseTopicRating.topic -> courseTopics.topic
+[Implied]  courseTopics.courseCode -> courses.courseCode
+[Implied]  courseTopics.session -> courseSubtopicLinks.session
+[Implied]  courseTopics.session -> courseTopicLinks.session
+[Implied]  courseTopics.session -> courses.session
+[Implied]  courseTopics.session -> facultyCoursesConducting.session
+[Implied]  courseTopics.session -> hodCoursesIncharge.session
+[Implied]  courseTopics.session -> studentCoursesEnrolled.session
+[Implied]  courseTopics.topic -> courseSubtopicLinks.topic
+[Implied]  courseTopics.topic -> courseSubtopics.topic
+[Implied]  courseTopics.topic -> courseTopicLinks.topic
+[Implied]  courses.courseCode -> courseSubtopicLinks.courseCode
+[Implied]  courses.courseCode -> courseTopicLinks.courseCode
+[Implied]  courses.session -> courseSubtopicLinks.session
+[Implied]  courses.session -> courseTopicLinks.session
+[Implied]  courses.session -> facultyCoursesConducting.session
+[Implied]  courses.session -> hodCoursesIncharge.session
+[Implied]  courses.session -> studentCoursesEnrolled.session
+[Implied]  facultyCoursesConducting.courseCode -> courses.courseCode
+[Implied]  facultyCoursesConducting.employeeID -> faculty.employeeID
+[Implied]  facultyCoursesConducting.session -> courseSubtopicLinks.session
+[Implied]  facultyCoursesConducting.session -> courseTopicLinks.session
+[Implied]  facultyCoursesConducting.session -> courses.session
+[Implied]  facultyCoursesConducting.session -> hodCoursesIncharge.session
+[Implied]  facultyCoursesConducting.session -> studentCoursesEnrolled.session
+[Implied]  hodCoursesIncharge.courseCode -> courses.courseCode
+[Implied]  hodCoursesIncharge.employeeID -> faculty.employeeID
+[Implied]  hodCoursesIncharge.session -> courseSubtopicLinks.session
+[Implied]  hodCoursesIncharge.session -> courseTopicLinks.session
+[Implied]  hodCoursesIncharge.session -> courses.session
+[Implied]  hodCoursesIncharge.session -> facultyCoursesConducting.session
+[Implied]  hodCoursesIncharge.session -> studentCoursesEnrolled.session
+[Implied]  studentCoursesEnrolled.enrollmentID -> student.enrollmentID
+
+DROP DATABASE `db_453189_StudentFacultyInteraction_20Dump`;
+UNINSTALL EXTENSION vsql_schematron;

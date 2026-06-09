@@ -1,0 +1,66 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 032077_Mysql_dump_structure
+--echo #
+CREATE DATABASE `db_032077_Mysql_dump_structure`;
+USE `db_032077_Mysql_dump_structure`;
+
+CREATE TABLE `name_basics` (
+  `nconst` VARCHAR(64),
+  `PrimaryName` VARCHAR(64),
+  PRIMARY KEY (`nconst`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `title_basics` (
+  `tconst` VARCHAR(64),
+  `primaryTitle` VARCHAR(64),
+  `startYear` VARCHAR(64),
+  `genres` VARCHAR(64),
+  PRIMARY KEY (`tconst`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `title_keywords` (
+  `tconst` VARCHAR(64),
+  `keywords` VARCHAR(64),
+  PRIMARY KEY (`tconst`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `title_principals` (
+  `tconst` VARCHAR(64),
+  `nconst` VARCHAR(64),
+  PRIMARY KEY (`tconst`, `nconst`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `title_ratings` (
+  `tconst` VARCHAR(64),
+  `averageRating` DECIMAL(10,2),
+  `numVotes` INT,
+  PRIMARY KEY (`tconst`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `title_soup` (
+  `tconst` VARCHAR(64),
+  `soup` VARCHAR(64),
+  PRIMARY KEY (`tconst`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_032077_Mysql_dump_structure') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_032077_Mysql_dump_structure') AS relationships;
+DROP DATABASE `db_032077_Mysql_dump_structure`;
+UNINSTALL EXTENSION vsql_schematron;

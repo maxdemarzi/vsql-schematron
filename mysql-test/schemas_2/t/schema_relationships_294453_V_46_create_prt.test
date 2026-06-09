@@ -1,0 +1,73 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 294453_V_46__create_prt
+--echo #
+CREATE DATABASE `db_294453_V_46_create_prt`;
+USE `db_294453_V_46_create_prt`;
+
+CREATE TABLE `prt_schema_version` (
+  `version_key` VARCHAR(64),
+  `version_value` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `prt_portfolio` (
+  `id` DECIMAL(10,2),
+  `oid` DECIMAL(10,2),
+  `ver_from_instant` DATETIME,
+  `ver_to_instant` DATETIME,
+  `corr_from_instant` DATETIME,
+  `corr_to_instant` DATETIME,
+  `name` VARCHAR(64),
+  `visibility` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `prt_node` (
+  `id` DECIMAL(10,2),
+  `oid` DECIMAL(10,2),
+  `portfolio_id` DECIMAL(10,2),
+  `portfolio_oid` DECIMAL(10,2),
+  `parent_node_id` DECIMAL(10,2),
+  `parent_node_oid` DECIMAL(10,2),
+  `depth` INT,
+  `tree_left` DECIMAL(10,2),
+  `tree_right` DECIMAL(10,2),
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `prt_position` (
+  `node_id` DECIMAL(10,2),
+  `key_scheme` VARCHAR(64),
+  `key_value` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `prt_portfolio_attribute` (
+  `id` DECIMAL(10,2),
+  `portfolio_id` DECIMAL(10,2),
+  `portfolio_oid` DECIMAL(10,2),
+  `attr_key` VARCHAR(64),
+  `attr_value` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_294453_V_46_create_prt') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_294453_V_46_create_prt') AS relationships;
+DROP DATABASE `db_294453_V_46_create_prt`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,112 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 017960_insert_test_data
+#
+CREATE DATABASE `db_017960_insert_test_data`;
+USE `db_017960_insert_test_data`;
+CREATE TABLE `Art_Events` (
+`Eid` VARCHAR(64),
+`title` VARCHAR(64),
+`e_image` VARCHAR(64),
+`seatmap` VARCHAR(64),
+PRIMARY KEY (`Eid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Artist` (
+`Aid` VARCHAR(64),
+`artist_name` VARCHAR(64),
+`info` VARCHAR(64),
+PRIMARY KEY (`Aid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Perform` (
+`Eid` VARCHAR(64),
+`Aid` VARCHAR(64),
+PRIMARY KEY (`Eid`, `Aid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Location` (
+`Lid` VARCHAR(64),
+`longitude` VARCHAR(64),
+`latitude` VARCHAR(64),
+`address` VARCHAR(64),
+`zipcode` VARCHAR(64),
+PRIMARY KEY (`Lid`)
+) CHARACTER SET latin1;
+CREATE TABLE `held` (
+`Eid` VARCHAR(64),
+`Lid` VARCHAR(64),
+PRIMARY KEY (`Eid`, `Lid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Ticket_has` (
+`Tid` VARCHAR(64),
+`Eid` VARCHAR(64),
+`price` INT,
+`amount` INT,
+`refund_policy` VARCHAR(64),
+PRIMARY KEY (`Tid`, `Eid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Time` (
+`time_serial` VARCHAR(64),
+`date_YMD` VARCHAR(64),
+PRIMARY KEY (`time_serial`)
+) CHARACTER SET latin1;
+CREATE TABLE `T_on` (
+`Eid` VARCHAR(64),
+`time_serial` VARCHAR(64),
+PRIMARY KEY (`Eid`, `time_serial`)
+) CHARACTER SET latin1;
+CREATE TABLE `Concert` (
+`Eid` VARCHAR(64),
+`concert_type` VARCHAR(64),
+PRIMARY KEY (`Eid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Theater` (
+`Eid` VARCHAR(64),
+`genre` VARCHAR(64),
+PRIMARY KEY (`Eid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Exhibition` (
+`Eid` VARCHAR(64),
+`background` VARCHAR(64),
+PRIMARY KEY (`Eid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Subscription` (
+`Sid` VARCHAR(64),
+`email` VARCHAR(64),
+`s_name` VARCHAR(64),
+PRIMARY KEY (`Sid`)
+) CHARACTER SET latin1;
+CREATE TABLE `Payment` (
+`Pid` VARCHAR(64),
+`address` VARCHAR(64),
+`fname` VARCHAR(64),
+`lname` VARCHAR(64),
+`ticket_num` VARCHAR(64),
+`total_price` VARCHAR(64),
+PRIMARY KEY (`Pid`)
+) CHARACTER SET latin1;
+CREATE TABLE `buy` (
+`Pid` VARCHAR(64),
+`Tid` VARCHAR(64),
+`Eid` VARCHAR(64),
+PRIMARY KEY (`Pid`, `Tid`, `Eid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_017960_insert_test_data') AS relationships;
+relationships
+Database: db_017960_insert_test_data
+
+Table Connections:
+------------------
+[Implied]  Art_Events.Eid -> Exhibition.Eid
+[Implied]  Perform.Aid -> Artist.Aid
+[Implied]  Perform.Eid -> Exhibition.Eid
+[Implied]  T_on.Eid -> Exhibition.Eid
+[Implied]  T_on.time_serial -> Time.time_serial
+[Implied]  Ticket_has.Eid -> Exhibition.Eid
+[Implied]  Ticket_has.Tid -> buy.Tid
+[Implied]  buy.Eid -> Exhibition.Eid
+[Implied]  buy.Pid -> Payment.Pid
+[Implied]  buy.Tid -> Ticket_has.Tid
+[Implied]  held.Eid -> Exhibition.Eid
+[Implied]  held.Lid -> Location.Lid
+
+DROP DATABASE `db_017960_insert_test_data`;
+UNINSTALL EXTENSION vsql_schematron;

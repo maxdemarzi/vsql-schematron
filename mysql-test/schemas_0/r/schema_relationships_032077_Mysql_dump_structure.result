@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 032077_Mysql_dump_structure
+#
+CREATE DATABASE `db_032077_Mysql_dump_structure`;
+USE `db_032077_Mysql_dump_structure`;
+CREATE TABLE `name_basics` (
+`nconst` VARCHAR(64),
+`PrimaryName` VARCHAR(64),
+PRIMARY KEY (`nconst`)
+) CHARACTER SET latin1;
+CREATE TABLE `title_basics` (
+`tconst` VARCHAR(64),
+`primaryTitle` VARCHAR(64),
+`startYear` VARCHAR(64),
+`genres` VARCHAR(64),
+PRIMARY KEY (`tconst`)
+) CHARACTER SET latin1;
+CREATE TABLE `title_keywords` (
+`tconst` VARCHAR(64),
+`keywords` VARCHAR(64),
+PRIMARY KEY (`tconst`)
+) CHARACTER SET latin1;
+CREATE TABLE `title_principals` (
+`tconst` VARCHAR(64),
+`nconst` VARCHAR(64),
+PRIMARY KEY (`tconst`, `nconst`)
+) CHARACTER SET latin1;
+CREATE TABLE `title_ratings` (
+`tconst` VARCHAR(64),
+`averageRating` DECIMAL(10,2),
+`numVotes` INT,
+PRIMARY KEY (`tconst`)
+) CHARACTER SET latin1;
+CREATE TABLE `title_soup` (
+`tconst` VARCHAR(64),
+`soup` VARCHAR(64),
+PRIMARY KEY (`tconst`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_032077_Mysql_dump_structure') AS relationships;
+relationships
+Database: db_032077_Mysql_dump_structure
+
+Table Connections:
+------------------
+[Implied]  title_principals.nconst -> name_basics.nconst
+[Implied]  title_principals.tconst -> title_basics.tconst
+[Implied]  title_principals.tconst -> title_keywords.tconst
+[Implied]  title_principals.tconst -> title_ratings.tconst
+[Implied]  title_principals.tconst -> title_soup.tconst
+
+DROP DATABASE `db_032077_Mysql_dump_structure`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,106 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 387265_PlasmaBank
+--echo #
+CREATE DATABASE `db_387265_PlasmaBank`;
+USE `db_387265_PlasmaBank`;
+
+CREATE TABLE `BLOOD` (
+  `plasma_bag_number` INT,
+  `blood_type` VARCHAR(64),
+  `blood_amount` VARCHAR(64),
+  `platelets_count` DECIMAL(10,2),
+  PRIMARY KEY (`plasma_bag_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BLOOD_COST` (
+  `plasma_bag_number` INT,
+  `cost` INT,
+  PRIMARY KEY (`plasma_bag_number`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `COMPANION` (
+  `donor_id` INT,
+  `companion_name` VARCHAR(64),
+  `relationship` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DONORS` (
+  `donor_id` INT,
+  `date_of_donation` DATETIME,
+  PRIMARY KEY (`donor_id`, `date_of_donation`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DONOR_INFO` (
+  `donor_id` INT,
+  `fname` VARCHAR(64),
+  `lName` VARCHAR(64),
+  `blood_type` VARCHAR(64),
+  `phone_no` VARCHAR(64),
+  `dOB` DATETIME,
+  `age` INT,
+  `sex` VARCHAR(64),
+  `address` VARCHAR(64),
+  PRIMARY KEY (`donor_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PAYMENT_TRANSACTION` (
+  `rec_id` INT,
+  `payment_amt` INT,
+  `payment_time` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `RECIEVES` (
+  `emp_id` INT,
+  `rec_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `RECIPIENT` (
+  `rec_id` INT,
+  `blood_type` VARCHAR(64),
+  `quantity_needed` INT,
+  `date_of_request` DATETIME,
+  `fname` VARCHAR(64),
+  `lname` VARCHAR(64),
+  `dOB` DATETIME,
+  `sex` VARCHAR(64),
+  `age` INT,
+  `address` VARCHAR(64),
+  PRIMARY KEY (`rec_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `REGISTERS` (
+  `donor_id` INT,
+  `rec_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `STAFF` (
+  `emp_id` INT,
+  `fname` VARCHAR(64),
+  `supervisor` VARCHAR(64),
+  `address1` VARCHAR(64),
+  `phone_no` INT,
+  `salary` INT,
+  PRIMARY KEY (`emp_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_387265_PlasmaBank') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_387265_PlasmaBank') AS relationships;
+DROP DATABASE `db_387265_PlasmaBank`;
+UNINSTALL EXTENSION vsql_schematron;

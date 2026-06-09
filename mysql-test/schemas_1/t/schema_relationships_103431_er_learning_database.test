@@ -1,0 +1,106 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 103431_er-learning-database
+--echo #
+CREATE DATABASE `db_103431_er_learning_database`;
+USE `db_103431_er_learning_database`;
+
+CREATE TABLE `tblClasses` (
+  `classId` INT,
+  `className` VARCHAR(64),
+  `teacherId` INT,
+  `createdTime` DATETIME,
+  `updateTime` DATETIME,
+  PRIMARY KEY (`classId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblStudents` (
+  `studentId` INT,
+  `studentFirstName` VARCHAR(64),
+  `studentLastName` VARCHAR(64),
+  `number` INT,
+  `notes` VARCHAR(64),
+  `classId` INT,
+  `familyId` INT,
+  `createdTime` DATETIME,
+  `updateTime` DATETIME,
+  PRIMARY KEY (`studentId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblFamilies` (
+  `familyId` INT,
+  `familyName` VARCHAR(64),
+  `telephone` VARCHAR(64),
+  `address` VARCHAR(64),
+  `email` VARCHAR(64),
+  `createdTime` DATETIME,
+  `updateTime` DATETIME,
+  PRIMARY KEY (`familyId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblTeachers` (
+  `teacherId` INT,
+  `teacherName` VARCHAR(64),
+  `createdTime` DATETIME,
+  `updateTime` DATETIME,
+  PRIMARY KEY (`teacherId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblHomeworks` (
+  `homeworkId` INT,
+  `homeworkName` VARCHAR(64),
+  `lessonId` INT,
+  `teacherId` INT,
+  `createdTime` DATETIME,
+  `updateTime` DATETIME,
+  PRIMARY KEY (`homeworkId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblLessons` (
+  `lessonId` INT,
+  `lessonName` VARCHAR(64),
+  `teacherId` INT,
+  PRIMARY KEY (`lessonId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblLessonContents` (
+  `lessonContentId` INT,
+  `lessonContentName` VARCHAR(64),
+  `contentType` INT,
+  `lessonId` INT,
+  `createdTime` DATETIME,
+  `updateTime` DATETIME,
+  PRIMARY KEY (`lessonContentId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tblHomeworkGrades` (
+  `homeworkGradeId` INT,
+  `homeworkId` INT,
+  `studentId` INT,
+  `studentNotes` VARCHAR(64),
+  `familyNotes` VARCHAR(64),
+  `createdTime` DATETIME,
+  `updateTime` DATETIME,
+  PRIMARY KEY (`homeworkGradeId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_103431_er_learning_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_103431_er_learning_database') AS relationships;
+DROP DATABASE `db_103431_er_learning_database`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 025090_create_tables.mysql
+--echo #
+CREATE DATABASE `db_025090_create_tables_mysql`;
+USE `db_025090_create_tables_mysql`;
+
+CREATE TABLE `Data` (
+  `id` INT,
+  `page` VARCHAR(64),
+  `domain_id` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `content` VARCHAR(64),
+  `language_id` INT,
+  `published_time` INT,
+  `timestamp` INT,
+  `frequency` INT,
+  `scheme_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Data_RSS` (
+  `id` INT,
+  `page` VARCHAR(64),
+  `domain_id` INT,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `language_id` INT,
+  `timestamp` INT,
+  `frequency` INT,
+  `scheme_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Data_Files` (
+  `id` INT,
+  `page` VARCHAR(64),
+  `domain_id` INT,
+  `description` VARCHAR(64),
+  `filename` VARCHAR(64),
+  `filetype_id` INT,
+  `filesize` INT,
+  `last_modified` INT,
+  `scheme_id` INT,
+  `timestamp` INT,
+  `frequency` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Cleanup` (
+  `data_id` INT,
+  `data_rss_id` INT,
+  `data_files_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_025090_create_tables_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_025090_create_tables_mysql') AS relationships;
+DROP DATABASE `db_025090_create_tables_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

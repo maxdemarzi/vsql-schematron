@@ -1,0 +1,53 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 344250_AllTable
+#
+CREATE DATABASE `db_344250_AllTable`;
+USE `db_344250_AllTable`;
+CREATE TABLE `USERS` (
+`id` DECIMAL(10,2),
+`uname` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LOCATION` (
+`lid` DECIMAL(10,2),
+`area` VARCHAR(64),
+PRIMARY KEY (`lid`)
+) CHARACTER SET latin1;
+CREATE TABLE `OWNER` (
+`oid` DECIMAL(10,2),
+`lid` DECIMAL(10,2),
+`oname` VARCHAR(64),
+`phoneno` VARCHAR(64),
+PRIMARY KEY (`oid`)
+) CHARACTER SET latin1;
+CREATE TABLE `PARKINGSLOAT` (
+`psid` DECIMAL(10,2),
+`price` DECIMAL(10,2),
+`booked` DECIMAL(10,2),
+`lid` DECIMAL(10,2),
+`oid` DECIMAL(10,2),
+PRIMARY KEY (`psid`)
+) CHARACTER SET latin1;
+CREATE TABLE `USES` (
+`id` DECIMAL(10,2),
+`PSid` DECIMAL(10,2),
+`oid` DECIMAL(10,2)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_344250_AllTable') AS relationships;
+relationships
+Database: db_344250_AllTable
+
+Table Connections:
+------------------
+[Implied]  OWNER.lid -> LOCATION.lid
+[Implied]  PARKINGSLOAT.lid -> LOCATION.lid
+[Implied]  PARKINGSLOAT.oid -> OWNER.oid
+[Implied]  USERS.id -> USES.id
+[Implied]  USES.PSid -> PARKINGSLOAT.psid
+[Implied]  USES.oid -> OWNER.oid
+
+DROP DATABASE `db_344250_AllTable`;
+UNINSTALL EXTENSION vsql_schematron;

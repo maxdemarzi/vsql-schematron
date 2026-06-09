@@ -1,0 +1,51 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 374741_dump
+#
+CREATE DATABASE `db_374741_dump`;
+USE `db_374741_dump`;
+CREATE TABLE `plant` (
+`plantId` VARCHAR(64),
+`plantBloomPeriod` VARCHAR(64),
+`plantCommonName` VARCHAR(64),
+`plantDuration` VARCHAR(64),
+`plantDroughtTolerance` INT,
+`plantGrowthHabit` VARCHAR(64),
+`plantGrowthPeriod` VARCHAR(64),
+`plantMatureHeight` INT,
+`plantMinFrostFreeDays` INT,
+`plantPrecipitationMax` INT,
+`plantPrecipitationMin` INT,
+`plantRootDepthMinimum` INT,
+`plantScientificName` VARCHAR(64),
+`plantShadeTolerance` INT,
+`plantToxicity` INT,
+PRIMARY KEY (`plantId`)
+) CHARACTER SET latin1;
+CREATE TABLE `profilePlant` (
+`profilePlantId` VARCHAR(64),
+`profilePlantPlantId` VARCHAR(64),
+`profilePlantProfileId` VARCHAR(64),
+`profilePlantNotes` VARCHAR(64),
+PRIMARY KEY (`profilePlantId`)
+) CHARACTER SET latin1;
+CREATE TABLE `reminder` (
+`reminderId` VARCHAR(64),
+`reminderProfilePlantId` VARCHAR(64),
+`reminderDescription` VARCHAR(64),
+`reminderRecurrence` INT,
+`reminderStartDate` DATETIME,
+PRIMARY KEY (`reminderId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_374741_dump') AS relationships;
+relationships
+Database: db_374741_dump
+
+Table Connections:
+------------------
+[Implied]  profilePlant.profilePlantPlantId -> plant.plantId
+[Implied]  profilePlant.profilePlantProfileId -> profilePlant.profilePlantId
+[Implied]  reminder.reminderProfilePlantId -> plant.plantId
+
+DROP DATABASE `db_374741_dump`;
+UNINSTALL EXTENSION vsql_schematron;

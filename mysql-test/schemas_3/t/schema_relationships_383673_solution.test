@@ -1,0 +1,71 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 383673_solution
+--echo #
+CREATE DATABASE `db_383673_solution`;
+USE `db_383673_solution`;
+
+CREATE TABLE `users` (
+  `userid` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `movies` (
+  `movieid` INT,
+  `title` VARCHAR(64),
+  PRIMARY KEY (`movieid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `taginfo` (
+  `tagid` INT,
+  `content` VARCHAR(64),
+  PRIMARY KEY (`tagid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `genres` (
+  `genreid` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`genreid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ratings` (
+  `userid` INT,
+  `movieid` INT,
+  `rating` DECIMAL(10,2),
+  `timestamp` INT,
+  PRIMARY KEY (`userid`, `movieid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tags` (
+  `userid` INT,
+  `movieid` INT,
+  `tagid` INT,
+  `timestamp` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `hasagenre` (
+  `movieid` INT,
+  `genreid` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_383673_solution') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_383673_solution') AS relationships;
+DROP DATABASE `db_383673_solution`;
+UNINSTALL EXTENSION vsql_schematron;

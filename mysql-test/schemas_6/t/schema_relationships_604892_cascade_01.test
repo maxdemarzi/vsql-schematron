@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 604892_cascade_01
+--echo #
+CREATE DATABASE `db_604892_cascade_01`;
+USE `db_604892_cascade_01`;
+
+CREATE TABLE `parent` (
+  `a` INT,
+  PRIMARY KEY (`a`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `child1` (
+  `a` INT,
+  `b` INT,
+  PRIMARY KEY (`b`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `child2` (
+  `a` INT,
+  `b` INT,
+  PRIMARY KEY (`b`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `grand_child1` (
+  `b` INT,
+  `c` INT,
+  PRIMARY KEY (`c`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `grand_child2` (
+  `b` INT,
+  `c` INT,
+  PRIMARY KEY (`c`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `grand_child3` (
+  `b` INT,
+  `c` INT,
+  PRIMARY KEY (`c`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `grand_child4` (
+  `b` INT,
+  `c` INT,
+  PRIMARY KEY (`c`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_604892_cascade_01') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_604892_cascade_01') AS relationships;
+DROP DATABASE `db_604892_cascade_01`;
+UNINSTALL EXTENSION vsql_schematron;

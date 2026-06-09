@@ -1,0 +1,40 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 230974_schema
+#
+CREATE DATABASE `db_230974_schema`;
+USE `db_230974_schema`;
+CREATE TABLE `TB_CLIENTE` (
+`id` INT,
+`nome` VARCHAR(64),
+`usuario` VARCHAR(64),
+`cpf` VARCHAR(64),
+`saldo` DECIMAL(10,2),
+`agencia` INT,
+`conta` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TB_TP_OPERACAO` (
+`id` INT,
+`nome` VARCHAR(64),
+`ativo` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TB_OPERACAO` (
+`id_cliente` INT,
+`id_operacao` INT,
+`data` DATETIME,
+`valor` DECIMAL(10,2),
+`descricao` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_230974_schema') AS relationships;
+relationships
+Database: db_230974_schema
+
+Table Connections:
+------------------
+[Implied]  TB_OPERACAO.id_cliente -> TB_CLIENTE.id
+[Implied]  TB_TP_OPERACAO.id -> TB_OPERACAO.id_operacao
+
+DROP DATABASE `db_230974_schema`;
+UNINSTALL EXTENSION vsql_schematron;

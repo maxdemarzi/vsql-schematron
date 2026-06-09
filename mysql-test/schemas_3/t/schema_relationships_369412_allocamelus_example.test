@@ -1,0 +1,108 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 369412_allocamelus.example
+--echo #
+CREATE DATABASE `db_369412_allocamelus_example`;
+USE `db_369412_allocamelus_example`;
+
+CREATE TABLE `PostComments` (
+  `postCommentId` INT,
+  `postId` INT,
+  `userId` INT,
+  `parent` INT,
+  `created` INT,
+  `updated` INT,
+  `content` VARCHAR(64),
+  PRIMARY KEY (`postCommentId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Posts` (
+  `postId` INT,
+  `userId` INT,
+  `created` INT,
+  `published` INT,
+  `updated` INT,
+  `content` VARCHAR(64),
+  PRIMARY KEY (`postId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserAvatars` (
+  `userAvatarId` INT,
+  `userId` INT,
+  `active` INT,
+  `created` INT,
+  `fileType` INT,
+  `hash` VARCHAR(64),
+  PRIMARY KEY (`userAvatarId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserEventKeys` (
+  `userEventKeyId` INT,
+  `userEventId` INT,
+  `userKeyId` INT,
+  `infoKey` VARCHAR(64),
+  PRIMARY KEY (`userEventKeyId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserEvents` (
+  `userEventId` INT,
+  `userId` INT,
+  `eventType` INT,
+  `created` INT,
+  `info` VARCHAR(64),
+  PRIMARY KEY (`userEventId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserFollows` (
+  `userFollowId` INT,
+  `userId` INT,
+  `followUserId` INT,
+  `accepted` INT,
+  `created` INT,
+  PRIMARY KEY (`userFollowId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserKeys` (
+  `userKeyId` INT,
+  `userId` INT,
+  `created` INT,
+  `replaced` INT,
+  `publicKey` VARCHAR(64),
+  `keySalt` VARCHAR(64),
+  `privateKey` VARCHAR(64),
+  `recoveryKeyHash` VARCHAR(64),
+  `backupKey` VARCHAR(64),
+  PRIMARY KEY (`userKeyId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserTokens` (
+  `userTokenId` INT,
+  `userId` INT,
+  `tokenType` INT,
+  `selector` VARCHAR(64),
+  `token` VARCHAR(64),
+  `created` INT,
+  `expiration` INT,
+  PRIMARY KEY (`userTokenId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_369412_allocamelus_example') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_369412_allocamelus_example') AS relationships;
+DROP DATABASE `db_369412_allocamelus_example`;
+UNINSTALL EXTENSION vsql_schematron;

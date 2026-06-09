@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 463135_04.create_files_table.up
+#
+CREATE DATABASE `db_463135_04_create_files_table_up`;
+USE `db_463135_04_create_files_table_up`;
+CREATE TABLE `ra_files` (
+`id` INT,
+`node_id` INT,
+`parent_id` INT,
+`job_id` INT,
+`dir` VARCHAR(64),
+`file` VARCHAR(64),
+`type` VARCHAR(64),
+`inserted_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ra_file_logs` (
+`id` INT,
+`node_id` INT,
+`file_id` INT,
+`source_user_id` INT,
+`type` VARCHAR(64),
+`data` VARCHAR(64),
+`inserted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_463135_04_create_files_table_up') AS relationships;
+relationships
+Database: db_463135_04_create_files_table_up
+
+Table Connections:
+------------------
+[Implied]  ra_file_logs.file_id -> ra_files.id
+[Implied]  ra_file_logs.node_id -> ra_file_logs.id
+[Implied]  ra_files.node_id -> ra_files.id
+[Implied]  ra_files.parent_id -> ra_files.id
+
+DROP DATABASE `db_463135_04_create_files_table_up`;
+UNINSTALL EXTENSION vsql_schematron;

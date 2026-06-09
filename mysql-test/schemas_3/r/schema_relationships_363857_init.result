@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 363857_init
+#
+CREATE DATABASE `db_363857_init`;
+USE `db_363857_init`;
+CREATE TABLE `users` (
+`user_id` VARCHAR(64),
+`user_name` VARCHAR(64),
+`user_email` VARCHAR(64),
+`user_passwd` VARCHAR(64),
+`user_in_date` DATETIME,
+`user_salt` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendings` (
+`serial_number` VARCHAR(64),
+`user_id` VARCHAR(64),
+`vending_name` VARCHAR(64),
+`vending_description` VARCHAR(64),
+`vending_full_size` INT,
+`vending_in_date` DATETIME,
+`vending_update_date` DATETIME,
+PRIMARY KEY (`serial_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `drinks` (
+`serial_number` VARCHAR(64),
+`drink_position` INT,
+`drink_name` VARCHAR(64),
+`drink_price` INT,
+`drink_count` INT,
+`drink_max_count` INT,
+PRIMARY KEY (`serial_number`, `drink_position`)
+) CHARACTER SET latin1;
+CREATE TABLE `managers` (
+`manager_id` VARCHAR(64),
+`manager_name` VARCHAR(64),
+`manager_email` VARCHAR(64),
+`manager_passwd` VARCHAR(64),
+`manager_in_date` DATETIME,
+`manager_salt` VARCHAR(64),
+`manager_approbation_flag` INT,
+PRIMARY KEY (`manager_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales` (
+`sale_seq` INT,
+`user_id` VARCHAR(64),
+`serial_number` VARCHAR(64),
+`drink_name` VARCHAR(64),
+`drink_price` INT,
+`sale_date` DATETIME,
+PRIMARY KEY (`sale_seq`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_363857_init') AS relationships;
+relationships
+Database: db_363857_init
+
+Table Connections:
+------------------
+[Implied]  drinks.serial_number -> vendings.serial_number
+[Implied]  managers.manager_email -> managers.manager_id
+[Implied]  managers.manager_passwd -> managers.manager_id
+[Implied]  managers.manager_salt -> managers.manager_id
+[Implied]  sales.serial_number -> vendings.serial_number
+[Implied]  sales.user_id -> users.user_id
+[Implied]  vendings.user_id -> users.user_id
+
+DROP DATABASE `db_363857_init`;
+UNINSTALL EXTENSION vsql_schematron;

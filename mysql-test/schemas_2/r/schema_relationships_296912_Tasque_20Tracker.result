@@ -1,0 +1,161 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 296912_Tasque%20Tracker
+#
+CREATE DATABASE `db_296912_Tasque_20Tracker`;
+USE `db_296912_Tasque_20Tracker`;
+CREATE TABLE `Person` (
+`PersonId` INT,
+`FirstName` VARCHAR(64),
+`MiddleName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`EmailId` VARCHAR(64),
+`StreetName` VARCHAR(64),
+`CityName` VARCHAR(64),
+`State` VARCHAR(64),
+`Country` VARCHAR(64),
+`PinCode` INT,
+`Gender` VARCHAR(64),
+PRIMARY KEY (`PersonId`)
+) CHARACTER SET latin1;
+CREATE TABLE `PersonPhone` (
+`PersonId` INT,
+`PhoneNumber` VARCHAR(64),
+PRIMARY KEY (`PersonId`, `PhoneNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `Client` (
+`ClientId` INT,
+`Business` INT,
+`companyName` VARCHAR(64),
+PRIMARY KEY (`ClientId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Project` (
+`ProjectId` INT,
+`DomainType` VARCHAR(64),
+`ProjectName` VARCHAR(64),
+`ProjectDeadline` DATETIME,
+`Status` VARCHAR(64),
+`ProjectDesc` VARCHAR(64),
+`ProjectSubmissionDate` DATETIME,
+`cost` INT,
+PRIMARY KEY (`ProjectId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Employee` (
+`EmpId` INT,
+`DomainType` VARCHAR(64),
+`Status` VARCHAR(64),
+`JoiningDate` DATETIME,
+`LeavingDate` DATETIME,
+`Position` VARCHAR(64),
+`DateOfBirth` DATETIME,
+PRIMARY KEY (`EmpId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Task` (
+`TaskId` INT,
+`TaskStatus` VARCHAR(64),
+`ProjectId` INT,
+`TaskName` VARCHAR(64),
+`TaskDeadline` DATETIME,
+`TaskSubmission` VARCHAR(64),
+`startDate` DATETIME,
+`endDate` DATETIME,
+PRIMARY KEY (`TaskId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Authentication` (
+`EmailId` VARCHAR(64),
+`EncryptedPassword` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `PersonAuthentication` (
+`PersonId` INT,
+`EmailId` VARCHAR(64),
+PRIMARY KEY (`PersonId`, `EmailId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Queries` (
+`QuestionId` INT,
+`ProjectId` INT,
+`Title` VARCHAR(64),
+`Description` VARCHAR(64),
+`Resolution` VARCHAR(64),
+`Status` VARCHAR(64),
+PRIMARY KEY (`QuestionId`, `ProjectId`)
+) CHARACTER SET latin1;
+CREATE TABLE `PerformanceReview` (
+`EmpReviewId` INT,
+`EmpReviewerId` INT,
+`year` VARCHAR(64),
+`review` VARCHAR(64),
+PRIMARY KEY (`EmpReviewId`, `EmpReviewerId`, `year`)
+) CHARACTER SET latin1;
+CREATE TABLE `Brings` (
+`ClientId` INT,
+`ProjectId` INT,
+`ReceivingDate` DATETIME,
+PRIMARY KEY (`ClientId`, `ProjectId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Gets` (
+`ProjectId` INT,
+`EmpId` INT,
+PRIMARY KEY (`ProjectId`, `EmpId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Creates` (
+`EmpId` INT,
+`TaskId` INT,
+PRIMARY KEY (`EmpId`, `TaskId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Does` (
+`EmpId` INT,
+`TaskId` INT,
+PRIMARY KEY (`EmpId`, `TaskId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Reviews` (
+`EmpId` INT,
+`TaskId` INT,
+PRIMARY KEY (`EmpId`, `TaskId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Asks` (
+`EmpId` INT,
+`ProjectId` INT,
+`QuestionId` INT,
+PRIMARY KEY (`EmpId`, `ProjectId`, `QuestionId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Resolves` (
+`EmpId` INT,
+`ProjectId` INT,
+`QuestionId` INT,
+PRIMARY KEY (`EmpId`, `ProjectId`, `QuestionId`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_296912_Tasque_20Tracker') AS relationships;
+relationships
+Database: db_296912_Tasque_20Tracker
+
+Table Connections:
+------------------
+[Implied]  Asks.EmpId -> Employee.EmpId
+[Implied]  Asks.ProjectId -> Project.ProjectId
+[Implied]  Asks.QuestionId -> Queries.QuestionId
+[Implied]  Asks.QuestionId -> Resolves.QuestionId
+[Implied]  Authentication.EmailId -> PersonAuthentication.EmailId
+[Implied]  Brings.ClientId -> Client.ClientId
+[Implied]  Brings.ProjectId -> Project.ProjectId
+[Implied]  Creates.EmpId -> Employee.EmpId
+[Implied]  Creates.TaskId -> Task.TaskId
+[Implied]  Does.EmpId -> Employee.EmpId
+[Implied]  Does.TaskId -> Task.TaskId
+[Implied]  Gets.EmpId -> Employee.EmpId
+[Implied]  Gets.ProjectId -> Project.ProjectId
+[Implied]  Person.EmailId -> PersonAuthentication.EmailId
+[Implied]  PersonAuthentication.PersonId -> Person.PersonId
+[Implied]  PersonPhone.PersonId -> Person.PersonId
+[Implied]  Queries.ProjectId -> Project.ProjectId
+[Implied]  Queries.QuestionId -> Asks.QuestionId
+[Implied]  Queries.QuestionId -> Resolves.QuestionId
+[Implied]  Resolves.EmpId -> Employee.EmpId
+[Implied]  Resolves.ProjectId -> Project.ProjectId
+[Implied]  Resolves.QuestionId -> Asks.QuestionId
+[Implied]  Resolves.QuestionId -> Queries.QuestionId
+[Implied]  Reviews.EmpId -> Employee.EmpId
+[Implied]  Reviews.TaskId -> Task.TaskId
+[Implied]  Task.ProjectId -> Project.ProjectId
+
+DROP DATABASE `db_296912_Tasque_20Tracker`;
+UNINSTALL EXTENSION vsql_schematron;

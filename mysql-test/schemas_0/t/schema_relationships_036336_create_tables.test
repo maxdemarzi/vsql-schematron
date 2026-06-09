@@ -1,0 +1,161 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 036336_create-tables
+--echo #
+CREATE DATABASE `db_036336_create_tables`;
+USE `db_036336_create_tables`;
+
+CREATE TABLE `USERS` (
+  `id` INT,
+  `email` VARCHAR(64),
+  `nick_name` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `password_hash` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ROLES` (
+  `id` INT,
+  `role_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USER_ROLES` (
+  `id` INT,
+  `user_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `URLS` (
+  `id` INT,
+  `url_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `USERS_URLS` (
+  `id` INT,
+  `user_id` INT,
+  `url_id` INT,
+  `is_owner` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DIRS` (
+  `id` INT,
+  `dir_name` VARCHAR(64),
+  `url_id` INT,
+  `parent_dir` INT,
+  `is_root` BOOL,
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PAGES` (
+  `id` INT,
+  `page_name` VARCHAR(64),
+  `page_code` VARCHAR(64),
+  `url_id` INT,
+  `sub_url` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CONTENT_STRINGS` (
+  `id` INT,
+  `page_id` INT,
+  `cs_name` VARCHAR(64),
+  `cs_code` VARCHAR(64),
+  `cs_value` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PAGE_CONTENT_STRINGS` (
+  `id` INT,
+  `cs_id` INT,
+  `page_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `published` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ASSETS` (
+  `id` INT,
+  `asset_type` VARCHAR(64),
+  `stored_asset_name` VARCHAR(64),
+  `dir_id` INT,
+  `url_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PAGE_ASSETS` (
+  `id` INT,
+  `asset_id` INT,
+  `page_id` INT,
+  `asset_name` VARCHAR(64),
+  `asset_code` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `published` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GALLERY` (
+  `id` INT,
+  `page_id` INT,
+  `gallery_name` VARCHAR(64),
+  `gallery_code` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PAGE_GALLERY` (
+  `id` INT,
+  `gallery_id` INT,
+  `page_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `published` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `GALLERY_ASSETS` (
+  `id` INT,
+  `gallery_id` INT,
+  `asset_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `published` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_036336_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_036336_create_tables') AS relationships;
+DROP DATABASE `db_036336_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;

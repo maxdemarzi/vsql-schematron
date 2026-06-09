@@ -1,0 +1,239 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 020857_1.0__initial
+--echo #
+CREATE DATABASE `db_020857_1_0_initial`;
+USE `db_020857_1_0_initial`;
+
+CREATE TABLE `chat_group` (
+  `chat_group_id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`chat_group_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `chat_group_user` (
+  `chat_group_chat_group_id` INT,
+  `user_user_id` INT,
+  PRIMARY KEY (`chat_group_chat_group_id`, `user_user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `country` (
+  `country_id` INT,
+  `country_name` VARCHAR(64),
+  `isocode` VARCHAR(64),
+  `is_valid` INT,
+  PRIMARY KEY (`country_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `destination` (
+  `destination_id` INT,
+  `destination_name` VARCHAR(64),
+  `destination_type_destination_type_id` INT,
+  `destination_district_district_id` INT,
+  `destination_lat` DECIMAL(10,2),
+  `destination_lon` DECIMAL(10,2),
+  `destination_country_country_id` INT,
+  `destination_owner` INT,
+  `is_public` INT,
+  `deleted_expiry` DATETIME,
+  `deleted` BOOL,
+  PRIMARY KEY (`destination_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `destination_photo` (
+  `destination_photo_id` INT,
+  `destination_destination_id` INT,
+  `personal_photo_photo_id` INT,
+  `deleted_expiry` DATETIME,
+  `deleted` BOOL,
+  PRIMARY KEY (`destination_photo_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `destination_proposal` (
+  `destination_proposal_id` INT,
+  `destination_destination_id` INT,
+  `deleted_expiry` DATETIME,
+  `user_user_id` INT,
+  `deleted` BOOL,
+  PRIMARY KEY (`destination_proposal_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `destination_proposal_traveller_type` (
+  `destination_proposal_destination_proposal_id` INT,
+  `traveller_type_traveller_type_id` INT,
+  PRIMARY KEY (`destination_proposal_destination_proposal_id`, `traveller_type_traveller_type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `destination_type` (
+  `destination_type_id` INT,
+  `destination_type_name` VARCHAR(64),
+  PRIMARY KEY (`destination_type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `district` (
+  `district_id` INT,
+  `district_name` VARCHAR(64),
+  `country_country_id` INT,
+  PRIMARY KEY (`district_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `message` (
+  `message_id` INT,
+  `chat_group_chat_group_id` INT,
+  `contents` VARCHAR(64),
+  `timestamp` DATETIME,
+  PRIMARY KEY (`message_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `nationality` (
+  `nationality_id` INT,
+  `nationality_country_country_id` INT,
+  `nationality_name` VARCHAR(64),
+  PRIMARY KEY (`nationality_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `nationality_user` (
+  `nationality_nationality_id` INT,
+  `user_user_id` INT,
+  PRIMARY KEY (`nationality_nationality_id`, `user_user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `passport` (
+  `passport_id` INT,
+  `passport_country` VARCHAR(64),
+  `country_country_id` INT,
+  PRIMARY KEY (`passport_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `passport_user` (
+  `passport_passport_id` INT,
+  `user_user_id` INT,
+  PRIMARY KEY (`passport_passport_id`, `user_user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `personal_photo` (
+  `photo_id` INT,
+  `user_user_id` INT,
+  `is_public` INT,
+  `is_primary` INT,
+  `filename_hash` VARCHAR(64),
+  `thumbnail_name` VARCHAR(64),
+  `deleted_expiry` DATETIME,
+  `deleted` BOOL,
+  PRIMARY KEY (`photo_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role` (
+  `role_id` INT,
+  `role_type` VARCHAR(64),
+  PRIMARY KEY (`role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_user` (
+  `role_role_id` INT,
+  `user_user_id` INT,
+  PRIMARY KEY (`role_role_id`, `user_user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `traveller_type` (
+  `traveller_type_id` INT,
+  `traveller_type_name` VARCHAR(64),
+  PRIMARY KEY (`traveller_type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `traveller_type_user` (
+  `traveller_type_traveller_type_id` INT,
+  `user_user_id` INT,
+  PRIMARY KEY (`traveller_type_traveller_type_id`, `user_user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `traveller_type_destination` (
+  `traveller_type_traveller_type_id` INT,
+  `destination_destination_id` INT,
+  PRIMARY KEY (`traveller_type_traveller_type_id`, `destination_destination_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `treasure_hunt` (
+  `treasure_hunt_id` INT,
+  `treasure_hunt_name` VARCHAR(64),
+  `treasure_hunt_destination_destination_id` INT,
+  `owner_user_id` INT,
+  `riddle` VARCHAR(64),
+  `start_date` DATETIME,
+  `end_date` DATETIME,
+  `deleted_expiry` DATETIME,
+  `deleted` BOOL,
+  PRIMARY KEY (`treasure_hunt_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trip_node` (
+  `dtype` VARCHAR(64),
+  `trip_node_id` INT,
+  `deleted_expiry` DATETIME,
+  `deleted` BOOL,
+  `name` VARCHAR(64),
+  `destination_destination_id` INT,
+  `arrival_date` DATETIME,
+  `arrival_time` INT,
+  `departure_date` DATETIME,
+  `departure_time` INT,
+  PRIMARY KEY (`trip_node_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trip_node_parent` (
+  `trip_node_child_id` INT,
+  `trip_node_parent_id` INT,
+  `child_index` INT,
+  PRIMARY KEY (`trip_node_child_id`, `trip_node_parent_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `trip_node_user` (
+  `trip_node_trip_node_id` INT,
+  `user_user_id` INT,
+  PRIMARY KEY (`trip_node_trip_node_id`, `user_user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `user_id` INT,
+  `first_name` VARCHAR(64),
+  `middle_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `date_of_birth` DATETIME,
+  `gender` VARCHAR(64),
+  `email` VARCHAR(64),
+  `profile_photo_photo_id` INT,
+  `password_hash` VARCHAR(64),
+  `token` VARCHAR(64),
+  `deleted_expiry` DATETIME,
+  `timestamp` DATETIME,
+  `deleted` BOOL,
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_role` (
+  `user_role_id` INT,
+  `role_id` INT,
+  `user_id` INT,
+  PRIMARY KEY (`user_role_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_020857_1_0_initial') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_020857_1_0_initial') AS relationships;
+DROP DATABASE `db_020857_1_0_initial`;
+UNINSTALL EXTENSION vsql_schematron;

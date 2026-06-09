@@ -1,0 +1,180 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 614485_generateDB
+#
+CREATE DATABASE `db_614485_generateDB`;
+USE `db_614485_generateDB`;
+CREATE TABLE `USERS` (
+`id` VARCHAR(64),
+`fullname` VARCHAR(64),
+`dni` VARCHAR(64),
+`borndate` DATETIME,
+`password` VARCHAR(64),
+`email` VARCHAR(64),
+`verified` BOOL,
+`picture` VARCHAR(64),
+`bio` VARCHAR(64),
+`telephone` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `MESSAGES` (
+`id` VARCHAR(64),
+`timestamp` DATETIME,
+`message` VARCHAR(64),
+`id_user_sender` VARCHAR(64),
+`id_user_receiver` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER_RATING` (
+`rating` INT,
+`timestamp` DATETIME,
+`comment` VARCHAR(64),
+`id_user_voter` VARCHAR(64),
+`id_user_voted` VARCHAR(64),
+PRIMARY KEY (`id_user_voter`, `id_user_voted`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER_ADDRESSES` (
+`id` VARCHAR(64),
+`street` VARCHAR(64),
+`city` VARCHAR(64),
+`country` VARCHAR(64),
+`zipcode` INT,
+`id_user` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PUBLICATION_ADDRESSES` (
+`id` VARCHAR(64),
+`street` VARCHAR(64),
+`door` VARCHAR(64),
+`floor` VARCHAR(64),
+`city` VARCHAR(64),
+`country` VARCHAR(64),
+`zipcode` INT,
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER_BILLING_ADDRESSES` (
+`id` VARCHAR(64),
+`card_number` INT,
+`card_expiry` DATETIME,
+`id_user` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `NOTIFICATIONS` (
+`id` VARCHAR(64),
+`timestamp` DATETIME,
+`notification_type` VARCHAR(64),
+`seen` BOOL,
+`id_user` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PUBLICATION` (
+`id` VARCHAR(64),
+`area` INT,
+`rooms` INT,
+`bathrooms` INT,
+`garage` BOOL,
+`elevator` BOOL,
+`furnished` BOOL,
+`pets` BOOL,
+`parking` BOOL,
+`garden` BOOL,
+`pool` BOOL,
+`terrace` BOOL,
+`storage_room` BOOL,
+`heating` VARCHAR(64),
+`publication_type` VARCHAR(64),
+`deposit` DECIMAL(10,2),
+`price` DECIMAL(10,2),
+`availability_date` DATETIME,
+`timestamp` DATETIME,
+`disabled` BOOL,
+`id_user` VARCHAR(64),
+`id_publication_address` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PUBLICATION_RATINGS` (
+`rating` INT,
+`timestamp` DATETIME,
+`comment` VARCHAR(64),
+`id_publication` VARCHAR(64),
+`id_user_voter` VARCHAR(64),
+PRIMARY KEY (`id_publication`, `id_user_voter`)
+) CHARACTER SET latin1;
+CREATE TABLE `VISIT` (
+`id` VARCHAR(64),
+`visit_date` DATETIME,
+`visit_hour` DATETIME,
+`acepted` BOOL,
+`id_publication` VARCHAR(64),
+`id_user_visitant` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PUBLICATION_PICTURES` (
+`id` VARCHAR(64),
+`url` VARCHAR(64),
+`id_publication` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `BOOKING` (
+`id` VARCHAR(64),
+`timestamp` DATETIME,
+`start_date` DATETIME,
+`end_date` DATETIME,
+`acepted` BOOL,
+`id_user_payer` VARCHAR(64),
+`id_publication` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `TRANSACTIONS` (
+`id` VARCHAR(64),
+`timestamp` DATETIME,
+`amount` INT,
+`success` BOOL,
+`id_booking` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `USER_PUBLICATION_FAVORITES` (
+`id_user` VARCHAR(64),
+`id_publication` VARCHAR(64),
+PRIMARY KEY (`id_user`, `id_publication`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_614485_generateDB') AS relationships;
+relationships
+Database: db_614485_generateDB
+
+Table Connections:
+------------------
+[Implied]  BOOKING.id_publication -> PUBLICATION.id
+[Implied]  BOOKING.id_publication -> PUBLICATION_ADDRESSES.id
+[Implied]  MESSAGES.id_user_receiver -> USERS.id
+[Implied]  MESSAGES.id_user_receiver -> USER_ADDRESSES.id
+[Implied]  MESSAGES.id_user_sender -> USERS.id
+[Implied]  MESSAGES.id_user_sender -> USER_ADDRESSES.id
+[Implied]  NOTIFICATIONS.id_user -> USERS.id
+[Implied]  NOTIFICATIONS.id_user -> USER_ADDRESSES.id
+[Implied]  PUBLICATION.id_publication_address -> PUBLICATION_ADDRESSES.id
+[Implied]  PUBLICATION.id_user -> USERS.id
+[Implied]  PUBLICATION.id_user -> USER_ADDRESSES.id
+[Implied]  PUBLICATION_PICTURES.id_publication -> PUBLICATION.id
+[Implied]  PUBLICATION_PICTURES.id_publication -> PUBLICATION_ADDRESSES.id
+[Implied]  PUBLICATION_RATINGS.id_publication -> PUBLICATION.id
+[Implied]  PUBLICATION_RATINGS.id_publication -> PUBLICATION_ADDRESSES.id
+[Implied]  PUBLICATION_RATINGS.id_user_voter -> USERS.id
+[Implied]  TRANSACTIONS.id_booking -> BOOKING.id
+[Implied]  USER_ADDRESSES.id_user -> USERS.id
+[Implied]  USER_ADDRESSES.id_user -> USER_ADDRESSES.id
+[Implied]  USER_BILLING_ADDRESSES.id_user -> USERS.id
+[Implied]  USER_BILLING_ADDRESSES.id_user -> USER_ADDRESSES.id
+[Implied]  USER_PUBLICATION_FAVORITES.id_publication -> PUBLICATION.id
+[Implied]  USER_PUBLICATION_FAVORITES.id_publication -> PUBLICATION_ADDRESSES.id
+[Implied]  USER_PUBLICATION_FAVORITES.id_user -> USERS.id
+[Implied]  USER_PUBLICATION_FAVORITES.id_user -> USER_ADDRESSES.id
+[Implied]  USER_RATING.id_user_voted -> USERS.id
+[Implied]  USER_RATING.id_user_voter -> PUBLICATION_RATINGS.id_user_voter
+[Implied]  VISIT.id_publication -> PUBLICATION.id
+[Implied]  VISIT.id_publication -> PUBLICATION_ADDRESSES.id
+
+DROP DATABASE `db_614485_generateDB`;
+UNINSTALL EXTENSION vsql_schematron;

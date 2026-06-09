@@ -1,0 +1,95 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 535962_project_v1
+--echo #
+CREATE DATABASE `db_535962_project_v1`;
+USE `db_535962_project_v1`;
+
+CREATE TABLE `customers` (
+  `customer_id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `phone_number` VARCHAR(64),
+  PRIMARY KEY (`customer_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `hotels` (
+  `hotel_id` INT,
+  `address` VARCHAR(64),
+  `city` VARCHAR(64),
+  `state` VARCHAR(64),
+  `zipcode` VARCHAR(64),
+  PRIMARY KEY (`hotel_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sections` (
+  `hotel_id` INT,
+  `section_id` INT,
+  `name` VARCHAR(64),
+  `room_type` VARCHAR(64),
+  `floor` INT,
+  PRIMARY KEY (`hotel_id`, `section_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bedding_types` (
+  `name` VARCHAR(64),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rooms` (
+  `hotel_id` INT,
+  `section_id` INT,
+  `room_id` INT,
+  `name` VARCHAR(64),
+  `bedding_type` VARCHAR(64),
+  PRIMARY KEY (`hotel_id`, `section_id`, `room_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bedding_type_prices` (
+  `hotel_id` INT,
+  `bedding_type` VARCHAR(64),
+  `apply_start` DATETIME,
+  `apply_end` DATETIME,
+  `monday_price` DECIMAL(10,2),
+  `tuesday_price` DECIMAL(10,2),
+  `wednesday_price` DECIMAL(10,2),
+  `thursday_price` DECIMAL(10,2),
+  `friday_price` DECIMAL(10,2),
+  `saturday_price` DECIMAL(10,2),
+  `sunday_price` DECIMAL(10,2),
+  PRIMARY KEY (`hotel_id`, `bedding_type`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reservations` (
+  `id` INT,
+  `customer_id` INT,
+  `hotel_id` INT,
+  `section_id` INT,
+  `room_id` INT,
+  `day_start` DATETIME,
+  `day_end` DATETIME,
+  `reservation_names` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_535962_project_v1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_535962_project_v1') AS relationships;
+DROP DATABASE `db_535962_project_v1`;
+UNINSTALL EXTENSION vsql_schematron;

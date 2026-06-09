@@ -1,0 +1,70 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 586933_build
+#
+CREATE DATABASE `db_586933_build`;
+USE `db_586933_build`;
+CREATE TABLE `guilds` (
+`guild_id` INT,
+`name` VARCHAR(64),
+`prefix` VARCHAR(64),
+`log_channel` INT,
+`welcome_channel` INT,
+`yoinker_id` INT,
+`lvl_channel` INT,
+`lvl_toggle` INT,
+PRIMARY KEY (`guild_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `emojis` (
+`guild_id` INT,
+`emoji_id` INT,
+`usage` INT
+) CHARACTER SET latin1;
+CREATE TABLE `members` (
+`member_id` INT,
+`guild_id` INT,
+`username` VARCHAR(64),
+`nickname` VARCHAR(64),
+`discriminator` INT,
+`joined_date` VARCHAR(64),
+PRIMARY KEY (`guild_id`, `member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `osu` (
+`member_id` INT,
+`osu_id` INT,
+PRIMARY KEY (`member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `member_exp` (
+`member_id` INT,
+`guild_id` INT,
+`xp` INT,
+`level` INT,
+`xp_lock` VARCHAR(64),
+PRIMARY KEY (`guild_id`, `member_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `member_points` (
+`member_id` INT,
+`guild_id` INT,
+`points` INT,
+`guild_house` INT,
+`points_lock` VARCHAR(64),
+`daily_cooldown` VARCHAR(64),
+PRIMARY KEY (`guild_id`, `member_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_586933_build') AS relationships;
+relationships
+Database: db_586933_build
+
+Table Connections:
+------------------
+[Implied]  emojis.guild_id -> guilds.guild_id
+[Implied]  member_exp.guild_id -> guilds.guild_id
+[Implied]  member_exp.member_id -> osu.member_id
+[Implied]  member_points.guild_id -> guilds.guild_id
+[Implied]  member_points.member_id -> osu.member_id
+[Implied]  members.guild_id -> guilds.guild_id
+[Implied]  members.member_id -> osu.member_id
+[Implied]  osu.osu_id -> osu.member_id
+
+DROP DATABASE `db_586933_build`;
+UNINSTALL EXTENSION vsql_schematron;

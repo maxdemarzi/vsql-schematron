@@ -1,0 +1,164 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 296912_Tasque%20Tracker
+--echo #
+CREATE DATABASE `db_296912_Tasque_20Tracker`;
+USE `db_296912_Tasque_20Tracker`;
+
+CREATE TABLE `Person` (
+  `PersonId` INT,
+  `FirstName` VARCHAR(64),
+  `MiddleName` VARCHAR(64),
+  `LastName` VARCHAR(64),
+  `EmailId` VARCHAR(64),
+  `StreetName` VARCHAR(64),
+  `CityName` VARCHAR(64),
+  `State` VARCHAR(64),
+  `Country` VARCHAR(64),
+  `PinCode` INT,
+  `Gender` VARCHAR(64),
+  PRIMARY KEY (`PersonId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PersonPhone` (
+  `PersonId` INT,
+  `PhoneNumber` VARCHAR(64),
+  PRIMARY KEY (`PersonId`, `PhoneNumber`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Client` (
+  `ClientId` INT,
+  `Business` INT,
+  `companyName` VARCHAR(64),
+  PRIMARY KEY (`ClientId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Project` (
+  `ProjectId` INT,
+  `DomainType` VARCHAR(64),
+  `ProjectName` VARCHAR(64),
+  `ProjectDeadline` DATETIME,
+  `Status` VARCHAR(64),
+  `ProjectDesc` VARCHAR(64),
+  `ProjectSubmissionDate` DATETIME,
+  `cost` INT,
+  PRIMARY KEY (`ProjectId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Employee` (
+  `EmpId` INT,
+  `DomainType` VARCHAR(64),
+  `Status` VARCHAR(64),
+  `JoiningDate` DATETIME,
+  `LeavingDate` DATETIME,
+  `Position` VARCHAR(64),
+  `DateOfBirth` DATETIME,
+  PRIMARY KEY (`EmpId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Task` (
+  `TaskId` INT,
+  `TaskStatus` VARCHAR(64),
+  `ProjectId` INT,
+  `TaskName` VARCHAR(64),
+  `TaskDeadline` DATETIME,
+  `TaskSubmission` VARCHAR(64),
+  `startDate` DATETIME,
+  `endDate` DATETIME,
+  PRIMARY KEY (`TaskId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Authentication` (
+  `EmailId` VARCHAR(64),
+  `EncryptedPassword` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PersonAuthentication` (
+  `PersonId` INT,
+  `EmailId` VARCHAR(64),
+  PRIMARY KEY (`PersonId`, `EmailId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Queries` (
+  `QuestionId` INT,
+  `ProjectId` INT,
+  `Title` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Resolution` VARCHAR(64),
+  `Status` VARCHAR(64),
+  PRIMARY KEY (`QuestionId`, `ProjectId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PerformanceReview` (
+  `EmpReviewId` INT,
+  `EmpReviewerId` INT,
+  `year` VARCHAR(64),
+  `review` VARCHAR(64),
+  PRIMARY KEY (`EmpReviewId`, `EmpReviewerId`, `year`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Brings` (
+  `ClientId` INT,
+  `ProjectId` INT,
+  `ReceivingDate` DATETIME,
+  PRIMARY KEY (`ClientId`, `ProjectId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Gets` (
+  `ProjectId` INT,
+  `EmpId` INT,
+  PRIMARY KEY (`ProjectId`, `EmpId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Creates` (
+  `EmpId` INT,
+  `TaskId` INT,
+  PRIMARY KEY (`EmpId`, `TaskId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Does` (
+  `EmpId` INT,
+  `TaskId` INT,
+  PRIMARY KEY (`EmpId`, `TaskId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Reviews` (
+  `EmpId` INT,
+  `TaskId` INT,
+  PRIMARY KEY (`EmpId`, `TaskId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Asks` (
+  `EmpId` INT,
+  `ProjectId` INT,
+  `QuestionId` INT,
+  PRIMARY KEY (`EmpId`, `ProjectId`, `QuestionId`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Resolves` (
+  `EmpId` INT,
+  `ProjectId` INT,
+  `QuestionId` INT,
+  PRIMARY KEY (`EmpId`, `ProjectId`, `QuestionId`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_296912_Tasque_20Tracker') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_296912_Tasque_20Tracker') AS relationships;
+DROP DATABASE `db_296912_Tasque_20Tracker`;
+UNINSTALL EXTENSION vsql_schematron;

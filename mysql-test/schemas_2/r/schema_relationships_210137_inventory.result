@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 210137_inventory
+#
+CREATE DATABASE `db_210137_inventory`;
+USE `db_210137_inventory`;
+CREATE TABLE `routers` (
+`router_id` VARCHAR(64),
+`router_parent_core_id` VARCHAR(64),
+`router_type` VARCHAR(64),
+`router_vendor` VARCHAR(64),
+`router_model` VARCHAR(64),
+`router_ip_protocol` VARCHAR(64),
+`router_ip_address` VARCHAR(64),
+`location_id` INT,
+PRIMARY KEY (`router_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `location` (
+`location_id` INT,
+`address` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`zipcode` VARCHAR(64),
+`country` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+PRIMARY KEY (`location_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `switches` (
+`switch_id` VARCHAR(64),
+`router_id` VARCHAR(64),
+`switch_type` VARCHAR(64),
+`switch_vendor` VARCHAR(64),
+`switch_model` VARCHAR(64),
+`switch_ip_protocol` VARCHAR(64),
+`switch_ip_address` VARCHAR(64),
+`location_id` INT,
+PRIMARY KEY (`switch_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `networks` (
+`network_id` INT,
+`switch_id` VARCHAR(64),
+`network_protocol` VARCHAR(64),
+`network_address` VARCHAR(64),
+`network_name` VARCHAR(64),
+`network_cidr` VARCHAR(64),
+PRIMARY KEY (`network_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_210137_inventory') AS relationships;
+relationships
+Database: db_210137_inventory
+
+Table Connections:
+------------------
+[Implied]  networks.switch_id -> switches.switch_id
+[Implied]  routers.location_id -> location.location_id
+[Implied]  routers.router_parent_core_id -> routers.router_id
+[Implied]  switches.location_id -> location.location_id
+[Implied]  switches.router_id -> routers.router_id
+
+DROP DATABASE `db_210137_inventory`;
+UNINSTALL EXTENSION vsql_schematron;

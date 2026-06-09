@@ -1,0 +1,92 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 387265_PlasmaBank
+#
+CREATE DATABASE `db_387265_PlasmaBank`;
+USE `db_387265_PlasmaBank`;
+CREATE TABLE `BLOOD` (
+`plasma_bag_number` INT,
+`blood_type` VARCHAR(64),
+`blood_amount` VARCHAR(64),
+`platelets_count` DECIMAL(10,2),
+PRIMARY KEY (`plasma_bag_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `BLOOD_COST` (
+`plasma_bag_number` INT,
+`cost` INT,
+PRIMARY KEY (`plasma_bag_number`)
+) CHARACTER SET latin1;
+CREATE TABLE `COMPANION` (
+`donor_id` INT,
+`companion_name` VARCHAR(64),
+`relationship` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `DONORS` (
+`donor_id` INT,
+`date_of_donation` DATETIME,
+PRIMARY KEY (`donor_id`, `date_of_donation`)
+) CHARACTER SET latin1;
+CREATE TABLE `DONOR_INFO` (
+`donor_id` INT,
+`fname` VARCHAR(64),
+`lName` VARCHAR(64),
+`blood_type` VARCHAR(64),
+`phone_no` VARCHAR(64),
+`dOB` DATETIME,
+`age` INT,
+`sex` VARCHAR(64),
+`address` VARCHAR(64),
+PRIMARY KEY (`donor_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `PAYMENT_TRANSACTION` (
+`rec_id` INT,
+`payment_amt` INT,
+`payment_time` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `RECIEVES` (
+`emp_id` INT,
+`rec_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `RECIPIENT` (
+`rec_id` INT,
+`blood_type` VARCHAR(64),
+`quantity_needed` INT,
+`date_of_request` DATETIME,
+`fname` VARCHAR(64),
+`lname` VARCHAR(64),
+`dOB` DATETIME,
+`sex` VARCHAR(64),
+`age` INT,
+`address` VARCHAR(64),
+PRIMARY KEY (`rec_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `REGISTERS` (
+`donor_id` INT,
+`rec_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `STAFF` (
+`emp_id` INT,
+`fname` VARCHAR(64),
+`supervisor` VARCHAR(64),
+`address1` VARCHAR(64),
+`phone_no` INT,
+`salary` INT,
+PRIMARY KEY (`emp_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_387265_PlasmaBank') AS relationships;
+relationships
+Database: db_387265_PlasmaBank
+
+Table Connections:
+------------------
+[Implied]  BLOOD_COST.plasma_bag_number -> BLOOD.plasma_bag_number
+[Implied]  COMPANION.donor_id -> DONOR_INFO.donor_id
+[Implied]  DONORS.donor_id -> DONOR_INFO.donor_id
+[Implied]  PAYMENT_TRANSACTION.rec_id -> RECIPIENT.rec_id
+[Implied]  RECIEVES.emp_id -> STAFF.emp_id
+[Implied]  RECIEVES.rec_id -> RECIPIENT.rec_id
+[Implied]  REGISTERS.donor_id -> DONOR_INFO.donor_id
+[Implied]  REGISTERS.rec_id -> RECIPIENT.rec_id
+
+DROP DATABASE `db_387265_PlasmaBank`;
+UNINSTALL EXTENSION vsql_schematron;

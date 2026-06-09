@@ -1,0 +1,161 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 617879_createDatabase
+--echo #
+CREATE DATABASE `db_617879_createDatabase`;
+USE `db_617879_createDatabase`;
+
+CREATE TABLE `forms` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  `FormPath` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `statuses` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `projects` (
+  `Id` INT,
+  `status_id` INT,
+  `Name` VARCHAR(64),
+  `Electrical` BOOL,
+  `Description` VARCHAR(64),
+  `Abstract` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `MaxCapacity` INT,
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `projectCatagories` (
+  `project_id` INT,
+  `category_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `awards` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  `Reward` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `keywords` (
+  `Id` INT,
+  `Keyword` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `formKeywords` (
+  `form_id` INT,
+  `keyword_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `awardKeywords` (
+  `award_id` INT,
+  `keyword_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `categoryKeywords` (
+  `category_id` INT,
+  `keyword_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `schools` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  `City` VARCHAR(64),
+  `State` VARCHAR(64),
+  `Address1` VARCHAR(64),
+  `Address2` VARCHAR(64),
+  `Zip` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `events` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  `StartDate` DATETIME,
+  `EndDate` DATETIME,
+  `Description` VARCHAR(64),
+  `Location` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `security_types` (
+  `Id` INT,
+  `Name` VARCHAR(64),
+  `Description` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `Id` INT,
+  `FirstName` VARCHAR(64),
+  `LastName` VARCHAR(64),
+  `PhoneNumber` VARCHAR(64),
+  `school_id` INT,
+  `Grade` VARCHAR(64),
+  `ParentFirstName` VARCHAR(64),
+  `ParentLastName` VARCHAR(64),
+  `ParentPhoneNumber` VARCHAR(64),
+  `ParentEmail` VARCHAR(64),
+  `security_type_id` INT,
+  `Email` VARCHAR(64),
+  `Password` VARCHAR(64),
+  `AltPhoneNumber` VARCHAR(64),
+  `Position` VARCHAR(64),
+  `City` VARCHAR(64),
+  `State` VARCHAR(64),
+  `Address1` VARCHAR(64),
+  `Address2` VARCHAR(64),
+  `Zip` VARCHAR(64),
+  PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `studentForms` (
+  `student_id` INT,
+  `form_id` INT,
+  `status_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `studentProjects` (
+  `student_id` INT,
+  `project_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `sponsorProjects` (
+  `project_id` INT,
+  `teacher_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_617879_createDatabase') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_617879_createDatabase') AS relationships;
+DROP DATABASE `db_617879_createDatabase`;
+UNINSTALL EXTENSION vsql_schematron;

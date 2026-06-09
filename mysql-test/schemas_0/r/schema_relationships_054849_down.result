@@ -1,0 +1,37 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 054849_down
+#
+CREATE DATABASE `db_054849_down`;
+USE `db_054849_down`;
+CREATE TABLE `sensor_types` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sensors` (
+`id` INT,
+`public_id` INT,
+`node_id` INT,
+`type_id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `measurements` (
+`id` INT,
+`sensor_id` INT,
+`value` DECIMAL(10,2),
+`measured_at` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_054849_down') AS relationships;
+relationships
+Database: db_054849_down
+
+Table Connections:
+------------------
+[Implied]  measurements.sensor_id -> sensors.id
+[Implied]  sensors.node_id -> sensors.id
+
+DROP DATABASE `db_054849_down`;
+UNINSTALL EXTENSION vsql_schematron;

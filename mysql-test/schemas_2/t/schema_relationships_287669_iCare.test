@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 287669_iCare
+--echo #
+CREATE DATABASE `db_287669_iCare`;
+USE `db_287669_iCare`;
+
+CREATE TABLE `Users` (
+  `id` INT,
+  `email` VARCHAR(64),
+  `pass` VARCHAR(64),
+  `displayName` VARCHAR(64),
+  `dateCreated` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `UserPreferences` (
+  `email` VARCHAR(64),
+  `notiInterval` INT,
+  `notiSound` VARCHAR(64),
+  `notiSoundOn` BOOL,
+  `timerUsageOn` BOOL,
+  `appUsageOn` BOOL,
+  PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TimerUsage` (
+  `email` VARCHAR(64),
+  `screenTime` INT,
+  `timerCount` INT,
+  `usageDate` DATETIME,
+  PRIMARY KEY (`email`, `usageDate`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AppUsage` (
+  `email` VARCHAR(64),
+  `appName` VARCHAR(64),
+  `appTime` INT,
+  `usageDate` DATETIME,
+  PRIMARY KEY (`email`, `appName`, `usageDate`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_287669_iCare') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_287669_iCare') AS relationships;
+DROP DATABASE `db_287669_iCare`;
+UNINSTALL EXTENSION vsql_schematron;

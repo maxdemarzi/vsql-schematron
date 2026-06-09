@@ -1,0 +1,101 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 616076_1423341385
+#
+CREATE DATABASE `db_616076_1423341385`;
+USE `db_616076_1423341385`;
+CREATE TABLE `session_info` (
+`session_id` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`session_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `proc_info` (
+`session_id` INT,
+`rec_time` DATETIME,
+`proc_id` INT,
+`name` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `event_type` (
+`type_id` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`type_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_log` (
+`session_id` INT,
+`event_id` INT,
+`proc_id` INT,
+`event_time` DATETIME,
+`event_type` INT,
+PRIMARY KEY (`event_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cpu_sys` (
+`session_id` INT,
+`rec_time` DATETIME,
+`user_mode` DECIMAL(10,2),
+`kernel_mode` DECIMAL(10,2),
+`idle_mode` DECIMAL(10,2),
+`percent` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `cpu_proc` (
+`session_id` INT,
+`rec_time` DATETIME,
+`proc_id` INT,
+`priority` INT,
+`ctx_switches` INT,
+`threads` INT,
+`user_mode` DECIMAL(10,2),
+`kernel_mode` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `mem_sys` (
+`session_id` INT,
+`rec_time` DATETIME,
+`available` INT,
+`percent` DECIMAL(10,2),
+`used` INT,
+`free` INT,
+`swap_total` INT,
+`swap_free` INT,
+`swap_in` INT,
+`swap_out` INT,
+`swap_percent` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `mem_proc` (
+`session_id` INT,
+`rec_time` DATETIME,
+`proc_id` INT,
+`used` INT,
+`virtual` INT,
+`percent` DECIMAL(10,2)
+) CHARACTER SET latin1;
+CREATE TABLE `io_sys` (
+`session_id` INT,
+`rec_time` DATETIME,
+`bytes_sent` INT,
+`bytes_received` INT,
+`packets_sent` INT,
+`packets_received` INT,
+`errors_in` INT,
+`errors_out` INT,
+`dropped_in` INT,
+`dropped_out` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_616076_1423341385') AS relationships;
+relationships
+Database: db_616076_1423341385
+
+Table Connections:
+------------------
+[Implied]  cpu_proc.session_id -> session_info.session_id
+[Implied]  cpu_sys.session_id -> session_info.session_id
+[Implied]  event_log.event_type -> event_type.type_id
+[Implied]  event_log.proc_id -> cpu_proc.proc_id
+[Implied]  event_log.session_id -> session_info.session_id
+[Implied]  io_sys.session_id -> session_info.session_id
+[Implied]  mem_proc.proc_id -> cpu_proc.proc_id
+[Implied]  mem_proc.session_id -> session_info.session_id
+[Implied]  mem_sys.session_id -> session_info.session_id
+[Implied]  proc_info.proc_id -> cpu_proc.proc_id
+[Implied]  proc_info.session_id -> session_info.session_id
+
+DROP DATABASE `db_616076_1423341385`;
+UNINSTALL EXTENSION vsql_schematron;

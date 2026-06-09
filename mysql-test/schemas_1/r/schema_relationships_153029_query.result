@@ -1,0 +1,52 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 153029_query
+#
+CREATE DATABASE `db_153029_query`;
+USE `db_153029_query`;
+CREATE TABLE `departments` (
+`dept_no` VARCHAR(64),
+`dept_name` VARCHAR(64),
+PRIMARY KEY (`dept_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `dept_emp` (
+`emp_no` INT,
+`dept_no` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `dept_manager` (
+`dept_no` VARCHAR(64),
+`emp_no` INT
+) CHARACTER SET latin1;
+CREATE TABLE `employees` (
+`emp_no` INT,
+`emp_title` VARCHAR(64),
+`birth_date` DATETIME,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`sex` VARCHAR(64),
+`hire_date` DATETIME,
+PRIMARY KEY (`emp_no`)
+) CHARACTER SET latin1;
+CREATE TABLE `salaries` (
+`emp_no` INT,
+`salary` INT
+) CHARACTER SET latin1;
+CREATE TABLE `titles` (
+`title_id` VARCHAR(64),
+`title` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_153029_query') AS relationships;
+relationships
+Database: db_153029_query
+
+Table Connections:
+------------------
+[Implied]  dept_emp.dept_no -> departments.dept_no
+[Implied]  dept_emp.emp_no -> employees.emp_no
+[Implied]  dept_manager.dept_no -> departments.dept_no
+[Implied]  dept_manager.emp_no -> employees.emp_no
+[Implied]  employees.emp_title -> titles.title_id
+[Implied]  salaries.emp_no -> employees.emp_no
+
+DROP DATABASE `db_153029_query`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,120 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 157962_db-first%20edition
+#
+CREATE DATABASE `db_157962_db_first_20edition`;
+USE `db_157962_db_first_20edition`;
+CREATE TABLE `College` (
+`collegeID` INT,
+`name` VARCHAR(64),
+`addr1` VARCHAR(64),
+`addr2` VARCHAR(64),
+`postalCode` VARCHAR(64),
+`county` VARCHAR(64),
+`contactNum` VARCHAR(64),
+PRIMARY KEY (`collegeID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Course` (
+`collegeID` INT,
+`courseCode` VARCHAR(64),
+`courseName` VARCHAR(64),
+PRIMARY KEY (`courseCode`)
+) CHARACTER SET latin1;
+CREATE TABLE `Student` (
+`studentNumber` VARCHAR(64),
+`fname` VARCHAR(64),
+`lname` VARCHAR(64),
+`pass` VARCHAR(64),
+`email` VARCHAR(64),
+`addr1` VARCHAR(64),
+`addr2` VARCHAR(64),
+`county` VARCHAR(64),
+`country` VARCHAR(64),
+`nationality` VARCHAR(64),
+`courseCode` VARCHAR(64),
+PRIMARY KEY (`studentNumber`)
+) CHARACTER SET latin1;
+CREATE TABLE `Classes` (
+`className` VARCHAR(64),
+`lecturer` VARCHAR(64),
+`assistant` VARCHAR(64),
+`courseCode` VARCHAR(64),
+PRIMARY KEY (`className`, `courseCode`)
+) CHARACTER SET latin1;
+CREATE TABLE `Grade` (
+`ClassName` VARCHAR(64),
+`studentNumber` VARCHAR(64),
+`grade` VARCHAR(64),
+PRIMARY KEY (`studentNumber`, `ClassName`)
+) CHARACTER SET latin1;
+CREATE TABLE `TimeSlot` (
+`slotID` INT,
+`timeStart` DATETIME,
+`timeEnd` DATETIME,
+PRIMARY KEY (`slotID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Timetable` (
+`she_Day` VARCHAR(64),
+`she_TimeSlot` INT,
+`className` VARCHAR(64),
+`courseCode` VARCHAR(64),
+PRIMARY KEY (`she_TimeSlot`, `className`, `courseCode`)
+) CHARACTER SET latin1;
+CREATE TABLE `Library` (
+`bookID` VARCHAR(64),
+`collegeID` INT,
+`title` VARCHAR(64),
+`author` VARCHAR(64),
+`description` VARCHAR(64),
+`image` VARCHAR(64),
+`category` VARCHAR(64),
+PRIMARY KEY (`bookID`, `collegeID`)
+) CHARACTER SET latin1;
+CREATE TABLE `MyBooks` (
+`bookID` VARCHAR(64),
+`studentID` VARCHAR(64),
+PRIMARY KEY (`bookID`, `studentID`)
+) CHARACTER SET latin1;
+CREATE TABLE `News` (
+`newsId` INT,
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`location` VARCHAR(64),
+`image` VARCHAR(64),
+`date` VARCHAR(64),
+`collegeID` INT,
+PRIMARY KEY (`newsId`)
+) CHARACTER SET latin1;
+CREATE TABLE `Support` (
+`supportName` VARCHAR(64),
+`desc` VARCHAR(64),
+`contactNum` VARCHAR(64),
+`location` VARCHAR(64),
+`collegeID` INT,
+PRIMARY KEY (`supportName`, `collegeID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_157962_db_first_20edition') AS relationships;
+relationships
+Database: db_157962_db_first_20edition
+
+Table Connections:
+------------------
+[Implied]  Classes.className -> Grade.ClassName
+[Implied]  Classes.className -> Timetable.className
+[Implied]  Classes.courseCode -> Course.courseCode
+[Implied]  Course.collegeID -> College.collegeID
+[Implied]  Grade.ClassName -> Timetable.className
+[Implied]  Grade.studentNumber -> Student.studentNumber
+[Implied]  Library.bookID -> MyBooks.bookID
+[Implied]  Library.collegeID -> College.collegeID
+[Implied]  MyBooks.bookID -> Library.bookID
+[Implied]  MyBooks.studentID -> Student.studentNumber
+[Implied]  News.collegeID -> College.collegeID
+[Implied]  Student.courseCode -> Course.courseCode
+[Implied]  Support.collegeID -> College.collegeID
+[Implied]  Timetable.className -> Grade.ClassName
+[Implied]  Timetable.courseCode -> Course.courseCode
+[Implied]  Timetable.she_TimeSlot -> TimeSlot.slotID
+
+DROP DATABASE `db_157962_db_first_20edition`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,50 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 577815_seed
+--echo #
+CREATE DATABASE `db_577815_seed`;
+USE `db_577815_seed`;
+
+CREATE TABLE `department` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `salary` DECIMAL(10,2),
+  `department_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employee` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `role_id` INT,
+  `manager_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_577815_seed') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_577815_seed') AS relationships;
+DROP DATABASE `db_577815_seed`;
+UNINSTALL EXTENSION vsql_schematron;

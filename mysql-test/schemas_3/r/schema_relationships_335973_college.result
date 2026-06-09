@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 335973_college
+#
+CREATE DATABASE `db_335973_college`;
+USE `db_335973_college`;
+CREATE TABLE `professors` (
+`prof_id` INT,
+`name` VARCHAR(64),
+`rank` INT,
+`age` INT,
+`specialization` VARCHAR(64),
+PRIMARY KEY (`prof_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `projects` (
+`project_num` VARCHAR(64),
+`sponsor` VARCHAR(64),
+`start_date` DATETIME,
+`end_date` DATETIME,
+`budget` DECIMAL(10,2),
+PRIMARY KEY (`project_num`)
+) CHARACTER SET latin1;
+CREATE TABLE `students` (
+`usn` VARCHAR(64),
+`name` VARCHAR(64),
+`age` INT,
+`degree` VARCHAR(64),
+`prof_id` INT,
+PRIMARY KEY (`usn`, `prof_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `prof_works` (
+`prof_work_id` INT,
+`prof_id` INT,
+`project_num` VARCHAR(64),
+PRIMARY KEY (`prof_work_id`, `prof_id`, `project_num`)
+) CHARACTER SET latin1;
+CREATE TABLE `student_works` (
+`student_work_id` INT,
+`usn` VARCHAR(64),
+`project_num` VARCHAR(64),
+PRIMARY KEY (`student_work_id`, `usn`, `project_num`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_335973_college') AS relationships;
+relationships
+Database: db_335973_college
+
+Table Connections:
+------------------
+[Implied]  prof_works.prof_id -> professors.prof_id
+[Implied]  prof_works.project_num -> projects.project_num
+[Implied]  student_works.project_num -> projects.project_num
+[Implied]  student_works.usn -> students.usn
+[Implied]  students.prof_id -> professors.prof_id
+
+DROP DATABASE `db_335973_college`;
+UNINSTALL EXTENSION vsql_schematron;

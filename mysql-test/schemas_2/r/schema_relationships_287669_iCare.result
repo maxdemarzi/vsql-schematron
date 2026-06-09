@@ -1,0 +1,49 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 287669_iCare
+#
+CREATE DATABASE `db_287669_iCare`;
+USE `db_287669_iCare`;
+CREATE TABLE `Users` (
+`id` INT,
+`email` VARCHAR(64),
+`pass` VARCHAR(64),
+`displayName` VARCHAR(64),
+`dateCreated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserPreferences` (
+`email` VARCHAR(64),
+`notiInterval` INT,
+`notiSound` VARCHAR(64),
+`notiSoundOn` BOOL,
+`timerUsageOn` BOOL,
+`appUsageOn` BOOL,
+PRIMARY KEY (`email`)
+) CHARACTER SET latin1;
+CREATE TABLE `TimerUsage` (
+`email` VARCHAR(64),
+`screenTime` INT,
+`timerCount` INT,
+`usageDate` DATETIME,
+PRIMARY KEY (`email`, `usageDate`)
+) CHARACTER SET latin1;
+CREATE TABLE `AppUsage` (
+`email` VARCHAR(64),
+`appName` VARCHAR(64),
+`appTime` INT,
+`usageDate` DATETIME,
+PRIMARY KEY (`email`, `appName`, `usageDate`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_287669_iCare') AS relationships;
+relationships
+Database: db_287669_iCare
+
+Table Connections:
+------------------
+[Implied]  AppUsage.email -> UserPreferences.email
+[Implied]  TimerUsage.email -> UserPreferences.email
+[Implied]  Users.email -> UserPreferences.email
+
+DROP DATABASE `db_287669_iCare`;
+UNINSTALL EXTENSION vsql_schematron;

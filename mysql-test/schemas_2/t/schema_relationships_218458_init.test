@@ -1,0 +1,64 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 218458_init
+--echo #
+CREATE DATABASE `db_218458_init`;
+USE `db_218458_init`;
+
+CREATE TABLE `TOWN` (
+  `ID` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CAR` (
+  `ID` VARCHAR(64),
+  `LABEL` VARCHAR(64),
+  `CLEAN` BOOL,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PERSON_ADDRESS` (
+  `ID` VARCHAR(64),
+  `STREET` VARCHAR(64),
+  `ID_TOWN` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PERSON` (
+  `ID` VARCHAR(64),
+  `FIRSTNAME` VARCHAR(64),
+  `AGE` INT,
+  `BIRTHDAY` BOOL,
+  `ID_PERSON_ADDRESS` VARCHAR(64),
+  `ID_CAR` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PET` (
+  `ID` VARCHAR(64),
+  `NAME` VARCHAR(64),
+  `ID_PERSON` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_218458_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_218458_init') AS relationships;
+DROP DATABASE `db_218458_init`;
+UNINSTALL EXTENSION vsql_schematron;

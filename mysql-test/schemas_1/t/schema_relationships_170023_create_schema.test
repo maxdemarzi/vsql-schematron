@@ -1,0 +1,108 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 170023_create_schema
+--echo #
+CREATE DATABASE `db_170023_create_schema`;
+USE `db_170023_create_schema`;
+
+CREATE TABLE `schedule_ownership` (
+  `id` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `process_type` (
+  `id` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `process` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `process_type_id` INT,
+  `parent_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `process_parameter` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `default_value` VARCHAR(64),
+  `process_id` INT,
+  `required` BOOL,
+  `editable` BOOL,
+  `multiple` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `day_of_week` (
+  `id` INT,
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `schedule` (
+  `id` INT,
+  `schedule_ownership_id` INT,
+  `owner_id` INT,
+  `role_id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activity` (
+  `id` INT,
+  `process_id` INT,
+  `schedule_id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `start_time` VARCHAR(64),
+  `end_time` VARCHAR(64),
+  `repeat_interval` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `configured_parameter` (
+  `id` INT,
+  `process_parameter_id` INT,
+  `activity_id` INT,
+  `parameter_value` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activity_day` (
+  `activity_id` INT,
+  `day_of_week_id` INT,
+  PRIMARY KEY (`activity_id`, `day_of_week_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `activity_dependency` (
+  `activity_id` INT,
+  `dependency_activity_id` INT,
+  PRIMARY KEY (`activity_id`, `dependency_activity_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_170023_create_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_170023_create_schema') AS relationships;
+DROP DATABASE `db_170023_create_schema`;
+UNINSTALL EXTENSION vsql_schematron;

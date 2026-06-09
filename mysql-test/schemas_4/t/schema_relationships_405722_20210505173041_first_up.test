@@ -1,0 +1,86 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 405722_20210505173041-first.up
+--echo #
+CREATE DATABASE `db_405722_20210505173041_first_up`;
+USE `db_405722_20210505173041_first_up`;
+
+CREATE TABLE `userlink` (
+  `userid` VARCHAR(64),
+  `created` DATETIME,
+  PRIMARY KEY (`userid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user` (
+  `userid` VARCHAR(64),
+  `username` VARCHAR(64),
+  `email` VARCHAR(64),
+  `admin` BOOL,
+  `last_login` DATETIME,
+  `password` VARCHAR(64),
+  `created` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `planlink` (
+  `planid` VARCHAR(64),
+  `userid` VARCHAR(64),
+  `created` DATETIME,
+  PRIMARY KEY (`planid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `plan` (
+  `planid` VARCHAR(64),
+  `title` VARCHAR(64),
+  `status` INT,
+  `description` VARCHAR(64),
+  `created` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `commentlink` (
+  `commid` INT,
+  `planid` VARCHAR(64),
+  `userid` VARCHAR(64),
+  `created` DATETIME,
+  PRIMARY KEY (`commid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `comment` (
+  `commid` INT,
+  `content` VARCHAR(64),
+  `created` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `votelink` (
+  `voteid` INT,
+  `planid` VARCHAR(64),
+  `userid` VARCHAR(64),
+  `created` DATETIME,
+  PRIMARY KEY (`voteid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vote` (
+  `voteid` INT,
+  `type` VARCHAR(64),
+  `created` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_405722_20210505173041_first_up') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_405722_20210505173041_first_up') AS relationships;
+DROP DATABASE `db_405722_20210505173041_first_up`;
+UNINSTALL EXTENSION vsql_schematron;

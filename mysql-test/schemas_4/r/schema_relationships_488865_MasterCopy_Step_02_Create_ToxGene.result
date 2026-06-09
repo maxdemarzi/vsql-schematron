@@ -1,0 +1,58 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 488865_MasterCopy_Step_02_Create_ToxGene
+#
+CREATE DATABASE `db_488865_MasterCopy_Step_02_Create_ToxGene`;
+USE `db_488865_MasterCopy_Step_02_Create_ToxGene`;
+CREATE TABLE `Tox_System` (
+`idTox_System` INT,
+`Tox_Sys_Name` VARCHAR(64),
+`Tox_Sys_Desc` VARCHAR(64),
+PRIMARY KEY (`idTox_System`)
+) CHARACTER SET latin1;
+CREATE TABLE `ToxTerm` (
+`idToxTerm` INT,
+`idTox_System` INT,
+`Tox_Native_ID` VARCHAR(64),
+`Tox_Term` VARCHAR(64),
+`Tox_Desc` VARCHAR(64),
+PRIMARY KEY (`idToxTerm`, `idTox_System`)
+) CHARACTER SET latin1;
+CREATE TABLE `ToxParent` (
+`idToxParent` INT,
+`Parent_idToxTerm` INT,
+`Child_idToxTerm` INT,
+`Relationship` VARCHAR(64),
+PRIMARY KEY (`idToxParent`, `Parent_idToxTerm`, `Child_idToxTerm`)
+) CHARACTER SET latin1;
+CREATE TABLE `ToxLink` (
+`idToxLink` INT,
+`idToxTerm` INT,
+`Gene_idGene` INT,
+`Xref_idXref` INT,
+`Class_idClass` INT,
+PRIMARY KEY (`idToxLink`, `idToxTerm`)
+) CHARACTER SET latin1;
+CREATE TABLE `ToxLink_Evid` (
+`idToxLink_Evid` INT,
+`idToxLink` INT,
+`ToxEvid_Type` VARCHAR(64),
+`Tox_Evidence` VARCHAR(64),
+`ToxEvid_Score` DECIMAL(10,2),
+`Create_Date` DATETIME,
+`Update_Date` DATETIME,
+PRIMARY KEY (`idToxLink_Evid`, `idToxLink`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_488865_MasterCopy_Step_02_Create_ToxGene') AS relationships;
+relationships
+Database: db_488865_MasterCopy_Step_02_Create_ToxGene
+
+Table Connections:
+------------------
+[Implied]  ToxLink.idToxTerm -> ToxTerm.idToxTerm
+[Implied]  ToxLink_Evid.idToxLink -> ToxLink.idToxLink
+[Implied]  ToxTerm.idToxTerm -> ToxLink.idToxTerm
+[Implied]  ToxTerm.idTox_System -> Tox_System.idTox_System
+
+DROP DATABASE `db_488865_MasterCopy_Step_02_Create_ToxGene`;
+UNINSTALL EXTENSION vsql_schematron;

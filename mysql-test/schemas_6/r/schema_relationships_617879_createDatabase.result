@@ -1,0 +1,151 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 617879_createDatabase
+#
+CREATE DATABASE `db_617879_createDatabase`;
+USE `db_617879_createDatabase`;
+CREATE TABLE `forms` (
+`Id` INT,
+`Name` VARCHAR(64),
+`FormPath` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `statuses` (
+`Id` INT,
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `projects` (
+`Id` INT,
+`status_id` INT,
+`Name` VARCHAR(64),
+`Electrical` BOOL,
+`Description` VARCHAR(64),
+`Abstract` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`Id` INT,
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+`MaxCapacity` INT,
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `projectCatagories` (
+`project_id` INT,
+`category_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `awards` (
+`Id` INT,
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+`Reward` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `keywords` (
+`Id` INT,
+`Keyword` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `formKeywords` (
+`form_id` INT,
+`keyword_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `awardKeywords` (
+`award_id` INT,
+`keyword_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `categoryKeywords` (
+`category_id` INT,
+`keyword_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `schools` (
+`Id` INT,
+`Name` VARCHAR(64),
+`City` VARCHAR(64),
+`State` VARCHAR(64),
+`Address1` VARCHAR(64),
+`Address2` VARCHAR(64),
+`Zip` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `events` (
+`Id` INT,
+`Name` VARCHAR(64),
+`StartDate` DATETIME,
+`EndDate` DATETIME,
+`Description` VARCHAR(64),
+`Location` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `security_types` (
+`Id` INT,
+`Name` VARCHAR(64),
+`Description` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`Id` INT,
+`FirstName` VARCHAR(64),
+`LastName` VARCHAR(64),
+`PhoneNumber` VARCHAR(64),
+`school_id` INT,
+`Grade` VARCHAR(64),
+`ParentFirstName` VARCHAR(64),
+`ParentLastName` VARCHAR(64),
+`ParentPhoneNumber` VARCHAR(64),
+`ParentEmail` VARCHAR(64),
+`security_type_id` INT,
+`Email` VARCHAR(64),
+`Password` VARCHAR(64),
+`AltPhoneNumber` VARCHAR(64),
+`Position` VARCHAR(64),
+`City` VARCHAR(64),
+`State` VARCHAR(64),
+`Address1` VARCHAR(64),
+`Address2` VARCHAR(64),
+`Zip` VARCHAR(64),
+PRIMARY KEY (`Id`)
+) CHARACTER SET latin1;
+CREATE TABLE `studentForms` (
+`student_id` INT,
+`form_id` INT,
+`status_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `studentProjects` (
+`student_id` INT,
+`project_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `sponsorProjects` (
+`project_id` INT,
+`teacher_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_617879_createDatabase') AS relationships;
+relationships
+Database: db_617879_createDatabase
+
+Table Connections:
+------------------
+[Implied]  awardKeywords.award_id -> awards.Id
+[Implied]  awardKeywords.keyword_id -> keywords.Id
+[Implied]  categoryKeywords.category_id -> categories.Id
+[Implied]  categoryKeywords.keyword_id -> keywords.Id
+[Implied]  formKeywords.form_id -> forms.Id
+[Implied]  formKeywords.keyword_id -> keywords.Id
+[Implied]  projectCatagories.category_id -> categories.Id
+[Implied]  projectCatagories.project_id -> projects.Id
+[Implied]  projects.status_id -> statuses.Id
+[Implied]  sponsorProjects.project_id -> projects.Id
+[Implied]  sponsorProjects.teacher_id -> users.Id
+[Implied]  studentForms.form_id -> forms.Id
+[Implied]  studentForms.status_id -> statuses.Id
+[Implied]  studentForms.student_id -> users.Id
+[Implied]  studentProjects.project_id -> projects.Id
+[Implied]  studentProjects.student_id -> users.Id
+[Implied]  users.ParentEmail -> users.Email
+[Implied]  users.school_id -> schools.Id
+[Implied]  users.security_type_id -> security_types.Id
+
+DROP DATABASE `db_617879_createDatabase`;
+UNINSTALL EXTENSION vsql_schematron;

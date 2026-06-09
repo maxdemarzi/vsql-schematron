@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 526338_funregulation_GRN_db_script
+#
+CREATE DATABASE `db_526338_funregulation_GRN_db_script`;
+USE `db_526338_funregulation_GRN_db_script`;
+CREATE TABLE `gene` (
+`organism` VARCHAR(64),
+`locus_tag` VARCHAR(64),
+`name` VARCHAR(64),
+`is_tf` INT,
+PRIMARY KEY (`organism`, `locus_tag`)
+) CHARACTER SET latin1;
+CREATE TABLE `ortho` (
+`src_organism` VARCHAR(64),
+`src_locus_tag` VARCHAR(64),
+`ortho_organism` VARCHAR(64),
+`ortho_locus_tag` VARCHAR(64),
+PRIMARY KEY (`src_organism`, `src_locus_tag`, `ortho_organism`, `ortho_locus_tag`)
+) CHARACTER SET latin1;
+CREATE TABLE `pwm` (
+`organism` VARCHAR(64),
+`locus_tag` VARCHAR(64),
+`motif_id` VARCHAR(64),
+`tf_status` VARCHAR(64),
+`family_name` VARCHAR(64),
+`motif_type` VARCHAR(64),
+`msource_author` VARCHAR(64),
+`msource_year` VARCHAR(64),
+`pmid` VARCHAR(64),
+PRIMARY KEY (`organism`, `locus_tag`, `motif_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `regulation` (
+`src_organism` VARCHAR(64),
+`src_tf_locus_tag` VARCHAR(64),
+`src_tg_locus_tag` VARCHAR(64),
+`interaction` VARCHAR(64),
+`ortho_organism` VARCHAR(64),
+`ortho_tf_locus_tag` VARCHAR(64),
+`ortho_tg_locus_tag` VARCHAR(64),
+PRIMARY KEY (`src_organism`, `src_tf_locus_tag`, `src_tg_locus_tag`, `ortho_organism`, `ortho_tf_locus_tag`, `ortho_tg_locus_tag`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_526338_funregulation_GRN_db_script') AS relationships;
+relationships
+Database: db_526338_funregulation_GRN_db_script
+
+Table Connections:
+------------------
+[Implied]  gene.locus_tag -> pwm.locus_tag
+[Implied]  gene.organism -> pwm.organism
+[Implied]  ortho.ortho_organism -> regulation.ortho_organism
+[Implied]  ortho.src_organism -> regulation.src_organism
+[Implied]  pwm.locus_tag -> gene.locus_tag
+[Implied]  pwm.organism -> gene.organism
+[Implied]  regulation.ortho_organism -> ortho.ortho_organism
+[Implied]  regulation.src_organism -> ortho.src_organism
+
+DROP DATABASE `db_526338_funregulation_GRN_db_script`;
+UNINSTALL EXTENSION vsql_schematron;

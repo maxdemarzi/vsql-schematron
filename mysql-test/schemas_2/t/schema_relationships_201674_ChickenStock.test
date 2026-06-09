@@ -1,0 +1,101 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 201674_ChickenStock
+--echo #
+CREATE DATABASE `db_201674_ChickenStock`;
+USE `db_201674_ChickenStock`;
+
+CREATE TABLE `user` (
+  `user_id` INT,
+  `member_password` VARCHAR(64),
+  `member_email` VARCHAR(64),
+  `member_name` VARCHAR(64),
+  PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `likes` (
+  `likes_id` INT,
+  `user_id` INT,
+  `likes_age` INT,
+  `likes_yearafter` INT,
+  `likes_amount` INT,
+  `likes_matters` VARCHAR(64),
+  `likes_lossaction` VARCHAR(64),
+  PRIMARY KEY (`likes_id`, `user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `type` (
+  `type_id` INT,
+  `likes_id` INT,
+  `user_id` INT,
+  `type_name` VARCHAR(64),
+  `type_risklevel` INT,
+  PRIMARY KEY (`type_id`, `likes_id`, `user_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `stock` (
+  `stock_id` INT,
+  `company_id` INT,
+  `stock_name` VARCHAR(64),
+  `stock_type` VARCHAR(64),
+  `stock_pastyield` INT,
+  `stock_futureyield` INT,
+  `stock_futureprice` INT,
+  `stock_netsell` INT,
+  `stock_netbuy` INT,
+  `stock_closingprice` INT,
+  `stock_highprice` INT,
+  `stock_lowprice` INT,
+  `stock_per` INT,
+  `stock_pbr` INT,
+  PRIMARY KEY (`stock_id`, `company_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `portfolio` (
+  `portfolio_id` INT,
+  `type_id` INT,
+  `likes_id` INT,
+  `user_id` INT,
+  `stock_id` INT,
+  `company_id` INT,
+  `portfolio_ratio` INT,
+  `portfolio_amout` INT,
+  `portfolio_futureyield` INT,
+  `portfolio_risk` INT,
+  `Field` VARCHAR(64),
+  PRIMARY KEY (`portfolio_id`, `type_id`, `likes_id`, `user_id`, `stock_id`, `company_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `company` (
+  `company_id` INT,
+  `company_name` VARCHAR(64),
+  `company_gas` INT,
+  `company_energy` INT,
+  `company_dust` INT,
+  `company_donation` INT,
+  `company_employeerate` INT,
+  `company_boardrate` INT,
+  `company_wagerate` INT,
+  PRIMARY KEY (`company_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_201674_ChickenStock') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_201674_ChickenStock') AS relationships;
+DROP DATABASE `db_201674_ChickenStock`;
+UNINSTALL EXTENSION vsql_schematron;

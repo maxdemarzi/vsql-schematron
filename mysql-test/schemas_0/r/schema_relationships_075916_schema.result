@@ -1,0 +1,390 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 075916_schema
+#
+CREATE DATABASE `db_075916_schema`;
+USE `db_075916_schema`;
+CREATE TABLE `event` (
+`id_event` INT,
+`event_title` VARCHAR(64),
+`start_day` DATETIME,
+`end_day` DATETIME,
+`start_time` DATETIME,
+`end_time` DATETIME,
+`is_full_day` VARCHAR(64),
+`is_recurring` VARCHAR(64),
+`created_by` INT,
+`time_created` DATETIME,
+`parent_event_id` INT,
+`program_id` INT,
+PRIMARY KEY (`id_event`)
+) CHARACTER SET latin1;
+CREATE TABLE `recurring_pattern` (
+`event_id` INT,
+`recurring_type_id` INT,
+`separation_count` INT,
+`max_n_occurences` INT,
+`day_of_week` INT,
+`week_of_month` INT,
+`day_of_month` INT,
+`month_of_year` INT
+) CHARACTER SET latin1;
+CREATE TABLE `recurring_type` (
+`id_recurring_type` INT,
+`recurring_type` VARCHAR(64),
+PRIMARY KEY (`id_recurring_type`)
+) CHARACTER SET latin1;
+CREATE TABLE `event_instance_exception` (
+`id_event_exception` INT,
+`event_id` INT,
+`is_rescheduled` VARCHAR(64),
+`is_cancelled` VARCHAR(64),
+`start_day` DATETIME,
+`end_day` DATETIME,
+`start_time` DATETIME,
+`end_time` DATETIME,
+`is_full_day` VARCHAR(64),
+`created_by` INT,
+`time_created` DATETIME,
+`program_id` INT,
+PRIMARY KEY (`id_event_exception`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_account` (
+`id_user_account` INT,
+`username` VARCHAR(64),
+`email` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`location_id` INT,
+`time_created` DATETIME,
+PRIMARY KEY (`id_user_account`)
+) CHARACTER SET latin1;
+CREATE TABLE `service_provider` (
+`id_service_provider` INT,
+`user_account_id` INT,
+PRIMARY KEY (`id_service_provider`)
+) CHARACTER SET latin1;
+CREATE TABLE `company` (
+`id_company` INT,
+`company_name` VARCHAR(64),
+`time_created` DATETIME,
+PRIMARY KEY (`id_company`)
+) CHARACTER SET latin1;
+CREATE TABLE `location` (
+`id_location` INT,
+`address` VARCHAR(64),
+`address_number` INT,
+`zipcode` VARCHAR(64),
+`phone` VARCHAR(64),
+`address_comp` VARCHAR(64),
+PRIMARY KEY (`id_location`)
+) CHARACTER SET latin1;
+CREATE TABLE `company_employee` (
+`service_provider_id` INT,
+`company_location_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `certification` (
+`id_certification` INT,
+`service_provider_id` INT,
+`certification_name` VARCHAR(64),
+`provider` VARCHAR(64),
+`description` VARCHAR(64),
+`date_earned` DATETIME,
+PRIMARY KEY (`id_certification`)
+) CHARACTER SET latin1;
+CREATE TABLE `program` (
+`id_program` INT,
+`name` INT,
+`description` VARCHAR(64),
+PRIMARY KEY (`id_program`)
+) CHARACTER SET latin1;
+CREATE TABLE `class` (
+`id_class` INT,
+`description` VARCHAR(64),
+`day` DATETIME,
+`program_id` INT,
+`max_capacity` INT,
+PRIMARY KEY (`id_class`)
+) CHARACTER SET latin1;
+CREATE TABLE `class_structure` (
+`class_id` INT,
+`exercise_id` INT,
+`class_structure_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `exercise` (
+`id_exercise` INT,
+`name` VARCHAR(64),
+`exercise_type_id` INT,
+PRIMARY KEY (`id_exercise`)
+) CHARACTER SET latin1;
+CREATE TABLE `exercise_type` (
+`id_exercise_type` INT,
+`exercise_type_description` VARCHAR(64),
+PRIMARY KEY (`id_exercise_type`)
+) CHARACTER SET latin1;
+CREATE TABLE `list_structure` (
+`id_list_structure` INT,
+`structure_name` VARCHAR(64),
+PRIMARY KEY (`id_list_structure`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer` (
+`id_customer` INT,
+`user_account_id` INT,
+`tracker_id` INT,
+PRIMARY KEY (`id_customer`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`id_product` INT,
+`pro_name` VARCHAR(64),
+`pro_description` VARCHAR(64),
+`pro_basic_unit` VARCHAR(64),
+`pro_active_for_sale` VARCHAR(64),
+`pro_category_id` INT,
+PRIMARY KEY (`id_product`)
+) CHARACTER SET latin1;
+CREATE TABLE `company_location` (
+`id_company_location` INT,
+`company_id` INT,
+`location_id` INT,
+PRIMARY KEY (`id_company_location`)
+) CHARACTER SET latin1;
+CREATE TABLE `reservation` (
+`id_reservation` INT,
+`date` DATETIME,
+`start_time` DATETIME,
+`end_time` DATETIME,
+`time_created` DATETIME,
+`created_by` INT,
+`company_location_id` INT,
+`customer_id` INT,
+PRIMARY KEY (`id_reservation`)
+) CHARACTER SET latin1;
+CREATE TABLE `pro_pricing` (
+`id_pro_pricing` INT,
+`product_id` INT,
+`pro_price` DECIMAL(10,2),
+`pro_time_created` DATETIME,
+`pro_date_expiry` DATETIME,
+`pro_is_active` VARCHAR(64),
+PRIMARY KEY (`id_pro_pricing`)
+) CHARACTER SET latin1;
+CREATE TABLE `pro_discount` (
+`id_product_discount` INT,
+`product_id` INT,
+`pro_discount_value` DECIMAL(10,2),
+`pro_time_created` DATETIME,
+`pro_date_expiry` DATETIME,
+`pro_coupon_code` VARCHAR(64),
+`pro_max_discount_amount` DECIMAL(10,2),
+`pro_max_quantity` INT,
+PRIMARY KEY (`id_product_discount`)
+) CHARACTER SET latin1;
+CREATE TABLE `pro_category` (
+`id_pro_category` INT,
+`pro_category` VARCHAR(64),
+PRIMARY KEY (`id_pro_category`)
+) CHARACTER SET latin1;
+CREATE TABLE `sale` (
+`id_sale` INT,
+`customer_id` INT,
+`sale_amount` DECIMAL(10,2),
+`sale_amount_paid` DECIMAL(10,2),
+`time_created` DATETIME,
+`time_paid` DATETIME,
+`payment_type_id` INT,
+`sale_status_id` INT,
+PRIMARY KEY (`id_sale`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment_type` (
+`id_payment_type` INT,
+`type_name` VARCHAR(64),
+PRIMARY KEY (`id_payment_type`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment_data` (
+`id_payment_data` INT,
+`payment_type_id` INT,
+`data_name` INT,
+`fee` DECIMAL(10,2),
+PRIMARY KEY (`id_payment_data`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment_details` (
+`id_payment_details` INT,
+`sale_id` INT,
+`payment_data_id` INT,
+`value` DECIMAL(10,2),
+`payment_date` DATETIME,
+`have_received` VARCHAR(64),
+`received_by` INT,
+PRIMARY KEY (`id_payment_details`)
+) CHARACTER SET latin1;
+CREATE TABLE `pro_inventory` (
+`product_id` INT,
+`pro_in_stock` DECIMAL(10,2),
+`pro_last_update` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `pro_sale_item` (
+`id_product_sale_item` INT,
+`pro_quantity_sold` DECIMAL(10,2),
+`pro_price_per_unit` DECIMAL(10,2),
+`sale_id` INT,
+`product_id` INT,
+PRIMARY KEY (`id_product_sale_item`)
+) CHARACTER SET latin1;
+CREATE TABLE `continuous_service` (
+`id_continuous_service` INT,
+`cos_name` VARCHAR(64),
+`cos_description` VARCHAR(64),
+`cos_basic_unit` VARCHAR(64),
+`cos_active_for_sale` VARCHAR(64),
+`cos_category_id` INT,
+PRIMARY KEY (`id_continuous_service`)
+) CHARACTER SET latin1;
+CREATE TABLE `cos_category` (
+`id_cos_category` INT,
+`cos_category` VARCHAR(64),
+PRIMARY KEY (`id_cos_category`)
+) CHARACTER SET latin1;
+CREATE TABLE `cos_pricing` (
+`id_cos_pricing` INT,
+`continuous_service_id` INT,
+`cos_price` DECIMAL(10,2),
+`cos_time_created` DATETIME,
+`cos_date_expiry` DATETIME,
+`cos_is_active` VARCHAR(64),
+PRIMARY KEY (`id_cos_pricing`)
+) CHARACTER SET latin1;
+CREATE TABLE `cos_discount` (
+`id_cos_discount` INT,
+`continuous_service_id` INT,
+`cos_discount_value` DECIMAL(10,2),
+`cos_time_created` DATETIME,
+`cos_date_expiry` DATETIME,
+`cos_coupon_code` VARCHAR(64),
+`cos_max_discount_amount` DECIMAL(10,2),
+`cos_max_quantity` INT,
+PRIMARY KEY (`id_cos_discount`)
+) CHARACTER SET latin1;
+CREATE TABLE `cos_sale_item` (
+`id_cos_sale_item` INT,
+`cos_quantity_sold` DECIMAL(10,2),
+`cos_price_per_unity` DECIMAL(10,2),
+`sale_id` INT,
+`continuous_service_id` INT,
+`cos_start_time` DATETIME,
+`cos_end_time` DATETIME,
+PRIMARY KEY (`id_cos_sale_item`)
+) CHARACTER SET latin1;
+CREATE TABLE `one_time_service` (
+`id_one_time_service` INT,
+`ots_name` VARCHAR(64),
+`ots_description` VARCHAR(64),
+`ots_basic_unit` VARCHAR(64),
+`ots_active_for_sale` VARCHAR(64),
+`ots_category_id` INT,
+PRIMARY KEY (`id_one_time_service`)
+) CHARACTER SET latin1;
+CREATE TABLE `ots_category` (
+`id_ots_category` INT,
+`ots_category` VARCHAR(64),
+PRIMARY KEY (`id_ots_category`)
+) CHARACTER SET latin1;
+CREATE TABLE `ots_pricing` (
+`id_ots_pricing` INT,
+`one_time_service_id` INT,
+`ots_price` DECIMAL(10,2),
+`ots_time_created` DATETIME,
+`ots_date_expiry` DATETIME,
+`ots_is_active` VARCHAR(64),
+PRIMARY KEY (`id_ots_pricing`)
+) CHARACTER SET latin1;
+CREATE TABLE `ots_discount` (
+`id_ots_discount` INT,
+`one_time_service_id` INT,
+`ots_discount_value` DECIMAL(10,2),
+`ots_time_created` DATETIME,
+`ots_date_expiry` DATETIME,
+`ots_coupon_code` VARCHAR(64),
+`ots_max_discount_amount` INT,
+`ots_max_quantity` INT,
+PRIMARY KEY (`id_ots_discount`)
+) CHARACTER SET latin1;
+CREATE TABLE `ots_sale_item` (
+`id_ots_sale_item` INT,
+`ots_quantity_sold` DECIMAL(10,2),
+`ots_price_per_unity` DECIMAL(10,2),
+`sale_id` INT,
+`one_time_service_id` INT,
+`ots_end_date` DATETIME,
+PRIMARY KEY (`id_ots_sale_item`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer_inventory` (
+`customer_id` INT,
+`one_time_service_id` INT,
+`ots_quantity` DECIMAL(10,2),
+`ots_last_update` DATETIME
+) CHARACTER SET latin1;
+CREATE TABLE `sale_status` (
+`id_sale_status` INT,
+`status_name` VARCHAR(64),
+PRIMARY KEY (`id_sale_status`)
+) CHARACTER SET latin1;
+CREATE TABLE `customer_company` (
+`company_location_id` INT,
+`customer_id` INT,
+`sale_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_075916_schema') AS relationships;
+relationships
+Database: db_075916_schema
+
+Table Connections:
+------------------
+[Implied]  certification.service_provider_id -> service_provider.id_service_provider
+[Implied]  class.program_id -> program.id_program
+[Implied]  class_structure.class_id -> class.id_class
+[Implied]  class_structure.exercise_id -> exercise.id_exercise
+[Implied]  company_employee.company_location_id -> company_location.id_company_location
+[Implied]  company_employee.service_provider_id -> service_provider.id_service_provider
+[Implied]  company_location.company_id -> company.id_company
+[Implied]  company_location.location_id -> location.id_location
+[Implied]  continuous_service.cos_category_id -> cos_category.id_cos_category
+[Implied]  cos_discount.continuous_service_id -> continuous_service.id_continuous_service
+[Implied]  cos_pricing.continuous_service_id -> continuous_service.id_continuous_service
+[Implied]  cos_sale_item.continuous_service_id -> continuous_service.id_continuous_service
+[Implied]  cos_sale_item.sale_id -> sale.id_sale
+[Implied]  customer.user_account_id -> user_account.id_user_account
+[Implied]  customer_company.company_location_id -> company_location.id_company_location
+[Implied]  customer_company.customer_id -> customer.id_customer
+[Implied]  customer_company.sale_id -> sale.id_sale
+[Implied]  customer_inventory.customer_id -> customer.id_customer
+[Implied]  customer_inventory.one_time_service_id -> one_time_service.id_one_time_service
+[Implied]  event.parent_event_id -> event.id_event
+[Implied]  event.program_id -> program.id_program
+[Implied]  event_instance_exception.event_id -> event.id_event
+[Implied]  event_instance_exception.program_id -> program.id_program
+[Implied]  exercise.exercise_type_id -> exercise_type.id_exercise_type
+[Implied]  ots_discount.one_time_service_id -> one_time_service.id_one_time_service
+[Implied]  ots_pricing.one_time_service_id -> one_time_service.id_one_time_service
+[Implied]  ots_sale_item.one_time_service_id -> one_time_service.id_one_time_service
+[Implied]  ots_sale_item.sale_id -> sale.id_sale
+[Implied]  payment_data.payment_type_id -> payment_type.id_payment_type
+[Implied]  payment_details.payment_data_id -> payment_data.id_payment_data
+[Implied]  payment_details.sale_id -> sale.id_sale
+[Implied]  pro_discount.product_id -> product.id_product
+[Implied]  pro_inventory.product_id -> product.id_product
+[Implied]  pro_pricing.product_id -> product.id_product
+[Implied]  pro_sale_item.product_id -> product.id_product
+[Implied]  pro_sale_item.sale_id -> sale.id_sale
+[Implied]  product.pro_category_id -> pro_category.id_pro_category
+[Implied]  recurring_pattern.event_id -> event.id_event
+[Implied]  recurring_pattern.recurring_type_id -> recurring_type.id_recurring_type
+[Implied]  reservation.company_location_id -> company_location.id_company_location
+[Implied]  reservation.customer_id -> customer.id_customer
+[Implied]  sale.customer_id -> customer.id_customer
+[Implied]  sale.payment_type_id -> payment_type.id_payment_type
+[Implied]  sale.sale_status_id -> sale_status.id_sale_status
+[Implied]  service_provider.user_account_id -> user_account.id_user_account
+[Implied]  user_account.location_id -> location.id_location
+
+DROP DATABASE `db_075916_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,129 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 092437_structure.ddl
+#
+CREATE DATABASE `db_092437_structure_ddl`;
+USE `db_092437_structure_ddl`;
+CREATE TABLE `users` (
+`id` INT,
+`login` VARCHAR(64),
+`email` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+`status` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users_actions` (
+`userId` INT,
+`code` VARCHAR(64),
+`action` VARCHAR(64),
+`params` VARCHAR(64),
+`created` DATETIME,
+`expired` DATETIME,
+PRIMARY KEY (`userId`, `code`)
+) CHARACTER SET latin1;
+CREATE TABLE `auth` (
+`userId` INT,
+`provider` VARCHAR(64),
+`foreignKey` VARCHAR(64),
+`token` VARCHAR(64),
+`tokenSecret` VARCHAR(64),
+`tokenType` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+`expired` DATETIME,
+PRIMARY KEY (`userId`, `provider`)
+) CHARACTER SET latin1;
+CREATE TABLE `acl_roles` (
+`id` INT,
+`name` VARCHAR(64),
+`created` DATETIME,
+PRIMARY KEY (`id`, `name`)
+) CHARACTER SET latin1;
+CREATE TABLE `acl_privileges` (
+`roleId` INT,
+`module` VARCHAR(64),
+`privilege` VARCHAR(64)
+) CHARACTER SET latin1;
+CREATE TABLE `acl_users_roles` (
+`userId` INT,
+`roleId` INT,
+PRIMARY KEY (`userId`, `roleId`)
+) CHARACTER SET latin1;
+CREATE TABLE `categories` (
+`id` INT,
+`rootId` INT,
+`parentId` INT,
+`name` VARCHAR(64),
+`alias` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `media` (
+`id` INT,
+`userId` INT,
+`module` VARCHAR(64),
+`title` VARCHAR(64),
+`type` VARCHAR(64),
+`file` VARCHAR(64),
+`thumb` VARCHAR(64),
+`size` INT,
+`created` DATETIME,
+`updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `pages` (
+`id` INT,
+`userId` INT,
+`title` VARCHAR(64),
+`alias` VARCHAR(64),
+`content` VARCHAR(64),
+`keywords` VARCHAR(64),
+`description` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `com_settings` (
+`id` INT,
+`alias` VARCHAR(64),
+`options` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+`countPerPage` INT,
+`relatedTable` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `com_content` (
+`id` INT,
+`settingsId` INT,
+`foreignKey` INT,
+`userId` INT,
+`parentId` INT,
+`content` VARCHAR(64),
+`created` DATETIME,
+`updated` DATETIME,
+`status` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_092437_structure_ddl') AS relationships;
+relationships
+Database: db_092437_structure_ddl
+
+Table Connections:
+------------------
+[Implied]  acl_privileges.roleId -> acl_users_roles.roleId
+[Implied]  acl_users_roles.userId -> users.id
+[Implied]  auth.userId -> users.id
+[Implied]  categories.parentId -> categories.id
+[Implied]  categories.rootId -> categories.id
+[Implied]  com_content.parentId -> com_content.id
+[Implied]  com_content.settingsId -> com_settings.id
+[Implied]  com_content.userId -> users.id
+[Implied]  media.userId -> users.id
+[Implied]  pages.userId -> users.id
+[Implied]  users_actions.userId -> users.id
+
+DROP DATABASE `db_092437_structure_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

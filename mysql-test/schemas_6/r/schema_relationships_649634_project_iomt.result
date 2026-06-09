@@ -1,0 +1,44 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 649634_project_iomt
+#
+CREATE DATABASE `db_649634_project_iomt`;
+USE `db_649634_project_iomt`;
+CREATE TABLE `blood` (
+`blood_id` INT,
+`blood_name` VARCHAR(64),
+PRIMARY KEY (`blood_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `data` (
+`hid` INT,
+`temp_body` DECIMAL(10,2),
+`spo2` DECIMAL(10,2),
+`heart_rate` DECIMAL(10,2),
+`timeStamp` DATETIME,
+PRIMARY KEY (`hid`, `timeStamp`)
+) CHARACTER SET latin1;
+CREATE TABLE `patient` (
+`hid` INT,
+`p_Fname` VARCHAR(64),
+`p_Lname` INT,
+`dob` DATETIME,
+`blood` INT
+) CHARACTER SET latin1;
+CREATE TABLE `patient_mass` (
+`hid` INT,
+`weight` DECIMAL(10,2),
+`height` DECIMAL(10,2),
+`timeStamp` DATETIME
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_649634_project_iomt') AS relationships;
+relationships
+Database: db_649634_project_iomt
+
+Table Connections:
+------------------
+[Implied]  patient.blood -> blood.blood_id
+[Implied]  patient.hid -> data.hid
+[Implied]  patient_mass.hid -> data.hid
+
+DROP DATABASE `db_649634_project_iomt`;
+UNINSTALL EXTENSION vsql_schematron;

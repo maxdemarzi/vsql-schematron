@@ -1,0 +1,80 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 180190_V1__Initial
+#
+CREATE DATABASE `db_180190_V1_Initial`;
+USE `db_180190_V1_Initial`;
+CREATE TABLE `account` (
+`id` INT,
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`is_enabled` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_role` (
+`email` VARCHAR(64),
+`role` VARCHAR(64),
+PRIMARY KEY (`email`, `role`)
+) CHARACTER SET latin1;
+CREATE TABLE `account_profile` (
+`account_id` INT,
+`title` VARCHAR(64),
+`forename` VARCHAR(64),
+`surname` VARCHAR(64),
+`institution` VARCHAR(64),
+`city` VARCHAR(64),
+`research_area` VARCHAR(64),
+PRIMARY KEY (`account_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `media` (
+`id` INT,
+`original_name` VARCHAR(64),
+`mime_type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `wiki_page` (
+`id` INT,
+`type` VARCHAR(64),
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+`media_id` INT,
+`reference` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `device_availability` (
+`id` INT,
+`device_id` INT,
+`comment` VARCHAR(64),
+`german_postal_code` VARCHAR(64),
+`institution` VARCHAR(64),
+`research_group` VARCHAR(64),
+`account_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `paper` (
+`icebreaker_id` INT,
+`doi` VARCHAR(64),
+`core_id` VARCHAR(64),
+`title` VARCHAR(64),
+`abstract` VARCHAR(64),
+`has_full_text` BOOL,
+`year` INT,
+`topics` VARCHAR(64),
+`subjects` VARCHAR(64),
+`language_detected_most_likely` VARCHAR(64),
+`language_detected_probabilities` VARCHAR(64),
+PRIMARY KEY (`icebreaker_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_180190_V1_Initial') AS relationships;
+relationships
+Database: db_180190_V1_Initial
+
+Table Connections:
+------------------
+[Implied]  account.email -> account_role.email
+[Implied]  account_profile.account_id -> account.id
+[Implied]  device_availability.account_id -> account.id
+[Implied]  wiki_page.media_id -> media.id
+
+DROP DATABASE `db_180190_V1_Initial`;
+UNINSTALL EXTENSION vsql_schematron;

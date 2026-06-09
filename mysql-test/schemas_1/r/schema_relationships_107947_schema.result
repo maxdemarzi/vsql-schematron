@@ -1,0 +1,135 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 107947_schema
+#
+CREATE DATABASE `db_107947_schema`;
+USE `db_107947_schema`;
+CREATE TABLE `user` (
+`id` INT,
+`email` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_profile` (
+`user_id` INT,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_group` (
+`id` INT,
+`user_id` INT,
+`group_id` INT,
+`date_added` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`parent_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `category_tree` (
+`id` INT,
+`ancestor_id` INT,
+`descendant_id` INT,
+`distance` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product` (
+`id` INT,
+`sku` VARCHAR(64),
+`name` VARCHAR(64),
+`price` DECIMAL(10,2),
+`stock_quantity` DECIMAL(10,2),
+`status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_category` (
+`id` INT,
+`product_id` INT,
+`category_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `delivery_address` (
+`id` INT,
+`street_address` VARCHAR(64),
+`city` VARCHAR(64),
+`state` VARCHAR(64),
+`country` VARCHAR(64),
+`postal_code` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order` (
+`id` INT,
+`code` VARCHAR(64),
+`date_created` DATETIME,
+`user_id` INT,
+`delivery_address_id` INT,
+`is_deleted` INT,
+`status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_item` (
+`id` INT,
+`order_id` INT,
+`product_id` INT,
+`quantity` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_shipping` (
+`order_id` INT,
+`status` INT,
+PRIMARY KEY (`order_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_shipping_event` (
+`id` INT,
+`order_shipping_id` INT,
+`event_time` DATETIME,
+`event_description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `store` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `store_product` (
+`id` INT,
+`store_id` INT,
+`product_id` INT,
+`price` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_107947_schema') AS relationships;
+relationships
+Database: db_107947_schema
+
+Table Connections:
+------------------
+[Implied]  category.parent_id -> category.id
+[Implied]  category_tree.ancestor_id -> category_tree.id
+[Implied]  category_tree.descendant_id -> category_tree.id
+[Implied]  category_tree.id -> category.id
+[Implied]  order.delivery_address_id -> delivery_address.id
+[Implied]  order.user_id -> user.id
+[Implied]  order_item.order_id -> order.id
+[Implied]  order_item.product_id -> product.id
+[Implied]  order_shipping.order_id -> order.id
+[Implied]  order_shipping_event.order_shipping_id -> order_shipping.order_id
+[Implied]  product_category.category_id -> category.id
+[Implied]  product_category.product_id -> product.id
+[Implied]  store_product.product_id -> product.id
+[Implied]  store_product.store_id -> store.id
+[Implied]  user_group.group_id -> group.id
+[Implied]  user_group.user_id -> user.id
+[Implied]  user_profile.user_id -> user.id
+
+DROP DATABASE `db_107947_schema`;
+UNINSTALL EXTENSION vsql_schematron;

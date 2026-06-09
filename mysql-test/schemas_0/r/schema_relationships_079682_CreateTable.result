@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 079682_CreateTable
+#
+CREATE DATABASE `db_079682_CreateTable`;
+USE `db_079682_CreateTable`;
+CREATE TABLE `Shop` (
+`shop_id` INT,
+`shop_name` VARCHAR(64),
+`shop_tel` VARCHAR(64),
+`shop_address` VARCHAR(64),
+PRIMARY KEY (`shop_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Staff` (
+`staff_id` INT,
+`staff_name` VARCHAR(64),
+`staff_tel` VARCHAR(64),
+`staff_address` VARCHAR(64),
+`staff_email` VARCHAR(64),
+`staff_id_card` VARCHAR(64),
+`account` VARCHAR(64),
+`password` VARCHAR(64),
+`position` VARCHAR(64),
+PRIMARY KEY (`staff_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Drink` (
+`drink_id` INT,
+`drink_code` VARCHAR(64),
+`drink_name` VARCHAR(64),
+`drink_unit_price` DECIMAL(10,2),
+`sold` INT,
+PRIMARY KEY (`drink_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Invoice` (
+`invoice_id` INT,
+`shop_id` INT,
+`staff_id` INT,
+`invoice_date` DATETIME,
+PRIMARY KEY (`invoice_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `InvoiceDetails` (
+`invoice_id` INT,
+`drink_code` VARCHAR(64),
+`quantity` INT,
+PRIMARY KEY (`invoice_id`, `drink_code`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_079682_CreateTable') AS relationships;
+relationships
+Database: db_079682_CreateTable
+
+Table Connections:
+------------------
+[Implied]  Drink.drink_code -> InvoiceDetails.drink_code
+[Implied]  Invoice.shop_id -> Shop.shop_id
+[Implied]  Invoice.staff_id -> Staff.staff_id
+[Implied]  InvoiceDetails.invoice_id -> Invoice.invoice_id
+
+DROP DATABASE `db_079682_CreateTable`;
+UNINSTALL EXTENSION vsql_schematron;

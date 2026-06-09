@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 469702_create-tables
+--echo #
+CREATE DATABASE `db_469702_create_tables`;
+USE `db_469702_create_tables`;
+
+CREATE TABLE `COURSE` (
+  `cNo` VARCHAR(64),
+  `cName` VARCHAR(64),
+  `credit` INT,
+  `offer` INT,
+  PRIMARY KEY (`cNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `DEGREE` (
+  `name` VARCHAR(64),
+  PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bucket_of_electives` (
+  `dName` VARCHAR(64),
+  `numOfCourses` INT,
+  `bNo` INT,
+  PRIMARY KEY (`bNo`, `dName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contains` (
+  `dName` VARCHAR(64),
+  `cNo` VARCHAR(64),
+  `bNo` INT,
+  PRIMARY KEY (`bNo`, `cNo`, `dName`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `prereq` (
+  `prereqCNo` VARCHAR(64),
+  `cNo` VARCHAR(64),
+  `v` INT,
+  PRIMARY KEY (`prereqCNo`, `cNo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `required` (
+  `dName` VARCHAR(64),
+  `cNo` VARCHAR(64),
+  `v` INT,
+  PRIMARY KEY (`dName`, `cNo`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_469702_create_tables') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_469702_create_tables') AS relationships;
+DROP DATABASE `db_469702_create_tables`;
+UNINSTALL EXTENSION vsql_schematron;
