@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 116850_migration
+#
+CREATE DATABASE `db_116850_migration`;
+USE `db_116850_migration`;
+CREATE TABLE `productoDeVenta` (
+`id` INT,
+`idVenta` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `categoria` (
+`id` INT,
+`nombre` VARCHAR(64),
+`idOpcionCategoria` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `opcionCategoria` (
+`id` INT,
+`nombreOpcion` VARCHAR(64),
+`idOpcionValores` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `opcionValores` (
+`id` INT,
+`valor` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `venta` (
+`id` INT,
+`nombre` VARCHAR(64),
+`apellido` VARCHAR(64),
+`domicilio` VARCHAR(64),
+`total` DECIMAL(10,2),
+`descuento` DECIMAL(10,2),
+`totalPagado` DECIMAL(10,2),
+`createdAt` DATETIME,
+`fechaTerminaPagar` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_opcionValoresToproducto` (
+`A` INT,
+`B` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_116850_migration') AS relationships;
+relationships
+Database: db_116850_migration
+
+Table Connections:
+------------------
+[Implied]  categoria.idOpcionCategoria -> opcionCategoria.id
+[Implied]  opcionCategoria.idOpcionValores -> opcionValores.id
+[Implied]  productoDeVenta.idVenta -> venta.id
+
+DROP DATABASE `db_116850_migration`;
+UNINSTALL EXTENSION vsql_schematron;

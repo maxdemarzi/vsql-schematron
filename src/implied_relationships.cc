@@ -403,6 +403,42 @@ void findPass1ImpliedRelationships(
                 continue;
             }
 
+            // Polymorphic Column Exclusion: Skip columns that represent the ID part of a polymorphic relationship (e.g. user_id when user_type is also present)
+            bool is_polymorphic_id = false;
+            std::string col_lower = to_lower(col_a);
+            if (col_lower.length() > 3 && col_lower.rfind("_id") == col_lower.length() - 3) {
+                std::string base_name = col_a.substr(0, col_a.length() - 3);
+                std::string base_lower = to_lower(base_name);
+                for (const auto& other_col_pair : info_a.column_types) {
+                    std::string other_lower = to_lower(other_col_pair.first);
+                    if (other_lower == base_lower + "_type" ||
+                        other_lower == base_lower + "_model" ||
+                        other_lower == base_lower + "_class") {
+                        is_polymorphic_id = true;
+                        break;
+                    }
+                }
+            } else if (col_lower.length() > 2 && col_lower.rfind("id") == col_lower.length() - 2 && std::isupper(col_a[col_a.length() - 2])) {
+                // camelCase ID, e.g. userId
+                std::string base_name = col_a.substr(0, col_a.length() - 2);
+                std::string base_lower = to_lower(base_name);
+                for (const auto& other_col_pair : info_a.column_types) {
+                    std::string other_lower = to_lower(other_col_pair.first);
+                    if (other_lower == base_lower + "type" ||
+                        other_lower == base_lower + "model" ||
+                        other_lower == base_lower + "class" ||
+                        other_lower == base_lower + "_type" ||
+                        other_lower == base_lower + "_model" ||
+                        other_lower == base_lower + "_class") {
+                        is_polymorphic_id = true;
+                        break;
+                    }
+                }
+            }
+            if (is_polymorphic_id) {
+                continue;
+            }
+
             // Strip the table's initials if they prefix the column name (e.g., "oi_quantity" -> "quantity")
             std::string col_a_clean = stripAcronymPrefix(col_a, tbl_a);
             
@@ -1462,11 +1498,14 @@ void findPass2ImpliedRelationships(
             
             bool is_parent = false;
             if (isSubtypeTable(tbl_a, tbl_b)) {
-                if (tbl_a == "logs" || tbl_a == "project_logs") {
-                    std::cerr << "[DEBUG IS_PARENT_DETECTION] isSubtypeTable(" << tbl_a << ", " << tbl_b << ") is true" << std::endl;
+                if (tbl_a == "failed_jobs" && tbl_b == "jobs") {
+                    std::cerr << "[DEBUG SUBTYPE] isSubtypeTable(failed_jobs, jobs) is TRUE!" << std::endl;
                 }
                 is_parent = true;
             } else {
+                if (tbl_a == "failed_jobs" && tbl_b == "jobs") {
+                    std::cerr << "[DEBUG SUBTYPE] isSubtypeTable(failed_jobs, jobs) is FALSE!" << std::endl;
+                }
                 std::string clean_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
                 std::string clean_b = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_b)));
                 if (isPersonTable(clean_a) && isPersonTable(clean_b)) {
@@ -1643,10 +1682,11 @@ void findPass2ImpliedRelationships(
                     }
                 }
                 if (col_a_is_pk) {
-                    // Check if tbl_a already has a relationship to tbl_b via another column
+                    // Check if tbl_a already has a relationship to tbl_b in either direction
                     bool already_has_rel = false;
                     for (const auto& rel : relationships) {
-                        if (rel.from_table == tbl_a && rel.to_table == tbl_b && rel.from_column != col_a) {
+                        if ((rel.from_table == tbl_a && rel.to_table == tbl_b && rel.from_column != col_a) ||
+                            (rel.from_table == tbl_b && rel.to_table == tbl_a)) {
                             already_has_rel = true;
                             break;
                         }
@@ -1841,6 +1881,24 @@ bool endsWithCatalogSuffix(const std::string& name) {
     return false;
 }
 
+bool isCatalogTable(const std::string& name) {
+    if (endsWithCatalogSuffix(name)) return true;
+    static const std::unordered_set<std::string> CATALOG_PREFIXES = {
+        "failed", "failure", "failed_job", "failed_jobs", "log", "logs", "history", "audit", "event", "events",
+        "temp", "tmp", "backup", "backups", "meta", "metadata", "config", "configs", "setting", "settings",
+        "sys", "system", "ref", "reference", "references", "lookup", "lookups", "type", "types", "status", "statuses",
+        "attempt", "attempts"
+    };
+    size_t first_underscore = name.find('_');
+    if (first_underscore != std::string::npos && first_underscore > 0) {
+        std::string prefix = name.substr(0, first_underscore);
+        if (CATALOG_PREFIXES.count(prefix) > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
  * Pass 3: Identifies generic ID matching under safe/unambiguous scenarios (e.g. 2-table schema or name overlaps)
  */
@@ -1857,6 +1915,7 @@ void findPass3ImpliedRelationships(
 
         // Skip history or junction tables
         if (isJunctionOrHistoryTable(tbl_a)) continue;
+        if (isCatalogTable(tbl_a)) continue;
 
         for (const auto& col_pair : info_a.column_types) {
             const std::string& col_a = col_pair.first;
@@ -1889,6 +1948,7 @@ void findPass3ImpliedRelationships(
                     continue;
                 }
                 if (isJunctionOrHistoryTable(tbl_b)) continue;
+                if (isCatalogTable(tbl_b)) continue;
 
                 // Safety: check if tbl_a and tbl_b are already related in the relationships set
                 bool already_related = false;
@@ -1964,7 +2024,7 @@ void findPass3ImpliedRelationships(
                     // In multi-table schemas, only match if there's name similarity or synonym relationship
                     std::string clean_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
                     std::string clean_cand = stripTablePrefix(stripSchemaPrefix(to_lower(cand)));
-                    if (!endsWithCatalogSuffix(clean_a) && !endsWithCatalogSuffix(clean_cand)) {
+                    if (!isCatalogTable(clean_a) && !isCatalogTable(clean_cand)) {
                         bool ok = false;
                         if (isPersonTableOrExtension(clean_a) && isPersonTableOrExtension(clean_cand)) {
                             if (isGenericPersonTable(tbl_a) && isGenericPersonTable(cand)) {
@@ -1982,10 +2042,10 @@ void findPass3ImpliedRelationships(
                 // If there are multiple candidates, check for name overlap or synonym
                 std::vector<std::string> prioritized;
                 std::string clean_a = stripTablePrefix(stripSchemaPrefix(to_lower(tbl_a)));
-                if (!endsWithCatalogSuffix(clean_a)) {
+                if (!isCatalogTable(clean_a)) {
                     for (const auto& cand : candidates) {
                         std::string clean_cand = stripTablePrefix(stripSchemaPrefix(to_lower(cand)));
-                        if (endsWithCatalogSuffix(clean_cand)) continue;
+                        if (isCatalogTable(clean_cand)) continue;
 
                         // 1. Synonym match (both are user/person tables, and at least one is generic)
                         if (isPersonTableOrExtension(clean_a) && isPersonTableOrExtension(clean_cand)) {
@@ -2020,9 +2080,9 @@ void findPass3ImpliedRelationships(
                 
                 Relationship rel;
                 rel.from_table = from_tbl;
-                rel.from_column = effective_pks.at(from_tbl)[0];
+                rel.from_column = (from_tbl == tbl_a) ? col_a : effective_pks.at(from_tbl)[0];
                 rel.to_table = to_tbl;
-                rel.to_column = effective_pks.at(to_tbl)[0];
+                rel.to_column = (to_tbl == tbl_a) ? col_a : effective_pks.at(to_tbl)[0];
                 rel.is_explicit = false;
                 relationships.insert(rel);
             }

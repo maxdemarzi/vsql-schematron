@@ -1,0 +1,89 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 446834_BD_S
+#
+CREATE DATABASE `db_446834_BD_S`;
+USE `db_446834_BD_S`;
+CREATE TABLE `users` (
+`id_usuario` INT,
+`nome_usuario` VARCHAR(64),
+`password` VARCHAR(64),
+`email_usuario` VARCHAR(64),
+`tipo_usuario` VARCHAR(64),
+`data_cadastro` DATETIME,
+`idade` VARCHAR(64),
+`sexo` VARCHAR(64),
+PRIMARY KEY (`id_usuario`)
+) CHARACTER SET latin1;
+CREATE TABLE `questao` (
+`id_questao` INT,
+`titulo` VARCHAR(64),
+`descricao` VARCHAR(64),
+`tipo` VARCHAR(64),
+PRIMARY KEY (`id_questao`)
+) CHARACTER SET latin1;
+CREATE TABLE `questionario` (
+`id_questionario` INT,
+`titulo` VARCHAR(64),
+`descricao` VARCHAR(64),
+`data_ini` DATETIME,
+`data_fim` DATETIME,
+PRIMARY KEY (`id_questionario`)
+) CHARACTER SET latin1;
+CREATE TABLE `questionario_questao` (
+`id_questionario_questao` INT,
+`id_questao` INT,
+`id_questionario` INT,
+`peso` VARCHAR(64),
+PRIMARY KEY (`id_questionario_questao`)
+) CHARACTER SET latin1;
+CREATE TABLE `respostas` (
+`id_resposta` INT,
+`id_usuario` INT,
+`id_questionario` INT,
+`id_questao` INT,
+`resposta` VARCHAR(64),
+`data_fim` DATETIME,
+PRIMARY KEY (`id_resposta`)
+) CHARACTER SET latin1;
+CREATE TABLE `questionario_demografico` (
+`id_questionario_demografico` INT,
+`id_usuario` INT,
+`data_resp` DATETIME,
+`nome_respondente` VARCHAR(64),
+`idade_respondente` VARCHAR(64),
+`ec_respondente` VARCHAR(64),
+`cidade_respondente` VARCHAR(64),
+`qtd_automoveis` VARCHAR(64),
+`qtd_empregados` VARCHAR(64),
+`qtd_maquina_lavar` VARCHAR(64),
+`qtd_banheiro` VARCHAR(64),
+`qtd_dvd` VARCHAR(64),
+`qtd_geladeira` VARCHAR(64),
+`qtd_freezer` VARCHAR(64),
+`qtd_pc` VARCHAR(64),
+`qtd_lava` VARCHAR(64),
+`qtd_micro` VARCHAR(64),
+`qtd_moto` VARCHAR(64),
+`qtd_secadora` VARCHAR(64),
+`origem_agua` VARCHAR(64),
+`tipo_rua` VARCHAR(64),
+`renda` VARCHAR(64),
+`escolaridade_chefe` VARCHAR(64),
+PRIMARY KEY (`id_questionario_demografico`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_446834_BD_S') AS relationships;
+relationships
+Database: db_446834_BD_S
+
+Table Connections:
+------------------
+[Implied]  questionario_demografico.id_usuario -> users.id_usuario
+[Implied]  questionario_questao.id_questao -> questao.id_questao
+[Implied]  questionario_questao.id_questionario -> questionario.id_questionario
+[Implied]  respostas.id_questao -> questao.id_questao
+[Implied]  respostas.id_questionario -> questionario.id_questionario
+[Implied]  respostas.id_usuario -> users.id_usuario
+
+DROP DATABASE `db_446834_BD_S`;
+UNINSTALL EXTENSION vsql_schematron;

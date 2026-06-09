@@ -1,0 +1,43 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 010060_thelia
+#
+CREATE DATABASE `db_010060_thelia`;
+USE `db_010060_thelia`;
+CREATE TABLE `choice_filter_other` (
+`id` INT,
+`type` VARCHAR(64),
+`visible` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `choice_filter` (
+`id` INT,
+`feature_id` INT,
+`attribute_id` INT,
+`other_id` INT,
+`category_id` INT,
+`template_id` INT,
+`position` INT,
+`visible` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `choice_filter_other_i18n` (
+`id` INT,
+`locale` VARCHAR(64),
+`title` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`, `locale`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_010060_thelia') AS relationships;
+relationships
+Database: db_010060_thelia
+
+Table Connections:
+------------------
+[Implied]  choice_filter.other_id -> choice_filter_other.id
+[Implied]  choice_filter_other_i18n.id -> choice_filter.id
+
+DROP DATABASE `db_010060_thelia`;
+UNINSTALL EXTENSION vsql_schematron;

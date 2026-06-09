@@ -1,0 +1,201 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 185131_db
+--echo #
+CREATE DATABASE `db_185131_db`;
+USE `db_185131_db`;
+
+CREATE TABLE `field_of_study` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `main_field` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `duration_of_study` (
+  `id` INT,
+  `value` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `official_duration_of_programme` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `mode_of_study_id` INT,
+  `duration_of_study_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `access_requirements` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `diploma_subject` (
+  `id` INT,
+  `subject_uk` VARCHAR(64),
+  `subject_en` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `previous_document` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `name_en` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ar_dos` (
+  `id` INT,
+  `duration_of_study_id` INT,
+  `access_requirements_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `mode_of_study` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `classification_system` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `criteria` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `protocol` (
+  `id` INT,
+  `name_uk` VARCHAR(64),
+  `name_en` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `duration_of_training` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `mode_of_study_id` INT,
+  `duration_of_study_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `group` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `student` (
+  `id` INT,
+  `family_name` VARCHAR(64),
+  `given_name` VARCHAR(64),
+  `family_name_tr` VARCHAR(64),
+  `given_name_tr` VARCHAR(64),
+  `date_of_birth` DATETIME,
+  `protocol_id` INT,
+  `previous_document_id` INT,
+  `mode_of_study_id` INT,
+  `duration_of_study_id` INT,
+  `group_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ects_credits` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `duration_of_study_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `diploma` (
+  `id` INT,
+  `number` VARCHAR(64),
+  `registration_number` VARCHAR(64),
+  `addition_registration_number` VARCHAR(64),
+  `ects_credits_id` VARCHAR(64),
+  `date_of_issue` DATETIME,
+  `student_id` INT,
+  `main_field_id` INT,
+  `field_of_study_id` INT,
+  `official_duration_of_programme_id` INT,
+  `access_requirements_id` INT,
+  `classification_system_id` INT,
+  `duration_of_training_id` INT,
+  `diploma_subject_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rating_point` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `min_national_score` INT,
+  `max_national_score` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `national_grade` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `min_national_score` INT,
+  `max_national_score` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `educational_component_type` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `educational_component_template` (
+  `id` INT,
+  `educational_component_type_id` INT,
+  `credits` DECIMAL(10,2),
+  `course_title` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `educational_component` (
+  `id` INT,
+  `educational_component_template_id` INT,
+  `national_score` INT,
+  `rating_point_id` INT,
+  `national_grade_id` INT,
+  `diploma_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `variable` (
+  `id` INT,
+  `variable` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_185131_db') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_185131_db') AS relationships;
+DROP DATABASE `db_185131_db`;
+UNINSTALL EXTENSION vsql_schematron;

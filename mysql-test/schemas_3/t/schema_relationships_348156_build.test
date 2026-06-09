@@ -1,0 +1,101 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 348156_build
+--echo #
+CREATE DATABASE `db_348156_build`;
+USE `db_348156_build`;
+
+CREATE TABLE `attendee` (
+  `id` INT,
+  `creation_date` DATETIME,
+  `prefix` VARCHAR(64),
+  `first` VARCHAR(64),
+  `last` VARCHAR(64),
+  `email` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `agency` VARCHAR(64),
+  `role` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `category` (
+  `id` INT,
+  `title` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `reviewer` (
+  `id` INT,
+  `first` VARCHAR(64),
+  `last` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `presentation` (
+  `id` INT,
+  `submission_date` DATETIME,
+  `title` VARCHAR(64),
+  `description` VARCHAR(64),
+  `objective_1` VARCHAR(64),
+  `objective_2` VARCHAR(64),
+  `objective_3` VARCHAR(64),
+  `repurposed_agreement` BOOL,
+  `setup_agreement` BOOL,
+  `equipment_agreement` BOOL,
+  `backup_agreement` BOOL,
+  `timelimit_agreement` BOOL,
+  `time_agreement` BOOL,
+  `handout_agreement` BOOL,
+  `acceptance_agreement` BOOL,
+  `registration_agreement` BOOL,
+  `copyright_agreement` BOOL,
+  `vendor` BOOL,
+  `vendor_agreement` BOOL,
+  `comments` VARCHAR(64),
+  `presenter_id` INT,
+  `presenter_biography` VARCHAR(64),
+  `copresenter_1_id` INT,
+  `copresenter_2_id` INT,
+  `copresenter_3_id` INT,
+  `time` VARCHAR(64),
+  `room` VARCHAR(64),
+  `category_id` INT,
+  `overall_rating` INT,
+  `accepted` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `review` (
+  `id` INT,
+  `reviewer_id` INT,
+  `presentation_id` INT,
+  `grammar_rating` INT,
+  `title_rating` INT,
+  `credibility_rating` INT,
+  `interest_rating` INT,
+  `content_rating` INT,
+  `novelty_rating` INT,
+  `overall_rating` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_348156_build') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_348156_build') AS relationships;
+DROP DATABASE `db_348156_build`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 101393_V1.2__Init_Schema
+#
+CREATE DATABASE `db_101393_V1_2_Init_Schema`;
+USE `db_101393_V1_2_Init_Schema`;
+CREATE TABLE `pivo_entity_link_type` (
+`pivo_entity_link_type` VARCHAR(64),
+`pivo_entity_link_type_enable` BOOL,
+`pivo_entity_link_type_created_at_date` DATETIME,
+`pivo_entity_link_type_created_at_time` DATETIME,
+PRIMARY KEY (`pivo_entity_link_type`)
+) CHARACTER SET latin1;
+CREATE TABLE `pivo_entity_type` (
+`pivo_entity_type` VARCHAR(64),
+`pivo_entity_type_enable` BOOL,
+`pivo_entity_type_created_at_date` DATETIME,
+`pivo_entity_type_created_at_time` DATETIME,
+PRIMARY KEY (`pivo_entity_type`)
+) CHARACTER SET latin1;
+CREATE TABLE `pivo_entity_type_link` (
+`pivo_entity_a_type` VARCHAR(64),
+`pivo_entity_b_type` VARCHAR(64),
+`pivo_entity_link_type` VARCHAR(64),
+`pivo_entity_type_link_enable` BOOL,
+`pivo_entity_type_link_created_at_date` DATETIME,
+`pivo_entity_type_link_created_at_time` DATETIME,
+PRIMARY KEY (`pivo_entity_a_type`, `pivo_entity_b_type`, `pivo_entity_link_type`)
+) CHARACTER SET latin1;
+CREATE TABLE `pivo_entity` (
+`pivo_entity_uuid` VARCHAR(64),
+`pivo_entity_previous_uuid` VARCHAR(64),
+`pivo_entity_data` VARCHAR(64),
+`pivo_entity_type` VARCHAR(64),
+`pivo_entity_enable` BOOL,
+`pivo_entity_created_at_date` DATETIME,
+`pivo_entity_created_at_time` DATETIME,
+`pivo_entity_updated_at_date` DATETIME,
+`pivo_entity_updated_at_time` DATETIME,
+`pivo_entity_version` INT,
+PRIMARY KEY (`pivo_entity_uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `pivo_entity_link` (
+`pivo_entity_a_uuid` VARCHAR(64),
+`pivo_entity_b_uuid` VARCHAR(64),
+`pivo_entity_link_type` VARCHAR(64),
+`pivo_entity_link_enable` BOOL,
+`pivo_entity_link_created_at_date` DATETIME,
+`pivo_entity_link_created_at_time` DATETIME,
+PRIMARY KEY (`pivo_entity_a_uuid`, `pivo_entity_b_uuid`, `pivo_entity_link_type`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_101393_V1_2_Init_Schema') AS relationships;
+relationships
+Database: db_101393_V1_2_Init_Schema
+
+Table Connections:
+------------------
+[Implied]  pivo_entity.pivo_entity_previous_uuid -> pivo_entity.pivo_entity_uuid
+[Implied]  pivo_entity.pivo_entity_type -> pivo_entity_type.pivo_entity_type
+[Implied]  pivo_entity_link.pivo_entity_a_uuid -> pivo_entity.pivo_entity_uuid
+[Implied]  pivo_entity_link.pivo_entity_b_uuid -> pivo_entity.pivo_entity_uuid
+[Implied]  pivo_entity_link.pivo_entity_link_type -> pivo_entity_type.pivo_entity_type
+[Implied]  pivo_entity_type_link.pivo_entity_a_type -> pivo_entity_type.pivo_entity_type
+[Implied]  pivo_entity_type_link.pivo_entity_link_type -> pivo_entity_type.pivo_entity_type
+
+DROP DATABASE `db_101393_V1_2_Init_Schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 587129_createTables
+#
+CREATE DATABASE `db_587129_createTables`;
+USE `db_587129_createTables`;
+CREATE TABLE `Artist` (
+`artistID` INT,
+`name` VARCHAR(64),
+`thumbnail` VARCHAR(64),
+PRIMARY KEY (`artistID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Album` (
+`albumID` INT,
+`name` VARCHAR(64),
+`releaseYear` VARCHAR(64),
+`thumbnail` VARCHAR(64),
+`artistID` INT,
+PRIMARY KEY (`albumID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Track` (
+`trackID` INT,
+`title` VARCHAR(64),
+`length` VARCHAR(64),
+`youtubeAddr` VARCHAR(64),
+`artistID` INT,
+`albumID` INT,
+PRIMARY KEY (`trackID`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`userID` INT,
+`username` VARCHAR(64),
+`lName` VARCHAR(64),
+`fName` VARCHAR(64),
+`password` VARCHAR(64),
+PRIMARY KEY (`userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Role` (
+`roleID` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`roleID`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserRole` (
+`roleID` INT,
+`userID` INT,
+PRIMARY KEY (`roleID`, `userID`)
+) CHARACTER SET latin1;
+CREATE TABLE `UserPlaylist` (
+`playlistID` INT,
+`userID` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`playlistID`)
+) CHARACTER SET latin1;
+CREATE TABLE `Playlist` (
+`ID` INT,
+`playlistID` INT,
+`trackID` INT,
+PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_587129_createTables') AS relationships;
+relationships
+Database: db_587129_createTables
+
+Table Connections:
+------------------
+[Implied]  Album.artistID -> Artist.artistID
+[Implied]  Playlist.playlistID -> Playlist.ID
+[Implied]  Playlist.trackID -> Track.trackID
+[Implied]  Track.albumID -> Album.albumID
+[Implied]  Track.artistID -> Artist.artistID
+[Implied]  UserPlaylist.userID -> User.userID
+[Implied]  UserRole.roleID -> Role.roleID
+[Implied]  UserRole.userID -> User.userID
+
+DROP DATABASE `db_587129_createTables`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,47 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 136582_V1__Create_Tables
+#
+CREATE DATABASE `db_136582_V1_Create_Tables`;
+USE `db_136582_V1_Create_Tables`;
+CREATE TABLE `transaction_method` (
+`uuid` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction_type` (
+`uuid` VARCHAR(64),
+`description` VARCHAR(64),
+`color` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction_category` (
+`uuid` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction` (
+`uuid` VARCHAR(64),
+`tx_date` DATETIME,
+`description` VARCHAR(64),
+`transaction_type_uuid` VARCHAR(64),
+`check_number` VARCHAR(64),
+`transaction_method_uuid` VARCHAR(64),
+`transaction_category_uuid` VARCHAR(64),
+`amount` DECIMAL(10,2),
+`reconciled_date` DATETIME,
+`notes` VARCHAR(64),
+PRIMARY KEY (`uuid`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_136582_V1_Create_Tables') AS relationships;
+relationships
+Database: db_136582_V1_Create_Tables
+
+Table Connections:
+------------------
+[Implied]  transaction.transaction_category_uuid -> transaction_category.uuid
+[Implied]  transaction.transaction_method_uuid -> transaction_method.uuid
+[Implied]  transaction.transaction_type_uuid -> transaction_type.uuid
+
+DROP DATABASE `db_136582_V1_Create_Tables`;
+UNINSTALL EXTENSION vsql_schematron;

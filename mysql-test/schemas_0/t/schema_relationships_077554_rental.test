@@ -1,0 +1,194 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 077554_rental
+--echo #
+CREATE DATABASE `db_077554_rental`;
+USE `db_077554_rental`;
+
+CREATE TABLE `acrents` (
+  `id` INT,
+  `acclient_name` VARCHAR(64),
+  `acshop_no` VARCHAR(64),
+  `acsqu_feet` VARCHAR(64),
+  `acper_rent` VARCHAR(64),
+  `ac_tamount` VARCHAR(64),
+  `ac_date` DATETIME,
+  `status` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `banks` (
+  `id` INT,
+  `bank_name` VARCHAR(64),
+  `branch_cname` VARCHAR(64),
+  `account_num` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `billpays` (
+  `id` INT,
+  `tenant_id` INT,
+  `shop_id` VARCHAR(64),
+  `bi_amount` VARCHAR(64),
+  `bi_pdate` DATETIME,
+  `bi_type` VARCHAR(64),
+  `bi_chdate` DATETIME,
+  `bi_elec` VARCHAR(64),
+  `bi_water` VARCHAR(64),
+  `bi_gas` VARCHAR(64),
+  `bi_schar` VARCHAR(64),
+  `bi_tamount` VARCHAR(64),
+  `status` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `id` INT,
+  `cat_name` VARCHAR(64),
+  `cat_des` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `companies` (
+  `id` INT,
+  `company_name` VARCHAR(64),
+  `short_cname` VARCHAR(64),
+  `ownner_cname` VARCHAR(64),
+  `c_address` VARCHAR(64),
+  `c_phone` VARCHAR(64),
+  `c_mobile` VARCHAR(64),
+  `c_fax` VARCHAR(64),
+  `c_email` VARCHAR(64),
+  `c_web` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `complexes` (
+  `id` INT,
+  `complex_name` VARCHAR(64),
+  `plex_address` VARCHAR(64),
+  `plex_phone` VARCHAR(64),
+  `plex_mobile` VARCHAR(64),
+  `plex_fax` VARCHAR(64),
+  `plex_email` VARCHAR(64),
+  `company_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `migrations` (
+  `id` INT,
+  `migration` VARCHAR(64),
+  `batch` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `model_has_permissions` (
+  `permission_id` INT,
+  `model_id` INT,
+  `model_type` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `model_has_roles` (
+  `role_id` INT,
+  `model_id` INT,
+  `model_type` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `password_resets` (
+  `email` VARCHAR(64),
+  `token` VARCHAR(64),
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `permissions` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `guard_name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `posts` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `body` VARCHAR(64),
+  `user_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `rent_collects` (
+  `id` INT,
+  `company_id` INT,
+  `complex_id` INT,
+  `shop_id` INT,
+  `tenant_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `guard_name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_has_permissions` (
+  `permission_id` INT,
+  `role_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `shops` (
+  `id` INT,
+  `company_id` INT,
+  `complex_id` INT,
+  `shop_no` VARCHAR(64),
+  `squ_feet` VARCHAR(64),
+  `floor` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `remember_token` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_077554_rental') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_077554_rental') AS relationships;
+DROP DATABASE `db_077554_rental`;
+UNINSTALL EXTENSION vsql_schematron;

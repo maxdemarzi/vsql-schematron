@@ -1,0 +1,120 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 042106_bdd
+--echo #
+CREATE DATABASE `db_042106_bdd`;
+USE `db_042106_bdd`;
+
+CREATE TABLE `coor_ban` (
+  `id_coor_ban` INT,
+  `coor_banc_ib` VARCHAR(64),
+  `coor_banc_bi` VARCHAR(64),
+  PRIMARY KEY (`id_coor_ban`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contact` (
+  `id_contact` INT,
+  `adresse` VARCHAR(64),
+  `ville` VARCHAR(64),
+  `code_postal` INT,
+  `tel` VARCHAR(64),
+  `mail` VARCHAR(64),
+  PRIMARY KEY (`id_contact`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `donateur` (
+  `id_donateur` INT,
+  `don_type` VARCHAR(64),
+  `don_nom` VARCHAR(64),
+  `don_prenom` VARCHAR(64),
+  `don_genre` VARCHAR(64),
+  `don_naissance` DATETIME,
+  `coor_ban_id_coor_ban` INT,
+  `contact_id_contact` INT,
+  PRIMARY KEY (`id_donateur`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `coor_ban_rec` (
+  `id_coor_ban_rec` INT,
+  `coor_banc_ib_rec` VARCHAR(64),
+  `coor_banc_bi_rec` VARCHAR(64),
+  PRIMARY KEY (`id_coor_ban_rec`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `recruteur` (
+  `id_recruteur` INT,
+  `rec_nom` VARCHAR(64),
+  `rec_prenom` VARCHAR(64),
+  `rec_naissance` DATETIME,
+  `rec_statut` VARCHAR(64),
+  `rec_heure_t` DECIMAL(10,2),
+  `rec_heure_r` DECIMAL(10,2),
+  `rec_numero_secu` VARCHAR(64),
+  `contact_id_contact` INT,
+  `coor_ban_rec_id_coor_ban_rec` INT,
+  PRIMARY KEY (`id_recruteur`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `association` (
+  `id_association` INT,
+  `ass_nom` VARCHAR(64),
+  `ass_statut` VARCHAR(64),
+  `ass_heure_recrut` DECIMAL(10,2),
+  `contact_id_contact` INT,
+  PRIMARY KEY (`id_association`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `contrat` (
+  `id_contrat` INT,
+  `cont_type` VARCHAR(64),
+  `cont_statut` VARCHAR(64),
+  `cont_debut` DATETIME,
+  `cont_fin` DATETIME,
+  `cont_heure` VARCHAR(64),
+  `cont_taux` DECIMAL(10,2),
+  `recruteur_id_recruteur` INT,
+  PRIMARY KEY (`id_contrat`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bulletin_paie` (
+  `id_bulletin_paie` INT,
+  `bul_brut` DECIMAL(10,2),
+  `bul_debut` DATETIME,
+  `bul_fin` DATETIME,
+  `bul_numero` INT,
+  `contrat_id_contrat` INT,
+  PRIMARY KEY (`id_bulletin_paie`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `adhesion` (
+  `id_adhesion` INT,
+  `ad_montant` INT,
+  `ad_statut` VARCHAR(64),
+  `ad_date_debut` DATETIME,
+  `ad_date_fin` DATETIME,
+  `association_id_association` INT,
+  `donateur_id_donateur` INT,
+  `recruteur_id_recruteur` INT,
+  PRIMARY KEY (`id_adhesion`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_042106_bdd') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_042106_bdd') AS relationships;
+DROP DATABASE `db_042106_bdd`;
+UNINSTALL EXTENSION vsql_schematron;

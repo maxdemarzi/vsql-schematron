@@ -1,0 +1,161 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 347362_Lab_Testing_Schema_high_v5
+#
+CREATE DATABASE `db_347362_Lab_Testing_Schema_high_v5`;
+USE `db_347362_Lab_Testing_Schema_high_v5`;
+CREATE TABLE `technicians` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `prep_methods` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `qc_types` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `matrices` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `clients` (
+`id` INT,
+`name` VARCHAR(64),
+`billing_address` VARCHAR(64),
+`shipping_address` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sdgs` (
+`id` INT,
+`name` VARCHAR(64),
+`client_id` INT,
+`technician_id` INT,
+`datetime_received` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `samples` (
+`id` INT,
+`name` VARCHAR(64),
+`datetime_collected` DATETIME,
+`client_sample_name` VARCHAR(64),
+`qc_type_id` INT,
+`matrix_id` INT,
+`sdg_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `units` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `preps` (
+`id` INT,
+`name` VARCHAR(64),
+`quantity` VARCHAR(64),
+`datetime` DATETIME,
+`initial_volume_ml` DECIMAL(10,2),
+`initial_mass_g` DECIMAL(10,2),
+`prep_method_id` INT,
+`sample_id` INT,
+`technician_id` INT,
+`unit_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `test_methods` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tests` (
+`id` INT,
+`name` VARCHAR(64),
+`datetime` DATETIME,
+`dilution` DECIMAL(10,2),
+`prep_id` INT,
+`test_method_id` INT,
+`technician_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `analytes` (
+`id` INT,
+`name` VARCHAR(64),
+`cas_number` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `parm_types` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `test_results` (
+`id` INT,
+`value` DECIMAL(10,2),
+`flag` VARCHAR(64),
+`unit_id` INT,
+`analyte_id` INT,
+`test_id` INT,
+`parm_type_id` INT,
+`mdl` DECIMAL(10,2),
+`rl` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `bucket` (
+`id` INT,
+`clientname` VARCHAR(64),
+`labsampid` VARCHAR(64),
+`core_id` VARCHAR(64),
+`clientsampid` VARCHAR(64),
+`collection_date` DATETIME,
+`qctype` VARCHAR(64),
+`parm_type` VARCHAR(64),
+`parm_syn` VARCHAR(64),
+`numvalue` DECIMAL(10,2),
+`units` VARCHAR(64),
+`qual` VARCHAR(64),
+`rdlvalue` DECIMAL(10,2),
+`dilution` DECIMAL(10,2),
+`cas_no` VARCHAR(64),
+`methodref` VARCHAR(64),
+`prepmethodref` VARCHAR(64),
+`matrix` VARCHAR(64),
+`extract_date` DATETIME,
+`run_date` DATETIME,
+`prepbatch` VARCHAR(64),
+`analyst` VARCHAR(64),
+`receivedate` DATETIME,
+`mdlvalue` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_347362_Lab_Testing_Schema_high_v5') AS relationships;
+relationships
+Database: db_347362_Lab_Testing_Schema_high_v5
+
+Table Connections:
+------------------
+[Implied]  preps.prep_method_id -> prep_methods.id
+[Implied]  preps.sample_id -> samples.id
+[Implied]  preps.technician_id -> technicians.id
+[Implied]  preps.unit_id -> units.id
+[Implied]  samples.matrix_id -> bucket.id
+[Implied]  samples.qc_type_id -> qc_types.id
+[Implied]  samples.sdg_id -> sdgs.id
+[Implied]  sdgs.client_id -> clients.id
+[Implied]  sdgs.technician_id -> technicians.id
+[Implied]  test_results.analyte_id -> analytes.id
+[Implied]  test_results.parm_type_id -> parm_types.id
+[Implied]  test_results.test_id -> tests.id
+[Implied]  test_results.unit_id -> units.id
+[Implied]  tests.prep_id -> preps.id
+[Implied]  tests.technician_id -> technicians.id
+[Implied]  tests.test_method_id -> test_methods.id
+
+DROP DATABASE `db_347362_Lab_Testing_Schema_high_v5`;
+UNINSTALL EXTENSION vsql_schematron;

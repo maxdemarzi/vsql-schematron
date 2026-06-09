@@ -1,0 +1,76 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 545422_migration
+--echo #
+CREATE DATABASE `db_545422_migration`;
+USE `db_545422_migration`;
+
+CREATE TABLE `Account` (
+  `id` VARCHAR(64),
+  `userId` VARCHAR(64),
+  `providerType` VARCHAR(64),
+  `providerId` VARCHAR(64),
+  `providerAccountId` VARCHAR(64),
+  `refreshToken` VARCHAR(64),
+  `accessToken` VARCHAR(64),
+  `accessTokenExpires` DATETIME,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Session` (
+  `id` VARCHAR(64),
+  `userId` VARCHAR(64),
+  `expires` DATETIME,
+  `sessionToken` VARCHAR(64),
+  `accessToken` VARCHAR(64),
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `User` (
+  `id` VARCHAR(64),
+  `firstName` VARCHAR(64),
+  `lastName` VARCHAR(64),
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `emailVerified` DATETIME,
+  `image` VARCHAR(64),
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `VerificationRequest` (
+  `id` VARCHAR(64),
+  `identifier` VARCHAR(64),
+  `token` VARCHAR(64),
+  `expires` DATETIME,
+  `createdAt` DATETIME,
+  `updatedAt` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_545422_migration') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_545422_migration') AS relationships;
+DROP DATABASE `db_545422_migration`;
+UNINSTALL EXTENSION vsql_schematron;

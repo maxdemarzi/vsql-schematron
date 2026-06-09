@@ -1,0 +1,68 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 634522_buses
+#
+CREATE DATABASE `db_634522_buses`;
+USE `db_634522_buses`;
+CREATE TABLE `modelos_buses` (
+`id` INT,
+`marca` VARCHAR(64),
+`module` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `buses` (
+`id` INT,
+`matricula` VARCHAR(64),
+`fabricacion` VARCHAR(64),
+`modelos_buses_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `conductores` (
+`id` INT,
+`nombre` VARCHAR(64),
+`apellidos` VARCHAR(64),
+`dni` VARCHAR(64),
+`tlf` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `paradas` (
+`id` INT,
+`nombre` VARCHAR(64),
+`calle` VARCHAR(64),
+`número` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `lineas` (
+`id` INT,
+`hora_inicio` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `itinerario` (
+`id` INT,
+`id_linea` INT,
+`id_parada` INT,
+`orden` INT,
+`minutos_salida` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `conductores_asignados` (
+`id_conductor` INT,
+`id_bus` INT,
+`id_linea` INT,
+PRIMARY KEY (`id_conductor`, `id_bus`, `id_linea`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_634522_buses') AS relationships;
+relationships
+Database: db_634522_buses
+
+Table Connections:
+------------------
+[Implied]  buses.modelos_buses_id -> modelos_buses.id
+[Implied]  conductores_asignados.id_bus -> buses.id
+[Implied]  conductores_asignados.id_conductor -> conductores.id
+[Implied]  conductores_asignados.id_linea -> lineas.id
+[Implied]  itinerario.id_linea -> lineas.id
+[Implied]  itinerario.id_parada -> paradas.id
+
+DROP DATABASE `db_634522_buses`;
+UNINSTALL EXTENSION vsql_schematron;

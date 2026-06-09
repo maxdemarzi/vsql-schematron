@@ -1,0 +1,87 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 228759_got_start.mysql
+#
+CREATE DATABASE `db_228759_got_start_mysql`;
+USE `db_228759_got_start_mysql`;
+CREATE TABLE `admins` (
+`id` INT,
+`user_id` INT,
+`organization_id` INT,
+`authlevel` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `organizations` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `printer_models` (
+`id` INT,
+`vendor_id` INT,
+`name` VARCHAR(64),
+`laser` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `printer_models_toner_models` (
+`printer_model_id` INT,
+`toner_model_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `printers` (
+`id` INT,
+`organization_id` INT,
+`printer_model_id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`rent` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `toner_models` (
+`id` INT,
+`vendor_id` INT,
+`name` VARCHAR(64),
+`compatible` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `toners` (
+`id` INT,
+`organization_id` INT,
+`toner_model_id` INT,
+`number` INT,
+`gift` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`upn` VARCHAR(64),
+`email` VARCHAR(64),
+`name` VARCHAR(64),
+`surname` VARCHAR(64),
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `vendors` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_228759_got_start_mysql') AS relationships;
+relationships
+Database: db_228759_got_start_mysql
+
+Table Connections:
+------------------
+[Implied]  admins.organization_id -> organizations.id
+[Implied]  admins.user_id -> users.id
+[Implied]  printer_models.vendor_id -> vendors.id
+[Implied]  printer_models_toner_models.printer_model_id -> printer_models.id
+[Implied]  printer_models_toner_models.toner_model_id -> toner_models.id
+[Implied]  printers.organization_id -> organizations.id
+[Implied]  printers.printer_model_id -> printer_models.id
+[Implied]  toner_models.vendor_id -> vendors.id
+[Implied]  toners.organization_id -> organizations.id
+[Implied]  toners.toner_model_id -> toner_models.id
+
+DROP DATABASE `db_228759_got_start_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

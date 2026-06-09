@@ -1,0 +1,105 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 299703_docdigital
+--echo #
+CREATE DATABASE `db_299703_docdigital`;
+USE `db_299703_docdigital`;
+
+CREATE TABLE `doctor` (
+  `id` INT,
+  `nombres` VARCHAR(64),
+  `apellidos` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `fechaCreate` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `especialidades` (
+  `nombre` VARCHAR(64),
+  `clave` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `expedientes_doc` (
+  `id_exp_doc` INT,
+  `curp` VARCHAR(64),
+  `rfc` VARCHAR(64),
+  `hc` VARCHAR(64),
+  `telPer` DECIMAL(10,2),
+  `direc` VARCHAR(64),
+  `cp` INT,
+  `col` VARCHAR(64),
+  `edo` VARCHAR(64),
+  `mun` VARCHAR(64),
+  `telCons` DECIMAL(10,2),
+  `uni` VARCHAR(64),
+  `titulo` VARCHAR(64),
+  `cedProf` DECIMAL(10,2),
+  `esp` VARCHAR(64),
+  `cedEsp` DECIMAL(10,2),
+  `costoCons` INT,
+  `clabe` DECIMAL(10,2),
+  `url_firma` VARCHAR(64),
+  `id_doc` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `expedientes_pac` (
+  `id_exp` INT,
+  `sexo` VARCHAR(64),
+  `estadoCivil` VARCHAR(64),
+  `fechaNac` DATETIME,
+  `edad` INT,
+  `edoNac` VARCHAR(64),
+  `munNac` VARCHAR(64),
+  `dir` VARCHAR(64),
+  `cp` INT,
+  `col` VARCHAR(64),
+  `edo` VARCHAR(64),
+  `mun` VARCHAR(64),
+  `telP` DECIMAL(10,2),
+  `eduPro` VARCHAR(64),
+  `ocu` VARCHAR(64),
+  `prof` VARCHAR(64),
+  `relig` VARCHAR(64),
+  `refPer` VARCHAR(64),
+  `telRefP` DECIMAL(10,2),
+  `id_pac` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `paciente` (
+  `id` INT,
+  `nombres` VARCHAR(64),
+  `apellidos` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `perfiles` (
+  `id_perfil` INT,
+  `doctor` INT,
+  `clave_esp` VARCHAR(64),
+  `descr` VARCHAR(64),
+  `foto` VARCHAR(64)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_299703_docdigital') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_299703_docdigital') AS relationships;
+DROP DATABASE `db_299703_docdigital`;
+UNINSTALL EXTENSION vsql_schematron;

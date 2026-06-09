@@ -296,6 +296,21 @@ bool matchCleanTableNames(const std::string& p, const std::string& t, bool allow
         if (tl.length() > pl.length() + 1 && tl.rfind("_" + pl) == tl.length() - pl.length() - 1) return true;
         if (pl.length() > tl.length() + 1 && pl.rfind("_" + tl) == pl.length() - tl.length() - 1) return true;
         
+        // Suffix pluralization checks
+        if (tl.length() > pl.length() + 2 && tl.rfind("_" + pl + "s") == tl.length() - pl.length() - 2) return true;
+        if (tl.length() > pl.length() + 3 && tl.rfind("_" + pl + "es") == tl.length() - pl.length() - 3) return true;
+        if (pl.length() > 1 && pl.back() == 'y') {
+            std::string ies = pl.substr(0, pl.length() - 1) + "ies";
+            if (tl.length() > ies.length() + 1 && tl.rfind("_" + ies) == tl.length() - ies.length() - 1) return true;
+        }
+        
+        if (pl.length() > tl.length() + 2 && pl.rfind("_" + tl + "s") == pl.length() - tl.length() - 2) return true;
+        if (pl.length() > tl.length() + 3 && pl.rfind("_" + tl + "es") == pl.length() - tl.length() - 3) return true;
+        if (tl.length() > 1 && tl.back() == 'y') {
+            std::string ies = tl.substr(0, tl.length() - 1) + "ies";
+            if (pl.length() > ies.length() + 1 && pl.rfind("_" + ies) == pl.length() - ies.length() - 1) return true;
+        }
+        
         size_t underscore = tl.find('_');
         std::string first_word = (underscore == std::string::npos) ? tl : tl.substr(0, underscore);
         if (first_word == pl || singularize(first_word) == singularize(pl) || first_word == pl + "s" || first_word + "s" == pl) {
@@ -512,6 +527,18 @@ bool matchTableName(const std::string& col_prefix, const std::string& tbl_name, 
     return res;
 }
 
+bool hasGenericIdPrefix(const std::string& col) {
+    std::string lower = to_lower(col);
+    static const std::vector<std::string> PREFIXES = {
+        "id_", "fk_", "pk_", "cod_", "code_", "uid_", "uuid_", "guid_",
+        "id ", "fk ", "pk ", "cod ", "code ", "uid ", "uuid ", "guid "
+    };
+    for (const auto& pref : PREFIXES) {
+        if (lower.rfind(pref, 0) == 0) return true;
+    }
+    return false;
+}
+
 /**
  * Tokenizes snake_case or camelCase column names into prefix and suffix parts.
  *
@@ -522,7 +549,12 @@ bool matchTableName(const std::string& col_prefix, const std::string& tbl_name, 
  */
 bool splitColumnName(const std::string& col, std::string& prefix, std::string& suffix) {
     std::string clean_col = stripTrailingUnderscore(col);
-    size_t sep_pos = clean_col.find_last_of("_ ");
+    size_t sep_pos = std::string::npos;
+    if (hasGenericIdPrefix(clean_col)) {
+        sep_pos = clean_col.find_first_of("_ ");
+    } else {
+        sep_pos = clean_col.find_last_of("_ ");
+    }
     if (sep_pos != std::string::npos && sep_pos > 0 && sep_pos < clean_col.length() - 1) {
         prefix = clean_col.substr(0, sep_pos);
         suffix = clean_col.substr(sep_pos + 1);

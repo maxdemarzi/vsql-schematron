@@ -1,0 +1,42 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 473707_Aula09
+--echo #
+CREATE DATABASE `db_473707_Aula09`;
+USE `db_473707_Aula09`;
+
+CREATE TABLE `TABELA01` (
+  `ID` INT,
+  `nome` VARCHAR(64),
+  `datanasc` DATETIME,
+  `equipe` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `TABELA02` (
+  `ID` INT,
+  `descricao` VARCHAR(64),
+  `id_tab01` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_473707_Aula09') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_473707_Aula09') AS relationships;
+DROP DATABASE `db_473707_Aula09`;
+UNINSTALL EXTENSION vsql_schematron;

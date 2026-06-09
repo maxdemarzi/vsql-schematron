@@ -207,13 +207,28 @@ std::vector<std::string> getEffectivePKs(
     std::vector<std::string> generic_pks;
     int id_like_count = 0;
     int non_sys_col_count = 0;
+    bool has_id_col = false;
+    std::string id_col_name = "";
+    for (const auto& col_pair : info.column_types) {
+        if (to_lower(col_pair.first) == "id") {
+            has_id_col = true;
+            id_col_name = col_pair.first;
+            break;
+        }
+    }
     for (const auto& col_pair : info.column_types) {
         std::string col_lower = to_lower(col_pair.first);
-        static const std::unordered_set<std::string> EXACT_ID_COLUMNS = {
-            "id", "uuid", "guid", "uid"
-        };
-        if (EXACT_ID_COLUMNS.count(col_lower) > 0) {
-            generic_pks.push_back(col_pair.first);
+        if (has_id_col) {
+            if (col_lower == "id") {
+                generic_pks.push_back(col_pair.first);
+            }
+        } else {
+            static const std::unordered_set<std::string> EXACT_ID_COLUMNS = {
+                "id", "uuid", "guid", "uid"
+            };
+            if (EXACT_ID_COLUMNS.count(col_lower) > 0) {
+                generic_pks.push_back(col_pair.first);
+            }
         }
         if (isIdLikeColumn(col_pair.first)) {
             id_like_count++;

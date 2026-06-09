@@ -1,0 +1,108 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 293806_tables_firebirdsql
+--echo #
+CREATE DATABASE `db_293806_tables_firebirdsql`;
+USE `db_293806_tables_firebirdsql`;
+
+CREATE TABLE `PUBLISHER` (
+  `ID` INT,
+  `VERSION` INT,
+  `NAME` VARCHAR(64),
+  `ADDRESS` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BOOK` (
+  `ID` INT,
+  `VERSION` INT,
+  `NAME` VARCHAR(64),
+  `PUBLISHED` DATETIME,
+  `PRICE` DECIMAL(10,2),
+  `PUBLISHER_ID` INT,
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BOOK_I18N` (
+  `ID` INT,
+  `VERSION` INT,
+  `BOOK_ID` INT,
+  `LANG` VARCHAR(64),
+  `TITLE` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `BOOK_BIN` (
+  `ID` INT,
+  `VERSION` INT,
+  `HARDCOVER` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUTHOR` (
+  `ID` INT,
+  `VERSION` INT,
+  `NAME` VARCHAR(64),
+  `SECRET` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `AUTHOR_BOOK` (
+  `AUTHOR_ID` INT,
+  `BOOK_ID` INT,
+  PRIMARY KEY (`AUTHOR_ID`, `BOOK_ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `PROJECT` (
+  `ID` INT,
+  `VERSION` INT,
+  `NAME` VARCHAR(64),
+  `MANAGER_ID` INT,
+  `MANAGER_TYPE` VARCHAR(64),
+  `STATUS_COD` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CONSULTANT` (
+  `ID` INT,
+  `VERSION` INT,
+  `NAME` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `EMPLOYEE` (
+  `ID` INT,
+  `VERSION` INT,
+  `FIRST_NAME` VARCHAR(64),
+  `LAST_NAME` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `CATALOG` (
+  `ID` INT,
+  `VERSION` INT,
+  `DOMAIN` VARCHAR(64),
+  `VALUE` VARCHAR(64),
+  PRIMARY KEY (`ID`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_293806_tables_firebirdsql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_293806_tables_firebirdsql') AS relationships;
+DROP DATABASE `db_293806_tables_firebirdsql`;
+UNINSTALL EXTENSION vsql_schematron;

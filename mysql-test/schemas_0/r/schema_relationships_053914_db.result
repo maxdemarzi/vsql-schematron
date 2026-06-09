@@ -1,0 +1,231 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 053914_db
+#
+CREATE DATABASE `db_053914_db`;
+USE `db_053914_db`;
+CREATE TABLE `roles` (
+`id` INT,
+`name` VARCHAR(64),
+`status` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment_methods` (
+`id` INT,
+`name` VARCHAR(64),
+`status` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_category` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`status` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_stock` (
+`id` INT,
+`quantity` INT,
+`status` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `discount` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`percentage` DECIMAL(10,2),
+`status` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `products` (
+`id` INT,
+`SKU` VARCHAR(64),
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`unit_price` INT,
+`discount_id` INT,
+`size` VARCHAR(64),
+`color` VARCHAR(64),
+`weight` VARCHAR(64),
+`category_id` INT,
+`stock_id` INT,
+`status` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `product_rating` (
+`id` INT,
+`product_id` INT,
+`rating` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` INT,
+`first_name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`email` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`role_id` INT,
+`status` BOOL,
+`email_verified_at` DATETIME,
+`password` VARCHAR(64),
+`remember_token` VARCHAR(64),
+`created_by` INT,
+`updated_by` INT,
+`deleted_by` INT,
+`restored_by` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`restored_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_payment` (
+`id` INT,
+`user_id` INT,
+`payment_id` INT,
+`provider` VARCHAR(64),
+`account_no` VARCHAR(64),
+`status` BOOL,
+`expiry` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `user_address` (
+`id` INT,
+`user_id` INT,
+`latitude` INT,
+`longitude` INT,
+`name` VARCHAR(64),
+`status` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `shopping_session` (
+`id` INT,
+`user_id` INT,
+`total` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cart_item` (
+`id` INT,
+`session_id` INT,
+`product_id` INT,
+`quantity` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `orders` (
+`id` INT,
+`user_id` INT,
+`payment_id` INT,
+`total` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `payment_details` (
+`id` INT,
+`order_id` INT,
+`amount` INT,
+`provider` VARCHAR(64),
+`status` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `order_items` (
+`id` INT,
+`product_id` INT,
+`order_id` INT,
+`quantity` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `suppliers` (
+`id` INT,
+`name` VARCHAR(64),
+`contact_person` VARCHAR(64),
+`email` VARCHAR(64),
+`phone_number` VARCHAR(64),
+`address` VARCHAR(64),
+`status` BOOL,
+`created_by` INT,
+`updated_by` INT,
+`deleted_by` INT,
+`restored_by` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+`restored_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_053914_db') AS relationships;
+relationships
+Database: db_053914_db
+
+Table Connections:
+------------------
+[Implied]  cart_item.product_id -> products.id
+[Implied]  cart_item.session_id -> shopping_session.id
+[Implied]  order_items.order_id -> orders.id
+[Implied]  order_items.product_id -> products.id
+[Implied]  orders.payment_id -> user_payment.id
+[Implied]  orders.user_id -> users.id
+[Implied]  payment_details.order_id -> orders.id
+[Implied]  product_rating.product_id -> products.id
+[Implied]  products.category_id -> product_category.id
+[Implied]  products.discount_id -> discount.id
+[Implied]  products.stock_id -> product_stock.id
+[Implied]  shopping_session.user_id -> users.id
+[Implied]  suppliers.contact_person -> suppliers.email
+[Implied]  suppliers.created_by -> suppliers.id
+[Implied]  suppliers.created_by -> user_address.id
+[Implied]  suppliers.created_by -> user_payment.id
+[Implied]  suppliers.created_by -> users.id
+[Implied]  suppliers.deleted_by -> suppliers.id
+[Implied]  suppliers.deleted_by -> users.id
+[Implied]  suppliers.restored_by -> suppliers.id
+[Implied]  suppliers.restored_by -> users.id
+[Implied]  suppliers.updated_by -> suppliers.id
+[Implied]  suppliers.updated_by -> user_address.id
+[Implied]  suppliers.updated_by -> user_payment.id
+[Implied]  suppliers.updated_by -> users.id
+[Implied]  user_address.user_id -> users.id
+[Implied]  user_payment.user_id -> users.id
+[Implied]  users.created_by -> suppliers.id
+[Implied]  users.created_by -> user_address.id
+[Implied]  users.created_by -> user_payment.id
+[Implied]  users.created_by -> users.id
+[Implied]  users.deleted_by -> suppliers.id
+[Implied]  users.deleted_by -> users.id
+[Implied]  users.restored_by -> suppliers.id
+[Implied]  users.restored_by -> users.id
+[Implied]  users.role_id -> roles.id
+[Implied]  users.updated_by -> suppliers.id
+[Implied]  users.updated_by -> user_address.id
+[Implied]  users.updated_by -> user_payment.id
+[Implied]  users.updated_by -> users.id
+
+DROP DATABASE `db_053914_db`;
+UNINSTALL EXTENSION vsql_schematron;

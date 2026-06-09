@@ -1,0 +1,75 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 060467_Modelo
+#
+CREATE DATABASE `db_060467_Modelo`;
+USE `db_060467_Modelo`;
+CREATE TABLE `cliente` (
+`cedula` DECIMAL(10,2),
+`nombre` VARCHAR(64),
+`direccion` VARCHAR(64),
+PRIMARY KEY (`cedula`)
+) CHARACTER SET latin1;
+CREATE TABLE `danio` (
+`id` DECIMAL(10,2),
+`descricion_problema` VARCHAR(64),
+`tipo_anomalia_id` DECIMAL(10,2),
+`solicitud_id` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `funcionario` (
+`id` DECIMAL(10,2),
+`nombre` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `producto` (
+`id` DECIMAL(10,2),
+`fecha_inicio` DATETIME,
+`fecha_retiro` DATETIME,
+`estado_producto` VARCHAR(64),
+`cliente_cedula` DECIMAL(10,2),
+`tipo_producto_id` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `solicitud` (
+`id` DECIMAL(10,2),
+`observacion` VARCHAR(64),
+`fecha_solicitud` DATETIME,
+`fecha_atencion` DATETIME,
+`estado_atencion` VARCHAR(64),
+`cliente_cedula` DECIMAL(10,2),
+`tiposolicitud_id` DECIMAL(10,2),
+`funcionario_id` DECIMAL(10,2),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tipo_anomalia` (
+`id` DECIMAL(10,2),
+`nombre_anomalia` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tipo_producto` (
+`id` DECIMAL(10,2),
+`nombre_tipo_producto` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `tiposolicitud` (
+`id` DECIMAL(10,2),
+`nombre` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_060467_Modelo') AS relationships;
+relationships
+Database: db_060467_Modelo
+
+Table Connections:
+------------------
+[Implied]  danio.solicitud_id -> solicitud.id
+[Implied]  danio.tipo_anomalia_id -> tipo_anomalia.id
+[Implied]  producto.cliente_cedula -> cliente.cedula
+[Implied]  producto.tipo_producto_id -> tipo_producto.id
+[Implied]  solicitud.cliente_cedula -> cliente.cedula
+[Implied]  solicitud.funcionario_id -> funcionario.id
+[Implied]  solicitud.tiposolicitud_id -> tiposolicitud.id
+
+DROP DATABASE `db_060467_Modelo`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,217 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 392561_ems
+--echo #
+CREATE DATABASE `db_392561_ems`;
+USE `db_392561_ems`;
+
+CREATE TABLE `admins` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `username` VARCHAR(64),
+  `image` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `status` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `advancepayments` (
+  `id` INT,
+  `employee_id` INT,
+  `date` DATETIME,
+  `amount` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `calendars` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `color` VARCHAR(64),
+  `start_date` DATETIME,
+  `end_date` DATETIME,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cities` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `city_name` VARCHAR(64),
+  `zip_code` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `departments` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `department_name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `designations` (
+  `id` INT,
+  `employee_id` INT,
+  `designation_type` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `downloads` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `employees` (
+  `id` INT,
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `image` VARCHAR(64),
+  `email` VARCHAR(64),
+  `phone` INT,
+  `address` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `dob` DATETIME,
+  `join_date` DATETIME,
+  `job_type` VARCHAR(64),
+  `city` VARCHAR(64),
+  `salary` INT,
+  `age` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `events` (
+  `id` INT,
+  `date` DATETIME,
+  `event` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `leaves` (
+  `id` INT,
+  `employee_id` INT,
+  `leave_type` VARCHAR(64),
+  `date_from` DATETIME,
+  `date_to` DATETIME,
+  `days` INT,
+  `reason` VARCHAR(64),
+  `leave_type_offer` INT,
+  `is_approved` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `managesalaries` (
+  `id` INT,
+  `employee_name` VARCHAR(64),
+  `designation_type` VARCHAR(64),
+  `working_days` VARCHAR(64),
+  `tax` VARCHAR(64),
+  `gross_salary` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `migrations` (
+  `id` INT,
+  `migration` VARCHAR(64),
+  `batch` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `password_resets` (
+  `email` VARCHAR(64),
+  `token` VARCHAR(64),
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `profiles` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `salaries` (
+  `id` INT,
+  `employee_id` INT,
+  `salary_amount` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `shifts` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `shift` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `totalleaves` (
+  `id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `leaves_count` INT,
+  `username` VARCHAR(64),
+  `image` VARCHAR(64),
+  `first_name` VARCHAR(64),
+  `last_name` VARCHAR(64),
+  `role` VARCHAR(64),
+  `salary` INT,
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `status` INT,
+  `phone` INT,
+  `address` VARCHAR(64),
+  `gender` VARCHAR(64),
+  `dob` DATETIME,
+  `join_date` DATETIME,
+  `job_type` VARCHAR(64),
+  `city` VARCHAR(64),
+  `age` INT,
+  `remember_token` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_392561_ems') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_392561_ems') AS relationships;
+DROP DATABASE `db_392561_ems`;
+UNINSTALL EXTENSION vsql_schematron;

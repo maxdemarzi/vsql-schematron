@@ -1,0 +1,209 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 271526_data_model
+#
+CREATE DATABASE `db_271526_data_model`;
+USE `db_271526_data_model`;
+CREATE TABLE `municipal_units` (
+`id_municipal_units` INT,
+`name` VARCHAR(64),
+`address` VARCHAR(64),
+`coords` VARCHAR(64),
+PRIMARY KEY (`id_municipal_units`)
+) CHARACTER SET latin1;
+CREATE TABLE `authorities` (
+`id_authorities` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id_authorities`)
+) CHARACTER SET latin1;
+CREATE TABLE `types_authorities` (
+`id_types_authorities` INT,
+`name` VARCHAR(64),
+`id_authorities` INT,
+PRIMARY KEY (`id_types_authorities`)
+) CHARACTER SET latin1;
+CREATE TABLE `edu_orgs` (
+`id_edu_orgs` INT,
+`name` VARCHAR(64),
+`address` VARCHAR(64),
+`phone` VARCHAR(64),
+`latitude` DECIMAL(10,2),
+`longitude` DECIMAL(10,2),
+`license` BOOL,
+`state_accreditaion` BOOL,
+`id_municipal_units` INT,
+`id_authorities` INT,
+`id_types_authorities` INT,
+PRIMARY KEY (`id_edu_orgs`)
+) CHARACTER SET latin1;
+CREATE TABLE `staff_category` (
+`id_staff_category` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id_staff_category`)
+) CHARACTER SET latin1;
+CREATE TABLE `cat_2nd_lvl` (
+`id_cat_2nd_lvl` INT,
+`name` VARCHAR(64),
+`id_staff_category` INT,
+PRIMARY KEY (`id_cat_2nd_lvl`)
+) CHARACTER SET latin1;
+CREATE TABLE `cat_3rd_lvl` (
+`id_cat_3rd_lvl` INT,
+`name` VARCHAR(64),
+`id_cat_2nd_lvl` INT,
+PRIMARY KEY (`id_cat_3rd_lvl`)
+) CHARACTER SET latin1;
+CREATE TABLE `staff` (
+`id_staff` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`id_edu_orgs` INT,
+`id_staff_category` INT,
+`id_cat_2nd_lvl` INT,
+`id_cat_3rd_lvl` INT,
+PRIMARY KEY (`id_staff`)
+) CHARACTER SET latin1;
+CREATE TABLE `jrnl_authorities_of_edu_orgs` (
+`id_record` INT,
+`id_edu_orgs` INT,
+`id_authorities` INT,
+`public_participation` BOOL,
+PRIMARY KEY (`id_record`)
+) CHARACTER SET latin1;
+CREATE TABLE `type_of_edu_program` (
+`id_type_of_edu_program` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id_type_of_edu_program`)
+) CHARACTER SET latin1;
+CREATE TABLE `specialities` (
+`id_specialities` INT,
+`code` VARCHAR(64),
+`name` VARCHAR(64),
+`id_type_of_edu_program` INT,
+PRIMARY KEY (`id_specialities`)
+) CHARACTER SET latin1;
+CREATE TABLE `qualification` (
+`id_qualification` INT,
+`name` VARCHAR(64),
+`id_specialities` INT,
+PRIMARY KEY (`id_qualification`)
+) CHARACTER SET latin1;
+CREATE TABLE `edu_form` (
+`id_edu_form` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id_edu_form`)
+) CHARACTER SET latin1;
+CREATE TABLE `edu_lvl` (
+`id_edu_lvl` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id_edu_lvl`)
+) CHARACTER SET latin1;
+CREATE TABLE `edu_base` (
+`id_edu_base` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id_edu_base`)
+) CHARACTER SET latin1;
+CREATE TABLE `edu_programs` (
+`id_edu_programs` INT,
+`id_type_of_edu_program` INT,
+`id_specialities` INT,
+`id_qualification` INT,
+`id_edu_form` INT,
+`id_edu_lvl` INT,
+`id_edu_base` INT,
+`id_edu_orgs` INT,
+`length_in_months` INT,
+PRIMARY KEY (`id_edu_programs`)
+) CHARACTER SET latin1;
+CREATE TABLE `type_of_admission` (
+`id_type_of_admission` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id_type_of_admission`)
+) CHARACTER SET latin1;
+CREATE TABLE `admission_plan` (
+`id_admission_plan` INT,
+`id_edu_programs` INT,
+`year` DATETIME,
+`admission_number` INT,
+`targeted_admission` BOOL,
+`id_type_of_admission` INT,
+PRIMARY KEY (`id_admission_plan`)
+) CHARACTER SET latin1;
+CREATE TABLE `applicants` (
+`id_applicants` INT,
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`middle_name` VARCHAR(64),
+`birthday` DATETIME,
+`birth_place` VARCHAR(64),
+`citizenship` VARCHAR(64),
+`document` VARCHAR(64),
+`seria` VARCHAR(64),
+`number` VARCHAR(64),
+`issued_by` VARCHAR(64),
+`issued_when` VARCHAR(64),
+`address` VARCHAR(64),
+`mob_phone` VARCHAR(64),
+`home_phone` VARCHAR(64),
+`e_mail` VARCHAR(64),
+`man_sex` BOOL,
+`privileged` BOOL,
+PRIMARY KEY (`id_applicants`)
+) CHARACTER SET latin1;
+CREATE TABLE `application_forms` (
+`id_application_forms` INT,
+`id_edu_orgs` INT,
+`id_applicants` INT,
+`app_date` DATETIME,
+PRIMARY KEY (`id_application_forms`)
+) CHARACTER SET latin1;
+CREATE TABLE `app_edu_positions` (
+`id_app_edu_positions` INT,
+`id_application_forms` INT,
+`id_admission_plan` INT,
+PRIMARY KEY (`id_app_edu_positions`)
+) CHARACTER SET latin1;
+CREATE TABLE `students` (
+`id_students` INT,
+`id_app_edu_positions` INT,
+`data` DATETIME,
+PRIMARY KEY (`id_students`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_271526_data_model') AS relationships;
+relationships
+Database: db_271526_data_model
+
+Table Connections:
+------------------
+[Implied]  admission_plan.id_edu_programs -> edu_base.id_edu_base
+[Implied]  admission_plan.id_type_of_admission -> type_of_admission.id_type_of_admission
+[Implied]  app_edu_positions.id_admission_plan -> admission_plan.id_admission_plan
+[Implied]  app_edu_positions.id_application_forms -> application_forms.id_application_forms
+[Implied]  application_forms.id_applicants -> applicants.id_applicants
+[Implied]  application_forms.id_edu_orgs -> edu_base.id_edu_base
+[Implied]  cat_2nd_lvl.id_staff_category -> staff_category.id_staff_category
+[Implied]  cat_3rd_lvl.id_cat_2nd_lvl -> cat_2nd_lvl.id_cat_2nd_lvl
+[Implied]  edu_orgs.id_authorities -> authorities.id_authorities
+[Implied]  edu_orgs.id_municipal_units -> municipal_units.id_municipal_units
+[Implied]  edu_orgs.id_types_authorities -> types_authorities.id_types_authorities
+[Implied]  edu_programs.id_edu_base -> edu_base.id_edu_base
+[Implied]  edu_programs.id_edu_form -> edu_base.id_edu_base
+[Implied]  edu_programs.id_edu_lvl -> edu_base.id_edu_base
+[Implied]  edu_programs.id_edu_orgs -> edu_base.id_edu_base
+[Implied]  edu_programs.id_qualification -> qualification.id_qualification
+[Implied]  edu_programs.id_specialities -> specialities.id_specialities
+[Implied]  edu_programs.id_type_of_edu_program -> type_of_edu_program.id_type_of_edu_program
+[Implied]  jrnl_authorities_of_edu_orgs.id_authorities -> authorities.id_authorities
+[Implied]  jrnl_authorities_of_edu_orgs.id_edu_orgs -> edu_base.id_edu_base
+[Implied]  qualification.id_specialities -> specialities.id_specialities
+[Implied]  specialities.id_type_of_edu_program -> type_of_edu_program.id_type_of_edu_program
+[Implied]  staff.id_cat_2nd_lvl -> cat_2nd_lvl.id_cat_2nd_lvl
+[Implied]  staff.id_cat_3rd_lvl -> cat_3rd_lvl.id_cat_3rd_lvl
+[Implied]  staff.id_edu_orgs -> edu_base.id_edu_base
+[Implied]  staff.id_staff_category -> staff_category.id_staff_category
+[Implied]  students.id_app_edu_positions -> app_edu_positions.id_app_edu_positions
+[Implied]  types_authorities.id_authorities -> authorities.id_authorities
+
+DROP DATABASE `db_271526_data_model`;
+UNINSTALL EXTENSION vsql_schematron;

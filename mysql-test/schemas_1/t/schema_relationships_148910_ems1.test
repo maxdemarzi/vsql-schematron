@@ -1,0 +1,227 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 148910_ems1
+--echo #
+CREATE DATABASE `db_148910_ems1`;
+USE `db_148910_ems1`;
+
+CREATE TABLE `delivery_dates` (
+  `id` INT,
+  `product_id` INT,
+  `delivery_date` DATETIME,
+  `delivery_quantity` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `employees` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `designation` VARCHAR(64),
+  `department` VARCHAR(64),
+  `basic_salary` INT,
+  `phone` VARCHAR(64),
+  `email` VARCHAR(64),
+  `nid` VARCHAR(64),
+  `present_address` VARCHAR(64),
+  `permanent_address` VARCHAR(64),
+  `image` VARCHAR(64),
+  `staff` INT,
+  `status` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `leaves` (
+  `id` INT,
+  `employee_id` INT,
+  `staffSta` INT,
+  `from_date` DATETIME,
+  `to_date` DATETIME,
+  `reason` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `migrations` (
+  `id` INT,
+  `migration` VARCHAR(64),
+  `batch` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `model_has_permissions` (
+  `permission_id` INT,
+  `model_id` INT,
+  `model_type` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `model_has_roles` (
+  `role_id` INT,
+  `model_id` INT,
+  `model_type` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `password_resets` (
+  `email` VARCHAR(64),
+  `token` VARCHAR(64),
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `permissions` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `guard_name` VARCHAR(64),
+  `display_name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `posts` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `body` VARCHAR(64),
+  `user_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `products` (
+  `id` INT,
+  `product_category_id` INT,
+  `name` VARCHAR(64),
+  `quantity` VARCHAR(64),
+  `stock` VARCHAR(64),
+  `remark` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `product_categories` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `guard_name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `role_has_permissions` (
+  `permission_id` INT,
+  `role_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `salaries` (
+  `id` INT,
+  `employee_id` INT,
+  `satffSalary` INT,
+  `date` DATETIME,
+  `month` VARCHAR(64),
+  `year` VARCHAR(64),
+  `basic` INT,
+  `tifin` INT,
+  `over_time` INT,
+  `ot_taka` INT,
+  `abs_day` INT,
+  `abs_taka` INT,
+  `advanced` INT,
+  `total` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `sessions` (
+  `id` VARCHAR(64),
+  `user_id` INT,
+  `ip_address` VARCHAR(64),
+  `user_agent` VARCHAR(64),
+  `payload` VARCHAR(64),
+  `last_activity` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `sizes` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `size_quantities` (
+  `id` INT,
+  `product_id` INT,
+  `supply_id` INT,
+  `size_id` INT,
+  `size_quantity` INT,
+  `last_quantity` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `supplies` (
+  `id` INT,
+  `product_id` INT,
+  `buyer_name` VARCHAR(64),
+  `reference_no` VARCHAR(64),
+  `order_no` VARCHAR(64),
+  `color` VARCHAR(64),
+  `order_quantity` INT,
+  `size` VARCHAR(64),
+  `from_date` DATETIME,
+  `to_date` DATETIME,
+  `supply_date` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `supply_dates` (
+  `id` INT,
+  `supply_id` INT,
+  `supply_date` DATETIME,
+  `size_id` INT,
+  `supply_quantity` INT,
+  `delivery_no` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `remember_token` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_148910_ems1') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_148910_ems1') AS relationships;
+DROP DATABASE `db_148910_ems1`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,41 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 589196_build_db
+#
+CREATE DATABASE `db_589196_build_db`;
+USE `db_589196_build_db`;
+CREATE TABLE `grandparents` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `parents` (
+`id` INT,
+`name` VARCHAR(64),
+`grandparent_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `types` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `children` (
+`id` INT,
+`name` VARCHAR(64),
+`parent_id` INT,
+`type_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_589196_build_db') AS relationships;
+relationships
+Database: db_589196_build_db
+
+Table Connections:
+------------------
+[Implied]  children.parent_id -> parents.id
+[Implied]  children.type_id -> types.id
+[Implied]  parents.grandparent_id -> grandparents.id
+
+DROP DATABASE `db_589196_build_db`;
+UNINSTALL EXTENSION vsql_schematron;

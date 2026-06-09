@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 433656_migration
+#
+CREATE DATABASE `db_433656_migration`;
+USE `db_433656_migration`;
+CREATE TABLE `accounts` (
+`id` VARCHAR(64),
+`userId` VARCHAR(64),
+`providerType` VARCHAR(64),
+`providerId` VARCHAR(64),
+`providerAccountId` VARCHAR(64),
+`refreshToken` VARCHAR(64),
+`accessToken` VARCHAR(64),
+`accessTokenExpires` DATETIME,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sessions` (
+`id` VARCHAR(64),
+`userId` VARCHAR(64),
+`expires` DATETIME,
+`sessionToken` VARCHAR(64),
+`accessToken` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `users` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`emailVerified` DATETIME,
+`image` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `verification_requests` (
+`id` VARCHAR(64),
+`identifier` VARCHAR(64),
+`token` VARCHAR(64),
+`expires` DATETIME,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_433656_migration') AS relationships;
+relationships
+Database: db_433656_migration
+
+Table Connections:
+------------------
+[Implied]  accounts.userId -> users.id
+[Implied]  sessions.userId -> users.id
+
+DROP DATABASE `db_433656_migration`;
+UNINSTALL EXTENSION vsql_schematron;

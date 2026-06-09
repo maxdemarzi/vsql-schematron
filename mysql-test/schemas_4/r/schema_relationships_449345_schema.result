@@ -1,0 +1,72 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 449345_schema
+#
+CREATE DATABASE `db_449345_schema`;
+USE `db_449345_schema`;
+CREATE TABLE `account_classification` (
+`id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `account` (
+`id` INT,
+`title` VARCHAR(64),
+`account_number` VARCHAR(64),
+`classification` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction_category` (
+`id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction_classification` (
+`id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction_status` (
+`id` INT,
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `transaction` (
+`id` INT,
+`amount` DECIMAL(10,2),
+`date_occurred` DATETIME,
+`image` VARCHAR(64),
+`notes` VARCHAR(64),
+`account_from` INT,
+`account_to` INT,
+`category` INT,
+`classification` INT,
+`status` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `attribute` (
+`id` INT,
+`date_created` DATETIME,
+`date_updated` DATETIME,
+`title` VARCHAR(64),
+`value` VARCHAR(64),
+`transaction` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_449345_schema') AS relationships;
+relationships
+Database: db_449345_schema
+
+Table Connections:
+------------------
+[Implied]  account.classification -> account_classification.id
+[Implied]  account.classification -> transaction_classification.id
+[Implied]  attribute.transaction -> transaction.id
+[Implied]  transaction.account_from -> account.id
+[Implied]  transaction.account_to -> account.id
+[Implied]  transaction.category -> transaction_category.id
+[Implied]  transaction.classification -> account_classification.id
+[Implied]  transaction.classification -> transaction_classification.id
+
+DROP DATABASE `db_449345_schema`;
+UNINSTALL EXTENSION vsql_schematron;

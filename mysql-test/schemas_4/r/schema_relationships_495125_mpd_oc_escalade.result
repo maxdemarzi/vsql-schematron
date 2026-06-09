@@ -1,0 +1,94 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 495125_mpd_oc_escalade
+#
+CREATE DATABASE `db_495125_mpd_oc_escalade`;
+USE `db_495125_mpd_oc_escalade`;
+CREATE TABLE `site` (
+`id` INT,
+`libelle` VARCHAR(64),
+`hauteur` DECIMAL(10,2),
+`tagY_N` INT,
+`ville` VARCHAR(64),
+`pays` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `utilisateur` (
+`id` INT,
+`nom` VARCHAR(64),
+`prenom` VARCHAR(64),
+`numeroTel` VARCHAR(64),
+`adresse` VARCHAR(64),
+`codePostal` VARCHAR(64),
+`email` VARCHAR(64),
+`pseudo` VARCHAR(64),
+`motDePasse` VARCHAR(64),
+`membreAssoY_N` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `secteur` (
+`id` INT,
+`libelle` VARCHAR(64),
+`site_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cotation` (
+`id` INT,
+`libelle` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `voie` (
+`id` INT,
+`equipeeY_N` INT,
+`cotation_id` INT,
+`secteur_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `longueur` (
+`id` INT,
+`relaiY_N` INT,
+`cotation_id` INT,
+`voie_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `commentaire` (
+`id` INT,
+`contenu` VARCHAR(64),
+`utilisateur_id` INT,
+`site_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `statut_topo` (
+`id` INT,
+`libelle` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `topo` (
+`id` INT,
+`nom` VARCHAR(64),
+`description` VARCHAR(64),
+`date_parution` DATETIME,
+`statut_topo_id` INT,
+`proprietaire_id` INT,
+`emprunteur_id` INT,
+`site_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_495125_mpd_oc_escalade') AS relationships;
+relationships
+Database: db_495125_mpd_oc_escalade
+
+Table Connections:
+------------------
+[Implied]  commentaire.site_id -> site.id
+[Implied]  commentaire.utilisateur_id -> utilisateur.id
+[Implied]  longueur.cotation_id -> cotation.id
+[Implied]  longueur.voie_id -> voie.id
+[Implied]  secteur.site_id -> site.id
+[Implied]  topo.site_id -> site.id
+[Implied]  topo.statut_topo_id -> statut_topo.id
+[Implied]  voie.cotation_id -> cotation.id
+[Implied]  voie.secteur_id -> secteur.id
+
+DROP DATABASE `db_495125_mpd_oc_escalade`;
+UNINSTALL EXTENSION vsql_schematron;

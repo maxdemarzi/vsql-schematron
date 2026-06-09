@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 376564_migration
+#
+CREATE DATABASE `db_376564_migration`;
+USE `db_376564_migration`;
+CREATE TABLE `Tag` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Topic` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Post` (
+`id` VARCHAR(64),
+`content` VARCHAR(64),
+`topicId` VARCHAR(64),
+`authorId` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Account` (
+`id` VARCHAR(64),
+`userId` VARCHAR(64),
+`providerType` VARCHAR(64),
+`providerId` VARCHAR(64),
+`providerAccountId` VARCHAR(64),
+`refreshToken` VARCHAR(64),
+`accessToken` VARCHAR(64),
+`accessTokenExpires` DATETIME,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`id` VARCHAR(64),
+`userId` VARCHAR(64),
+`expires` DATETIME,
+`sessionToken` VARCHAR(64),
+`accessToken` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`emailVerified` DATETIME,
+`image` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+`role` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `VerificationRequest` (
+`id` VARCHAR(64),
+`identifier` VARCHAR(64),
+`token` VARCHAR(64),
+`expires` DATETIME,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `_TagToTopic` (
+`A` VARCHAR(64),
+`B` VARCHAR(64)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_376564_migration') AS relationships;
+relationships
+Database: db_376564_migration
+
+Table Connections:
+------------------
+[Implied]  Account.userId -> User.id
+[Implied]  Post.authorId -> Account.id
+[Implied]  Post.authorId -> User.id
+[Implied]  Post.topicId -> Topic.id
+[Implied]  Session.userId -> User.id
+[Implied]  _TagToTopic.A -> Tag.id
+[Implied]  _TagToTopic.B -> Topic.id
+
+DROP DATABASE `db_376564_migration`;
+UNINSTALL EXTENSION vsql_schematron;

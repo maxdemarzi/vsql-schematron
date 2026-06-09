@@ -1,0 +1,88 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 499874_create.containerization-tables-all
+#
+CREATE DATABASE `db_499874_create_containerization_tables_all`;
+USE `db_499874_create_containerization_tables_all`;
+CREATE TABLE `image_types` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`active` BOOL,
+`deployable` VARCHAR(64),
+`created_on` DATETIME,
+`created_by` VARCHAR(64),
+`modified_on` DATETIME,
+`modified_by` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `image_versions` (
+`id` INT,
+`path` VARCHAR(64),
+`description` VARCHAR(64),
+`version` VARCHAR(64),
+`type_id` INT,
+`state` VARCHAR(64),
+`release_tag` VARCHAR(64),
+`created_on` DATETIME,
+`created_by` VARCHAR(64),
+`modified_on` DATETIME,
+`modified_by` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `image_ownerships` (
+`id` INT,
+`type_id` INT,
+`owner` VARCHAR(64),
+`role` VARCHAR(64),
+`created_on` DATETIME,
+`created_by` VARCHAR(64),
+`modified_on` DATETIME,
+`modified_by` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `image_rampup_plan` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`type_id` INT,
+`active` BOOL,
+`created_on` DATETIME,
+`created_by` VARCHAR(64),
+`modified_on` DATETIME,
+`modified_by` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `image_rampup` (
+`id` INT,
+`plan_id` INT,
+`version_id` INT,
+`rampup_percentage` INT,
+`stability_tag` VARCHAR(64),
+`created_on` DATETIME,
+`created_by` VARCHAR(64),
+`modified_on` DATETIME,
+`modified_by` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `version_set` (
+`id` INT,
+`md5` VARCHAR(64),
+`json` VARCHAR(64),
+`created_on` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_499874_create_containerization_tables_all') AS relationships;
+relationships
+Database: db_499874_create_containerization_tables_all
+
+Table Connections:
+------------------
+[Implied]  image_ownerships.type_id -> image_types.id
+[Implied]  image_rampup.plan_id -> image_rampup_plan.id
+[Implied]  image_rampup.version_id -> image_versions.id
+[Implied]  image_rampup_plan.type_id -> image_types.id
+[Implied]  image_versions.type_id -> image_types.id
+
+DROP DATABASE `db_499874_create_containerization_tables_all`;
+UNINSTALL EXTENSION vsql_schematron;

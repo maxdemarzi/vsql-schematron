@@ -1,0 +1,62 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 647925_initial_script
+--echo #
+CREATE DATABASE `db_647925_initial_script`;
+USE `db_647925_initial_script`;
+
+CREATE TABLE `t_user_profile` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `active` BOOL,
+  `entry_ts` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_user` (
+  `id` INT,
+  `user_id` INT,
+  `login_name` VARCHAR(64),
+  `login_password` VARCHAR(64),
+  `entry_ts` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_prescription` (
+  `user_id` INT,
+  `name` VARCHAR(64),
+  `note` VARCHAR(64),
+  `entry_ts` DATETIME,
+  `id` INT,
+  `active` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_med_time` (
+  `id` INT,
+  `user_id` INT,
+  `medication_id` INT,
+  `time` DATETIME,
+  PRIMARY KEY (`id`, `user_id`, `medication_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_647925_initial_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_647925_initial_script') AS relationships;
+DROP DATABASE `db_647925_initial_script`;
+UNINSTALL EXTENSION vsql_schematron;

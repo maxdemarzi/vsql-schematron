@@ -844,6 +844,23 @@ void filterDomainSpecificRelationships(
         }
     }
 
+    // 6. Detect if this is a Laravel schema
+    bool is_laravel = false;
+    bool has_migrations = false;
+    bool has_password_resets = false;
+    for (const auto& tbl : table_names) {
+        std::string tbl_lower = to_lower(stripSchemaPrefix(tbl));
+        if (tbl_lower == "migrations") {
+            has_migrations = true;
+        }
+        if (tbl_lower == "password_resets" || tbl_lower == "password_reset") {
+            has_password_resets = true;
+        }
+    }
+    if (has_migrations && has_password_resets) {
+        is_laravel = true;
+    }
+
     for (auto it = relationships.begin(); it != relationships.end(); ) {
         if (it->is_explicit) {
             ++it;
@@ -971,6 +988,11 @@ void filterDomainSpecificRelationships(
             if (s_from.rfind("django_", 0) == 0 || s_to.rfind("django_", 0) == 0) {
                 to_remove = true;
             }
+        }
+
+        if (is_laravel) {
+            // Prune all implied relationships in Laravel since unconstrained application-level relations are typical
+            to_remove = true;
         }
 
         // AWS Route53 / DNS specific filters

@@ -1,0 +1,111 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 087288_schema
+--echo #
+CREATE DATABASE `db_087288_schema`;
+USE `db_087288_schema`;
+
+CREATE TABLE `tag` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `is_triple` INT,
+  `triple_namespace` VARCHAR(64),
+  `triple_key` VARCHAR(64),
+  `triple_value` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tagging` (
+  `id` INT,
+  `tag_id` INT,
+  `taggable_model` VARCHAR(64),
+  `taggable_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sf_guard_group` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sf_guard_group_permission` (
+  `group_id` INT,
+  `permission_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`group_id`, `permission_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sf_guard_permission` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sf_guard_remember_key` (
+  `id` INT,
+  `user_id` INT,
+  `remember_key` VARCHAR(64),
+  `ip_address` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`, `ip_address`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sf_guard_user` (
+  `id` INT,
+  `username` VARCHAR(64),
+  `algorithm` VARCHAR(64),
+  `salt` VARCHAR(64),
+  `password` VARCHAR(64),
+  `is_active` INT,
+  `is_super_admin` INT,
+  `last_login` DATETIME,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sf_guard_user_group` (
+  `user_id` INT,
+  `group_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`user_id`, `group_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `sf_guard_user_permission` (
+  `user_id` INT,
+  `permission_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`user_id`, `permission_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_087288_schema') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_087288_schema') AS relationships;
+DROP DATABASE `db_087288_schema`;
+UNINSTALL EXTENSION vsql_schematron;

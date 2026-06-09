@@ -1,0 +1,67 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 632822_migration
+#
+CREATE DATABASE `db_632822_migration`;
+USE `db_632822_migration`;
+CREATE TABLE `Message` (
+`id` VARCHAR(64),
+`userId` VARCHAR(64),
+`message` VARCHAR(64),
+`createdAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Account` (
+`id` VARCHAR(64),
+`userId` VARCHAR(64),
+`providerType` VARCHAR(64),
+`providerId` VARCHAR(64),
+`providerAccountId` INT,
+`refreshToken` VARCHAR(64),
+`accessToken` VARCHAR(64),
+`accessTokenExpires` DATETIME,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Session` (
+`id` VARCHAR(64),
+`userId` VARCHAR(64),
+`expires` DATETIME,
+`sessionToken` VARCHAR(64),
+`accessToken` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `User` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`emailVerified` DATETIME,
+`image` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `VerificationRequest` (
+`id` VARCHAR(64),
+`identifier` VARCHAR(64),
+`token` VARCHAR(64),
+`expires` DATETIME,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_632822_migration') AS relationships;
+relationships
+Database: db_632822_migration
+
+Table Connections:
+------------------
+[Implied]  Account.userId -> User.id
+[Implied]  Message.userId -> User.id
+[Implied]  Session.userId -> User.id
+
+DROP DATABASE `db_632822_migration`;
+UNINSTALL EXTENSION vsql_schematron;

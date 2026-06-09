@@ -1,0 +1,96 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 285285_schema-010
+#
+CREATE DATABASE `db_285285_schema_010`;
+USE `db_285285_schema_010`;
+CREATE TABLE `Accounts` (
+`id` INT,
+`key_exponent` VARCHAR(64),
+`key_modulus` VARCHAR(64),
+`display_name` VARCHAR(64),
+`hashed_phone_number` VARCHAR(64),
+`password_hash` VARCHAR(64),
+`email` VARCHAR(64),
+`game_count` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `LoginChallenges` (
+`id` INT,
+`challenge` VARCHAR(64),
+`account_id` INT,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Sessions` (
+`id` INT,
+`auth_token` VARCHAR(64),
+`account_id` INT,
+`created_at` DATETIME,
+`accessed_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `GamesCompletedAt` (
+`id` INT,
+`completed_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Games` (
+`id` INT,
+`completed_at_id` INT,
+`next_expiration` DATETIME,
+`did_notify` BOOL,
+`created_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Turns` (
+`id` INT,
+`account_id` INT,
+`game_id` INT,
+`is_complete` BOOL,
+`is_drawing` BOOL,
+`label` VARCHAR(64),
+`drawing` VARCHAR(64),
+`did_notify` BOOL,
+`completed_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Contacts` (
+`account_id` INT,
+`contact_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `ContactGroups` (
+`id` INT,
+`name` VARCHAR(64),
+`account_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ContactGroupMembers` (
+`group_id` INT,
+`contact_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `SuggestedContactNoThanks` (
+`account_id` INT,
+`contact_id` INT
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_285285_schema_010') AS relationships;
+relationships
+Database: db_285285_schema_010
+
+Table Connections:
+------------------
+[Implied]  ContactGroupMembers.contact_id -> Accounts.id
+[Implied]  ContactGroups.account_id -> Accounts.id
+[Implied]  Contacts.account_id -> Accounts.id
+[Implied]  Contacts.contact_id -> Accounts.id
+[Implied]  Games.completed_at_id -> GamesCompletedAt.id
+[Implied]  Games.completed_at_id -> Turns.id
+[Implied]  LoginChallenges.account_id -> Accounts.id
+[Implied]  Sessions.account_id -> Accounts.id
+[Implied]  SuggestedContactNoThanks.account_id -> Accounts.id
+[Implied]  SuggestedContactNoThanks.contact_id -> Accounts.id
+[Implied]  Turns.account_id -> Accounts.id
+[Implied]  Turns.game_id -> Games.id
+
+DROP DATABASE `db_285285_schema_010`;
+UNINSTALL EXTENSION vsql_schematron;

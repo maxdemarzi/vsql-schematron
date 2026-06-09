@@ -1,0 +1,57 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 026738_V76_7_1__Add_competition_user_for_assessor_invites
+--echo #
+CREATE DATABASE `db_026738_V76_7_1_Add_competition_user_for_assessor_invites`;
+USE `db_026738_V76_7_1_Add_competition_user_for_assessor_invites`;
+
+CREATE TABLE `competition_user_status` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `competition_role` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `competition_user_rejection_reason` (
+  `id` INT,
+  `reason` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `competition_user` (
+  `id` INT,
+  `competition_role_id` INT,
+  `competition_id` INT,
+  `user_id` INT,
+  `invite_id` INT,
+  `competition_user_status_name` VARCHAR(64),
+  `rejection_reason_id` INT,
+  `rejection_comment` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_026738_V76_7_1_Add_competition_user_for_assessor_invites') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_026738_V76_7_1_Add_competition_user_for_assessor_invites') AS relationships;
+DROP DATABASE `db_026738_V76_7_1_Add_competition_user_for_assessor_invites`;
+UNINSTALL EXTENSION vsql_schematron;

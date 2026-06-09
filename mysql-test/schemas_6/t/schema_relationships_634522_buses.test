@@ -1,0 +1,81 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 634522_buses
+--echo #
+CREATE DATABASE `db_634522_buses`;
+USE `db_634522_buses`;
+
+CREATE TABLE `modelos_buses` (
+  `id` INT,
+  `marca` VARCHAR(64),
+  `module` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `buses` (
+  `id` INT,
+  `matricula` VARCHAR(64),
+  `fabricacion` VARCHAR(64),
+  `modelos_buses_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `conductores` (
+  `id` INT,
+  `nombre` VARCHAR(64),
+  `apellidos` VARCHAR(64),
+  `dni` VARCHAR(64),
+  `tlf` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `paradas` (
+  `id` INT,
+  `nombre` VARCHAR(64),
+  `calle` VARCHAR(64),
+  `número` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `lineas` (
+  `id` INT,
+  `hora_inicio` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `itinerario` (
+  `id` INT,
+  `id_linea` INT,
+  `id_parada` INT,
+  `orden` INT,
+  `minutos_salida` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `conductores_asignados` (
+  `id_conductor` INT,
+  `id_bus` INT,
+  `id_linea` INT,
+  PRIMARY KEY (`id_conductor`, `id_bus`, `id_linea`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_634522_buses') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_634522_buses') AS relationships;
+DROP DATABASE `db_634522_buses`;
+UNINSTALL EXTENSION vsql_schematron;

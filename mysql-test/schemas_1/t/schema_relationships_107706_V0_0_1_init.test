@@ -1,0 +1,210 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 107706_V0_0_1__init
+--echo #
+CREATE DATABASE `db_107706_V0_0_1_init`;
+USE `db_107706_V0_0_1_init`;
+
+CREATE TABLE `owner` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `is_deleted` BOOL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `namespace` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `is_deleted` BOOL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tag` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `important` BOOL,
+  `is_deleted` BOOL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `label` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `is_deleted` BOOL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `data_source` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `oddrn` VARCHAR(64),
+  `description` VARCHAR(64),
+  `active` BOOL,
+  `connection_url` VARCHAR(64),
+  `is_deleted` BOOL,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `pulling_interval` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `data_entity_type` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `data_entity_subtype` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `data_entity` (
+  `id` INT,
+  `internal_name` VARCHAR(64),
+  `external_name` VARCHAR(64),
+  `oddrn` VARCHAR(64),
+  `data_source_id` INT,
+  `owner_id` INT,
+  `namespace_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `subtype_id` INT,
+  `specific_attributes` VARCHAR(64),
+  `external_description` VARCHAR(64),
+  `internal_description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `type_subtype_relation` (
+  `type_id` INT,
+  `subtype_id` INT,
+  PRIMARY KEY (`type_id`, `subtype_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `type_entity_relation` (
+  `data_entity_id` INT,
+  `data_entity_type_id` INT,
+  PRIMARY KEY (`data_entity_id`, `data_entity_type_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `data_entity_task_run` (
+  `id` INT,
+  `oddrn` VARCHAR(64),
+  `data_entity_id` INT,
+  `start_time` DATETIME,
+  `end_time` DATETIME,
+  `status_reason` VARCHAR(64),
+  `status` VARCHAR(64),
+  `type` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dataset_revision` (
+  `data_entity_id` INT,
+  `updated_at` DATETIME,
+  `rows_count` INT,
+  PRIMARY KEY (`data_entity_id`, `updated_at`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dataset_version` (
+  `id` INT,
+  `dataset_id` INT,
+  `version` INT,
+  `version_hash` VARCHAR(64),
+  `created_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `dataset_field` (
+  `id` INT,
+  `dataset_version_id` INT,
+  `name` VARCHAR(64),
+  `oddrn` VARCHAR(64),
+  `parent_field_oddrn` VARCHAR(64),
+  `field_order` INT,
+  `stats` VARCHAR(64),
+  `type` VARCHAR(64),
+  `is_key` BOOL,
+  `is_value` BOOL,
+  `external_description` VARCHAR(64),
+  `internal_description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `metadata_field` (
+  `id` INT,
+  `type` VARCHAR(64),
+  `name` VARCHAR(64),
+  `origin` VARCHAR(64),
+  `is_deleted` BOOL,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `metadata_field_value` (
+  `data_entity_id` INT,
+  `metadata_field_id` INT,
+  `value` VARCHAR(64),
+  `active` BOOL,
+  PRIMARY KEY (`data_entity_id`, `metadata_field_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `search_entrypoint` (
+  `data_entity_id` INT,
+  `data_entity_vector` VARCHAR(64),
+  `tag_vector` VARCHAR(64),
+  `metadata_vector` VARCHAR(64),
+  `structure_vector` VARCHAR(64),
+  `task_run_vector` VARCHAR(64),
+  `search_vector` VARCHAR(64),
+  PRIMARY KEY (`data_entity_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `search_facets` (
+  `id` VARCHAR(64),
+  `query_string` VARCHAR(64),
+  `filters` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tag_to_data_entity` (
+  `tag_id` INT,
+  `data_entity_id` INT,
+  PRIMARY KEY (`tag_id`, `data_entity_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `label_to_dataset_field` (
+  `label_id` INT,
+  `dataset_field_id` INT,
+  PRIMARY KEY (`label_id`, `dataset_field_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_107706_V0_0_1_init') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_107706_V0_0_1_init') AS relationships;
+DROP DATABASE `db_107706_V0_0_1_init`;
+UNINSTALL EXTENSION vsql_schematron;

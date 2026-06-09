@@ -1,0 +1,115 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 497663_base_bob
+#
+CREATE DATABASE `db_497663_base_bob`;
+USE `db_497663_base_bob`;
+CREATE TABLE `users` (
+`id` INT,
+`nickname` VARCHAR(64),
+`password` VARCHAR(64),
+`created_at` DATETIME,
+`when_online` DATETIME,
+`path_avatar` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `friends` (
+`user_id` INT,
+`friend_id` INT,
+PRIMARY KEY (`user_id`, `friend_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `blocked_users` (
+`from_id` INT,
+`to_id` INT,
+PRIMARY KEY (`from_id`, `to_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `dialog` (
+`id` INT,
+`user1_id` INT,
+`user2_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `parties` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`created_at` DATETIME,
+`founder_id` INT,
+`path_avatar` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `party_users` (
+`party_id` INT,
+`user_id` INT,
+PRIMARY KEY (`party_id`, `user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `party_admins` (
+`party_id` INT,
+`admin_id` INT,
+PRIMARY KEY (`party_id`, `admin_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `companion_writes` (
+`user_id` INT,
+`to_user_id` INT,
+`when_writed` DATETIME,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `party_writes` (
+`user_id` INT,
+`to_party_id` INT,
+`when_writed` DATETIME,
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `messages` (
+`id` INT,
+`to_id` INT,
+`from_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`text` VARCHAR(64),
+`file_id` INT,
+`photo_id` INT,
+`party_id` INT,
+`important` BOOL,
+`removable` BOOL,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `who_saw_message` (
+`message_id` INT,
+`who_saw_id` INT,
+PRIMARY KEY (`message_id`, `who_saw_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `errors` (
+`user_id` INT,
+`error` VARCHAR(64),
+PRIMARY KEY (`user_id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_497663_base_bob') AS relationships;
+relationships
+Database: db_497663_base_bob
+
+Table Connections:
+------------------
+[Implied]  blocked_users.from_id -> parties.id
+[Implied]  blocked_users.to_id -> parties.id
+[Implied]  companion_writes.to_user_id -> parties.id
+[Implied]  dialog.id -> parties.id
+[Implied]  dialog.user1_id -> users.id
+[Implied]  dialog.user2_id -> users.id
+[Implied]  errors.user_id -> users.id
+[Implied]  friends.friend_id -> parties.id
+[Implied]  friends.user_id -> parties.id
+[Implied]  messages.from_id -> parties.id
+[Implied]  messages.party_id -> parties.id
+[Implied]  messages.to_id -> parties.id
+[Implied]  party_admins.admin_id -> parties.id
+[Implied]  party_admins.party_id -> parties.id
+[Implied]  party_users.party_id -> parties.id
+[Implied]  party_users.user_id -> parties.id
+[Implied]  party_writes.to_party_id -> parties.id
+[Implied]  party_writes.user_id -> users.id
+[Implied]  users.id -> parties.id
+[Implied]  who_saw_message.message_id -> messages.id
+
+DROP DATABASE `db_497663_base_bob`;
+UNINSTALL EXTENSION vsql_schematron;

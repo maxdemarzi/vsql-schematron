@@ -1,0 +1,69 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 059669_migration
+#
+CREATE DATABASE `db_059669_migration`;
+USE `db_059669_migration`;
+CREATE TABLE `User` (
+`id` INT,
+`name` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`passwordResetToken` VARCHAR(64),
+`passwordResetIssuedAt` DATETIME,
+`passwordResetRedeemedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Product` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`photo` INT,
+`status` VARCHAR(64),
+`price` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ProductImage` (
+`id` INT,
+`image` VARCHAR(64),
+`altText` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `CartItem` (
+`id` INT,
+`quantity` INT,
+`product` INT,
+`user` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `OrderItem` (
+`id` INT,
+`name` VARCHAR(64),
+`description` VARCHAR(64),
+`photo` INT,
+`price` INT,
+`quantity` INT,
+`order` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Order` (
+`id` INT,
+`total` INT,
+`user` INT,
+`charge` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_059669_migration') AS relationships;
+relationships
+Database: db_059669_migration
+
+Table Connections:
+------------------
+[Implied]  CartItem.product -> Product.id
+[Implied]  CartItem.user -> User.id
+[Implied]  Order.user -> User.id
+[Implied]  OrderItem.order -> Order.id
+[Implied]  ProductImage.id -> Product.id
+
+DROP DATABASE `db_059669_migration`;
+UNINSTALL EXTENSION vsql_schematron;

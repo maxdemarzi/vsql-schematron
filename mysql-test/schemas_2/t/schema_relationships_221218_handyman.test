@@ -1,0 +1,273 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 221218_handyman
+--echo #
+CREATE DATABASE `db_221218_handyman`;
+USE `db_221218_handyman`;
+
+CREATE TABLE `active_logs` (
+  `id` INT,
+  `user_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `addresses` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `address` VARCHAR(64),
+  `longitude` DECIMAL(10,2),
+  `latitude` DECIMAL(10,2),
+  `user_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `appointments` (
+  `id` INT,
+  `provider_id` INT,
+  `user_id` INT,
+  `address_id` INT,
+  `date` DATETIME,
+  `time_from` DATETIME,
+  `time_to` DATETIME,
+  `status` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `category_id` INT,
+  `notes` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `appointment_status_logs` (
+  `id` INT,
+  `user_id` INT,
+  `appointment_id` INT,
+  `status` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `categories` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `image_url` VARCHAR(64),
+  `secondary_image_url` VARCHAR(64),
+  `parent_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `faq` (
+  `id` INT,
+  `title` VARCHAR(64),
+  `short_description` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `migrations` (
+  `id` INT,
+  `migration` VARCHAR(64),
+  `batch` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `oauth_access_tokens` (
+  `id` VARCHAR(64),
+  `user_id` INT,
+  `client_id` INT,
+  `name` VARCHAR(64),
+  `scopes` VARCHAR(64),
+  `revoked` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `expires_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `oauth_auth_codes` (
+  `id` VARCHAR(64),
+  `user_id` INT,
+  `client_id` INT,
+  `scopes` VARCHAR(64),
+  `revoked` INT,
+  `expires_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `oauth_clients` (
+  `id` INT,
+  `user_id` INT,
+  `name` VARCHAR(64),
+  `secret` VARCHAR(64),
+  `redirect` VARCHAR(64),
+  `personal_access_client` INT,
+  `password_client` INT,
+  `revoked` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `oauth_personal_access_clients` (
+  `id` INT,
+  `client_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `oauth_refresh_tokens` (
+  `id` VARCHAR(64),
+  `access_token_id` VARCHAR(64),
+  `revoked` INT,
+  `expires_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `password_resets` (
+  `email` VARCHAR(64),
+  `token` VARCHAR(64),
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `plans_features` (
+  `id` INT,
+  `plan_id` INT,
+  `name` VARCHAR(64),
+  `code` VARCHAR(64),
+  `description` VARCHAR(64),
+  `type` VARCHAR(64),
+  `limit` INT,
+  `metadata` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `plan_usage_logs` (
+  `id` INT,
+  `subscription_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `providers_categories` (
+  `provider_id` INT,
+  `category_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `provider_portfolios` (
+  `id` INT,
+  `provider_id` INT,
+  `image_url` VARCHAR(64),
+  `link` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `provider_profiles` (
+  `id` INT,
+  `primary_category_id` INT,
+  `user_id` INT,
+  `is_verified` INT,
+  `document_url` VARCHAR(64),
+  `image_url` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  `price_type` VARCHAR(64),
+  `address` VARCHAR(64),
+  `longitude` DECIMAL(10,2),
+  `latitude` DECIMAL(10,2),
+  `about` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `roles` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `weight` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `settings` (
+  `id` INT,
+  `key` VARCHAR(64),
+  `value` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `social_accounts` (
+  `id` INT,
+  `user_id` INT,
+  `provider` VARCHAR(64),
+  `provider_id` VARCHAR(64),
+  `token` VARCHAR(64),
+  `avatar` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `stripe_customers` (
+  `id` INT,
+  `model_id` INT,
+  `model_type` VARCHAR(64),
+  `customer_id` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `supports` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `message` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `email` VARCHAR(64),
+  `password` VARCHAR(64),
+  `image_url` VARCHAR(64),
+  `mobile_number` VARCHAR(64),
+  `mobile_verified` INT,
+  `active` INT,
+  `confirmation_code` VARCHAR(64),
+  `confirmed` INT,
+  `fcm_registration_id` VARCHAR(64),
+  `language` VARCHAR(64),
+  `remember_token` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `deleted_at` DATETIME,
+  `fcm_registration_id_provider` VARCHAR(64)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users_roles` (
+  `user_id` INT,
+  `role_id` INT
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_221218_handyman') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_221218_handyman') AS relationships;
+DROP DATABASE `db_221218_handyman`;
+UNINSTALL EXTENSION vsql_schematron;

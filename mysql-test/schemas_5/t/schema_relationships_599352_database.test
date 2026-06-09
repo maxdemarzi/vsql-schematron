@@ -1,0 +1,198 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 599352_database
+--echo #
+CREATE DATABASE `db_599352_database`;
+USE `db_599352_database`;
+
+CREATE TABLE `data_rows` (
+  `id` INT,
+  `data_type_id` INT,
+  `field` VARCHAR(64),
+  `type` VARCHAR(64),
+  `display_name` VARCHAR(64),
+  `required` INT,
+  `browse` INT,
+  `read` INT,
+  `edit` INT,
+  `add` INT,
+  `delete` INT,
+  `details` VARCHAR(64),
+  `order` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `departements` (
+  `id` INT,
+  `designation` VARCHAR(64),
+  `type` INT,
+  `description` VARCHAR(64),
+  `image_url` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `est_actif` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `failed_jobs` (
+  `id` INT,
+  `connection` VARCHAR(64),
+  `queue` VARCHAR(64),
+  `payload` VARCHAR(64),
+  `exception` VARCHAR(64),
+  `failed_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `fideles` (
+  `id` INT,
+  `nom_complet` VARCHAR(64),
+  `nationalite` VARCHAR(64),
+  `adresse` VARCHAR(64),
+  `phone` VARCHAR(64),
+  `genre` INT,
+  `age` INT,
+  `commentaires` VARCHAR(64),
+  `est_actif` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `jobs` (
+  `id` INT,
+  `queue` VARCHAR(64),
+  `payload` VARCHAR(64),
+  `attempts` INT,
+  `reserved_at` INT,
+  `available_at` INT,
+  `created_at` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `menu_items` (
+  `id` INT,
+  `menu_id` INT,
+  `title` VARCHAR(64),
+  `url` VARCHAR(64),
+  `target` VARCHAR(64),
+  `icon_class` VARCHAR(64),
+  `color` VARCHAR(64),
+  `parent_id` INT,
+  `order` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `route` VARCHAR(64),
+  `parameters` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `migrations` (
+  `id` INT,
+  `migration` VARCHAR(64),
+  `batch` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ministres` (
+  `id` INT,
+  `nom_complet` VARCHAR(64),
+  `type` INT,
+  `image_url` INT,
+  `bio` VARCHAR(64),
+  `est_actif` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `newsletters` (
+  `id` INT,
+  `email` INT,
+  `nom_complet` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `est_actif` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `password_resets` (
+  `email` VARCHAR(64),
+  `token` VARCHAR(64),
+  `created_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `permission_role` (
+  `permission_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`permission_id`, `role_id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `permissions` (
+  `id` INT,
+  `key` VARCHAR(64),
+  `table_name` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `temoignages` (
+  `id` INT,
+  `nom_complet` VARCHAR(64),
+  `ville` VARCHAR(64),
+  `body` VARCHAR(64),
+  `est_actif` INT,
+  `image_url` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `transactions` (
+  `id` INT,
+  `firstname` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `adress` VARCHAR(64),
+  `email` VARCHAR(64),
+  `amount` DECIMAL(10,2),
+  `currency` VARCHAR(64),
+  `order_id` VARCHAR(64),
+  `session_id` VARCHAR(64),
+  `status` VARCHAR(64),
+  `method` VARCHAR(64),
+  `ip_adress` INT,
+  `comments` VARCHAR(64),
+  `is_active` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  `phone` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `user_roles` (
+  `user_id` INT,
+  `role_id` INT,
+  PRIMARY KEY (`user_id`, `role_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_599352_database') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_599352_database') AS relationships;
+DROP DATABASE `db_599352_database`;
+UNINSTALL EXTENSION vsql_schematron;

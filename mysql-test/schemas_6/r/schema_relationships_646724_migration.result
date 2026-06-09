@@ -1,0 +1,56 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 646724_migration
+#
+CREATE DATABASE `db_646724_migration`;
+USE `db_646724_migration`;
+CREATE TABLE `ActionVerb` (
+`id` INT,
+`name` VARCHAR(64),
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Action` (
+`id` INT,
+`verbName` VARCHAR(64),
+`activityId` INT,
+`timestamp` DATETIME,
+`result` DECIMAL(10,2),
+`projectId` INT,
+`userId` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `ActionActivity` (
+`id` INT,
+`contentId` INT,
+`topicId` INT,
+`stepID` VARCHAR(64),
+`hintID` VARCHAR(64),
+`amount` DECIMAL(10,2),
+`detail` VARCHAR(64),
+`extra` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `Content` (
+`id` INT,
+`projectId` INT,
+`domainId` INT,
+`topicId` INT,
+`createdAt` DATETIME,
+`updatedAt` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_646724_migration') AS relationships;
+relationships
+Database: db_646724_migration
+
+Table Connections:
+------------------
+[Implied]  ActionActivity.contentId -> Content.id
+[Implied]  ActionVerb.id -> Action.id
+
+DROP DATABASE `db_646724_migration`;
+UNINSTALL EXTENSION vsql_schematron;

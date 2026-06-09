@@ -1,0 +1,59 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 227472_V1__Initial_schema
+#
+CREATE DATABASE `db_227472_V1_Initial_schema`;
+USE `db_227472_V1_Initial_schema`;
+CREATE TABLE `collection` (
+`id` INT,
+`name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cdx` (
+`id` INT,
+`collection_id` INT,
+`path` VARCHAR(64),
+`total_docs` INT,
+`total_bytes` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `crawl_series` (
+`id` INT,
+`name` VARCHAR(64),
+`path` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `crawl` (
+`id` INT,
+`name` VARCHAR(64),
+`total_docs` INT,
+`total_bytes` INT,
+`crawl_series_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cdx_crawl` (
+`cdx_id` INT,
+`crawl_id` INT,
+PRIMARY KEY (`cdx_id`, `crawl_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `import_task` (
+`id` INT,
+`job_path` VARCHAR(64),
+`crawl_series_id` INT,
+`state` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_227472_V1_Initial_schema') AS relationships;
+relationships
+Database: db_227472_V1_Initial_schema
+
+Table Connections:
+------------------
+[Implied]  cdx.collection_id -> collection.id
+[Implied]  cdx_crawl.cdx_id -> cdx.id
+[Implied]  cdx_crawl.crawl_id -> crawl.id
+[Implied]  crawl.crawl_series_id -> crawl_series.id
+[Implied]  import_task.crawl_series_id -> crawl_series.id
+
+DROP DATABASE `db_227472_V1_Initial_schema`;
+UNINSTALL EXTENSION vsql_schematron;

@@ -1,0 +1,138 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 369198_create_database__v1
+#
+CREATE DATABASE `db_369198_create_database_v1`;
+USE `db_369198_create_database_v1`;
+CREATE TABLE `survivors` (
+`id` INT,
+`name` VARCHAR(64),
+`gender` VARCHAR(64),
+`location_latitude` DECIMAL(10,2),
+`location_longitude` DECIMAL(10,2),
+`location_timezone` VARCHAR(64),
+`infected` BOOL,
+`deceased` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `credentials` (
+`id` INT,
+`survivor_id` INT,
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `inventories` (
+`id` INT,
+`owner_id` INT,
+`disabled` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `items` (
+`id` INT,
+`name` VARCHAR(64),
+`icon` VARCHAR(64),
+`price` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `resources` (
+`id` INT,
+`inventory_id` INT,
+`item_id` INT,
+`quantity` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `groups` (
+`id` INT,
+`name` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `group_members` (
+`id` INT,
+`survivor_id` INT,
+`group_id` INT,
+`role` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `infection_reports` (
+`id` INT,
+`reported_id` INT,
+`reportee_id` INT,
+`annotation` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `trade_inventories` (
+`id` INT,
+`survivor_id` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `trade_resources` (
+`id` INT,
+`item_id` INT,
+`inventory_id` INT,
+`quantity` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `trades` (
+`id` INT,
+`sender_id` INT,
+`receiver_id` INT,
+`status` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+`deleted_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_369198_create_database_v1') AS relationships;
+relationships
+Database: db_369198_create_database_v1
+
+Table Connections:
+------------------
+[Implied]  credentials.survivor_id -> survivors.id
+[Implied]  group_members.group_id -> groups.id
+[Implied]  group_members.survivor_id -> survivors.id
+[Implied]  inventories.owner_id -> credentials.id
+[Implied]  resources.inventory_id -> inventories.id
+[Implied]  resources.item_id -> items.id
+[Implied]  trade_inventories.id -> inventories.id
+[Implied]  trade_inventories.id -> trades.id
+[Implied]  trade_inventories.survivor_id -> survivors.id
+[Implied]  trade_resources.id -> trades.id
+[Implied]  trade_resources.inventory_id -> inventories.id
+[Implied]  trade_resources.item_id -> items.id
+[Implied]  trades.receiver_id -> credentials.id
+[Implied]  trades.sender_id -> credentials.id
+
+DROP DATABASE `db_369198_create_database_v1`;
+UNINSTALL EXTENSION vsql_schematron;

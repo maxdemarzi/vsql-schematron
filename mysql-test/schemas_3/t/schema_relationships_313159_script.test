@@ -1,0 +1,415 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 313159_script
+--echo #
+CREATE DATABASE `db_313159_script`;
+USE `db_313159_script`;
+
+CREATE TABLE `cliente_tipo` (
+  `cliente_tipo` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`cliente_tipo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `pais_empresa` (
+  `pais_empresa` INT,
+  `nombre` VARCHAR(64),
+  `codigo` VARCHAR(64),
+  `codigo_postal` VARCHAR(64),
+  `iva` DECIMAL(10,2),
+  `activo` INT,
+  PRIMARY KEY (`pais_empresa`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `moneda` (
+  `moneda` INT,
+  `nombre` VARCHAR(64),
+  `codigo` VARCHAR(64),
+  PRIMARY KEY (`moneda`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `empresa` (
+  `empresa` INT,
+  `nombre` VARCHAR(64),
+  `direccion` VARCHAR(64),
+  `telefono` VARCHAR(64),
+  `representante` VARCHAR(64),
+  `nit` VARCHAR(64),
+  `abreviatura` VARCHAR(64),
+  `aplica_iva` INT,
+  `activo` INT,
+  `logo` VARCHAR(64),
+  `pais_empresa` INT,
+  `moneda` INT,
+  `fecha_sis` DATETIME,
+  PRIMARY KEY (`empresa`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rol` (
+  `rol` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`rol`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuario_genero` (
+  `usuario_genero` INT,
+  `nombre` VARCHAR(64),
+  `codigo` VARCHAR(64),
+  PRIMARY KEY (`usuario_genero`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuario` (
+  `usuario` INT,
+  `nombre` VARCHAR(64),
+  `correo` VARCHAR(64),
+  `alias` VARCHAR(64),
+  `password` VARCHAR(64),
+  `identificacion` VARCHAR(64),
+  `telefono` INT,
+  `direccion` VARCHAR(64),
+  `foto` VARCHAR(64),
+  `firma` VARCHAR(64),
+  `fecha_sis` DATETIME,
+  `activo` INT,
+  `jefe` INT,
+  `subjefe` INT,
+  `empresa` INT,
+  `rol` INT,
+  `root` INT,
+  `usuario_genero` INT,
+  `fecha_modificacion` DATETIME,
+  PRIMARY KEY (`usuario`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cliente` (
+  `cliente` INT,
+  `nombre` VARCHAR(64),
+  `nit` VARCHAR(64),
+  `direccion` VARCHAR(64),
+  `telefono` INT,
+  `correo` VARCHAR(64),
+  `cliente_tipo` INT,
+  `aplica_descuento` INT,
+  `monto_descuento` DECIMAL(10,2),
+  `aplica_iva` INT,
+  `activo` INT,
+  `fecha_sis` DATETIME,
+  `empresa` INT,
+  `usuario` INT,
+  PRIMARY KEY (`cliente`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuario_empresa` (
+  `usuario_empresa` INT,
+  `activo` INT,
+  `usuario` INT,
+  `empresa` INT,
+  `fecha_sis` DATETIME,
+  PRIMARY KEY (`usuario_empresa`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `modulo` (
+  `modulo` INT,
+  `nombre` VARCHAR(64),
+  `icono` VARCHAR(64),
+  `activo` INT,
+  `orden` INT,
+  `fecha_sis` DATETIME,
+  PRIMARY KEY (`modulo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `submenu` (
+  `submenu` INT,
+  `nombre` VARCHAR(64),
+  `activo` INT,
+  `fecha_sis` DATETIME,
+  PRIMARY KEY (`submenu`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `menu` (
+  `menu` INT,
+  `nombre` VARCHAR(64),
+  `icono` VARCHAR(64),
+  `orden` INT,
+  `activo` INT,
+  `modulo` INT,
+  `url` VARCHAR(64),
+  `submenu` INT,
+  PRIMARY KEY (`menu`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `proveedor_tipo` (
+  `proveedor_tipo` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`proveedor_tipo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `proveedor_clasificacion` (
+  `proveedor_clasificacion` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`proveedor_clasificacion`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `proveedor` (
+  `proveedor` INT,
+  `nombre` VARCHAR(64),
+  `nit` VARCHAR(64),
+  `direccion` VARCHAR(64),
+  `razon_social` VARCHAR(64),
+  `telefono` INT,
+  `contacto` VARCHAR(64),
+  `credito_contado` INT,
+  `dias_credito` INT,
+  `activo` INT,
+  `proveedor_tipo` INT,
+  `proveedor_clasificacion` INT,
+  `usuario` INT,
+  `fecha_sis` DATETIME,
+  `empresa` INT,
+  PRIMARY KEY (`proveedor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bodega_tipo` (
+  `bodega_tipo` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`bodega_tipo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bodega` (
+  `bodega` INT,
+  `nombre` VARCHAR(64),
+  `codigo` VARCHAR(64),
+  `ubicacion` VARCHAR(64),
+  `bodega_tipo` INT,
+  `empresa` INT,
+  PRIMARY KEY (`bodega`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bodega_movimiento_tipo` (
+  `bodega_movimiento_tipo` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`bodega_movimiento_tipo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `unidad_medida` (
+  `unidad_medida` INT,
+  `nombre` VARCHAR(64),
+  `codigo` VARCHAR(64),
+  PRIMARY KEY (`unidad_medida`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `producto_tipo` (
+  `producto_tipo` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`producto_tipo`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `producto` (
+  `producto` INT,
+  `codigo` VARCHAR(64),
+  `nombre` VARCHAR(64),
+  `cantidad` DECIMAL(10,2),
+  `unidad_medida` INT,
+  `producto_tipo` INT,
+  `precio_compra` DECIMAL(10,2),
+  `precio_venta` DECIMAL(10,2),
+  `incluye_iva` INT,
+  `valor_iva` DECIMAL(10,2),
+  `fecha_ingreso` DATETIME,
+  `fecha_vencimiento` DATETIME,
+  `fecha_sis` DATETIME,
+  `activo` INT,
+  `proveedor` INT,
+  `usuario` INT,
+  PRIMARY KEY (`producto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bodega_movimiento` (
+  `bodega_movimiento` INT,
+  `bodega` INT,
+  `bodega_movimiento_tipo` INT,
+  `fecha_accion` DATETIME,
+  `cantidad` INT,
+  `producto` INT,
+  `usuario` INT,
+  PRIMARY KEY (`bodega_movimiento`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bodega_producto` (
+  `bodega_producto` INT,
+  `producto` INT,
+  `bodega` INT,
+  `fecha_ingreso` DATETIME,
+  `activo` INT,
+  `usuario` INT,
+  PRIMARY KEY (`bodega_producto`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `venta_estatus` (
+  `venta_estatus` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`venta_estatus`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `compra_estatus` (
+  `compra_estatus` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`compra_estatus`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `factura_estatus` (
+  `factura_estatus` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`factura_estatus`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `tipo_pago` (
+  `tipo_pago` INT,
+  `nombre` VARCHAR(64),
+  PRIMARY KEY (`tipo_pago`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `venta` (
+  `venta` INT,
+  `cliente` INT,
+  `concepto` VARCHAR(64),
+  `valor_base` DECIMAL(10,2),
+  `iva` DECIMAL(10,2),
+  `monto` DECIMAL(10,2),
+  `saldo` DECIMAL(10,2),
+  `venta_estatus` INT,
+  `tipo_pago` INT,
+  `usuario` INT,
+  `fecha_sis` DATETIME,
+  `moneda` INT,
+  PRIMARY KEY (`venta`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `factura_serie` (
+  `factura_serie` INT,
+  `nombre` VARCHAR(64),
+  `descripcion` VARCHAR(64),
+  `codigo` VARCHAR(64),
+  `inicio` INT,
+  `fin` INT,
+  `correlativo` INT,
+  `activo` INT,
+  `empresa` INT,
+  PRIMARY KEY (`factura_serie`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `venta_detalle` (
+  `venta_detalle` INT,
+  `cantidad` INT,
+  `precio` DECIMAL(10,2),
+  `total` DECIMAL(10,2),
+  `anulado` INT,
+  `venta` INT,
+  `producto` INT,
+  PRIMARY KEY (`venta_detalle`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `compra` (
+  `compra` INT,
+  `valor_base` DECIMAL(10,2),
+  `valor_iva` DECIMAL(10,2),
+  `monto` DECIMAL(10,2),
+  `fecha_factura` DATETIME,
+  `factura_numero` VARCHAR(64),
+  `serie` VARCHAR(64),
+  `concepto` VARCHAR(64),
+  `fecha_pago` DATETIME,
+  `fecha_compra` DATETIME,
+  `proveedor` INT,
+  `compra_estatus` INT,
+  `tipo_pago` INT,
+  `usuario` INT,
+  `moneda` INT,
+  PRIMARY KEY (`compra`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `factura` (
+  `factura` INT,
+  `fecha` DATETIME,
+  `numero` VARCHAR(64),
+  `monto` DECIMAL(10,2),
+  `factura_estatus` INT,
+  `usuario` INT,
+  `factura_serie` INT,
+  PRIMARY KEY (`factura`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `factura_venta` (
+  `factura_venta` INT,
+  `factura` INT,
+  `venta` INT,
+  `monto` DECIMAL(10,2),
+  `anulado` INT,
+  PRIMARY KEY (`factura_venta`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vendedor` (
+  `vendedor` INT,
+  `activo` INT,
+  `fecha_sis` DATETIME,
+  `usuario` INT,
+  PRIMARY KEY (`vendedor`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vendedor_cliente` (
+  `vendedor_cliente` INT,
+  `activo` INT,
+  `fecha_sis` DATETIME,
+  `vendedor` INT,
+  `cliente` INT,
+  PRIMARY KEY (`vendedor_cliente`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `usuario_menu` (
+  `usuario_menu` INT,
+  `activo` INT,
+  `fecha_sis` DATETIME,
+  `usuario` INT,
+  `menu` INT,
+  PRIMARY KEY (`usuario_menu`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `bitacora_password` (
+  `bitacora_password` INT,
+  `fecha_cambio` DATETIME,
+  `ip` VARCHAR(64),
+  `usuario` INT,
+  PRIMARY KEY (`bitacora_password`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `compra_detalle` (
+  `compra_detalle` INT,
+  `precio` DECIMAL(10,2),
+  `cantidad` INT,
+  `total` DECIMAL(10,2),
+  `anulado` INT,
+  `compra` INT,
+  `producto` INT,
+  PRIMARY KEY (`compra_detalle`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_313159_script') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_313159_script') AS relationships;
+DROP DATABASE `db_313159_script`;
+UNINSTALL EXTENSION vsql_schematron;

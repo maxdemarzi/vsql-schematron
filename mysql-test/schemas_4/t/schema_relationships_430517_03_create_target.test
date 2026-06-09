@@ -1,0 +1,153 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 430517_03-create_target
+--echo #
+CREATE DATABASE `db_430517_03_create_target`;
+USE `db_430517_03_create_target`;
+
+CREATE TABLE `t_airline` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `alternative_name` VARCHAR(64),
+  `IATA` VARCHAR(64),
+  `ICAO` VARCHAR(64),
+  `callsign` VARCHAR(64),
+  `active` BOOL,
+  `fk_country` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_airport` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `city` VARCHAR(64),
+  `IATA` VARCHAR(64),
+  `ICAO` VARCHAR(64),
+  `latitude` DECIMAL(10,2),
+  `longtitude` DECIMAL(10,2),
+  `altitude` INT,
+  `timezone` DECIMAL(10,2),
+  `DST` VARCHAR(64),
+  `tz_time_zone` VARCHAR(64),
+  `source` VARCHAR(64),
+  `type` VARCHAR(64),
+  `fk_country_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_airport_frequency` (
+  `id` INT,
+  `type` VARCHAR(64),
+  `description` VARCHAR(64),
+  `frequency_mhz` DECIMAL(10,2),
+  `fk_airport_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_navaid` (
+  `id` INT,
+  `filename` VARCHAR(64),
+  `ident` VARCHAR(64),
+  `name` VARCHAR(64),
+  `type` VARCHAR(64),
+  `frequency_khz` INT,
+  `latitude_deg` DECIMAL(10,2),
+  `longitude_deg` DECIMAL(10,2),
+  `elevation_ft` DECIMAL(10,2),
+  `iso_country` VARCHAR(64),
+  `dme_frequency_khz` DECIMAL(10,2),
+  `dme_channel` VARCHAR(64),
+  `dme_latitude_deg` DECIMAL(10,2),
+  `dme_longitude_deg` DECIMAL(10,2),
+  `dme_elevation_ft` DECIMAL(10,2),
+  `slaved_variation_deg` DECIMAL(10,2),
+  `magnetic_variation_deg` DECIMAL(10,2),
+  `usageType` VARCHAR(64),
+  `power` VARCHAR(64),
+  `fk_airport_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_region` (
+  `id` INT,
+  `code` VARCHAR(64),
+  `local_code` VARCHAR(64),
+  `name` VARCHAR(64),
+  `continent` VARCHAR(64),
+  `wikipedia_link` VARCHAR(64),
+  `keywords` VARCHAR(64),
+  `country_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_runway` (
+  `id` INT,
+  `length_ft` INT,
+  `width_ft` INT,
+  `surface` VARCHAR(64),
+  `lighted` INT,
+  `closed` INT,
+  `le_ident` VARCHAR(64),
+  `le_latitude_deg` DECIMAL(10,2),
+  `le_longitude_deg` DECIMAL(10,2),
+  `le_elevation_ft` DECIMAL(10,2),
+  `le_heading_degT` INT,
+  `le_displaced_threshold_ft` INT,
+  `he_ident` VARCHAR(64),
+  `he_latitude_deg` DECIMAL(10,2),
+  `he_longitude_deg` DECIMAL(10,2),
+  `he_elevation_ft` DECIMAL(10,2),
+  `he_heading_degT` INT,
+  `he_displaced_threshold_ft` DECIMAL(10,2),
+  `fk_airport_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_route` (
+  `id` INT,
+  `codeshare` BOOL,
+  `number_of_stops` INT,
+  `equipment` VARCHAR(64),
+  `fk_source_airport_id` INT,
+  `fk_destination_airport_id` INT,
+  `fk_airline_id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_plane` (
+  `plane_tk` INT,
+  `name` VARCHAR(64),
+  `iata` VARCHAR(64),
+  `icao` VARCHAR(64),
+  `version` INT,
+  `date_from` DATETIME,
+  `date_to` DATETIME,
+  PRIMARY KEY (`plane_tk`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `t_plane_route` (
+  `plane_id` INT,
+  `route_id` INT,
+  PRIMARY KEY (`plane_id`, `route_id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_430517_03_create_target') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_430517_03_create_target') AS relationships;
+DROP DATABASE `db_430517_03_create_target`;
+UNINSTALL EXTENSION vsql_schematron;

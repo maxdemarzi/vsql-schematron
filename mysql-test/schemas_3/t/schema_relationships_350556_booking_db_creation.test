@@ -1,0 +1,124 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 350556_booking_db_creation
+--echo #
+CREATE DATABASE `db_350556_booking_db_creation`;
+USE `db_350556_booking_db_creation`;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `firstname` VARCHAR(64),
+  `lastname` VARCHAR(64),
+  `email` VARCHAR(64),
+  `phone` INT,
+  `password_hash` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `countries` (
+  `id` INT,
+  `country` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `cities` (
+  `id` INT,
+  `city` VARCHAR(64),
+  `country_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `addresses` (
+  `id` INT,
+  `city_id` INT,
+  `address` VARCHAR(64),
+  `phone` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `placement` (
+  `id` INT,
+  `addresses_id` INT,
+  `type` VARCHAR(64),
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `rooms` (
+  `id` INT,
+  `placement_id` INT,
+  `room_capacity` INT,
+  `facilities` VARCHAR(64),
+  `price` DECIMAL(10,2),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `photo_albums` (
+  `id` INT,
+  `room_id` INT,
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `photos` (
+  `id` INT,
+  `album_id` INT,
+  `placement_id` INT,
+  `filename` VARCHAR(64),
+  `metadata` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `booked` (
+  `user_id` INT,
+  `room_id` INT,
+  `arrival_date` DATETIME,
+  `departure_date` DATETIME,
+  `created_at` DATETIME,
+  `updated_at` DATETIME
+) CHARACTER SET latin1;
+
+CREATE TABLE `reviews` (
+  `id` INT,
+  `user_id` INT,
+  `placement_id` INT,
+  `body` VARCHAR(64),
+  `created_at` DATETIME,
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_350556_booking_db_creation') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_350556_booking_db_creation') AS relationships;
+DROP DATABASE `db_350556_booking_db_creation`;
+UNINSTALL EXTENSION vsql_schematron;

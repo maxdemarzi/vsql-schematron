@@ -1,0 +1,145 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 684158_stock-management
+#
+CREATE DATABASE `db_684158_stock_management`;
+USE `db_684158_stock_management`;
+CREATE TABLE `suppliers` (
+`id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`birth_date` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `personels` (
+`id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`birth_date` DATETIME,
+`verified` BOOL,
+`role` VARCHAR(64),
+`email` VARCHAR(64),
+`password` VARCHAR(64),
+`gender` VARCHAR(64),
+`hire_date` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `car_manufacturers` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `car_colors` (
+`id` VARCHAR(64),
+`name` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `cars` (
+`id` VARCHAR(64),
+`title` VARCHAR(64),
+`sale_price` DECIMAL(10,2),
+`purchase_price` DECIMAL(10,2),
+`is_sold` VARCHAR(64),
+`description` VARCHAR(64),
+`model` VARCHAR(64),
+`year` INT,
+`is_new` VARCHAR(64),
+`is_deleted` BOOL,
+`enter_date` DATETIME,
+`supplier_id` VARCHAR(64),
+`personel_id` VARCHAR(64),
+`car_manufacturer_id` VARCHAR(64),
+`car_color_code` VARCHAR(64),
+`state` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `car_images` (
+`id` VARCHAR(64),
+`image_url` VARCHAR(64),
+`car_id` VARCHAR(64),
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `customers` (
+`id` VARCHAR(64),
+`first_name` VARCHAR(64),
+`last_name` VARCHAR(64),
+`birth_date` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `invoices` (
+`id` VARCHAR(64),
+`serial_number` INT,
+`price` INT,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `sales` (
+`customer_id` VARCHAR(64),
+`personel_id` VARCHAR(64),
+`car_id` VARCHAR(64),
+`invoice_id` VARCHAR(64),
+`sale_date` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`customer_id`, `car_id`)
+) CHARACTER SET latin1;
+CREATE TABLE `actions` (
+`id` VARCHAR(64),
+`type` VARCHAR(64),
+`customer_first_name` VARCHAR(64),
+`customer_last_name` VARCHAR(64),
+`customer_birth_date` DATETIME,
+`invoice_serial_number` INT,
+`invoice_price` INT,
+`sale_date` DATETIME,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `awaiting_list` (
+`id` VARCHAR(64),
+`car_id` VARCHAR(64),
+`personel_id` VARCHAR(64),
+`action_id` VARCHAR(64),
+`is_fulfiled` BOOL,
+`is_aborted` BOOL,
+`created_at` DATETIME,
+`updated_at` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_684158_stock_management') AS relationships;
+relationships
+Database: db_684158_stock_management
+
+Table Connections:
+------------------
+[Implied]  awaiting_list.action_id -> actions.id
+[Implied]  awaiting_list.car_id -> cars.id
+[Implied]  awaiting_list.personel_id -> personels.id
+[Implied]  car_colors.id -> cars.id
+[Implied]  car_images.car_id -> cars.id
+[Implied]  cars.car_manufacturer_id -> car_manufacturers.id
+[Implied]  cars.personel_id -> personels.id
+[Implied]  cars.supplier_id -> suppliers.id
+[Implied]  sales.car_id -> cars.id
+[Implied]  sales.customer_id -> customers.id
+[Implied]  sales.invoice_id -> invoices.id
+[Implied]  sales.personel_id -> personels.id
+
+DROP DATABASE `db_684158_stock_management`;
+UNINSTALL EXTENSION vsql_schematron;

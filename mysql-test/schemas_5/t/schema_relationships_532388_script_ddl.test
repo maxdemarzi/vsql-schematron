@@ -1,0 +1,218 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 532388_script.ddl
+--echo #
+CREATE DATABASE `db_532388_script_ddl`;
+USE `db_532388_script_ddl`;
+
+CREATE TABLE `vartotoju_roles` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `uzpildai` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `siuntimo_budai` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `matmenys` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `ataskaitos_tipai` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Tiekejai` (
+  `Vardas` VARCHAR(64),
+  `Firmos_pav` VARCHAR(64),
+  `E_pastas` VARCHAR(64),
+  `Vadybininkas` VARCHAR(64),
+  `Fakturos_Nr` INT,
+  `Vadybininko_e_pastas` VARCHAR(64),
+  `Sukurimo_data` DATETIME,
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Medziagu_grupes` (
+  `Pavadinimas` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Kategorijos` (
+  `Pavadinimas` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Busenos` (
+  `Pavadinimas` VARCHAR(64),
+  `id` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Ataskaitos` (
+  `Ataskaitos_numeris` INT,
+  `Nuo_kada` DATETIME,
+  `Iki_kada` DATETIME,
+  `Sukurimo_data` DATETIME,
+  `Tipas` INT,
+  PRIMARY KEY (`Ataskaitos_numeris`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Produktai` (
+  `Pavadinimas` VARCHAR(64),
+  `Kaina` DECIMAL(10,2),
+  `Sukurimo_data` DATETIME,
+  `id` INT,
+  `fk_Medziagu_grupeid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Daiktai` (
+  `Pavadinimas` VARCHAR(64),
+  `Pridejimo_data` DATETIME,
+  `Nurasymo_Data` DATETIME,
+  `Verte` DECIMAL(10,2),
+  `id` INT,
+  `fk_Kategorijaid` INT,
+  `fk_Busenaid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Paskyru_prasymai` (
+  `Vardas` VARCHAR(64),
+  `Pavarde` VARCHAR(64),
+  `E_pastas` VARCHAR(64),
+  `Slaptazodis` VARCHAR(64),
+  `Uzpildymo_data` DATETIME,
+  `Patvirtinta` BOOL,
+  `Tipas` INT,
+  `id` INT,
+  `fk_Darbuotojasid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Paskyros` (
+  `Vardas` VARCHAR(64),
+  `Pavarde` VARCHAR(64),
+  `E_pastas` VARCHAR(64),
+  `Slaptazodis` VARCHAR(64),
+  `Registracijos_data` DATETIME,
+  `Paskutinio_prisijungimo_data` DATETIME,
+  `Tipas` INT,
+  `id` INT,
+  `fk_Paskyros_prasymasid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Klientai` (
+  `id` INT,
+  `fk_Paskyraid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Uzsakymai` (
+  `Data` DATETIME,
+  `Apmokejima_busena` BOOL,
+  `Draudimas` BOOL,
+  `Sekimas` BOOL,
+  `Pakuotes_ismatavimai` INT,
+  `Pakuotes_uzpildas` INT,
+  `id` INT,
+  `fk_Klientasid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Darbuotojai` (
+  `Atlyginimas` DECIMAL(10,2),
+  `id` INT,
+  `fk_Paskyraid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Tiekejo_produktai` (
+  `Sukurimo_data` DATETIME,
+  `id` INT,
+  `fk_Produktasid` INT,
+  `fk_Tiekejasid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Itraukti_i` (
+  `fk_AtaskaitaAtaskaitos_numeris` INT,
+  `fk_Uzsakymasid` INT,
+  PRIMARY KEY (`fk_AtaskaitaAtaskaitos_numeris`, `fk_Uzsakymasid`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Naudojami_daiktai` (
+  `Paimtas` DATETIME,
+  `Padetas` DATETIME,
+  `id` INT,
+  `fk_Darbuotojasid` INT,
+  `fk_Daiktasid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Atsiskaitymai` (
+  `Suma` DECIMAL(10,2),
+  `Korteles_nr` VARCHAR(64),
+  `Data` DATETIME,
+  `id` INT,
+  `fk_Uzsakymasid` INT,
+  `fk_Klientasid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Transportavimai` (
+  `Pristatymo_adresas` VARCHAR(64),
+  `Issiuntimo_adresas` VARCHAR(64),
+  `Siuntimo_budas` INT,
+  `id` INT,
+  `fk_Uzsakymasid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `Kiekiai` (
+  `Kiekis` INT,
+  `id` INT,
+  `fk_Uzsakymasid` INT,
+  `fk_Uzsakymasid1` INT,
+  `fk_Produktasid` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_532388_script_ddl') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_532388_script_ddl') AS relationships;
+DROP DATABASE `db_532388_script_ddl`;
+UNINSTALL EXTENSION vsql_schematron;

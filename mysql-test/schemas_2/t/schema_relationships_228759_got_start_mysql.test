@@ -1,0 +1,98 @@
+INSTALL EXTENSION vsql_schematron;
+--echo #
+--echo # Test relationships for schema 228759_got_start.mysql
+--echo #
+CREATE DATABASE `db_228759_got_start_mysql`;
+USE `db_228759_got_start_mysql`;
+
+CREATE TABLE `admins` (
+  `id` INT,
+  `user_id` INT,
+  `organization_id` INT,
+  `authlevel` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `organizations` (
+  `id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `printer_models` (
+  `id` INT,
+  `vendor_id` INT,
+  `name` VARCHAR(64),
+  `laser` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `printer_models_toner_models` (
+  `printer_model_id` INT,
+  `toner_model_id` INT
+) CHARACTER SET latin1;
+
+CREATE TABLE `printers` (
+  `id` INT,
+  `organization_id` INT,
+  `printer_model_id` INT,
+  `name` VARCHAR(64),
+  `description` VARCHAR(64),
+  `rent` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `toner_models` (
+  `id` INT,
+  `vendor_id` INT,
+  `name` VARCHAR(64),
+  `compatible` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `toners` (
+  `id` INT,
+  `organization_id` INT,
+  `toner_model_id` INT,
+  `number` INT,
+  `gift` INT,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `users` (
+  `id` INT,
+  `upn` VARCHAR(64),
+  `email` VARCHAR(64),
+  `name` VARCHAR(64),
+  `surname` VARCHAR(64),
+  `updated_at` DATETIME,
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+CREATE TABLE `vendors` (
+  `id` INT,
+  `name` VARCHAR(64),
+  PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+
+--disable_query_log
+SET GLOBAL vsql_schematron.schema_cache_enabled = ON;
+--enable_query_log
+--let $wait_counter= 100
+while ($wait_counter)
+{
+  --let $ready= query_get_value(SELECT vsql_schema_cache_ready('db_228759_got_start_mysql') AS r, r, 1)
+  if ($ready)
+  {
+    --let $wait_counter= 0
+  }
+  if (!$ready)
+  {
+    sleep 0.1;
+    --dec $wait_counter
+  }
+}
+SELECT vsql_schema_relationships('db_228759_got_start_mysql') AS relationships;
+DROP DATABASE `db_228759_got_start_mysql`;
+UNINSTALL EXTENSION vsql_schematron;

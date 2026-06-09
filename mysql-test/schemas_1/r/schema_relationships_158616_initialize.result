@@ -1,0 +1,55 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 158616_initialize
+#
+CREATE DATABASE `db_158616_initialize`;
+USE `db_158616_initialize`;
+CREATE TABLE `common__user` (
+`id` VARCHAR(64),
+`type` VARCHAR(64),
+`username` VARCHAR(64),
+`password` VARCHAR(64),
+`registered` DATETIME,
+`last_activity` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `common__slug` (
+`id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `common__comment_thread` (
+`id` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `common__comment` (
+`id` VARCHAR(64),
+`user_id` VARCHAR(64),
+`thread_id` VARCHAR(64),
+`created_on` DATETIME,
+`text` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `common__user_file_thread` (
+`id` INT,
+`date_created` DATETIME,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `common__user_file` (
+`id` INT,
+`filename` VARCHAR(64),
+`size` INT,
+`thread_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_158616_initialize') AS relationships;
+relationships
+Database: db_158616_initialize
+
+Table Connections:
+------------------
+[Implied]  common__comment.thread_id -> common__comment_thread.id
+[Implied]  common__comment.user_id -> common__user.id
+[Implied]  common__user_file.thread_id -> common__user_file_thread.id
+
+DROP DATABASE `db_158616_initialize`;
+UNINSTALL EXTENSION vsql_schematron;

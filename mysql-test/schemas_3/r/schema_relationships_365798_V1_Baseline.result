@@ -1,0 +1,102 @@
+INSTALL EXTENSION vsql_schematron;
+#
+# Test relationships for schema 365798_V1__Baseline
+#
+CREATE DATABASE `db_365798_V1_Baseline`;
+USE `db_365798_V1_Baseline`;
+CREATE TABLE `entities` (
+`id` INT,
+`name` VARCHAR(64),
+`type` VARCHAR(64),
+`feature_set_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `feature_sets` (
+`id` INT,
+`created` DATETIME,
+`last_updated` DATETIME,
+`labels` VARCHAR(64),
+`max_age` INT,
+`name` VARCHAR(64),
+`status` VARCHAR(64),
+`project_name` VARCHAR(64),
+`source` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `features` (
+`id` INT,
+`archived` BOOL,
+`bool_domain` VARCHAR(64),
+`domain` VARCHAR(64),
+`float_domain` VARCHAR(64),
+`group_presence` VARCHAR(64),
+`image_domain` VARCHAR(64),
+`int_domain` VARCHAR(64),
+`labels` VARCHAR(64),
+`mid_domain` VARCHAR(64),
+`name` VARCHAR(64),
+`natural_language_domain` VARCHAR(64),
+`presence` VARCHAR(64),
+`shape` VARCHAR(64),
+`string_domain` VARCHAR(64),
+`struct_domain` VARCHAR(64),
+`time_domain` VARCHAR(64),
+`time_of_day_domain` VARCHAR(64),
+`type` VARCHAR(64),
+`url_domain` VARCHAR(64),
+`value_count` VARCHAR(64),
+`feature_set_id` INT,
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `jobs` (
+`id` VARCHAR(64),
+`created` DATETIME,
+`last_updated` DATETIME,
+`ext_id` VARCHAR(64),
+`runner` VARCHAR(64),
+`status` VARCHAR(64),
+`source_id` VARCHAR(64),
+`store_name` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `jobs_feature_sets` (
+`job_id` VARCHAR(64),
+`feature_sets_id` INT
+) CHARACTER SET latin1;
+CREATE TABLE `projects` (
+`name` VARCHAR(64),
+`archived` BOOL,
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+CREATE TABLE `sources` (
+`id` VARCHAR(64),
+`bootstrap_servers` VARCHAR(64),
+`is_default` BOOL,
+`topics` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`id`)
+) CHARACTER SET latin1;
+CREATE TABLE `stores` (
+`name` VARCHAR(64),
+`config` VARCHAR(64),
+`subscriptions` VARCHAR(64),
+`type` VARCHAR(64),
+PRIMARY KEY (`name`)
+) CHARACTER SET latin1;
+SELECT vsql_schema_relationships('db_365798_V1_Baseline') AS relationships;
+relationships
+Database: db_365798_V1_Baseline
+
+Table Connections:
+------------------
+[Implied]  entities.feature_set_id -> feature_sets.id
+[Implied]  feature_sets.project_name -> projects.name
+[Implied]  feature_sets.source -> sources.id
+[Implied]  features.feature_set_id -> feature_sets.id
+[Implied]  jobs.source_id -> sources.id
+[Implied]  jobs.store_name -> stores.name
+[Implied]  jobs_feature_sets.feature_sets_id -> feature_sets.id
+[Implied]  jobs_feature_sets.job_id -> jobs.id
+
+DROP DATABASE `db_365798_V1_Baseline`;
+UNINSTALL EXTENSION vsql_schematron;
